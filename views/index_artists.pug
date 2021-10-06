@@ -1,0 +1,125 @@
+extends layout
+
+block content
+    if (results && results.length > 0 )
+        // Page Heading
+        if errors
+            ul.my-errors
+                for error in errors
+                    li= error.msg
+        - backgroundImg = results[Math.floor(Math.random() * results.length)].entities.preview
+        style.
+            .background-image:not(.overlay) {
+                background-image: url(#{backgroundImg});
+            }
+            .background-image.overlay {
+                background-image: linear-gradient( 45deg, #481d04, #000000ab);
+                z-index: -99;
+                opacity: 0.7;
+            }
+        div.tz-gallery
+            - rows = [ results.filter(e => e.pinned === true), results.filter(e => e.pinned === false)];
+            each row, i in rows
+                if (rows[i].length > 0)
+                    div.row(class=`${(i === 0 && rows[1].length > 0) ? 'mb-4' : ''}`)
+                        each item, indexImage in row
+                            div.col-image.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(id=`artist-${item.id}`)
+                                div.internal-lightbox.d-block
+                                    div.text-container.shadow-text.m-0.h-75
+                                        if (item.artist.nice_name)
+                                            p.text.artist-text.text-ellipsis.p-start(style="line-height: 1.2em;") #{item.artist.nice_name}
+                                            if (item.artist.name && item.artist.name.length > 2)
+                                                p.text.artist-secoundary-text.text-ellipsis.p-mid #{item.artist.name}
+                                        else
+                                            p.text.artist-text.text-ellipsis.p-start(style="line-height: 1.2em;") #{item.artist.name}
+                                        p.text.artist-data-text.text-ellipsis.p-mid
+                                            if (item.artist.source && item.artist.source === 1)
+                                                i.fab.fa-twitter.pr-1
+                                                span Twitter
+                                            else if (item.artist.source && item.artist.source === 2)
+                                                i.fas.fa-palette.pr-1
+                                                span Pixiv
+                                            else if (item.artist.source && item.artist.source === 3)
+                                                i.fab.fa-flickr.pr-1
+                                                span Flickr
+                                            else if (item.artist.source && item.artist.source === 4)
+                                                i.fas.fa-download.pr-1
+                                                span Download
+                                            else
+                                                span Unknown
+                                            if (item.artist.confidence && item.artist.confidence === 1)
+                                                i.fas.fa-check-circle.ml-1.pr-1
+                                                span High
+                                            else if (item.artist.confidence && item.artist.confidence === 2)
+                                                i.fas.fa-thumbs-up.ml-1.pr-1
+                                                span Medium
+                                            else if (item.artist.confidence && item.artist.confidence === 3)
+                                                i.fas.fa-question-circle.ml-1.pr-1
+                                                span Low
+                                            else
+                                                i.fas.fa-question-circle.ml-1.pr-1
+                                                span Unknown
+                                        if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
+                                            p.channel.p-end #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
+                                    div.links-container.text-primary
+                                        div.links
+                                            div.left-links.row-1
+                                                if (item.pinned)
+                                                    a.btn.btn-links(id='fav-' + item.id title="Unpin Artist" href='#_' onclick=`sendBasic(null, "${item.id}", "UnpinUser", true);return false;`)
+                                                        i#button.btn-links.fas.fa-star.favorited
+                                                else
+                                                    a.btn.btn-links(id='fav-' + item.id title="Pin Artist" href='#_' onclick=`sendBasic(null, "${item.id}", "PinUser", true);return false;`)
+                                                        i#button.btn-links.fas.fa-star
+                                                if (item.artist.search)
+                                                    a.btn.btn-links.goto-link(title=`Search Artists Images` href=`#/gallery?channel=${item.channel.id}&nsfw=true&search=${encodeURIComponent(item.artist.search)}`)
+                                                        i.btn-links.fas.fa-search
+                                                if (item.artist.url)
+                                                    a.btn.btn-links.goto-link(title=`Go to "${item.artist.url}"` href=item.artist.url target="_blank" rel="noopener noreferrer")
+                                                        i.btn-links.fas.fa-globe-americas
+                                                if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
+                                                    a.btn.btn-links.goto-link(title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class_name}/${item.channel.name}` href=href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
+                                                        i.btn-links.fas.fa-directions
+                                            div.right-links.row-1
+                                                p.text.artist-count.shadow-text #{(item.artist.count >= 1000) ? `${(item.artist.count / 1000).toFixed(0)}k` : item.artist.count}
+                                a.lightbox.d-flex(href=href=`#/gallery?channel=${item.channel.id}&nsfw=true&search=${encodeURIComponent(item.artist.search)}`)
+                                    if (item.entities.meta.ratio && item.entities.meta.ratio > 1)
+                                        - positionImage = 'background-position: top'
+                                    if (indexImage < 10)
+                                        div#postImage.artist-box.img.img-responsive.no-hover(style=`background-image : url("${item.entities.preview}"); ${positionImage};`)
+                                    else
+                                        div#postImage.artist-box.img.img-responsive.lazy.no-hover(data-src=item.entities.preview style=`${positionImage};`)
+                                    //div.no-ios.img.img-responsive.post-backdrop(style=`background-image: url("${item.entities.preview}"); ${positionImage};`)
+                                    if (item.entities.meta.color && item.entities.meta.color.length >= 3)
+                                        div#postBackground(style=`background-color: rgb(${item.entities.meta.color[0]}, ${item.entities.meta.color[1]}, ${item.entities.meta.color[2]})`)
+                                    else
+                                        div#postBackground
+                        if (i !== 0 || rows[1].length === 0)
+                            if (req_uri && ((((req_uri.includes('channel=random') || !(req_uri.includes('channel=') || req_uri.includes('folder='))) && req_uri.includes('sort=random')) || req_uri.includes('sort=random')) && !search_prev))
+                                .col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
+                                    .artist-box.bottomBtn
+                                        .internal-button.center-block
+                                            if (req_uri && req_uri.includes('sort=random'))
+                                                a(title="Randomize" href='#_' onClick="getNewContent([], []);")
+                                                    i.fa.fa-dice
+                                            else
+                                                a(title="Refresh" href='#_' onClick="getNewContent([], []);")
+                                                    i.fa.fa-sync
+                            else if (nexturl !== 'NA')
+                                #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
+                                    .artist-box.bottomBtn(style='border: 0;')
+                                        .internal-button.center-block(title="Next Page" onclick=`getMoreContent([], [${nexturl}]); return false;`)
+                                            i.fa.fa-arrow-right(style='padding: 7.5rem')
+    else
+
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpg');
+            }
+        .alert.alert-danger(role='alert')
+            h4.alert-heading No Results
+            p
+                | Your search query or requested channel is either invalid or does not contain any gallery content
+            hr
+            p.mb-0
+                | Please go back to a valid channel or retry your search with another (maybe less specific) query
+

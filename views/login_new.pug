@@ -1,0 +1,179 @@
+html
+    head
+        meta(charset='utf-8')
+        meta(name='result', content=900)
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover')
+        meta(name='description', content='Sequenzia Login Page')
+        meta(name='author', content='Yukimi Kazari')
+        meta(content="Sequenzia" property="og:title")
+        meta(content="Image Gallery and File Manager" property="og:description")
+        meta(content="Sequenzia" property="og:site_name")
+        title=`Lets Login`
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='manifest' href='/static/manifest.json')
+
+        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel="stylesheet", href="/css/login.min.css")
+
+        script(src="/static/vendor/jquery/jquery.min.js")
+    body
+        #container
+            #inviteContainer
+                .logoContainer
+                    img.logo(src="/static/img/sequenzia-logo-mini-color.png")
+                    img.text(src="/static/img/sequenzia-logo-orange.png")
+                .acceptContainer
+                    if (noLoginAvalible)
+                        form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
+                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
+                            if (noLoginAvalible === 'nomember')
+                                i.fas.fa-passport.fa-7x.center(style='padding: 0;')
+                                h3 No Membership
+                                .formContainer
+                                    if (joinLink)
+                                        .formDiv.center(style='margin-bottom: 15px;')
+                                            a.acceptBtn(href=joinLink)
+                                                i.fab.fa-discord
+                                                | Join Discord
+                                    .formDiv.center
+                                        a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
+                                            i.fas.fa-sync(style="padding: 0;")
+                                        a.acceptBtn(href='/discord/destroy')
+                                            i.fas.fa-sign-out-alt
+                                            | Logout
+                            else if (noLoginAvalible === 'notelegram')
+                                i.fas.fa-passport.fa-7x.center(style='padding: 0;')
+                                h3 Account Not Found
+                                p Your account was not found to be linked to a user, either you are not a member of the server or you need to link your account.
+                                p If you are a member, login with discord, User Menu > Authentication > Login with Telegram
+                                .formContainer
+                                    if (joinLink)
+                                        .formDiv.center(style='margin-bottom: 15px;')
+                                            a.acceptBtn(href=joinLink)
+                                                i.fab.fa-discord
+                                                | Join Discord
+                                    .formDiv.center
+                                        a.acceptBtn(href='/discord/login')
+                                            i.fab.fa-discord
+                                            | Log in with Discord
+                                    .formDiv.center
+                                        a.acceptBtn(href='/discord/destroy')
+                                            i.fas.fa-sign-out-alt
+                                            | Cancel
+                            else if (noLoginAvalible === 'noauth')
+                                i.fas.fa-user-check.fa-7x.center(style='padding: 0;')
+                                h3 No Permission
+                                .formContainer
+                                    .formDiv.center
+                                        a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
+                                            i.fas.fa-sync
+                                        a.acceptBtn(href='/discord/destroy')
+                                            i.fas.fa-sign-out-alt
+                                            | Cancel
+                            else
+                                i.fas.fa-ban.fa-7x.center(style='padding: 0;')
+                                h3 No Valid Membership
+                                .formContainer
+                                    .formDiv.center
+                                        a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
+                                            i.fas.fa-sync
+                                        a.acceptBtn(href='/discord/destroy')
+                                            i.fas.fa-sign-out-alt
+                                            | Cancel
+
+                    else if (authenticatedDevice)
+                        form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
+                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
+                            i.fas.fa-check-circle.fa-7x.center(style='padding: 0;')
+                            h3 Your Ready!
+                            .formContainer
+                                .formDiv.center
+                                    span.register
+                                        | It may take up to a minute for the client to refresh, you can manually refresh if you want
+                    else if (authfailedDevice)
+                        form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
+                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
+                            i.fas.fa-times-circle.fa-7x.center(style='padding: 0;')
+                            h3 Login Failed, Try again.
+                            .formContainer
+                                .formDiv.center
+                                    a.acceptBtn(href='/')
+                                        i.fas.fa-home
+                                        | Go Home
+                    else if (serverError)
+                        form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
+                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
+                            i.fas.fa-times-circle.fa-7x.center(style='padding: 0;')
+                            h3 Internal Server Failure (#{serverError})
+                            .formContainer
+                                .formDiv.center
+                                    a.acceptBtn(href='/')
+                                        i.fas.fa-home
+                                        | Go Home
+                    else
+                        form(style='color: #460000;')
+                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
+                            if (login_code)
+                                div.login-code
+                                    span.login-code.text-capitalize #{login_code}
+                            .formContainer
+                                .formDiv.center
+                                    if (login_image)
+                                        div#collapseQRCode.login-qr.collapse(style='display: none')
+                                            img(src=login_image style='padding-bottom: 1em;')
+                                    if (enableTelegram)
+                                        div.login-button(style='padding-bottom: 1.5em;')
+                                            script(async src='https://telegram.org/js/telegram-widget.js?15' data-telegram-login=telegramName data-size='large' data-auth-url=telegramCallback)
+                                    div.login-button(style=((!enableTelegram) ? 'padding-top: 20px;' : ''))
+                                        a.acceptBtn(href='/discord/login')
+                                            i.fab.fa-discord
+                                            | Log in with Discord
+                                    if (login_image)
+                                        div.login-button(style="padding-top: 2em;")
+                                            a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;" style="background: #d0814e")
+                                                i.fas.fa-qrcode
+                                                | Log in with QR Code
+                                    if (joinLink)
+                                        span.register
+                                            a(href=joinLink) Requires a valid membership
+    script.
+        function preventDefault(e) {
+            e.preventDefault();
+        }
+        document.body.addEventListener('touchmove', preventDefault, { passive: false });
+        const images = [
+            "https://cdn.discordapp.com/attachments/731362512288743474/794177778727387146/himanemuitoma-EqkKCaRVoAE-ye_.jpg",
+            "https://cdn.discordapp.com/attachments/716529641808199690/781596429759152128/niku_kueyo-Emts0IsVQAIhjEF.jpg",
+            "https://cdn.discordapp.com/attachments/731622192701243473/731655888401727590/02123_IMG_0426.JPG",
+            "https://cdn.discordapp.com/attachments/731622192701243473/731655902360240209/00053_IMG_0242.JPG",
+            "https://cdn.discordapp.com/attachments/731357998693220393/731362671760506941/00198_illu_kamo-957204765783474177-20180127_055254-img1.jpg",
+            "https://cdn.discordapp.com/attachments/731622192701243473/784619426099626004/xroom8x-D4RWoYYUcAAzMfS.jpg",
+            "https://cdn.discordapp.com/attachments/716529641808199690/794738820821942282/77959814_p0.png",
+            "https://cdn.discordapp.com/attachments/716529641808199690/791378394393739294/luto_gray000-Epod4rhU0AAri0d.jpg",
+            "https://cdn.discordapp.com/attachments/716529641808199690/793449761742913546/soji_____0o0-EqZpYG7VEAApe6R.jpg",
+            "https://cdn.discordapp.com/attachments/731622192701243473/785291479505043486/lm7__-En-y68ZUcAAmxPj.jpg",
+            "https://cdn.discordapp.com/attachments/731622192701243473/731655894408101928/00011_IMG_0731.JPG"
+        ];
+        $('#container').append('<style>#container, .acceptContainer:before, .logoContainer:before {background: url(' + images[Math.floor(Math.random() * images.length)] + ') center fixed }');
+    if (login_image)
+        script.
+            setInterval(function () {
+                $.ajax({async: true,
+                    url: '/device-login?checklogin=true',
+                    type: "GET",
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response === 'true') {
+                            location.href = '/discord/refresh'
+                        }
+                    },
+                    error: function (response) {
+                    }
+                });
+            }, 60000);

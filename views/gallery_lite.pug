@@ -1,0 +1,42 @@
+extends layout_lite
+
+block content
+    div.gallery-container
+        if (results && results.length === 1 )
+            div.gallery-detail
+                div.gallery-detail.sidebar
+                div.gallery-detail.image-holder
+                    div.gallery-detail.image
+                        - fullURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.full
+                        img.gallery.preview-holder(src=fullURL)
+                    div.gallery-detail.image
+                        span item.content.full
+        else if (results && results.length > 1 )
+            div.gallery.list
+                for item in results
+                    div.gallery.item
+                        div.gallery.image
+                            - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
+                            a(href=fileURL)
+                                img.gallery.preview-holder(src=previewURL)
+                        div.gallery.icons
+                            if(item.entities.meta.ratio)
+                                if(item.entities.meta.ratio >= 1)
+                                    - res = item.entities.meta.height
+                                else
+                                    - res = item.entities.meta.width
+                            else
+                                - res = item.entities.meta.height
+                            if (res >= 4096)
+                                img(title=`Ultra Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl_uhd.gif").status-icons
+                            else if (res >= 1080)
+                                img(title=`High Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl_large.gif").status-icons
+                            else
+                                img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl.gif").status-icons
+                            if (item.pinned)
+                                img(title="Image is pinned" src="/static/img/pinned.gif").status-icons
+                            if (item.flagged)
+                                img(title="Image was reported" src="/static/img/post-star-flagged.gif").status-icons
+
+        else
+            span No Results

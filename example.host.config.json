@@ -1,0 +1,22 @@
+{
+  "system_name": "Master",
+  "sql_host": "127.0.0.1",
+  "mq_host": "127.0.0.1",
+  "log_host" : [],
+  "sql_database": "kanmi_system",
+  "sql_user": "",
+  "sql_pass": "",
+  "mq_user": "",
+  "mq_pass": "",
+  "mq_return": "return.sequenzia.Master",
+  "mq_inbox" : "inbox.sequenzia",
+  "discord_id": "",
+  "discord_secret": "",
+  "discord_redirect_base": "http://127.0.0.1:3000",
+  "telegram_secret" : "",
+  "telegram_callback_url" : "",
+  "telegram_bot_name" : "",
+  "cookie_secret": "",
+  "use_secure_cookie": true,
+  "weather_key": ""
+}

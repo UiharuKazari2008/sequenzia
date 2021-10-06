@@ -1,0 +1,184 @@
+body {
+    background: black;
+    color: white;
+    font-family: "Product Sans", "Yantramanav", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+.background-image.overlay {
+    z-index: -99;
+    opacity: 0.8;
+}
+.background-image.overlay-left {
+    background-image: linear-gradient( 90deg , #00000087, transparent 200px);
+    transform: none;
+    z-index: -99;
+    background-size: contain;
+    opacity: 0.8;
+}
+.background-image {
+    background-position: center;
+    background-size: cover;
+    height: 102vh;
+    width: 102vw;
+    opacity: 1;
+}
+.hover-show:hover {
+    opacity: 1!important;
+}
+.portait-overlay {
+    height: 100vh;
+    box-shadow: 0 0 20px #0000006e;
+}
+.landscape-overlay {
+    width: 100vw;
+    box-shadow: 0 0 20px #0000006e;
+}
+.blur-this {
+    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='4' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(1.6) brightness(0.9) contrast(0.8);
+    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='4' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(1.6) brightness(0.9) contrast(0.8);
+}
+.shadow-blk {
+    filter: drop-shadow(0px 0px 10px #00000090);
+}
+.shadow-blk-wide > div {
+    filter: drop-shadow(0px 0px 100px black);
+}
+
+#accordionSidebar > #sidebar > .server-grid-container {
+    display: none!important;
+}
+.clock {
+    font-weight: 400;
+    line-height: 1em;
+    opacity: .6;
+}
+
+.clock.clock-date, .clock.clock-day {
+    font-size: 2rem;
+    opacity: .5;
+}
+
+.clock.clock-time {
+    font-size: 7rem;
+}
+
+.form-control {
+    color: #6e707e;
+    background-color: #272727;
+    border: none;
+}
+
+.btn-search {
+    color: #6e707e;
+    background: #272727;
+    border: none;
+    width: 100%;
+}
+
+.btn-search:hover, .btn-search.active, .btn-search:active {
+    color: #e7e9ff;
+}
+
+.search-box {
+    max-width: 600px;
+    width: 80vw;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+input.middle:focus {
+    outline-width: 0;
+}
+.form-control::-webkit-input-placeholder,
+.form-control::-moz-placeholder,
+.form-control:-ms-input-placeholder,
+.form-control::-ms-input-placeholder,
+.form-control::placeholder {
+    color: #6e707e;
+    opacity: 1;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    background-color: #272727;
+    color: white;
+}
+
+.top-icon, .top-icon a {
+    color: white;
+    font-size: x-large;
+    padding: 0 0 0.6em 0;
+}
+.top-icon a {
+    text-decoration: none;
+}
+.bottom-icon, .bottom-icon a {
+
+}
+
+a, a:hover, a:active {
+    color: white;
+    text-decoration: none;
+}
+
+.hover-color {
+    color: white;
+}
+
+.hover-color:hover {
+    color: #ffac78;
+}
+
+.background-image.overlay.ambient {
+    background: linear-gradient(180deg, transparent 50%, #000000c7);
+    box-shadow: none;
+}
+@supports (-webkit-touch-callout: initial) {
+.blur-this {
+    filter: blur(5px) saturate(1.6) brightness(0.9) contrast(0.8);
+    -webkit-filter: blur(5px) saturate(1.6) brightness(0.9) contrast(0.8);
+}
+}
+
+@media (prefers-color-scheme: light) {
+    .background-image.overlay {
+        box-shadow: inset 0 0 250px black;
+    }
+    .form-control {
+        color: #000000;
+        background-color: #ffffff;
+    }
+    .btn-search {
+        color: #6e707e;
+        background: #ffffff;
+        border: none;
+        width: 100%;
+    }
+    .form-control:focus {
+        background-color: #ffffff;
+        color: black;
+    }
+
+    .btn-search:hover, .btn-search.active, .btn-search:active {
+        color: #272727;
+    }
+    .dimmed {
+        opacity: 1;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    .background-image.overlay {
+        background: #0a0a0a96;
+        box-shadow: inset 0 0 250px black;
+    }
+    .dimmed {
+        opacity: 0.5;
+    }
+    .dimmed:hover {
+        opacity: 1;
+    }
+}

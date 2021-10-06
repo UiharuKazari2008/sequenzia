@@ -1,0 +1,92 @@
+html
+    head
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='manifest' href='/static/manifest.json')
+        title= `${webconf.site_name}`
+        link(rel='stylesheet', href='/static/css/sb-admin-2.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.css")
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Yantramanav:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
+        link(rel="stylesheet", href="/css/custom.min.css")
+        style.
+            .background-image {
+                transform: none;
+                opacity: 0.5;
+                filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='4' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(1) brightness(0.5) contrast(1.2);
+                -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='4' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(1) brightness(0.5) contrast(1.2);
+            }
+            body {
+                font-family: "Product Sans", "Yantramanav", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+            }
+            .background-image.overlay {
+                background-image: linear-gradient(180deg, transparent, #000000);
+                transform: none;
+                z-index: -99;
+                opacity: 0.8;
+            }
+            .error-bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 1em;
+                background: linear-gradient(90deg, red, #ff5200);
+                z-index: 2000;
+                display: block;
+                width: 100%;
+            }
+
+    body
+        .background-image.overlay
+        #bg1.background-image(style=`opacity: 1; z-index: -101!important; background-image: url('');`)
+
+        script.
+            const images = [
+                "https://cdn.discordapp.com/attachments/731622192701243473/731655888401727590/02123_IMG_0426.JPG",
+                "https://cdn.discordapp.com/attachments/731622192701243473/731655902360240209/00053_IMG_0242.JPG",
+                "https://cdn.discordapp.com/attachments/731357998693220393/731362671760506941/00198_illu_kamo-957204765783474177-20180127_055254-img1.jpg",
+                "https://cdn.discordapp.com/attachments/716529641808199690/794738820821942282/77959814_p0.png",
+                "https://cdn.discordapp.com/attachments/716529641808199690/791378394393739294/luto_gray000-Epod4rhU0AAri0d.jpg",
+                "https://cdn.discordapp.com/attachments/716529641808199690/793449761742913546/soji_____0o0-EqZpYG7VEAApe6R.jpg",
+                "https://cdn.discordapp.com/attachments/731622192701243473/785291479505043486/lm7__-En-y68ZUcAAmxPj.jpg",
+                "https://cdn.discordapp.com/attachments/731622192701243473/731655894408101928/00011_IMG_0731.JPG"
+            ];
+            function nextPreview() {
+                document.getElementById('bg1').style.backgroundImage = "url('" + images[Math.floor(Math.random() * images.length)] + "')";
+            }
+            nextPreview();
+
+        div.error-bar
+        #content-wrapper.container.p-4
+            .fixed-top.m-5
+                .flex-grow-1.align-self-end(style='font-size: 2em; text-shadow: 0 0 20px #000;')
+                    i.fas.fa-exclamation-triangle.pr-2
+                    span Something went wrong, Please Standby...
+            .fixed-bottom.d-flex.m-5
+                .flex-grow-1.align-self-end(style='opacity: .6')
+                    img(src='/static/img/sequenzia-logo-ambient.png' style='height: 3em;')
+                .d-flex.justify-content-end.flex-column.pr-4
+                    div.ml-auto
+                        span#time(style='font-weight: 400; font-size: 7rem; line-height: 1em; opacity: .6')
+                    div.ml-auto.pt-1(style='opacity: 0.4; font-size: 1.3rem; font-weight: 100;')
+                        span#data2 Did you know that computers don't always work?
+
+    script(src="/static/vendor/jquery/jquery.min.js")
+    script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+    script(src="/static/vendor/jquery-easing/jquery.easing.min.js")
+    script(src="/static/js/sb-admin-2.js")
+    script(src="/js/client/ambient.min.js")
+    script.
+        $(document).ready(function () {
+            dc();
+            setTimeout(function () {
+                window.location.href = '/discord/destroy'
+            }, 60000);
+        });

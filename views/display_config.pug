@@ -1,0 +1,497 @@
+if (configuration.name !== 'Homepage' && !configuration.name.endsWith('Untitled'))
+    form
+        div.form-row
+            div.form-group.col-6
+                label(for='realName') Display Name
+                span#realName.form-control.text-monospace.text-success #{configuration.name}
+            div.form-group.col-4
+                label(for='optionsDisplayName') Friendly Name
+                input#optionsDisplayName.form-control(type="text" placeholder="Friendly Name" value=configuration.nice_name)
+            iv.form-group.col-2
+                label(for='optionsShowInHistory') Show
+                a#optionsShowInHistory.col.btn(href='#_' target="_blank" rel="noopener noreferrer" type="button" class=`btn-${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? 'danger' : 'success'}` onclick=`toggleHistoryViewOption(this); return false;`)
+                    i.align-middle.fas(class=`fa-eye${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? '-slash' : ''}`)
+else if (configuration.name.endsWith('Untitled'))
+    form
+        div.form-row
+            div.form-group.col-10
+                label(for='realName') Display Name
+                span#realName.form-control.text-monospace.text-success #{configuration.name}
+            div.form-group.col-2
+                label(for='optionsShowInHistory') Show
+                a#optionsShowInHistory.col.btn(href='#_' target="_blank" rel="noopener noreferrer" type="button" class=`btn-${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? 'danger' : 'success'}` onclick=`toggleHistoryViewOption(this); return false;`)
+                    i.align-middle.fas(class=`fa-eye${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? '-slash' : ''}`)
+else
+    form
+        div.form-row
+            div.form-group.col-2.ml-auto
+                label(for='optionsShowInHistory') Show
+                a#optionsShowInHistory.col.btn(href='#_' target="_blank" rel="noopener noreferrer" type="button" class=`btn-${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? 'danger' : 'success'}` onclick=`toggleHistoryViewOption(this); return false;`)
+                    i.align-middle.fas(class=`fa-eye${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? '-slash' : ''}`)
+if (!configuration.name.startsWith('ADS'))
+    .accordion(id=`displayConfigMenu-${configuration.name.split(' ').join('')}`)
+        .card
+            .card-header.collapsed(id=`requestConfig-header-${configuration.name.split(' ').join('')}`)
+                h5.mb-0.mr-auto
+                    button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#requestConfig-${configuration.name.split(' ').join('')}`)
+                        i.fas.pr-2.fa-cog
+                        | General
+            .collapse(aria-labelledby=`requestConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`requestConfig-${configuration.name.split(' ').join('')}`)
+                - requestOptions = new URLSearchParams((configuration.requestOptions) ? configuration.requestOptions : undefined)
+                - requestOptionsParsed = new URLSearchParams((configuration.requestOptions) ? configuration.requestOptions : undefined)
+
+                - requestOptions.delete('sort')
+                - requestOptions.delete('offset')
+                - requestOptionsParsed.delete('sort')
+                - requestOptionsParsed.delete('offset')
+                - requestOptionsParsed.delete('pins')
+                - requestOptionsParsed.delete('minres')
+                - requestOptionsParsed.delete('ratio')
+                - requestOptionsParsed.delete('search')
+                - requestOptionsParsed.delete('color')
+                - requestOptionsParsed.delete('numdays')
+                - requestOptionsParsed.delete('nsfw')
+                - requestOptionsParsed.delete('album')
+                - requestOptionsParsed.delete('folder')
+                - requestOptionsParsed.delete('channel')
+                - requestOptionsParsed.delete('history')
+
+                .card-body.auth-col.d-flex
+                    form
+                        if (!configuration.name.startsWith('Homepage'))
+                            div.form-row
+                                // Refresh
+                                div.form-group.col-4
+                                   label(for="optionsDisplayTimeInput") Cycle Time
+                                   select#optionsDisplayTimeInput.form-control
+                                       for x in [ '5', '10', '15', '30', '60', '90', '120', '240', '360']
+                                           if (configuration.refreshTime === null && x === '15')
+                                               option(value=x selected) #{ (x < 60) ? x + " Minutes" : x/60 + " Hours"}
+                                           else if (configuration.refreshTime !== null && configuration.refreshTime.toString() === x)
+                                               option(value=x selected) #{ (x < 60) ? x + " Minutes" : x/60 + " Hours"}
+                                           else
+                                               option(value=x) #{ (x < 60) ? x + " Minutes" : x/60 + " Hours"}
+                                // Image Format
+                                div.form-group.col-4
+                                    label(for='optionsDisplayFormatInput') Image Format
+                                    select#optionsDisplayFormatInput.form-control
+                                        if (configuration.imageFormat || configuration.imageFormat === 0)
+                                            for x, i in [ 'WebM', 'JPG', 'PNG' ]
+                                                if (configuration.imageFormat && configuration.imageFormat.toLowerCase() === x.toLowerCase())
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') WebM
+                                            option(value='1') JPG
+                                            option(value='2' selected) PNG
+                                div.form-group.col-4
+                                    label(for='optionsResolution') Image Resolution
+                                    select#optionsResolution.form-control
+                                        for x in [ '', '720', '1080', '2000', '3000', '4000']
+                                            if (requestOptions.has('minres') && requestOptions.getAll('minres')[0].toLowerCase() === x)
+                                                option(value=x selected) #{(x === '') ? "Any" : x + "x"}
+                                            else
+                                                option(value=x) #{(x === '') ? "Any" : x + "x"}
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsRatio') Aspect Ratio
+                                    select#optionsRatio.form-control
+                                        for x in [ ['', 'Any'], ['0.01-1', 'Widescreen'], ['0.01-0.9', 'Widescreen (Strict)'], ['0.85-2.1', 'Portrait'], ['1.1-2.1', 'Portrait (Strict)']]
+                                            if (requestOptions.has('ratio') && requestOptions.getAll('ratio')[0].toLowerCase() === x[0])
+                                                option(value=x[0] selected) #{x[1]}
+                                            else
+                                                option(value=x[0]) #{x[1]}
+                                // Aspect Ratio Correction
+                                div.form-group.col-4
+                                    label(for='optionsDisplayAspect') Image Fit
+                                    select#optionsDisplayAspect.form-control
+                                        if (configuration.displayAspectCorrect || configuration.displayAspectCorrect === 0)
+                                            for x, i in [ 'Cover', 'Fit' ]
+                                                if (configuration.displayAspectCorrect === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Cover
+                                            option(value='1' selected) Fit
+                                div.form-group.col-4
+                                    label(for='optionsNoDuplicates') Duplicates
+                                    select#optionsNoDuplicates.form-control
+                                        if (requestOptions.has('history'))
+                                            for x in [ ['', 'Allow'], ['none', 'Restrict'] ]
+                                                if (requestOptions.getAll('history')[0].toLowerCase() === x[0])
+                                                    option(value=x[0] selected) #{x[1]}
+                                                else
+                                                    option(value=x[0]) #{x[1]}
+                                        else
+                                            option(value='' selected) Allow
+                                            option(value='none') Restrict
+                        else
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsResolution') Image Resolution
+                                    select#optionsResolution.form-control
+                                        for x in [ '', '720', '1080', '2000', '3000', '4000']
+                                            if (requestOptions.has('minres') && requestOptions.getAll('minres')[0].toLowerCase() === x)
+                                                option(value=x selected) #{(x === '') ? "Any" : x + "x"}
+                                            else
+                                                option(value=x) #{(x === '') ? "Any" : x + "x"}
+                                div.form-group.col-4
+                                    label(for='optionsRatio') Aspect Ratio
+                                    select#optionsRatio.form-control
+                                        for x in [ ['', 'Any'], ['0.01-1', 'Widescreen'], ['0.01-0.9', 'Widescreen (Strict)'], ['0.85-2.1', 'Portrait'], ['1.1-2.1', 'Portrait (Strict)']]
+                                            if (requestOptions.has('ratio') && requestOptions.getAll('ratio')[0].toLowerCase() === x[0])
+                                                option(value=x[0] selected) #{x[1]}
+                                            else
+                                                option(value=x[0]) #{x[1]}
+                                div.form-group.col-4
+                                    label(for='optionsNoDuplicates') Duplicates
+                                    select#optionsNoDuplicates.form-control
+                                        if (requestOptions.has('history'))
+                                            for x in [ ['', 'Allow'], ['none', 'Restrict'] ]
+                                                if (requestOptions.getAll('history')[0].toLowerCase() === x[0])
+                                                    option(value=x[0] selected) #{x[1]}
+                                                else
+                                                    option(value=x[0]) #{x[1]}
+                                        else
+                                            option(value='' selected) Allow
+                                            option(value='none') Restrict
+                        div.form-row
+                            div.form-group.col-12
+                                label(for='optionsImageSettings') Image Request
+                                a#optionsImageSettings.col.btn.btn-danger(href='#_' target="_blank" rel="noopener noreferrer" type="button" data-toggle="collapse" data-target="#overideEditorADS")
+                                    i.pr-2.fas.fa-edit
+                                    | Configure Image Request
+                        #overideEditorADS.collapse
+                            div.form-row.col.text-danger.pb-2
+                                div.font-weight-bold.m-auto
+                                    i.fas.fa-exclamation-triangle.pr-2
+                                    span This is for advanced users only
+                                div.text-center.m-auto
+                                    i.fas.fa-toolbox.pr-2
+                                    i.fas.fa-chevron-right.pr-2
+                                    i.fas.fa-tv.pr-2
+                                    span.pr-2 Set as ADS
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsDisplaySearchInput') Type
+                                    select#optionsDisplaySearchInput.form-control
+                                        if (requestOptions.has('album'))
+                                            option(value='0') Everything
+                                            option(value='1') Channel(s)
+                                            option(value='2') Folder(s)
+                                            option(value='3' selected) Album ID
+                                        else if (requestOptions.has('channel'))
+                                            option(value='0') Everything
+                                            option(value='1' selected) Channel(s)
+                                            option(value='2') Folder(s)
+                                            option(value='3') Album ID
+                                        else if (requestOptions.has('folder'))
+                                            option(value='0') Everything
+                                            option(value='1') Channel(s)
+                                            option(value='2' selected) Folder(s)
+                                            option(value='3') Album ID
+                                        else
+                                            option(value='0' selected) Everything
+                                            option(value='1') Channel(s)
+                                            option(value='2') Folder(s)
+                                            option(value='3') Album ID
+                                if (requestOptions.has('album'))
+                                    div#optionsDisplayChannel.form-group.col-8
+                                        label(for="optionsDisplayChannelInput") Value
+                                        input#optionsDisplayChannelInput.form-control(type="text" placeholder="(Space Delimited)" value=requestOptions.getAll('album')[0])
+                                else if (requestOptions.has('channel'))
+                                    div#optionsDisplayChannel.form-group.col-8
+                                        label(for="optionsDisplayChannelInput") Value
+                                        input#optionsDisplayChannelInput.form-control(type="text" placeholder="(Space Delimited)" value=requestOptions.getAll('channel')[0])
+                                else if (requestOptions.has('folder'))
+                                    div#optionsDisplayChannel.form-group.col-8
+                                        label(for="optionsDisplayChannelInput") Value
+                                        input#optionsDisplayChannelInput.form-control(type="text" placeholder="(Space Delimited)" value=requestOptions.getAll('folder')[0])
+                                else
+                                    div#optionsDisplayChannel.form-group.col-8
+                                        label(for="optionsDisplayChannelInput") Value
+                                        input#optionsDisplayChannelInput.form-control.disabled(type="text" placeholder="(Space Delimited)")
+                            div.form-row
+                                div.form-group.col-12
+                                    label(for="optionsSearchInput") Search Query
+                                    if (requestOptions.has('search'))
+                                        input#optionsSearchInput.form-control(type="text" placeholder="Search Query (Ex: text:twitter)" value=requestOptions.getAll('search')[0])
+                                    else
+                                        input#optionsSearchInput.form-control(type="text" placeholder="Search Query (Ex: text:twitter)")
+                            div.form-row
+                                // Number Of Days
+                                div.form-group.col-4
+                                    label(for="optionsNumDaysInput") Number of Days
+                                    if (requestOptions.has('numdays'))
+                                        input#optionsNumDaysInput.form-control(type="text" placeholder="60" value=requestOptions.getAll('numdays')[0])
+                                    else
+                                        input#optionsNumDaysInput.form-control(type="text" placeholder="60" value="")
+                                div.form-group.col-4
+                                    label(for="optionsColorInput") Color
+                                    if (requestOptions.has('color'))
+                                        input#optionsColorInput.form-control(type="text" placeholder="0-255:0-255:0-255" value=requestOptions.getAll('color')[0])
+                                    else
+                                        input#optionsColorInput.form-control(type="text" placeholder="0-255:0-255:0-255" value="")
+                                div.form-group.col-4
+                                    label(for='optionsNSFWInput') NSFW Results
+                                    select#optionsNSFWInput.form-control
+                                        for x in [ ['', 'Disabled'], ['true', 'Enabled'], ['only', 'Only']]
+                                            if (requestOptions.has('nsfw') && requestOptions.getAll('nsfw')[0].toLowerCase() === x[0])
+                                                option(value=x[0] selected) #{x[1]}
+                                            else
+                                                option(value=x[0]) #{x[1]}
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsPinsOnly') Favorites
+                                    select#optionsPinsOnly.form-control
+                                        for x, i in [ ['', 'Show All'], ['true', 'Only Favorites'], ['false', 'Not Favorites'] ]
+                                            if (requestOptions.has('pins') && requestOptions.getAll('pins')[0].toLowerCase() === x[0].toLowerCase())
+                                                option(value=x[0] selected) #{x[1]}
+                                            else
+                                                option(value=x[0]) #{x[1]}
+                                div.form-group.col-8
+                                    label(for="optionsDisplayOptsInput") Extra Options
+                                    if (requestOptionsParsed.toString().length > 3)
+                                        input#optionsDisplayOptsInput.form-control(type="text" placeholder="Extra URL Options" value=requestOptionsParsed.toString())
+                                    else
+                                        input#optionsDisplayOptsInput.form-control(type="text" placeholder="Extra URL Options")
+
+
+        if (!configuration.name.startsWith('Homepage'))
+            .card
+                .card-header.collapsed(id=`displayApperanceConfig-header-${configuration.name.split(' ').join('')}`)
+                    h5.mb-0.mr-auto
+                        button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayApperanceConfig-${configuration.name.split(' ').join('')}`)
+                            i.fas.fa-swatchbook.pr-2
+                            | Personalization
+                .collapse(aria-labelledby=`displayApperanceConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayApperanceConfig-${configuration.name.split(' ').join('')}`)
+                    .card-body.auth-col.d-flex
+                        form
+                            div.form-group.form-row
+                                // Clock
+                                div.form-group.col-4
+                                    label(for='optionsDisplayTime') Clock
+                                    select#optionsDisplayTime.form-control
+                                        if (configuration.imageFormat || configuration.imageFormat === 0)
+                                            for x, i in [ 'Hide', '24H', '12H' ]
+                                                if (configuration.displayClock === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Hide
+                                            option(value='1' selected) 24H
+                                            option(value='2') 12H
+                                // Date
+                                div.form-group.col-4
+                                    label(for='optionsDisplayDate') Date
+                                    select#optionsDisplayDate.form-control
+                                        if (configuration.displayClock || configuration.displayClock === 0)
+                                            for x, i in [ 'Hide', 'Both', 'Weekday', 'Date' ]
+                                                if (configuration.displayClock === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Hide
+                                            option(value='1' selected) Both
+                                            option(value='2') Weekday
+                                            option(value='3') Date
+                                // Display Image Info
+                                div.form-group.col-4
+                                    label(for='optionsDisplayImageInfo') Display Image Info
+                                    select#optionsDisplayImageInfo.form-control
+                                        if (configuration.displayImageInfo || configuration.displayImageInfo === 0)
+                                            for x, i in [ 'Hide', 'Show']
+                                                if (configuration.displayImageInfo === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Hide
+                                            option(value='1' selected) Show
+                            div.form-group.form-row
+                                // Logo
+                                div.form-group.col-4
+                                    label(for='optionsDisplayLogo') Logo
+                                    select#optionsDisplayLogo.form-control
+                                        if (configuration.displayLogo || configuration.displayLogo === 0)
+                                            for x, i in [ 'Top', 'Left', 'Right' ]
+                                                if (configuration.displayLogo === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Top
+                                            option(value='1' selected) Left
+                                            option(value='2') Right
+                                // Overlay
+                                div.form-group.col-4
+                                    label(for='optionsDisplayOverlay') Overlay
+                                    select#optionsDisplayOverlay.form-control
+                                        if (configuration.displayOverlay || configuration.displayOverlay === 0)
+                                            for x, i in [ 'Hide', 'Bottom', 'Left' ]
+                                                if (configuration.displayOverlay === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Hide
+                                            option(value='1' selected) Bottom
+                                            option(value='2') Left
+                                // Padding
+                                div.form-group.col-4
+                                    label(for='optionsDisplayTaskbar') Padding
+                                    select#optionsDisplayTaskbar.form-control
+                                        if (configuration.taskbarPosition || configuration.taskbarPosition === 0)
+                                            for x, i in [ 'None', 'Bottom' ]
+                                                if (configuration.taskbarPosition === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value="0" selected) None
+                                            option(value='1') Bottom
+                            div.form-group.form-row
+                                // HiDPI Scaling
+                                div.form-group.col-4
+                                    label(for='optionsDisplayScale') HiDPI Scaling
+                                    select#optionsDisplayScale.form-control
+                                        if (configuration.enableScale || configuration.enableScale === 0)
+                                            for x, i in [ 'Disabled', 'Enabled' ]
+                                                if (configuration.enableScale === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Disabled
+                                            option(value='1' selected) Enabled
+                                // Display Info
+                                div.form-group.col-4
+                                    label(for='optionsDisplaySys') Display Info
+                                    select#optionsDisplaySys.form-control
+                                        if (configuration.displaySysInfo || configuration.displaySysInfo === 0)
+                                            for x, i in [ 'Hide', 'User Info', 'Display Name' ]
+                                                if (configuration.displaySysInfo === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Hide
+                                            option(value='1' selected) User Info
+                                            option(value='2') Display Name
+                            div.form-group.form-row
+                                div.form-group.col-4
+                                    label(for='optionsDisplayDarkImg') Dark Images @ Night
+                                    select#optionsDisplayDarkImg.form-control
+                                        if (configuration.darkImages || configuration.darkImages === 0)
+                                            for x, i in [ 'Disabled', 'Enabled' ]
+                                                if (configuration.darkImages === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0' selected) Disabled
+                                            option(value='1') Enabled
+                                div.form-group.col-4
+                                    label(for='optionsDisplayDarkOverlay') Dark Overlay @ Night
+                                    select#optionsDisplayDarkOverlay.form-control
+                                        if (configuration.darkOverlay || configuration.darkOverlay === 0)
+                                            for x, i in [ 'Disabled', 'Enabled' ]
+                                                if (configuration.darkOverlay === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0' selected) Disabled
+                                            option(value='1') Enabled
+            .card
+                .card-header.collapsed(id=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}`)
+                    h5.mb-0.mr-auto
+                        button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayWeatherConfig-${configuration.name.split(' ').join('')}`)
+                            i.fas.fa-cloud-sun.pr-2
+                            | Weather
+                .collapse(aria-labelledby=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayWeatherConfig-${configuration.name.split(' ').join('')}`)
+                    .card-body.auth-col.d-flex
+                        form
+                                div.form-group.form-row
+                                    // Weather Location
+                                    div.form-group.col-4
+                                        label(for="optionsDisplayLocationInput") Weather Location
+                                        if (configuration.location || configuration.location === 0)
+                                            input#optionsDisplayLocationInput.form-control(type="text" placeholder="Enter City Name" value=configuration.location)
+                                        else
+                                            input#optionsDisplayLocationInput.form-control(type="text" placeholder="Enter City Name")
+
+                                    // Temperture Format
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayWeatherFormat') Temp Format
+                                        select#optionsDisplayWeatherFormat.form-control
+                                            if (configuration.weatherFormat || configuration.weatherFormat === 0)
+                                                for x, i in [ 'C', 'F' ]
+                                                    if (configuration.weatherFormat === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0' selected) C
+                                                option(value='1') F
+                                    // Temperture Type
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayWeatherFeelLike') Temp Type
+                                        select#optionsDisplayWeatherFeelLike.form-control
+                                            if (configuration.weatherFeelLike || configuration.weatherFeelLike === 0)
+                                                for x, i in [ 'Real', 'Feel-Like' ]
+                                                    if (configuration.weatherFeelLike === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0' selected) Real
+                                                option(value='1') Feel-Like
+                                div.form-group.form-row
+                                    // Weather Display
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayWeather') Weather Display
+                                        select#optionsDisplayWeather.form-control
+                                            if (configuration.weatherDisplay || configuration.weatherDisplay === 0)
+                                                for x, i in [ 'Off', 'Temp/Icon', 'Temp/HiLo/Icon', 'All', 'Temp/HiLo/Name', 'Name', 'Icon' ]
+                                                    if (configuration.weatherDisplay && configuration.weatherDisplay === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Off
+                                                option(value='1' selected) Temp/Icon
+                                                option(value='2') Temp/HiLo/Icon
+                                                option(value='3') All
+                                                option(value='4') Temp/HiLo/Name
+                                                option(value='5') Name
+                                                option(value='6') Icon
+            .card
+                .card-header.collapsed(id=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}`)
+                    h5.mb-0.mr-auto
+                        button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayQuotesConfig-${configuration.name.split(' ').join('')}`)
+                            i.fas.fa-quote-right.pr-2
+                            | Quotes
+                .collapse(aria-labelledby=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayQuotesConfig-${configuration.name.split(' ').join('')}`)
+                    .card-body.auth-col.d-flex
+                        form
+                            div.form-row.form-group
+                                div.form-group.col-4
+                                    label(for='optionsDisplayQuote') Display Quotes
+                                    select#optionsDisplayQuote.form-control
+                                        if (configuration.quoteEnable || configuration.quoteEnable === 0)
+                                            for x, i in [ 'Disabled', 'Enabled' ]
+                                                if (configuration.quoteEnable === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0' selected) Disabled
+                                            option(value='1') Enabled
+                                div#optionsDisplayFolder.form-group.col-8
+                                    label(for="optionsDisplayQuotesInput") Tags for Quotes
+                                    input#optionsDisplayQuotesInput.form-control(type="text" placeholder="Enter Tags (Life, Inspiration, etc.)" value=configuration.quoteTag)

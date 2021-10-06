@@ -1,0 +1,374 @@
+extends layout
+
+block content
+    if (results && results.length > 0 )
+        // Page Heading
+        if errors
+            ul.my-errors
+                for error in errors
+                    li= error.msg
+        - backgroundImg = results[Math.floor(Math.random() * results.length)].entities.preview
+        style.
+            .background-image:not(.overlay) {
+                background-image: url(#{backgroundImg});
+            }
+            .background-image.overlay {
+                background-image: linear-gradient( 45deg, #481d04, #000000ab);
+                z-index: -99;
+                opacity: 0.7;
+            }
+        div.tz-gallery
+            if (results && results.length === 1 && search_prev && search_prev !== '')
+                - item = results[0];
+                - showNSFW = "['nsfw', 'true'], "
+                - showNSFWString = "&nsfw=true"
+                div.row(style="background-color: #000000c7").rounded-top.pt-2.pl-2.pr-2
+                    div.col-auto.mr-2.icon-col-single
+                        if (item.user.avatar)
+                            img.rounded-circle(src=item.user.avatar style='height: 48px; width: 48px;')
+                        else if (item.server.icon)
+                            img.rounded-circle(src=item.server.icon style='height: 48px; width: 48px;')
+                    div.col-auto.mr-auto.align-self-center.text-col-single
+                        if (item.user.name)
+                            div
+                                span #{item.user.name}
+                            if (item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
+                                span - #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
+                        else if (item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
+                            div
+                                span #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
+                        div
+                            span #{item.date.pretty}
+                    div.col-auto.controls-col-single.text-center
+                        if (user && user.source < 900)
+                            if (item.pinned)
+                                a.btn(data-placement="top" id='fav-' + item.eid title="Remove Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
+                                    i#button.fas.fa-star.favorited
+                            else
+                                a.btn(data-placement="top" id='fav-' + item.eid title="Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
+                                    i#button.fas.fa-star
+                        else
+                            a.btn(href='#_')
+                                i#button.fas.fa-star.favorited
+                        a.btn(data-placement="top" title="Download this image" href=`${item.entities.download}` download=item.entities.filename target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                            i.fas.fa-download
+                        a.btn(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                            i.fas.fa-archive
+                        if (item.meta.urls && item.meta.urls.length > 0)
+                            a.btn(data-placement="top" title=`Source URL: "${item.meta.urls[0].split("%60").join("")}"` href=item.meta.urls[0].split("%60").join("") target="_blank" rel="noopener noreferrer")
+                                i.fas.fa-globe-americas
+                        a.btn(data-placement="top" title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
+                            i.fas.fa-directions
+                        if (item.meta.search)
+                            a.btn(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
+                                i.fas.fa-user
+                        if (item.meta.parent_search)
+                            a.btn(data-placement="top" title=`Search for Parent "${item.meta.parent_search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.parent_search)}${showNSFWString}`)
+                                i.fas.fa-level-up-alt
+                        if (item.id)
+                            a.btn(data-placement="top" title=`Search Content Related to "${item.id}"` href=`#/gallery?search=${encodeURIComponent("id:st:" + item.id.substring(0, 6))}${showNSFWString}`)
+                                i.fas.fa-asterisk
+                        if (item.entities.meta.color && item.entities.meta.color.length >= 3)
+                            a.btn(data-placement="top" title=`Search for similar Colour` href=`#/gallery?color=${encodeURIComponent(item.entities.meta.color.join(':'))}${showNSFWString}`)
+                                i.fas.fa-swatchbook
+                        if (item.manage && user && user.source < 900)
+                            if (item.flagged)
+                                a.btn(data-placement="top" title="Remove Message Report" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "RemoveReport", true); return false;` )
+                                    i.fas.fa-flag-checkered.text-danger
+                            else
+                                a.btn(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
+                                    i.fas.fa-flag
+                        else if (user && user.source < 900 && !item.flagged)
+                            a.btn(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
+                                i.fas.fa-flag
+                        else if (item.flagged)
+                            a.btn(data-placement="top" title="Image was reported" href='#_')
+                                i.fas.fa-flag.text-danger
+                        if (item.manage && user && user.source < 900)
+                            a.btn(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid !== '') ? (item.meta.cached) ? ', true' : ', false' : ''}); openActionMenu(); return false;` )
+                                i.fas.fa-paste
+                if (item.content.clean && item.content.clean.length > 0)
+                    div.row(style="background-color: #000000c7").row.justify-content-center.p-2.contents-col-single
+                        span.font-italic.text-center(style="font-size: large;") "#{item.content.clean}"
+                - backgroundColor = (item.entities.meta.color) ? `background-color: rgba(${item.entities.meta.color[0]}, ${item.entities.meta.color[1]}, ${item.entities.meta.color[2]}, 0.78)` : `background-color: black`
+                div.row.image-display.justify-content-center.rounded-bottom(style=backgroundColor, id='message-' + item.id).image-col-single
+                    img.p-1.img-fluid(src=item.entities.full style="max-height: 60rem;")
+            else
+                div.row
+                    each item, indexImage in results
+                        - thisImageManage = false
+                        - if (item.manage) { thisImageManage = true }
+                        - isVideo = false;
+                        if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                            - isVideo = true
+                        div.col-image.col-dynamic.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(id=`message-${item.id}`)
+                            if(item.entities.meta.ratio)
+                                if(item.entities.meta.ratio >= 1)
+                                    - res = item.entities.meta.height
+                                else
+                                    - res = item.entities.meta.width
+                            else
+                                - res = item.entities.meta.height
+                            div.overlay-icons
+                                div.icon-container
+                                    p.status-icons.left-links
+                                        if (res >= 5500)
+                                            img(title="Greater then 5500px" src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
+                                        else if (res >= 5000)
+                                            img(title="Greater then 5000px" src="/static/img/icons/status/baseline_5k_white_24dp.png").status-icons
+                                        else if (res >= 4000)
+                                            img(title="Greater then 4000px" src="/static/img/icons/status/baseline_4k_white_24dp.png").status-icons
+                                        else if (res >= 3000)
+                                            img(title="Greater then 3000px" src="/static/img/icons/status/baseline_3k_white_24dp.png").status-icons
+                                        else if (res >= 2000)
+                                            img(title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
+                                        else if (res >= 1080)
+                                            img(title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
+                                        else if (res >= 720)
+                                            img(title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
+                                        else if (res >= 640)
+                                            img(title="Greater then 640px" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
+                                        else if (res >= 480)
+                                            img(title="Greater then 480px" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
+                                        else
+                                            img(title="Low Quality" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
+
+                                        if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
+                                            img(title="Portrait Image" src="/static/img/icons/status/twotone_stay_primary_portrait_white_24dp.png").status-icons
+                                        else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
+                                            img(title="Square Image" src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
+                                        else if (item.entities.meta.ratio && item.entities.meta.ratio <= 0.9)
+                                            img(title="Widescreen Image" src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
+                                    if (isVideo)
+                                        p.status-icons.center-icons(style='height: 64px;').text-center
+                                            i.fas.fa-4x.fa-film(style='color: #838383c9;')
+                                    if (item.history.name)
+                                        p.status-icons.left-links.history-name.shadow-text
+                                            if (item.history.type === 'ads-lite')
+                                                i.fas.fa-tv.pr-1
+                                            else if (item.history.type === 'ads-micro')
+                                                i.fas.fa-laptop.pr-1
+                                            else if (item.history.type === 'ads-mobile')
+                                                i.fas.fa-mobile-alt.pr-1.pl-1
+                                            else if (item.history.type === 'ads-embed')
+                                                i.fas.fa-dice-five.pr-1.pl-1
+                                            else if (item.history.type === 'homepage')
+                                                i.fas.fa-home.pr-1
+                                            else if (item.history.type === 'webextention')
+                                                i.fas.fa-edge.pr-1
+                                            else if (item.history.type === 'pagehistory')
+                                                i.fas.fa-history.pr-1
+                                            span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
+                                        p.status-icons.left-links.history-date.shadow-text
+                                            span #{item.history.date}
+                                    p.status-icons.right-links
+                                        if (item.pinned)
+                                            img(title="Image is pinned" src="/static/img/icons/status/baseline_star_white_24dp.png").status-icons
+                                        if (item.flagged)
+                                            img(title="Image was reported" src="/static/img/icons/status/baseline_flag_white_24dp.png").status-icons
+                                div.links-container.text-primary
+                                    div.links
+                                        div.left-links.row-1
+                                            if (user && user.source < 900)
+                                                if (item.pinned)
+                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Remove Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
+                                                        i#button.btn-links.fas.fa-star.favorited
+                                                else
+                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
+                                                        i#button.btn-links.fas.fa-star
+                                            a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                i.btn-links.fas.fa-archive
+                                            if (item.meta.urls && item.meta.urls.length > 0)
+                                                a.btn.btn-links.no-dynamic-small(data-placement="top" title=`Source URL: "${item.meta.urls[0].split("%60").join("")}"` href=item.meta.urls[0].split("%60").join("") target="_blank" rel="noopener noreferrer")
+                                                    i.btn-links.fas.fa-globe-americas
+                                            if (item.content.clean)
+                                                if ((item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1) || (item.content.clean.length > 75))
+                                                    a.btn.btn-links.no-dynamic-small(tabindex="0" role='button' data-toggle='popover' title='Message Contents' data-html="true" data-content=item.content.raw.split("\n").join('<br/>'))
+                                                        i.btn-links.fas.fa-info-circle
+                                            if (thisImageManage && user && user.source < 900)
+                                                a.btn.btn-links(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid !== '') ? (item.meta.cached) ? ', true' : ', false' : ''}); openActionMenu(); return false;` )
+                                                    i.btn-links.fas.fa-paste
+                                            else if (user && user.source < 900)
+                                                if (item.flagged)
+                                                    a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Image Reported" href='#_')
+                                                        i.btn-links.fas.fa-flag.reported
+                                                else
+                                                    a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
+                                                        i.btn-links.fas.fa-flag
+                                        div.right-links.row-1
+                                            a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                                i.btn-links.fas.fa-download
+                            div.internal-lightbox.animated--fade-in
+                                - showNSFW = ''
+                                - showNSFWString = ''
+                                if (req_uri && req_uri.includes('nsfw=true') || req_uri.includes('album='))
+                                    - showNSFW = "['nsfw', 'true'], "
+                                    - showNSFWString = "&nsfw=true"
+                                if (thisImageManage && user && user.source < 900)
+                                    div#selectItemCheck.select-item.hidden
+                                        a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid !== '') ? (item.meta.cached) ? ', true' : ', false' : ''}); return false;`)
+                                            i.fas.fa-check-circle.text-gray-600.shadow-text(style="font-size: 3em;" id='select-' + item.id)
+                                        a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
+                                            i.fas.fa-check-circle.text-success.shadow-text(style="font-size: 3em;" id='select-' + item.id)
+                                div.text-container.shadow-text
+                                    if (!(item.content.single && item.content.single.length > 1) && isVideo)
+                                        p.text.p-start #{item.entities.filename}
+                                    else
+                                        p.text.p-start #{item.content.single}
+                                    p.date.p-mid #{item.date.pretty}
+                                    if (item.entities.meta.filesize && item.entities.meta.fileid !== null && item.entities.meta.fileid !== '')
+                                        p.text.p-mid #{item.entities.meta.filesize} MB
+                                    if (multiChannel && item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
+                                        p.channel.p-mid #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
+                                    if (item.user.name)
+                                        p.date.p-mid #{item.user.name}
+                                    if (item.history.name)
+                                        .history-icons-container.pt-start
+                                            p.history-name.shadow-text.text.m-0.history-item
+                                                if (item.history.type === 'ads-lite')
+                                                    i.fas.fa-tv.pr-1
+                                                else if (item.history.type === 'ads-micro')
+                                                    i.fas.fa-laptop.pr-1
+                                                else if (item.history.type === 'ads-mobile')
+                                                    i.fas.fa-mobile-alt.pl-1pr-1
+                                                else if (item.history.type === 'ads-embed')
+                                                    i.fas.fa-dice-five.pr-1.pl-1
+                                                else if (item.history.type === 'homepage')
+                                                    i.fas.fa-home.pr-1
+                                                else if (item.history.type === 'webextention')
+                                                    i.fas.fa-edge.pr-1
+                                                else if (item.history.type === 'pagehistory')
+                                                    i.fas.fa-history.pr-1
+                                                span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
+                                            p.history-date.shadow-text.text.m-0.history-item
+                                                span #{item.history.date}
+                                    .status-icons-container.pt-start
+                                        if (res >= 5500)
+                                            img(title=`Greater then 5500px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
+                                        else if (res >= 5000)
+                                            img(title=`Greater then 5000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_5k_white_24dp.png").status-icons
+                                        else if (res >= 4000)
+                                            img(title=`Greater then 4000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_4k_white_24dp.png").status-icons
+                                        else if (res >= 3000)
+                                            img(title=`Greater then 3000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_3k_white_24dp.png").status-icons
+                                        else if (res >= 2000)
+                                            img(title=`Greater then 2000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
+                                        else if (res >= 1080)
+                                            img(title=`Greater then 1000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
+                                        else if (res >= 720)
+                                            img(title=`Greater then 720px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
+                                        else if (res >= 640)
+                                            img(title=`Greater then 640px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
+                                        else if (res >= 480)
+                                            img(title=`Greater then 480px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
+                                        else
+                                            img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
+                                        if (item.flagged)
+                                            img(title="Image was reported" src="/static/img/icons/status/baseline_flag_white_24dp.png").status-icons
+
+                                        if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
+                                            img(title=`Portrait Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_portrait_white_24dp.png").status-icons
+                                        else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
+                                            img(title=`Square Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
+                                        else if (item.entities.meta.ratio && item.entities.meta.ratio < 0.9)
+                                            img(title=`Widescreen Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
+                                div.image-container
+                                    if (item.user.avatar)
+                                        img.server.rounded-circle(src=item.user.avatar)
+                                    else if (item.server.icon)
+                                        img.server.rounded-circle(src=item.server.icon)
+                                div.links-container.text-primary
+                                    div.links
+                                        div.left-links.row-2
+                                            if (user && user.source < 900)
+                                                if (item.entities.meta.fileid !== null && item.entities.meta.fileid !== '' && item.meta.cached === false)
+                                                    a.btn.btn-links.goto-link(data-placement="top" title="Download Full Image" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`)
+                                                        i.btn-links.fas.fa-box-open
+                                                else if (item.meta.proccessing === true)
+                                                    a.btn.btn-links.goto-link(data-placement="top" title="In Progress...(Check Back Later)" href='#_')
+                                                        i.btn-links.fas.fa-spinner
+                                                else if (isVideo && item.entities.meta.fileid !== null && item.entities.meta.fileid !== '' && item.meta.cached === true && item.entities.download)
+                                                    a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
+                                                        i.btn-links.fas.fa-play
+                                            else if (isVideo && item.entities.meta.fileid !== null && item.entities.meta.fileid !== '' && item.meta.cached === true && item.entities.download)
+                                                    a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
+                                                        i.btn-links.fas.fa-play
+                                            if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
+                                                a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
+                                                    i.btn-links.fas.fa-directions
+                                            if (req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name)
+                                                a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Go to ${item.history.name}` href=`#/gallery?sort=history&history=only&nsfw=true&displayname=${item.history.real_name}`)
+                                                    i.btn-links.fas.fa-history
+                                            if (item.id)
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search Content Related to "${item.id}"` href=`#/gallery?search=${encodeURIComponent("id:st:" + item.id.substring(0, 6))}${showNSFWString}`)
+                                                    i.btn-links.fas.fa-asterisk
+                                            if (item.entities.meta.color && item.entities.meta.color.length >= 3)
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for similar Colour` href=`#/gallery?color=${encodeURIComponent(item.entities.meta.color.join(":"))}${showNSFWString}`)
+                                                    i.btn-links.fas.fa-swatchbook
+                                            if (item.meta.search)
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
+                                                    i.btn-links.fas.fa-user
+                                            if (item.meta.parent_search)
+                                                a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Search for Parent "${item.meta.parent_search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.parent_search)}${showNSFWString}`)
+                                                    i.btn-links.fas.fa-level-up-alt
+                                        div.right-links.row-2
+                                            if (item.permalink)
+                                                a.btn.btn-links.goto-link(data-placement="top" title="Permalink (Copy this Link)" href=item.permalink)
+                                                    i.btn-links.fas.fa-link
+
+                            - fileURL = item.entities.full
+                            - previewURL = item.entities.preview;
+                            if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                                - fileURL = item.entities.download
+                            if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                                - fileURL = item.entities.download
+                                - previewURL = item.entities.download
+                            a.lightbox(href=fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + item.content.single + ' (' + item.date.pretty + ')', data-fancybox="gallery")
+                                - positionImage = ''
+                                - noHoverClass = ''
+                                if (!isVideo)
+                                    if (item.entities.meta.ratio && item.entities.meta.ratio > 1.2)
+                                        - positionImage = 'background-position: top;'
+                                    if (item.entities.meta.ratio && (item.entities.meta.ratio >= 1.7 ||item.entities.meta.ratio <= 0.6))
+                                        - positionImage = 'background-size: contain!important; background-position: center!important; background-repeat: no-repeat;'
+                                        - noHoverClass = 'no-hover'
+                                    else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
+                                        - noHoverClass = 'no-hover'
+                                if (indexImage < 10)
+                                    div#postImage.square.img.img-responsive(style=`background-image : url("${previewURL}"); ${positionImage}` class=`${noHoverClass}`)
+                                else
+                                    div#postImage.square.img.img-responsive.lazy(data-src=`${previewURL}` style=`${positionImage}` class=`${noHoverClass}`)
+                                //div.no-ios.img.img-responsive.post-backdrop(style=`background-image: url("${item.entities.preview}"); ${positionImage};`)
+                                if (item.entities.meta.color && item.entities.meta.color.length >= 3)
+                                    div#postBackground(style=`background-color: rgb(${item.entities.meta.color[0]}, ${item.entities.meta.color[1]}, ${item.entities.meta.color[2]})`)
+                                else
+                                    div#postBackground
+                    if (req_uri && ((((req_uri.includes('channel=random') || !(req_uri.includes('channel=') || req_uri.includes('folder=')) ) && req_uri.includes('sort=random')) || req_uri.includes('sort=random')) && !search_prev))
+                        .col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
+                            .square.bottomBtn
+                                .internal-button.center-block
+                                    if (req_uri && req_uri.includes('sort=random'))
+                                        a(title="Randomize" href='#_' onClick="getNewContent([], []);")
+                                            i.fa.fa-dice
+                                    else
+                                        a(title="Refresh" href='#_' onClick="getNewContent([], []);")
+                                            i.fa.fa-sync
+                    else if (nexturl !== 'NA')
+                        #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
+                            .square.bottomBtn(style='border: 0;' onclick=`getMoreContent([], [${nexturl}]); return false;`)
+                                .internal-button.center-block
+                                    i.fa.fa-arrow-right
+    else
+
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpg');
+            }
+        .alert.alert-danger(role='alert')
+            h4.alert-heading No Results
+            p
+                | Your search query or requested channel is either invalid or does not contain any gallery content
+            hr
+            p.mb-0
+                | Please go back to a valid channel or retry your search with another (maybe less specific) query
+

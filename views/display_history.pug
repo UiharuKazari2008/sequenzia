@@ -1,0 +1,205 @@
+- nsfwFilter  =`filter: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='15' result='b'/%3E%3CfeMorphology operator='dilate' radius='15'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a\"); background-clip: padding-box;`
+div#displayHistoryResults
+    if (displayResults)
+        if (displayResults.length > 0)
+            for display, displayIndex in displayResults
+                - mainDisplay = display.images.filter(e => e.screen === 0)
+                - secondDisplay = display.images.filter(e => e.screen === 1)
+                div.display-results.pt-1
+                    div.display-jumbotron.pl-3.pr-3
+                        .row.position-relative
+                            if (secondDisplay.length > 0)
+                                a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-left: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                    div.wide
+                                        - nsfwFilter1 = ""
+                                        if (mainDisplay[0].nsfw && mainDisplay[0].nsfw === 1)
+                                            - nsfwFilter1 = nsfwFilter
+
+                                        if (mainDisplay[0].ratio <= 0.95)
+                                            div.half-center(style=`${nsfwFilter1}background-position: center; background-size: fit; background-image: url('${mainDisplay[0].preview}');position: absolute; z-index: 2; filter: drop-shadow(0 1px 5px rgba(0,0,0,0.3)); width: calc(100% - 1px); margin-right: 1px;`)
+                                            div.half-full(style=`background-color: rgb(${mainDisplay[0].color[0]}, ${mainDisplay[0].color[1]}, ${mainDisplay[0].color[2]}); position: absolute; z-index: 1; border-right: black 1px solid;`)
+                                        else
+                                            div.half-full(style=`${nsfwFilter1}background-position: center; background-size: cover; background-image: url('${mainDisplay[0].preview}'); position: absolute; z-index: 2; border-right: black 1px solid;`)
+                                        div.half-full(style=`background: linear-gradient(0deg, #000000c7, transparent 25%, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
+                                a(title=`Message ID: ${secondDisplay[0].eid}\nShown on ${secondDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-right: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                    div.wide
+                                        - nsfwFilter2 = ""
+                                        if (secondDisplay[0].nsfw && secondDisplay[0].nsfw === 1)
+                                            - nsfwFilter2 = nsfwFilter
+
+                                        if (secondDisplay[0].ratio <= 0.95)
+                                            div.half-center(style=`background-position: center; background-size: fit; background-image: url('${secondDisplay[0].preview}');position: absolute; z-index: 2; filter: drop-shadow(0 1px 5px rgba(0,0,0,0.3)); width: calc(100% - 1px); margin-left: 1px;`)
+                                            div.half-full(style=`${nsfwFilter2}background-color: rgb(${secondDisplay[0].color[0]}, ${secondDisplay[0].color[1]}, ${secondDisplay[0].color[2]}); position: absolute; z-index: 1; border-left: black 1px solid;`)
+                                        else
+                                            div.half-full(style=`${nsfwFilter2}background-position: center; background-size: cover; background-image: url('${secondDisplay[0].preview}'); position: absolute; z-index: 2; border-left: black 1px solid;`)
+                                        div.half-full(style=`background: linear-gradient(0deg, #000000c7, transparent 25%, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
+                            else
+                                a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                    div.wide
+                                        - nsfwFilter1 = ""
+                                        if (mainDisplay[0].nsfw && mainDisplay[0].nsfw === 1)
+                                            - nsfwFilter1 = nsfwFilter
+
+                                        if (mainDisplay[0].ratio <= 0.95 )
+                                            div.wide-full(style=`${nsfwFilter1}background-position: center; background-size: cover; background-image: url('${mainDisplay[0].preview}'); position: absolute; z-index: 2;`)
+                                        else
+                                            div.wide-center(style=`${nsfwFilter1}background-position: center; background-size: fit; background-image: url('${mainDisplay[0].preview}');position: absolute; z-index: 2; filter: drop-shadow(0 1px 5px rgba(0,0,0,0.3));`)
+                                            div.wide-full(style=`background-color: rgb(${mainDisplay[0].color[0]}, ${mainDisplay[0].color[1]}, ${mainDisplay[0].color[2]}); position: absolute; z-index: 1;`)
+                                        div.wide-full(style=`background: linear-gradient(0deg, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
+                            div(style='position: absolute; z-index: 4;').row.m-2.h5
+                                if ( display.display === 'Untitled' )
+                                    i.fas.fa-tv.pr-2.align-self-center
+                                    | Ambient
+                                else if ( display.display === 'Homepage' )
+                                    i.fas.fa-home.pr-2.align-self-center
+                                    | Homepage
+                                else if ( display.display === 'WebExtension' )
+                                    i.fab.fa-edge.pr-2.align-self-center
+                                    | Extension
+                                else if ( display.display === 'ADSMicro-Untitled' )
+                                    i.fas.fa-laptop.pr-2.align-self-center
+                                    | Desktop
+                                else if ( display.display === 'ADSEmbed-Untitled' )
+                                    i.fas.fa-dice-five.pr-2.align-self-center
+                                    | Randomizer
+                                else if ( display.display === 'ADSMobile-Untitled' )
+                                    i.fas.pr-2.align-self-center.fa-mobile-alt
+                                    | Mobile
+                                else if ( display.display.includes('ADSMicro-') )
+                                    i.fas.fa-laptop.pr-2.align-self-center
+                                    | #{(display.name.startsWith('ADSMicro-')) ? display.name.split('ADSMicro-')[1] : display.name}
+                                else if ( display.display.includes('ADSEmbed-') )
+                                    i.fas.fa-dice-five.pr-2.align-self-center
+                                    | #{(display.name.startsWith('ADSEmbed-')) ? display.name.split('ADSEmbed-')[1] : display.name}
+                                else if ( display.display.includes('ADSMobile-') )
+                                    i.fas.fa-mobile-alt.pr-2.align-self-center
+                                    | #{(display.name.startsWith('ADSMobile-')) ? display.name.split('ADSMobile-')[1] : display.name}
+                                else
+                                    i.fas.fa-tv.pr-2.align-self-center
+                                    | #{display.name}
+                            if (secondDisplay.length > 0)
+                                div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
+                                    if (user && user.source < 900)
+                                        if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
+                                            a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
+                                                i.fas.fa-cog
+                                        a(title="Delete Display" href='#_' onclick=`$('#erase-${displayIndex}').slideToggle(); return false;`).text-white.h5
+                                            i.fas.fa-trash
+                                div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0; bottom: 0; left: 0; width: 50%; padding-left: 0.5em; padding-right: 0.8em;').row
+                                    div.mr-auto(style="opacity: 0.5;")
+                                        if (display.display.includes('ADSMicro-'))
+                                            | Main
+                                        else if (display.display.includes('ADSMobile-'))
+                                            span.d-none.d-sm-inline Home Screen
+                                            span.d-inline.d-sm-none Home
+                                        else
+                                            | Master
+                                    if (user && user.source < 900)
+                                        if (mainDisplay[0].fav)
+                                            a(title="Unpin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Unpin", true);return false;`).text-white.pr-2.h5
+                                                i#button.fas.fa-star.favorited
+                                        else
+                                            a(title="Pin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Pin", true);return false;`).text-white.pr-2.h5
+                                                i#button.fas.fa-star
+                                    a(title="Download Image" href=mainDisplay[0].full).text-white.h5
+                                        i.fas.fa-download
+                                div(style='position: absolute; z-index: 4; margin: 0.5em 0 0.5em 0.5em; bottom: 0; right: 0; width: 50%; padding-left: 0.5em; padding-right: 0.8em;').row
+                                    div.mr-auto(style="opacity: 0.5;")
+                                        if (display.display.includes('ADSMicro-'))
+                                            | Secondary
+                                        else if (display.display.includes('ADSMobile-'))
+                                            span.d-none.d-sm-inline Lock Screen
+                                            span.d-inline.d-sm-none Lock
+                                        else
+                                            | Slave
+                                    if (user && user.source < 900)
+                                        if (secondDisplay[0].fav)
+                                            a(title="Unpin Message" href='#_' id=`fav-${secondDisplay[0].eid}` onclick=`sendBasic("${secondDisplay[0].channel}", "${secondDisplay[0].eid}", "Unpin", true);return false;`).text-white.pr-2.h5
+                                                i#button.fas.fa-star.favorited
+                                        else
+                                            a(title="Pin Message" href='#_' id=`fav-${secondDisplay[0].eid}` onclick=`sendBasic("${secondDisplay[0].channel}", "${secondDisplay[0].eid}", "Pin", true);return false;`).text-white.pr-2.h5
+                                                i#button.fas.fa-star
+                                    a(title="Download Image" href=secondDisplay[0].full).text-white.h5
+                                        i.fas.fa-download
+                            else
+                                div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
+                                    if (user && user.source < 900)
+                                        if (mainDisplay[0].fav)
+                                            a(title="Unpin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Unpin", true);return false;`).text-white.pr-2.h5
+                                                i#button.fas.fa-star.favorited
+                                        else
+                                            a(title="Pin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Pin", true);return false;`).text-white.pr-2.h5
+                                                i#button.fas.fa-star
+                                    a(title="Download Image" href=mainDisplay[0].full).text-white.pr-2.h5
+                                        i.fas.fa-download
+                                    if (user && user.source < 900)
+                                        if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
+                                            a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
+                                                i.fas.fa-cog
+                                        a(title="Delete Display" href='#_' onclick=`$('#erase-${displayIndex}').slideToggle(); return false;`).text-white.h5
+                                            i.fas.fa-trash
+                    div.pb-2(style='display: none;' id=`erase-${displayIndex}`)
+                        div
+                            span.text-danger.text-center.font-weight-bold Are you sure you want to permanently delete the history and config for this display?
+                        div.d-flex
+                            button.btn.btn-primary(href='#_' onclick=`$('#erase-${displayIndex}').slideToggle(); return false;`).mt-2.w-100.mr-1 Cancel
+                            button.btn.btn-danger(href='#_' onclick=`getDisplayHistory("command=delete&displayname=${display.display}"); return false;`).mt-2.ml-1.w-100 Delete
+                    //div.display-images.pl-3.pr-3.pb-2(style='display: none;' id=`history-${displayIndex}`)
+                    //    - subDisplays = [mainDisplay.slice(1), secondDisplay.slice(1)]
+                    //    for subDisplay, subDisplayIndex in subDisplays
+                    //        div.row
+                    //            if (subDisplays[1].length > 0)
+                    //                if (subDisplayIndex == 0)
+                    //                    h4.w-100
+                    //                        if (display.display.includes('ADSMicro-'))
+                    //                            | Display 1
+                    //                        else if (display.display.includes('ADSMobile-'))
+                    //                            | Home Screen
+                    //                        else
+                    //                            | Master
+                    //                else if (subDisplayIndex == 1)
+                    //                    h4.w-100.pt-2
+                    //                        if (display.display.includes('ADSMicro-'))
+                    //                            | Display 2
+                    //                        else if (display.display.includes('ADSMobile-'))
+                    //                            | Lock Screen
+                    //                        else
+                    //                            | Slave
+                    //            for image, imageIndex in subDisplay
+                    //                div.col-4.p-1(style="overflow-x: clip;")
+                    //                    div.square.img.img-responsive(style=`background-position: top; background-image: url('${image.preview}')`)
+                    //                        div(style='position: absolute; padding: 0.5em; text-decoration: none; bottom: 0').shadow-text
+                    //                            if (user.source < 900)
+                    //                                if (image.fav)
+                    //                                    a(title="Unpin Message" href='#_' id=`fav-${image.eid}` onclick=`sendBasic("${image.channel}", "${image.eid}", "Unpin", true);return false;`).text-white.pr-2
+                    //                                        i#button.fas.fa-star.favorited
+                    //                                else
+                    //                                    a(title="Pin Message" href='#_' id=`fav-${image.eid}` onclick=`sendBasic("${image.channel}", "${image.eid}", "Pin", true);return false;`).text-white.pr-2
+                    //                                        i#button.fas.fa-star
+                    //                            a(title="Download Image" href=image.full).text-white.pr-2
+                    //                                i.fas.fa-download
+                    //                            a(title=`Message ID: ${image.eid}\nShown on ${image.date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['nsfw', 'true'],['search', 'eid:${image.eid}']], "/gallery"); return false;`).text-white.pr-2
+                    //                                i.fas.fa-search
+                    //                        div(style='position: absolute; padding: 0 0.5em; text-decoration: none;')
+                    //                            span.shadow-text.text-center.text-white.text-xs #{image.date}
+
+                    div.pb-2(style='display: none;' id=`settings-${displayIndex}`)
+                        div(id=`settings-${displayIndex}-body`)
+                            span Please Wait...
+                        div
+                            button.btn.btn-success(href='#_' onclick=`saveDisplayConfig("${display.display}", "${displayIndex}"); return false;`).mt-2.w-100 Save
+        else
+            div.display-results.pt-3
+                | No Registered Displays Found or No History
+    else if (noResults)
+        div.display-results.pt-3
+            | No Registered Displays Found or No History
+    else if (nothingDeleted)
+        div.display-results.pt-3
+            | Nothing was found to delete
+    else if (deleted)
+        div.display-results.pt-3
+            | Removed #{deleted} Images from History, Click Refresh Icon
+    else
+        div.display-results.pt-3
+            | Unknown Server Fault

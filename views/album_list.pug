@@ -1,0 +1,89 @@
+div
+    if (albums && albums.length > 0 )
+        if (manageMode)
+            #albumManager.accordion
+                each album in albums
+                    .card.album-menu
+                        div(id=`album-${album.aid}-Menu` data-toggle="collapse" data-target=`#album-${album.aid}-Collapse`).card-header.d-flex.collapsed
+                            div.pr-2
+                                if (album.uri === 'gallery')
+                                    i.fas.fa-images
+                                else if (album.uri === 'files')
+                                    i.fas.fa-folder
+                                else if (album.uri === 'cards')
+                                    i.fas.fa-envelope
+                                else
+                                    i.fas.fa-question
+                            span.mr-auto #{album.name}
+                            span.pr-2 (ID: #{album.aid})
+                            div.pl-2
+                                if (album.privacy)
+                                    i.fas.fa-lock
+                                else
+                                    i.fas.fa-globe-americas
+                        div.collapse(aria-labelledby=`album-${album.aid}-Menu` data-parent=`#albumManager` id=`album-${album.aid}-Collapse`)
+                            .card-body.album-menu
+                                div.form-row
+                                    div.form-group.col.col-12
+                                        input.form-control(type="text" placeholder="My Wallpapers" id=`album-${album.aid}-Text` value=album.name)
+                                div.form-row
+                                    div.form-group.col-6
+                                        select.form-control(id=`album-${album.aid}-Type`)
+                                            if (album.uri === 'gallery')
+                                                option(value='0' selected) Gallery
+                                            else
+                                                option(value='0') Gallery
+                                            if (album.uri === 'files')
+                                                option(value='1' selected) Files
+                                            else
+                                                option(value='1') Files
+                                            if (album.uri === 'cards')
+                                                option(value='2' selected) Cards
+                                            else
+                                                option(value='2') Cards
+                                    div.form-group.col-6
+                                        select.form-control(id=`album-${album.aid}-Privacy`)
+                                            if (album.privacy === 1)
+                                                option(value='1' selected) Private
+                                            else
+                                                option(value='1') Private
+                                            if (album.privacy === 0)
+                                                option(value='0' selected) Public
+                                            else
+                                                option(value='0' ) Public
+                                            if (album.privacy === 2)
+                                                option(value='2' selected isabled) Unlisted
+                                            else
+                                                option(value='2' disabled) Unlisted
+                                div.form-row
+                                    a#albumCreateButton.btn.btn-danger.ml-auto.mr-1(href='#_' target="_blank" rel="noopener noreferrer" onclick=`deleteAlbum("${album.aid}"); return false;`)
+                                        i.pr-2.fas.fa-trash-alt
+                                        | Delete
+                                    a#albumCreateButton.btn.btn-success.ml-1.mr-1(href='#_' target="_blank" rel="noopener noreferrer" onclick=`updateAlbum("${album.aid}"); return false;` )
+                                        i.pr-2.fas.fa-edit
+                                        | Update
+        else
+            .list-group
+                each album in albums
+                    - classList = ''
+                    if (album.found_aid)
+                        - classList = 'active'
+                    a.list-group-item.list-group-item-action.d-flex(href='#_' onclick=`toggleAlbumItem("${album.aid}", "${id}"); return false;` class=classList)
+                        div.pr-2
+                            if (album.uri === 'gallery')
+                                i.fas.fa-images
+                            else if (album.uri === 'files')
+                                i.fas.fa-folder
+                            else if (album.uri === 'cards')
+                                i.fas.fa-envelope
+                            else
+                                i.fas.fa-question
+                        span.mr-auto #{album.name}
+                        if (album.found_aid)
+                            div.pl-2
+                                i.fas.fa-check-circle
+                        div.pl-2
+                            if (album.privacy)
+                                i.fas.fa-lock
+                            else
+                                i.fas.fa-globe-americas

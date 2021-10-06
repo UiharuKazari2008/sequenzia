@@ -1,0 +1,30 @@
+html
+    head
+        meta(content=title property="og:title")
+        meta(content=description property="og:description")
+        meta(content=site_title property="og:site_name")
+        meta(content=image property='og:image')
+        meta(name="theme-color" content="#f49e42")
+        if (image)
+            meta(name="twitter:card" content="summary_large_image")
+        //if (msg_channel && msg_id)
+            link(type="application/json+oembed" href=`/cds/content/json/${msg_channel}/${msg_id}?json=true`)
+
+        title=site_title
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        style.
+            html {
+                background: black;
+            }
+    body
+        if (image)
+            img(src=image)

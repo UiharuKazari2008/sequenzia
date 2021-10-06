@@ -1,0 +1,40 @@
+{
+  "base_url": "https://seq.moe/",
+  "cdn_url": "https://cdn.seq.moe/",
+  "cds_url": "https://seq.moe/cds/files/",
+  "site_name": "mySequenzia",
+  "company_name": "Academy City Research",
+  "company_email": "sequenzia@acr.moe",
+  "discord_join_link": "https://konpeki.gay",
+  "pinned_user": "716194461306191914",
+  "support_lines" : [
+    "Discord: Yukimi Kazari#6650",
+    "Telegram: @YukimiKazari",
+    "Twitter: @YukimiKazari",
+    "Phone: +1 484 362 9855"
+  ],
+  "index_items": [
+    {
+      "tooltip": "Global Artists Directory",
+      "name": "Artists",
+      "url": "/artists"
+    },
+    null,
+    {
+      "tooltip": "Images from Twitter",
+      "name": "Twitter Images",
+      "url": "/gallery?search=text:Twitter Image&title=Twitter Images&numdays=120"
+    },
+    {
+      "tooltip": "Images from Pixiv",
+      "name": "Pixiv Images",
+      "url": "/gallery?search=text:\uD83C\uDF86 &title=Pixiv Images&numdays=120"
+    },
+    null,
+    {
+      "tooltip": "Media over 8MB",
+      "name": "Large Media",
+      "url": "/gallery?search=text:\uD83E\uDDE9 File &title=Large Media&numdays=120"
+    }
+  ]
+}

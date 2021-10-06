@@ -1,0 +1,596 @@
+html
+    body
+        div#wrapper
+            #sidebar
+                .overlay-sidebarbg(onclick="toggleMenu(); return false;")
+                    span.sidebar-brand-logo.sequenzia-logo sequenzia
+                // Divider
+                if (sidebar && sidebar.length > 0)
+                    li#homePage.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Homepage" href='/' role='button')
+                            i.fas.fa-home
+                            span.text-capitalize Home
+                    li#searchPosts.nav-item.hidden-default
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Search Results" href='#_' role='button')
+                            i.fas.fa-search
+                            span.text-capitalize Search
+                    li#streamPictures.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Recently Uploaded Photo" href='#/gallery?numdays=60&sort=eid')
+                            i.fas.fa-stream
+                            span.text-capitalize Stream
+                    li#streamFiles.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                            i.fas.fa-folder
+                            span.text-capitalize Files
+                    li#recentPosts.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Photos ordered by date" href='#/gallery?numdays=60')
+                            i.fas.fa-clock
+                            span.text-capitalize Recent
+                    li#favoritePosts.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Your Favorites" href='#/gallery?sort=fav&pins=true')
+                            i.fas.fa-star
+                            span.text-capitalize Favorites
+                    li#albums.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="My Albums" href='#_' data-toggle='collapse' data-target=`#albumsMenu`)
+                            i.fas.fa-archive
+                            span.text-capitalize Albums
+                        #albumsMenu.collapse(aria-labelledby='albumsMenu' data-parent='#accordionSidebar' class=isVisible)
+                            .bg-white.py-2.collapse-inner.rounded
+                                if (albums)
+                                    each thisAlbum in albums
+                                        a.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}` id=`album-item-${thisAlbum.aid}`) #{thisAlbum.name}
+                                    if (albums.length > 0)
+                                        .collapse-divider
+                                a.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Manage Albums" href='#_' onclick=`refreshAlbumsList(); return false;`) Manage Albums
+                    li#randomPosts.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="I'm feeling lucky!" href='#/gallery?sort=random')
+                            i.fas.fa-dice
+                            span.text-capitalize Random
+                    if ((webconfig.index_items && webconfig.index_items.length > 0) || (webconfig.pinned_user && webconfig.pinned_user !== user.id))
+                        li#globalTags.nav-item
+                            a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Global Tags" href='#_' data-toggle='collapse' data-target=`#globalTagsMenu`)
+                                i.fas.fa-atlas
+                                span.text-capitalize Index
+                            #globalTagsMenu.collapse(aria-labelledby='globalTagsMenu' data-parent='#accordionSidebar' class=isVisible)
+                                .bg-white.py-2.collapse-inner.rounded
+                                    if (webconfig.pinned_user && webconfig.pinned_user !== user.id)
+                                        a#pinnedKazari.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Pins by Kazari" href=`#/gallery?sort=fav&pins=${webconfig.pinned_user}`) Pinned
+                                    if (webconfig.index_items && webconfig.index_items.length > 0)
+                                        each indexItem, indexIndex in webconfig.index_items
+                                            if (indexItem === null)
+                                                .collapse-divider
+                                            else
+                                                a.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" id='customIndex' + indexIndex title=indexItem.tooltip href='#' + indexItem.url) #{indexItem.name}
+                    li#historyPosts.nav-item
+                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                            i.fas.fa-history
+                            span.text-capitalize History
+
+                    each thisSuperClass, superIndex in sidebar
+                        // Divider
+                        hr.sidebar-divider
+                        // Heading
+                        .sidebar-heading
+                            span #{thisSuperClass.name}
+                        // Generated Item - #{classificationType}
+                        each thisClass in thisSuperClass.entities
+                            li.nav-item(id=`${thisClass.id}`)
+                                a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisClass.name}` href='#_' data-toggle='collapse' data-target=`#${thisClass.id}Menu` id=thisClass.id)
+                                    i.fas(class=thisClass.icon)
+                                    span.text-capitalize #{thisClass.name}
+                                div.collapse(aria-labelledby=thisClass.id + 'Menu' data-parent='#accordionSidebar' id=`${thisClass.id}Menu` class=isVisible)
+                                    .bg-white.py-2.collapse-inner.rounded
+                                        if (thisClass.entities.length > 1)
+                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*&nsfw=true`) Everything
+                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                    if (thisClass.uri === 'gallery')
+                                                        i.fas.fa-photo-video.ml-1
+                                                    else if (thisClass.uri === 'files')
+                                                        i.fas.fa-folder.ml-1
+                                                    else if (thisClass.uri === 'cards')
+                                                        i.fas.fa-sticky-note.ml-1
+                                                    else if (thisSuperClass.uri === 'gallery')
+                                                        i.fas.fa-photo-video.ml-1
+                                                    else if (thisSuperClass.uri === 'files')
+                                                        i.fas.fa-folder.ml-1
+                                                    else if (thisSuperClass.uri === 'cards')
+                                                        i.fas.fa-sticky-note.ml-1
+                                        - let nsfwIndex = ''
+                                        - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
+                                        if (_mergedChannels.length > 0)
+                                            .collapse-header
+                                                i.fas.fa-layer-group.pr-1
+                                                | Virtual Channels
+                                            each thisVirtualChannel, indexChannel in _mergedChannels
+                                                - let nsfwSearch = ''
+                                                if (thisVirtualChannel.nsfw)
+                                                    - nsfwSearch = "&nsfw=true"
+                                                    - nsfwIndex = "&nsfw=true"
+                                                div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id="vc_" + thisVirtualChannel.id)
+                                                    a.text-capitalize(href=`#/${thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
+                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                            if (thisVirtualChannel.nsfw)
+                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                    a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#vc_c_' + thisVirtualChannel.id)
+                                                        i.fas.fa-chevron-right.align-self-center
+                                                .collapse.m-0(id='vc_c_' + thisVirtualChannel.id style="position: unset;")
+                                                    each thisChannel, indexChannel in thisVirtualChannel.entities
+                                                        - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
+                                                        - let nsfwSearch = ''
+                                                        if (thisChannel.nsfw)
+                                                            - nsfwSearch = "&nsfw=true"
+                                                            - nsfwIndex = "&nsfw=true"
+                                                        a.collapse-item.text-capitalize.icon-padding.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=thisChannel.id href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                if (thisChannel.nsfw)
+                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
+                                                                i.fas.fa-clone
+
+                                        each thisServer, indexServer in server.sort()
+                                            - _channels = thisClass.entities.filter((e) => { return e.server === thisServer.id && e.type === 0})
+                                            if (_channels.length > 0)
+                                                .collapse-header
+                                                    i.fas.fa-database.pr-1
+                                                    span #{thisServer.name}
+                                                if (_channels.length > 2)
+                                                    a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
+                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                            if (thisClass.uri === 'gallery')
+                                                                i.fas.fa-photo-video.ml-1
+                                                            else if (thisClass.uri === 'files')
+                                                                i.fas.fa-folder.ml-1
+                                                            else if (thisClass.uri === 'cards')
+                                                                i.fas.fa-sticky-note.ml-1
+                                                            else if (thisSuperClass.uri === 'gallery')
+                                                                i.fas.fa-photo-video.ml-1
+                                                            else if (thisSuperClass.uri === 'files')
+                                                                i.fas.fa-folder.ml-1
+                                                            else if (thisSuperClass.uri === 'cards')
+                                                                i.fas.fa-sticky-note.ml-1
+                                            each thisChannel, indexChannel in _channels
+                                                - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
+                                                - let nsfwSearch = ''
+                                                if (thisChannel.nsfw)
+                                                    - nsfwSearch = "&nsfw=true"
+                                                    - nsfwIndex = "&nsfw=true"
+                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=thisChannel.id href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                        if (thisChannel.nsfw)
+                                                            i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                        if (thisChannel.uri || thisClass.uri)
+                                                            if (thisChannel.uri && thisSuperClass.uri !== thisChannel.uri)
+                                                                if (thisChannel.uri === 'gallery')
+                                                                    i.fas.fa-photo-video.ml-1
+                                                                else if (thisChannel.uri === 'files')
+                                                                    i.fas.fa-folder.ml-1
+                                                                else if (thisChannel.uri === 'cards')
+                                                                    i.fas.fa-sticky-note.ml-1
+                                                            else if (!thisChannel.uri && thisClass.uri && thisSuperClass.uri !== thisClass.uri)
+                                                                if (thisClass.uri === 'gallery')
+                                                                    i.fas.fa-photo-video.ml-1
+                                                                else if (thisClass.uri === 'files')
+                                                                    i.fas.fa-folder.ml-1
+                                                                else if (thisClass.uri === 'cards')
+                                                                    i.fas.fa-sticky-note.ml-1
+                                        .collapse-header
+                                            i.fas.fa-atlas.pr-1
+                                            | Indexes
+                                        a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
+                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                i.fas.fa-atlas.ml-1
+                                        - _custom_channels = thisClass.entities.filter((e) => { return e.type === 1})
+                                        if (_custom_channels.length > 0)
+                                            .collapse-header
+                                                i.fas.fa-tags.pr-1
+                                                | Quick Access
+                                            each thisCustomChannel in _custom_channels
+                                                a.collapse-item.text-capitalize.icon-padding(title=thisCustomChannel.name id=thisCustomChannel.id href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
+                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                        if (thisCustomChannel.nsfw)
+                                                            i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                        i.fas.fa-tag.ml-1
+                    hr#seqLogoDivider.sidebar-divider.d-none.d-lg-block
+                    li#seqLogoIcon
+                        img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 2.1em; opacity: 0.78;')
+                    li#seqLogoWide
+                        span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
+                    li.server-grid-container.text-center.mt-3
+                        .server-grid.d-inline-block
+                            .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,4).length}, minmax(45px, 40px));`)
+                                for thisServer, thisServerIndex in discord.servers.list.slice(0,4)
+                                    .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
+                                        img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                    div#sidebarbottompadding
+                else
+                    .sidebar-card.text-primary.text-center
+                        img.img-profile.rounded-circle(src=user.avatar style="width: 176px;")
+                        .sidebar-divider.mb-3
+                        strong Access Denied
+                        strong
+                            a.dropdown-item(title="Leave Now" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                i.fas.fa-exclamation-triangle.fa-sm.fa-fw.mr-2.text-danger
+                                | Logout
+                // Sidebar Toggler (Sidebar)
+                //.text-center.d-none.d-md-inline
+                    button#sidebarToggle.rounded-circle.border-0(onclick="toggleMenu(); return false;")
+                //.sidebar-card
+                    img.sidebar-card-illustration.mb-2(src='#_' alt='')
+                    p.text-center.mb-2
+                        strong
+                    a.btn.btn-success.btn-sm(href='#_')
+            #models
+                #actionModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document')
+                        .modal-content
+                            .modal-header.modal-danger
+                                h5.modal-title
+                                    span#postID NaN
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                div#selectedMenu.row
+                                    div.col-4.text-center
+                                        i.fas.fa-5x.fa-toolbox
+                                    div.col-8.text-center
+                                        a.btn.btn-primary.w-100.mb-1(title="Move Item(s)" href='#_' onClick=`selectedActionMenu("MovePost"); return false;`).d-flex
+                                            i.fas.fa-cut.pr-2.align-self-center
+                                            span Move File
+                                        a#actionModelRename.btn.btn-primary.w-100.mb-1(title="Rename Item" href='#_' onClick=`selectedActionMenu("RenamePost"); return false;`).d-none
+                                            i.fas.fa-font.pr-2.align-self-center
+                                            span Rename File
+                                        a#actionModelCompile.btn.btn-primary.w-100.mb-1(title="Compile Spanned File" href='#_' onClick=`selectedActionMenu("CompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none
+                                            i.fas.fa-box-open.pr-2.align-self-center
+                                            span Compile File
+                                        a#actionModelRotate.btn.btn-primary.w-100.mb-1(title="Rotate Image" href='#_' onClick=`selectedActionMenu("RotatePost"); return false;`).d-none
+                                            i.fas.fa-undo.pr-2.align-self-center
+                                            span Rotate Image
+
+                                        a.btn.btn-danger.w-100.mb-1(title="Archive or Delete Item(s)" href='#_' onClick=`selectedActionMenu("ArchivePost"); return false;`).d-flex
+                                            i.fas.fa-trash.pr-2.align-self-center
+                                            span Delete Files
+                                        a#actionModelThumb.btn.btn-danger.w-100.mb-1(title="Generate New Thumbnails" href='#_' onClick=`selectedActionMenu("Thumbnail"); return false;`).d-flex
+                                            i.fas.fa-image.pr-2.align-self-center
+                                            span Repair Thumbnail
+                                        a.btn.btn-danger.w-100(title="Clear Reported Item(s)" href='#_' onClick=`selectedActionMenu("Report"); return false;`).d-flex
+                                            i.fas.fa-flag.pr-2.align-self-center
+                                            span Toggle Report
+                                div#selectedAction.row.d-none
+                                    div#sectionImage.col-4.text-center
+                                        img#postImage.img.img-thumbnail(style="max-height: 10rem;" src="/static/img/sequenzia-logo-mini.png")
+                                    div#sectionIcon.col-4.text-center.hidden
+                                        i.fas.fa-5x
+                                    div.col-8
+                                        div#sectionMovePost.hidden
+                                            | Please select a channel to move these messages to:
+                                            .dropdown
+                                                button#channelSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style='max-width: 11em;')
+                                                    i.fas.fa-cut.pr-2.align-self-center
+                                                    span#selectedChannel.align-self-center.text-ellipsis Select Channel
+                                                .dropdown-menu.scrollable-menu
+                                                    each thisSuperClass, superIndex in sidebar
+                                                        each thisClass in thisSuperClass.entities
+                                                            - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2 })
+                                                            each thisServer, indexServer in server.sort()
+                                                                - _channels = thisClass.entities.filter((e) => { return manage_channels.indexOf(e.id) !== -1 && e.server === thisServer.id && e.type === 0})
+                                                                if (_channels.length > 0)
+                                                                    h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
+                                                                    each thisChannel in _channels
+                                                                        a.dropdown-item(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                                            if (_mergedChannels.length > 0)
+                                                                each thisMergedChannel in _mergedChannels
+                                                                    - _managedMergedChannels = thisMergedChannel.entities.filter(f => manage_channels.indexOf(f.id) !== -1)
+                                                                    if (_managedMergedChannels.length > 0)
+                                                                        h6.dropdown-header.text-capitalize.channel-selector.ml-2.pt-1
+                                                                            i.fas.fa-clone.pr-1
+                                                                            | #{thisMergedChannel.name} - #{thisClass.name}
+                                                                        each thisChannel in _managedMergedChannels
+                                                                            a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                                        if (superIndex !== sidebar.length - 1)
+                                                            .dropdown-divider.channel-selector
+                                        div#sectionRotatePost.hidden
+                                            | Rotate the image:
+                                            .dropdown
+                                                button#rotateSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style='max-width: 11em;')
+                                                    i.fas.fa-undo.pr-2.align-self-center
+                                                    span#selectedRotate.align-self-center.text-ellipsis Select Rotate
+                                                .dropdown-menu.scrollable-menu
+                                                    a.dropdown-item(title="Rotate Left" id="rotateImage270" href='#_' onClick=`selectedRotate('270'); return false;`) Rotate Left
+                                                    a.dropdown-item(title="Rotate 180" id="rotateImage180" href='#_' onClick=`selectedRotate('180'); return false;`) Rotate 180
+                                                    a.dropdown-item(title="Rotate Right" id="rotateImage90" href='#_' onClick=`selectedRotate('90'); return false;`) Rotate Right
+                                        div#sectionArchivePost.hidden
+                                            strong.text-center Are you sure you want to archive or delete these messages
+                                        div#sectionGeneratePost.hidden
+                                            strong.text-center Are you sure you want to repair these messages
+                                        div#sectionRenamePost.hidden
+                                            strong.text-center File Name:
+                                            input#newName(name="filename" onchange="updateFileName(this);" onkeyup="updateFileName(this);" onpaste="updateFileName(this);" oninput="updateFileName(this);").form-group.col
+                            .modal-footer
+                                button.btn.btn-secondary.mr-1(type='button' data-dismiss='modal') Cancel
+                                div#finalButton.d-none
+                                    a#deleteButton.btn.btn-danger.disabled.hidden(title="Delete" href='#_' onClick=`proccessPost("RemovePost"); return false;`)
+                                        i.fas.pr-2.fa-trash-alt
+                                        | Delete
+                                    a#postButton.ml-1.btn.btn-danger.disabled(title="Complete" href='#_' onClick=`proccessPost(); return false;`)
+                                        i.fas.fa-exclamation-triangle.pr-2
+                                        span#ActionName NaN
+                                        span#CountDownTimer
+                script.
+                    const actionModel = document.getElementById("actionModel");
+                    const singlePostBtn = actionModel.querySelector('a#postButton');
+                    const deletePostBtn = actionModel.querySelector('a#deleteButton');
+                    const timerText = actionModel.querySelector("a#postButton #CountDownTimer");
+                #uploadModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document' style='max-width: 340px;')
+                        .modal-content
+                            .modal-header
+                                h5.modal-title
+                                    span#postID Upload File
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                form#uploadForm(enctype="multipart/form-data")
+                                    div#uploadSection
+                                        div.row
+                                            .custom-file.mr-2.ml-2
+                                                input#customFile.custom-file-input(name='files' type='file' multiple)
+                                                label.custom-file-label(for='customFile') Choose file
+                                        div#zipSelection.row.hidden.mt-2
+                                            div.col
+                                                .custom-control.custom-radio.custom-control-inline
+                                                    input#customRadio.custom-control-input(type='radio' name='package' value='false' checked="checked")
+                                                    label.custom-control-label(for='customRadio') File
+                                                .custom-control.custom-radio.custom-control-inline
+                                                    input#customRadio2.custom-control-input(type='radio' name='package' value='true')
+                                                    label.custom-control-label(for='customRadio2') Package
+                                    div#uploadingSection.row.hidden
+                                        div.col
+                                            h4#uploadText.small.font-weight-bold Uploading Content...
+                                            .progress.mb-4(style="height: 30px;")
+                                                #progressBar.progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
+
+                            #Footer.modal-footer
+                                #uploadSelection.dropdown
+                                    button#channelSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style='max-width: 12em;')
+                                        i.fas.fa-upload.pr-2.align-self-center
+                                        span#selectedChannel.align-self-center.text-ellipsis Select Channel
+                                    .dropdown-menu.scrollable-menu
+                                        each thisSuperClass, superIndex in sidebar
+                                            each thisClass in thisSuperClass.entities
+                                                - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
+                                                each thisServer, indexServer in server.sort()
+                                                    - _channels = thisClass.entities.filter((e) => { return write_channels.indexOf(e.id) !== -1 && e.server === thisServer.id && e.type === 0})
+                                                    if (_channels.length > 0)
+                                                        h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
+                                                        each thisChannel in _channels
+                                                            a.dropdown-item.text-capitalize(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisServer.id}', '${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}', "uploadModel", false); return false;`) #{thisChannel.name}
+                                                if (_mergedChannels.length > 0)
+                                                    each thisMergedChannel in _mergedChannels
+                                                        - _writeMergedChannels = thisMergedChannel.entities.filter(f => write_channels.indexOf(f.id) !== -1)
+                                                        if (_writeMergedChannels.length > 0)
+                                                            h6.dropdown-header.text-capitalize.channel-selector.ml-2.pt-1
+                                                                i.fas.fa-clone.pr-1
+                                                                | #{thisMergedChannel.name} - #{thisClass.name}
+                                                            each thisChannel in _writeMergedChannels
+                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                            if (superIndex !== sidebar.length - 1)
+                                                .dropdown-divider.channel-selector
+                                a#postButton.btn.btn-success.disabled(title="Upload" href='#_' onClick=`sendFileData(); return false;`)
+                                    i.fas.fa-upload.pr-2
+                                    span#ActionName Upload
+
+                                    span#CountDownTimer
+                script.
+                    const uploadModel = document.getElementById("uploadModel");
+                    $(".custom-file-input").on("change", function () {
+                        if ($(this)[0].files.length > 1) {
+                            $("#zipSelection").addClass("hidden")
+                            $(this).siblings(".custom-file-label").addClass("selected").html(`${$(this)[0].files.length} Files selected`);
+                            if (uploadDestination !== '') {
+                                uploadModel.querySelector("#postButton").classList.remove('disabled')
+                            }
+                        } else if ($(this)[0].files.length === 1) {
+                            const fileName = $(this).val().split("\\").pop();
+                            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+                            if (uploadDestination !== '') {
+                                uploadModel.querySelector("#postButton").classList.remove('disabled')
+                            }
+                            if ($(".custom-file-input")[0].files[0].name.split('.').pop().toLowerCase() === 'zip') {
+                                $("#zipSelection").removeClass("hidden")
+                            } else {
+                                $("#zipSelection").addClass("hidden")
+                            }
+                        } else {
+                            $("#zipSelection").addClass("hidden")
+                            uploadModel.querySelector("#postButton").classList.add('disabled')
+                        }
+                    });
+                    $('#uploadModel').on('hidden.bs.modal', function (e) {
+                        clearUploadModel();
+                    })
+                #writeModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document' style='max-width: 400px;')
+                        .modal-content
+                            .modal-header
+                                h5.modal-title
+                                    span#writeTitle Send Message
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body.p-0
+                                form#writeForm(enctype="multipart/form-data")
+                                    .form-group.m-0
+                                        textarea#textMessageInput.form-control(name="text-message" style='min-height: 6em;')
+                                        input#linkURL.form-control.bg-translucent.border-0.small.text-left(type='text' placeholder="URL to Download")
+                            .modal-footer
+                                .dropdown
+                                    button#channelSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style='max-width: 12em;')
+                                        i.fas.fa-envelope.pr-2.d-flex.align-self-center
+                                        span#selectedChannel.align-self-center.text-ellipsis Destination
+                                    .dropdown-menu.scrollable-menu
+                                        h6.dropdown-header.text-capitalize.channel-selector.server-selection Download to Server
+                                        each thisServer, indexServer in server.filter(e => (download.filter(f => f.serverid === e.id).length > 0)).sort()
+                                            a.dropdown-item.server-selection.text-capitalize.d-none(title=thisServer.name id='server-' + thisServer.id href='#_' onClick=`selectedUploadChannel('', '${thisServer.id}', '${thisServer.name}', 'writeModel', true); return false;`) #{thisServer.name}
+                                        .dropdown-divider.channel-selector.server-selection.d-none
+                                        h6.dropdown-header.text-capitalize.channel-selector.server-selection Download to Channel
+                                        each thisSuperClass, superIndex in sidebar
+                                            each thisClass in thisSuperClass.entities
+                                                - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
+                                                each thisServer, indexServer in server.sort()
+                                                    - _channels = thisClass.entities.filter((e) => { return write_channels.indexOf(e.id) !== -1 && e.server === thisServer.id && e.type === 0})
+                                                    if (_channels.length > 0)
+                                                        h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
+                                                        each thisChannel in _channels
+                                                            a.dropdown-item.text-capitalize(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisServer.id}', '${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}', 'writeModel', false); return false;`) #{thisChannel.name}
+                                                if (_mergedChannels.length > 0)
+                                                    each thisMergedChannel in _mergedChannels
+                                                        - _writeMergedChannels = thisMergedChannel.entities.filter(f => write_channels.indexOf(f.id) !== -1)
+                                                        if (_writeMergedChannels.length > 0)
+                                                            h6.dropdown-header.text-capitalize.channel-selector.ml-2.pt-1
+                                                                i.fas.fa-clone.pr-1
+                                                                | #{thisMergedChannel.name} - #{thisClass.name}
+                                                            each thisChannel in _writeMergedChannels
+                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                            if (superIndex !== sidebar.length - 1)
+                                                .dropdown-divider.channel-selector
+                                div#sendButtons.d-none
+                                    a#postButton.btn.btn-success.disabled.ml-auto(title="Send" href='#_' onClick=`sendTextMessage(); return false;`)
+                                        i.fas.fa-paper-plane.pr-2
+                                        | Send
+                                div#urlButtons.d-none
+                                    a#downloadButton.btn.btn-success.disabled.ml-auto(title="Download" href='#_' onClick=`sendLinkMessage(); return false;`)
+                                        i.fas.fa-cloud-download-alt.pr-2
+                                        | Download
+                script.
+                    const writeModel = document.getElementById("writeModel");
+                    $("#textMessageInput").on("change", function () {
+                        if ($(this)[0].value.length > 1) {
+                            if (uploadDestination !== '') {
+                                writeModel.querySelector("#postButton").classList.remove('disabled')
+                            }
+                        } else {
+                            writeModel.querySelector("#postButton").classList.add('disabled')
+                        }
+                    });
+                    $("#linkURL").on("change", function () {
+                        if ($(this)[0].value.length > 1) {
+                            writeModel.querySelector("#downloadButton").classList.remove('disabled')
+                        } else {
+                            writeModel.querySelector("#downloadButton").classList.add('disabled')
+                        }
+                    });
+                    $('#writeModel').on('hidden.bs.modal', function (e) {
+                        clearMessageModel();
+                    })
+                #requestModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document')
+                        .modal-content
+                            .modal-header
+                                h5.modal-title
+                                    span FileWorker™
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                div#sectionRequestText.row
+                                    div.col
+                                        h1#requestText Waiting...
+                                div#sectionRequestResults.row.hidden
+                                    div.col-6.align-self-center
+                                        i#requestIcon.fas.fa-5x.fa-file
+                                        img#requestImage.img.img-thumbnail.hidden( style="max-height: 10rem;" src="/static/img/sequenzia-logo-mini.png")
+                                    div.col-6.align-self-center
+                                        a#requestPlay.btn.btn-success.btn-lg.mb-2.hidden(title="Play File" href='#_')
+                                            i.fas.fa-play.pr-2
+                                            span Play File
+                                        a#requestDownload.btn.btn-success.btn-lg(title="Download" href='#_' download target="_blank" rel="noopener noreferrer")
+                                            i.fas.fa-download.pr-2
+                                            span Download File
+                script.
+                    const requestImage = $('#requestImage')[0];
+                    const requestIcon = $('#requestIcon')[0];
+                    const requestDownload = $('#requestDownload')[0];
+                    const requestPlay = $('#requestPlay')[0];
+                    const requestText = $('#requestText')[0];
+                    $('#requestModel').on('hidden.bs.modal', function (e) { clearRequestModel(); });
+                #hiddenChannelModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document' style="max-width: 20em;")
+                        .modal-content
+                            .modal-header.modal-danger
+                                h5.modal-title
+                                    span Hidden Channels
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                .dropdown
+                                    button#disabledChannelSelector.btn.btn-primary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false').w-100
+                                        i.fas.pr-2.align-self-center.fa-eye-slash
+                                        span#disabledChannelsCount.align-self-center NaN
+                                        span.align-self-center.pl-1.mr-auto Hidden Channels
+                                    .dropdown-menu.scrollable-menu.w-100(style='max-height: 70vh;')
+                                        each thisSuperClass, superIndex in sidebar
+                                            each thisClass in thisSuperClass.entities
+                                                - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2 })
+                                                each thisServer, indexServer in server.sort()
+                                                    - _channels = thisClass.entities.filter((e) => { return e.server === thisServer.id && e.type === 0})
+                                                    if (_channels.length > 0)
+                                                        h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
+                                                        each thisChannel in _channels
+                                                            div.dropdown-item(title=thisChannel.name id='chFilter-' + thisChannel.eid onClick=`toggleChannelFilter('${thisChannel.eid}'); return false;` class=`${(disabled_channels.indexOf(thisChannel.eid) !== -1) ? 'text-danger' : ''}`)
+                                                                i.fas(class=`${(disabled_channels.indexOf(thisChannel.eid) !== -1) ? 'fa-minus-circle' : ''}`)
+                                                                span.ml-1 #{thisChannel.name}
+                                                if (_mergedChannels.length > 0)
+                                                    each thisMergedChannel in _mergedChannels
+                                                        - _managedMergedChannels = thisMergedChannel.entities
+                                                        if (_managedMergedChannels.length > 0)
+                                                            h6.dropdown-header.text-capitalize.channel-selector.pt-1
+                                                                i.fas.fa-clone.pr-1
+                                                                | #{thisMergedChannel.name} - #{thisClass.name}
+                                                            div.dropdown-item(onClick=`toggleVChannelFilter('${thisMergedChannel.id}'); return false;`)
+                                                                i.fas.fa-eye
+                                                                span.ml-1 Toggle All
+                                                            each thisChannel in _managedMergedChannels
+                                                                div.dropdown-item(title=thisChannel.name id='chFilter-' + thisChannel.eid href='#_' onClick=`toggleChannelFilter('${thisChannel.eid}'); return false;` class=`${(disabled_channels.indexOf(thisChannel.eid) !== -1) ? 'text-danger' : ''} vcid-${thisMergedChannel.id}`)
+                                                                    i.fas(class=`${(disabled_channels.indexOf(thisChannel.eid) !== -1) ? 'fa-minus-circle' : ''}`)
+                                                                    span.ml-1 #{thisChannel.name}
+                                            if (superIndex !== sidebar.length - 1)
+                                                .dropdown-divider.channel-selector
+                            .modal-footer
+                                button.btn.btn-success(title="Complete" onClick=`sendChannelFilter(); return false;`)
+                                    i.fas.fa-check-circle.pr-2
+                                    | Apply
+                script.
+                    $('#hiddenChannelModel').on({
+                        "click": function (event) {
+                            if ($(event.target).closest('.dropdown-toggle').length) {
+                                $(this).data('closable', true);
+                            } else {
+                                $(this).data('closable', false);
+                            }
+                        },
+                        "hide.bs.dropdown": function (event) {
+                            hide = $(this).data('closable');
+                            $(this).data('closable', true);
+                            return hide;
+                        }
+                    });
+                    $('#hiddenChannelModel').on('show.bs.modal', function (e) { recalculateChannelFilter(); });
+                    $('#hiddenChannelModel').on('hidden.bs.modal', function (e) { cancelChannelFilter(); });
+                script.
+                    let bypassSidebarRefresh = false;
+                    // Event Handeling
+                    $('#actionModel').on('hidden.bs.modal', function (e) {
+                        clearactionModel();
+                    });
+                    try {
+                        $('#albumItemModal').on('hidden.bs.modal', function (e) {
+                            if (!bypassSidebarRefresh) {
+                                getSidebar(true, true);
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Page does not have a album manager")
+                    }
+                // Manager Scripts
+                script(type='text/javascript' src="/js/client/manage.min.js")
+                // Upload Scripts
+                script(type='text/javascript' src="/js/client/upload.min.js")
+                // Request Checker
+                script(type='text/javascript' src="/js/client/status.min.js")

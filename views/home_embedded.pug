@@ -1,0 +1,89 @@
+extends layout
+
+block content
+    if (randomImage)
+        style.
+            .background-image:not(.overlay)  {
+                background-image: url('#{randomImage[0]}');
+            }
+        //style.
+            .home-img, .home-img:hover, .home-img:active {
+                background-image: url('#{randomImage[0]}');
+                background-clip: border-box;
+                background-size: cover;
+                background-position: center;
+                background-blend-mode: multiply;
+                border: 1px #ff8400 solid;
+            }
+    style.
+        .background-image.overlay {
+            background-image: linear-gradient(45deg, #ff37be, #ff5200c9, #ffe00059);
+            transform: none;
+            z-index: -99;
+            opacity: 0.8;
+        }
+        .background-image.overlay::before {
+            content: "";
+            background-image: linear-gradient(180deg, black, transparent);
+            z-index: -98;
+            opacity: 0.8;
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    .container(style='max-width: 500px;')
+        .row.pt-4.pb-3
+            .position-relative.container.d-flex.p-1
+                .justify-content-start.d-flex.pr-3
+                    img.rounded-circle(src=user.avatar style='height: 5em;')
+                .justify-content-center.d-flex
+                    .align-self-center
+                        p.m-0(style='font-size: 1.3em; color: #ffe8cf; line-height: 1em; font-weight: bold;') Welcome!
+                        p.m-0(style='font-size: 2em; color: #f7a752; font-weight: 300;') #{user.username}
+        //.row.d-flex.justify-content-center.d-md-none.pb-1
+            .text-center
+                img(src='/static/img/sequenzia-logo-orange.png').img.img-fluid
+        .row.justify-content-center
+            form(onsubmit="return false;" method="post").w-100
+                .input-group
+                    input#searchHome.form-control.w-50(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev  style='height: 3em;')
+                    input(type="submit" style="display: none" onclick=`getSearchContent("searchHome", "/gallery"); return false;`)
+                    .input-group-append
+                        a.btn.input-group-text.bg-home-search.border-0.btn-lucky(title="Search Images" href='#_', onclick=`getSearchContent("searchHome", "/gallery"); return false;`)
+                            i.fas.fa-image.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
+                        a.btn.input-group-text.bg-home-search.border-0.btn-lucky(title="Search Files" href='#_', onclick=`getSearchContent("searchHome", "/files"); return false;`)
+                            i.fas.fa-folder.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
+                        a.btn.input-group-text.bg-home-search.border-0.btn-lucky(title="Search Artists" href='#_', onclick=`getSearchContent("searchHome", "/artists"); return false;`)
+                            i.fas.fa-address-book.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
+
+            .row.justify-content-center.mt-2.mb-1
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Recent Photos" href='#_', onclick=`getNewContent([], [['numdays','60']], "/gallery"); return false;`)
+                    i.fas.fa-clock
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Photo Stream" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid']], "/gallery"); return false;`)
+                    i.fas.fa-stream
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="File Stream" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid'], ['filesonly', 'true']], "/files"); return false;`)
+                    i.fas.fa-folder
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Favorite Photos" href='#_', onclick=`getNewContent([], [['sort', 'fav'], ['pins', 'true']], "/gallery"); return false;`)
+                    i.fas.fa-star
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Random Photos" href='#_', onclick=`getNewContent([], [['sort', 'random']], "/gallery"); return false;`)
+                    i.fas.fa-dice
+                a.home-img.btn.btn-lucky.btn-home-small.nav-link.col.mr-1.d-sm-none(title="Show Background Image" href='#_', onclick=`$('#previewImage').slideToggle(); return false;`)
+                    i.fas.fa-image
+                a.home-img.btn.btn-lucky.nav-link.col.mr-1.d-none.d-sm-block(title="Show Background Image" href='#_', onclick=`$('#previewImage').slideToggle(); return false;`)
+                    i.fas.fa-image.mr-2
+                    span.text-capitalize Show Image
+            .row.justify-content-center.mt-2.mb-3
+                a.btn.btn-lucky.nav-link.col.mr-1(title="Widescreen Wallpapers (at least 1080p)" href='#_', onclick=`getNewContent([], [['numdays','60'], ['minres', '1080'], ['ratio', '0.01-1']], "/gallery"); return false;`)
+                    i.fas.mr-2.fa-desktop
+                    | Widescreen
+                a.btn.btn-lucky.nav-link.col.mr-1(title="Portrait Wallpapers (at least 1080p)" href='#_', onclick=`getNewContent([], [['numdays','60'], ['minres', '1080'], ['ratio', '1-2.1']], "/gallery"); return false;`)
+                    i.fas.mr-2.fa-mobile-alt
+                    | Portrait
+            if (randomImage)
+                #previewImage.row.justify-content-center.mt-3(style='display: none;')
+                    a(title=`${randomImage[4][0]} / ${randomImage[4][1]} (${randomImage[3]})` href='#_', onclick=`getNewContent([], [['search', '${randomImage[5]}']], "/gallery"); return false;`)
+                        img(src=randomImage[1], style='width: 30em;').img.img-thumbnail.homepage-thumb
+            if (masterCount)
+                .row.justify-content-center.mt-3
+                    each number in Array.from(masterCount.toString().split(''))
+                        img(title="WOW look at all that data" src='/static/img/' + number + '.gif')

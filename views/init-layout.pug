@@ -1,0 +1,562 @@
+- let enableManageTools = false
+- let enableUploadTools = false
+- let writeChannels = []
+- let showSidebar1 = ''
+- let activeParent = ''
+- let activeClass = ''
+doctype html
+html
+    head
+        script.
+            console.log('Starting JuneOS...')
+        title=`${webconf.site_name}`
+
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        meta(content="Sequenzia" property="og:title")
+        meta(content="Image Gallery and File Manager" property="og:description")
+        meta(content="Sequenzia" property="og:site_name")
+        //meta(name="theme-color" content="#4285f4")
+        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='manifest' href='/static/manifest.json')
+        link(rel='preconnect' href='https://cdn.discordapp.com')
+        link(rel='preconnect' href='https://media.discordapp.net')
+        link(rel='preload', href="https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2" as="font" crossorigin)
+        link(rel='preload', href="/static/vendor/fontawesome-free/css/all.min.css" as='style')
+        link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
+        link(rel='preload', href="/css/custom.min.css" as='style')
+        //link(rel='preload', href="https://fonts.googleapis.com/icon?family=Material+Icons" as='style')
+        link(rel='preload', href="/static/css/jquery.fancybox.min.css" as='style')
+        link(rel='preload', href="/static/css/daterangepicker.min.css" as='style')
+        link(rel='preload', href="/static/img/sequenzia-logo-orange.png" as='image')
+        link(rel='preload', href="/static/img/sequenzia-logo-mini.png" as='image')
+        link(rel='preload', href="/static/img/loading_bg.jpg" as='image')
+        //link(rel='preload', href="https://fonts.googleapis.com/css2?family=Material+Icons" as='style')
+
+
+        link(rel='preload', href="/js/client/onload.min.js" as='script')
+        link(rel='preload', href="/js/client/sideloader-layout.min.js" as='script')
+        link(rel='preload', href="/js/client/sideloader.min.js" as='script')
+        link(rel='preload', href="/js/client/displayHistory.min.js" as='script')
+        link(rel='preload', href="/js/client/media-enabler.min.js" as='script')
+        link(rel='preload', href="/js/client/manage.min.js" as='script')
+        link(rel='preload', href="/js/client/upload.min.js" as='script')
+        link(rel='preload', href="/js/client/status.min.js" as='script')
+        link(rel='preload', href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" as='script')
+        link(rel='preload', href='/static/vendor/jquery/jquery.min.js' as='script')
+        link(rel='preload', href='/static/js/jquery.history.min.js' as='script')
+        link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
+        link(rel='preload', href='/static/js/moment.min.js' as='script')
+        link(rel='preload', href='/static/vendor/bootstrap/js/bootstrap.bundle.min.js' as='script')
+        link(rel='preload', href='/static/vendor/jquery-easing/jquery.easing.min.js' as='script')
+
+        link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel="stylesheet", href="/static/css/jquery.fancybox.min.css")
+        link(rel='stylesheet' type='text/css' href='/static/css/bootstrap-slider.min.css')
+        link(rel='stylesheet', href='/static/css/fluid-gallery.min.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
+        link(rel='stylesheet' type='text/css' href='/static/css/daterangepicker.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
+        link(rel="stylesheet", href="/css/custom.min.css")
+        //link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+
+        script(src="/static/vendor/jquery/jquery.min.js")
+        script(src="/static/js/jquery.history.min.js")
+        script(type='text/javascript' src='/static/js/moment.min.js')
+        script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+        script(src="/static/vendor/jquery-easing/jquery.easing.min.js")
+        script(type='text/javascript' src="/static/js/toast.min.js")
+        script(type='text/javascript' src="/static/js/daterangepicker.min.js")
+        script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
+        script(type='text/javascript' src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js")
+
+        script(type='text/javascript' src="/js/client/sideloader-layout.min.js")
+        script(type='text/javascript' src="/js/client/sideloader.min.js")
+        script(type='text/javascript' src="/js/client/displayHistory.min.js")
+        script.
+            let initalPageLoad = true;
+            let IPHL = history.length;
+            function isFirstPage() {
+                if (history.length <= IPHL && !initalPageLoad) {
+                    document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
+                }
+            }
+    body(id="page-top").sidebar-toggled
+        div.background-image.overlay
+        div.background-image.bg-blur
+
+        div(id="wrapper")
+            ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
+                #sidebar
+                    li#homePage.nav-item
+                        a.nav-link.collapsed(title="Homepage" href='/' role='button')
+                            i.fas.fa-home
+                            span.text-capitalize Home
+                    li#streamPictures.nav-item
+                        a.nav-link.collapsed(title="Recently Uploaded Photo" href='#/gallery?numdays=60&sort=eid')
+                            i.fas.fa-stream
+                            span.text-capitalize Stream
+                    li#streamFiles.nav-item
+                        a.nav-link.collapsed(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                            i.fas.fa-folder
+                            span.text-capitalize Files
+                    li#recentPosts.nav-item
+                        a.nav-link.collapsed(title="Photos ordered by date" href='#/gallery?numdays=60')
+                            i.fas.fa-clock
+                            span.text-capitalize Recent
+                    li#favoritePosts.nav-item
+                        a.nav-link.collapsed(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
+                            i.fas.fa-star
+                            span.text-capitalize Favorites
+                    li#albums.nav-item
+                        a.nav-link.collapsed(title="My Albums" href='#_' data-toggle='collapse' data-target=`#albumsMenu`)
+                            i.fas.fa-archive
+                            span.text-capitalize Albums
+                    li#randomPosts.nav-item
+                        a.nav-link.collapsed(title="I'm feeling lucky!" href='#/gallery?sort=random')
+                            i.fas.fa-dice
+                            span.text-capitalize Random
+                    li#globalTags.nav-item
+                        a.nav-link.collapsed(title="Global Tags" href='#_' data-toggle='collapse' data-target=`#globalTagsMenu`)
+                            i.fas.fa-atlas
+                            span.text-capitalize Index
+                        #globalTagsMenu.collapse(aria-labelledby='globalTagsMenu' data-parent='#accordionSidebar' class=isVisible)
+                            .bg-white.py-2.collapse-inner.rounded
+                                a#allArtists.collapse-item.text-capitalize(title="Global Artists Directory" href='#/artists') Artists
+                    li#historyPosts.nav-item
+                        a.nav-link.collapsed(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                            i.fas.fa-history
+                            span.text-capitalize History
+                    // Placeholder while loading
+                    hr.sidebar-divider
+                    .sidebar-heading
+                        span ⬜⬜⬜
+                    li.nav-item
+                        a.nav-link.collapsed(href='#_')
+                            i.fas.fa-circle
+                            span.text-capitalize ⬜
+                    li.nav-item
+                        a.nav-link.collapsed(href='#_')
+                            i.fas.fa-circle
+                            span.text-capitalize ⬜⬜
+                    li.nav-item
+                        a.nav-link.collapsed(href='#_')
+                            i.fas.fa-circle
+                            span.text-capitalize ⬜⬜⬜
+                    li.nav-item
+                        a.nav-link.collapsed(href='#_')
+                            i.fas.fa-circle
+                            span.text-capitalize ⬜⬜
+                    li.nav-item
+                        a.nav-link.collapsed(href='#_')
+                            i.fas.fa-circle
+                            span.text-capitalize ⬜⬜⬜
+                    li.nav-item
+                        a.nav-link.collapsed(href='#_')
+                            i.fas.fa-circle
+                            span.text-capitalize ⬜⬜
+                    hr#seqLogoDivider.sidebar-divider.d-none.d-lg-block
+                    // Logos
+                    li#seqLogoIcon
+                        img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 2.1em; opacity: 0.78;')
+                    li#seqLogoWide
+                        span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
+            div(id="content-wrapper", class="d-flex flex-column")
+                div(id="content")
+                    nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.fixed-top.no-ani
+                        ul.navbar-nav.text-primary.ml-1
+                            li.nav-item.text-right.text-primary.page-title
+                                form.align-self-center.navbar-search.d-inline.d-sm-block(onsubmit="return false;" method="post" )
+                                    .input-group
+                                        .input-group-prepend
+                                            a.btn.input-group-text.bg-transparent.border-0.pl-0
+                                                i.fas.fa-map.align-middle.nav-item
+                                        input#directURI.text-white.form-control.bg-translucent.border-0.small.w-50.rounded-left(type='text' placeholder='Go to Location' aria-label='Go to Location')
+                                        script.
+                                            document.getElementById("directURI").value = decodeURIComponent(document.location.hash.substring(2));
+                                        input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
+                                        .input-group-append
+                                            a.btn.input-group-text.bg-translucent.border-0(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
+                                                i.fas.fa-arrow-right.fa-sm.align-middle.nav-item
+                        div.mr-auto
+                        li.nav-item.dropdown.no-arrow
+                            a#userDropdown.nav-link.dropdown-toggle.pr-0(title="Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                                img.img-profile.rounded-circle(src=user.avatar)
+                            // Dropdown - User Information
+                            .dropdown-menu.dropdown-menu-right.shadow.no-max.animated--grow-in(aria-labelledby='userDropdown')
+                                div.d-sm-flex
+                                    div.pl-sm-3.align-self-center
+                                        img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
+                                        div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
+                                            if (user && user.source || user && user.source === 0)
+                                                if (user.source === 0)
+                                                    // Logged in with Discord
+                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Discord')
+                                                else if (user.source === 1)
+                                                    // Logged in with Discord
+                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Telegram')
+                                                else if (user.source < 100)
+                                                    // Logged in with Discord
+                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified Authentication')
+                                                else if (user.source == 100)
+                                                    // Logged in with Telegram
+                                                    i.fas.fa-lock.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with AuthWare')
+                                                else if (user.source == 900)
+                                                    // Logged in with Unauthorized Login Meathod
+                                                    i.fas.fa-lock-open.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Insecure Authentication Meathod')
+                                                else
+                                                    // Logged in with some unknown platform
+                                                    i.fas.fa-question-circle.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
+                                            else
+                                                // Login Source was not detected
+                                                i.fas.fa-question-circle.text-danger.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
+                                            span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
+                                        if (user && user.source === 900)
+                                            div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                    div.align-self-center.pr-3
+                                        a.dropdown-item(title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                            i.fas.fa-desktop.fa-sm.fa-fw.mr-2
+                                            | Ambient System
+                                        if (user && user.source < 900)
+                                            a.dropdown-item(title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                i.fas.fa-key.fa-sm.fa-fw.mr-2
+                                                | Authentication
+                                        if (webconfig && webconfig.support_lines)
+                                            a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                                i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
+                                                | Support
+                                        a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                            i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
+                                            | About
+                                        .dropdown-divider
+                                        a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                            | Restart App
+                                        a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
+                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                            | Update Sidebar
+                                        a.dropdown-item(title="Refresh Session" href='/discord/refresh')
+                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                            | Update Account
+                                        a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                            i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
+                                            | Logout
+                        div#topbarBackground(style='display: none;')
+                    .container-fluid.max-resize
+                        #contentBlock
+                            div.tz-gallery
+                                div.row
+                                    - var n = 0;
+                                    while n < 15
+                                        - n++
+                                        div.col-image.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(style="opacity: .5;")
+                                            div.internal-lightbox.d-block
+                                                div.text-container.shadow-text
+                                                    p.text.p-start ⬜⬜⬜⬜⬜⬜
+                                                    p.date.p-mid ⬜⬜⬜
+                                                div.links-container.text-primary
+                                            a.lightbox(href='#_')
+                                                div#postImage.square.img.img-responsive
+                                                div#postBackground(style=`background-color: rgb(128, 128, 128)`)
+
+                                script.
+                                    console.log('Welcome to JuneOS for Sequenzia! Version 1.4\n' + '\n' +
+                                                '       __                 ____  _____' + '\n' +
+                                                '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
+                                                ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
+                                                '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
+                                                '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
+                                    if (window.location.hash.substring(1).length === 0) {
+                                        location.href = '/';
+                                    } else {
+                                        console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
+                                        getNewContent([], []);
+                                    }
+                            style.
+                                .background-image:not(.overlay) {
+                                    background-image: url('/static/img/loading_bg.jpg');
+                                }
+
+                                .background-image.overlay {
+                                    background-image: linear-gradient(104deg, #000000, #ffffff00);
+                                    z-index: -99;
+                                    opacity: 0.7;
+                                }
+                        #pageinator
+                #finalLoad
+                    // Music Player Enabler
+                    script(type='text/javascript' src="/js/client/media-enabler.min.js")
+                footer.sticky-footer.bg-transparent
+                    .container.my-auto
+                        .copyright.text-center.my-auto
+                            div.mb-2
+                                span.sidebar-brand-logo.sequenzia-logo(class=showlogo1 style='font-size: 2.8em;') sequenzia
+                            div
+                                strong The Kanmi Sequenzia™ II Project
+                            div
+                                span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
+        // OUTSUDE DYNAMIC CONTENT
+        div#loadingLogo.center-block(style="display: inline-block")
+            .lds-spinner
+                div
+                div
+                div
+                div
+                div
+                div
+                div
+                div
+                div
+                div
+                div
+                div
+        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='bottom: 24px; position: fixed; display: none; z-index: 500;' href='#_' onclick="scrollToTop(); return false;")
+            i.fa.fa-arrow-up
+
+        div#musicplayer.fixed-bottom.music-player(role="alert" style="display: none;")
+            .row.d-flex
+                audio( controls id='audioplayerobject' preload="false" style="width: 100%").col
+                button.align-self-center.btn.btn-circle(type='button' onclick='CloseMusic(); return false;' style='background: #f1f3f4;')
+                    i.fas.fa-times
+        div#videoplayer.fixed-bottom.music-player(role="alert" style="display: none;")
+            .row.d-flex
+                video( id='videoplayerobject' preload="false" height="427" controls style="background: black; background-clip: content-box;").col-auto
+                button.align-self-end.btn.btn-circle(type='button' onclick='CloseVideo(); return false;' style='background: #f1f3f4;')
+                    i.fas.fa-times
+        #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='logoutModelLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Ready to Leave?
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body Select &quot;Logout&quot; below if you are ready to end your current session.
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                        a.btn.btn-danger(title="Logout" href='/discord/destroy') Logout
+        #aboutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title About
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            img(src="/static/img/sequenzia-logo-new.png").img-fluid
+                            span Sequenzia™ II - Image and File Manager for the Kanmi System
+                            br
+                            span Copyright &copy; Academy City Research #{moment(Date.now()).format('YYYY')}
+                        div.row.pl-3.pr-3.pt-2
+                            span Proudly Developed in the United States of America
+                            br
+                            span Developed and Maintained by Academy City Research (acr.moe)
+                            br
+                            span JuneFS™ Storage System
+                            br
+                            span Kanmi™ Content Distribution and Auditing System (CDS)
+                            br
+                            span IntelliDex™ Indexing System (IDEX)
+                        div.row.pl-3.pr-3.pt-2.mb-3
+                            span Thank you to all that have helped test and report issues. Special Thanks to Emmy!
+                        each thisServer, thisIndex in discord.servers.list
+                            .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
+                                div.mr-3
+                                    img.rounded(src=thisServer.icon style='height: 8em;')
+                                div
+                                    h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                    if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
+                                        h5 #{thisServer.name}
+                                    div.d-inline.text-lg
+                                        if (thisServer.login === 1)
+                                            i.fas.fa-key.pr-2.pl-1
+                                            span Login Server
+                                        else
+                                            i.fas.fa-database.pr-2.pl-1
+                                            span Storage Server
+        if (webconfig && webconfig.support_lines)
+            #supportModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
+                .modal-dialog(role='document' style="max-width: 25em;")
+                    .modal-content
+                        .modal-header
+                            h5.modal-title Support
+                            button.close(type='button' data-dismiss='modal' aria-label='Close')
+                                span(aria-hidden='true') &times;
+                        .modal-body
+                            div.row
+                                div.col-auto.align-self-center
+                                    img(src="/static/img/admin-avatar.jpg" style="width: 128px;").img-profile.rounded-circle
+                                div.col-auto.align-self-center
+                                    each line in webconfig.support_lines
+                                        p #{line}
+        #adsModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            span Setup Ambient Display
+                        button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.pl-3.pr-3.pb-2
+                            span Select an Ambient Display:
+                        div
+                            #sendADSStatus.mb-2
+                                span Please Wait...
+                            #sendADSForm.form-row.d-none
+                                div.col-9
+                                    select#sendADSList.form-control
+                                        option(value='Untitled' selected) Default
+                                div.col-3
+                                    a.btn.btn-lucky(href='#_' type="button" onclick=`saveDisplaySettings();`)
+                                        i.fas.fa-save
+        #displayHistoryModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog.modal-dialog-scrollable(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title.flex-grow-1 Ambient System
+                        a.align-self-center(href='#_' onclick='getDisplayHistory("command=getAll"); return false;' role='button').text-white
+                            i.fas.fa-sync-alt
+                        button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
+                            i.fas.fa-times
+                    .modal-body
+                        div
+                            a.btn.btn-lucky(href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                i.fas.fa-tv.pr-2
+                                | Launch Ambient Display
+                        div.pt-2.pb-1.d-flex
+                            a.btn.btn-lucky.mr-1(href='#_' role='button' onclick="$('#displayHistoryModal').modal('hide'); $('#appModal').modal('show'); return false;")
+                                i.fas.fa-mobile-alt.pl-2.pr-2
+                                | Mobile
+                            a.btn.btn-lucky.ml-1(href='https://www.npmjs.com/package/sequenzia-ads-micro' target="_blank" rel="noopener noreferrer")
+                                i.fab.fa-windows.pr-2
+                                | Desktop
+                        #displayHistoryBody Please Wait
+        #albumItemModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog.modal-dialog-scrollable(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title.flex-grow-1 Albums
+                        a.align-self-center(href='#_' onclick='refreshAlbumsList(); return false;' role='button').text-white
+                            i.fas.fa-sync-alt
+                        button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
+                            i.fas.fa-times
+                    .modal-body
+                        div.pb-2
+                            a.btn.btn-lucky(href='#_' type="button" data-toggle="collapse" data-target="#newAlbumForm")
+                                i.pr-2.fas.fa-folder-plus
+                                | Create New Album
+                            #newAlbumForm.collapse
+                                .card.card-body
+                                    div.form-row
+                                        div.form-group.col.col-md-6
+                                            input#albumNameText.form-control(type="text" placeholder="My Wallpapers")
+                                        div.form-group.col.col-md-3
+                                            select#albumTypeSelect.form-control
+                                                option(value='0' selected) Gallery
+                                                option(value='1') Files
+                                                option(value='2') Cards
+                                        div.form-group.col.col-md-3
+                                            select#albumPrivacySelect.form-control
+                                                option(value='1' selected) Private
+                                                option(value='0') Public
+                                                option(value='2' disabled) Link Only
+                                    div.form-row
+                                        a#albumCreateButton.btn.btn-success.ml-auto.mr-1(href='#_' onclick='createNewAlbum(); return false;' )
+                                            i.pr-2.fas.fa-folder-plus
+                                            | Create
+                        #albumItemBody Loading List of Albums...
+        script(src="/static/js/sb-admin-2.min.js")
+        // Modals
+        div#dataModels
+        script.
+            getSidebar();
+        if (user && user.source < 900)
+            #authenticationModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                .modal-dialog.modal-dialog-scrollable(role='document')
+                    .modal-content
+                        .modal-header
+                            h5.modal-title
+                                span AuthWare™ Manager
+                            button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                span(aria-hidden='true') &times;
+                        .modal-body
+                            div.row.pl-3.pr-3
+                                span.mr-auto.align-self-center Express Login:
+                                .input-group(style="width: 13rem;")
+                                    .input-group-prepend
+                                        span.input-group-text(style="background: #ad400059!important; border: 1px solid #9c5b3e; border-right: none;")
+                                            i.fas.fa-key.fa-sm.align-middle.text-primary
+                                    input#expressLoginCode(type='text' placeholder='123ABC' style="background: #ad400059!important;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
+                                    .input-group-append
+                                        a.btn.btn-success(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
+                                            span Login
+                            #authManagerMenus.accordion.pt-3
+                                .card
+                                    #accountHeading.card-header.collapsed
+                                        h5.mb-0
+                                            button.btn.btn-link(type='button' data-toggle='collapse' data-target='#accountCollapse' aria-expanded='true' aria-controls='accountCollapse')
+                                                i.fas.pr-2.fa-user
+                                                | My Account
+                                    #accountCollapse.collapse(aria-labelledby='accountHeading' data-parent='#authManagerMenus')
+                                        .card-body
+                                            div.form-row
+                                                div.form-group.col-12
+                                                    label(for='nameOveride') Name (#{discord.user.username})
+                                                    input#nameOveride(type='text' value=user.username).form-control.form-text
+                                            div.form-row
+                                                div.form-group.col-6.ml-auto
+                                                    a.btn.btn-success(title="Update Account Settings" href='#_' onClick=`saveAccountSettings(); return false;`).w-100
+                                                        i.fas.fa-check.pr-2
+                                                        span Save
+                                if (enableTelegram)
+                                    .card
+                                        #headingOne.card-header.collapsed
+                                            h5.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#collapseOne' aria-expanded='true' aria-controls='collapseOne')
+                                                    i.fab.fa-telegram-plane.pr-2
+                                                    | Telegram Login
+                                        #collapseOne.collapse(aria-labelledby='headingOne' data-parent='#authManagerMenus')
+                                            .card-body.auth-col.d-flex
+                                                script(async src='https://telegram.org/js/telegram-widget.js?15' data-telegram-login='sequenzia_authware_bot' data-size='large' data-auth-url='https://seq.moe/telegram/register')
+                                                div.ml-auto
+                                                    a.btn.mr-2.btn-danger(title="Remove Account Link for Telegram" href='/telegram/remove').align-self-center
+                                                        i.fas.fa-unlink.pr-2
+                                                        span Unlink
+                                .card
+                                    #headingTwo.card-header.collapsed
+                                        h5.mb-0
+                                            button.btn.btn-link.collapsed(type='button' data-toggle='collapse' data-target='#collapseTwo' aria-expanded='false' aria-controls='collapseTwo')
+                                                i.fas.fa-lock.pr-2
+                                                | Static Login Token
+                                    #collapseTwo.collapse(aria-labelledby='headingTwo' data-parent='#authManagerMenus')
+                                        .card-body
+                                            div
+                                                | Your Static Login Token:
+                                                input#staticKeyHolder(type='text' value='Please Wait...').form-control.form-text
+                                            div.pt-2
+                                                a.btn.mr-2.btn-danger(title="Generate New Static Key" href='#_' onClick=`authwareManager('renew'); return false;`)
+                                                    i.fas.fa-key.pr-2
+                                                    span Regenerate
+                                                a.btn.btn-danger(title="Erase New Static Key" href='#_' onClick=`authwareManager('erase'); return false;`)
+                                                    i.fas.fa-key.pr-2
+                                                    span Erase
+                                            div.pt-2
+                                                p.text-danger This token can be use to bypass the standard discord login system and should not be used regularly, You should only use this key for Ambient Displays and Podcast Applications.
+                                                p If you are solely using this for Podcasts, as long as the key is visible you are done and can now generate a podcast feed url from "External Feeds".
+                                                p If you are using this for Ambient Displays, Copy this key and add it to the URL as "https://seq.moe/ambient?displayname=Untitled&key=<YOUR KEY>"
+        // Music Manager
+        script(type='text/javascript' src="/js/client/media.min.js")

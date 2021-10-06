@@ -1,0 +1,20 @@
+html
+    head
+        body
+            div#wrapper
+                li#totalCount.nav-item.text-right.page-title.text-primary.ml-1
+                    if (pageList && pageList.length > 1)
+                        a.btn.dropdown.no-arrow.push-up.p-0.d-inline-flex(title="Page List" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                            span.results-number.badge.badge-primary.p-1 #{resultsCount}
+                        .dropdown-menu.dropdown-menu-left.shadow.animated--grow-in(style='min-width: fit-content;').text-center.ml-3
+                            each page, index in pageList
+                                if ((pageList.length === index + 1 && page.page >= 10) || (index === 1 && page.page > 1))
+                                    span.text-gray-400
+                                        i.fas.fa-ellipsis-v.pt-1.pb-1
+
+                                if (currentPage && currentPage.page === page.page)
+                                    a.dropdown-item(title=`Page ${page.page + 1}` href='#_').active.disabled #{page.page + 1}
+                                else
+                                    a.dropdown-item(title=`Page ${page.page + 1}` href='#_' onclick=`getNewContent([], [${page.url}]); return false;`) #{page.page + 1}
+                    else
+                        span.results-number.badge.badge-primary.p-1.push-up #{resultsCount}

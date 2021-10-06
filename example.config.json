@@ -1,0 +1,16 @@
+{
+  "http_port": 3000,
+  "mq_discord_in": "inbox.discord",
+  "mq_discord_out": "outbox.discord",
+  "mq_fileworker_in": "inbox.fileworker.Eiga-4.local",
+  "fw_path": "./upload-alt/",
+  "upload_folder": "../kanmi/upload-alt/",
+  "tmp_folder": "./tmp/",
+  "cache_serve": "./cache/",
+  "fw_serve": "../kanmi/pickup/",
+  "discord_home_guild": "",
+  "enable_cds": true,
+  "enable_cds_full_request": false,
+  "enable_cds_proxy_request": false,
+  "enable_polyfill_proxy_request": true
+}

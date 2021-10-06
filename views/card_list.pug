@@ -1,0 +1,110 @@
+extends layout
+
+block content
+    if (results && results.length > 0 )
+        - let thisImageManage = false
+        each item, index in results
+            - if (item.manage) { thisImageManage = true }
+        style.
+            .background-image.bg-blur {
+                background-image: url("/static/img/bg.webp");
+            }
+        .card-columns
+            each item, index in results
+                - content = item.content.raw
+                .card.shadow.card-ui(id=`message-${item.id}`)
+                    .card-header.p-2.d-flex.flex-row.align-items-center.justify-content-between
+                        h6.m-0.font-weight-bold.card-header-text
+                            | #{item.meta.message_header}
+                        .dropdown.no-arrow.file-tools(style=`z-index: auto!important`)
+                            a.dropdown-toggle(href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' id='card' + index )
+                                i.fas.fa-ellipsis-v.fa-sm.fa-fw.text-gray-400
+                            .dropdown-menu.dropdown-menu-right.shadow.animated--fade-in(aria-labelledby='card' + index)
+                                span.dropdown-header
+                                    i.fab.fa-discord.mr-1
+                                    | #{item.date.pretty}
+                                a.dropdown-item(href=`https://discord.com/channels/${item.server.id}/${item.channel.id}/${item.id}/` target="_blank" rel="noopener noreferrer")
+                                    i.fas.fa-arrow-left.pr-2
+                                    | Show Original
+                                .dropdown-divider
+                                if (user && user.source < 900)
+                                    if (item.pinned)
+                                        a.dropdown-item(id='fav-' + item.eid title="Unpin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", "false");return false;`)
+                                            i.far.fa-star.pr-2
+                                            | UnFavorite
+                                    else
+                                        a.dropdown-item(id='fav-' + item.eid title="Pin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", "true");return false;`)
+                                            i.fas.fa-star.pr-2
+                                            | Favorite
+                                    a.dropdown-item(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                        i.fas.fa-archive.pr-2
+                                        | Album
+                                    if (thisImageManage)
+                                        .dropdown-divider
+                                        a.dropdown-item(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}"); openActionMenu(); return false;` )
+                                            i.fas.fa-paste.pr-2
+                                            | Manage
+                        if (thisImageManage && user && user.source < 900)
+                            .file-select.hidden
+                                a#checkItem.btn.selectPostToMode.file-CheckItem(href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;`)
+                                    i.far.fa-check-circle.text-white(id='select-' + item.id)
+                                a#unCheckItem.btn.selectPostToMode.file-unCheckItem.hidden(href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
+                                    i.fas.fa-check-circle(id='select-' + item.id)
+                    // Card Body
+                    .card-body.p-2
+                        if (item.meta.message_type.startsWith('image'))
+                            a(href=item.entities.full target='_blank', rel='noopener noreferrer').mb-1.d-block
+                                img(src=item.entities.preview).card-img
+                            if (item.content.clean.length > 1)
+                                span.font-italic.text-center.mt-1 "#{item.content.clean}"
+                            else if (item.meta.message_type.endsWith('packed'))
+                                span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
+                            if (item.meta.message_type === 'image-unpacked')
+                                a(href=item.entities.download target='_blank', rel='noopener noreferrer' download).btn.btn-success.d-block
+                                    i.fas.fa-download.pr-2
+                                    | Download File
+                            else if (item.meta.message_type === 'image-packed')
+                                a.btn.btn-primary(title="Get Download" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`).d-block
+                                    i.fas.fa-box-open.pr-2
+                                    span Compile File
+
+                        else if (item.entities.full && item.meta.message_type === 'link')
+                            - cardurl = item.entities.full.split('** - ***').pop().replace('***', '').split('`').join('')
+                            - cardbody = content.split('** - ***')[0].replace('**🔗 ', '').split('`').join('')
+                            a(href=cardurl target='_blank', rel='noopener noreferrer').card-link #{cardbody}
+                        else if (item.meta.message_type === 'link')
+                            - cardurl = content.split('`').join('')
+                            a(href=cardurl target='_blank', rel='noopener noreferrer').card-link #{cardurl.replace('http://', '').replace('https://', '')}
+                        else if (item.meta.message_type === 'youtube-video')
+                            - cardurl = content.split('** - ***').pop().replace('***', '')
+                            - cardname = content.split('** - ***')[0].replace('**📼 ', '').replace('- YouTube', '')
+                            a(href=cardurl target='_blank', rel='noopener noreferrer').card-link #{cardname}
+                        else if (item.meta.message_type === 'file'|| item.meta.message_type === 'file-unpacked')
+                            span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
+                            a(href=item.entities.download target='_blank', rel='noopener noreferrer' download).btn.btn-success.d-block
+                                i.fas.fa-download.pr-2
+                                | Download File
+                        else if (item.meta.message_type === 'file-packed')
+                            span.font-italic.d-block.mb-1.text-center #{item.entities.filename}
+                            a.btn.btn-primary(title="Get Download" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`).d-block
+                                i.fas.fa-box-open.pr-2
+                                span Compile File
+                        else if (item.content.full && item.content.full.substr(0,1) === '`' && item.content.full.substr(content.length-1,1) === '`')
+                            code
+                                small #{item.content.full.substr(1,content.length-2)}
+                        else
+                            span #{content.split('** - ').pop().split('`').join("")}
+    else
+
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpg');
+            }
+        .alert.alert-danger(role='alert')
+            h4.alert-heading No Results
+            p
+                | Your search query or requested channel is either invalid or does not contain any gallery content
+            hr
+            p.mb-0
+                | Please go back to a valid channel or retry your search with another (maybe less specific) query
+

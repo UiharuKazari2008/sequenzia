@@ -1,0 +1,125 @@
+html
+    head
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/font/weathericons-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='manifest' href='/static/manifest.json')
+        title= `${webconf.site_name}`
+        link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel='stylesheet', href='/static/css/weather-icons.min.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Yantramanav:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
+        link(rel="stylesheet", href="/css/custom.min.css")
+        link(rel="stylesheet", href="/css/ambient.min.css")
+        style.
+            .background-image {
+                transform: none;
+            }
+    body
+        #overlayCycle
+        #overlayBg.background-image.overlay
+        #overlayLeft.background-image.overlay-left.d-none
+        #bg1.background-image(style=`opacity: 1; z-index: -101!important; background-image: url('/static/img/ambient-default.png');`)
+        #bg2.background-image(style=`opacity: 0; z-index: -103!important; background-image: url('#_');`)
+        img#bg1port.portait-overlay.center-block(style='z-index: -100!important; opacity: 0;')
+        img#bg2port.portait-overlay.center-block(style='z-index: -102!important; opacity: 0;')
+
+
+        #content-wrapper.container.p-4
+            .fixed-bottom
+                #errorBanner
+            .fixed-top.m-5.animated--fade-in.hidden-on-boot
+                #quoteContainer.quote.shadow-text.d-none
+                    span#quoteText
+                    span#quoteAuthor
+            .fixed-top.m-5.animated--fade-in.hidden-on-boot
+                #logoTop.d-none.justify-content-end.pr-4(style='opacity: .6')
+                    span.sequenzia-logo.shadow-txt.text-white(style="font-size: 2.7em;position: relative;top: 0.2em;") sequenzia
+                #displayInfo.d-flex.justify-content-end.hover-show.d-none(style='opacity: .4;')
+                    span#displayName.align-self-center(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
+                #userInfo.d-flex.justify-content-end.hover-show(style='opacity: .4;')
+                    span.align-self-center(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;') #{user.username}
+                    a#userDropdown.pr-0(href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                        img.img-profile.rounded-circle(src=user.avatar style='width: 2.5em; box-shadow: 0 0 8px black; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
+                    // Dropdown - User Information
+                    .dropdown-menu.dropdown-menu-tas.shadow(aria-labelledby='userDropdown')
+                        a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                            | Restart App
+                        a.dropdown-item(title="Refresh Session" href='/discord/refresh')
+                            i.fas.fa-upload.fa-sm.fa-fw.mr-2
+                            | Update Account
+                        a.dropdown-item(href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                            i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
+                            | Logout
+            #BottomSestion.fixed-bottom.d-flex.m-5
+                .flex-grow-1.align-self-end(style='opacity: .6').animated--fade-in.hidden-on-boot
+                    span#logoStart.sequenzia-logo.shadow-txt.text-white(style="font-size: 2.7em;position: relative;top: 0.2em;") sequenzia
+                #sideData.justify-content-end.flex-column.d-flex.pr-4
+                    #dateInfo.clock-date.clock.ml-auto.animated--fade-in.hidden-on-boot
+                        span#day.shadow-txt
+                        span#date.pl-2.shadow-txt
+                    .ml-auto.d-flex.animated--fade-in.hidden-on-boot
+                        #weatherInfo.weather.d-flex.align-items-end.mb-2.hidden
+                            #weatherData
+                                .pr-1.text-end
+                                    span#weatherDataCond.text-uppercase.hidden
+                                    #weatherLoHi.text-end.hidden
+                                        span#weatherDataLo
+                                        i.weather-format.wi.wi-degrees
+                                        .d-inline-block
+                                            i.fas.fa-circle.mb-1.shadow-txt(style='margin: 0 1em 0.5em 1em;font-size: 6px;vertical-align: middle;line-height: 0.1em;')
+                                        span#weatherDataHi
+                                        i.weather-format.wi.wi-degrees
+                                .text-end.current-weather
+                                    .d-inline-flex
+                                        span#weatherDataTemp
+                                        i#weatherFormat.weather-format.align-text-top.wi
+                            #weatherIcon.ml-2
+                                i#weatherIconMin
+                        #timeInfo.clock-time.clock
+                            span#time.shadow-txt
+                    #dataInfo.ml-auto.pt-1(style='opacity: 0.4; font-size: 1.3rem; font-weight: 100;')
+                        .d-inline-flex.animated--fade-in.hidden-on-boot
+                            i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center.d-none(style='font-size: 16px; vertical-align: middle;')
+                            i#dataIcon.shadow-txt.fas.fa-search.shadow-txt.align-self-center.d-none(style='font-size: 16px; vertical-align: middle; opacity: 0.25;')
+                        span#data2.shadow-txt.pr-2.pl-1(style='opacity: 0.25')
+                        span#data3.shadow-txt Booting...
+                        .d-inline-block.p-2.align-self-center.animated--fade-in.hidden-on-boot
+                            i.fas.fa-circle.shadow-txt(style='font-size: 8px; vertical-align: middle;')
+                        span#data1.text-capitalize.shadow-txt.animated--fade-in.hidden-on-boot
+                    #logoEnd.ml-auto.pt-2.d-none(style='opacity: .6').animated--fade-in.hidden-on-boot
+                        span.sequenzia-logo.shadow-txt.text-white(style="font-size: 2.7em;position: relative;top: 0.2em;") sequenzia
+
+    // Logout Modal
+    #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+        .modal-dialog(role='document')
+            .modal-content
+                .modal-header
+                    h5#exampleModalLabel.modal-title Ready to Leave?
+                    button.close(type='button' data-dismiss='modal' aria-label='Close')
+                        span(aria-hidden='true') &times;
+                .modal-body Select &quot;Logout&quot; below if you are ready to end your current session.
+                .modal-footer
+                    button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                    a.btn.btn-danger(href='/discord/destroy') Logout
+
+    script(src="/static/vendor/jquery/jquery.min.js")
+    script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+    script(src="/static/vendor/jquery-easing/jquery.easing.min.js")
+    script(src="/static/js/moment.min.js")
+    script(src="/static/js/sb-admin-2.js")
+    script(src="/js/client/ambient.min.js")
+

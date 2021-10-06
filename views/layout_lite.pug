@@ -1,0 +1,62 @@
+- let enableManageTools = false
+- let enableUploadTools = false
+- let writeChannels = []
+- let showSidebar1 = ''
+- let activeParent = ''
+- let activeClass = ''
+doctype html
+html
+    head
+        title=`${webconf.site_name}`
+
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        meta(content="Sequenzia" property="og:title")
+        meta(content="Image Gallery and File Manager" property="og:description")
+        meta(content="Sequenzia" property="og:site_name")
+        //meta(name="theme-color" content="#4285f4")
+        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='manifest' href='/static/manifest.json')
+        link(rel='preconnect' href='https://cdn.discordapp.com')
+        link(rel='preconnect' href='https://media.discordapp.net')
+        link(rel="stylesheet", href="/css/layout-basic.min.css")
+    body(id="page-top")
+        div.topbar-heading
+            div.logo-container
+                img(src="/static/img/sequenzia-logo-orange.png")
+            div.search-box
+                form
+                    input(type='text' placeholder='Search...' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=(search_prev) ? search_prev : "")
+        div.topbar-menubar
+            ul.menubar-list
+                li.menubar-item
+                    span Directory
+                li.menubar-item
+                    span Gallery
+                li.menubar-item
+                    span Files
+                li.menubar-item
+                    span Cards
+                li.menubar-item
+                    span Favorites
+                li.menubar-item
+                    span Albums
+                li.menubar-item
+                    span Artists
+                li.menubar-item
+                    span My Account
+        div.content
+            block content
+    footer
+        div.footer-section
