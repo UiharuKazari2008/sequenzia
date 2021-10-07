@@ -1,6 +1,10 @@
 # Kanmi Sequenzia Framework
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
+## v20 (RC1 JFS v1.5)
+Where is v19-18? Where pulling a microsoft to version match the two projects<br>
+
+
 ## v17 (RC1 JFS v1.5)
 ### Important Notes
 This update requires Kanmi v19 to be applied
