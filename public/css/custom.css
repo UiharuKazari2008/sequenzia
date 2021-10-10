@@ -1028,6 +1028,10 @@ border-color: transparent;
 .btn-ice:hover, .btn-ice:focus, .btn-ice:active {
     color: #23b8ff;
 }
+
+.btn-stream:hover, .btn-stream:focus, .btn-stream:active {
+    color: rgb(0, 187, 255);
+}
 .btn-fav.disabled, .btn-fav:disabled {
     color: #ffffff73;
 }
@@ -1773,6 +1777,10 @@ p.status-icons.left-links.history-date {
 .background-image.bg-blur {
     filter: blur(4px);
 }
+
+.btn-stream {
+    color: rgb(103, 227, 255);
+}F
 
 footer .server-grid-parent {
     max-width: 18em;

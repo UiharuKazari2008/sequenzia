@@ -75,10 +75,10 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                                         }
                                                         function sendThisFile() {
                                                             const local_filename = `SEQPACK-${crypto.randomBytes(16).toString("hex")}`
-                                                            const fileWriter = fs.createWriteStream(`${global.upload_folder}${local_filename}`)
+                                                            const fileWriter = fs.createWriteStream(path.join(global.upload_folder, local_filename))
                                                             readStream.pipe(fileWriter);
                                                             fileWriter.on('finish', function () {
-                                                                if (fs.existsSync(`${global.upload_folder}${local_filename}`)) {
+                                                                if (fs.existsSync(path.join(global.upload_folder, local_filename))) {
                                                                     const MessageBody = {
                                                                         Type: 'Remote',
                                                                         ChannelID: req.query.channelid,
@@ -137,11 +137,11 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                 }
                             }
                             function sendThisFile() {
-                                mv(p.path, `${global.upload_folder}${p.filename}`, {mkdirp: true, clobber: true}, function (err) {
+                                mv(p.path, path.join(global.upload_folder, p.filename), {mkdirp: true, clobber: true}, function (err) {
                                     if (err) {
                                         printLine('Upload', `Error saving file to fileworker folder - ${err}`, 'error');
                                     } else {
-                                        if (fs.existsSync(`${global.upload_folder}${p.filename}`)) {
+                                        if (fs.existsSync(path.join(global.upload_folder, p.filename))) {
                                             const MessageBody = {
                                                 Type: 'Remote',
                                                 ChannelID: req.query.channelid,

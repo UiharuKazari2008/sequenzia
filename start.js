@@ -11,19 +11,19 @@ if (!fs.existsSync(config.tmp_folder)){
 
 if (host.watchdog_host && host.watchdog_id) {
     setInterval(() => {
-        request.get(`http://${host.watchdog_host}/watchdog/ping?id=${host.watchdog_id}&entity=Sequenzia-${host.system_name}`, async (err, res) => {
+        request.get(`http://${host.watchdog_host}/watchdog/ping?id=${host.watchdog_id}&entity=Sequenzia-${host.system_name}${(process.env.NODE_APP_INSTANCE) ? '-' + process.env.NODE_APP_INSTANCE : ''}`, async (err, res) => {
             if (err || res && res.statusCode !== undefined && res.statusCode !== 200) {
-                console.error(`Failed to ping watchdog server ${host.watchdog_host} as Sequenzia:${host.watchdog_id}`);
+                console.error(`Failed to ping watchdog server ${host.watchdog_host} as Sequenzia:${host.watchdog_id}${(process.env.NODE_APP_INSTANCE) ? ':' + process.env.NODE_APP_INSTANCE : ''}`);
             }
         })
     }, 60000);
-    request.get(`http://${host.watchdog_host}/watchdog/init?id=${host.watchdog_id}&entity=Sequenzia-${host.system_name}`, async (err, res) => {
+    request.get(`http://${host.watchdog_host}/watchdog/init?id=${host.watchdog_id}&entity=Sequenzia-${host.system_name}${(process.env.NODE_APP_INSTANCE) ? '-' + process.env.NODE_APP_INSTANCE : ''}`, async (err, res) => {
         if (err || res && res.statusCode !== undefined && res.statusCode !== 200) {
-            console.error(`Failed to init watchdog server ${host.watchdog_host} as Sequenzia:${host.watchdog_id}`);
+            console.error(`Failed to init watchdog server ${host.watchdog_host} as Sequenzia:${host.watchdog_id}${(process.env.NODE_APP_INSTANCE) ? ':' + process.env.NODE_APP_INSTANCE : ''}`);
         }
     })
 }
-const server = app.listen((process.env.PORT) ? process.env.PORT : config.http_port, () => {
+const server = app.listen((process.env.NODE_APP_INSTANCE) ? parseInt(process.env.NODE_APP_INSTANCE.toString()) + parseInt(config.http_port.toString()) : config.http_port, () => {
     printLine('ExpressInit', `Web server is running on port ${server.address().port}`, 'debug');
     process.send('ready');
 });

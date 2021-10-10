@@ -21,9 +21,13 @@ const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
 
-// Bootup Mantenance
-sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`)
-
+if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
+    // Bootup Mantenance
+    (async () => {
+        await sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`);
+        await sqlPromiseSafe(`DELETE s1 FROM sequenzia_favorites s1, sequenzia_favorites s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.userid = s2.userid`);
+    })()
+}
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -165,7 +169,7 @@ app.set('trust proxy', 1);
 app.use('/', routes);
 app.use('/discord', routesDiscord);
 app.use('/telegram', routesTelegram);
-if (global.enable_cds === true) {
+if (global.enable_cds) {
     app.use(['/cds', '/status'], rateLimit({
         windowMs: 15 * 60 * 1000, // 5 minutes
         max: 50,
