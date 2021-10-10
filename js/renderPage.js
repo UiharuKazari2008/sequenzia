@@ -39,13 +39,14 @@ module.exports = async (req, res, next) => {
     }
 
     if (req.query.responseType && req.query.responseType === 'podcast') {
+        const serverIcon = (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
         const podcastResponse = new podcast({
             title: `${results.full_title}`,
             itunesSubtitle: web.site_name,
             description: (results.description) ? results.description : 'Sequenzia Podcast Feed',
             itunesSummary: (results.description) ? results.description : 'Sequenzia Podcast Feed',
-            imageUrl: (results.active_svr) ? req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png',
-            itunesImage: (results.active_svr) ? req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png',
+            imageUrl: serverIcon,
+            itunesImage: serverIcon,
             siteUrl: web.base_url,
             author: web.site_name,
             itunesAuthor: web.site_name,
@@ -74,6 +75,10 @@ module.exports = async (req, res, next) => {
                     podcastItem.enclosure = {
                         url: `${item.entities.download}?blind_key=${req.session.discord.user.token_login}`
                     }
+                } else if (item.entities.filename) {
+                    podcastItem.enclosure = {
+                        url: `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.entities.meta.fileid}/${item.entities.filename}?blind_key=${req.session.discord.user.token_login}`
+                    }
                 }
                 podcastResponse.addItem(podcastItem)
             })
@@ -81,13 +86,14 @@ module.exports = async (req, res, next) => {
         res.header("Content-Type", "text/xml").send(podcastResponse.buildXml());
     } else if (req.query.responseType && ['xml', 'json', 'atom'].indexOf(req.query.responseType) !== -1 ) {
         if (req.session.discord.user.token_login && req.session.discord.user.token_static) {
+            const serverIcon = (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
             const xmlResponse = new feed({
                 title: `${results.full_title}`,
                 description: (results.description) ? results.description : 'Sequenzia Response Feed',
                 id: params(['key', 'blind_key'],[]),
                 link: params(['responseType', 'key', 'blind_key'],[]),
                 language: "en",
-                image: (results.active_svr) ? req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/img/sequenzia-logo-podcast.png',
+                image: serverIcon,
                 favicon: req.protocol + '://' + req.get('host') + '/favicon.ico',
                 copyright: `Copyright (c) ${web.company_name} ${moment(Date.now()).format('YYYY')}`,
                 generator: "Sequenzia Digital Media Management Server",

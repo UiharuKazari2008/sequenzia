@@ -135,7 +135,10 @@ block content
                                             a#unCheckItem.btn.deselectPostToMode.file-unCheckItem.hidden(title="Deselect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                                 i.fas.fa-check-circle(id='select-' + item.id)
                                     .btn-group.d-inline-block
-                                        if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp3') || item.entities.download.toLowerCase().includes('.m4a') || item.entities.download.toLowerCase().includes('.ogg') || item.entities.download.toLowerCase().includes('.wav')))
+                                        if (item.entities.meta.fileid && item.entities.filename && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp3') || item.entities.filename.toLowerCase().includes('.m4a') || item.entities.filename.toLowerCase().includes('.ogg') || item.entities.filename.toLowerCase().includes('.wav')))
+                                            a.btn(title="Play Audio" href='#_' onclick=`PlayTrack("/stream/${item.entities.meta.fileid}/${item.entities.filename}"); return false;` id=`play-${item.id}` class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
+                                                i.fas.fa-play
+                                        else if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp3') || item.entities.download.toLowerCase().includes('.m4a') || item.entities.download.toLowerCase().includes('.ogg') || item.entities.download.toLowerCase().includes('.wav')))
                                             a.btn.btn-switchmode(title="Play Audio" href='#_' onclick=`PlayTrack("${item.entities.download}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.full && item.entities.full.length > 5 && (item.entities.full.toLowerCase().includes('.mp3') || item.entities.full.toLowerCase().includes('.m4a') || item.entities.full.toLowerCase().includes('.ogg') || item.entities.full.toLowerCase().includes('.wav')))
@@ -143,6 +146,9 @@ block content
                                                 i.fas.fa-play
                                         else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp3') || item.entities.preview.toLowerCase().includes('.m4a') || item.entities.preview.toLowerCase().includes('.ogg') || item.entities.preview.toLowerCase().includes('.wav')))
                                             a.btn.btn-switchmode(title="Play Audio" href='#_'  onclick=`PlayTrack("${item.entities.preview}"); return false;` id=`play-${item.id}`)
+                                                i.fas.fa-play
+                                        else if (item.entities.meta.fileid && item.entities.filename && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.webm') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v')))
+                                            a.btn(title="Play Video" href='#_'  onclick=`PlayVideo("/stream/${item.entities.meta.fileid}/${item.entities.filename}"); return false;` id=`play-${item.id}` class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-play
                                         else if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp4') || item.entities.download.toLowerCase().includes('.webm') || item.entities.download.toLowerCase().includes('.webm') || item.entities.download.toLowerCase().includes('.m4v')))
                                             a.btn.btn-switchmode(title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
@@ -163,7 +169,10 @@ block content
                                                     a.btn.btn-fav(title="Inprogress..."  href='#_' id=`request-download-${item.id}`)
                                                         i.fas.fa-spinner
                                                 else
+
                                                     if (user && user.source < 900)
+                                                        a.btn.btn-stream(title="Download" download=item.entities.filename href=`/stream/${item.entities.meta.fileid}/${item.entities.filename}` target="_blank" rel="noopener noreferrer")
+                                                            i.fas.fa-download
                                                         a.btn.btn-fav(title="Get Download" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`)
                                                             i.fas.fa-box-open
                                                     a.btn.btn-switchmode.d-none(title="Download" download href='#_d' target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
@@ -172,10 +181,9 @@ block content
                                                 if (item.entities.full && item.entities.full.length > 5)
                                                     a.btn.btn-switchmode(title="Download" download=item.entities.filename href=item.entities.full target="_blank" rel="noopener noreferrer")
                                                         i.fas.fa-download
-                                        else
-                                            if (item.entities.download && item.entities.download.length > 5)
-                                                a.btn.btn-switchmode(title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer")
-                                                    i.fas.fa-download
+                                        else if (item.entities.download && item.entities.download.length > 5)
+                                            a.btn.btn-switchmode(title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer")
+                                                i.fas.fa-download
                                         if (item.content.clean)
                                             if (item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1)
                                                 a.btn.btn-fav(tabindex="0" role='button' data-toggle='popover' title='Message Contents' data-html="true" data-content=item.content.raw.split("\n").join('<br/>'))

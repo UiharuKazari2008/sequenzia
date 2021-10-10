@@ -1,8 +1,19 @@
 {
   "name": "kanmi-ui",
-  "version": "1.0.0",
+  "version": "17.1.0",
+  "description": "Frontend Web Interface for Sequenzia",
+  "homepage": "https://sequenzia.moe",
+  "author": {
+    "name": "Yukimi Kazari",
+    "email": "kazari@seq.moe"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
   "dependencies": {
-    "amqplib": "^0.6.0",
+    "amqplib": "^0.8.0",
     "body-parser": "^1.19.0",
     "btoa": "^1.2.1",
     "colors": "^1.4.0",
@@ -11,7 +22,7 @@
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "express-mysql-session": "^2.1.5",
+    "express-mysql-session": "^2.1.7",
     "express-rate-limit": "^5.2.6",
     "express-session": "^1.17.1",
     "express-useragent": "^1.0.15",
@@ -23,7 +34,7 @@
     "http-auth": "^4.1.2",
     "image-size": "^0.9.3",
     "ioredis": "^4.22.0",
-    "knex": "^0.21.17",
+    "knex": "^0.95.11",
     "limiter": "^1.1.5",
     "md5": "^2.3.0",
     "mime-types": "^2.1.29",
@@ -39,8 +50,9 @@
     "nunjucks": "^3.2.2",
     "object-hash": "^2.1.1",
     "podcast": "^1.3.0",
-    "pug": "*",
+    "pug": "^3.0.2",
     "qrcode": "^1.4.4",
+    "remote-file-size": "^3.0.5",
     "request": "^2.88.2",
     "response-time": "^2.3.2",
     "rimraf": "^3.0.2",

@@ -2,7 +2,7 @@ const config = require('../host.config.json');
 const global = require('../config.json');
 const amqp = require('amqplib/callback_api');
 const { printLine } = require('./logSystem');
-const { Cache9, Cache9dot1, Cache5, Cache3, CacheRemove, CacheColor, updateFileName } = require('./cacheMaster');
+const { CacheColor, updateFileName } = require('./cacheMaster');
 const { sqlSimple, sqlSafe } = require('../js/sqlClient');
 const RateLimiter = require('limiter').RateLimiter;
 const limiter1 = new RateLimiter(1, 1000);
@@ -105,80 +105,9 @@ function work(msg, cb) {
             } else if (results.length > 0) {
                 limiter1.removeTokens(1, async function () {
                     switch(MessageContents.command) {
-                        case 'cache9':
-                            if (results[0].cache_proxy === null && global.enable_cds_proxy_request) {
-                                if (MessageContents && MessageContents.id && !isNaN(parseInt(MessageContents.id.toString())) && MessageContents.url && MessageContents.url !== '') {
-                                    sqlSafe(`UPDATE kanmi_records
-                                             SET cache_proxy = 'inprogress'
-                                             WHERE id = ?`, [MessageContents.id], async (err, results) => {
-                                        if (err) {
-                                            printLine('CacheMaster', `Failed to cache item for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                                            cb(true);
-                                        } else if (results.affectedRows && results.affectedRows > 0) {
-                                            await Cache9(MessageContents, async function (result) {
-                                                if (result) {
-                                                    cb(true);
-                                                } else {
-                                                    cb(true);
-                                                    sqlSimple(`UPDATE kanmi_records
-                                                               SET cache_proxy = null
-                                                               WHERE id = ?`, [MessageContents.id], async (err, results) => {
-                                                    })
-                                                }
-                                            })
-                                        } else {
-                                            printLine('SQL', `Nothing to update for ${MessageContents.id}`, 'warning');
-                                            cb(true);
-                                        }
-                                    })
-                                } else {
-                                    printLine('SQL', `Nothing to update for ${MessageContents.id}`, 'warning');
-                                    cb(true);
-                                }
-                            } else {
-                                cb(true);
-                            }
-                            break;
                         case 'cacheColor':
                             if (MessageContents && MessageContents.id && !isNaN(parseInt(MessageContents.id.toString())) && MessageContents.url && MessageContents.url !== '') {
                                 await CacheColor(MessageContents, async function (result) {
-                                    if (result) {
-                                        cb(true);
-                                    } else {
-                                        cb(true);
-                                    }
-                                })
-                            } else {
-                                cb(true);
-                            }
-                            break;
-                        case 'cache5':
-                            if (results[0].cache_url === null && results[0].fileid === null && global.enable_cds_full_request) {
-                                sqlSafe(`UPDATE kanmi_records SET cache_url = 'inprogress' WHERE id = ?`, [MessageContents.id], async (err, results) => {
-                                    if (err) {
-                                        printLine('CacheMaster', `Failed to cache item for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                                        cb(true);
-                                    } else if (results.affectedRows && results.affectedRows > 0) {
-                                        await Cache5(MessageContents, async function (result) {
-                                            if (result) {
-                                                cb(true);
-                                            } else {
-                                                cb(true);
-                                                sqlSimple(`UPDATE kanmi_records SET cache_url = null WHERE id = ?`, [MessageContents.id], async (err, results) => { })
-                                            }
-                                        })
-                                    } else {
-                                        printLine('SQL', `Nothing to update for ${MessageContents.id}`, 'warning');
-                                        cb(true);
-                                    }
-                                })
-                            } else {
-                                cb(true);
-                            }
-                            break;
-                        case 'remove':
-                            if (results[0].cache_url !== null || results[0].cache_proxy !== null) {
-                                await CacheRemove(MessageContents, async function (result) {
                                     if (result) {
                                         cb(true);
                                     } else {
@@ -208,44 +137,6 @@ function work(msg, cb) {
             } else if (results.length > 0) {
                 limiter1.removeTokens(1, async function () {
                     switch(MessageContents.command) {
-                        case 'cache5':
-                        case 'cache3':
-                            if (results[0].cache_url === null && results[0].fileid === null && global.enable_cds_full_request) {
-                                if (MessageContents && MessageContents.id && !isNaN(parseInt(MessageContents.id.toString())) && MessageContents.url && MessageContents.url !== '') {
-                                    sqlSafe(`UPDATE kanmi_records SET cache_url = 'inprogress' WHERE id = ?`, [MessageContents.id], async (err, results) => {
-                                        if (err) {
-                                            printLine('CacheMaster', `Failed to cache item for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                                            cb(true);
-                                        } else if (results.affectedRows && results.affectedRows > 0) {
-                                            await Cache3(MessageContents, async function (result) {
-                                                if (result) {
-                                                    cb(true);
-                                                } else {
-                                                    cb(true);
-                                                    sqlSafe('UPDATE kanmi_records SET cache_url = null WHERE id = ?', [MessageContents.id], (err, results) => { })
-                                                }
-                                            })
-                                        } else {
-                                            printLine('SQL', `Nothing to update for ${MessageContents.id}`, 'warning');
-                                            cb(true);
-                                        }
-                                    })
-                                } else { cb(true); }
-                            } else { cb(true); }
-                            break;
-                        case 'remove':
-                            if (results[0].cache_url !== null || results[0].cache_proxy !== null) {
-                                await CacheRemove(MessageContents, async function (result) {
-                                    if (result) {
-                                        cb(true);
-                                    } else {
-                                        cb(true);
-                                    }
-                                })
-                            } else {
-                                cb(true);
-                            }
-                            break;
                         default:
                             printLine('Cache', `Unknown Command : ${MessageContents.command}`, 'error');
                             cb(true);
@@ -266,20 +157,11 @@ function work(msg, cb) {
                 limiter1.removeTokens(1, async function () {
                     switch(MessageContents.command) {
                         case 'update':
-                            if (results.length > 0 && results[0].cache_url !== null) {
+                            if (results.length > 0 && results[0].filecached === 1) {
                                 limiter1.removeTokens(1, async function() {
                                     if (MessageContents && MessageContents.id && !isNaN(parseInt(MessageContents.id.toString())) && MessageContents.filename && MessageContents.filename !== '') {
-                                        await updateFileName(MessageContents, results[0].cache_url,async function (result) {
+                                        await updateFileName(MessageContents, results[0].fileid,async function (result) {
                                             if (result) {
-                                                sqlSafe(`UPDATE kanmi_records SET cache_url = ? WHERE id = ?`, [result, MessageContents.id], (err, results) => {
-                                                    if (err) {
-                                                        printLine('CacheMaster', `Failed to cache item for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                                                    } else if (results.affectedRows && results.affectedRows > 0) {
-                                                        printLine('CacheMaster', `Updated file URL for ${MessageContents.id} - ${result}`, 'info')
-                                                    } else {
-                                                        printLine('SQL', `Nothing to update for ${MessageContents.id}`, 'warning');
-                                                    }
-                                                })
                                                 cb(true);
                                             } else {
                                                 cb(true);
@@ -341,7 +223,7 @@ function whenConnected() {
     startPublisher();
     sleep(1000).then(() => {
         printLine("Init", "Sequenzia Server MQ worker has started!", "info");
-        if (global.enable_cds === true && (!process.env.ID || process.env.ID === "0" )) {
+        if (global.enable_cds && (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0")) {
             printLine('Init', 'CDS Caching is enabled on this Sequenzia instance, now accepting requests', 'debug');
             startWorker();
         }

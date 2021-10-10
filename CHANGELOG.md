@@ -1,9 +1,14 @@
 # Kanmi Sequenzia Framework
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
-## v20 (RC1 JFS v1.5)
-Where is v19-18? Where pulling a microsoft to version match the two projects<br>
-
+## v17.1 (RC1 JFS v1.5)
+### Important Notes
+This update requires Kanmi v19.1 to be applied
+### Change Log
+- **BETA** Added new On-the-fly Spanned File Streaming, This allows any file to be accessible with the need to request a for download via a FileWorker. This system will used on the FileWorker as well to replace the current process.
+- Podcasts feeds will now return all files regardless if there directly accessible and will return streamable links when necessary
+- Updated to reduce the need for fileworker interactions
+- Updates ecosystem.config.js
 
 ## v17 (RC1 JFS v1.5)
 ### Important Notes
@@ -31,6 +36,7 @@ Severity: **Critical**<br>
 - Added support for JFIF file format
 - Added support for Sequenzia Randomizer Embed History
 - Added support to support by album add date
+- Removed local cacheing support for now until it can be rewritten
 
 ### Configuration File Updates
 None of the options are required for operations

@@ -7,7 +7,7 @@ const moment = require('moment');
 module.exports = async (req, res) => {
     if (req.query.command) {
         if (req.query.command === 'getAll') {
-            sqlSafe("SELECT * FROM (SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.screen AS screen_id, sequenzia_display_history.date AS display_date, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.cache_url, kanmi_records.cache_proxy, kanmi_records.attachment_hash, kanmi_records.attachment_name, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.name != 'PageResults' AND sequenzia_display_history.user = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_channels.channelid = kanmi_records.channel) x LEFT OUTER JOIN (SELECT name AS config_name, nice_name AS config_nice FROM sequenzia_display_config WHERE user = ?) y ON (x.display_name = y.config_name)) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC", [req.session.discord.user.id, req.session.discord.user.id, req.session.discord.user.id], (err, history) => {
+            sqlSafe("SELECT * FROM (SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.screen AS screen_id, sequenzia_display_history.date AS display_date, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.filecached,  kanmi_records.fileid,  kanmi_records.real_filename, kanmi_records.cache_proxy, kanmi_records.attachment_hash, kanmi_records.attachment_name, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.name != 'PageResults' AND sequenzia_display_history.user = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_channels.channelid = kanmi_records.channel) x LEFT OUTER JOIN (SELECT name AS config_name, nice_name AS config_nice FROM sequenzia_display_config WHERE user = ?) y ON (x.display_name = y.config_name)) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC", [req.session.discord.user.id, req.session.discord.user.id, req.session.discord.user.id], (err, history) => {
                 if (err) {
                     res.render('display_history', { user: req.session.user} );
                     printLine('SQL', `Fail to get display history - ${err.message}`, 'error');
@@ -63,7 +63,7 @@ module.exports = async (req, res) => {
                             }
                             displayHistory.push({
                                 preview: (x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`),
-                                full: (x.cache_url !== null) ? x.cache_url : `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`),
+                                full: (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` : `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`),
                                 id: x.id,
                                 eid: x.eid,
                                 screen: x.screen_id,
@@ -128,7 +128,7 @@ module.exports = async (req, res) => {
             })
         } else
         if (req.query.command === 'get' && req.query.displayname) {
-            sqlSafe('SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.date AS display_date, sequenzia_display_history.screen AS screen_id, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.cache_url, kanmi_records.cache_proxy, kanmi_records.attachment_name, kanmi_records.attachment_hash, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.user = ? AND sequenzia_display_history.name = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_records.channel = kanmi_channels.channelid) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC LIMIT 75', [req.session.discord.user.id, req.query.displayname, req.session.discord.user.id], (err, history) => {
+            sqlSafe('SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.date AS display_date, sequenzia_display_history.screen AS screen_id, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.cache_proxy, kanmi_records.attachment_name, kanmi_records.attachment_hash, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.user = ? AND sequenzia_display_history.name = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_records.channel = kanmi_channels.channelid) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC LIMIT 75', [req.session.discord.user.id, req.query.displayname, req.session.discord.user.id], (err, history) => {
                 if (err) {
                     res.render('display_history', { user: req.session.user} );
                     printLine('SQL', `Fail to get display history for "${req.query.displayname}" - ${err.message}`, 'error');
@@ -137,7 +137,7 @@ module.exports = async (req, res) => {
                     history.forEach(x => {
                         let image
                         if (x.cache_proxy !== null) {
-                            image = x.cache_proxy;
+                            image = x.cache_proxy.startsWith('http') ? x.cache_proxy : `https://media.discordapp.net/attachments${x.cache_proxy}`
                         } else {
                             function getimageSizeParam() {
                                 if (x.sizeH && x.sizeW && (x.sizeH > 512 || x.sizeW > 512)) {

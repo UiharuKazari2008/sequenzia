@@ -6,6 +6,8 @@ const { sendData } = require('./mqAccess');
 const getUrls = require('get-urls');
 const moment = require('moment');
 const useragent = require('express-useragent');
+const fs = require("fs");
+const path = require("path");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 
 module.exports = async (req, res, next) => {
@@ -651,7 +653,7 @@ module.exports = async (req, res, next) => {
         }
         // Where Exec
         if (page_uri === '/gallery') {
-            sqlquery.push(`(attachment_hash IS NOT NULL OR cache_url IS NOT NULL OR cache_proxy IS NOT NULL)`)
+            sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
                 `(${[
@@ -682,7 +684,7 @@ module.exports = async (req, res, next) => {
                 ].join(' OR ')})`
             ].join(' AND ')
         } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
-            sqlquery.push(`(attachment_hash IS NOT NULL OR cache_url IS NOT NULL)`)
+            sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
                 `(${[
@@ -786,8 +788,8 @@ module.exports = async (req, res, next) => {
                 randomImage.forEach(function(image) {
                     // Get Image Preview URL
                     let ranImage = '';
-                    if ( image.cache_proxy !== null && image.cache_proxy.includes('http') ) {
-                        ranImage = image.cache_proxy
+                    if ( image.cache_proxy !== null) {
+                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                     } else {
                         ranImage = `https://media.discordapp.net/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                     }
@@ -827,8 +829,8 @@ module.exports = async (req, res, next) => {
                         ranfullImage = `/cds/content/full64/${image.channelid}/${image.id}`
                         ranfullImagePerma = `/cds/content/link/${image.channelid}/${image.id}`
                     } else {
-                        if (image.cache_url !== null && image.cache_url.includes('http')) {
-                            ranfullImage = image.cache_url
+                        if (image.filecached === 1) {
+                            ranfullImage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${image.fileid}/${image.real_filename}`
                         } else {
                             ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
@@ -912,8 +914,8 @@ module.exports = async (req, res, next) => {
                 randomImage.forEach(function(image) {
                     // Get Image Preview URL
                     let ranImage = '';
-                    if ( image.cache_proxy !== null && image.cache_proxy.includes('http') ) {
-                        ranImage = image.cache_proxy
+                    if ( image.cache_proxy !== null) {
+                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                     } else {
                         ranImage = `https://media.discordapp.net/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                     }
@@ -954,8 +956,8 @@ module.exports = async (req, res, next) => {
                         ranfullImage = `/cds/content/full64/${image.channelid}/${image.id}`
                         ranfullImagePerma = `/cds/content/link/${image.channelid}/${image.id}`
                     } else {
-                        if (image.cache_url !== null && image.cache_url.includes('http')) {
-                            ranfullImage = image.cache_url
+                        if (image.filecached === 1) {
+                            ranfullImage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${image.fileid}/${image.real_filename}`
                         } else {
                             ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
@@ -1577,23 +1579,22 @@ module.exports = async (req, res, next) => {
                                     let imageurl = null
                                     let fullimage = null
                                     let downloadimage = null
+                                    const fileCached = (global.fw_serve && item.fileid && item.filecached === 1) ? `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`: false
 
                                     if (item.attachment_hash && item.attachment_name) {
                                         fullimage = fullimage = imageurl = downloadimage = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
-                                    } else if (item.cache_url && item.cache_url.includes('http')) {
-                                        fullimage = fullimage = imageurl = downloadimage = item.cache_url
-                                    } else if (item.cache_proxy && item.cache_proxy.includes('http')) {
-                                        fullimage = fullimage = imageurl = downloadimage = item.cache_proxy
+                                    } else if (fileCached) {
+                                        fullimage = fileCached
+                                    } else if (item.cache_proxy) {
+                                        fullimage = fullimage = imageurl = downloadimage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
-                                    if (item.cache_url !== null && item.cache_url.includes('http')) {
+                                    if (fileCached) {
                                         isCached = true
-                                        fullimage = (fullimage) ? fullimage : item.cache_url
-                                        downloadimage = item.cache_url
-                                    } else if (item.cache_url !== null && item.cache_url.includes('inprogress')) {
-                                        inprogress = true
+                                        fullimage = (fullimage) ? fullimage : fileCached
+                                        downloadimage = fileCached
                                     }
-                                    if (item.cache_proxy !== null && item.cache_proxy.includes('http')) {
-                                        imageurl = item.cache_proxy
+                                    if (item.cache_proxy !== null) {
+                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
                                             if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
@@ -1612,25 +1613,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
                                     }
                                     advColor = [];
-                                    if (item.colorR === null || item.colorG === null || item.colorB === null || (item.colorR === 0 && item.colorG === 0 && item.colorB === 0)) {
-                                        if (item.cache_proxy !== null && item.cache_proxy.includes('http') && (item.cache_proxy.toLowerCase().includes('.mp4') || item.cache_proxy.toLowerCase().includes('.mov') || item.cache_proxy.toLowerCase().includes('.m4v') || item.cache_proxy.toLowerCase().includes('.ts') || item.cache_proxy.toLowerCase().includes('.mkv'))) {
-                                            sendData(config.mq_inbox, {
-                                                id: item.id,
-                                                url: imageurl,
-                                                extra: false,
-                                                command: 'cacheColor'
-                                            }, function (ok) {
-                                            })
-                                        } else {
-                                            sendData(config.mq_inbox, {
-                                                id: item.id,
-                                                url: imageurl,
-                                                extra: false,
-                                                command: 'cacheColor'
-                                            }, function (ok) {
-                                            })
-                                        }
-                                    } else {
+                                    if (!(item.colorR === null || item.colorG === null || item.colorB === null || (item.colorR === 0 && item.colorG === 0 && item.colorB === 0))) {
                                         advColor = [
                                             item.colorR,
                                             item.colorG,
@@ -1759,9 +1742,10 @@ module.exports = async (req, res, next) => {
                                 let _message_extra
                                 let _message_header
 
+                                const fileCached = (global.fw_serve && item.fileid && fs.existsSync(path.join(global.fw_serve, `.${item.fileid}`))) ? `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}` : false
                                 if (item.fileid !== null && item.attachment_hash !== null && item.attachment_name !== null && (item.attachment_name.includes('.jp') || item.attachment_name.includes('.jfif') || item.attachment_name.includes('.png') || item.attachment_name.includes('.gif'))) {
                                     _message_header = '🖼 Large Image'
-                                    if (item.cache_url !== null && item.cache_url.includes('://')) {
+                                    if (fileCached) {
                                         _message_type = 'image-unpacked'
                                         _message_header += `${(item.filesize) ? ' (' + item.filesize + ' MB' : ''})`
                                     } else {
@@ -1777,13 +1761,13 @@ module.exports = async (req, res, next) => {
                                 } else if (item.content_full.length > 5 && !item.content_full.startsWith("`")  && item.content_full.includes('://')) {
                                     _message_type = 'link'
                                     _message_header = '🔗 Link'
-                                } else if (item.fileid !== null && item.cache_url !== null && item.cache_url.includes('://')) {
+                                } else if (fileCached) {
                                     _message_type = 'file-unpacked'
                                     _message_header = `🗄 Large File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
                                 } else if (item.fileid !== null) {
                                     _message_type = 'file-packed'
                                     _message_header = `📦 Packed File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
-                                } else if (item.attachment_hash !== null || item.cache_url !== null ) {
+                                } else if (fileCached) {
                                     _message_type = 'file'
                                     _message_header = `🗄 File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
                                 } else if (item.content_full.length > 5) {
@@ -1845,7 +1829,7 @@ module.exports = async (req, res, next) => {
                                 }
 
 
-                                if (!(item.cache_proxy !== null && item.cache_proxy.includes('http')) && (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts'))) {
+                                if (item.cache_proxy === null && (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts'))) {
                                     if ((item.cache_proxy === null && item.cache_proxy !== 'failed') && global.enable_polyfill_proxy_request) {
                                         sendData(global.mq_discord_out, {
                                             fromClient : `return.Sequenzia.${config.system_name}`,
@@ -1931,8 +1915,8 @@ module.exports = async (req, res, next) => {
                                     downloadlink = `/cds/content/link/${item.channel}/${item.id}/`
                                     fullurl = downloadurl = imageurl = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
 
-                                    if (item.cache_proxy !== null && item.cache_proxy.includes('http')) {
-                                        imageurl = item.cache_proxy
+                                    if (item.cache_proxy !== null) {
+                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
                                             if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
@@ -1963,11 +1947,9 @@ module.exports = async (req, res, next) => {
                                         }
                                     }
                                     let inprogress = false
-                                    if (item.cache_url !== null && item.cache_url.includes('http')) {
-                                        downloadurl = item.cache_url
+                                    if (fileCached) {
                                         isCached = true
-                                    } else if (item.cache_url !== null && item.cache_url.includes('inprogress')) {
-                                        inprogress = true
+                                        downloadurl = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
@@ -2041,14 +2023,12 @@ module.exports = async (req, res, next) => {
                                     let fullurl = null
                                     let inprogress = false
                                     let imageurl = null;
-                                    if (item.cache_proxy !== null && item.cache_proxy.includes('http')) {
-                                        imageurl = item.cache_proxy
+                                    if (item.cache_proxy !== null) {
+                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
-                                    if (item.cache_url !== null && item.cache_url.includes('http')) {
-                                        fullurl = item.cache_url
+                                    if (fileCached) {
                                         isCached = true
-                                    } else if (item.cache_url !== null && item.cache_url.includes('inprogress')) {
-                                        inprogress = true
+                                        fullurl = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
