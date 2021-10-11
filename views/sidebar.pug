@@ -371,7 +371,7 @@ html
                                                                 i.fas.fa-clone.pr-1
                                                                 | #{thisMergedChannel.name} - #{thisClass.name}
                                                             each thisChannel in _writeMergedChannels
-                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisChannel.server}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}', "uploadModel", false); return false;`) #{thisChannel.name}
                                             if (superIndex !== sidebar.length - 1)
                                                 .dropdown-divider.channel-selector
                                 a#postButton.btn.btn-success.disabled(title="Upload" href='#_' onClick=`sendFileData(); return false;`)
@@ -448,7 +448,7 @@ html
                                                                 i.fas.fa-clone.pr-1
                                                                 | #{thisMergedChannel.name} - #{thisClass.name}
                                                             each thisChannel in _writeMergedChannels
-                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisChannel.server}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}', "uploadModel", false); return false;`)  #{thisChannel.name}
                                             if (superIndex !== sidebar.length - 1)
                                                 .dropdown-divider.channel-selector
                                 div#sendButtons.d-none
