@@ -6,7 +6,6 @@ const { sqlPromiseSafe } = require('./js/sqlClient');
 const routesAccessories = require('./routes/accessories');
 const { router: routesTelegram } = require('./routes/telegram');
 const { printLine } = require('./js/logSystem');
-let routesCDS = undefined;
 let routesUpload = require('./routes/upload');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -20,6 +19,8 @@ const web = require('./web.config.json')
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
+const fs = require("fs");
+const rimraf = require("rimraf");
 
 if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
     // Bootup Mantenance
@@ -27,6 +28,46 @@ if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
         await sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`);
         await sqlPromiseSafe(`DELETE s1 FROM sequenzia_favorites s1, sequenzia_favorites s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.userid = s2.userid`);
     })()
+    // Clean out old files
+    if (global.fw_serve || global.spanned_cache) {
+        async function cleanCache() {
+            if ((global.fw_serve || global.spanned_cache) && global.spanned_cache_max_age) {
+                const directory = ((global.fw_serve) ? global.fw_serve : global.spanned_cache)
+                await Promise.all(fs.readdirSync(directory)
+                    .filter(e =>
+                        e.startsWith('.') &&
+                        (new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (global.spanned_cache_max_age * 86400000)))
+                    .map(async (e) => {
+                        await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 0 WHERE fileid = ?`, [e.substring(1)])
+                        fs.unlinkSync(path.join(directory, e))
+                        printLine('cleanCache', `Successfully deleted file ${e.substring(1)}`, 'info');
+                    }))
+                await Promise.all(fs.readdirSync(directory)
+                    .filter(e => !e.startsWith('.'))
+                    .map(async (e) => {
+                        const symPath = path.join(directory, e)
+                        return new Promise(resolve => {
+                            fs.realpath(symPath, (err, pathReal) => {
+                                if (err || !fs.existsSync(path.join(pathReal, e)) || pathReal === symPath) {
+                                    fs.unlinkSync(path.join(directory, e))
+                                    printLine('cleanCache', `Successfully deleted dead link ${e}`, 'info');
+                                }
+                                resolve(true)
+                            })
+                        })
+                    }));
+            }
+            fs.readdirSync(global.tmp_folder)
+                .filter(e => ((new Date().getTime()) > ((new Date((fs.statSync(path.join(global.tmp_folder, e))).mtime).getTime()) + 86400000)) )
+                .map(async (e) => {
+                    rimraf(path.join(global.tmp_folder, e), (error) => {})
+                    await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 0 WHERE fileid = ?`, [e.substring(1)])
+                });
+        }
+
+        cleanCache();
+        setInterval(cleanCache, 3600000);
+    }
 }
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
@@ -46,6 +87,12 @@ app.use('/upload', rateLimit({
     max: 100,
     message:
         "Uploads: Too many requests"
+}));
+app.use('/stream', rateLimit({
+    windowMs: ((global.user_max_streams_sec) ? parseInt(global.user_max_streams_sec.toString()) : 60) * 1000, // 5 minutes
+    max: (global.max_streams_per_user) ? parseInt(global.max_streams_per_user.toString()) : 5,
+    message:
+        "Stream: Too many requests, Try again soon"
 }));
 app.use('/actions', rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -169,16 +216,6 @@ app.set('trust proxy', 1);
 app.use('/', routes);
 app.use('/discord', routesDiscord);
 app.use('/telegram', routesTelegram);
-if (global.enable_cds) {
-    app.use(['/cds', '/status'], rateLimit({
-        windowMs: 15 * 60 * 1000, // 5 minutes
-        max: 50,
-        message:
-            "CDS Audit Alarm: Too downloads have been requested from you, please try again after an 15 Minutes"
-    }));
-    routesCDS = require('./routes/download');
-    app.use('/cds', routesCDS);
-}
 app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {

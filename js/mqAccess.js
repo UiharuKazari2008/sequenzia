@@ -1,12 +1,6 @@
 const config = require('../host.config.json');
-const global = require('../config.json');
 const amqp = require('amqplib/callback_api');
 const { printLine } = require('./logSystem');
-const { CacheColor, updateFileName } = require('./cacheMaster');
-const { sqlSimple, sqlSafe } = require('../js/sqlClient');
-const RateLimiter = require('limiter').RateLimiter;
-const limiter1 = new RateLimiter(1, 1000);
-const sleep = (waitTimeInMs) => new Promise(resolve => setTimeout(resolve, waitTimeInMs));
 let amqpConn = null;
 let pubChannel = null;
 
@@ -94,140 +88,8 @@ function startPublisher() {
         pubChannel = ch;
     });
 }
-const accepted_cache_types = ['jpeg','jpg','jfif', 'png', 'webp', 'tiff']
-function work(msg, cb) {
-    const MessageContents = JSON.parse(Buffer.from(msg.content).toString('utf-8'));
-    if (MessageContents.url && MessageContents.url.split('.').length > 0 && accepted_cache_types.indexOf(MessageContents.url.split('.').pop().toLowerCase()) !== -1) {
-        sqlSafe(`SELECT * FROM kanmi_records WHERE id = ? LIMIT 1`, [MessageContents.id], (err, results) => {
-            if (err) {
-                printLine('SQL', `SQL Error when checking cache for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                cb(true);
-            } else if (results.length > 0) {
-                limiter1.removeTokens(1, async function () {
-                    switch(MessageContents.command) {
-                        case 'cacheColor':
-                            if (MessageContents && MessageContents.id && !isNaN(parseInt(MessageContents.id.toString())) && MessageContents.url && MessageContents.url !== '') {
-                                await CacheColor(MessageContents, async function (result) {
-                                    if (result) {
-                                        cb(true);
-                                    } else {
-                                        cb(true);
-                                    }
-                                })
-                            } else {
-                                cb(true);
-                            }
-                            break;
-                        default:
-                            printLine('Cache', `Unknown Command : ${MessageContents.command}`, 'error');
-                            cb(true);
-                            break;
-                    }
-                })
-            } else {
-                printLine('SQL', `No Results for ${MessageContents.id}`, 'warning');
-                cb(true);
-            }
-        })
-    } else if (MessageContents.url && MessageContents.url.split('.').length > 0) {
-        sqlSafe(`SELECT * FROM kanmi_records WHERE id = ? LIMIT 1`, [MessageContents.id], (err, results) => {
-            if (err) {
-                printLine('SQL', `SQL Error when checking cache for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                cb(true);
-            } else if (results.length > 0) {
-                limiter1.removeTokens(1, async function () {
-                    switch(MessageContents.command) {
-                        default:
-                            printLine('Cache', `Unknown Command : ${MessageContents.command}`, 'error');
-                            cb(true);
-                            break;
-                    }
-                })
-            } else {
-                printLine('SQL', `No Results for ${MessageContents.id}`, 'warning');
-                cb(true);
-            }
-        })
-    } else if (MessageContents.filename && MessageContents.filename.split('.').length > 0) {
-        sqlSafe(`SELECT * FROM kanmi_records WHERE id = ? LIMIT 1`, [MessageContents.id], (err, results) => {
-            if (err) {
-                printLine('SQL', `SQL Error when checking cache for message ${MessageContents.id} - ${err.sqlMessage}`, 'error', err)
-                cb(true);
-            } else if (results.length > 0) {
-                limiter1.removeTokens(1, async function () {
-                    switch(MessageContents.command) {
-                        case 'update':
-                            if (results.length > 0 && results[0].filecached === 1) {
-                                limiter1.removeTokens(1, async function() {
-                                    if (MessageContents && MessageContents.id && !isNaN(parseInt(MessageContents.id.toString())) && MessageContents.filename && MessageContents.filename !== '') {
-                                        await updateFileName(MessageContents, results[0].fileid,async function (result) {
-                                            if (result) {
-                                                cb(true);
-                                            } else {
-                                                cb(true);
-                                                printLine('CacheMaster',`Failed to update filename on message ${MessageContents.id}`, 'error')
-                                            }
-                                        })
-                                    } else { cb(true); }
-                                });
-                            } else { cb(true); }
-                            break;
-                        default:
-                            printLine('Cache', `Unknown Command : ${MessageContents.command}`, 'error');
-                            cb(true);
-                            break;
-                    }
-                })
-            } else {
-
-            }
-        })
-    } else {
-        console.error(`Bad Message`)
-        console.error(MessageContents)
-        cb(true);
-    }
-}
-function startWorker() {
-    amqpConn.createChannel(function(err, ch2) {
-        if (closeOnErr(err)) return;
-        ch2.on("error", function(err) {
-            printLine("KanmiMQ", "Channel 1 Error (Standard)", "error", err)
-            console.log(err)
-        });
-        ch2.on("close", function() {
-            printLine("KanmiMQ", "Channel 1 Closed (Standard)", "critical" )
-            start();
-        });
-        ch2.prefetch(10);
-        ch2.assertQueue(config.mq_inbox, { durable: true }, function(err, _ok) {
-            if (closeOnErr(err)) return;
-            ch2.consume(config.mq_inbox, processMsg, { noAck: true });
-            printLine("KanmiMQ", "Channel 1 Worker Ready (Standard)", "debug")
-        });
-        function processMsg(msg) {
-            work(msg, function(ok) {
-                try {
-                    //if (ok)
-                        //ch2.ack(msg);
-                    //else
-                        //ch2.reject(msg, true);
-                } catch (e) {
-                    closeOnErr(e);
-                }
-            });
-        }
-    });
-}
 function whenConnected() {
     startPublisher();
-    sleep(1000).then(() => {
-        printLine("Init", "Sequenzia Server MQ worker has started!", "info");
-        if (global.enable_cds && (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0")) {
-            printLine('Init', 'CDS Caching is enabled on this Sequenzia instance, now accepting requests', 'debug');
-            startWorker();
-        }
-    })
 }
 
 module.exports = { sendData };

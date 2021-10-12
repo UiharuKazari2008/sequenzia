@@ -112,30 +112,38 @@ module.exports = (req, res, next) => {
                     break;
                 case 'RequestFile':
                     printLine("ActionParser", `Request to Download File ${req.body.messageid}:${req.body.channelid}"`, 'info', req.body)
-                    sqlSafe(`SELECT *
+                    if (global.mq_fileworker_cds) {
+                        sqlSafe(`SELECT *
                          FROM kanmi_records
                          WHERE id = ?
                            AND channel = ?
                          LIMIt 1`, [req.body.messageid, req.body.channelid], (err, foundMessages) => {
-                        if (err) {
-                            printLine("ActionParser", `Unable to request download for ${req.body.messageid}:${req.body.channelid} : ${err.sqlMessage}`, 'error', err)
-                            res.status(500).send('Database Error');
-                        } else if (foundMessages && foundMessages.length > 0) {
-                            sendRequest({
-                                fromClient: `return.Sequenzia.${config.system_name}`,
-                                messageReturn: false,
-                                messageID: foundMessages[0].id,
-                                messageChannelID: foundMessages[0].channel,
-                                itemFileUUID: foundMessages[0].fileid,
-                                messageType: 'command',
-                                messageAction: 'RequestDownload'
-                            })
-                            res.status(200).send(`Request Fetch, please wait...`);
-                        } else {
-                            printLine("ActionParser", `Unable to request download for ${req.body.messageid}:${req.body.channelid} : Not Found`, 'error');
-                            res.status(404).send('Message not found');
-                        }
-                    })
+                            if (err) {
+                                printLine("ActionParser", `Unable to request download for ${req.body.messageid}:${req.body.channelid} : ${err.sqlMessage}`, 'error', err)
+                                res.status(500).send('Database Error');
+                            } else if (foundMessages && foundMessages.length > 0) {
+                                sendData(global.mq_fileworker_cds, {
+                                    fromClient: `return.Sequenzia.${config.system_name}`,
+                                    fileUUID: foundMessages[0].fileid,
+                                    messageType: 'command',
+                                    messageAction: 'CacheSpannedFile'
+                                }, function (callback) {
+                                    if (callback) {
+                                        printLine("KanmiMQ", `Sent to ${global.mq_fileworker_cds}`, 'info')
+                                        res.status(200).send(`Request Fetch, please wait...`);
+                                    } else {
+                                        printLine("KanmiMQ", `Failed to send to ${global.mq_fileworker_cds}`, 'error')
+                                        res.status(500).send(`Failed to Request Fetch`);
+                                    }
+                                })
+                            } else {
+                                printLine("ActionParser", `Unable to request download for ${req.body.messageid}:${req.body.channelid} : Not Found`, 'error');
+                                res.status(404).send('Message not found');
+                            }
+                        })
+                    } else {
+                        res.status(500).send(`Server is not configured for CDS based file building`);
+                    }
                     break;
                 case 'DownloadLink':
                     if (!(req.session.discord.servers.download && req.session.discord.servers.download.length > 0)) {
