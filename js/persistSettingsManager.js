@@ -1,5 +1,3 @@
-const { printLine } = require("./logSystem");
-const { sendData } = require('./mqAccess');
 const { sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {

@@ -67,9 +67,6 @@ block content
                                 a.btn.btn-info(title="Stream Download" href=`/stream/${item.entities.meta.fileid}/${item.entities.filename}`).d-block
                                     i.fas.fa-download.pr-2
                                     | Stream File
-                                a.btn.btn-primary(title="Get Download" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`).d-block
-                                    i.fas.fa-box-open.pr-2
-                                    span Compile File
 
                         else if (item.entities.full && item.meta.message_type === 'link')
                             - cardurl = item.entities.full.split('** - ***').pop().replace('***', '').split('`').join('')
@@ -89,9 +86,6 @@ block content
                                 | Download File
                         else if (item.meta.message_type === 'file-packed')
                             span.font-italic.d-block.mb-1.text-center #{item.entities.filename}
-                            a.btn.btn-primary(title="Get Download" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`).d-block
-                                i.fas.fa-box-open.pr-2
-                                span Compile File
                             a.btn.btn-info(title="Stream Download" href=`/stream/${item.entities.meta.fileid}/${item.entities.filename}`).d-block
                                 i.fas.fa-download.pr-2
                                 | Stream File

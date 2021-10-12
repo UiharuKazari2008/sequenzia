@@ -989,7 +989,7 @@ function readValidation(req, res, next) {
     }
 }
 function downloadValidation(req, res, next) {
-    if (req.originalUrl && (req.originalUrl.includes('/cds/content/link/') || req.originalUrl.includes('/cds/content/json/'))) {
+    if (req.originalUrl && (req.originalUrl.includes('/content/link/') || req.originalUrl.includes('/content/json/'))) {
         printLine('PassportCheck-Proxy', `Request Bypassed for CDS Permalink URL`, 'debug', req.body);
         next();
     } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {

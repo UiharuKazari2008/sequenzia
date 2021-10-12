@@ -1,5 +1,4 @@
 function sendDownloadRequest(serverid, channelid, messageid, wait) {
-    const requestButton = $(`#request-${messageid}`)[0]
     if (fileWorking === false || !wait) {
         $.ajax({async: true,
             type: "post",
@@ -18,25 +17,16 @@ function sendDownloadRequest(serverid, channelid, messageid, wait) {
             success: function (html) {
                 try {
                     $('#sectionRequestText')[0].classList.remove('hidden');
-                    requestButton.setAttribute('onclick', '')
-                    requestButton.querySelector('i').classList.remove('fa-box-open')
-                    requestButton.querySelector('i').classList.add('fa-spinner')
                 } catch (e) {
                     console.error(e)
                 }
                 if (wait) {
                     refreshFileStatus(messageid)
+                    count = 0;
                     console.log('Message Sent')
                 }
             },
             error: function (html) {
-                try {
-                    requestButton.setAttribute('onclick', '')
-                    requestButton.querySelector('i').classList.remove('fa-box-open')
-                    requestButton.querySelector('i').classList.add('fa-ban')
-                } catch (e) {
-                    console.error(e)
-                }
                 $.toast({
                     type: 'error',
                     title: 'Request Failed',
@@ -57,15 +47,15 @@ function sendDownloadRequest(serverid, channelid, messageid, wait) {
     }
     return false;
 }
+let count = 0;
 function refreshFileStatus(messageid) {
-    const rawButton = $(`#request-${messageid}`)
-    const downloadButton = $(`#request-download-${messageid}`)[0]
-    const requestButton = rawButton[0]
-
-    if (fileWorking === false) {
+    if (count <= 12) {
+        requestText.innerText = "Request Timeout"
+    } else if (fileWorking === false) {
         $('#requestModel').modal('show');
         fileWorking = true
         let worker = setInterval(function () {
+            count++
             $.ajax({async: true,
                 type: "GET", data: '',
                 url: `/status?request=FileStatus&item=${messageid}`,
@@ -80,74 +70,6 @@ function refreshFileStatus(messageid) {
                         requestText.innerText = "In progress..."
                     } else if (xhr.status === 200 && xhr.responseText && xhr.responseText.includes('http')) {
                         requestText.innerText = "Completed"
-                        requestDownload.href = xhr.responseText
-                        requestDownload.download = xhr.responseText.split('/').pop().split('.')[0];
-                        if (!window.location.hash.substring(1).includes('card')) {
-                            downloadButton.href = xhr.responseText
-                            downloadButton.download = xhr.responseText.split('/').pop().split('.')[0];
-                            downloadButton.classList.remove('d-none');
-                        }
-                        if (!window.location.hash.substring(1).includes('card') && xhr.responseText.toLowerCase() !== null && xhr.responseText.toLowerCase() !== '' && (xhr.responseText.toLowerCase().includes('.jp') || xhr.responseText.toLowerCase().includes('.png') || xhr.responseText.toLowerCase().includes('.gif'))) {
-                            requestImage.src = xhr.responseText
-                            requestIcon.classList.add('hidden');
-                            requestImage.classList.remove('hidden');
-                            requestButton.remove();
-                        } else if (!window.location.hash.substring(1).includes('card') && xhr.responseText.toLowerCase() !== null && xhr.responseText.toLowerCase() !== '' && (xhr.responseText.toLowerCase().includes('.mp3') || xhr.responseText.toLowerCase().includes('.m4a') || xhr.responseText.toLowerCase().includes('.ogg') || xhr.responseText.toLowerCase().includes('.wav'))) {
-                            requestIcon.classList.remove('hidden');
-                            requestImage.classList.add('hidden');
-                            requestPlay.classList.remove('hidden');
-                            $('#requestPlay').attr('onclick', `$('#requestModel').modal('hide'); PlayTrack("${xhr.responseText}"); return false;`);
-                            requestButton.href = '#'
-                            requestButton.querySelector('i').classList.remove('fa-spinner');
-                            if ($(`#play-${messageid}`).length > 0) {
-                                $(`#play-${messageid}`).attr('onclick', `PlayTrack("${xhr.responseText}"); return false;`);
-                                requestButton.querySelector('i').classList.add('fa-first-aid');
-                            } else {
-                                requestButton.classList.remove('btn-fav');
-                                requestButton.classList.add('btn-switchmode');
-                                rawButton.attr('onclick', `PlayTrack("${xhr.responseText}"); return false;`);
-                                requestButton.querySelector('i').classList.add('fa-play');
-                            }
-                        } else if (!window.location.hash.substring(1).includes('card') && xhr.responseText.toLowerCase() !== null && xhr.responseText.toLowerCase() !== '' && (xhr.responseText.toLowerCase().includes('.mp4') || xhr.responseText.toLowerCase().includes('.webm') || xhr.responseText.toLowerCase().includes('.mov') || xhr.responseText.toLowerCase().includes('.m4v'))) {
-                            requestIcon.classList.remove('hidden');
-                            requestImage.classList.add('hidden');
-                            requestPlay.classList.remove('hidden');
-                            $('#requestPlay').attr('onclick', `$('#requestModel').modal('hide'); PlayVideo("${xhr.responseText}"); return false;`);
-                            requestButton.href = '#'
-                            requestButton.querySelector('i').classList.remove('fa-spinner');
-                            if ($(`#play-${messageid}`).length > 0) {
-                                $(`#play-${messageid}`).attr('onclick', `PlayVideo("${xhr.responseText}"); return false;`);
-                                requestButton.querySelector('i').classList.add('fa-first-aid');
-                            } else {
-                                requestButton.classList.remove('btn-fav');
-                                requestButton.classList.add('btn-switchmode');
-                                rawButton.attr('onclick', `PlayVideo("${xhr.responseText}"); return false;`);
-                                requestButton.querySelector('i').classList.add('fa-play');
-                            }
-                        } else {
-                            requestIcon.classList.remove('hidden');
-                            requestImage.classList.add('hidden');
-                            if (window.location.hash.substring(1).includes('file')) {
-                                requestButton.classList.remove('btn-fav');
-                                requestButton.classList.add('btn-switchmode');
-                                requestButton.href = xhr.responseText
-                                rawButton.attr('target', `_blank`);
-                                rawButton.attr('rel', `noopener noreferrer`);
-                                requestButton.querySelector('i').classList.remove('fa-spinner');
-                                requestButton.querySelector('i').classList.add('fa-download');
-                            } else if (window.location.hash.substring(1).includes('card')) {
-                                requestButton.classList.remove('btn-primary');
-                                requestButton.classList.add('btn-success');
-                                requestButton.href = xhr.responseText
-                                rawButton.attr('target', `_blank`);
-                                rawButton.attr('rel', `noopener noreferrer`);
-                                requestButton.querySelector('i').classList.remove('fa-spinner');
-                                requestButton.querySelector('i').classList.add('fa-download');
-                                requestButton.querySelector('span').innerText = 'Download File'
-                            } else {
-                                requestButton.remove();
-                            }
-                        }
                         $('#sectionRequestText')[0].classList.add('hidden');
                         $('#sectionRequestResults')[0].classList.remove('hidden');
                     } else {

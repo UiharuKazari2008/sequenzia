@@ -826,8 +826,8 @@ module.exports = async (req, res, next) => {
                     let ranfullImage = '';
                     let ranfullImagePerma = '';
                     if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh') && !(req.query && req.query.nocds && req.query.nocds === 'true')) {
-                        ranfullImage = `/cds/content/full64/${image.channelid}/${image.id}`
-                        ranfullImagePerma = `/cds/content/link/${image.channelid}/${image.id}`
+                        ranfullImage = `/content/full64/${image.channelid}/${image.id}`
+                        ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (image.filecached === 1) {
                             ranfullImage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${image.fileid}/${image.real_filename}`
@@ -953,8 +953,8 @@ module.exports = async (req, res, next) => {
                     let ranfullImage = '';
                     let ranfullImagePerma = '';
                     if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh') && !(req.query && req.query.nocds && req.query.nocds === 'true')) {
-                        ranfullImage = `/cds/content/full64/${image.channelid}/${image.id}`
-                        ranfullImagePerma = `/cds/content/link/${image.channelid}/${image.id}`
+                        ranfullImage = `/content/full64/${image.channelid}/${image.id}`
+                        ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (image.filecached === 1) {
                             ranfullImage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${image.fileid}/${image.real_filename}`
@@ -1433,7 +1433,7 @@ module.exports = async (req, res, next) => {
                                 } else {
                                     user_search = clean_content.split(' by ').pop().split('***')[0].split('**')[0]
                                 }
-                                let downloadlink = `/cds/content/link/${item.channel}/${item.id}/`
+                                let downloadlink = `/content/link/${item.channel}/${item.id}/`
                                 let channelName = ''
                                 let filesize = 'Unknown'
                                 if (item.filesize !== null) {
@@ -1571,7 +1571,7 @@ module.exports = async (req, res, next) => {
                                     let filename = item.attachment_name
                                     let fileid = ''
                                     let inprogress = false
-                                    let isCached = false
+                                    const isCached = (item.fileid && item.filecached === 1)
                                     if (item.real_filename !== null) {
                                         filename = item.real_filename
                                         fileid = item.fileid
@@ -1579,21 +1579,19 @@ module.exports = async (req, res, next) => {
                                     let imageurl = null
                                     let fullimage = null
                                     let downloadimage = null
-                                    const fileCached = (global.fw_serve && item.fileid && item.filecached === 1) ? `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`: false
 
                                     if (item.attachment_hash && item.attachment_name) {
                                         fullimage = fullimage = imageurl = downloadimage = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
-                                    } else if (fileCached) {
-                                        fullimage = fileCached
+                                    } else if (item.fileid) {
+                                        fullimage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     } else if (item.cache_proxy) {
                                         fullimage = fullimage = imageurl = downloadimage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
-                                    if (fileCached) {
-                                        isCached = true
-                                        fullimage = (fullimage) ? fullimage : fileCached
-                                        downloadimage = fileCached
+                                    if (isCached) {
+                                        fullimage = (fullimage) ? fullimage : `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                        downloadimage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     }
-                                    if (item.cache_proxy !== null) {
+                                    if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
@@ -1612,7 +1610,7 @@ module.exports = async (req, res, next) => {
                                         }
                                         imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
                                     }
-                                    advColor = [];
+                                    let advColor = [];
                                     if (!(item.colorR === null || item.colorG === null || item.colorB === null || (item.colorR === 0 && item.colorG === 0 && item.colorB === 0))) {
                                         advColor = [
                                             item.colorR,
@@ -1620,6 +1618,15 @@ module.exports = async (req, res, next) => {
                                             item.colorB,
                                             item.dark_color
                                         ]
+                                    } else {
+                                        sendData(global.mq_discord_out, {
+                                            fromClient : `return.Sequenzia.${config.system_name}`,
+                                            messageReturn: false,
+                                            messageID: item.id,
+                                            messageChannelID : item.channel,
+                                            messageType: 'command',
+                                            messageAction: 'CacheColor',
+                                        }, function (ok) { })
                                     }
                                     const _date = moment(Date.parse(item.date)).add(5, 'h')
                                     resultsArray.push({
@@ -1724,7 +1731,7 @@ module.exports = async (req, res, next) => {
                                     _ca.shift()
                                     clean_content = _ca.join('\n')
                                 }
-                                let isCached = false
+                                const isCached = (item.filecached === 1)
                                 let channelName = ''
                                 if (item.channel_nice) {
                                     channelName = item.channel_nice
@@ -1742,10 +1749,9 @@ module.exports = async (req, res, next) => {
                                 let _message_extra
                                 let _message_header
 
-                                const fileCached = (global.fw_serve && item.fileid && fs.existsSync(path.join(global.fw_serve, `.${item.fileid}`))) ? `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}` : false
                                 if (item.fileid !== null && item.attachment_hash !== null && item.attachment_name !== null && (item.attachment_name.includes('.jp') || item.attachment_name.includes('.jfif') || item.attachment_name.includes('.png') || item.attachment_name.includes('.gif'))) {
                                     _message_header = '🖼 Large Image'
-                                    if (fileCached) {
+                                    if (isCached) {
                                         _message_type = 'image-unpacked'
                                         _message_header += `${(item.filesize) ? ' (' + item.filesize + ' MB' : ''})`
                                     } else {
@@ -1761,13 +1767,13 @@ module.exports = async (req, res, next) => {
                                 } else if (item.content_full.length > 5 && !item.content_full.startsWith("`")  && item.content_full.includes('://')) {
                                     _message_type = 'link'
                                     _message_header = '🔗 Link'
-                                } else if (fileCached) {
+                                } else if (item.fileid !== null && item.filecached === 1) {
                                     _message_type = 'file-unpacked'
                                     _message_header = `🗄 Large File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
                                 } else if (item.fileid !== null) {
                                     _message_type = 'file-packed'
                                     _message_header = `📦 Packed File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
-                                } else if (fileCached) {
+                                } else if (item.attachment_hash !== null) {
                                     _message_type = 'file'
                                     _message_header = `🗄 File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
                                 } else if (item.content_full.length > 5) {
@@ -1912,7 +1918,7 @@ module.exports = async (req, res, next) => {
                                     let imageurl = undefined
                                     let fullurl
                                     let downloadurl
-                                    downloadlink = `/cds/content/link/${item.channel}/${item.id}/`
+                                    downloadlink = `/content/link/${item.channel}/${item.id}/`
                                     fullurl = downloadurl = imageurl = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
 
                                     if (item.cache_proxy !== null) {
@@ -1947,8 +1953,7 @@ module.exports = async (req, res, next) => {
                                         }
                                     }
                                     let inprogress = false
-                                    if (fileCached) {
-                                        isCached = true
+                                    if (item.fileid !== null) {
                                         downloadurl = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
@@ -2019,15 +2024,14 @@ module.exports = async (req, res, next) => {
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
                                     })
                                 } else {
-                                    downloadlink = `/cds/content/link/${item.channel}/${item.id}/`
+                                    downloadlink = `/content/link/${item.channel}/${item.id}/`
                                     let fullurl = null
                                     let inprogress = false
                                     let imageurl = null;
                                     if (item.cache_proxy !== null) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
-                                    if (fileCached) {
-                                        isCached = true
+                                    if (item.fileid !== null) {
                                         fullurl = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({

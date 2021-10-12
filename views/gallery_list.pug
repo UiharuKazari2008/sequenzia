@@ -280,19 +280,9 @@ block content
                                 div.links-container.text-primary
                                     div.links
                                         div.left-links.row-2
-                                            if (user && user.source < 900)
-                                                if (item.entities.meta.fileid !== null && item.entities.meta.fileid !== '' && item.meta.cached === false)
-                                                    a.btn.btn-links.goto-link(data-placement="top" title="Download Full Image" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`)
-                                                        i.btn-links.fas.fa-box-open
-                                                else if (item.meta.proccessing === true)
-                                                    a.btn.btn-links.goto-link(data-placement="top" title="In Progress...(Check Back Later)" href='#_')
-                                                        i.btn-links.fas.fa-spinner
-                                                else if (isVideo && item.entities.meta.fileid !== null && item.entities.meta.fileid !== '' && item.meta.cached === true && item.entities.download)
-                                                    a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
-                                                        i.btn-links.fas.fa-play
-                                            else if (isVideo && item.entities.meta.fileid !== null && item.entities.meta.fileid !== '' && item.meta.cached === true && item.entities.download)
-                                                    a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
-                                                        i.btn-links.fas.fa-play
+                                            if (user && user.source < 900 && item.entities.meta.fileid !== null && isVideo)
+                                                a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
+                                                    i.btn-links.fas.fa-play
                                             if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
                                                 a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
                                                     i.btn-links.fas.fa-directions

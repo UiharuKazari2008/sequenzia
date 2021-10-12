@@ -16,16 +16,19 @@ const generateConfiguration = require('../js/generateADSRequest')
 const ajaxChecker = require('../js/ajaxChecker');
 const ajaxOnly = require('../js/ajaxOnly');
 const { printLine } = require('../js/logSystem');
-const { sessionVerification, manageValidation, loginPage, readValidation} = require('./discord');
+const { sessionVerification, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
 const router = express.Router();
 const qrcode = require('qrcode');
 const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
-const useragent = require("express-useragent");
-
 const https = require('https');
 const remoteSize = require('remote-file-size');
 const fs = require("fs");
 const path = require("path");
+const stream = require("stream");
+const useragent = require("express-useragent");
+const mime = require("mime-types");
+const sizeOf = require("image-size");
+const sharp = require("sharp");
 
 router.get('/juneOS', sessionVerification, ajaxChecker)
 
@@ -126,16 +129,15 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows.map(e => e.part_url).sort()
-                const filePath = path.join(global.fw_serve, `.${file.fileid}`)
+                res.setHeader('Content-Type', 'application/octet-stream');
+                res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
-                if (fs.existsSync(filePath) && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
+                if (global.fw_serve && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
-                    const contentLength = fs.statSync(filePath).size
-                    res.setHeader('Content-Type', 'application/octet-stream');
-                    res.setHeader('Content-Length', contentLength);
-                    res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
-
-                    fs.createReadStream(filePath).pipe(res);
+                    const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
+                    if (contentLength)
+                        res.setHeader('Content-Length', contentLength);
+                    fs.createReadStream(path.join(global.fw_serve, `.${file.fileid}`)).pipe(res);
                 } else if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     printLine('StreamFile', `Preparing to stream spanned file request for ${file.real_filename}`, 'info');
                     let contentLength = 0;
@@ -152,24 +154,43 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             })
                         })
                     }))
-                    if (partFilesizes.length === files.length && partFilesizes.filter(e => !e).length === 0) {
-                        res.setHeader('Content-Type', 'application/octet-stream');
-                        res.setHeader('Content-Length', contentLength);
-                        res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
-                        printLine('StreamFile', `Sequential Stream & Save spanned file for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
-                        const fileCompleted = fs.createWriteStream(filePath,{flags: 'a'})
-                            .on('finish', function() {
+                    if (partFilesizes.length === files.length && partFilesizes.filter(e => !e).length === 0) {
+                        res.setHeader('Content-Length', contentLength);
+
+                        printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
+                        const passTrough = new stream.PassThrough();
+
+                        passTrough.pipe(res)
+                        passTrough.on('end', () => {
+                            printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
+                            res.end()
+                        })
+                        passTrough.on('error', () => { res.status(500).end(); })
+
+                        if (global.fw_serve || global.spanned_cache) {
+                            printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');
+                            const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
+                            const fileCompleted = fs.createWriteStream(filePath,{flags: 'a'})
+                            passTrough.pipe(fileCompleted)
+                            fileCompleted.on('finish', function() {
                                 try {
-                                    fs.symlinkSync(`.${file.fileid}`, path.join(global.fw_serve, `${file.eid}-${file.real_filename}`), "file")
+                                    printLine('StreamFile', `Sequential Parity Stream saved as file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB) for cache`, 'info');
+                                    sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 1 WHERE fileid = ?`, file.fileid);
+                                    fs.symlinkSync(`.${file.fileid}`, path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `${file.eid}-${file.real_filename}`), "file")
                                 } catch (err) {
-                                    printLine('StreamFile', `Failed to link built Spanned file ${file.real_filename}!`, 'error');
+                                    printLine('StreamFile', `Failed to link built Spanned file ${file.real_filename}! - ${(err.message) ? err.message : (err.sqlmessage) ? err.sqlmessage : ''}`, 'error');
+                                    console.error(err)
                                 }
                                 printLine('StreamFile', `Saved built Spanned file ${file.real_filename}! - ${(contentLength / 1024000).toFixed(2)} MB`, 'info');
                             })
-                            .on('error', function(err){
+                            fileCompleted.on('error', function(err){
                                 console.log(err.stack);
                             });
+                            passTrough.on('end', () => { fileCompleted.end() })
+                            passTrough.on('error', () => { fileCompleted.end(); fs.unlinkSync(filePath); })
+                        }
+
                         for (const i in files) {
                             await new Promise((resolve) => {
                                 const request = https.get(files[i], {
@@ -179,26 +200,23 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                     }
                                 }, async (response) => {
                                     response.on('data', (data) => {
-                                        fileCompleted.write(data,() => {
-                                            res.write(data)
-                                        });
+                                        passTrough.push(data)
                                     });
                                     response.on('end', () => {
-                                        printLine('StreamFile', `Stream chunk complete for part #${parseInt(i) + 1}/${files.length} for ${file.real_filename}...`, 'info');
+                                        printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${files.length} for ${file.real_filename}...`, 'info');
                                         resolve()
                                     });
                                 });
                                 request.on('error', function(e){
                                     res.status(500).send('Error during proxying request');
+                                    passTrough.destroy(e)
                                     printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
                                     resolve()
                                 });
                             })
                         }
-                        printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
-                        fileCompleted.end()
-                        res.end();
-                        await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 1 WHERE fileid = ?`, file.fileid);
+                        printLine('StreamFile', `Parity Stream completed for ${file.real_filename}`, 'info');
+                        passTrough.end()
                     } else {
                         res.status(500).send('Error preparing file for streaming');
                     }
@@ -217,6 +235,262 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             message: err.message,
         });
         console.error(err)
+    }
+});
+router.use('/content', downloadValidation, async function (req, res) {
+    try {
+        const source = req.headers['user-agent']
+        const ua = (source) ? useragent.parse(source) : undefined
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        if (req.query && params.length > 2 && params[0] !== '' && params[2] !== '') {
+            sqlSafe(`SELECT * FROM kanmi_records WHERE id = ? LIMIT 1`, [ params[2]], async (err, messages) => {
+                if (err) {
+                    res.status(404).send('Message not found');
+                    printLine('ProxyFile', `Message ID was not found, can not download`, 'error');
+                } else if (messages.length > 0) {
+                    const message = messages.pop();
+                    async function returnContent(url) {
+                        if (url) {
+                            const request = https.get(url, {
+                                headers: {
+                                    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                                    'accept-language': 'en-US,en;q=0.9',
+                                    'cache-control': 'max-age=0',
+                                    'sec-ch-ua': '"Chromium";v="92", " Not A;Brand";v="99", "Microsoft Edge";v="92"',
+                                    'sec-ch-ua-mobile': '?0',
+                                    'sec-fetch-dest': 'document',
+                                    'sec-fetch-mode': 'navigate',
+                                    'sec-fetch-site': 'none',
+                                    'sec-fetch-user': '?1',
+                                    'upgrade-insecure-requests': '1',
+                                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                                }
+                            }, async function (response) {
+                                const contentType = response.headers['content-type'];
+                                if (contentType) {
+                                    if (params[0].includes('full64')) {
+                                        response.setEncoding('base64');
+                                        res.write("data:" + contentType + ";base64,");
+                                        response.on('data', (data) => {
+                                            res.write(data)
+                                        });
+                                        response.on('end', () => {
+                                            res.end();
+                                        });
+                                    } else {
+                                        res.setHeader('Content-Type', contentType);
+                                        response.pipe(res);
+                                    }
+                                } else {
+                                    res.status(500).end();
+                                    printLine('ProxyFile', `Failed to stream file request - No Data`, 'error');
+                                    console.log(response.rawHeaders)
+                                }
+                            });
+                            request.on('error', function (e) {
+                                res.status(500).send('Error during proxying request');
+                                printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
+                            });
+                        } else {
+                            const bitmap = fs.readFileSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${message.fileid}`));
+                            const contentType = mime.lookup(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${message.fileid}`))
+                            const dimensions = sizeOf(bitmap);
+                            let scaleSizeH = 1080 // Lets Shoot for 2100?
+                            let scaleSizeW = 1920 // Lets Shoot for 2100?
+                            if (req.query.mh && req.query.mh !== '' && !isNaN(parseInt(req.query.mh)))
+                                scaleSizeH = parseInt(req.query.mh)
+                            if (req.query.mw && req.query.mw !== '' && !isNaN(parseInt(req.query.mw)))
+                                scaleSizeW = parseInt(req.query.mw)
+                            let resizeParam = {
+                                fit: sharp.fit.inside,
+                                withoutEnlargement: true
+                            }
+                            if (dimensions.width > dimensions.height) { // Landscape Resize
+                                resizeParam.width = scaleSizeW
+                            } else { // Portrait or Square Image
+                                resizeParam.height = scaleSizeH
+                            }
+                            if (req.query.format && req.query.format !== '' && (req.query.format.toLowerCase() === 'webp' || req.query.format.toLowerCase() === 'png' || req.query.format.toLowerCase() === 'jpeg' || req.query.format.toLowerCase() === 'jpg')) {
+                                sharp(bitmap)
+                                    .resize(resizeParam)
+                                    .toFormat(req.query.format.toLowerCase())
+                                    .withMetadata()
+                                    .toBuffer(function (err, buffer) {
+                                        if (err) {
+                                            console.error(err);
+                                            res.write(`data:${contentType};base64,`);
+                                            res.write(Buffer.from(bitmap).toString('base64'))
+                                            res.end();
+                                        } else {
+                                            res.write(`data:image/${req.query.format};base64,`);
+                                            res.write(buffer.toString('base64'))
+                                            res.end();
+                                        }
+                                    })
+                            } else {
+                                sharp(bitmap)
+                                    .resize(resizeParam)
+                                    .toFormat('png')
+                                    .withMetadata()
+                                    .toBuffer(function (err, buffer) {
+                                        if (err) {
+                                            console.error(err);
+                                            res.write(`data:${contentType};base64,`);
+                                            res.write(Buffer.from(bitmap).toString('base64'))
+                                            res.end();
+                                        } else {
+                                            res.write(`data:image/png;base64,`);
+                                            res.write(buffer.toString('base64'))
+                                            res.end();
+                                        }
+                                    })
+                            }
+                        }
+                    }
+                    async function returnOptiContent(url) {
+                        const request = https.get(url, {
+                            headers: {
+                                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                                'accept-language': 'en-US,en;q=0.9',
+                                'cache-control': 'max-age=0',
+                                'sec-ch-ua': '"Chromium";v="92", " Not A;Brand";v="99", "Microsoft Edge";v="92"',
+                                'sec-ch-ua-mobile': '?0',
+                                'sec-fetch-dest': 'document',
+                                'sec-fetch-mode': 'navigate',
+                                'sec-fetch-site': 'none',
+                                'sec-fetch-user': '?1',
+                                'upgrade-insecure-requests': '1',
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                            }
+                        }, function(response) {
+                            const optimize = sharp()
+                                .resize({
+                                    fit: sharp.fit.inside,
+                                    withoutEnlargement: true,
+                                    width: 256
+                                })
+                                .toFormat('webp',{
+                                    quality: 50
+                                })
+                            res.setHeader('Content-Type', 'image/webp');
+                            response.pipe(optimize).pipe(res);
+                            optimize.on('error', (err) => {
+                                res.end();
+                                printLine('ProxyFile', `Failed to stream the optimized file request - ${error.message}`, 'error');
+                            })
+                            optimize.on('end', (err) => {
+                                printLine('ProxyFile', `Succssfuly passed a optimized image for ${params[2]}`, 'info');
+                            })
+                        });
+                        request.on('error', function(e){
+                            res.status(500).send('Error during proxying request');
+                            printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
+                        });
+                    }
+                    if (params[0] === 'full' || params[0] === 'full64') {
+                        if (message.filecached && (global.fw_serve || global.spanned_cache)) {
+                            returnContent();
+                        } else if (message.attachment_hash) {
+                            returnContent(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
+                        } else {
+                            res.status(404).send('Data not available');
+                            printLine('ProxyFile', `No full content exists`, 'error');
+                        }
+                    } else if (params[0] === 'proxy') {
+                        if (message.cache_proxy) {
+                            returnOptiContent(message.cache_proxy.startsWith('http') ? message.cache_proxy : `https://media.discordapp.net/attachments${message.cache_proxy}`);
+                        } else if (message.attachment_hash) {
+                            returnOptiContent(`https://media.discordapp.net/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
+                        } else {
+                            res.status(404).send('Data not available');
+                            printLine('ProxyFile', `No proxy content exists`, 'error');
+                        }
+                    } else if (params[0] === 'link' || params[0] === 'json' || (ua && (ua.isBot || (ua.source && ua.source.toLowerCase().includes('discord'))) || (req.query.json && req.query.json === 'true'))) {
+                        if ((ua && ua.isBot || (ua.source && ua.source.toLowerCase().includes('discord'))) || (req.query.json && req.query.json === 'true')) {
+                            let obj = {
+                                description: message.content_full,
+                                site_title: webconfig.site_name,
+                                msg_id: message.id,
+                                msg_channel: message.channel,
+                            }
+                            let json = {
+                                "provider_name": webconfig.site_name,
+                                "provider_url": webconfig.base_url
+                            }
+                            if (message.filecached === 1 && (message.real_filename.split('.').pop().toLowerCase() === 'webp' || message.real_filename.split('.').pop().toLowerCase() === 'png' || message.real_filename.split('.').pop().toLowerCase() === 'jpeg' || message.real_filename.split('.').pop().toLowerCase() === 'jpg' || message.real_filename.split('.').pop().toLowerCase() === 'gif')) {
+                                obj.image = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${message.fileid}/${message.real_filename}`
+                            }
+                            sqlSafe(`SELECT * FROM kanmi_channels WHERE channelid = ?`, [message.channel], async (err, _channelInfo) => {
+                                const channelInfo = _channelInfo[0];
+                                let classInfo = undefined;
+                                let superInfo = undefined;
+                                let channelName = undefined;
+                                function complete() {
+                                    if (params[0] === 'json') { res.json(json) } else { res.render('meta_page', obj) }
+                                }
+                                if (channelInfo) {
+                                    sqlSafe(`SELECT * FROM sequenzia_class WHERE class = ?`, [channelInfo.classification], (err, _classInfo) => {
+                                        if (_classInfo) {
+                                            const classInfo = _classInfo[0];
+                                            sqlSafe(`SELECT * FROM sequenzia_superclass WHERE super = ?`, [classInfo.super], (err, _superInfo) => {
+                                                const superInfo = _superInfo[0];
+                                                if (_superInfo)
+                                                    json.author_url = `/${superInfo.uri}?channel=${message.channel}&nsfw=true`
+                                                let channelName = `${classInfo.name}`
+                                                if (channelInfo.nice_name) {
+                                                    channelName += ' / '
+                                                    channelName += channelInfo.nice_name
+                                                } else {
+                                                    channelName += ' / '
+                                                    channelInfo.name.split('-').forEach((wd, i, a) => {
+                                                        channelName +=  wd.substring(0,1).toUpperCase() + wd.substring(1,wd.length)
+                                                        if (i + 1  < a.length) {
+                                                            channelName += ' '
+                                                        }
+                                                    })
+                                                }
+                                                if (message.real_filename) {
+                                                    obj.site_title = `${webconfig.site_name} - ${channelName}`
+                                                    obj.title = message.real_filename
+                                                    json.author_name = channelName
+                                                } else {
+                                                    obj.title = channelName
+                                                    json.author_name = channelName
+                                                }
+                                                complete();
+                                            })
+                                        } else {
+                                            complete();
+                                        }
+                                    })
+                                } else {
+                                    complete();
+                                }
+                            })
+                        } else if (message.fileid !== null) {
+                            res.redirect(`/stream/${message.fileid}/${message.real_filename}`);
+                        } else if (message.attachment_hash !== null) {
+                            res.redirect(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
+                        } else {
+                            res.status(404).send('Item does not have any valid content to serve');
+                        }
+                    } else {
+                        res.status(400).send('Message not found');
+                        printLine('ProxyFile', `Incorrect Content type passed`, 'error');
+                    }
+                } else {
+                    res.status(400).send('Message not found');
+                }
+            })
+        } else {
+            res.status(400).send('Missing Parameters');
+            printLine('ProxyFile', `Invalid Request to proxy, missing a message ID`, 'error');
+        }
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
     }
 });
 

@@ -1,6 +1,47 @@
 # Kanmi Sequenzia Framework
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
+## v17.2 (RC1 JFS v1.5)
+### Important Notes
+This update requires Kanmi v19.2 to be applied
+### Change Log
+- On-the-fly Spanned File Streaming is now ready for procution and is replacing the FileWorker based file building.
+- On-the-fly Spanned File Streaming is now backed by pass trough streams to allow for parallel sending and saving to cache as well as keeping data out of memory as fast as possible
+- Update Configurations
+- Completely removed cacheMaster
+- Spanned file build requests now go directly to the fileworker
+- Fixed downloads links and removed request file button
+- Removed MQ worker
+- Added timeout to fileworker requests
+- Removed /cds as CDS is no longer needed but is still used just inline
+- Moved /cds/content to /content
+- Deletes old expired files that are older then set range, and deletes dead symlinks 
+
+### Configuration Files Updates
+New Options:
+
+config.json
+```json
+{
+  "mq_fileworker_cds": "inbox.fileworker",
+  "spanned_cache": "../kanmi/pickup/",
+  "spanned_cache_max_age": 15 
+} 
+```
+- Added Options
+  - FileWorker to use for rebuild requests
+  - Location to store rebuild files if no pickup directory is setup
+  - Sets max age in days for cache files
+- Removed Options
+  - "enable_cds"
+  - "enable_cds_full_request"
+  - "enable_cds_proxy_request"
+
+web.config.json
+- Removed Options
+  - "cdn_url"
+  - "cds_url" 
+
 ## v17.1 (RC1 JFS v1.5)
 ### Important Notes
 This update requires Kanmi v19.1 to be applied

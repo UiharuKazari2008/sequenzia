@@ -159,30 +159,8 @@ block content
                                         else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp4') || item.entities.preview.toLowerCase().includes('.webm') || item.entities.preview.toLowerCase().includes('.mov') || item.entities.preview.toLowerCase().includes('.m4v')))
                                             a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`PlayVideo("${item.entities.preview}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
-                                        if (item.entities.meta.fileid && item.entities.meta.fileid !== null)
-                                            if (item.meta.cached)
-                                                if (item.entities.download && item.entities.download.length > 5)
-                                                    a.btn.btn-switchmode(title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
-                                                        i.fas.fa-download
-                                            else
-                                                if (item.meta.proccessing === true)
-                                                    a.btn.btn-fav(title="Inprogress..."  href='#_' id=`request-download-${item.id}`)
-                                                        i.fas.fa-spinner
-                                                else
-
-                                                    if (user && user.source < 900)
-                                                        a.btn.btn-stream(title="Download" download=item.entities.filename href=`/stream/${item.entities.meta.fileid}/${item.entities.filename}` target="_blank" rel="noopener noreferrer")
-                                                            i.fas.fa-download
-                                                        a.btn.btn-fav(title="Get Download" href='#_' onclick=`sendDownloadRequest("${item.server.id}", "${item.channel.id}", "${item.id}", true); return false;` id=`request-${item.id}`)
-                                                            i.fas.fa-box-open
-                                                    a.btn.btn-switchmode.d-none(title="Download" download href='#_d' target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
-                                                        i.fas.fa-download
-
-                                                if (item.entities.full && item.entities.full.length > 5)
-                                                    a.btn.btn-switchmode(title="Download" download=item.entities.filename href=item.entities.full target="_blank" rel="noopener noreferrer")
-                                                        i.fas.fa-download
-                                        else if (item.entities.download && item.entities.download.length > 5)
-                                            a.btn.btn-switchmode(title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer")
+                                        if (item.entities.download && item.entities.download.length > 5)
+                                            a.btn(title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
                                         if (item.content.clean)
                                             if (item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1)
