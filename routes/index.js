@@ -132,7 +132,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 res.setHeader('Content-Type', 'application/octet-stream');
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
-                if (global.fw_serve && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
+                if (global.fw_serve && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
                     if (contentLength)
@@ -177,7 +177,8 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                 try {
                                     printLine('StreamFile', `Sequential Parity Stream saved as file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB) for cache`, 'info');
                                     sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 1 WHERE fileid = ?`, file.fileid);
-                                    fs.symlinkSync(`.${file.fileid}`, path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `${file.eid}-${file.real_filename}`), "file")
+                                    if (global.spanned_cache_no_symlinks)
+                                        fs.symlinkSync(`.${file.fileid}`, path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `${file.eid}-${file.real_filename}`), "file")
                                 } catch (err) {
                                     printLine('StreamFile', `Failed to link built Spanned file ${file.real_filename}! - ${(err.message) ? err.message : (err.sqlmessage) ? err.sqlmessage : ''}`, 'error');
                                     console.error(err)

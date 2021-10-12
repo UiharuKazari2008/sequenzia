@@ -34,34 +34,24 @@ if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
             if ((global.fw_serve || global.spanned_cache) && global.spanned_cache_max_age) {
                 const directory = ((global.fw_serve) ? global.fw_serve : global.spanned_cache)
                 await Promise.all(fs.readdirSync(directory)
-                    .filter(e =>
-                        e.startsWith('.') &&
-                        (new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (global.spanned_cache_max_age * 86400000)))
+                    .filter(e => e.startsWith('.'))
                     .map(async (e) => {
-                        await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 0 WHERE fileid = ?`, [e.substring(1)])
-                        fs.unlinkSync(path.join(directory, e))
-                        printLine('cleanCache', `Successfully deleted file ${e.substring(1)}`, 'info');
+                        const fileData = (await sqlPromiseSafe(`SELECT eid, real_filename FROM kanmi_records WHERE fileid = ?`, [e.substring(1)])).rows
+                        if (fileData.length === 0 && ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (global.spanned_cache_max_age * 86400000)))) {
+                            rimraf(path.join(directory, e), error => {})
+                            if (fileData.length > 0) {
+                                rimraf(path.join(directory, `${fileData[0].eid}-${fileData[0].real_filename}`), error => {
+                                })
+                                await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 0 WHERE fileid = ?`, [e.substring(1)])
+                            }
+                            printLine('cleanCache', `Successfully deleted file ${e.substring(1)}`, 'info');
+                        }
                     }))
-                await Promise.all(fs.readdirSync(directory)
-                    .filter(e => !e.startsWith('.'))
-                    .map(async (e) => {
-                        const symPath = path.join(directory, e)
-                        return new Promise(resolve => {
-                            fs.realpath(symPath, (err, pathReal) => {
-                                if (err || !fs.existsSync(path.join(directory, pathReal)) || pathReal === symPath) {
-                                    fs.unlinkSync(path.join(directory, e))
-                                    printLine('cleanCache', `Successfully deleted dead link ${e}`, 'info');
-                                }
-                                resolve(true)
-                            })
-                        })
-                    }));
             }
             fs.readdirSync(global.tmp_folder)
                 .filter(e => ((new Date().getTime()) > ((new Date((fs.statSync(path.join(global.tmp_folder, e))).mtime).getTime()) + 86400000)) )
                 .map(async (e) => {
                     rimraf(path.join(global.tmp_folder, e), (error) => {})
-                    await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 0 WHERE fileid = ?`, [e.substring(1)])
                 });
         }
 

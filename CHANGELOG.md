@@ -1,6 +1,11 @@
 # Kanmi Sequenzia Web
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
+## v17.2.1 (RC1 JFS v1.5)
+### Change Log
+- Added option to disable automatic creation of symlinks, "spanned_cache_no_symlinks" in config.json
+- Fixes issue with all symlinks getting deleted
+
 ## v17.2 (RC1 JFS v1.5)
 ### Important Notes
 This update requires Kanmi v19.2 to be applied
