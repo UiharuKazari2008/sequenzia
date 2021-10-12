@@ -1,4 +1,4 @@
-# Kanmi Sequenzia Framework
+# Kanmi Sequenzia Web
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
 ## v17.2 (RC1 JFS v1.5)

@@ -48,7 +48,7 @@ if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
                         const symPath = path.join(directory, e)
                         return new Promise(resolve => {
                             fs.realpath(symPath, (err, pathReal) => {
-                                if (err || !fs.existsSync(path.join(pathReal, e)) || pathReal === symPath) {
+                                if (err || !fs.existsSync(path.join(directory, pathReal)) || pathReal === symPath) {
                                     fs.unlinkSync(path.join(directory, e))
                                     printLine('cleanCache', `Successfully deleted dead link ${e}`, 'info');
                                 }
