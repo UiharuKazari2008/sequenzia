@@ -9,6 +9,18 @@ block content
             .background-image.bg-blur {
                 background-image: url("/static/img/bg.webp");
             }
+        - imageFiles = results.filter(e => e.meta.message_type.startsWith('image')).map(e => e.entities.preview)
+        if ( imageFiles.length > 0)
+            - backgroundImg = imageFiles[Math.floor(Math.random() * imageFiles.length)]
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url(!{backgroundImg});
+                }
+                .background-image.overlay {
+                    background-image: linear-gradient( 45deg, #481d04, #000000ab);
+                    z-index: -99;
+                    opacity: 0.7;
+                }
         .card-columns
             each item, index in results
                 - content = item.content.raw

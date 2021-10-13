@@ -22,15 +22,34 @@ html
 
         script(src="/static/vendor/jquery/jquery.min.js")
     body
+        - loginImage = (webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpg"
+        style.
+            #container, .acceptContainer:before {
+                background: url("!{loginImage}") center fixed
+            }
         #container
+            #headerContainer
+                img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-white.png"}` class=`${(webconf.login_banner_no_shadow) ? '' : 'banner-shadow'}`)
             #inviteContainer
-                .logoContainer
-                    img.logo(src="/static/img/sequenzia-logo-mini-color.png")
-                    img.text(src="/static/img/sequenzia-logo-orange.png")
+                if (webconf.login_logo_background)
+                    style.
+                        .logoContainer:before {
+                            top: unset;
+                            left: unset;
+                            filter: none;
+                            width: 100%;
+                            height: 100%;
+                            box-shadow: none;
+                            background: url("!{webconf.login_logo_background}") center
+                        }
+                    .logoContainer
+                        div(style='width: 150px; height: 150px; display: block; content: ""')
+                else
+                    .logoContainer
+                        img.logo(src=`${(webconf.login_logo_overides) ? webconf.login_logo_overides : "/static/img/sequenzia-logo-mini.png"}`)
                 .acceptContainer
                     if (noLoginAvalible)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
-                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
                             if (noLoginAvalible === 'nomember')
                                 i.fas.fa-passport.fa-7x.center(style='padding: 0;')
                                 h3 No Membership
@@ -88,7 +107,6 @@ html
 
                     else if (authenticatedDevice)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
-                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
                             i.fas.fa-check-circle.fa-7x.center(style='padding: 0;')
                             h3 Your Ready!
                             .formContainer
@@ -97,7 +115,6 @@ html
                                         | It may take up to a minute for the client to refresh, you can manually refresh if you want
                     else if (authfailedDevice)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
-                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
                             i.fas.fa-times-circle.fa-7x.center(style='padding: 0;')
                             h3 Login Failed, Try again.
                             .formContainer
@@ -107,7 +124,6 @@ html
                                         | Go Home
                     else if (serverError)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
-                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
                             i.fas.fa-times-circle.fa-7x.center(style='padding: 0;')
                             h3 Internal Server Failure (#{serverError})
                             .formContainer
@@ -117,7 +133,6 @@ html
                                         | Go Home
                     else
                         form(style='color: #460000;')
-                            img.mini-logo(src="/static/img/sequenzia-logo-orange.png")
                             if (login_code)
                                 div.login-code
                                     span.login-code.text-capitalize #{login_code}
@@ -141,25 +156,6 @@ html
                                     if (joinLink)
                                         span.register
                                             a(href=joinLink) Requires a valid membership
-    script.
-        function preventDefault(e) {
-            e.preventDefault();
-        }
-        document.body.addEventListener('touchmove', preventDefault, { passive: false });
-        const images = [
-            "https://cdn.discordapp.com/attachments/731362512288743474/794177778727387146/himanemuitoma-EqkKCaRVoAE-ye_.jpg",
-            "https://cdn.discordapp.com/attachments/716529641808199690/781596429759152128/niku_kueyo-Emts0IsVQAIhjEF.jpg",
-            "https://cdn.discordapp.com/attachments/731622192701243473/731655888401727590/02123_IMG_0426.JPG",
-            "https://cdn.discordapp.com/attachments/731622192701243473/731655902360240209/00053_IMG_0242.JPG",
-            "https://cdn.discordapp.com/attachments/731357998693220393/731362671760506941/00198_illu_kamo-957204765783474177-20180127_055254-img1.jpg",
-            "https://cdn.discordapp.com/attachments/731622192701243473/784619426099626004/xroom8x-D4RWoYYUcAAzMfS.jpg",
-            "https://cdn.discordapp.com/attachments/716529641808199690/794738820821942282/77959814_p0.png",
-            "https://cdn.discordapp.com/attachments/716529641808199690/791378394393739294/luto_gray000-Epod4rhU0AAri0d.jpg",
-            "https://cdn.discordapp.com/attachments/716529641808199690/793449761742913546/soji_____0o0-EqZpYG7VEAApe6R.jpg",
-            "https://cdn.discordapp.com/attachments/731622192701243473/785291479505043486/lm7__-En-y68ZUcAAmxPj.jpg",
-            "https://cdn.discordapp.com/attachments/731622192701243473/731655894408101928/00011_IMG_0731.JPG"
-        ];
-        $('#container').append('<style>#container, .acceptContainer:before, .logoContainer:before {background: url(' + images[Math.floor(Math.random() * images.length)] + ') center fixed }');
     if (login_image)
         script.
             setInterval(function () {

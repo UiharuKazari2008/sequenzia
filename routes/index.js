@@ -23,12 +23,26 @@ const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
 const https = require('https');
 const remoteSize = require('remote-file-size');
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const stream = require("stream");
 const useragent = require("express-useragent");
 const mime = require("mime-types");
 const sizeOf = require("image-size");
 const sharp = require("sharp");
+const closestIndex = (num, arr) => {
+    let curr = arr[0], diff = Math.abs(num - curr);
+    let index = 0;
+    for (let val = 0; val < arr.length; val++) {
+        let newdiff = Math.abs(num - arr[val]);
+        if (newdiff < diff) {
+            diff = newdiff;
+            curr = arr[val];
+            index = val;
+        };
+    };
+    return index;
+};
 
 router.get('/juneOS', sessionVerification, ajaxChecker)
 
@@ -129,49 +143,61 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows.map(e => e.part_url).sort()
-                res.setHeader('Content-Type', 'application/octet-stream');
+                //res.setHeader('Content-Type', 'application/octet-stream');
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
-                if (global.fw_serve && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
+                if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
                     if (contentLength)
                         res.setHeader('Content-Length', contentLength);
-                    fs.createReadStream(path.join(global.fw_serve, `.${file.fileid}`)).pipe(res);
+                    res.sendFile(`.${file.fileid}`, { dotfiles : 'allow', root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache) })
                 } else if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     printLine('StreamFile', `Preparing to stream spanned file request for ${file.real_filename}`, 'info');
                     let contentLength = 0;
-                    const partFilesizes = await Promise.all(files.map(async e => {
+                    let contentRanges = [];
+                    const partFilesizes = (await Promise.all(files.map(async (e, i, a) => {
+                        contentRanges.push(contentLength);
                         return await new Promise((resolve) => {
                             remoteSize(e, async (err, size) => {
                                 if (!err || (size !== undefined && size > 0)) {
                                     contentLength += size;
-                                    resolve(true)
+                                    resolve(size)
                                 } else {
                                     console.error(err)
                                     resolve(false)
                                 }
                             })
                         })
-                    }))
+                    }))).sort()
+                    contentRanges.sort()
 
                     if (partFilesizes.length === files.length && partFilesizes.filter(e => !e).length === 0) {
-                        res.setHeader('Content-Length', contentLength);
+                        let requestedStartBytes = ((() => {
+                            if (req.headers.range && req.headers.range.startsWith('bytes=')) {
+                                const requestedBytes = parseInt(req.headers.range.replace('bytes=', '').split('-')[0].toString())
+                                return ((!isNaN(requestedBytes) && requestedBytes <= contentLength)) ? requestedBytes : 0
+                            }
+                            return 0
+                        })())
+                        res.setHeader('Content-Length', (requestedStartBytes - contentLength));
+                        res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
+                        res.setHeader('accept-ranges', 'bytes')
+                        res.setHeader('Transfer-Encoding', '')
 
-                        printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
+                        // Start Multiplexed Pipeline
                         const passTrough = new stream.PassThrough();
-
-                        passTrough.pipe(res)
+                        printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
+                        passTrough.pipe(res, {end: true})
                         passTrough.on('end', () => {
                             printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
-                            res.end()
                         })
                         passTrough.on('error', () => { res.status(500).end(); })
-
-                        if (global.fw_serve || global.spanned_cache) {
+                        // Pipeline Files to Save for future requests
+                        if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0) {
                             printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
-                            const fileCompleted = fs.createWriteStream(filePath,{flags: 'a'})
+                            const fileCompleted = fs.createWriteStream(filePath,{flags: 'a', autoClose: true})
                             passTrough.pipe(fileCompleted)
                             fileCompleted.on('finish', function() {
                                 try {
@@ -188,23 +214,30 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             fileCompleted.on('error', function(err){
                                 console.log(err.stack);
                             });
-                            passTrough.on('end', () => { fileCompleted.end() })
-                            passTrough.on('error', () => { fileCompleted.end(); fs.unlinkSync(filePath); })
+                            passTrough.on('end', () => { printLine('StreamFile', `Sequential Stream cached successfully`, 'info'); })
+                            passTrough.on('error', () => { fs.unlinkSync(filePath); })
                         }
 
-                        for (const i in files) {
+                        let fileIndex = 0;
+                        let startByteOffset = 0;
+                        if (requestedStartBytes !== 0) {
+                            fileIndex = closestIndex(requestedStartBytes, contentRanges)
+                            startByteOffset = (requestedStartBytes - partFilesizes[fileIndex])
+                        }
+                        const parityFiles = files.splice(fileIndex)
+                        for (const i in parityFiles) {
+                            let requestedHeaders = {
+                                'cache-control': 'max-age=0',
+                                'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                            }
+                            if (i === 0 && startByteOffset > 0) {
+                                requestedHeaders['range'] = `bytes=${startByteOffset}-`
+                            }
                             await new Promise((resolve) => {
-                                const request = https.get(files[i], {
-                                    headers: {
-                                        'cache-control': 'max-age=0',
-                                        'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
-                                    }
-                                }, async (response) => {
-                                    response.on('data', (data) => {
-                                        passTrough.push(data)
-                                    });
+                                const request = https.get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
+                                    response.on('data', (data) => { passTrough.push(data) });
                                     response.on('end', () => {
-                                        printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${files.length} for ${file.real_filename}...`, 'info');
+                                        printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} for ${file.real_filename}...`, 'info');
                                         resolve()
                                     });
                                 });
