@@ -21,7 +21,7 @@ Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across
   - This should only be enabled on one host as it will cause table locks
   - When using multi-instance deployments the first instance will be the only one allowed to preform this task
   - The server will NOT listen until the task have completed
-- Changed prebuilt spanned files cache deliver meathod to sendFile apposed to readStream pipe
+- Changed prebuilt spanned files cache deliver method to sendFile apposed to readStream pipe
 - Accepts byte ranges for file steaming
 
 ## v17.2.1 (RC1 JFS v1.5)
