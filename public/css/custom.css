@@ -1997,6 +1997,26 @@ footer .server-grid-parent {
         column-count: 4;
     }
 }
+@media (min-width: 1280px) {
+    .card-columns {
+        column-count: 5;
+    }
+}
+@media (min-width: 1500px) {
+    .container-fluid:not(.max-resize) > #contentBlock > .card-columns {
+        column-count: 6;
+    }
+}
+@media (min-width: 2048px) {
+    .container-fluid:not(.max-resize) > #contentBlock > .card-columns {
+        column-count: 7;
+    }
+}
+@media (min-width: 2400px) {
+    .container-fluid:not(.max-resize) > #contentBlock > .card-columns {
+        column-count: 8;
+    }
+}
 @media (min-width: 1081px) {
     #btnTop.bottomBtn.videoActive {
         bottom: 460px!important;

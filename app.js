@@ -19,46 +19,9 @@ const web = require('./web.config.json')
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
-const fs = require("fs");
-const rimraf = require("rimraf");
+let activeRequests = new Map();
+let fileIDCache = new Map();
 
-if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
-    // Bootup Mantenance
-    (async () => {
-        await sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`);
-        await sqlPromiseSafe(`DELETE s1 FROM sequenzia_favorites s1, sequenzia_favorites s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.userid = s2.userid`);
-    })()
-    // Clean out old files
-    if (global.fw_serve || global.spanned_cache) {
-        async function cleanCache() {
-            if ((global.fw_serve || global.spanned_cache) && global.spanned_cache_max_age) {
-                const directory = ((global.fw_serve) ? global.fw_serve : global.spanned_cache)
-                await Promise.all(fs.readdirSync(directory)
-                    .filter(e => e.startsWith('.'))
-                    .map(async (e) => {
-                        const fileData = (await sqlPromiseSafe(`SELECT eid, real_filename FROM kanmi_records WHERE fileid = ?`, [e.substring(1)])).rows
-                        if (fileData.length === 0 && ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (global.spanned_cache_max_age * 86400000)))) {
-                            rimraf(path.join(directory, e), error => {})
-                            if (fileData.length > 0) {
-                                rimraf(path.join(directory, `${fileData[0].eid}-${fileData[0].real_filename}`), error => {
-                                })
-                                await sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 0 WHERE fileid = ?`, [e.substring(1)])
-                            }
-                            printLine('cleanCache', `Successfully deleted file ${e.substring(1)}`, 'info');
-                        }
-                    }))
-            }
-            fs.readdirSync(global.tmp_folder)
-                .filter(e => ((new Date().getTime()) > ((new Date((fs.statSync(path.join(global.tmp_folder, e))).mtime).getTime()) + 86400000)) )
-                .map(async (e) => {
-                    rimraf(path.join(global.tmp_folder, e), (error) => {})
-                });
-        }
-
-        cleanCache();
-        setInterval(cleanCache, 3600000);
-    }
-}
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -79,8 +42,8 @@ app.use('/upload', rateLimit({
         "Uploads: Too many requests"
 }));
 app.use('/stream', rateLimit({
-    windowMs: ((global.user_max_streams_sec) ? parseInt(global.user_max_streams_sec.toString()) : 60) * 1000, // 5 minutes
-    max: (global.max_streams_per_user) ? parseInt(global.max_streams_per_user.toString()) : 5,
+    windowMs: ((global.user_max_streams_sec) ? parseInt(global.user_max_streams_sec.toString()) : 30) * 1000, // 5 minutes
+    max: (global.max_streams_per_user) ? parseInt(global.max_streams_per_user.toString()) : 10,
     message:
         "Stream: Too many requests, Try again soon"
 }));
@@ -191,6 +154,8 @@ app.use(cookieParser(config.cookie_secret));
 
 app.locals.moment = require('moment');
 app.locals.webconf = require('./web.config.json');
+app.locals.activestreams = activeRequests
+app.locals.fileid_cache = fileIDCache
 
 app.use(session({
     cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},

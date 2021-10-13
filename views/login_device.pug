@@ -50,26 +50,8 @@ html
         script(src="/js/client/ambient.min.js")
     body
         .background-image.overlay
-        #bg1.background-image(style=`opacity: 1; z-index: -101!important; background-image: url('');`)
-
-        script.
-            const images = [
-                "https://cdn.discordapp.com/attachments/731362512288743474/794177778727387146/himanemuitoma-EqkKCaRVoAE-ye_.jpg",
-                "https://cdn.discordapp.com/attachments/716529641808199690/781596429759152128/niku_kueyo-Emts0IsVQAIhjEF.jpg",
-                "https://cdn.discordapp.com/attachments/731622192701243473/731655888401727590/02123_IMG_0426.JPG",
-                "https://cdn.discordapp.com/attachments/731622192701243473/731655902360240209/00053_IMG_0242.JPG",
-                "https://cdn.discordapp.com/attachments/731357998693220393/731362671760506941/00198_illu_kamo-957204765783474177-20180127_055254-img1.jpg",
-                "https://cdn.discordapp.com/attachments/731622192701243473/784619426099626004/xroom8x-D4RWoYYUcAAzMfS.jpg",
-                "https://cdn.discordapp.com/attachments/716529641808199690/794738820821942282/77959814_p0.png",
-                "https://cdn.discordapp.com/attachments/716529641808199690/791378394393739294/luto_gray000-Epod4rhU0AAri0d.jpg",
-                "https://cdn.discordapp.com/attachments/716529641808199690/793449761742913546/soji_____0o0-EqZpYG7VEAApe6R.jpg",
-                "https://cdn.discordapp.com/attachments/731622192701243473/785291479505043486/lm7__-En-y68ZUcAAmxPj.jpg",
-                "https://cdn.discordapp.com/attachments/731622192701243473/731655894408101928/00011_IMG_0731.JPG"
-            ];
-            function nextPreview() {
-                document.getElementById('bg1').style.backgroundImage = "url('" + images[Math.floor(Math.random() * images.length)] + "')";
-            }
-            nextPreview();
+        - loginImage = (webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpg"
+        #bg1.background-image(style=`opacity: 1; z-index: -101!important; background-image: url('!{loginImage}');`)
 
         #content-wrapper.container.p-4
             .fixed-top.m-5
@@ -92,7 +74,6 @@ html
         $(document).ready(function () {
             dc();
             setInterval(checkLogin, 60000);
-            setInterval(nextPreview, 900000);
             setTimeout(function () {
                 location.reload();
             }, 28800000);

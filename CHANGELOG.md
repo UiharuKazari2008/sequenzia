@@ -1,6 +1,29 @@
 # Kanmi Sequenzia Web
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
+## v17.2.2 (RC1 JFS v1.5)
+### Change Log
+- Fixed issues where there was no background image on pages due to PUG escaping the "&" in the URL
+- Added more card columns
+- Cards and Files page will now chnage the background image if there images on the page
+- Added customisations for the login page 
+  - "login_image_overides"
+    - String or Array of URLs that are used for background images
+  - "login_banner_overides"
+    - URL that is used to overide the banner at the top of the login dialog
+  - "login_logo_overides"
+    - URL that replaces the logo on the right of the login dialog
+  - "login_logo_background"
+    - URL that repalces the inside of the right of the dialog, Hides logo
+  - "login_banner_no_shadow"
+    - Boolean that disables the drop shadow on the banner logo at the top of the login page
+- Startup mantenance is no longer default and must be enabled with `"enable_maintenance": true"` in config.json
+  - This should only be enabled on one host as it will cause table locks
+  - When using multi-instance deployments the first instance will be the only one allowed to preform this task
+  - The server will NOT listen until the task have completed
+- Changed prebuilt spanned files cache deliver meathod to sendFile apposed to readStream pipe
+- Accepts byte ranges for file steaming
+
 ## v17.2.1 (RC1 JFS v1.5)
 ### Change Log
 - Added option to disable automatic creation of symlinks, "spanned_cache_no_symlinks" in config.json
