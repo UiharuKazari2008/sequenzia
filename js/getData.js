@@ -1589,6 +1589,8 @@ module.exports = async (req, res, next) => {
                                     }
                                     if (isCached) {
                                         fullimage = (fullimage) ? fullimage : `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                    }
+                                    if (item.fileid) {
                                         downloadimage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.cache_proxy) {
