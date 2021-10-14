@@ -237,7 +237,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                 const request = https.get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
                                     response.on('data', (data) => { passTrough.push(data) });
                                     response.on('end', () => {
-                                        printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} for ${file.real_filename}...`, 'info');
+                                        printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} - ${parityFiles[i]}`, 'info');
                                         resolve()
                                     });
                                 });
