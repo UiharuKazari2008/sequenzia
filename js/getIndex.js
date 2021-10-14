@@ -450,7 +450,7 @@ module.exports = async (req, res, next) => {
                                 return ''
                             }
                         }
-                        imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
+                        imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channelid}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
                     }
                     if (item.colorR !== null && item.colorG !== null && item.colorB !== null) {
                         advColor = [
