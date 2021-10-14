@@ -10,7 +10,7 @@ block content
         - backgroundImg = results[Math.floor(Math.random() * results.length)].entities.preview
         style.
             .background-image:not(.overlay) {
-                background-image: url(#{backgroundImg});
+                background-image: url(!{backgroundImg});
             }
             .background-image.overlay {
                 background-image: linear-gradient( 45deg, #481d04, #000000ab);
