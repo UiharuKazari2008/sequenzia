@@ -71,17 +71,15 @@ function openActionMenu(mode) {
                 actionModel.querySelector('#actionModelRename').classList.add('d-none');
                 actionModel.querySelector('#actionModelRename').classList.remove('d-flex');
             }
-            const fileCompileable = postsActions.filter(e => e.file === true || e.file === false)
-            if (fileCompileable.length > 0) {
-                actionModel.querySelector('#actionModelCompile').classList.remove('d-none');
-                actionModel.querySelector('#actionModelCompile').classList.add('d-flex');
-            } else {
-                actionModel.querySelector('#actionModelCompile').classList.add('d-none');
-                actionModel.querySelector('#actionModelCompile').classList.remove('d-flex');
-            }
         } else {
             actionModel.querySelector('#actionModelRename').classList.add('d-none');
             actionModel.querySelector('#actionModelRename').classList.remove('d-flex');
+        }
+        const fileCompileable = postsActions.filter(e => e.file === true || e.file === false)
+        if (fileCompileable.length > 0) {
+            actionModel.querySelector('#actionModelCompile').classList.remove('d-none');
+            actionModel.querySelector('#actionModelCompile').classList.add('d-flex');
+        } else {
             actionModel.querySelector('#actionModelCompile').classList.add('d-none');
             actionModel.querySelector('#actionModelCompile').classList.remove('d-flex');
         }

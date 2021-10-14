@@ -85,7 +85,7 @@ block content
                             a.btn(data-placement="top" title="Image was reported" href='#_')
                                 i.fas.fa-flag.text-danger
                         if (item.manage && user && user.source < 900)
-                            a.btn(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid !== '') ? ', true' : ''}); openActionMenu(); return false;` )
+                            a.btn(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
                                 i.fas.fa-paste
                 if (item.content.clean && item.content.clean.length > 0)
                     div.row(style="background-color: #000000c7").row.justify-content-center.p-2.contents-col-single
@@ -186,7 +186,7 @@ block content
                                                     a.btn.btn-links.no-dynamic-small(tabindex="0" role='button' data-toggle='popover' title='Message Contents' data-html="true" data-content=item.content.raw.split("\n").join('<br/>'))
                                                         i.btn-links.fas.fa-info-circle
                                             if (thisImageManage && user && user.source < 900)
-                                                a.btn.btn-links(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid !== '') ? ', true' : ''}); openActionMenu(); return false;` )
+                                                a.btn.btn-links(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
                                                     i.btn-links.fas.fa-paste
                                             else if (user && user.source < 900)
                                                 if (item.flagged)
@@ -206,7 +206,7 @@ block content
                                     - showNSFWString = "&nsfw=true"
                                 if (thisImageManage && user && user.source < 900)
                                     div#selectItemCheck.select-item.hidden
-                                        a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid !== '') ? ', true' : ''}); return false;`)
+                                        a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                             i.fas.fa-check-circle.text-gray-600.shadow-text(style="font-size: 3em;" id='select-' + item.id)
                                         a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                             i.fas.fa-check-circle.text-success.shadow-text(style="font-size: 3em;" id='select-' + item.id)
@@ -216,7 +216,7 @@ block content
                                     else
                                         p.text.p-start #{item.content.single}
                                     p.date.p-mid #{item.date.pretty}
-                                    if (item.entities.meta.filesize && item.entities.meta.fileid !== null && item.entities.meta.fileid !== '')
+                                    if (item.entities.meta.filesize && item.entities.meta.fileid !== null)
                                         p.text.p-mid #{item.entities.meta.filesize} MB
                                     if (multiChannel && item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
                                         p.channel.p-mid #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}

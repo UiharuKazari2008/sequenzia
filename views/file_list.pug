@@ -130,7 +130,7 @@ block content
                                 div.text-primary
                                     if (thisImageManage)
                                         .file-select.d-inline-block.hidden
-                                            a#checkItem.btn.selectPostToMode.file-CheckItem(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid !== '') ? ', true' : ''}); return false;`)
+                                            a#checkItem.btn.selectPostToMode.file-CheckItem(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.fas.fa-check-circle.text-white(id='select-' + item.id)
                                             a#unCheckItem.btn.deselectPostToMode.file-unCheckItem.hidden(title="Deselect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                                 i.fas.fa-check-circle(id='select-' + item.id)
@@ -182,7 +182,7 @@ block content
                                                 a.btn.btn-fav(id='fav-' + item.eid title="Pin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
                                                     i#button.fas.fa-star
                                             if (thisImageManage)
-                                                a.btn.btn-admin(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid !== '') ? ', true' : ''});  openActionMenu(); return false;` )
+                                                a.btn.btn-admin(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''});  openActionMenu(); return false;` )
                                                     i#button.fas.fa-paste
                             td.d-none.d-sm-table-cell #{item.date.pretty}
                             td.d-none.d-sm-table-cell #{item.entities.meta.filesize} MB
