@@ -256,7 +256,7 @@ module.exports = async (req, res, next) => {
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
             'kanmi_records.attachment_hash',
-            'kanmi_records.attachment_filename',
+            'kanmi_records.attachment_name',
             'kanmi_records.cache_proxy',
             'kanmi_records.sizeH',
             'kanmi_records.sizeW',
