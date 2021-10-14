@@ -434,7 +434,7 @@ module.exports = async (req, res, next) => {
                         channelName = item.channel_nice
                     }
                     if (item.cache_proxy !== null) {
-                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`;
+                        imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
                     } else {
                         function getimageSizeParam() {
                             if (item.sizeH && item.sizeW && (item.sizeH > 512 || item.sizeW > 512)) {
@@ -450,7 +450,7 @@ module.exports = async (req, res, next) => {
                                 return ''
                             }
                         }
-                        imageurl = `https://media.discordapp.net/attachments/` + (item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`
+                        imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
                     }
                     if (item.colorR !== null && item.colorG !== null && item.colorB !== null) {
                         advColor = [
