@@ -134,7 +134,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length > 0) {
-            const results = await sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY eid, part_url`, [params[0], params[0]])
+            const results = await sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
             if (results.error) {
                 res.status(500)
                 console.error(results.error)
@@ -142,7 +142,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 res.status(404).send(`File ${params[0]} does not exist`)
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
-                const files = results.rows.map(e => e.part_url).sort()
+                const files = results.rows.map(e => e.part_url).sort((a, b) => a.split('/').pop()-b.split('/').pop())
                 //res.setHeader('Content-Type', 'application/octet-stream');
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
