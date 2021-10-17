@@ -1838,7 +1838,7 @@ module.exports = async (req, res, next) => {
                                 }
 
 
-                                if (item.cache_proxy === null && (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts'))) {
+                                if (item.cache_proxy === null && filename && (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts'))) {
                                     if ((item.cache_proxy === null && item.cache_proxy !== 'failed') && global.enable_polyfill_proxy_request) {
                                         sendData(global.mq_discord_out, {
                                             fromClient : `return.Sequenzia.${config.system_name}`,
@@ -1942,7 +1942,7 @@ module.exports = async (req, res, next) => {
                                             }
                                         }
                                         imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
-                                    } else if (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts')) {
+                                    } else if (filename && (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts'))) {
                                         if (item.cache_proxy === null && item.cache_proxy !== 'failed' && global.enable_polyfill_proxy_request) {
                                             sendData(global.mq_discord_out, {
                                                 fromClient : `return.Sequenzia.${config.system_name}`,
