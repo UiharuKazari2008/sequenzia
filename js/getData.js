@@ -632,6 +632,7 @@ module.exports = async (req, res, next) => {
         // Limit
         if (page_uri === '/ambient-get') {
             limit = 1;
+            enablePrelimit = false;
         } else if (req.query.responseType) {
             limit = 1000;
             enablePrelimit = false;
