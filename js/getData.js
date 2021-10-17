@@ -649,12 +649,13 @@ module.exports = async (req, res, next) => {
                 limit = 50;
             }
         } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh')) {
-            enablePrelimit = false;
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
             } else {
                 limit = 50;
             }
+        } else {
+            enablePrelimit = false;
         }
         const sqllimit = limit + 1;
         // Offset
@@ -705,7 +706,6 @@ module.exports = async (req, res, next) => {
                     "attachment_name LIKE '%.web%_'",
                 ].join(' OR ')})`
             ].join(' AND ')
-            enablePrelimit = false;
         } else if (page_uri === '/files') {
             if (req.query.filesonly) {
                 execute = '(' + [
