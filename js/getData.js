@@ -287,6 +287,7 @@ module.exports = async (req, res, next) => {
                 sqlorder.push('DESC')
                 sqlHistoryJoin = 'INNER JOIN';
             }
+            enablePrelimit = false;
         } else {
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
@@ -654,8 +655,6 @@ module.exports = async (req, res, next) => {
             } else {
                 limit = 50;
             }
-        } else {
-            enablePrelimit = false;
         }
         const sqllimit = limit + 1;
         // Offset
