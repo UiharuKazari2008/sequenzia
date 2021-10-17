@@ -48,6 +48,7 @@ module.exports = async (req, res, next) => {
         let sqlHistoryWhere = [
             `user = '${req.session.discord.user.id}'`
         ];
+        let sqlHistorySort = 'eid';
         let sqlHistoryWherePost = '';
         let sqlAlbumWhere = '';
         let enablePrelimit = true;
@@ -279,13 +280,14 @@ module.exports = async (req, res, next) => {
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
             sqlorder = [`date`, 'DESC']
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
             if (!req.query.displaySlave) {
                 sqlorder.push(`RAND()`)
             } else {
                 sqlorder.push('history_date');
                 sqlorder.push('DESC')
                 sqlHistoryJoin = 'INNER JOIN';
+                sqlHistorySort = 'history_date DESC'
             }
             enablePrelimit = false;
         } else {
@@ -649,7 +651,7 @@ module.exports = async (req, res, next) => {
             } else {
                 limit = 50;
             }
-        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh')) {
+        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient'))) {
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
             } else {
@@ -658,7 +660,7 @@ module.exports = async (req, res, next) => {
         }
         const sqllimit = limit + 1;
         // Offset
-        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
+        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
         // Where Exec
@@ -693,7 +695,7 @@ module.exports = async (req, res, next) => {
                     "attachment_name = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
@@ -769,7 +771,7 @@ module.exports = async (req, res, next) => {
         const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))` + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '');
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
-        const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY eid LIMIT 100000`;
+        const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
         const selectUsers = `SELECT DISTINCT id AS user_id, username AS user_name, nice_name AS user_nicename, avatar AS user_avatar FROM discord_users`;
         
@@ -914,7 +916,7 @@ module.exports = async (req, res, next) => {
                 }
                 next();
             }
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
             const imageResults = await sqlPromiseSimple(ambientSQL)
             if (imageResults && imageResults.rows.length > 0) {
