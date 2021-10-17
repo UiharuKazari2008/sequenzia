@@ -1252,7 +1252,7 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
-            const messageResults = await sqlPromiseSimple(`${sqlCall}`);
+            const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
