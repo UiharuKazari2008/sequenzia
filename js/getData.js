@@ -50,6 +50,7 @@ module.exports = async (req, res, next) => {
         ];
         let sqlHistoryWherePost = '';
         let sqlAlbumWhere = '';
+        let enablePrelimit = true;
         let sqlAlbumQueryStart = '';
         let sqlAlbumQueryEnd = '';
         let limit = 1;
@@ -226,6 +227,7 @@ module.exports = async (req, res, next) => {
         }
         let channelFilter = `${baseQ}`
         if (req.query.album) {
+            enablePrelimit = false;
             sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
             android_uri.push(`album=${req.query.album}`);
             channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
@@ -244,24 +246,29 @@ module.exports = async (req, res, next) => {
         if (req.query && req.query.pins && req.query.pins === 'true') {
             sqlFavJoin = 'INNER JOIN'
             android_uri.push('pins=true');
+            enablePrelimit = false;
         } else if (req.query && req.query.pins && req.query.pins === 'false') {
             sqlFavJoin = 'LEFT OUTER JOIN'
             sqlFavWhere = ' WHERE fav_date IS NULL'
             android_uri.push('pins=false');
+            enablePrelimit = false;
         } else if (req.query && req.query.pins) {
             sqlFavJoin = 'INNER JOIN'
             pinsUser = `${req.query.pins}`
             android_uri.push(`pins=${req.query.pins}`);
+            enablePrelimit = false;
         }
 
         // History
         if (req.query && req.query.history && req.query.history === 'only') {
             sqlHistoryJoin = 'INNER JOIN'
             android_uri.push('history=only');
+            enablePrelimit = false;
         } else if (req.query && req.query.history && req.query.history === 'none') {
             sqlHistoryJoin = 'LEFT OUTER JOIN'
             sqlHistoryWherePost = ' WHERE history_date IS NULL'
             android_uri.push('history=none');
+            enablePrelimit = false;
         }
         if (_dn !== '*') {
             sqlHistoryWhere.push( `name = '${_dn.replace(/'/g, '\\\'')}'`)
@@ -627,6 +634,7 @@ module.exports = async (req, res, next) => {
             limit = 1;
         } else if (req.query.responseType) {
             limit = 1000;
+            enablePrelimit = false;
         } else if (req.query.num) {
             const _limit = parseInt(req.query.num);
             if (!isNaN(limit)) {
@@ -640,6 +648,7 @@ module.exports = async (req, res, next) => {
                 limit = 50;
             }
         } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh')) {
+            enablePrelimit = false;
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
             } else {
@@ -650,6 +659,8 @@ module.exports = async (req, res, next) => {
         // Offset
         if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
+        } else {
+            enablePrelimit = false;
         }
         // Where Exec
         if (page_uri === '/gallery') {
@@ -756,7 +767,7 @@ module.exports = async (req, res, next) => {
             `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
         ].join(' AND ');
 
-        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere})) LIMIT ${sqllimit + 10} OFFSET ${offset}`;
+        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))` + (enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '';
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY eid LIMIT 100000`;
