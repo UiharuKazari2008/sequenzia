@@ -756,7 +756,7 @@ module.exports = async (req, res, next) => {
             `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
         ].join(' AND ');
 
-        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))`;
+        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere})) LIMIT ${sqllimit + 10} OFFSET ${offset}`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY eid LIMIT 100000`;
@@ -1096,7 +1096,8 @@ module.exports = async (req, res, next) => {
                 }
 
                 if (_dn !== "*" && (randomImage.length === 1 || (randomImage.length > 1 && req.query.nohistory && req.query.nohistory === 'false')) && req.session.discord.user.id && randomImage && !req.query.displaySlave && !(req.query.nohistory && req.query.nohistory === 'true')) {
-                    randomImage.forEach(async (image, index) => {
+                    for (const image of randomImage) {
+                        const index = randomImage.indexOf(image);
                         const isExsists = await sqlPromiseSafe(`SELECT * FROM sequenzia_display_history WHERE eid = ? AND user = ?`, [image.eid, req.session.discord.user.id]);
                         if (isExsists.error) {
                             printLine('SQL', `Error adding messages to display history - ${isExsists.error.sqlMessage}`, 'error', err)
@@ -1139,7 +1140,7 @@ module.exports = async (req, res, next) => {
                                 }
                             })
                         }
-                    })
+                    }
                 }
             } else {
                 res.locals.response = {
@@ -1240,7 +1241,7 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
-            const messageResults = await sqlPromiseSimple(`${sqlCall} LIMIT ${sqllimit + 10} OFFSET ${offset}`);
+            const messageResults = await sqlPromiseSimple(`${sqlCall}`);
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
