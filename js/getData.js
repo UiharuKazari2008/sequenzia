@@ -659,8 +659,6 @@ module.exports = async (req, res, next) => {
         // Offset
         if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
-        } else {
-            enablePrelimit = false;
         }
         // Where Exec
         if (page_uri === '/gallery') {
@@ -706,6 +704,7 @@ module.exports = async (req, res, next) => {
                     "attachment_name LIKE '%.web%_'",
                 ].join(' OR ')})`
             ].join(' AND ')
+            enablePrelimit = false;
         } else if (page_uri === '/files') {
             if (req.query.filesonly) {
                 execute = '(' + [
