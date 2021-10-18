@@ -1187,7 +1187,7 @@ module.exports = async (req, res, next) => {
                 if (req.query && req.query.pins && req.query.pins !== 'false') {
                     sqlTables += ', sequenzia_favorites';
                     sqlCountFeild = 'sequenzia_favorites.date';
-                    favmatch = `AND sequenzia_favorites.eid = kanmi_records.eid AND sequenzia_favorites.userid = '${pinsUser.replace(/'/g, '\\\'')}'${(sqlFavWhere.length > 0) ? ' AND ' + sqlFavWhere.join(' AND ').replaceAll('fav_date', 'sequenzia_favorites.date') : ''}`;
+                    favmatch = `AND sequenzia_favorites.eid = kanmi_records.eid AND sequenzia_favorites.userid = '${pinsUser.replace(/'/g, '\\\'')}'${(sqlFavWhere.length > 0) ? ' AND ' + sqlFavWhere.join(' AND ').replace('fav_date', 'sequenzia_favorites.date') : ''}`;
                 }
                 if (req.query && req.query.history && req.query.history === 'only') {
                     sqlTables += ', sequenzia_display_history';
