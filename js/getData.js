@@ -43,7 +43,7 @@ module.exports = async (req, res, next) => {
         let sqlquery = [];
         let sqlorder = [];
         let sqlFavJoin = 'LEFT OUTER JOIN';
-        let sqlFavWhere = '';
+        let sqlFavWhere = [];
         let sqlHistoryJoin = 'LEFT OUTER JOIN';
         let sqlHistoryWhere = [
             `user = '${req.session.discord.user.id}'`
@@ -250,7 +250,7 @@ module.exports = async (req, res, next) => {
             enablePrelimit = false;
         } else if (req.query && req.query.pins && req.query.pins === 'false') {
             sqlFavJoin = 'LEFT OUTER JOIN'
-            sqlFavWhere = ' WHERE fav_date IS NULL'
+            sqlFavWhere.push('fav_date IS NULL')
             android_uri.push('pins=false');
             enablePrelimit = false;
         } else if (req.query && req.query.pins) {
@@ -446,7 +446,7 @@ module.exports = async (req, res, next) => {
         }  else if (req.query.fav_numdays) {
             const numOfDays = parseInt(req.query.fav_numdays)
             if (!isNaN(numOfDays) && numOfDays >= 2 && numOfDays <= 1000) {
-                sqlHistoryWhere.push(`fav_date >= NOW() - INTERVAL ${numOfDays} DAY`);
+                sqlFavWhere.push(`fav_date >= NOW() - INTERVAL ${numOfDays} DAY`);
                 android_uri.push(`fav_numdays=${numOfDays}`);
             }
         } else if (req.query.numdays) {
@@ -784,7 +784,7 @@ module.exports = async (req, res, next) => {
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
         const selectUsers = `SELECT DISTINCT id AS user_id, username AS user_name, nice_name AS user_nicename, avatar AS user_avatar FROM discord_users`;
 
-        let sqlCall = `SELECT * FROM (SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${sqlFavWhere}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}) results LEFT OUTER JOIN (${selectUsers}) users ON ( results.user = users.user_id )`
+        let sqlCall = `SELECT * FROM (SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}) results LEFT OUTER JOIN (${selectUsers}) users ON ( results.user = users.user_id )`
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
