@@ -440,8 +440,14 @@ module.exports = async (req, res, next) => {
         } else if (req.query.history_numdays) {
             const numOfDays = parseInt(req.query.history_numdays)
             if (!isNaN(numOfDays) && numOfDays >= 2 && numOfDays <= 1000) {
-                sqlHistoryWhere.push(`date >= NOW() - INTERVAL ${numOfDays} DAY`);
-                android_uri.push(`numdays=${numOfDays}`);
+                sqlHistoryWhere.push(`history_date >= NOW() - INTERVAL ${numOfDays} DAY`);
+                android_uri.push(`history_numdays=${numOfDays}`);
+            }
+        }  else if (req.query.fav_numdays) {
+            const numOfDays = parseInt(req.query.fav_numdays)
+            if (!isNaN(numOfDays) && numOfDays >= 2 && numOfDays <= 1000) {
+                sqlHistoryWhere.push(`fav_date >= NOW() - INTERVAL ${numOfDays} DAY`);
+                android_uri.push(`fav_numdays=${numOfDays}`);
             }
         } else if (req.query.numdays) {
             const numOfDays = parseInt(req.query.numdays)
@@ -782,7 +788,7 @@ module.exports = async (req, res, next) => {
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
-        if (sqlorder.trim().length > 0 && !enablePrelimit) {
+        if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
         }
 
