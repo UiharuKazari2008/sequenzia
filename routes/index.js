@@ -97,7 +97,7 @@ router.get('/status', sessionVerification, async (req, res) => {
                             if (messages[0].filecached !== 1) {
                                 res.status(201).send('Item exists but has not been processed')
                             } else if (messages[0].filecached !== 1) {
-                                res.status(200).send(`${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${messages[0].fileid}/${messages[0].real_filename}`)
+                                res.status(200).send(`${web.base_url}stream/${messages[0].fileid}/${messages[0].real_filename}`)
                             } else {
                                 res.status(500).send('Unknown Error')
                             }
@@ -452,7 +452,7 @@ router.use('/content', downloadValidation, async function (req, res) {
                                 "provider_url": webconfig.base_url
                             }
                             if (message.filecached === 1 && (message.real_filename.split('.').pop().toLowerCase() === 'webp' || message.real_filename.split('.').pop().toLowerCase() === 'png' || message.real_filename.split('.').pop().toLowerCase() === 'jpeg' || message.real_filename.split('.').pop().toLowerCase() === 'jpg' || message.real_filename.split('.').pop().toLowerCase() === 'gif')) {
-                                obj.image = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${message.fileid}/${message.real_filename}`
+                                obj.image = `${web.base_url}stream/${message.fileid}/${message.real_filename}`
                             }
                             sqlSafe(`SELECT * FROM kanmi_channels WHERE channelid = ?`, [message.channel], async (err, _channelInfo) => {
                                 const channelInfo = _channelInfo[0];
