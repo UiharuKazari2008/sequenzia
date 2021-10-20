@@ -444,7 +444,7 @@ async function roleGeneration(id, res, req, authToken) {
 
                 await generateViews(req, id);
                 if (req.session && req.session.login_code) {
-                    sqlPromiseSafe(`DELETE FROM sequenzia_login_codes WHERE code = ? AND session = ?`, [req.session.login_code, req.sessionID])
+                    sqlPromiseSafe(`DELETE FROM sequenzia_login_codes WHERE code = ? AND session = ?`, [req.session.login_code, req.sessionID], true)
                     req.session.login_code = undefined;
                 }
                 resolve(true)
