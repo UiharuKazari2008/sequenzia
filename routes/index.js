@@ -260,6 +260,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             const fileCompleted = fs.createWriteStream(filePath)
 
                             await new Promise(async (resolve, reject) => {
+                                console.log(files)
                                 for (const i in files) {
                                     let requestedHeaders = {
                                         'cache-control': 'max-age=0',
