@@ -308,6 +308,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
         } else {
             res.status(400).send('Invalid Request')
         }
+        return false
     } catch (err) {
         res.status(500).json({
             state: 'HALTED',
