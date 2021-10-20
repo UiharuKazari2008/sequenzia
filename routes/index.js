@@ -259,27 +259,31 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
                             const fileCompleted = fs.createWriteStream(filePath)
 
-                            for (const i in files) {
-                                let requestedHeaders = {
-                                    'cache-control': 'max-age=0',
-                                    'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
-                                }
-                                await new Promise((resolve) => {
-                                    const request = https.get(files[i], { headers: requestedHeaders }, async (response) => {
-                                        response.on('data', (data) => { fileCompleted.write(data) });
-                                        response.on('end', () => {
-                                            printLine('StreamFile', `Parity chunk complete for part #${parseInt(i) + 1}/${files.length} - ${files[i]}`, 'info');
+                            await new Promise(async (resolve, reject) => {
+                                for (const i in files) {
+                                    let requestedHeaders = {
+                                        'cache-control': 'max-age=0',
+                                        'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                                    }
+                                    await new Promise((resolve) => {
+                                        const request = https.get(files[i], { headers: requestedHeaders }, async (response) => {
+                                            response.on('data', (data) => { fileCompleted.write(data) });
+                                            response.on('end', () => {
+                                                printLine('StreamFile', `Parity chunk complete for part #${parseInt(i) + 1}/${files.length} - ${files[i]}`, 'info');
+                                                resolve()
+                                            });
+                                        });
+                                        request.on('error', function(e){
+                                            res.status(500).send('Error during proxying request');
+                                            passTrough.destroy(e)
+                                            printLine('ProxyFile', `Failed to build file request - ${e.message}`, 'error');
                                             resolve()
                                         });
-                                    });
-                                    request.on('error', function(e){
-                                        res.status(500).send('Error during proxying request');
-                                        passTrough.destroy(e)
-                                        printLine('ProxyFile', `Failed to build file request - ${e.message}`, 'error');
-                                        resolve()
-                                    });
-                                })
-                            }
+                                    })
+                                }
+                                resolve();
+                            })
+
                             fileCompleted.end()
                             try {
                                 printLine('StreamFile', `Spanned file saved as ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB) for cache`, 'info');
