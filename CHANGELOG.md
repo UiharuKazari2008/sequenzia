@@ -1,6 +1,15 @@
 # Kanmi Sequenzia Web
 Do not mix and match Kanmi and Sequenzia JFS versions, v1.5 must use v1.5 across all software
 
+## v17.2.3 (RC1 JFS v1.5)
+### Important Notes
+This update requires Kanmi v19.2.1 to be applied
+### Change Log
+- Changed all URLS pointing to spanned files to universal /stream endpoints
+- Added pre-sorting to SQL requests whenever possible to speed up page request when dealing with large amounts of rows
+- Added support for sorting by date favorited
+- Added support to limit to max number of days favorited with "fav_numdays"
+
 ## v17.2.2 (RC1 JFS v1.5)
 ### Change Log
 - Fixed issues where there was no background image on pages due to PUG escaping the "&" in the URL
