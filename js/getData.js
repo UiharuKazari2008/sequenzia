@@ -1,5 +1,6 @@
 const global = require('../config.json');
 const config = require('../host.config.json');
+const web = require('../web.config.json');
 const { printLine } = require("./logSystem");
 const { sqlSimple, sqlSafe, sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
@@ -851,7 +852,7 @@ module.exports = async (req, res, next) => {
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (image.filecached === 1) {
-                            ranfullImage = `${web.base_url}/stream/${image.fileid}/${image.real_filename}`
+                            ranfullImage = `${web.base_url}stream/${image.fileid}/${image.real_filename}`
                         } else {
                             ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
@@ -978,7 +979,7 @@ module.exports = async (req, res, next) => {
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (image.filecached === 1) {
-                            ranfullImage = `${web.base_url}/stream/${image.fileid}/${image.real_filename}`
+                            ranfullImage = `${web.base_url}stream/${image.fileid}/${image.real_filename}`
                         } else {
                             ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
@@ -1605,15 +1606,15 @@ module.exports = async (req, res, next) => {
                                     if (item.attachment_hash && item.attachment_name) {
                                         fullimage = fullimage = imageurl = downloadimage = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
                                     } else if (item.fileid) {
-                                        fullimage = `${web.base_url}/stream/${item.fileid}/${item.real_filename}`
+                                        fullimage = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     } else if (item.cache_proxy) {
                                         fullimage = fullimage = imageurl = downloadimage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
                                     if (isCached) {
-                                        fullimage = (fullimage) ? fullimage : `${web.base_url}/stream/${item.fileid}/${item.real_filename}`
+                                        fullimage = (fullimage) ? fullimage : `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.fileid) {
-                                        downloadimage = `${web.base_url}/stream/${item.fileid}/${item.real_filename}`
+                                        downloadimage = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
@@ -1978,7 +1979,7 @@ module.exports = async (req, res, next) => {
                                     }
                                     let inprogress = false
                                     if (item.fileid !== null) {
-                                        downloadurl = `${web.base_url}/stream/${item.fileid}/${item.real_filename}`
+                                        downloadurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
@@ -2056,7 +2057,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
                                     if (item.fileid !== null) {
-                                        fullurl = `${web.base_url}/stream/${item.fileid}/${item.real_filename}`
+                                        fullurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
