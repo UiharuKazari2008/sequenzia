@@ -143,7 +143,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
-                console.log(files)
                 //res.setHeader('Content-Type', 'application/octet-stream');
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
@@ -183,15 +182,15 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                         })())
                         res.setHeader('Content-Length', (requestedStartBytes - contentLength));
 
-                        let fileIndex = 0;
-                        let startByteOffset = 0;
-                        if (requestedStartBytes !== 0) {
-                            fileIndex = closestIndex(requestedStartBytes, contentRanges)
-                            startByteOffset = (requestedStartBytes - partFilesizes[fileIndex])
-                        }
-                        const parityFiles = files.splice(fileIndex)
-
                         if ((!web.stream_max_file_size || (web.stream_max_file_size && (contentLength / 1024000).toFixed(2) <= web.stream_max_file_size)) && contentLength <= os.freemem() - (256 * 1024000)) {
+                            let fileIndex = 0;
+                            let startByteOffset = 0;
+                            if (requestedStartBytes !== 0) {
+                                fileIndex = closestIndex(requestedStartBytes, contentRanges)
+                                startByteOffset = (requestedStartBytes - partFilesizes[fileIndex])
+                            }
+                            const parityFiles = files.splice(fileIndex)
+
                             res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
                             res.setHeader('accept-ranges', 'bytes')
                             res.setHeader('Transfer-Encoding', '')
@@ -260,31 +259,26 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
                             const fileCompleted = fs.createWriteStream(filePath)
 
-                            await new Promise(async (resolve, reject) => {
-
-                                for (const i in files) {
-                                    let requestedHeaders = {
-                                        'cache-control': 'max-age=0',
-                                        'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
-                                    }
-                                    await new Promise((resolve) => {
-                                        const request = https.get(files[i], { headers: requestedHeaders }, async (response) => {
-                                            response.on('data', (data) => { fileCompleted.write(data) });
-                                            response.on('end', () => {
-                                                printLine('StreamFile', `Parity chunk complete for part #${parseInt(i) + 1}/${files.length} - ${files[i]}`, 'info');
-                                                resolve()
-                                            });
-                                        });
-                                        request.on('error', function(e){
-                                            res.status(500).send('Error during proxying request');
-                                            passTrough.destroy(e)
-                                            printLine('ProxyFile', `Failed to build file request - ${e.message}`, 'error');
+                            for (const i in files) {
+                                let requestedHeaders = {
+                                    'cache-control': 'max-age=0',
+                                    'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                                }
+                                await new Promise((resolve) => {
+                                    const request = https.get(files[i], { headers: requestedHeaders }, async (response) => {
+                                        response.on('data', (data) => { fileCompleted.write(data) });
+                                        response.on('end', () => {
+                                            printLine('StreamFile', `Parity chunk complete for part #${parseInt(i) + 1}/${files.length} - ${files[i]}`, 'info');
                                             resolve()
                                         });
-                                    })
-                                }
-                                resolve();
-                            })
+                                    });
+                                    request.on('error', function(e){
+                                        res.status(500).send('Error during proxying request');
+                                        printLine('ProxyFile', `Failed to build file request - ${e.message}`, 'error');
+                                        fs.unlinkSync(filePath)
+                                    });
+                                })
+                            }
 
                             fileCompleted.end()
                             try {
