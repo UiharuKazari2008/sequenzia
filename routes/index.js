@@ -194,7 +194,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                         })
                         passTrough.on('error', () => { res.status(500).end(); })
                         // Pipeline Files to Save for future requests
-                        if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0) {
+                        if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0 && !(req.query.nocache && !req.query.nocache === 'true') && (!web.cache_max_file_size || (web.cache_max_file_size && (contentLength / 1024000).toFixed(2) <= web.cache_max_file_size))) {
                             printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
                             const fileCompleted = fs.createWriteStream(filePath,{flags: 'a', autoClose: true})
