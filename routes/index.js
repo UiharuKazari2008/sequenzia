@@ -257,7 +257,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                         } else if (global.fw_serve || global.spanned_cache) {
                             printLine('StreamFile', `Stalled build for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB), due to file size being to large!`, 'info');
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
-                            const fileCompleted = fs.createWriteStream(filePath,{flags: 'a', autoClose: true})
+                            const fileCompleted = fs.createWriteStream(filePath)
 
                             for (const i in files) {
                                 let requestedHeaders = {
