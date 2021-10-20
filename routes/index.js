@@ -143,6 +143,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+                console.log(files)
                 //res.setHeader('Content-Type', 'application/octet-stream');
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
@@ -260,7 +261,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             const fileCompleted = fs.createWriteStream(filePath)
 
                             await new Promise(async (resolve, reject) => {
-                                console.log(files)
+
                                 for (const i in files) {
                                     let requestedHeaders = {
                                         'cache-control': 'max-age=0',
