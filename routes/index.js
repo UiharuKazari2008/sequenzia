@@ -181,9 +181,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             return 0
                         })())
                         res.setHeader('Content-Length', (requestedStartBytes - contentLength));
-                        res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
-                        res.setHeader('accept-ranges', 'bytes')
-                        res.setHeader('Transfer-Encoding', '')
 
                         let fileIndex = 0;
                         let startByteOffset = 0;
@@ -194,6 +191,9 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                         const parityFiles = files.splice(fileIndex)
 
                         if ((!web.stream_max_file_size || (web.stream_max_file_size && (contentLength / 1024000).toFixed(2) <= web.stream_max_file_size)) && contentLength <= os.freemem() - (256 * 1024000)) {
+                            res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
+                            res.setHeader('accept-ranges', 'bytes')
+                            res.setHeader('Transfer-Encoding', '')
                             // Start Multiplexed Pipeline
                             const passTrough = new stream.PassThrough();
                             printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
@@ -253,7 +253,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                 })
                             }
                             printLine('StreamFile', `Parity Stream completed for ${file.real_filename}`, 'info');
-                            passTrough.end()
+                            passTrough.close()
                         } else if (global.fw_serve || global.spanned_cache) {
                             printLine('StreamFile', `Stalled build for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB), due to file size being to large!`, 'info');
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
