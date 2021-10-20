@@ -1,5 +1,6 @@
 const global = require('../config.json');
 const config = require('../host.config.json');
+const web = require('../web.config.json');
 const { printLine } = require("./logSystem");
 const { sqlSimple, sqlSafe, sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
@@ -43,13 +44,15 @@ module.exports = async (req, res, next) => {
         let sqlquery = [];
         let sqlorder = [];
         let sqlFavJoin = 'LEFT OUTER JOIN';
-        let sqlFavWhere = '';
+        let sqlFavWhere = [];
         let sqlHistoryJoin = 'LEFT OUTER JOIN';
         let sqlHistoryWhere = [
             `user = '${req.session.discord.user.id}'`
         ];
+        let sqlHistorySort = 'eid';
         let sqlHistoryWherePost = '';
         let sqlAlbumWhere = '';
+        let enablePrelimit = true;
         let sqlAlbumQueryStart = '';
         let sqlAlbumQueryEnd = '';
         let limit = 1;
@@ -226,6 +229,7 @@ module.exports = async (req, res, next) => {
         }
         let channelFilter = `${baseQ}`
         if (req.query.album) {
+            enablePrelimit = false;
             sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
             android_uri.push(`album=${req.query.album}`);
             channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
@@ -244,24 +248,29 @@ module.exports = async (req, res, next) => {
         if (req.query && req.query.pins && req.query.pins === 'true') {
             sqlFavJoin = 'INNER JOIN'
             android_uri.push('pins=true');
+            enablePrelimit = false;
         } else if (req.query && req.query.pins && req.query.pins === 'false') {
             sqlFavJoin = 'LEFT OUTER JOIN'
-            sqlFavWhere = ' WHERE fav_date IS NULL'
+            sqlFavWhere.push('fav_date IS NULL')
             android_uri.push('pins=false');
+            enablePrelimit = false;
         } else if (req.query && req.query.pins) {
             sqlFavJoin = 'INNER JOIN'
             pinsUser = `${req.query.pins}`
             android_uri.push(`pins=${req.query.pins}`);
+            enablePrelimit = false;
         }
 
         // History
         if (req.query && req.query.history && req.query.history === 'only') {
             sqlHistoryJoin = 'INNER JOIN'
             android_uri.push('history=only');
+            enablePrelimit = false;
         } else if (req.query && req.query.history && req.query.history === 'none') {
             sqlHistoryJoin = 'LEFT OUTER JOIN'
             sqlHistoryWherePost = ' WHERE history_date IS NULL'
             android_uri.push('history=none');
+            enablePrelimit = false;
         }
         if (_dn !== '*') {
             sqlHistoryWhere.push( `name = '${_dn.replace(/'/g, '\\\'')}'`)
@@ -272,14 +281,16 @@ module.exports = async (req, res, next) => {
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
             sqlorder = [`date`, 'DESC']
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
             if (!req.query.displaySlave) {
                 sqlorder.push(`RAND()`)
             } else {
                 sqlorder.push('history_date');
                 sqlorder.push('DESC')
                 sqlHistoryJoin = 'INNER JOIN';
+                sqlHistorySort = 'history_date DESC'
             }
+            enablePrelimit = false;
         } else {
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
@@ -294,11 +305,14 @@ module.exports = async (req, res, next) => {
             } else if (req.query.sort === 'fav') {
                 sqlorder.push('fav_date');
                 sqlFavJoin = 'INNER JOIN';
+                enablePrelimit = false;
             } else if (req.query.sort === 'album') {
                 sqlorder.push('album_add_date');
+                enablePrelimit = false;
             } else if (req.query.sort === 'history') {
                 sqlorder.push('history_date');
                 sqlHistoryJoin = 'INNER JOIN';
+                enablePrelimit = false;
             } else if (req.query.sort === 'size') {
                 sqlorder.push('filesize')
             } else if (req.query.sort === 'id') {
@@ -428,7 +442,13 @@ module.exports = async (req, res, next) => {
             const numOfDays = parseInt(req.query.history_numdays)
             if (!isNaN(numOfDays) && numOfDays >= 2 && numOfDays <= 1000) {
                 sqlHistoryWhere.push(`date >= NOW() - INTERVAL ${numOfDays} DAY`);
-                android_uri.push(`numdays=${numOfDays}`);
+                android_uri.push(`history_numdays=${numOfDays}`);
+            }
+        }  else if (req.query.fav_numdays) {
+            const numOfDays = parseInt(req.query.fav_numdays)
+            if (!isNaN(numOfDays) && numOfDays >= 2 && numOfDays <= 1000) {
+                sqlFavWhere.push(`fav_date >= NOW() - INTERVAL ${numOfDays} DAY`);
+                android_uri.push(`fav_numdays=${numOfDays}`);
             }
         } else if (req.query.numdays) {
             const numOfDays = parseInt(req.query.numdays)
@@ -625,8 +645,10 @@ module.exports = async (req, res, next) => {
         // Limit
         if (page_uri === '/ambient-get') {
             limit = 1;
+            enablePrelimit = false;
         } else if (req.query.responseType) {
             limit = 1000;
+            enablePrelimit = false;
         } else if (req.query.num) {
             const _limit = parseInt(req.query.num);
             if (!isNaN(limit)) {
@@ -639,7 +661,7 @@ module.exports = async (req, res, next) => {
             } else {
                 limit = 50;
             }
-        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh')) {
+        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient'))) {
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
             } else {
@@ -648,7 +670,7 @@ module.exports = async (req, res, next) => {
         }
         const sqllimit = limit + 1;
         // Offset
-        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
+        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
         // Where Exec
@@ -683,7 +705,7 @@ module.exports = async (req, res, next) => {
                     "attachment_name = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
@@ -756,14 +778,14 @@ module.exports = async (req, res, next) => {
             `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
         ].join(' AND ');
 
-        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))`;
+        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '');
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
-        const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY eid LIMIT 100000`;
+        const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
         const selectUsers = `SELECT DISTINCT id AS user_id, username AS user_name, nice_name AS user_nicename, avatar AS user_avatar FROM discord_users`;
-        
-        let sqlCall = `SELECT * FROM (SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${sqlFavWhere}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}) results LEFT OUTER JOIN (${selectUsers}) users ON ( results.user = users.user_id )`
+
+        let sqlCall = `SELECT * FROM (SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}) results LEFT OUTER JOIN (${selectUsers}) users ON ( results.user = users.user_id )`
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
@@ -830,7 +852,7 @@ module.exports = async (req, res, next) => {
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (image.filecached === 1) {
-                            ranfullImage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${image.fileid}/${image.real_filename}`
+                            ranfullImage = `${web.base_url}stream/${image.fileid}/${image.real_filename}`
                         } else {
                             ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
@@ -904,7 +926,7 @@ module.exports = async (req, res, next) => {
                 }
                 next();
             }
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ambient' || page_uri === '/ambient-remote-refresh'  || page_uri === '/ambient-refresh' || page_uri === '/ambient-get') {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
             const imageResults = await sqlPromiseSimple(ambientSQL)
             if (imageResults && imageResults.rows.length > 0) {
@@ -957,7 +979,7 @@ module.exports = async (req, res, next) => {
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (image.filecached === 1) {
-                            ranfullImage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${image.fileid}/${image.real_filename}`
+                            ranfullImage = `${web.base_url}stream/${image.fileid}/${image.real_filename}`
                         } else {
                             ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
@@ -1096,7 +1118,8 @@ module.exports = async (req, res, next) => {
                 }
 
                 if (_dn !== "*" && (randomImage.length === 1 || (randomImage.length > 1 && req.query.nohistory && req.query.nohistory === 'false')) && req.session.discord.user.id && randomImage && !req.query.displaySlave && !(req.query.nohistory && req.query.nohistory === 'true')) {
-                    randomImage.forEach(async (image, index) => {
+                    for (const image of randomImage) {
+                        const index = randomImage.indexOf(image);
                         const isExsists = await sqlPromiseSafe(`SELECT * FROM sequenzia_display_history WHERE eid = ? AND user = ?`, [image.eid, req.session.discord.user.id]);
                         if (isExsists.error) {
                             printLine('SQL', `Error adding messages to display history - ${isExsists.error.sqlMessage}`, 'error', err)
@@ -1139,7 +1162,7 @@ module.exports = async (req, res, next) => {
                                 }
                             })
                         }
-                    })
+                    }
                 }
             } else {
                 res.locals.response = {
@@ -1165,7 +1188,7 @@ module.exports = async (req, res, next) => {
                 if (req.query && req.query.pins && req.query.pins !== 'false') {
                     sqlTables += ', sequenzia_favorites';
                     sqlCountFeild = 'sequenzia_favorites.date';
-                    favmatch = `AND sequenzia_favorites.eid = kanmi_records.eid AND sequenzia_favorites.userid = '${pinsUser.replace(/'/g, '\\\'')}'`;
+                    favmatch = `AND sequenzia_favorites.eid = kanmi_records.eid AND sequenzia_favorites.userid = '${pinsUser.replace(/'/g, '\\\'')}'${(sqlFavWhere.length > 0) ? ' AND ' + sqlFavWhere.join(' AND ').replace('fav_date', 'sequenzia_favorites.date') : ''}`;
                 }
                 if (req.query && req.query.history && req.query.history === 'only') {
                     sqlTables += ', sequenzia_display_history';
@@ -1240,7 +1263,7 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
-            const messageResults = await sqlPromiseSimple(`${sqlCall} LIMIT ${sqllimit + 10} OFFSET ${offset}`);
+            const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
@@ -1583,15 +1606,15 @@ module.exports = async (req, res, next) => {
                                     if (item.attachment_hash && item.attachment_name) {
                                         fullimage = fullimage = imageurl = downloadimage = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
                                     } else if (item.fileid) {
-                                        fullimage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                        fullimage = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     } else if (item.cache_proxy) {
                                         fullimage = fullimage = imageurl = downloadimage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
                                     if (isCached) {
-                                        fullimage = (fullimage) ? fullimage : `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                        fullimage = (fullimage) ? fullimage : `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.fileid) {
-                                        downloadimage = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                        downloadimage = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
@@ -1956,7 +1979,7 @@ module.exports = async (req, res, next) => {
                                     }
                                     let inprogress = false
                                     if (item.fileid !== null) {
-                                        downloadurl = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                        downloadurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
@@ -2034,7 +2057,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
                                     if (item.fileid !== null) {
-                                        fullurl = `${req.protocol}://${req.hostname}${(req.port) ? ':' + req.port : ''}/stream/${item.fileid}/${item.real_filename}`
+                                        fullurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
