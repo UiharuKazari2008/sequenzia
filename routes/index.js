@@ -180,7 +180,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             }
                             return 0
                         })())
-                        res.setHeader('Content-Length', (requestedStartBytes - contentLength));
+
 
                         if ((!web.stream_max_file_size || (web.stream_max_file_size && (contentLength / 1024000).toFixed(2) <= web.stream_max_file_size)) && contentLength <= os.freemem() - (256 * 1024000)) {
                             let fileIndex = 0;
@@ -191,16 +191,18 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             }
                             const parityFiles = files.splice(fileIndex)
 
+                            res.setHeader('Content-Length', (requestedStartBytes - contentLength));
                             res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
                             res.setHeader('accept-ranges', 'bytes')
                             res.setHeader('Transfer-Encoding', '')
                             // Start Multiplexed Pipeline
-                            const passTrough = new stream.PassThrough();
+                            let passTrough = new stream.PassThrough();
                             printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
                             passTrough.pipe(res, {end: true})
                             passTrough.on('end', () => {
                                 printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
                                 passTrough.close()
+                                passTrough = null;
                             })
                             passTrough.on('error', () => { res.status(500).end(); })
                             // Pipeline Files to Save for future requests
