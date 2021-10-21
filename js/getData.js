@@ -658,14 +658,18 @@ module.exports = async (req, res, next) => {
             limit = parseInt(req.query.limit.toString().substring(0,4))
             if (!isNaN(limit)) {
                 req.session.current_limit = limit;
+            } else if (page_uri === '/files') {
+                limit = 250;
             } else {
-                limit = 50;
+                limit = 100;
             }
         } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient'))) {
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
+            } else if (page_uri === '/files') {
+                limit = 250;
             } else {
-                limit = 50;
+                limit = 100;
             }
         }
         const sqllimit = limit + 1;
