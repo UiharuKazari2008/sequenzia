@@ -146,6 +146,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 //res.setHeader('Content-Type', 'application/octet-stream');
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
+                printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
