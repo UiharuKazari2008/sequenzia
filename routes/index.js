@@ -142,8 +142,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 res.status(404).send(`File ${params[0]} does not exist`)
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
-                const files = results.rows.map(e => e.part_url).filter((item,index,inputArray) => inputArray.indexOf(item) === index ).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
-                //res.setHeader('Content-Type', 'application/octet-stream');
+                const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
                 res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
                 printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
