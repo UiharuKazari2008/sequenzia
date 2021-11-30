@@ -143,7 +143,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
-                res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
                 printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
@@ -183,6 +182,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
 
 
                         if ((!web.stream_max_file_size || (web.stream_max_file_size && (contentLength / 1024000).toFixed(2) <= web.stream_max_file_size)) && contentLength <= os.freemem() - (256 * 1024000)) {
+                            res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
                             let fileIndex = 0;
                             let startByteOffset = 0;
                             if (requestedStartBytes !== 0) {
@@ -247,7 +247,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                         });
                                     });
                                     request.on('error', function(e){
-                                        res.status(500).send('Error during proxying request');
+                                        res.end();
                                         passTrough.destroy(e)
                                         printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
                                         resolve()
@@ -275,7 +275,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                         });
                                     });
                                     request.on('error', function(e){
-                                        res.status(500).send('Error during proxying request');
+                                        res.end();
                                         printLine('ProxyFile', `Failed to build file request - ${e.message}`, 'error');
                                         fs.unlinkSync(filePath)
                                     });
