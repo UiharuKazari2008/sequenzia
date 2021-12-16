@@ -102,6 +102,7 @@ module.exports = async (req, res, next) => {
                             id: thisChannel.channelid,
                             eid: thisChannel.channel_eid,
                             name: channelName,
+                            channel_title: thisChannel.channel_title,
                             short_name: thisChannel.channel_short_name.split('-').join(' '),
                             server: thisChannel.serverid,
                             server_short_name: thisChannel.server_short.toUpperCase(),

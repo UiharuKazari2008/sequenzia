@@ -1327,6 +1327,7 @@ module.exports = async (req, res, next) => {
                     } else if ((req.query.channel && req.query.channel !== 'random') || req.query.vchannel || req.query.folder) {
                         page_title = ''
                         full_title = ''
+
                         if (messages[0].class_name) {
                             page_title += `${messages[0].class_name} / `
                             full_title += `${messages[0].class_name} / `
@@ -1354,6 +1355,8 @@ module.exports = async (req, res, next) => {
                                     page_title += ' / ' + cname;
                                 }
                             }
+                        } else if (messages[0].channel_title) {
+                            full_title = page_title = `${messages[0].channel_title}`
                         } else if (messages[0].channel_nice && messages[0].channel_nice !== null) {
                             page_title += messages[0].channel_nice;
                             full_title += messages[0].channel_nice;
