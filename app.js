@@ -82,8 +82,8 @@ const sessionStore = new sessionSQL({
     checkExpirationInterval: 900000,
     expiration: 604800000,
     createDatabaseTable: true,
-    connectionLimit: 10,
-    endConnectionOnClose: false,
+    connectionLimit: 1,
+    endConnectionOnClose: true,
     charset: 'utf8mb4_bin',
     schema: {
         tableName: 'sequenzia_sessions',
