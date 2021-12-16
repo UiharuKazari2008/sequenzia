@@ -1271,6 +1271,7 @@ module.exports = async (req, res, next) => {
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
+                    let page_image
                     let full_title
                     let description
                     let resultsArray = []
@@ -1397,6 +1398,9 @@ module.exports = async (req, res, next) => {
                     } else {
                         page_title = ''
                         full_title = ''
+                    }
+                    if (!multiChannel) {
+                        page_image = messages[0].channel_image
                     }
                     if (!(req.query.title && req.query.title !== '') || multiChannel) {
                         if (selectedServer === 1) {
@@ -2156,6 +2160,7 @@ module.exports = async (req, res, next) => {
                         res.locals.response = {
                             title: page_title,
                             full_title: full_title,
+                            page_image,
                             description: description,
                             channel_url: discordPath,
                             results: resultsArray,
@@ -2186,6 +2191,7 @@ module.exports = async (req, res, next) => {
                         printLine('GetData', `"${req.session.discord.user.username}" => "${page_title}" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
                             title: page_title,
                             full_title: full_title,
+                            page_image,
                             description: description,
                             channel_url: discordPath,
                             num_images: resultsArray.length,
