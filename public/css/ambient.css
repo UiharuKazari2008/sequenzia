@@ -176,16 +176,15 @@ div#quoteContainer {
 }
 }
 
-
 .widget-box .center-block {
-    position: relative
+    position: relative!important
 }
 .widget-box .portait-overlay {
-    height: inherit;
+    height: inherit!important;
 }
 .widget-box .background-image {
-    background-position: center;
-    background-size: cover;
-    height: inherit;
-    width: inherit;
+    background-position: center!important;
+    background-size: cover!important;
+    height: inherit!important;
+    width: inherit!important;
 }
