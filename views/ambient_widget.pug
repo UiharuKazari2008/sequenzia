@@ -70,7 +70,7 @@ html
             if (randomImagev2.length > 0)
                 // 0.9 > 1 < 1.2
                 if (!(configuration && configuration.displayAspectCorrect !== 1) && (((randomImagev2[0].sizeR > 0.9 && randomImagev2[0].sizeR < 1.6) && !(query && query.wtype === 'wide')) || ((query && query.wtype === 'wide') && randomImagev2[0].sizeR < 0.9)))
-                    if (randomImagev2[0].sizeR < 0.4)
+                    if (randomImagev2[0].sizeR > 1.4)
                         style.
                             .background-image {
                                 background-position: top;
