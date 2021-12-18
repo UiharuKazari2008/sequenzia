@@ -84,20 +84,20 @@ html
 
             // Info is disabled until i can figure out the oddities between iphone and ipad scaling being all over the spectrum
             .widget-data
-                #BottomSestion(style='padding: 0 2rem; font-scale: 0.85')
+                .fixed-top
                     if !(configuration && configuration.displayLogo !== 0)
                         if (randomImagev2.length > 0)
                             #logoStart(style='opacity: .45')
                                 span.sequenzia-logo.shadow-txt(style="font-size: 1.75em;position: relative;top: 0.2em; color: unset;") sequenzia
-                    #sideData
-                        #dataInfo.d-flex.align-self-center.ml-auto.pt-1(style='opacity: .65; font-size: 1.3rem; font-weight: 100;')
-                            .d-inline-flex.mr-1
-                                if (randomImagev2.length > 0 && randomImagev2[0].pinned)
-                                    i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 16px; vertical-align: middle;')
-                            if (randomImagev2.length > 0)
-                                span#data3.shadow-txt #{randomImagev2[0].date}
-                                .d-inline-block.p-2.align-self-center
-                                    i.fas.fa-circle.shadow-txt(style='font-size: 8px; vertical-align: middle;')
-                                span#data1.text-capitalize.shadow-txt #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
-                            else
-                                span#data1.text-capitalize.shadow-txt No Results
+                .fixed-bottom
+                    #dataInfo.d-flex.align-self-center.ml-auto.pt-1(style='opacity: .65; font-size: 1.3rem; font-weight: 100;')
+                        div
+                            if (randomImagev2.length > 0 && randomImagev2[0].pinned)
+                                i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 16px; vertical-align: middle;')
+                        if (randomImagev2.length > 0)
+                            div
+                                span.text-uppercase.shadow-txt #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
+                            div
+                                span.shadow-txt #{randomImagev2[0].date}
+                        else
+                            span#data1.text-uppercase.shadow-txt No Results
