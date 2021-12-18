@@ -75,7 +75,7 @@ function saveDisplayConfig(name, index) {
         results.nice_name = null;
     }
 
-    if (!name.startsWith('ADS')) {
+    if (!name.startsWith('ADS') || name.startsWith('ADSWidget') || name.startsWith('ADSMicro')) {
         if (setthingsForm.querySelector('#optionsDisplayChannelInput').value.length > 0) {
             switch (setthingsForm.querySelector('#optionsDisplaySearchInput').value) {
                 case '3':
@@ -99,7 +99,6 @@ function saveDisplayConfig(name, index) {
                     requestOptions.delete('channel');
             }
         }
-
         if (setthingsForm.querySelector('#optionsPinsOnly').value.length > 0) {
             requestOptions.delete('pins');
             requestOptions.set('pins', setthingsForm.querySelector('#optionsPinsOnly').value);
@@ -169,7 +168,7 @@ function saveDisplayConfig(name, index) {
     } else {
         results.displaySysInfo = 1;
     }
-    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
+    if (!name.startsWith('Homepage') && (!name.startsWith('ADS') || name.startsWith('ADSWidget') || name.startsWith('ADSMicro')) &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayImageInfo').value.toString()))) {
         results.displayImageInfo = parseInt(setthingsForm.querySelector('#optionsDisplayImageInfo').value.toString());
     } else {
@@ -187,13 +186,13 @@ function saveDisplayConfig(name, index) {
     } else {
         results.displayDate = 1;
     }
-    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
+    if (!name.startsWith('Homepage') && (!name.startsWith('ADS') || name.startsWith('ADSWidget') || name.startsWith('ADSMicro')) &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayOverlay').value.toString()))) {
         results.displayOverlay = parseInt(setthingsForm.querySelector('#optionsDisplayOverlay').value.toString());
     } else {
         results.displayOverlay = 1;
     }
-    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
+    if (!name.startsWith('Homepage') && (!name.startsWith('ADS') || name.startsWith('ADSWidget') || name.startsWith('ADSMicro')) &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayLogo').value.toString()))) {
         results.displayLogo = parseInt(setthingsForm.querySelector('#optionsDisplayLogo').value.toString());
     } else {
@@ -205,7 +204,7 @@ function saveDisplayConfig(name, index) {
     } else {
         results.enableScale = 1;
     }
-    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
+    if (!name.startsWith('Homepage') && (!name.startsWith('ADS') || name.startsWith('ADSWidget') || name.startsWith('ADSMicro')) &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayAspect').value.toString()))) {
         results.displayAspectCorrect = parseInt(setthingsForm.querySelector('#optionsDisplayAspect').value.toString());
     } else {
