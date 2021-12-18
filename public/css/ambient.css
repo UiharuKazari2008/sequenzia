@@ -178,7 +178,8 @@ div#quoteContainer {
 
 .widget-box .center-block {
     transform: translate(-50%,0%);
-    position: relative
+    position: relative;
+    top: initial;
 }
 .widget-box .portait-overlay {
     height: inherit;

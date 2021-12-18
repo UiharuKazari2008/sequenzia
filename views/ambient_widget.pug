@@ -27,7 +27,7 @@ html
             - image = '/static/img/ambient-default.png'
         style.
             body {
-                background: white;
+                background: rgb(62, 62, 62)
             }
             .background-image {
                 transform: none;
@@ -75,8 +75,8 @@ html
             else
                 #bg1.background-image.image-style
 
-            #content-wrapper.container.p-4
-                #BottomSestion.fixed-bottom.d-flex.m-5
+            #content-wrapper
+                #BottomSestion.d-flex
                     if (randomImagev2.length > 0)
                         #logoStart.flex-grow-1.align-self-end(style='opacity: .5')
                             span.sequenzia-logo.shadow-txt(style="font-size: 2.7em;position: relative;top: 0.2em; color: unset;") sequenzia
