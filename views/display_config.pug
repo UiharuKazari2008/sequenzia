@@ -91,6 +91,19 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
                                                 option(value=x[0]) #{x[1]}
 
                             div.form-row
+                                if (configuration.name.startsWith('ADSWidget'))
+                                    div.form-group.col-4
+                                        label(for='optionsForceWide') Wide Widget
+                                        select#optionsForceWide.form-control
+                                            if (requestOptions.has('forceWideWidget'))
+                                                for x in [ ['', 'Any'], ['true', 'Restrict to Wide'] ]
+                                                    if (requestOptions.getAll('forceWideWidget')[0].toLowerCase() === x[0])
+                                                        option(value=x[0] selected) #{x[1]}
+                                                    else
+                                                        option(value=x[0]) #{x[1]}
+                                            else
+                                                option(value='' selected) Any
+                                                option(value='true') Restrict to Wide
                                 div.form-group.col-4
                                     label(for='optionsNoDuplicates') Duplicates
                                     select#optionsNoDuplicates.form-control

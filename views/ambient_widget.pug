@@ -70,7 +70,7 @@ html
         .widget-box
             if (randomImagev2.length > 0)
                 // 0.9 > 1 < 1.2
-                if (((randomImagev2[0].sizeR > 0.9 && randomImagev2[0].sizeR < 1.6) && !(query && query.wtype === 'wide')) || ((query && query.wtype === 'wide') && randomImagev2[0].sizeR < 0.9))
+                if (!(configuration && configuration.displayAspectCorrect !== 1) && !(query && query.forceWideWidget && query.forceWideWidget !== 'true') && (((randomImagev2[0].sizeR > 0.9 && randomImagev2[0].sizeR < 1.6) && !(query && query.wtype === 'wide')) || ((query && query.wtype === 'wide') && randomImagev2[0].sizeR < 0.9)))
                     #bg1.background-image.image-style
                 else
                     #bg1.background-image.blur-this.image-style
@@ -81,9 +81,10 @@ html
             // Info is disabled until i can figure out the oddities between iphone and ipad scaling being all over the spectrum
             //.widget-data
                 #BottomSestion(style='padding: 0 2rem; font-scale: 0.85')
-                    if (randomImagev2.length > 0)
-                        #logoStart(style='opacity: .45')
-                            span.sequenzia-logo.shadow-txt(style="font-size: 1.75em;position: relative;top: 0.2em; color: unset;") sequenzia
+                    !(configuration && configuration.displayLogo !== 0)
+                        if (randomImagev2.length > 0)
+                            #logoStart(style='opacity: .45')
+                                span.sequenzia-logo.shadow-txt(style="font-size: 1.75em;position: relative;top: 0.2em; color: unset;") sequenzia
                     #sideData
                         #dataInfo.d-flex.align-self-center.ml-auto.pt-1(style='opacity: .65; font-size: 1.3rem; font-weight: 100;')
                             .d-inline-flex.mr-1

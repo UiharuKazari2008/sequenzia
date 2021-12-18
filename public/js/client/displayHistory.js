@@ -131,6 +131,10 @@ function saveDisplayConfig(name, index) {
             requestOptions.delete('history');
             requestOptions.set('history', setthingsForm.querySelector('#optionsNoDuplicates').value);
         }
+        if (name.startsWith('ADSWidget') && setthingsForm.querySelector('#optionsForceWide').value.length > 0) {
+            requestOptions.delete('forceWideWidget');
+            requestOptions.set('forceWideWidget', setthingsForm.querySelector('#optionsForceWide').value);
+        }
     }
     if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayTimeInput').value.toString()))) {
