@@ -52,7 +52,7 @@ html
                 }
                 .widget-data {
                     position: fixed;
-                    top: 37vw;
+                    top: 0;
                 }
         else
             style.
@@ -63,7 +63,7 @@ html
                 }
                 .widget-data {
                     position: fixed;
-                    top: 90vw;
+                    top: 0;
                 }
     body
         .widget-box
@@ -83,21 +83,21 @@ html
                 #bg1.background-image.image-style
 
             // Info is disabled until i can figure out the oddities between iphone and ipad scaling being all over the spectrum
-            .widget-data
-                .fixed-top
-                    if !(configuration && configuration.displayLogo !== 0)
-                        if (randomImagev2.length > 0)
-                            #logoStart(style='opacity: .45')
-                                span.sequenzia-logo.shadow-txt(style="font-size: 1.75em;position: relative;top: 0.2em; color: unset;") sequenzia
-                div(style="position: fixed; top: calc(100vh - 90px)")
-                    #dataInfo.shadow-txt(style='font-size: 1.3rem; font-weight: 100; padding: 1rem 1.6rem;')
+        .widget-data.widget-box
+            .fixed-top
+                if !(configuration && configuration.displayLogo !== 0)
+                    if (randomImagev2.length > 0)
+                        #logoStart(style='opacity: .45')
+                            span.sequenzia-logo.shadow-txt(style="font-size: 1.75em;position: relative;top: 0.2em; color: unset;") sequenzia
+            div
+                #dataInfo.shadow-txt(style='font-size: 1.3rem; font-weight: 100; padding: 1rem 1.6rem;')
+                    div
+                        if (randomImagev2.length > 0 && randomImagev2[0].pinned)
+                            i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 16px; vertical-align: middle;')
+                    if (randomImagev2.length > 0)
                         div
-                            if (randomImagev2.length > 0 && randomImagev2[0].pinned)
-                                i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 16px; vertical-align: middle;')
-                        if (randomImagev2.length > 0)
-                            div
-                                span.text-uppercase.text-ellipsis(style="font-weight: 900;") #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
-                            div
-                                span(style="font-size: 1rem;") #{randomImagev2[0].date}
-                        else
-                            span#data1.text-uppercase.shadow-txt No Results
+                            span.text-uppercase.text-ellipsis(style="font-weight: 900;") #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
+                        div
+                            span(style="font-size: 1rem;") #{randomImagev2[0].date}
+                    else
+                        span#data1.text-uppercase.shadow-txt No Results
