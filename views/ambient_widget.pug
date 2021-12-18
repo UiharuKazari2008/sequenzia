@@ -55,6 +55,12 @@ html
                     width: 100%;
                     height: 46vw;
                 }
+                .widget-data {
+                    position: fixed;
+                    top: 40vw;
+                    left: 0;
+                    zoom: .8;
+                }
         else
             style.
                 .widget-box {
@@ -62,13 +68,12 @@ html
                     width: 100%;
                     height: 105vw;
                 }
-        style.
-            .widget-data {
-                position: fixed;
-                top: 0;
-                left: 0;
-            }
-
+                .widget-data {
+                    position: fixed;
+                    top: 90vw;
+                    left: 0;
+                    zoom: .8;
+                }
     body
         .widget-box
             if (randomImagev2.length > 0)
@@ -81,8 +86,8 @@ html
             else
                 #bg1.background-image.image-style
 
-            .widget-data
-                #BottomSestion.d-flex
+            .widget-data.position-fixed
+                #BottomSestion.d-flex.position-fixed
                     if (randomImagev2.length > 0)
                         #logoStart.flex-grow-1.align-self-end(style='opacity: .5')
                             span.sequenzia-logo.shadow-txt(style="font-size: 2.7em;position: relative;top: 0.2em; color: unset;") sequenzia
