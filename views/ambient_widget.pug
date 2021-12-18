@@ -65,6 +65,24 @@ html
                     position: fixed;
                     top: 0;
                 }
+        if (query && query.dmode === 'tablet-large')
+            style.
+                #logoStart { opacity: .75; padding: 1rem 1.6rem; }
+                #logoStart > span { font-size: 3em; }
+                #dataContainer { font-size: 3rem; padding: 3rem 1.6rem;bottom: 0; }
+                #dataFav { font-size: 32px; }
+                #className { font-size: 3.5rem; }
+                #channelName { font-size: 3rem; }
+                #dateText { font-size: 2.5rem; }
+        else
+            style.
+                #logoStart { opacity: .75; padding: 1rem 1.6rem; }
+                #logoStart > span { font-size: 2em; }
+                #dataContainer { font-size: 2rem; padding: 2rem 1.6rem;bottom: 0; }
+                #dataFav { font-size: 32px; }
+                #className { font-size: 2.5rem; }
+                #channelName { font-size: 2rem; }
+                #dateText { font-size: 1.5rem; }
     body
         .widget-box
             if (randomImagev2.length > 0)
@@ -87,20 +105,21 @@ html
             .fixed-top
                 if !(configuration && configuration.displayLogo !== 1)
                     if (randomImagev2.length > 0)
-                        #logoStart(style='opacity: .75; padding: 1rem 1.6rem')
-                            span.sequenzia-logo.shadow-txt(style="font-size: 2em;position: relative;top: 0.2em; color: unset;") sequenzia
+                        #logoStart
+                            span.sequenzia-logo.shadow-txt(style="position: relative;top: 0.2em; color: unset;") sequenzia
             if !(configuration && configuration.displayLogo !== 1)
                 div
-                    .shadow-txt(style='position: absolute; font-size: 2rem; font-weight: 100; padding: 2rem 1.6rem;bottom: 0;')
+                    #dataContainer(style='position: absolute; font-weight: 100;')
                         div
                             if (randomImagev2.length > 0 && randomImagev2[0].pinned)
-                                i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 32px; padding-bottom: 1rem;')
+                                i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='padding-bottom: 1rem;')
                         if (randomImagev2.length > 0)
                             div(style="padding-bottom: 1rem;")
-                                span.text-uppercase.text-ellipsis(style="font-size: 2.5rem; font-weight: 900; line-height: 1rem;") #{randomImagev2[0].className}
+                                span#className.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].className}
                             div
-                                span.text-uppercase.text-ellipsis(style="font-size: 2rem; font-weight: 900; line-height: 1rem;") #{randomImagev2[0].channelName}
+                                span#channelName.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].channelName}
                             div
-                                span(style="font-size: 1.5rem;") #{randomImagev2[0].date}
+                                span#dateText #{randomImagev2[0].date}
                         else
-                            span#data1.text-uppercase.shadow-txt No Results
+                            div
+                                span#dateText.text-uppercase.shadow-txt No Results
