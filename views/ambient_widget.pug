@@ -90,14 +90,14 @@ html
                             #logoStart(style='opacity: .45')
                                 span.sequenzia-logo.shadow-txt(style="font-size: 1.75em;position: relative;top: 0.2em; color: unset;") sequenzia
                 .fixed-bottom
-                    #dataInfo.d-flex.align-self-center.ml-auto.pt-1(style='opacity: .65; font-size: 1.3rem; font-weight: 100;')
+                    #dataInfo.shadow-txt(style='font-size: 1.3rem; font-weight: 100; padding: 1rem 1.6rem;')
                         div
                             if (randomImagev2.length > 0 && randomImagev2[0].pinned)
                                 i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 16px; vertical-align: middle;')
                         if (randomImagev2.length > 0)
                             div
-                                span.text-uppercase.shadow-txt #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
+                                span.text-uppercase.text-ellipsis.font-weight-bolder #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
                             div
-                                span.shadow-txt #{randomImagev2[0].date}
+                                span(style="font-size: 1rem;") #{randomImagev2[0].date}
                         else
                             span#data1.text-uppercase.shadow-txt No Results
