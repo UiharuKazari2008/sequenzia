@@ -63,20 +63,20 @@ div#displayHistoryResults
                                     i.fas.fa-dice-five.pr-2.align-self-center
                                     | Randomizer
                                 else if ( display.display === 'ADSWidget-Untitled' )
-                                    i.fas.fa-dice-five.pr-2.align-self-center
+                                    i.fab.fa-app-store-ios.pr-2.align-self-center
                                     | Widget
                                 else if ( display.display === 'ADSMobile-Untitled' )
                                     i.fas.pr-2.align-self-center.fa-mobile-alt
                                     | Mobile
-                                else if ( display.display.includes('ADSWidget-') )
-                                    i.fas.fa-laptop.pr-2.align-self-center
-                                    | #{(display.name.startsWith('ADSWidget-')) ? display.name.split('ADSWidget-')[1] : display.name}
                                 else if ( display.display.includes('ADSMicro-') )
                                     i.fas.fa-laptop.pr-2.align-self-center
                                     | #{(display.name.startsWith('ADSMicro-')) ? display.name.split('ADSMicro-')[1] : display.name}
                                 else if ( display.display.includes('ADSEmbed-') )
                                     i.fas.fa-dice-five.pr-2.align-self-center
                                     | #{(display.name.startsWith('ADSEmbed-')) ? display.name.split('ADSEmbed-')[1] : display.name}
+                                else if (display.display.includes('ADSWidget-'))
+                                    i.fab.fa-app-store-ios.pr-2.align-self-center
+                                    | #{(display.name.startsWith('ADSWidget-')) ? display.name.split('ADSWidget-')[1] : display.name}
                                 else if ( display.display.includes('ADSMobile-') )
                                     i.fas.fa-mobile-alt.pr-2.align-self-center
                                     | #{(display.name.startsWith('ADSMobile-')) ? display.name.split('ADSMobile-')[1] : display.name}
