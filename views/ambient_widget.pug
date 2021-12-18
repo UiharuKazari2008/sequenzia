@@ -32,12 +32,6 @@ html
             .background-image {
                 transform: none;
             }
-            #overlayLeft {
-                display: none;
-            }
-            #overlayRight {
-                display: none;
-            }
             .image-src {
                 content: url('#{image}');
             }
@@ -83,7 +77,8 @@ html
             else
                 #bg1.background-image.image-style
 
-            .widget-data
+            // Info is disabled until i can figure out the oddities between iphone and ipad scaling being all over the spectrum
+            //.widget-data
                 #BottomSestion(style='padding: 0 2rem; font-scale: 0.85')
                     if (randomImagev2.length > 0)
                         #logoStart(style='opacity: .45')
