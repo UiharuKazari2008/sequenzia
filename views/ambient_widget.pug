@@ -55,6 +55,9 @@ html
                     position: fixed;
                     top: 0;
                 }
+                .background-image.top {
+                    height: 46vw;
+                }
         else
             style.
                 .widget-box {
@@ -65,6 +68,9 @@ html
                 .widget-data {
                     position: fixed;
                     top: 0;
+                }
+                .background-image.top {
+                    height: 105vw;
                 }
         if (query && query.dmode === 'tablet-large')
             style.
@@ -108,8 +114,8 @@ html
                             }
                     #bg1.background-image.image-style
                 else
-                    #bg1.background-image.blur-this.image-style
-                    img#bg1port.portait-overlay.center-block.image-src
+                    #bg1.top.background-image.blur-this.image-style(style="transform: translate(-50%,0%);top: 0;position: relative;left: 50%;")
+                    img#bg1port.back.portait-overlay.center-block.image-src
             else
                 #bg1.background-image.image-style
 
