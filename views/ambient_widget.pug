@@ -44,13 +44,20 @@ html
             .image-style {
                 background-image: url('#{image}');
             }
-        if (query && query.type === 'large-square')
-        style.
-            .widget-box {
-                display: block;
-                width: 100%;
-                height: 100vw;
-            }
+        if (query && query.wtype === 'wide')
+            style.
+                .widget-box {
+                    display: block;
+                    width: 100%;
+                    height: 50vw;
+                }
+        else
+            style.
+                .widget-box {
+                    display: block;
+                    width: 100%;
+                    height: 100vw;
+                }
 
     body
         .widget-box
