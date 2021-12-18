@@ -177,14 +177,15 @@ div#quoteContainer {
 }
 
 .widget-box .center-block {
-    position: relative!important
+    position: relative
 }
 .widget-box .portait-overlay {
-    height: inherit!important;
+    height: inherit;
 }
 .widget-box .background-image {
-    background-position: center!important;
-    background-size: cover!important;
-    height: inherit!important;
-    width: inherit!important;
+    background-position: center;
+    background-size: cover;
+    background-attachment: inherit;
+    height: inherit;
+    width: inherit;
 }
