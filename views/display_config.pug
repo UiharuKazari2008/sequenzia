@@ -488,28 +488,26 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
                                         label(for='optionsDisplayOverlay') Overlay
                                         select#optionsDisplayOverlay.form-control
                                             if (configuration.displayOverlay || configuration.displayOverlay === 0)
-                                                for x, i in [ 'Hide', 'Bottom', 'Left' ]
+                                                for x, i in [ 'Hide', 'Show' ]
                                                     if (configuration.displayOverlay === i)
                                                         option(value=i selected) #{x}
                                                     else
                                                         option(value=i) #{x}
                                             else
                                                 option(value='0') Hide
-                                                option(value='1' selected) Bottom
-                                                option(value='2') Left
+                                                option(value='1' selected) Show
                                     div.form-group.col-4
                                         label(for='optionsDisplayLogo') Logo
                                         select#optionsDisplayLogo.form-control
                                             if (configuration.displayLogo || configuration.displayLogo === 0)
-                                                for x, i in [ 'Top', 'Left', 'Right' ]
+                                                for x, i in [ 'Hide', 'Show' ]
                                                     if (configuration.displayLogo === i)
                                                         option(value=i selected) #{x}
                                                     else
                                                         option(value=i) #{x}
                                             else
-                                                option(value='0') Top
-                                                option(value='1' selected) Left
-                                                option(value='2') Right
+                                                option(value='0') Hide
+                                                option(value='1' selected) Show
             if (!configuration.name.startsWith('ADS'))
                 .card
                     .card-header.collapsed(id=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}`)
