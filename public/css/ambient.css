@@ -177,6 +177,7 @@ div#quoteContainer {
 }
 
 .widget-box .center-block {
+    transform: translate(-50%,0%);
     position: relative
 }
 .widget-box .portait-overlay {

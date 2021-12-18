@@ -56,12 +56,12 @@ html
         .widget-box
             if (randomImagev2.length > 0)
                 if (randomImagev2[0].sizeR > 1)
-                    #bg1.background-image.blur-this.image-style(style=`opacity: 1; z-index: -101!important;`)
-                    img#bg1port.portait-overlay.center-block.image-src(style=`z-index: -100!important;`)
+                    #bg1.background-image.blur-this.image-style
+                    img#bg1port.portait-overlay.center-block.image-src
                 else
-                    #bg1.background-image.image-style(style=`opacity: 1; z-index: -101!important;`)
+                    #bg1.background-image.image-style
             else
-                #bg1.background-image.image-style(style=`opacity: 1; z-index: -101!important;`)
+                #bg1.background-image.image-style
 
             #content-wrapper.container.p-4
                 #BottomSestion.fixed-bottom.d-flex.m-5
