@@ -1,0 +1,79 @@
+html
+    head
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/font/weathericons-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='manifest' href='/static/manifest.json')
+        title= `${webconf.site_name}`
+        link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel="stylesheet", href="/css/custom.min.css")
+        link(rel="stylesheet", href="/css/ambient.min.css")
+        if (randomImagev2.length > 0)
+            - image = (imageData) ? imageData : (randomImagev2[0].fullImage) ? randomImagev2[0].fullImage : '/static/img/ambient-default.png';
+        else
+            - image = '/static/img/ambient-default.png'
+        style.
+            .background-image {
+                transform: none;
+            }
+            #overlayLeft {
+                display: none;
+            }
+            #overlayRight {
+                display: none;
+            }
+            .image-src {
+                content: url('#{image}');
+            }
+            .image-style {
+                background-image: url('#{image}');
+            }
+        if (query && query.type === 'large-square')
+        style.
+            .widget-box {
+                display: block;
+                width: 100%;
+                height: 10em;
+            }
+
+    body
+        .widget-box
+            if (randomImagev2.length > 0)
+                if (randomImagev2[0].sizeR > 0.97)
+                    #bg1.background-image.blur-this.image-style(style=`opacity: 1; z-index: -101!important;`)
+                    img#bg1port.portait-overlay.center-block.image-src(style=`z-index: -100!important;`)
+                else
+                    #bg1.background-image.image-style(style=`opacity: 1; z-index: -101!important;`)
+            else
+                #bg1.background-image.image-style(style=`opacity: 1; z-index: -101!important;`)
+
+            #content-wrapper.container.p-4
+                #BottomSestion.fixed-bottom.d-flex.m-5
+                    if (randomImagev2.length > 0)
+                        #logoStart.flex-grow-1.align-self-end(style='opacity: .5')
+                            span.sequenzia-logo.shadow-txt(style="font-size: 2.7em;position: relative;top: 0.2em; color: unset;") sequenzia
+                    #sideData.justify-content-end.flex-column.d-flex
+                        #dataInfo.d-flex.align-self-center.ml-auto.pt-1(style='opacity: 0.25; font-size: 1.3rem; font-weight: 100;')
+                            .d-inline-flex.mr-1
+                                if (randomImagev2.length > 0 && randomImagev2[0].pinned)
+                                    i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='font-size: 16px; vertical-align: middle;')
+                            if (randomImagev2.length > 0)
+                                span#data3.shadow-txt #{randomImagev2[0].date}
+                                .d-inline-block.p-2.align-self-center
+                                    i.fas.fa-circle.shadow-txt(style='font-size: 8px; vertical-align: middle;')
+                                span#data1.text-capitalize.shadow-txt #{randomImagev2[0].className} / #{randomImagev2[0].channelName}
+                            else
+                                span#data1.text-capitalize.shadow-txt No Results

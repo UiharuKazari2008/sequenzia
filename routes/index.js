@@ -587,7 +587,7 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
         res.render('failed_device')
     }
 });
-router.get('/ads-micro', sessionVerification, generateConfiguration, getImages, downloadResults, renderResults);
+router.get(['/ads-micro', '/ads-widget'], sessionVerification, generateConfiguration, getImages, downloadResults, renderResults);
 router.get('/ambient-refresh', sessionVerification, getImages, renderResults);
 router.get('/ambient-remote-refresh', sessionVerification, generateConfiguration, getImages, renderResults);
 router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, downloadResults);

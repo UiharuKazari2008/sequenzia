@@ -53,7 +53,7 @@ app.use('/actions', rateLimit({
     message:
         "Action API: Too many requests"
 }));
-app.use([ '/ads-micro', '/ambient-get'], rateLimit({
+app.use([ '/ads-micro', '/ambient-get', '/ads-widget'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
     max: 300,
     message:

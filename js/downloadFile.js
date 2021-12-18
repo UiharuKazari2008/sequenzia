@@ -22,7 +22,7 @@ module.exports = async (req, res, next) => {
         }, async function (response) {
             const contentType = response.headers['content-type'];
             if (contentType) {
-                if (req.originalUrl.includes('/ads-micro')) {
+                if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
                     response.setEncoding('base64');
                     let imageData = "data:" + contentType + ";base64,";
                     response.on('data', (data) => { imageData += data});
@@ -36,7 +36,7 @@ module.exports = async (req, res, next) => {
                     response.pipe(res);
                 }
             } else {
-                if (req.originalUrl.includes('/ads-micro')) {
+                if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget') {
                     res.locals.imagedata = undefined;
                     next();
                 } else {
@@ -47,7 +47,7 @@ module.exports = async (req, res, next) => {
             }
         });
         request.on('error', function (e) {
-            if (req.originalUrl.includes('/ads-micro')) {
+            if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget') {
                 res.locals.imagedata = undefined;
                 next();
             } else {
@@ -56,14 +56,14 @@ module.exports = async (req, res, next) => {
             printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
         });
     } else {
-        if (req.originalUrl.includes('/ads-micro')) {
+        if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget') {
             res.locals.imagedata = undefined;
             next();
         } else {
             res.status(404).send("No Results")
         }
     }
-    if (!req.originalUrl.includes('/ads-micro')) {
+    if (!(req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget'))) {
         res.locals.response = undefined;
     }
 }

@@ -32,7 +32,8 @@ module.exports = async (req, res, next) => {
 
     let results = {
         ...res.locals.response,
-        webconfig: web
+        webconfig: web,
+        query: req.query
     };
     if (res.locals.imagedata) {
         Object.assign(results, { imageData: res.locals.imagedata });
@@ -182,6 +183,8 @@ module.exports = async (req, res, next) => {
             res.render('home_embedded', results);
         } else if (results.call_uri === '/ads-micro') {
             res.render('ambient_direct', results);
+        } else if (results.call_uri === '/ads-widget') {
+            res.render('ambient_widget', results);
         } else if (results.call_uri === '/ambient-refresh') {
             res.json(results);
         } else {

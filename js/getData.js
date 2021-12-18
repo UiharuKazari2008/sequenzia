@@ -281,7 +281,7 @@ module.exports = async (req, res, next) => {
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
             sqlorder = [`date`, 'DESC']
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             if (!req.query.displaySlave) {
                 sqlorder.push(`RAND()`)
             } else {
@@ -663,7 +663,7 @@ module.exports = async (req, res, next) => {
             } else {
                 limit = 100;
             }
-        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient'))) {
+        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient'))) {
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
             } else if (page_uri === '/files') {
@@ -674,7 +674,7 @@ module.exports = async (req, res, next) => {
         }
         const sqllimit = limit + 1;
         // Offset
-        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
+        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
         // Where Exec
@@ -709,7 +709,7 @@ module.exports = async (req, res, next) => {
                     "attachment_name = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
@@ -930,7 +930,7 @@ module.exports = async (req, res, next) => {
                 }
                 next();
             }
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
             const imageResults = await sqlPromiseSimple(ambientSQL)
             if (imageResults && imageResults.rows.length > 0) {
@@ -1495,6 +1495,13 @@ module.exports = async (req, res, next) => {
                                         } else {
                                             history_name = history_name.split('ADSMicro-').pop();
                                         }
+                                    } else if (item.history_name.startsWith('ADSWidget-')) {
+                                        history_type = 'ads-widget'
+                                        if (item.history_name.includes('Untitled')) {
+                                            history_name = 'Widget'
+                                        } else {
+                                            history_name = history_name.split('ADSWidget-').pop();
+                                        }
                                     } else if (item.history_name.startsWith('ADSEmbed-')) {
                                         history_type = 'ads-embed'
                                         if (item.history_name.includes('Untitled')) {
@@ -1835,6 +1842,13 @@ module.exports = async (req, res, next) => {
                                             history_name = 'Desktop'
                                         } else {
                                             history_name = history_name.split('ADSMicro-').pop();
+                                        }
+                                    } else if (item.history_name.startsWith('ADSWidget-')) {
+                                        history_type = 'ads-widget'
+                                        if (item.history_name.includes('Untitled')) {
+                                            history_name = 'Widget'
+                                        } else {
+                                            history_name = history_name.split('ADSWidget-').pop();
                                         }
                                     } else if (item.history_name.startsWith('ADSEmbed-')) {
                                         history_type = 'ads-embed'

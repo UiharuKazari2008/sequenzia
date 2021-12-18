@@ -9,6 +9,7 @@ This update requires Kanmi v19.3 to be applied due to a database update
 - Added support for channel_title, use this to Force set the channel title for pages and mainly Podcast names
 - Removed reboot for ADS Lite after 8 hours as its just not needed anymore
 - Increased default limits
+- Added support to set a custom image that will be displayed for Podcasts as a override to the server image
 
 ## v17.2.3 (RC1 JFS v1.5)
 ### Important Notes
