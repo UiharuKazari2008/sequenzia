@@ -1095,7 +1095,7 @@ module.exports = async (req, res, next) => {
                         search_prev: search_prev,
                         randomImage: images,
                         randomImagev2: imagesArray,
-                        configuration: (_configuration.rows.length > 0) ? _configuration : undefined,
+                        configuration: (_configuration.rows.length > 0) ? _configuration.rows.pop() : undefined,
                         server: req.session.server_list,
                         download: req.session.discord.servers.download,
                         manage_channels: req.session.discord.channels.manage,
