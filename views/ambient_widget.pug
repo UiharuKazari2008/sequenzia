@@ -120,12 +120,12 @@ html
                     if (randomImagev2.length > 0)
                         #logoStart
                             span.sequenzia-logo.shadow-txt(style="position: relative;top: 0.2em; color: unset;") sequenzia
+                    div
+                        if (randomImagev2.length > 0 && randomImagev2[0].pinned)
+                            i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='padding-bottom: 1rem;')
             if !(configuration && configuration.displayLogo !== 1)
                 div
                     #dataContainer(style='position: absolute; font-weight: 100;')
-                        div
-                            if (randomImagev2.length > 0 && randomImagev2[0].pinned)
-                                i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='padding-bottom: 1rem;')
                         if (randomImagev2.length > 0)
                             div#classDiv
                                 span#className.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].className}
