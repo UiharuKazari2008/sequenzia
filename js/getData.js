@@ -1085,6 +1085,27 @@ module.exports = async (req, res, next) => {
                         user_image: req.session.user.avatar,
                         user_username: req.session.user.username
                     })
+                } else if ((page_uri === '/ads-micro' || page_uri === '/ads-widget')  && req.query.displayname) {
+                    const _configuration = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname]);
+                    if (_configuration.error) {
+                        printLine('SQL', `Error adding messages to display history - ${_configuration.error.sqlMessage}`, 'error')
+                    }
+                    res.locals.response = {
+                        url: req.url,
+                        search_prev: search_prev,
+                        randomImage: images,
+                        randomImagev2: imagesArray,
+                        configuration: (_configuration.rows.length > 0) ? _configuration : undefined,
+                        server: req.session.server_list,
+                        download: req.session.discord.servers.download,
+                        manage_channels: req.session.discord.channels.manage,
+                        write_channels: req.session.discord.channels.write,
+                        discord: req.session.discord,
+                        user: req.session.user,
+                        device: ua,
+                        call_uri: page_uri,
+                    }
+                    next();
                 } else {
                     res.locals.response = {
                         url: req.url,
