@@ -71,6 +71,7 @@ html
                 #logoStart > span { font-size: 4em; }
                 #dataContainer { font-size: 3rem; padding: 3.5rem 2rem;bottom: 0; }
                 #dataFav { font-size: 32px; }
+                #classDiv { padding-bottom: 2rem; }
                 #className { font-size: 4rem; }
                 #channelName { font-size: 3.5rem; }
                 #dateText { font-size: 3rem; }
@@ -80,6 +81,7 @@ html
                 #logoStart > span { font-size: 2em; }
                 #dataContainer { font-size: 2rem; padding: 2rem 1.6rem;bottom: 0; }
                 #dataFav { font-size: 32px; }
+                #classDiv { padding-bottom: 1rem; }
                 #className { font-size: 2.5rem; }
                 #channelName { font-size: 2rem; }
                 #dateText { font-size: 1.5rem; }
@@ -114,7 +116,7 @@ html
                             if (randomImagev2.length > 0 && randomImagev2[0].pinned)
                                 i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='padding-bottom: 1rem;')
                         if (randomImagev2.length > 0)
-                            div(style="padding-bottom: 1rem;")
+                            div#classDiv
                                 span#className.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].className}
                             div
                                 span#channelName.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].channelName}
