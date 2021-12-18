@@ -36,7 +36,7 @@ module.exports = async (req, res, next) => {
                     response.pipe(res);
                 }
             } else {
-                if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget') {
+                if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
                     res.locals.imagedata = undefined;
                     next();
                 } else {
@@ -47,7 +47,7 @@ module.exports = async (req, res, next) => {
             }
         });
         request.on('error', function (e) {
-            if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget') {
+            if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
                 res.locals.imagedata = undefined;
                 next();
             } else {
@@ -56,7 +56,7 @@ module.exports = async (req, res, next) => {
             printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
         });
     } else {
-        if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget') {
+        if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
             res.locals.imagedata = undefined;
             next();
         } else {
