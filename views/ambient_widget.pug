@@ -60,8 +60,6 @@ html
                     top: 37vw;
                     width: 100vw;
                     left: 0;
-                    scale: .8;
-                    -webkit-transform:scale(0.8, 0.8);
                 }
         else
             style.
@@ -75,8 +73,6 @@ html
                     top: 90vw;
                     width: 100vw;
                     left: 0;
-                    scale: .8;
-                    -webkit-transform:scale(0.8, 0.8);
                 }
     body
         .widget-box
@@ -91,7 +87,7 @@ html
                 #bg1.background-image.image-style
 
             .widget-data
-                #BottomSestion.d-flex(style='padding: 0 2em;')
+                #BottomSestion.d-flex(style='padding: 0 2em; scale: .8; -webkit-transform:scale(0.8, 0.8);')
                     if (randomImagev2.length > 0)
                         #logoStart.flex-grow-1.align-self-end(style='opacity: .5')
                             span.sequenzia-logo.shadow-txt(style="font-size: 2.7em;position: relative;top: 0.2em; color: unset;") sequenzia
