@@ -58,7 +58,53 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
 
                 .card-body.auth-col.d-flex
                     form
-                        if (!configuration.name.startsWith('Homepage'))
+                        if (configuration.name.startsWith('ADSWidget') || configuration.name.startsWith('ADSMicro'))
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsResolution') Image Resolution
+                                    select#optionsResolution.form-control
+                                        for x in [ '', '720', '1080', '2000', '3000', '4000']
+                                            if (requestOptions.has('minres') && requestOptions.getAll('minres')[0].toLowerCase() === x)
+                                                option(value=x selected) #{(x === '') ? "Any" : x + "x"}
+                                            else
+                                                option(value=x) #{(x === '') ? "Any" : x + "x"}
+                                // Aspect Ratio Correction
+                                div.form-group.col-4
+                                    label(for='optionsDisplayAspect') Image Fit
+                                    select#optionsDisplayAspect.form-control
+                                        if (configuration.displayAspectCorrect || configuration.displayAspectCorrect === 0)
+                                            for x, i in [ 'Cover', 'Fit' ]
+                                                if (configuration.displayAspectCorrect === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Cover
+                                            option(value='1' selected) Fit
+                                div.form-group.col-4
+                                    label(for='optionsRatio') Aspect Ratio
+                                    select#optionsRatio.form-control
+                                        for x in [ ['', 'Any'], ['0.01-1', 'Widescreen'], ['0.01-0.9', 'Widescreen (Strict)'], ['0.85-2.1', 'Portrait'], ['1.1-2.1', 'Portrait (Strict)']]
+                                            if (requestOptions.has('ratio') && requestOptions.getAll('ratio')[0].toLowerCase() === x[0])
+                                                option(value=x[0] selected) #{x[1]}
+                                            else
+                                                option(value=x[0]) #{x[1]}
+
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsNoDuplicates') Duplicates
+                                    select#optionsNoDuplicates.form-control
+                                        if (requestOptions.has('history'))
+                                            for x in [ ['', 'Allow'], ['none', 'Restrict'] ]
+                                                if (requestOptions.getAll('history')[0].toLowerCase() === x[0])
+                                                    option(value=x[0] selected) #{x[1]}
+                                                else
+                                                    option(value=x[0]) #{x[1]}
+                                        else
+                                            option(value='' selected) Allow
+                                            option(value='none') Restrict
+
+                        else if (!configuration.name.startsWith('Homepage'))
                             div.form-row
                                 // Refresh
                                 div.form-group.col-4
@@ -127,52 +173,6 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
                                         else
                                             option(value='' selected) Allow
                                             option(value='none') Restrict
-                        else if (configuration.name.startsWith('ADSWidget') || configuration.name.startsWith('ADSMicro'))
-                            div.form-row
-                                div.form-group.col-4
-                                    label(for='optionsResolution') Image Resolution
-                                    select#optionsResolution.form-control
-                                        for x in [ '', '720', '1080', '2000', '3000', '4000']
-                                            if (requestOptions.has('minres') && requestOptions.getAll('minres')[0].toLowerCase() === x)
-                                                option(value=x selected) #{(x === '') ? "Any" : x + "x"}
-                                            else
-                                                option(value=x) #{(x === '') ? "Any" : x + "x"}
-                                // Aspect Ratio Correction
-                                div.form-group.col-4
-                                    label(for='optionsDisplayAspect') Image Fit
-                                    select#optionsDisplayAspect.form-control
-                                        if (configuration.displayAspectCorrect || configuration.displayAspectCorrect === 0)
-                                            for x, i in [ 'Cover', 'Fit' ]
-                                                if (configuration.displayAspectCorrect === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Cover
-                                            option(value='1' selected) Fit
-                                div.form-group.col-4
-                                    label(for='optionsRatio') Aspect Ratio
-                                    select#optionsRatio.form-control
-                                        for x in [ ['', 'Any'], ['0.01-1', 'Widescreen'], ['0.01-0.9', 'Widescreen (Strict)'], ['0.85-2.1', 'Portrait'], ['1.1-2.1', 'Portrait (Strict)']]
-                                            if (requestOptions.has('ratio') && requestOptions.getAll('ratio')[0].toLowerCase() === x[0])
-                                                option(value=x[0] selected) #{x[1]}
-                                            else
-                                                option(value=x[0]) #{x[1]}
-
-                            div.form-row
-                                div.form-group.col-4
-                                    label(for='optionsNoDuplicates') Duplicates
-                                    select#optionsNoDuplicates.form-control
-                                        if (requestOptions.has('history'))
-                                            for x in [ ['', 'Allow'], ['none', 'Restrict'] ]
-                                                if (requestOptions.getAll('history')[0].toLowerCase() === x[0])
-                                                    option(value=x[0] selected) #{x[1]}
-                                                else
-                                                    option(value=x[0]) #{x[1]}
-                                        else
-                                            option(value='' selected) Allow
-                                            option(value='none') Restrict
-
                         else
                             div.form-row
                                 div.form-group.col-4
