@@ -636,29 +636,42 @@ async function downloadAllItems() {
         for (let i in downloadURLs) {
             console.log(`Downloading ${downloadURLs[i]}`)
             await new Promise(ok => {
-                const url = downloadURLs[i].split('attachments').pop()
-                axios({
-                    url: `https://${document.location.host}/pipe${url}`,
-                    method: 'GET',
-                    responseType: 'blob',
-                    withCredentials: false
-                })
-                    .then((response) => {
-                        console.log(`Saving ${downloadURLs[i]}`)
-                        const url = window.URL
-                            .createObjectURL(new Blob([response.data]));
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.setAttribute('download', downloadURLs[i].split('/').pop());
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        ok(true);
+                const url = (() => {
+                    if (downloadURLs[i].includes('discordapp.com/')) {
+                        return `${document.location.protocol}//${document.location.host}/pipe${downloadURLs[i].split('attachments').pop()}`
+                    } else if (downloadURLs[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
+                        return downloadURLs[i]
+                    } else {
+                        return undefined
+                    }
+                })()
+                if (url) {
+                    axios({
+                        url,
+                        method: 'GET',
+                        responseType: 'blob',
+                        withCredentials: false
                     })
-                    .catch(e => {
-                        console.error(e);
-                        ok(false);
-                    })
+                        .then((response) => {
+                            console.log(`Saving ${downloadURLs[i]}`)
+                            const url = window.URL
+                                .createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', downloadURLs[i].split('/').pop());
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            ok(true);
+                        })
+                        .catch(e => {
+                            console.error(e);
+                            ok(false);
+                        })
+                } else {
+                    console.error('Download not possible, not a valid url');
+                    ok(false);
+                }
             }).then(r => {
                 console.log('OK')
             })
