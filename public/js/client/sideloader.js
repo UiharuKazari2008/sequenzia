@@ -626,7 +626,7 @@ function feedContent(type) {
 }
 function downloadAllItems() {
     if (pageType.includes('gallery')) {
-        downloadURLs = $('a[id^=request-download]')
+        downloadURLs = $('a[id^=request-download]');
 
         new Promise.all(downloadURLs.map(e => {
             return new Promise(ok => {
