@@ -634,6 +634,7 @@ function downloadSelectedItems() {
             about: new AbortController()
         };
         downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
+        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length} items!`
         $('#downloadAll').modal('show');
     } catch (e) {
         alert(`Error starting downloader: ${e.message}`)
@@ -650,6 +651,7 @@ function downloadAllItems() {
         $('a[id^=request-download]').each(function () {
             downloadAllController.urls.push($(this).attr('href'));
         });
+        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length} items!`
         $('#downloadAll').modal('show');
     } catch (e) {
         alert(`Error starting downloader: ${e.message}`)
@@ -718,6 +720,7 @@ async function startDownloadingFiles() {
         downloadModel.querySelector("#downloadProgressBar").style.width = `0%`;
         downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`0%`);
         downloadModel.querySelector("#downloadProgText").innerText = `Ready`
+        disableGallerySelect();
     } else if (pageType.includes('files')) {
 
     } else {
