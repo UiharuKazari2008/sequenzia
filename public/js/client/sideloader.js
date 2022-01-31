@@ -624,23 +624,34 @@ function feedContent(type) {
     });
     return false;
 }
+let downloadAllController = null;
 async function downloadAllItems() {
     pageType = $.history.url().split('?')[0].substring(1);
+    downloadAllController = {
+        ready: true,
+        urls: [],
+        about: new AbortController()
+    };
+    const downloadModel = $('#downloadAll')
     if (pageType.includes('gallery')) {
-        downloadURLs = [];
-        $('a[id^=request-download]').each(function(){
-            downloadURLs.push($(this).attr('href'));
-        })
-        console.log(`Downloading ${downloadURLs.length} files`)
+        $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); })
+        console.log(`Downloading ${downloadAllController.urls.length} files`)
 
-        for (let i in downloadURLs) {
-            console.log(`Downloading ${downloadURLs[i]}`)
+        $('#downloadStartButton').addClass('hidden');
+        $('#downloadStopButton').removeClass('hidden');
+        for (let i in downloadAllController.urls) {
+            if (!downloadAllController.ready)
+                break;
+            const percentage = ((i + 1 / downloadAllController.urls.length) * 100).toFixed(2);
+            downloadModel.querySelector("#downloadProgressBar").style.width = `${percentage}%`;
+            downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`${percentage}%`);
+            downloadModel.querySelector("#downloadProgText").innerText = `Downloading "${downloadAllController.urls[i].split('/').pop()}"...`
             await new Promise(ok => {
                 const url = (() => {
-                    if (downloadURLs[i].includes('discordapp.com/')) {
-                        return `${document.location.protocol}//${document.location.host}/pipe${downloadURLs[i].split('attachments').pop()}`
-                    } else if (downloadURLs[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
-                        return downloadURLs[i]
+                    if (downloadAllController.urls[i].includes('discordapp.com/')) {
+                        return `${document.location.protocol}//${document.location.host}/pipe${downloadAllController.urls[i].split('attachments').pop()}`
+                    } else if (downloadAllController.urls[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
+                        return downloadAllController.urls[i]
                     } else {
                         return undefined
                     }
@@ -649,24 +660,26 @@ async function downloadAllItems() {
                     axios({
                         url,
                         method: 'GET',
-                        responseType: 'blob',
-                        withCredentials: false
+                        signal: downloadAllController.about.signal,
+                        responseType: 'blob'
                     })
                         .then((response) => {
-                            console.log(`Saving ${downloadURLs[i]}`)
                             const url = window.URL
                                 .createObjectURL(new Blob([response.data]));
                             const link = document.createElement('a');
                             link.href = url;
-                            link.setAttribute('download', downloadURLs[i].split('/').pop());
+                            link.setAttribute('download', downloadAllController.urls[i].split('/').pop());
                             document.body.appendChild(link);
                             link.click();
                             document.body.removeChild(link);
                             ok(true);
                         })
                         .catch(e => {
+                            downloadModel.querySelector("#downloadProgText").innerText = e.message
                             console.error(e);
-                            ok(false);
+                            setTimeout(() => {
+                                ok(false);
+                            }, 1500);
                         })
                 } else {
                     console.error('Download not possible, not a valid url');
@@ -676,6 +689,12 @@ async function downloadAllItems() {
                 console.log('OK')
             })
         }
+        downloadModel.modal('hide');
+        $('#downloadStartButton').removeClass('hidden');
+        $('#downloadStopButton').addClass('hidden');
+        downloadModel.querySelector("#downloadProgressBar").style.width = `0%`;
+        downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`0%`);
+        downloadModel.querySelector("#downloadProgText").innerText = `Ready`
     } else if (pageType.includes('files')) {
 
     } else {

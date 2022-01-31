@@ -434,7 +434,7 @@ html
                                             span.dropdown-header
                                                 | Services
                                             a.dropdown-item(title="Download all images" href='#_' onclick="$('#downloadAll').modal('show'); return false;" role='button')
-                                                i.fas.fa-satellite-dish.pr-2
+                                                i.fas.fa-download.pr-2
                                                 | Download
                                             a.dropdown-item(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
                                                 i.fas.fa-satellite-dish.pr-2
@@ -1666,10 +1666,17 @@ html
                                     span(aria-hidden='true') &times;
                             .modal-body
                                 div.row.pl-3.pr-3
+                                    div.col.pl-1
+                                        h4#downloadProgText.small.font-weight-bold Ready
+                                        .progress.mb-4(style="height: 30px;")
+                                            #downloadProgressBar.progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
                                     div.pr-2
-                                        a.btn.btn-primary(title="Start Downloading all items on this page" href='#_' onclick=`downloadAllItems(); return false;`, role='button')
-                                            i.fas.pr-2.fa-podcast
-                                            | Download All
+                                        a#downloadStartButton.btn.btn-primary(title="Start Downloading all items on this page" href='#_' onclick=`downloadAllItems(); return false;`, role='button')
+                                            i.fas.pr-2.fa-download
+                                            | Start
+                                        a#downloadStopButton.btn.btn-primary.hidden(title="Stop current and pending downloads" href='#_' onclick=`downloadAllController.ready = false; downloadAllController.about.about(); return false;`, role='button')
+                                            i.fas.pr-2.fa-download
+                                            | Stop
                 #feedModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document')
                         .modal-content
