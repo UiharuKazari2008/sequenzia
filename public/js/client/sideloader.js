@@ -629,7 +629,7 @@ function downloadAllItems() {
     if (pageType.includes('gallery')) {
         downloadURLs = [];
         $('a[id^=request-download]').each(function(){
-            downloadURLs.push($(this).find('a').attr('href'));
+            downloadURLs.push($(this).attr('href'));
         })
 
         for (let e of downloadURLs) {
