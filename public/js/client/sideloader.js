@@ -665,7 +665,7 @@ async function startDownloadingFiles() {
         for (let i in downloadAllController.urls) {
             if (!downloadAllController.ready)
                 break;
-            const percentage = (parseInt(i) + 1 / downloadAllController.urls.length) * 100
+            const percentage = ((parseInt(i) + 1) / downloadAllController.urls.length) * 100
             downloadModel.querySelector("#downloadProgressBar").style.width = `${percentage}%`;
             downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`${percentage}%`);
             downloadModel.querySelector("#downloadProgText").innerText = `Downloading "${downloadAllController.urls[i].split('/').pop()}"...`
