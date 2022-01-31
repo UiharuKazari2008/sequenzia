@@ -627,9 +627,12 @@ function feedContent(type) {
 function downloadAllItems() {
     pageType = $.history.url().split('?')[0].substring(1);
     if (pageType.includes('gallery')) {
-        downloadURLs = $('a[id^=request-download]');
+        downloadURLs = [];
+        $('a[id^=request-download]').each(function(){
+            downloadURLs.push($(this).find('a').attr('href'));
+        })
 
-        new Promise.all(downloadURLs.map(e => {
+        for (let e of downloadURLs) {
             console.log(`Downloading ${e.href}`)
             return new Promise(ok => {
                 axios({
@@ -654,9 +657,7 @@ function downloadAllItems() {
                         ok(false);
                     })
             })
-        })).then(r => {
-            window.alert('Downloads Completed!')
-        })
+        }
     } else if (pageType.includes('files')) {
 
     } else {
