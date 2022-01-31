@@ -1669,9 +1669,9 @@ html
                                     h4#downloadProgText.small.font-weight-bold Ready
                                 div.row.pl-3.pr-3
                                     div.col.pl-1
-                                        .progress.mb-4(style="height: 30px;")
+                                        .progress(style="height: 30px;")
                                             #downloadProgressBar.progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
-                                    div.pr-2.align-self-center
+                                    div
                                         a#downloadStartButton.btn.btn-success(title="Start Downloading all items on this page" href='#_' onclick=`downloadAllItems(); return false;`, role='button')
                                             i.fas.pr-2.fa-download
                                             | Start
