@@ -578,7 +578,7 @@ router.use('/content', downloadValidation, async function (req, res) {
 router.use('/pipe', async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
-        if (req.query && params.length > 3 && params[0] !== '' && params[1] !== '' && params[2] !== '') {
+        if (params.length === 3) {
             const request = https.get('https://cdn.discordapp.com/attachments/' + params.join('/'), {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
