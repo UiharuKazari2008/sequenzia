@@ -637,7 +637,7 @@ function downloadAllItems() {
             console.log(`Downloading ${downloadURLs[i]}`)
             return new Promise(ok => {
                 axios({
-                    url: downloadURLs[i],
+                    url: `https://cors-anywhere.herokuapp.com/${downloadURLs[i]}`,
                     method: 'GET',
                     responseType: 'blob',
                     withCredentials: false
