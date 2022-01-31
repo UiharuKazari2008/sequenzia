@@ -639,7 +639,8 @@ function downloadAllItems() {
                 axios({
                     url: downloadURLs[i],
                     method: 'GET',
-                    responseType: 'blob'
+                    responseType: 'blob',
+                    withCredentials: false
                 })
                     .then((response) => {
                         console.log(`Saving ${downloadURLs[i]}`)
