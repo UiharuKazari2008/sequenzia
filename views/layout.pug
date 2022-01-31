@@ -357,16 +357,14 @@ html
                                                         i.fas.fa-cloud-download-alt.pr-2
                                                         | Download URL
                                 if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                    if (enableManageTools && results.length > 1)
+                                    if (results.length > 1)
                                         a.navbar-item.btn.btn-admin(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
                                             i.fas.fa-check-circle.align-middle
                                     div.dropdown
                                         a#toolsMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Tools" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="toolsMenu")
                                             i.fas.fa-toolbox.align-middle
                                         .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="toolsMenu")
-                                            if (enableManageTools && results.length > 1)
-                                                span.dropdown-header.d-xl-none.d-lg-none
-                                                    | Manager Tools
+                                            if (results.length > 1)
                                                 a.dropdown-item(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
                                                     i.fas.fa-check-circle.pr-2
                                                     | Select Items
@@ -973,8 +971,11 @@ html
                                             a#deSelectAll2.dropdown-item(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;')
                                                 i.far.fa-check-square.align-middle.pr-2
                                                 | Deselect All
-                                        a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
-                                            i.fas.fa-paste.align-middle
+                                        if (enableManageTools)
+                                            a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
+                                                i.fas.fa-paste.align-middle
+                                        a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
+                                            i.fas.fa-download.align-middle
 
                             if (!masterCount)
                                 // Topbar Search

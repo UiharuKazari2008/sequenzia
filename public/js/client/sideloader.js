@@ -625,16 +625,30 @@ function feedContent(type) {
     return false;
 }
 let downloadAllController = null;
-async function downloadAllItems() {
+function downloadSelectedItems() {
     pageType = $.history.url().split('?')[0].substring(1);
     downloadAllController = {
         ready: true,
         urls: [],
         about: new AbortController()
     };
+    downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
+    $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); });
+    startDownloadingFiles();
+}
+function downloadAllItems() {
+    pageType = $.history.url().split('?')[0].substring(1);
+    downloadAllController = {
+        ready: true,
+        urls: [],
+        about: new AbortController()
+    };
+    $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); });
+    startDownloadingFiles();
+}
+async function startDownloadingFiles() {
     const downloadModel = document.getElementById('downloadAll')
     if (pageType.includes('gallery')) {
-        $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); })
         console.log(`Downloading ${downloadAllController.urls.length} files`)
 
         $('#downloadStartButton').addClass('hidden');
@@ -642,7 +656,7 @@ async function downloadAllItems() {
         for (let i in downloadAllController.urls) {
             if (!downloadAllController.ready)
                 break;
-            const percentage = ((i + 1 / downloadAllController.urls.length) * 100)
+            const percentage = (parseInt(i) + 1 / downloadAllController.urls.length) * 100
             downloadModel.querySelector("#downloadProgressBar").style.width = `${percentage}%`;
             downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`${percentage}%`);
             downloadModel.querySelector("#downloadProgText").innerText = `Downloading "${downloadAllController.urls[i].split('/').pop()}"...`
