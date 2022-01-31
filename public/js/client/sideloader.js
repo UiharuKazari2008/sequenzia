@@ -624,7 +624,7 @@ function feedContent(type) {
     });
     return false;
 }
-function downloadAllItems() {
+async function downloadAllItems() {
     pageType = $.history.url().split('?')[0].substring(1);
     if (pageType.includes('gallery')) {
         downloadURLs = [];
@@ -635,9 +635,10 @@ function downloadAllItems() {
 
         for (let i in downloadURLs) {
             console.log(`Downloading ${downloadURLs[i]}`)
-            new Promise(ok => {
+            await new Promise(ok => {
+                const url = downloadURLs[i].split('attachments').pop()
                 axios({
-                    url: `https://cors-anywhere.herokuapp.com/${downloadURLs[i]}`,
+                    url: `https://${document.location.host}/pipe${url}`,
                     method: 'GET',
                     responseType: 'blob',
                     withCredentials: false

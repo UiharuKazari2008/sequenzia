@@ -71,6 +71,12 @@ app.use(['/gallery', '/files', '/cards', '/start', '/pages', '/artists', '/sideb
     message:
         "Sequenzia: Too many requests"
 }));
+app.use(['/pipe'], rateLimit({
+    windowMs: 60 * 1000, // 5 minutes
+    max: 1000,
+    message:
+        "Sequenzia Pipe: Too many requests"
+}));
 
 const sessionStore = new sessionSQL({
     host: config.sql_host,
