@@ -642,7 +642,7 @@ async function downloadAllItems() {
         for (let i in downloadAllController.urls) {
             if (!downloadAllController.ready)
                 break;
-            const percentage = ((i + 1 / downloadAllController.urls.length) * 100).toFixed(2);
+            const percentage = ((i + 1 / downloadAllController.urls.length) * 100)
             downloadModel.querySelector("#downloadProgressBar").style.width = `${percentage}%`;
             downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`${percentage}%`);
             downloadModel.querySelector("#downloadProgText").innerText = `Downloading "${downloadAllController.urls[i].split('/').pop()}"...`
@@ -689,7 +689,7 @@ async function downloadAllItems() {
                 console.log('OK')
             })
         }
-        downloadModel.modal('hide');
+        $('#downloadAll').modal('hide');
         $('#downloadStartButton').removeClass('hidden');
         $('#downloadStopButton').addClass('hidden');
         downloadModel.querySelector("#downloadProgressBar").style.width = `0%`;
