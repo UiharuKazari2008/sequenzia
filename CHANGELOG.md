@@ -10,6 +10,7 @@ This update requires Kanmi v19.3 to be applied due to a database update
 - Removed reboot for ADS Lite after 8 hours as its just not needed anymore
 - Increased default limits
 - Added support to set a custom image that will be displayed for Podcasts as a override to the server image
+- Added new client side downloader to download all items on a page or selected items
 
 ## v17.2.3 (RC1 JFS v1.5)
 ### Important Notes
