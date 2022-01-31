@@ -625,10 +625,12 @@ function feedContent(type) {
     return false;
 }
 function downloadAllItems() {
+    pageType = $.history.url().split('?')[0].substring(1);
     if (pageType.includes('gallery')) {
         downloadURLs = $('a[id^=request-download]');
 
         new Promise.all(downloadURLs.map(e => {
+            console.log(`Downloading ${e.href}`)
             return new Promise(ok => {
                 axios({
                     url: e.href,
@@ -636,6 +638,7 @@ function downloadAllItems() {
                     responseType: 'blob'
                 })
                     .then((response) => {
+                        console.log(`Saving ${e.href}`)
                         const url = window.URL
                             .createObjectURL(new Blob([response.data]));
                         const link = document.createElement('temp-download');
