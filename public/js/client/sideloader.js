@@ -631,22 +631,23 @@ function downloadAllItems() {
         $('a[id^=request-download]').each(function(){
             downloadURLs.push($(this).attr('href'));
         })
+        console.log(`Downloading ${downloadURLs.length} files`)
 
-        for (let e of downloadURLs) {
-            console.log(`Downloading ${e.href}`)
+        for (let i in downloadURLs) {
+            console.log(`Downloading ${downloadURLs[i]}`)
             return new Promise(ok => {
                 axios({
-                    url: e.href,
+                    url: downloadURLs[i],
                     method: 'GET',
                     responseType: 'blob'
                 })
                     .then((response) => {
-                        console.log(`Saving ${e.href}`)
+                        console.log(`Saving ${downloadURLs[i]}`)
                         const url = window.URL
                             .createObjectURL(new Blob([response.data]));
                         const link = document.createElement('temp-download');
                         link.href = url;
-                        link.setAttribute('download', e.href.split('/').pop());
+                        link.setAttribute('download', downloadURLs[i].split('/').pop());
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
