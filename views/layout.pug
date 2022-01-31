@@ -1661,22 +1661,23 @@ html
                         .modal-content
                             .modal-header
                                 h5.modal-title
-                                    span Download All Items
+                                    span Downloader
                                 button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                     span(aria-hidden='true') &times;
                             .modal-body
                                 div.row.pl-3.pr-3
+                                    h4#downloadProgText.small.font-weight-bold Ready
+                                div.row.pl-3.pr-3
                                     div.col.pl-1
-                                        h4#downloadProgText.small.font-weight-bold Ready
                                         .progress.mb-4(style="height: 30px;")
                                             #downloadProgressBar.progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
-                                    div.pr-2
-                                        a#downloadStartButton.btn.btn-primary(title="Start Downloading all items on this page" href='#_' onclick=`downloadAllItems(); return false;`, role='button')
+                                    div.pr-2.align-self-center
+                                        a#downloadStartButton.btn.btn-success(title="Start Downloading all items on this page" href='#_' onclick=`downloadAllItems(); return false;`, role='button')
                                             i.fas.pr-2.fa-download
                                             | Start
-                                        a#downloadStopButton.btn.btn-primary.hidden(title="Stop current and pending downloads" href='#_' onclick=`downloadAllController.ready = false; downloadAllController.about.about(); return false;`, role='button')
-                                            i.fas.pr-2.fa-download
-                                            | Stop
+                                        a#downloadStopButton.btn.btn-danger.hidden(title="Stop current and pending downloads" href='#_' onclick=`downloadAllController.ready = false; downloadAllController.about.about(); return false;`, role='button')
+                                            i.fas.pr-2.fa-ban
+                                            | Cancel
                 #feedModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document')
                         .modal-content
