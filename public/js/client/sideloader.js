@@ -635,7 +635,7 @@ function downloadAllItems() {
 
         for (let i in downloadURLs) {
             console.log(`Downloading ${downloadURLs[i]}`)
-            return new Promise(ok => {
+            new Promise(ok => {
                 axios({
                     url: `https://cors-anywhere.herokuapp.com/${downloadURLs[i]}`,
                     method: 'GET',
@@ -658,6 +658,8 @@ function downloadAllItems() {
                         console.error(e);
                         ok(false);
                     })
+            }).then(r => {
+                console.log('OK')
             })
         }
     } else if (pageType.includes('files')) {
