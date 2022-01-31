@@ -634,9 +634,6 @@ function downloadSelectedItems() {
             about: new AbortController()
         };
         downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
-        $('a[id^=request-download]').each(function () {
-            downloadAllController.urls.push($(this).attr('href'));
-        });
         $('#downloadAll').modal('show');
     } catch (e) {
         alert(`Error starting downloader: ${e.message}`)
