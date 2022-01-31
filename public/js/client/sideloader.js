@@ -626,25 +626,37 @@ function feedContent(type) {
 }
 let downloadAllController = null;
 function downloadSelectedItems() {
-    pageType = $.history.url().split('?')[0].substring(1);
-    downloadAllController = {
-        ready: true,
-        urls: [],
-        about: new AbortController()
-    };
-    downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
-    $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); });
-    startDownloadingFiles();
+    try {
+        pageType = $.history.url().split('?')[0].substring(1);
+        downloadAllController = {
+            ready: true,
+            urls: [],
+            about: new AbortController()
+        };
+        downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
+        $('a[id^=request-download]').each(function () {
+            downloadAllController.urls.push($(this).attr('href'));
+        });
+        $('#downloadAll').modal('show');
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
 }
 function downloadAllItems() {
-    pageType = $.history.url().split('?')[0].substring(1);
-    downloadAllController = {
-        ready: true,
-        urls: [],
-        about: new AbortController()
-    };
-    $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); });
-    startDownloadingFiles();
+    try {
+        pageType = $.history.url().split('?')[0].substring(1);
+        downloadAllController = {
+            ready: true,
+            urls: [],
+            about: new AbortController()
+        };
+        $('a[id^=request-download]').each(function () {
+            downloadAllController.urls.push($(this).attr('href'));
+        });
+        $('#downloadAll').modal('show');
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
 }
 async function startDownloadingFiles() {
     const downloadModel = document.getElementById('downloadAll')
