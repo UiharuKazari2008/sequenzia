@@ -632,7 +632,7 @@ async function downloadAllItems() {
         urls: [],
         about: new AbortController()
     };
-    const downloadModel = $('#downloadAll')
+    const downloadModel = document.getElementById('downloadAll')
     if (pageType.includes('gallery')) {
         $('a[id^=request-download]').each(function(){ downloadAllController.urls.push($(this).attr('href')); })
         console.log(`Downloading ${downloadAllController.urls.length} files`)
