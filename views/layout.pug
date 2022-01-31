@@ -433,6 +433,9 @@ html
                                                     | View as Cards
                                             span.dropdown-header
                                                 | Services
+                                            a.dropdown-item(title="Download all images" href='#_' onclick="$('#downloadAll').modal('show'); return false;" role='button')
+                                                i.fas.fa-satellite-dish.pr-2
+                                                | Download
                                             a.dropdown-item(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
                                                 i.fas.fa-satellite-dish.pr-2
                                                 | RSS Feed
@@ -1653,6 +1656,20 @@ html
                                     for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
                                         .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
                                             img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                #downloadAll.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document')
+                        .modal-content
+                            .modal-header
+                                h5.modal-title
+                                    span Download All Items
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                div.row.pl-3.pr-3
+                                    div.pr-2
+                                        a.btn.btn-primary(title="Start Downloading all items on this page" href='#_' onclick=`downloadAllItems(); return false;`, role='button')
+                                            i.fas.pr-2.fa-podcast
+                                            | Download All
                 #feedModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document')
                         .modal-content

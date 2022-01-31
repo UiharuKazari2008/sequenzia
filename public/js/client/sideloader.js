@@ -57,6 +57,7 @@ let _lastUploadChannelSelection = '';
 let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
+let downloadURLs = [];
 
 function isTouchDevice(){
     return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
@@ -622,6 +623,42 @@ function feedContent(type) {
         }
     });
     return false;
+}
+function downloadAllItems() {
+    if (pageType.includes('gallery')) {
+        downloadURLs = $('a[id^=request-download]')
+
+        new Promise.all(downloadURLs.map(e => {
+            return new Promise(ok => {
+                axios({
+                    url: e.href,
+                    method: 'GET',
+                    responseType: 'blob'
+                })
+                    .then((response) => {
+                        const url = window.URL
+                            .createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('temp-download');
+                        link.href = url;
+                        link.setAttribute('download', e.href.split('/').pop());
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        ok(true);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        ok(false);
+                    })
+            })
+        })).then(r => {
+            window.alert('Downloads Completed!')
+        })
+    } else if (pageType.includes('files')) {
+
+    } else {
+        window.alert("Unsupported View Type")
+    }
 }
 
 function showAuthManager() {
