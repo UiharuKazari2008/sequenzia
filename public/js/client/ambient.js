@@ -906,10 +906,6 @@ $(document).ready(function () {
                 dc();
                 dd();
                 ddw();
-
-                setTimeout(function () {
-                    location.reload();
-                }, 28800000);
             } else {
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')

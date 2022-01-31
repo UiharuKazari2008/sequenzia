@@ -175,3 +175,19 @@ div#quoteContainer {
     zoom: 0.5;
 }
 }
+
+.widget-box .center-block {
+    transform: translate(-50%,0%);
+    position: relative;
+    top: initial;
+}
+.widget-box .portait-overlay {
+    height: inherit;
+}
+.widget-box .background-image {
+    background-position: center;
+    background-size: cover;
+    background-attachment: inherit;
+    height: inherit;
+    width: inherit;
+}

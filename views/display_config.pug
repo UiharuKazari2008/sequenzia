@@ -28,7 +28,7 @@ else
                 label(for='optionsShowInHistory') Show
                 a#optionsShowInHistory.col.btn(href='#_' target="_blank" rel="noopener noreferrer" type="button" class=`btn-${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? 'danger' : 'success'}` onclick=`toggleHistoryViewOption(this); return false;`)
                     i.align-middle.fas(class=`fa-eye${(configuration.showHistory !== undefined && configuration.showHistory === 0) ? '-slash' : ''}`)
-if (!configuration.name.startsWith('ADS'))
+if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSWidget') || configuration.name.startsWith('ADSMicro'))
     .accordion(id=`displayConfigMenu-${configuration.name.split(' ').join('')}`)
         .card
             .card-header.collapsed(id=`requestConfig-header-${configuration.name.split(' ').join('')}`)
@@ -55,10 +55,70 @@ if (!configuration.name.startsWith('ADS'))
                 - requestOptionsParsed.delete('folder')
                 - requestOptionsParsed.delete('channel')
                 - requestOptionsParsed.delete('history')
+                - requestOptionsParsed.delete('forceWideWidget')
 
                 .card-body.auth-col.d-flex
                     form
-                        if (!configuration.name.startsWith('Homepage'))
+                        if (configuration.name.startsWith('ADSWidget') || configuration.name.startsWith('ADSMicro'))
+                            div.form-row
+                                div.form-group.col-4
+                                    label(for='optionsResolution') Image Resolution
+                                    select#optionsResolution.form-control
+                                        for x in [ '', '720', '1080', '2000', '3000', '4000']
+                                            if (requestOptions.has('minres') && requestOptions.getAll('minres')[0].toLowerCase() === x)
+                                                option(value=x selected) #{(x === '') ? "Any" : x + "x"}
+                                            else
+                                                option(value=x) #{(x === '') ? "Any" : x + "x"}
+                                // Aspect Ratio Correction
+                                div.form-group.col-4
+                                    label(for='optionsDisplayAspect') Image Fit
+                                    select#optionsDisplayAspect.form-control
+                                        if (configuration.displayAspectCorrect || configuration.displayAspectCorrect === 0)
+                                            for x, i in [ 'Cover', 'Fit' ]
+                                                if (configuration.displayAspectCorrect === i)
+                                                    option(value=i selected) #{x}
+                                                else
+                                                    option(value=i) #{x}
+                                        else
+                                            option(value='0') Cover
+                                            option(value='1' selected) Fit
+                                div.form-group.col-4
+                                    label(for='optionsRatio') Aspect Ratio
+                                    select#optionsRatio.form-control
+                                        for x in [ ['', 'Any'], ['0.01-1', 'Widescreen'], ['0.01-0.9', 'Widescreen (Strict)'], ['0.85-2.1', 'Portrait'], ['1.1-2.1', 'Portrait (Strict)']]
+                                            if (requestOptions.has('ratio') && requestOptions.getAll('ratio')[0].toLowerCase() === x[0])
+                                                option(value=x[0] selected) #{x[1]}
+                                            else
+                                                option(value=x[0]) #{x[1]}
+
+                            div.form-row
+                                if (configuration.name.startsWith('ADSWidget'))
+                                    div.form-group.col-4
+                                        label(for='optionsForceWide') Wide Widget
+                                        select#optionsForceWide.form-control
+                                            if (requestOptions.has('forceWideWidget'))
+                                                for x in [ ['', 'Any'], ['true', 'Restrict to Wide'] ]
+                                                    if (requestOptions.getAll('forceWideWidget')[0].toLowerCase() === x[0])
+                                                        option(value=x[0] selected) #{x[1]}
+                                                    else
+                                                        option(value=x[0]) #{x[1]}
+                                            else
+                                                option(value='' selected) Any
+                                                option(value='true') Restrict to Wide
+                                div.form-group.col-4
+                                    label(for='optionsNoDuplicates') Duplicates
+                                    select#optionsNoDuplicates.form-control
+                                        if (requestOptions.has('history'))
+                                            for x in [ ['', 'Allow'], ['none', 'Restrict'] ]
+                                                if (requestOptions.getAll('history')[0].toLowerCase() === x[0])
+                                                    option(value=x[0] selected) #{x[1]}
+                                                else
+                                                    option(value=x[0]) #{x[1]}
+                                        else
+                                            option(value='' selected) Allow
+                                            option(value='none') Restrict
+
+                        else if (!configuration.name.startsWith('Homepage'))
                             div.form-row
                                 // Refresh
                                 div.form-group.col-4
@@ -268,230 +328,272 @@ if (!configuration.name.startsWith('ADS'))
                             | Personalization
                 .collapse(aria-labelledby=`displayApperanceConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayApperanceConfig-${configuration.name.split(' ').join('')}`)
                     .card-body.auth-col.d-flex
-                        form
-                            div.form-group.form-row
-                                // Clock
-                                div.form-group.col-4
-                                    label(for='optionsDisplayTime') Clock
-                                    select#optionsDisplayTime.form-control
-                                        if (configuration.imageFormat || configuration.imageFormat === 0)
-                                            for x, i in [ 'Hide', '24H', '12H' ]
-                                                if (configuration.displayClock === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Hide
-                                            option(value='1' selected) 24H
-                                            option(value='2') 12H
-                                // Date
-                                div.form-group.col-4
-                                    label(for='optionsDisplayDate') Date
-                                    select#optionsDisplayDate.form-control
-                                        if (configuration.displayClock || configuration.displayClock === 0)
-                                            for x, i in [ 'Hide', 'Both', 'Weekday', 'Date' ]
-                                                if (configuration.displayClock === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Hide
-                                            option(value='1' selected) Both
-                                            option(value='2') Weekday
-                                            option(value='3') Date
-                                // Display Image Info
-                                div.form-group.col-4
-                                    label(for='optionsDisplayImageInfo') Display Image Info
-                                    select#optionsDisplayImageInfo.form-control
-                                        if (configuration.displayImageInfo || configuration.displayImageInfo === 0)
-                                            for x, i in [ 'Hide', 'Show']
-                                                if (configuration.displayImageInfo === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Hide
-                                            option(value='1' selected) Show
-                            div.form-group.form-row
-                                // Logo
-                                div.form-group.col-4
-                                    label(for='optionsDisplayLogo') Logo
-                                    select#optionsDisplayLogo.form-control
-                                        if (configuration.displayLogo || configuration.displayLogo === 0)
-                                            for x, i in [ 'Top', 'Left', 'Right' ]
-                                                if (configuration.displayLogo === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Top
-                                            option(value='1' selected) Left
-                                            option(value='2') Right
-                                // Overlay
-                                div.form-group.col-4
-                                    label(for='optionsDisplayOverlay') Overlay
-                                    select#optionsDisplayOverlay.form-control
-                                        if (configuration.displayOverlay || configuration.displayOverlay === 0)
-                                            for x, i in [ 'Hide', 'Bottom', 'Left' ]
-                                                if (configuration.displayOverlay === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Hide
-                                            option(value='1' selected) Bottom
-                                            option(value='2') Left
-                                // Padding
-                                div.form-group.col-4
-                                    label(for='optionsDisplayTaskbar') Padding
-                                    select#optionsDisplayTaskbar.form-control
-                                        if (configuration.taskbarPosition || configuration.taskbarPosition === 0)
-                                            for x, i in [ 'None', 'Bottom' ]
-                                                if (configuration.taskbarPosition === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value="0" selected) None
-                                            option(value='1') Bottom
-                            div.form-group.form-row
-                                // HiDPI Scaling
-                                div.form-group.col-4
-                                    label(for='optionsDisplayScale') HiDPI Scaling
-                                    select#optionsDisplayScale.form-control
-                                        if (configuration.enableScale || configuration.enableScale === 0)
-                                            for x, i in [ 'Disabled', 'Enabled' ]
-                                                if (configuration.enableScale === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Disabled
-                                            option(value='1' selected) Enabled
-                                // Display Info
-                                div.form-group.col-4
-                                    label(for='optionsDisplaySys') Display Info
-                                    select#optionsDisplaySys.form-control
-                                        if (configuration.displaySysInfo || configuration.displaySysInfo === 0)
-                                            for x, i in [ 'Hide', 'User Info', 'Display Name' ]
-                                                if (configuration.displaySysInfo === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0') Hide
-                                            option(value='1' selected) User Info
-                                            option(value='2') Display Name
-                            div.form-group.form-row
-                                div.form-group.col-4
-                                    label(for='optionsDisplayDarkImg') Dark Images @ Night
-                                    select#optionsDisplayDarkImg.form-control
-                                        if (configuration.darkImages || configuration.darkImages === 0)
-                                            for x, i in [ 'Disabled', 'Enabled' ]
-                                                if (configuration.darkImages === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0' selected) Disabled
-                                            option(value='1') Enabled
-                                div.form-group.col-4
-                                    label(for='optionsDisplayDarkOverlay') Dark Overlay @ Night
-                                    select#optionsDisplayDarkOverlay.form-control
-                                        if (configuration.darkOverlay || configuration.darkOverlay === 0)
-                                            for x, i in [ 'Disabled', 'Enabled' ]
-                                                if (configuration.darkOverlay === i)
-                                                    option(value=i selected) #{x}
-                                                else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0' selected) Disabled
-                                            option(value='1') Enabled
-            .card
-                .card-header.collapsed(id=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}`)
-                    h5.mb-0.mr-auto
-                        button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayWeatherConfig-${configuration.name.split(' ').join('')}`)
-                            i.fas.fa-cloud-sun.pr-2
-                            | Weather
-                .collapse(aria-labelledby=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayWeatherConfig-${configuration.name.split(' ').join('')}`)
-                    .card-body.auth-col.d-flex
-                        form
+                        if (!configuration.name.startsWith('ADS'))
+                            form
                                 div.form-group.form-row
-                                    // Weather Location
+                                    // Clock
                                     div.form-group.col-4
-                                        label(for="optionsDisplayLocationInput") Weather Location
-                                        if (configuration.location || configuration.location === 0)
-                                            input#optionsDisplayLocationInput.form-control(type="text" placeholder="Enter City Name" value=configuration.location)
-                                        else
-                                            input#optionsDisplayLocationInput.form-control(type="text" placeholder="Enter City Name")
+                                        label(for='optionsDisplayTime') Clock
+                                        select#optionsDisplayTime.form-control
+                                            if (configuration.imageFormat || configuration.imageFormat === 0)
+                                                for x, i in [ 'Hide', '24H', '12H' ]
+                                                    if (configuration.displayClock === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) 24H
+                                                option(value='2') 12H
+                                    // Date
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayDate') Date
+                                        select#optionsDisplayDate.form-control
+                                            if (configuration.displayClock || configuration.displayClock === 0)
+                                                for x, i in [ 'Hide', 'Both', 'Weekday', 'Date' ]
+                                                    if (configuration.displayClock === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) Both
+                                                option(value='2') Weekday
+                                                option(value='3') Date
+                                    // Display Image Info
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayImageInfo') Display Image Info
+                                        select#optionsDisplayImageInfo.form-control
+                                            if (configuration.displayImageInfo || configuration.displayImageInfo === 0)
+                                                for x, i in [ 'Hide', 'Show']
+                                                    if (configuration.displayImageInfo === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) Show
+                                div.form-group.form-row
+                                    // Logo
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayLogo') Logo
+                                        select#optionsDisplayLogo.form-control
+                                            if (configuration.displayLogo || configuration.displayLogo === 0)
+                                                for x, i in [ 'Top', 'Left', 'Right' ]
+                                                    if (configuration.displayLogo === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Top
+                                                option(value='1' selected) Left
+                                                option(value='2') Right
+                                    // Overlay
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayOverlay') Overlay
+                                        select#optionsDisplayOverlay.form-control
+                                            if (configuration.displayOverlay || configuration.displayOverlay === 0)
+                                                for x, i in [ 'Hide', 'Bottom', 'Left' ]
+                                                    if (configuration.displayOverlay === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) Bottom
+                                                option(value='2') Left
+                                    // Padding
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayTaskbar') Padding
+                                        select#optionsDisplayTaskbar.form-control
+                                            if (configuration.taskbarPosition || configuration.taskbarPosition === 0)
+                                                for x, i in [ 'None', 'Bottom' ]
+                                                    if (configuration.taskbarPosition === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value="0" selected) None
+                                                option(value='1') Bottom
+                                div.form-group.form-row
+                                    // HiDPI Scaling
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayScale') HiDPI Scaling
+                                        select#optionsDisplayScale.form-control
+                                            if (configuration.enableScale || configuration.enableScale === 0)
+                                                for x, i in [ 'Disabled', 'Enabled' ]
+                                                    if (configuration.enableScale === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Disabled
+                                                option(value='1' selected) Enabled
+                                    // Display Info
+                                    div.form-group.col-4
+                                        label(for='optionsDisplaySys') Display Info
+                                        select#optionsDisplaySys.form-control
+                                            if (configuration.displaySysInfo || configuration.displaySysInfo === 0)
+                                                for x, i in [ 'Hide', 'User Info', 'Display Name' ]
+                                                    if (configuration.displaySysInfo === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) User Info
+                                                option(value='2') Display Name
+                                div.form-group.form-row
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayDarkImg') Dark Images @ Night
+                                        select#optionsDisplayDarkImg.form-control
+                                            if (configuration.darkImages || configuration.darkImages === 0)
+                                                for x, i in [ 'Disabled', 'Enabled' ]
+                                                    if (configuration.darkImages === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0' selected) Disabled
+                                                option(value='1') Enabled
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayDarkOverlay') Dark Overlay @ Night
+                                        select#optionsDisplayDarkOverlay.form-control
+                                            if (configuration.darkOverlay || configuration.darkOverlay === 0)
+                                                for x, i in [ 'Disabled', 'Enabled' ]
+                                                    if (configuration.darkOverlay === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0' selected) Disabled
+                                                option(value='1') Enabled
+                        else
+                            form
+                                div.form-group.form-row
+                                    // Display Image Info
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayImageInfo') Display Image Info
+                                        select#optionsDisplayImageInfo.form-control
+                                            if (configuration.displayImageInfo || configuration.displayImageInfo === 0)
+                                                for x, i in [ 'Hide', 'Show']
+                                                    if (configuration.displayImageInfo === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) Show
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayOverlay') Overlay
+                                        select#optionsDisplayOverlay.form-control
+                                            if (configuration.displayOverlay || configuration.displayOverlay === 0)
+                                                for x, i in [ 'Hide', 'Show' ]
+                                                    if (configuration.displayOverlay === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) Show
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayLogo') Logo
+                                        select#optionsDisplayLogo.form-control
+                                            if (configuration.displayLogo || configuration.displayLogo === 0)
+                                                for x, i in [ 'Hide', 'Show' ]
+                                                    if (configuration.displayLogo === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0') Hide
+                                                option(value='1' selected) Show
+            if (!configuration.name.startsWith('ADS'))
+                .card
+                    .card-header.collapsed(id=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}`)
+                        h5.mb-0.mr-auto
+                            button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayWeatherConfig-${configuration.name.split(' ').join('')}`)
+                                i.fas.fa-cloud-sun.pr-2
+                                | Weather
+                    .collapse(aria-labelledby=`displayWeatherConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayWeatherConfig-${configuration.name.split(' ').join('')}`)
+                        .card-body.auth-col.d-flex
+                            form
+                                    div.form-group.form-row
+                                        // Weather Location
+                                        div.form-group.col-4
+                                            label(for="optionsDisplayLocationInput") Weather Location
+                                            if (configuration.location || configuration.location === 0)
+                                                input#optionsDisplayLocationInput.form-control(type="text" placeholder="Enter City Name" value=configuration.location)
+                                            else
+                                                input#optionsDisplayLocationInput.form-control(type="text" placeholder="Enter City Name")
 
-                                    // Temperture Format
-                                    div.form-group.col-4
-                                        label(for='optionsDisplayWeatherFormat') Temp Format
-                                        select#optionsDisplayWeatherFormat.form-control
-                                            if (configuration.weatherFormat || configuration.weatherFormat === 0)
-                                                for x, i in [ 'C', 'F' ]
-                                                    if (configuration.weatherFormat === i)
-                                                        option(value=i selected) #{x}
-                                                    else
-                                                        option(value=i) #{x}
-                                            else
-                                                option(value='0' selected) C
-                                                option(value='1') F
-                                    // Temperture Type
-                                    div.form-group.col-4
-                                        label(for='optionsDisplayWeatherFeelLike') Temp Type
-                                        select#optionsDisplayWeatherFeelLike.form-control
-                                            if (configuration.weatherFeelLike || configuration.weatherFeelLike === 0)
-                                                for x, i in [ 'Real', 'Feel-Like' ]
-                                                    if (configuration.weatherFeelLike === i)
-                                                        option(value=i selected) #{x}
-                                                    else
-                                                        option(value=i) #{x}
-                                            else
-                                                option(value='0' selected) Real
-                                                option(value='1') Feel-Like
-                                div.form-group.form-row
-                                    // Weather Display
-                                    div.form-group.col-4
-                                        label(for='optionsDisplayWeather') Weather Display
-                                        select#optionsDisplayWeather.form-control
-                                            if (configuration.weatherDisplay || configuration.weatherDisplay === 0)
-                                                for x, i in [ 'Off', 'Temp/Icon', 'Temp/HiLo/Icon', 'All', 'Temp/HiLo/Name', 'Name', 'Icon' ]
-                                                    if (configuration.weatherDisplay && configuration.weatherDisplay === i)
-                                                        option(value=i selected) #{x}
-                                                    else
-                                                        option(value=i) #{x}
-                                            else
-                                                option(value='0') Off
-                                                option(value='1' selected) Temp/Icon
-                                                option(value='2') Temp/HiLo/Icon
-                                                option(value='3') All
-                                                option(value='4') Temp/HiLo/Name
-                                                option(value='5') Name
-                                                option(value='6') Icon
-            .card
-                .card-header.collapsed(id=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}`)
-                    h5.mb-0.mr-auto
-                        button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayQuotesConfig-${configuration.name.split(' ').join('')}`)
-                            i.fas.fa-quote-right.pr-2
-                            | Quotes
-                .collapse(aria-labelledby=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayQuotesConfig-${configuration.name.split(' ').join('')}`)
-                    .card-body.auth-col.d-flex
-                        form
-                            div.form-row.form-group
-                                div.form-group.col-4
-                                    label(for='optionsDisplayQuote') Display Quotes
-                                    select#optionsDisplayQuote.form-control
-                                        if (configuration.quoteEnable || configuration.quoteEnable === 0)
-                                            for x, i in [ 'Disabled', 'Enabled' ]
-                                                if (configuration.quoteEnable === i)
-                                                    option(value=i selected) #{x}
+                                        // Temperture Format
+                                        div.form-group.col-4
+                                            label(for='optionsDisplayWeatherFormat') Temp Format
+                                            select#optionsDisplayWeatherFormat.form-control
+                                                if (configuration.weatherFormat || configuration.weatherFormat === 0)
+                                                    for x, i in [ 'C', 'F' ]
+                                                        if (configuration.weatherFormat === i)
+                                                            option(value=i selected) #{x}
+                                                        else
+                                                            option(value=i) #{x}
                                                 else
-                                                    option(value=i) #{x}
-                                        else
-                                            option(value='0' selected) Disabled
-                                            option(value='1') Enabled
-                                div#optionsDisplayFolder.form-group.col-8
-                                    label(for="optionsDisplayQuotesInput") Tags for Quotes
-                                    input#optionsDisplayQuotesInput.form-control(type="text" placeholder="Enter Tags (Life, Inspiration, etc.)" value=configuration.quoteTag)
+                                                    option(value='0' selected) C
+                                                    option(value='1') F
+                                        // Temperture Type
+                                        div.form-group.col-4
+                                            label(for='optionsDisplayWeatherFeelLike') Temp Type
+                                            select#optionsDisplayWeatherFeelLike.form-control
+                                                if (configuration.weatherFeelLike || configuration.weatherFeelLike === 0)
+                                                    for x, i in [ 'Real', 'Feel-Like' ]
+                                                        if (configuration.weatherFeelLike === i)
+                                                            option(value=i selected) #{x}
+                                                        else
+                                                            option(value=i) #{x}
+                                                else
+                                                    option(value='0' selected) Real
+                                                    option(value='1') Feel-Like
+                                    div.form-group.form-row
+                                        // Weather Display
+                                        div.form-group.col-4
+                                            label(for='optionsDisplayWeather') Weather Display
+                                            select#optionsDisplayWeather.form-control
+                                                if (configuration.weatherDisplay || configuration.weatherDisplay === 0)
+                                                    for x, i in [ 'Off', 'Temp/Icon', 'Temp/HiLo/Icon', 'All', 'Temp/HiLo/Name', 'Name', 'Icon' ]
+                                                        if (configuration.weatherDisplay && configuration.weatherDisplay === i)
+                                                            option(value=i selected) #{x}
+                                                        else
+                                                            option(value=i) #{x}
+                                                else
+                                                    option(value='0') Off
+                                                    option(value='1' selected) Temp/Icon
+                                                    option(value='2') Temp/HiLo/Icon
+                                                    option(value='3') All
+                                                    option(value='4') Temp/HiLo/Name
+                                                    option(value='5') Name
+                                                    option(value='6') Icon
+                .card
+                    .card-header.collapsed(id=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}`)
+                        h5.mb-0.mr-auto
+                            button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayQuotesConfig-${configuration.name.split(' ').join('')}`)
+                                i.fas.fa-quote-right.pr-2
+                                | Quotes
+                    .collapse(aria-labelledby=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayQuotesConfig-${configuration.name.split(' ').join('')}`)
+                        .card-body.auth-col.d-flex
+                            form
+                                div.form-row.form-group
+                                    div.form-group.col-4
+                                        label(for='optionsDisplayQuote') Display Quotes
+                                        select#optionsDisplayQuote.form-control
+                                            if (configuration.quoteEnable || configuration.quoteEnable === 0)
+                                                for x, i in [ 'Disabled', 'Enabled' ]
+                                                    if (configuration.quoteEnable === i)
+                                                        option(value=i selected) #{x}
+                                                    else
+                                                        option(value=i) #{x}
+                                            else
+                                                option(value='0' selected) Disabled
+                                                option(value='1') Enabled
+                                    div#optionsDisplayFolder.form-group.col-8
+                                        label(for="optionsDisplayQuotesInput") Tags for Quotes
+                                        input#optionsDisplayQuotesInput.form-control(type="text" placeholder="Enter Tags (Life, Inspiration, etc.)" value=configuration.quoteTag)

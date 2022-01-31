@@ -281,7 +281,7 @@ module.exports = async (req, res, next) => {
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
             sqlorder = [`date`, 'DESC']
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             if (!req.query.displaySlave) {
                 sqlorder.push(`RAND()`)
             } else {
@@ -658,19 +658,23 @@ module.exports = async (req, res, next) => {
             limit = parseInt(req.query.limit.toString().substring(0,4))
             if (!isNaN(limit)) {
                 req.session.current_limit = limit;
+            } else if (page_uri === '/files') {
+                limit = 250;
             } else {
-                limit = 50;
+                limit = 100;
             }
-        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient'))) {
+        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient'))) {
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
+            } else if (page_uri === '/files') {
+                limit = 250;
             } else {
-                limit = 50;
+                limit = 100;
             }
         }
         const sqllimit = limit + 1;
         // Offset
-        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
+        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
         // Where Exec
@@ -705,7 +709,7 @@ module.exports = async (req, res, next) => {
                     "attachment_name = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
@@ -926,7 +930,7 @@ module.exports = async (req, res, next) => {
                 }
                 next();
             }
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
             const imageResults = await sqlPromiseSimple(ambientSQL)
             if (imageResults && imageResults.rows.length > 0) {
@@ -1081,6 +1085,27 @@ module.exports = async (req, res, next) => {
                         user_image: req.session.user.avatar,
                         user_username: req.session.user.username
                     })
+                } else if ((page_uri === '/ads-micro' || page_uri === '/ads-widget')  && req.query.displayname) {
+                    const _configuration = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname]);
+                    if (_configuration.error) {
+                        printLine('SQL', `Error adding messages to display history - ${_configuration.error.sqlMessage}`, 'error')
+                    }
+                    res.locals.response = {
+                        url: req.url,
+                        search_prev: search_prev,
+                        randomImage: images,
+                        randomImagev2: imagesArray,
+                        configuration: (_configuration.rows.length > 0) ? _configuration.rows.pop() : undefined,
+                        server: req.session.server_list,
+                        download: req.session.discord.servers.download,
+                        manage_channels: req.session.discord.channels.manage,
+                        write_channels: req.session.discord.channels.write,
+                        discord: req.session.discord,
+                        user: req.session.user,
+                        device: ua,
+                        call_uri: page_uri,
+                    }
+                    next();
                 } else {
                     res.locals.response = {
                         url: req.url,
@@ -1267,6 +1292,7 @@ module.exports = async (req, res, next) => {
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
+                    let page_image
                     let full_title
                     let description
                     let resultsArray = []
@@ -1323,6 +1349,7 @@ module.exports = async (req, res, next) => {
                     } else if ((req.query.channel && req.query.channel !== 'random') || req.query.vchannel || req.query.folder) {
                         page_title = ''
                         full_title = ''
+
                         if (messages[0].class_name) {
                             page_title += `${messages[0].class_name} / `
                             full_title += `${messages[0].class_name} / `
@@ -1350,6 +1377,8 @@ module.exports = async (req, res, next) => {
                                     page_title += ' / ' + cname;
                                 }
                             }
+                        } else if (messages[0].channel_title) {
+                            full_title = page_title = `${messages[0].channel_title}`
                         } else if (messages[0].channel_nice && messages[0].channel_nice !== null) {
                             page_title += messages[0].channel_nice;
                             full_title += messages[0].channel_nice;
@@ -1390,6 +1419,9 @@ module.exports = async (req, res, next) => {
                     } else {
                         page_title = ''
                         full_title = ''
+                    }
+                    if (!multiChannel) {
+                        page_image = messages[0].channel_image
                     }
                     if (!(req.query.title && req.query.title !== '') || multiChannel) {
                         if (selectedServer === 1) {
@@ -1483,6 +1515,13 @@ module.exports = async (req, res, next) => {
                                             history_name = 'Desktop'
                                         } else {
                                             history_name = history_name.split('ADSMicro-').pop();
+                                        }
+                                    } else if (item.history_name.startsWith('ADSWidget-')) {
+                                        history_type = 'ads-widget'
+                                        if (item.history_name.includes('Untitled')) {
+                                            history_name = 'Widget'
+                                        } else {
+                                            history_name = history_name.split('ADSWidget-').pop();
                                         }
                                     } else if (item.history_name.startsWith('ADSEmbed-')) {
                                         history_type = 'ads-embed'
@@ -1825,6 +1864,13 @@ module.exports = async (req, res, next) => {
                                         } else {
                                             history_name = history_name.split('ADSMicro-').pop();
                                         }
+                                    } else if (item.history_name.startsWith('ADSWidget-')) {
+                                        history_type = 'ads-widget'
+                                        if (item.history_name.includes('Untitled')) {
+                                            history_name = 'Widget'
+                                        } else {
+                                            history_name = history_name.split('ADSWidget-').pop();
+                                        }
                                     } else if (item.history_name.startsWith('ADSEmbed-')) {
                                         history_type = 'ads-embed'
                                         if (item.history_name.includes('Untitled')) {
@@ -2149,6 +2195,7 @@ module.exports = async (req, res, next) => {
                         res.locals.response = {
                             title: page_title,
                             full_title: full_title,
+                            page_image,
                             description: description,
                             channel_url: discordPath,
                             results: resultsArray,
@@ -2179,6 +2226,7 @@ module.exports = async (req, res, next) => {
                         printLine('GetData', `"${req.session.discord.user.username}" => "${page_title}" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
                             title: page_title,
                             full_title: full_title,
+                            page_image,
                             description: description,
                             channel_url: discordPath,
                             num_images: resultsArray.length,

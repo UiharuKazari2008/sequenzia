@@ -160,7 +160,7 @@ block content
                                             a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`PlayVideo("${item.entities.preview}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         if (item.entities.download && item.entities.download.length > 5)
-                                            a.btn(title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
+                                            a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
                                         if (item.content.clean)
                                             if (item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1)

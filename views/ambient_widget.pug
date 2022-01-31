@@ -1,0 +1,139 @@
+html
+    head
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/font/weathericons-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='manifest' href='/static/manifest.json')
+        title= `${webconf.site_name}`
+        link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel="stylesheet", href="/css/custom.min.css")
+        link(rel="stylesheet", href="/css/ambient.min.css")
+        if (randomImagev2.length > 0)
+            - image = (imageData) ? imageData : (randomImagev2[0].fullImage) ? randomImagev2[0].fullImage : '/static/img/ambient-default.png';
+        else
+            - image = '/static/img/ambient-default.png'
+        style.
+            body {
+                background: rgb(62, 62, 62);
+                text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.45);
+            }
+            .background-image {
+                transform: none;
+            }
+            .image-src {
+                content: url('#{image}');
+            }
+            .image-style {
+                background-image: url('#{image}');
+            }
+
+            .blur-this {
+                filter: blur(5px); saturate(2) brightness(1.2) contrast(.6);
+                -webkit-filter: blur(5px); saturate(2) brightness(1.2) contrast(.6);
+            }
+        if (query && query.wtype === 'wide')
+            style.
+                .widget-box {
+                    display: block;
+                    width: 100%;
+                    height: 46vw;
+                }
+                .widget-data {
+                    position: fixed;
+                    top: 0;
+                }
+        else
+            style.
+                .widget-box {
+                    display: block;
+                    width: 100%;
+                    height: 105vw;
+                }
+                .widget-data {
+                    position: fixed;
+                    top: 0;
+                }
+        if (query && query.dmode === 'tablet-large')
+            style.
+                .corner-logo { opacity: .75; padding: 1rem 1.6rem; }
+                #logoStart > span { font-size: 4em; }
+                #dataContainer { font-size: 3rem; padding: 3.5rem 2rem;bottom: 0; }
+                #dataFav { font-size: 45px; }
+                #classDiv { padding-bottom: 2rem; }
+                #className { font-size: 4rem; }
+                #channelName { font-size: 3.5rem; }
+                #dateText { font-size: 3rem; }
+        else if (query && query.dmode === 'phone-large')
+            style.
+                .corner-logo { opacity: .75; padding: 0.6rem 1.2rem; }
+                #logoStart > span { font-size: 2em; }
+                #dataContainer { font-size: 1rem; padding: 0.8rem 1.2rem;bottom: 0; }
+                #dataFav { font-size: 24px; }
+                #classDiv { padding-bottom: .55rem; }
+                #className { font-size: 2rem; }
+                #channelName { font-size: 1.5rem; }
+                #dateText { font-size: 1rem; }
+        else
+            style.
+                .corner-logo { opacity: .75; padding: 1rem 1.6rem; }
+                #logoStart > span { font-size: 2em; }
+                #dataContainer { font-size: 2rem; padding: 2rem 1.6rem;bottom: 0; }
+                #dataFav { font-size: 32px; }
+                #classDiv { padding-bottom: 1rem; }
+                #className { font-size: 2.5rem; }
+                #channelName { font-size: 2rem; }
+                #dateText { font-size: 1.5rem; }
+    body
+        .widget-box
+            if (randomImagev2.length > 0)
+                // 0.9 > 1 < 1.2
+                if (!(configuration && configuration.displayAspectCorrect !== 1) && (((randomImagev2[0].sizeR > 0.9 && randomImagev2[0].sizeR < 1.6) && !(query && query.wtype === 'wide')) || ((query && query.wtype === 'wide') && randomImagev2[0].sizeR < 0.9)))
+                    if (!(query && query.wtype !== 'wide') && randomImagev2[0].sizeR > 1.45)
+                        style.
+                            .background-image {
+                                background-position: top!important;
+                            }
+                    #bg1.background-image.image-style
+                else
+                    #bg1.top.background-image.blur-this.image-style
+                    img#bg1port.back.portait-overlay.center-block.image-src
+            else
+                #bg1.background-image.image-style
+
+            // Info is disabled until i can figure out the oddities between iphone and ipad scaling being all over the spectrum
+        .widget-data.widget-box
+            .fixed-top.d-flex
+                if !(configuration && configuration.displayLogo !== 1)
+                    if (randomImagev2.length > 0)
+                        #logoStart.corner-logo
+                            span.sequenzia-logo.shadow-txt(style="position: relative;top: 0.2em; color: unset;") sequenzia
+                if !(configuration && configuration.displayImageInfo !== 1)
+                    div.ml-auto.corner-logo
+                        if (randomImagev2.length > 0 && randomImagev2[0].pinned)
+                            i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center(style='padding-top: .4rem;')
+            if !(configuration && configuration.displayImageInfo !== 1)
+                div
+                    #dataContainer(style='position: absolute; font-weight: 100;')
+                        if (randomImagev2.length > 0)
+                            div#classDiv
+                                span#className.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].className}
+                            div
+                                span#channelName.text-uppercase.text-ellipsis(style="font-weight: 900; line-height: 1rem;") #{randomImagev2[0].channelName}
+                            div
+                                span#dateText #{randomImagev2[0].date}
+                        else
+                            div
+                                span#dateText.text-uppercase.shadow-txt No Results

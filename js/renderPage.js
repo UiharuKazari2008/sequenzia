@@ -32,14 +32,15 @@ module.exports = async (req, res, next) => {
 
     let results = {
         ...res.locals.response,
-        webconfig: web
+        webconfig: web,
+        query: req.query
     };
     if (res.locals.imagedata) {
         Object.assign(results, { imageData: res.locals.imagedata });
     }
 
     if (req.query.responseType && req.query.responseType === 'podcast') {
-        const serverIcon = (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
+        const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
         const podcastResponse = new podcast({
             title: `${results.full_title}`,
             itunesSubtitle: web.site_name,
@@ -86,7 +87,7 @@ module.exports = async (req, res, next) => {
         res.header("Content-Type", "text/xml").send(podcastResponse.buildXml());
     } else if (req.query.responseType && ['xml', 'json', 'atom'].indexOf(req.query.responseType) !== -1 ) {
         if (req.session.discord.user.token_login && req.session.discord.user.token_static) {
-            const serverIcon = (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
+            const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
             const xmlResponse = new feed({
                 title: `${results.full_title}`,
                 description: (results.description) ? results.description : 'Sequenzia Response Feed',
@@ -182,6 +183,8 @@ module.exports = async (req, res, next) => {
             res.render('home_embedded', results);
         } else if (results.call_uri === '/ads-micro') {
             res.render('ambient_direct', results);
+        } else if (results.call_uri === '/ads-widget') {
+            res.render('ambient_widget', results);
         } else if (results.call_uri === '/ambient-refresh') {
             res.json(results);
         } else {

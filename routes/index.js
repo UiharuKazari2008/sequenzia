@@ -143,9 +143,8 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
-                //res.setHeader('Content-Type', 'application/octet-stream');
-                res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
 
+                printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
@@ -180,77 +179,125 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             }
                             return 0
                         })())
-                        res.setHeader('Content-Length', (requestedStartBytes - contentLength));
-                        res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
-                        res.setHeader('accept-ranges', 'bytes')
-                        res.setHeader('Transfer-Encoding', '')
 
-                        // Start Multiplexed Pipeline
-                        const passTrough = new stream.PassThrough();
-                        printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
-                        passTrough.pipe(res, {end: true})
-                        passTrough.on('end', () => {
-                            printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
-                        })
-                        passTrough.on('error', () => { res.status(500).end(); })
-                        // Pipeline Files to Save for future requests
-                        if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0) {
-                            printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');
-                            const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
-                            const fileCompleted = fs.createWriteStream(filePath,{flags: 'a', autoClose: true})
-                            passTrough.pipe(fileCompleted)
-                            fileCompleted.on('finish', function() {
-                                try {
-                                    printLine('StreamFile', `Sequential Parity Stream saved as file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB) for cache`, 'info');
-                                    sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 1 WHERE fileid = ?`, file.fileid);
-                                    if (global.spanned_cache_no_symlinks)
-                                        fs.symlinkSync(`.${file.fileid}`, path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `${file.eid}-${file.real_filename}`), "file")
-                                } catch (err) {
-                                    printLine('StreamFile', `Failed to link built Spanned file ${file.real_filename}! - ${(err.message) ? err.message : (err.sqlmessage) ? err.sqlmessage : ''}`, 'error');
-                                    console.error(err)
-                                }
-                                printLine('StreamFile', `Saved built Spanned file ${file.real_filename}! - ${(contentLength / 1024000).toFixed(2)} MB`, 'info');
+
+                        if ((!web.stream_max_file_size || (web.stream_max_file_size && (contentLength / 1024000).toFixed(2) <= web.stream_max_file_size)) && contentLength <= os.freemem() - (256 * 1024000)) {
+                            res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
+                            let fileIndex = 0;
+                            let startByteOffset = 0;
+                            if (requestedStartBytes !== 0) {
+                                fileIndex = closestIndex(requestedStartBytes, contentRanges)
+                                startByteOffset = (requestedStartBytes - partFilesizes[fileIndex])
+                            }
+                            const parityFiles = files.splice(fileIndex)
+
+                            res.setHeader('Content-Length', (requestedStartBytes - contentLength));
+                            res.setHeader('Content-Range', `bytes ${requestedStartBytes}-${contentLength}/${contentLength + 1}`);
+                            res.setHeader('accept-ranges', 'bytes')
+                            res.setHeader('Transfer-Encoding', '')
+                            // Start Multiplexed Pipeline
+                            let passTrough = new stream.PassThrough();
+                            printLine('StreamFile', `Sequential Parity Stream for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)...`, 'info');
+                            passTrough.pipe(res, {end: true})
+                            passTrough.on('end', () => {
+                                printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
+                                passTrough.close()
+                                passTrough = null;
                             })
-                            fileCompleted.on('error', function(err){
-                                console.log(err.stack);
-                            });
-                            passTrough.on('end', () => { printLine('StreamFile', `Sequential Stream cached successfully`, 'info'); })
-                            passTrough.on('error', () => { fs.unlinkSync(filePath); })
-                        }
+                            passTrough.on('error', () => { res.status(500).end(); })
+                            // Pipeline Files to Save for future requests
+                            if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0 && !(req.query.nocache && !req.query.nocache === 'true') && (!web.cache_max_file_size || (web.cache_max_file_size && (contentLength / 1024000).toFixed(2) <= web.cache_max_file_size))) {
+                                printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');
+                                const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
+                                const fileCompleted = fs.createWriteStream(filePath,{flags: 'a', autoClose: true})
+                                passTrough.pipe(fileCompleted)
+                                fileCompleted.on('finish', function() {
+                                    try {
+                                        printLine('StreamFile', `Sequential Parity Stream saved as file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB) for cache`, 'info');
+                                        sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 1 WHERE fileid = ?`, file.fileid);
+                                        if (global.spanned_cache_no_symlinks)
+                                            fs.symlinkSync(`.${file.fileid}`, path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `${file.eid}-${file.real_filename}`), "file")
+                                    } catch (err) {
+                                        printLine('StreamFile', `Failed to link built Spanned file ${file.real_filename}! - ${(err.message) ? err.message : (err.sqlmessage) ? err.sqlmessage : ''}`, 'error');
+                                        console.error(err)
+                                    }
+                                    printLine('StreamFile', `Saved built Spanned file ${file.real_filename}! - ${(contentLength / 1024000).toFixed(2)} MB`, 'info');
+                                })
+                                fileCompleted.on('error', function(err){
+                                    console.log(err.stack);
+                                });
+                                passTrough.on('end', () => { printLine('StreamFile', `Sequential Stream cached successfully`, 'info'); })
+                                passTrough.on('error', () => { fs.unlinkSync(filePath); })
+                            }
 
-                        let fileIndex = 0;
-                        let startByteOffset = 0;
-                        if (requestedStartBytes !== 0) {
-                            fileIndex = closestIndex(requestedStartBytes, contentRanges)
-                            startByteOffset = (requestedStartBytes - partFilesizes[fileIndex])
-                        }
-                        const parityFiles = files.splice(fileIndex)
-                        for (const i in parityFiles) {
-                            let requestedHeaders = {
-                                'cache-control': 'max-age=0',
-                                'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
-                            }
-                            if (i === 0 && startByteOffset > 0) {
-                                requestedHeaders['range'] = `bytes=${startByteOffset}-`
-                            }
-                            await new Promise((resolve) => {
-                                const request = https.get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
-                                    response.on('data', (data) => { passTrough.push(data) });
-                                    response.on('end', () => {
-                                        printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} - ${parityFiles[i]}`, 'info');
+                            for (const i in parityFiles) {
+                                let requestedHeaders = {
+                                    'cache-control': 'max-age=0',
+                                    'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                                }
+                                if (i === 0 && startByteOffset > 0) {
+                                    requestedHeaders['range'] = `bytes=${startByteOffset}-`
+                                }
+                                await new Promise((resolve) => {
+                                    const request = https.get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
+                                        response.on('data', (data) => { passTrough.push(data) });
+                                        response.on('end', () => {
+                                            printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} - ${parityFiles[i]}`, 'info');
+                                            resolve()
+                                        });
+                                    });
+                                    request.on('error', function(e){
+                                        res.end();
+                                        passTrough.destroy(e)
+                                        printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
                                         resolve()
                                     });
-                                });
-                                request.on('error', function(e){
-                                    res.status(500).send('Error during proxying request');
-                                    passTrough.destroy(e)
-                                    printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
-                                    resolve()
-                                });
-                            })
+                                })
+                            }
+                            printLine('StreamFile', `Parity Stream completed for ${file.real_filename}`, 'info');
+                            passTrough.close()
+                        } else if (global.fw_serve || global.spanned_cache) {
+                            printLine('StreamFile', `Stalled build for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB), due to file size being to large!`, 'info');
+                            const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
+                            const fileCompleted = fs.createWriteStream(filePath)
+
+                            for (const i in files) {
+                                let requestedHeaders = {
+                                    'cache-control': 'max-age=0',
+                                    'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                                }
+                                await new Promise((resolve) => {
+                                    const request = https.get(files[i], { headers: requestedHeaders }, async (response) => {
+                                        response.on('data', (data) => { fileCompleted.write(data) });
+                                        response.on('end', () => {
+                                            printLine('StreamFile', `Parity chunk complete for part #${parseInt(i) + 1}/${files.length} - ${files[i]}`, 'info');
+                                            resolve()
+                                        });
+                                    });
+                                    request.on('error', function(e){
+                                        res.end();
+                                        printLine('ProxyFile', `Failed to build file request - ${e.message}`, 'error');
+                                        fs.unlinkSync(filePath)
+                                    });
+                                })
+                            }
+
+                            fileCompleted.end()
+                            try {
+                                printLine('StreamFile', `Spanned file saved as ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB) for cache`, 'info');
+                                sqlPromiseSafe(`UPDATE kanmi_records SET filecached = 1 WHERE fileid = ?`, file.fileid);
+                                if (global.spanned_cache_no_symlinks)
+                                    fs.symlinkSync(`.${file.fileid}`, path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `${file.eid}-${file.real_filename}`), "file")
+                            } catch (err) {
+                                printLine('StreamFile', `Failed to link built Spanned file ${file.real_filename}! - ${(err.message) ? err.message : (err.sqlmessage) ? err.sqlmessage : ''}`, 'error');
+                                console.error(err)
+                            }
+                            printLine('StreamFile', `Saved built Spanned file ${file.real_filename}! - ${(contentLength / 1024000).toFixed(2)} MB`, 'info');
+
+                            res.sendFile(`.${file.fileid}`, { dotfiles : 'allow', root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache) })
+                        } else {
+                            res.status(500).send('Unable to stream file, out of memory slots or no place to build file');
                         }
-                        printLine('StreamFile', `Parity Stream completed for ${file.real_filename}`, 'info');
-                        passTrough.end()
                     } else {
                         res.status(500).send('Error preparing file for streaming');
                     }
@@ -263,6 +310,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
         } else {
             res.status(400).send('Invalid Request')
         }
+        return false
     } catch (err) {
         res.status(500).json({
             state: 'HALTED',
@@ -527,6 +575,50 @@ router.use('/content', downloadValidation, async function (req, res) {
         });
     }
 });
+router.use('/pipe', async function (req, res) {
+    try {
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        if (params.length === 3) {
+            const request = https.get('https://cdn.discordapp.com/attachments/' + params.join('/'), {
+                headers: {
+                    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                    'accept-language': 'en-US,en;q=0.9',
+                    'cache-control': 'max-age=0',
+                    'sec-ch-ua': '"Chromium";v="92", " Not A;Brand";v="99", "Microsoft Edge";v="92"',
+                    'sec-ch-ua-mobile': '?0',
+                    'sec-fetch-dest': 'document',
+                    'sec-fetch-mode': 'navigate',
+                    'sec-fetch-site': 'none',
+                    'sec-fetch-user': '?1',
+                    'upgrade-insecure-requests': '1',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                }
+            }, async function (response) {
+                const contentType = response.headers['content-type'];
+                if (contentType) {
+                    res.setHeader('Content-Type', contentType);
+                    response.pipe(res);
+                } else {
+                    res.status(500).end();
+                    printLine('ProxyFile', `Failed to stream file request - No Data`, 'error');
+                    console.log(response.rawHeaders)
+                }
+            });
+            request.on('error', function (e) {
+                res.status(500).send('Error during proxying request');
+                printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
+            });
+        } else {
+            res.status(400).send('Missing Parameters');
+            printLine('ProxyFile', `Invalid Request to proxy, missing a message ID`, 'error');
+        }
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+    }
+});
 
 // Ambient Mode
 router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
@@ -539,7 +631,7 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
         res.render('failed_device')
     }
 });
-router.get('/ads-micro', sessionVerification, generateConfiguration, getImages, downloadResults, renderResults);
+router.get(['/ads-micro', '/ads-widget'], sessionVerification, generateConfiguration, getImages, downloadResults, renderResults);
 router.get('/ambient-refresh', sessionVerification, getImages, renderResults);
 router.get('/ambient-remote-refresh', sessionVerification, generateConfiguration, getImages, renderResults);
 router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, downloadResults);

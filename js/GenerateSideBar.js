@@ -102,6 +102,8 @@ module.exports = async (req, res, next) => {
                             id: thisChannel.channelid,
                             eid: thisChannel.channel_eid,
                             name: channelName,
+                            image: (thisChannel.channel_image) ? (thisChannel.channel_image.startsWith('http')) ? thisChannel.channel_image : `https://media.discordapp.net/attachments/${thisChannel.channel_image}`: null,
+                            channel_title: thisChannel.channel_title,
                             short_name: thisChannel.channel_short_name.split('-').join(' '),
                             server: thisChannel.serverid,
                             server_short_name: thisChannel.server_short.toUpperCase(),

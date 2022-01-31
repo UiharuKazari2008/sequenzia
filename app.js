@@ -53,7 +53,7 @@ app.use('/actions', rateLimit({
     message:
         "Action API: Too many requests"
 }));
-app.use([ '/ads-micro', '/ambient-get'], rateLimit({
+app.use([ '/ads-micro', '/ambient-get', '/ads-widget'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
     max: 300,
     message:
@@ -71,6 +71,12 @@ app.use(['/gallery', '/files', '/cards', '/start', '/pages', '/artists', '/sideb
     message:
         "Sequenzia: Too many requests"
 }));
+app.use(['/pipe'], rateLimit({
+    windowMs: 60 * 1000, // 5 minutes
+    max: 1000,
+    message:
+        "Sequenzia Pipe: Too many requests"
+}));
 
 const sessionStore = new sessionSQL({
     host: config.sql_host,
@@ -82,8 +88,8 @@ const sessionStore = new sessionSQL({
     checkExpirationInterval: 900000,
     expiration: 604800000,
     createDatabaseTable: true,
-    connectionLimit: 10,
-    endConnectionOnClose: false,
+    connectionLimit: 1,
+    endConnectionOnClose: true,
     charset: 'utf8mb4_bin',
     schema: {
         tableName: 'sequenzia_sessions',

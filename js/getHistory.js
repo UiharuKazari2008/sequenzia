@@ -29,6 +29,7 @@ module.exports = async (req, res) => {
                         ...displayNames.filter(e => initList.indexOf(e) !== -1),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSEmbed-')),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && !e.startsWith('ADS')),
+                        ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSWidget-')),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSMobile-')),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSMicro-')),
                     ].forEach(dn => {
@@ -109,6 +110,7 @@ module.exports = async (req, res) => {
                                 ...displayNames.filter(e => e.name && initList.indexOf(e) !== -1).map(e => e.name),
                                 ...displayNames.filter(e => e.name && initList.indexOf(e) === -1 && e.name.startsWith('ADSEmbed-')).map(e => e.name),
                                 ...displayNames.filter(e => e.name && initList.indexOf(e) === -1 && !e.name.startsWith('ADS')).map(e => e.name),
+                                ...displayNames.filter(e => e.name && initList.indexOf(e) === -1 && e.name.startsWith('ADSWidget-')).map(e => e.name),
                                 ...displayNames.filter(e => e.name && initList.indexOf(e) === -1 && e.name.startsWith('ADSMobile-')).map(e => e.name),
                                 ...displayNames.filter(e => e.name && initList.indexOf(e) === -1 && e.name.startsWith('ADSMicro-')).map(e => e.name),
                             ]

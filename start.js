@@ -40,7 +40,7 @@
                 await Promise.all(fs.readdirSync(directory)
                     .filter(e => e.startsWith('.'))
                     .map(async (e) => {
-                        const fileData = (await sqlPromiseSafe(`SELECT eid, real_filename FROM kanmi_records WHERE fileid = ?`, [e.substring(1)])).rows
+                        const fileData = (await sqlPromiseSafe(`SELECT eid, real_filename FROM kanmi_records WHERE fileid = ?`, [e.substring(1)], true)).rows
                         if (fileData.length === 0 && ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (config.spanned_cache_max_age * 86400000)))) {
                             rimraf(path.join(directory, e), error => {})
                             if (fileData.length > 0) {

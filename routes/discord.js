@@ -444,7 +444,7 @@ async function roleGeneration(id, res, req, authToken) {
 
                 await generateViews(req, id);
                 if (req.session && req.session.login_code) {
-                    sqlPromiseSafe(`DELETE FROM sequenzia_login_codes WHERE code = ? AND session = ?`, [req.session.login_code, req.sessionID])
+                    sqlPromiseSafe(`DELETE FROM sequenzia_login_codes WHERE code = ? AND session = ?`, [req.session.login_code, req.sessionID], true)
                     req.session.login_code = undefined;
                 }
                 resolve(true)
@@ -470,6 +470,8 @@ async function generateViews(req, id) {
         'discord_servers.short_name AS server_short_name',
         'discord_servers.avatar AS server_avatar',
         'kanmi_channels.name AS channel_name',
+        'kanmi_channels.image_hash AS channel_image',
+        'kanmi_channels.nice_title AS channel_title',
         'kanmi_channels.short_name AS channel_short_name',
         'kanmi_channels.nice_name AS channel_nice',
         'kanmi_channels.description AS channel_description',
@@ -513,6 +515,8 @@ async function generateViews(req, id) {
         'sequenzia_class.icon AS class_icon',
         `kanmi_auth_${id}.channel_nsfw`,
         `kanmi_auth_${id}.channel_name`,
+        `kanmi_auth_${id}.channel_image`,
+        `kanmi_auth_${id}.channel_title`,
         `kanmi_auth_${id}.channel_short_name`,
         `kanmi_auth_${id}.channel_nice`,
         `kanmi_auth_${id}.channel_description`,

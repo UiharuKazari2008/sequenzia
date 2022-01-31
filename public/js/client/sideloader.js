@@ -57,6 +57,7 @@ let _lastUploadChannelSelection = '';
 let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
+let downloadURLs = [];
 
 function isTouchDevice(){
     return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
@@ -622,6 +623,103 @@ function feedContent(type) {
         }
     });
     return false;
+}
+let downloadAllController = null;
+function downloadSelectedItems() {
+    try {
+        pageType = $.history.url().split('?')[0].substring(1);
+        downloadAllController = {
+            ready: true,
+            urls: [],
+            about: new AbortController()
+        };
+        downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
+        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length} items!`
+        $('#downloadAll').modal('show');
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
+}
+function downloadAllItems() {
+    try {
+        pageType = $.history.url().split('?')[0].substring(1);
+        downloadAllController = {
+            ready: true,
+            urls: [],
+            about: new AbortController()
+        };
+        $('a[id^=request-download]').each(function () {
+            downloadAllController.urls.push($(this).attr('href'));
+        });
+        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length} items!`
+        $('#downloadAll').modal('show');
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
+}
+async function startDownloadingFiles() {
+    const downloadModel = document.getElementById('downloadAll')
+    console.log(`Downloading ${downloadAllController.urls.length} files`)
+
+    $('#downloadStartButton').addClass('hidden');
+    $('#downloadStopButton').removeClass('hidden');
+    for (let i in downloadAllController.urls) {
+        if (!downloadAllController.ready)
+            break;
+        const percentage = ((parseInt(i) + 1) / downloadAllController.urls.length) * 100
+        downloadModel.querySelector("#downloadProgressBar").style.width = `${percentage}%`;
+        downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`${percentage}%`);
+        downloadModel.querySelector("#downloadProgText").innerText = `Downloading "${downloadAllController.urls[i].split('/').pop()}"...`
+        await new Promise(ok => {
+            const url = (() => {
+                if (downloadAllController.urls[i].includes('discordapp.com/')) {
+                    return `${document.location.protocol}//${document.location.host}/pipe${downloadAllController.urls[i].split('attachments').pop()}`
+                } else if (downloadAllController.urls[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
+                    return downloadAllController.urls[i]
+                } else {
+                    return undefined
+                }
+            })()
+            if (url) {
+                axios({
+                    url,
+                    method: 'GET',
+                    signal: downloadAllController.about.signal,
+                    responseType: 'blob'
+                })
+                    .then((response) => {
+                        const url = window.URL
+                            .createObjectURL(new Blob([response.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', downloadAllController.urls[i].split('/').pop());
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        ok(true);
+                    })
+                    .catch(e => {
+                        downloadModel.querySelector("#downloadProgText").innerText = e.message
+                        console.error(e);
+                        setTimeout(() => {
+                            ok(false);
+                        }, 1500);
+                    })
+            } else {
+                console.error('Download not possible, not a valid url');
+                ok(false);
+            }
+        }).then(r => {
+            console.log('OK')
+        })
+    }
+    $('#downloadAll').modal('hide');
+    $('#downloadStartButton').removeClass('hidden');
+    $('#downloadStopButton').addClass('hidden');
+    downloadModel.querySelector("#downloadProgressBar").style.width = `0%`;
+    downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`0%`);
+    downloadModel.querySelector("#downloadProgText").innerText = `Ready`
+    disableGallerySelect();
 }
 
 function showAuthManager() {

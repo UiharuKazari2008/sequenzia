@@ -29,6 +29,10 @@ module.exports = async (req, res, next) => {
                 if (req.query.displaySlave) {
                     req.query.history = undefined;
                 }
+                if (req.query.wtype && req.query.wtype === 'wide' && req.query.forceWideWidget && req.query.forceWideWidget === 'true') {
+                    req.query.ratio = '0.1-.7';
+                }
+
                 printLine('ADSRequest', `Generated ADS Request Parameters => "${options.toString()}"`, 'debug')
             }
             next();

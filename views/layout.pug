@@ -357,16 +357,14 @@ html
                                                         i.fas.fa-cloud-download-alt.pr-2
                                                         | Download URL
                                 if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                    if (enableManageTools && results.length > 1)
+                                    if (results.length > 1)
                                         a.navbar-item.btn.btn-admin(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
                                             i.fas.fa-check-circle.align-middle
                                     div.dropdown
                                         a#toolsMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Tools" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="toolsMenu")
                                             i.fas.fa-toolbox.align-middle
                                         .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="toolsMenu")
-                                            if (enableManageTools && results.length > 1)
-                                                span.dropdown-header.d-xl-none.d-lg-none
-                                                    | Manager Tools
+                                            if (results.length > 1)
                                                 a.dropdown-item(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
                                                     i.fas.fa-check-circle.pr-2
                                                     | Select Items
@@ -433,6 +431,9 @@ html
                                                     | View as Cards
                                             span.dropdown-header
                                                 | Services
+                                            a.dropdown-item(title="Download all images" href='#_' onclick="downloadAllItems(); return false;" role='button')
+                                                i.fas.fa-download.pr-2
+                                                | Download
                                             a.dropdown-item(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
                                                 i.fas.fa-satellite-dish.pr-2
                                                 | RSS Feed
@@ -970,8 +971,11 @@ html
                                             a#deSelectAll2.dropdown-item(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;')
                                                 i.far.fa-check-square.align-middle.pr-2
                                                 | Deselect All
-                                        a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
-                                            i.fas.fa-paste.align-middle
+                                        if (enableManageTools)
+                                            a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
+                                                i.fas.fa-paste.align-middle
+                                        a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
+                                            i.fas.fa-download.align-middle
 
                             if (!masterCount)
                                 // Topbar Search
@@ -1653,6 +1657,28 @@ html
                                     for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
                                         .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
                                             img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                #downloadAll.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document')
+                        .modal-content
+                            .modal-header
+                                h5.modal-title
+                                    span Downloader
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                div.row.pl-3.pr-3
+                                    h4#downloadProgText.small.font-weight-bold Ready
+                                div.row.pl-3.pr-3
+                                    div.col.pl-1
+                                        .progress(style="height: 30px;")
+                                            #downloadProgressBar.progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
+                                    div
+                                        a#downloadStartButton.btn.btn-success(title="Start Downloading all items on this page" href='#_' onclick=`startDownloadingFiles(); return false;`, role='button')
+                                            i.fas.pr-2.fa-download
+                                            | Start
+                                        a#downloadStopButton.btn.btn-danger.hidden(title="Stop current and pending downloads" href='#_' onclick=`downloadAllController.ready = false; downloadAllController.about.about(); return false;`, role='button')
+                                            i.fas.pr-2.fa-ban
+                                            | Cancel
                 #feedModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document')
                         .modal-content
