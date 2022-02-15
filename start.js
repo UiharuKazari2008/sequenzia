@@ -27,7 +27,7 @@
         })
     }
 
-    if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
+    if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE == 0) {
         // Bootup Maintenance
         if (config.enable_maintenance) {
             await sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`);
