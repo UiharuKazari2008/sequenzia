@@ -41,7 +41,7 @@
                     .filter(e => e.startsWith('.'))
                     .map(async (e) => {
                         const fileData = (await sqlPromiseSafe(`SELECT eid, real_filename FROM kanmi_records WHERE fileid = ?`, [e.substring(1)], true)).rows
-                        if (fileData.length === 0 || ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (config.spanned_cache_max_age * 86400000)))) {
+                        if ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (config.spanned_cache_max_age * 86400000)) || fs.statSync(path.join(directory, e)).size < 10 ) {
                             rimraf(path.join(directory, e), error => {})
                             if (fileData.length > 0) {
                                 rimraf(path.join(directory, `${fileData[0].eid}-${fileData[0].real_filename}`), error => {
