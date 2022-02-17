@@ -386,6 +386,17 @@ module.exports = async (req, res, next) => {
                 } else {
                     return `kanmi_records.content_full LIKE '%${_id}%'`
                 }
+            } else if (i.startsWith('!text:')) {
+                _id = i.split('!text:')[1];
+                if (_id.startsWith('st:')) {
+                    _id = _id.split('st:')[1]
+                    return `kanmi_records.content_full NOT LIKE '${_id}%'`
+                } else if (_id.startsWith('ed:')) {
+                    _id = _id.split('ed:')[1]
+                    return `kanmi_records.content_full NOT LIKE '%${_id}'`
+                } else {
+                    return `kanmi_records.content_full NOT LIKE '%${_id}%'`
+                }
             } else if (i.startsWith('name:')) {
                 _id = i.split('name:')[1];
                 if (_id.startsWith('st:')) {
