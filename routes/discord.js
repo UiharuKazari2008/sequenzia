@@ -724,181 +724,175 @@ function sessionTransfer(req) {
     }
 }
 async function sessionVerification(req, res, next) {
-    const source = req.headers['user-agent']
-    const ua = (source) ? useragent.parse(source) : undefined
-    if (!ua || !source || (ua && ua.browser === 'PocketCasts')) {
-        res.status(401).send('This app is blocked from connecting')
-    } else {
-        if (req.session && req.session.loggedin === true && req.session.discord && req.session.discord.user.id) {
-            if (req.session.discord.channels.read && req.session.discord.channels.read.length > 0) {
-                next();
-            } else if (req.originalUrl && req.originalUrl === '/home') {
-                printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
-                res.render('home_lite', {});
-            } else {
-                printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
-                loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-            }
-        } else if (req.query && req.query.key) {
-            printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
-            sqlSafe(`SELECT *
+    if (req.session && req.session.loggedin === true && req.session.discord && req.session.discord.user.id) {
+        if (req.session.discord.channels.read && req.session.discord.channels.read.length > 0) {
+            next();
+        } else if (req.originalUrl && req.originalUrl === '/home') {
+            printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+            res.render('home_lite', {});
+        } else {
+            printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+            loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+        }
+    } else if (req.query && req.query.key) {
+        printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
                      FROM discord_users
                      WHERE (token_static = ? AND token_static IS NOT NULL AND token IS NOT NULL)
                      LIMIT 1`, [(typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()], async (err, user) => {
-                if (err) {
-                    printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
-                    }
-                } else if (user.length === 0 || !user) {
-                    printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                    }
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
                 } else {
-                    await roleGeneration(user[0].id, res, req)
-                        .then((config) => {
-                            if (config) {
-                                if (req.session.discord && req.session.discord.user.known) {
-                                    req.session.user = {
-                                        id: req.session.discord.user.id,
-                                        source: 900,
-                                        username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
-                                    }
-                                    req.session.loggedin = true;
-                                    next();
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: 900,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                                }
+                                req.session.loggedin = true;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed using Static Login Token, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
                                 } else {
-                                    printLine('PassportCheck', `Session Launch Failed using Static Login Token, redirecting to login`, 'warn');
-                                    if (req.originalUrl && req.originalUrl === '/home') {
-                                        res.render('home_lite', {});
-                                    } else {
-                                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                                    }
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
                                 }
                             }
-                        })
-                }
-            })
-        } else if (req.query && req.query.blind_key) {
-            printLine('PassportCheck', `Session does not exist but there is a blind key, attempting to silently re-login`, 'warn');
-            sqlSafe(`SELECT *
+                        }
+                    })
+            }
+        })
+    } else if (req.query && req.query.blind_key) {
+        printLine('PassportCheck', `Session does not exist but there is a blind key, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
                      FROM discord_users
                      WHERE (blind_token = ? AND blind_token IS NOT NULL AND token IS NOT NULL AND token_static IS NOT NULL)
                      LIMIT 1`, [(typeof req.query.blind_key === 'string') ? req.query.blind_key : req.query.blind_key.pop()], async (err, user) => {
-                if (err) {
-                    printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
-                    }
-                } else if (user.length === 0 || !user) {
-                    printLine('PassportCheck', `Invalid Blind Token, redirecting to login`, 'warn');
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                    }
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
                 } else {
-                    await roleGeneration(user[0].id, res, req)
-                        .then((config) => {
-                            if (config) {
-                                if (req.session.discord && req.session.discord.user.known) {
-                                    req.session.user = {
-                                        id: req.session.discord.user.id,
-                                        source: 900,
-                                        username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
-                                    }
-                                    req.session.loggedin = true;
-                                    next();
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Blind Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: 900,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                                }
+                                req.session.loggedin = true;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
                                 } else {
-                                    printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
-                                    if (req.originalUrl && req.originalUrl === '/home') {
-                                        res.render('home_lite', {});
-                                    } else {
-                                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                                    }
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
                                 }
                             }
-                        })
-                }
-            })
-        } else if (req.signedCookies && req.signedCookies.user_token && req.signedCookies.user_token.length > 64) {
-            printLine('PassportCheck', `Session does not exist but there is a cookie, attempting to silently re-login`, 'warn');
-            sqlSafe(`SELECT *
+                        }
+                    })
+            }
+        })
+    } else if (req.signedCookies && req.signedCookies.user_token && req.signedCookies.user_token.length > 64) {
+        printLine('PassportCheck', `Session does not exist but there is a cookie, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
                      FROM discord_users
                      WHERE (token = ? AND token IS NOT NULL)
                      LIMIT 1`, [req.signedCookies.user_token], async (err, user) => {
-                if (err) {
-                    printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
-                    }
-                } else if (user.length === 0 || !user) {
-                    printLine('PassportCheck', `Invalid Session Token, redirecting to login`, 'warn');
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res);
-                    }
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
                 } else {
-                    await roleGeneration(user[0].id, res, req)
-                        .then((config) => {
-                            if (config) {
-                                if (req.session.discord && req.session.discord.user.known) {
-                                    let _source = 100;
-                                    if (req.session.user && req.session.user.source || req.session.user && req.session.user.source === 0) {
-                                        _source = req.session.user.source
-                                    }
-                                    req.session.user = {
-                                        id: req.session.discord.user.id,
-                                        source: _source,
-                                        username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
-                                    }
-                                    req.session.loggedin = true;
-                                    next();
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Session Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res);
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                let _source = 100;
+                                if (req.session.user && req.session.user.source || req.session.user && req.session.user.source === 0) {
+                                    _source = req.session.user.source
+                                }
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: _source,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                                }
+                                req.session.loggedin = true;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
                                 } else {
-                                    printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
-                                    if (req.originalUrl && req.originalUrl === '/home') {
-                                        res.render('home_lite', {});
-                                    } else {
-                                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                                    }
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
                                 }
                             }
-                        })
-                }
-            })
-        } else {
-            if (req.originalUrl && req.originalUrl === '/home') {
-                res.render('home_lite', {});
-            } else if (req.originalUrl && req.originalUrl !== '' && req.originalUrl.includes('ambient')) {
-                if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
-                    sessionTransfer(req);
-                }
-                res.cookie('device', 'nonInteractive', {
-                    maxAge: 3155692600,
-                    httpOnly: true,
-                    signed: true
-                });
-                printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
-                res.redirect(307, '/device-login');
-            } else {
-                if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
-                    sessionTransfer(req);
-                }
-                printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
-                loginPage(req, res);
+                        }
+                    })
             }
+        })
+    } else {
+        if (req.originalUrl && req.originalUrl === '/home') {
+            res.render('home_lite', {});
+        } else if (req.originalUrl && req.originalUrl !== '' && req.originalUrl.includes('ambient')) {
+            if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
+                sessionTransfer(req);
+            }
+            res.cookie('device', 'nonInteractive', {
+                maxAge: 3155692600,
+                httpOnly: true,
+                signed: true
+            });
+            printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
+            res.redirect(307, '/device-login');
+        } else {
+            if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
+                sessionTransfer(req);
+            }
+            printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
+            loginPage(req, res);
         }
     }
 }
