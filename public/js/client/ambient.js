@@ -1,3 +1,12 @@
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/js/serviceWorker.js')
+            .then(reg => console.log('Service Worker: Registered'))
+            .catch(err => console.log(`Service Worker: Error: ${err}`));
+    });
+}
+
 let config = new URLSearchParams(location.search);
 config.delete('history');
 config.set('json', 'true');

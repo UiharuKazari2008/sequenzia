@@ -501,6 +501,15 @@ function deleteAlbum(aid) {
 }
 let bypassSidebarRefresh=false;
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/js/serviceWorker.js')
+            .then(reg => console.log('Service Worker: Registered'))
+            .catch(err => console.log(`Service Worker: Error: ${err}`));
+    });
+}
+
 $(document).ready(function () {
     $('.popover').popover('hide');
     $('[data-toggle="popover"]').popover()
