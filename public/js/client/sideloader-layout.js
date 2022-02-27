@@ -89,7 +89,7 @@ function params(_removeParams, _addParams, _url, keep) {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
-            .register('/js/serviceWorker.js')
+            .register('/serviceWorker.js')
             .then(reg => console.log('Service Worker: Registered'))
             .catch(err => console.log(`Service Worker: Error: ${err}`));
     });
