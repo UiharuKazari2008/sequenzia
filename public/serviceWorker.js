@@ -25,7 +25,7 @@ self.addEventListener('activate', e => {
 
 // Call Fetch Event
 self.addEventListener('fetch', e => {
-    console.log('Service Worker: Fetching');
+    console.log(`Service Worker: Fetching "${e.request.path}"`);
     e.respondWith(
         fetch(e.request)
             .then(res => {
