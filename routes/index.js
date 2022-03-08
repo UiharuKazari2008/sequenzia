@@ -7,6 +7,7 @@ const getIndex = require('../js/getIndex');
 const renderResults = require('../js/renderPage');
 const downloadResults = require('../js/downloadFile');
 const renderIndex = require('../js/renderIndex');
+const renderSidebar = require('../js/renderSidebar');
 const getHistory = require('../js/getHistory');
 const getAlbums = require('../js/getAlbums');
 const discordActions = require('../js/discordActions');
@@ -49,7 +50,7 @@ router.get('/juneOS', sessionVerification, ajaxChecker)
 router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
 router.get('/', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
-router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar);
+router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
 
 router.get('/lite', sessionVerification, (req,res) => {
