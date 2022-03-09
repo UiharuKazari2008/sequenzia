@@ -1168,7 +1168,7 @@ module.exports = async (req, res, next) => {
                                 printLine('GetData', `Updated Image "${image.id}" to Display History for "${_dn}"`, 'debug')
                             }
                         } else {
-                            const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET eid = ?, name = ?, screen = ?, user = ?, date = ?`, [image.eid, _dn, screenID, req.session.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
+                            const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET ${(req.query.displayname.includes('WebExtension') ? 'messageid' : 'eid')} = ?, name = ?, screen = ?, user = ?, date = ?`, [image.eid, _dn, screenID, req.session.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
                             if (updateHistoryItem.error) {
                                 printLine('SQL', `Error adding messages to display history - ${updateHistoryItem.error.sqlMessage}`, 'error', err)
                             } else {
