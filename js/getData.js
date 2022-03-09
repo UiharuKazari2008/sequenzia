@@ -1024,7 +1024,7 @@ module.exports = async (req, res, next) => {
                             console.error(err);
                             return null;
                         })*/
-                    images.push([ranImage, ranfullImage, contentText, messageDate, [ image.class_name, `${channelName}`, `${image.server_short_name}` ], image.id.substring(0,7), imagelink, imageFav, image.id, ranfullImagePerma, [ image.sizeH ,image.sizeW ,image.sizeR ], [ image.colorR, image.colorG, image.colorB ]]);
+                    images.push([ranImage, ranfullImage, contentText, messageDate, [ image.class_name, `${channelName}`, `${image.server_short_name}` ], image.id.substring(0,7), imagelink, imageFav, image.eid, ranfullImagePerma, [ image.sizeH ,image.sizeW ,image.sizeR ], [ image.colorR, image.colorG, image.colorB ]]);
                     imagesArray.push({
                         id: image.id,
                         eid: image.eid,
