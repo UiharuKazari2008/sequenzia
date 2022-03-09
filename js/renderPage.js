@@ -74,11 +74,11 @@ module.exports = async (req, res, next) => {
                 }
                 if (item.entities.download && item.entities.download.length > 5) {
                     podcastItem.enclosure = {
-                        url: `${item.entities.download}?blind_key=${req.session.discord.user.token_login}`
+                        url: `${item.entities.download}?key=${req.session.discord.user.token_static}`
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${item.entities.filename}?blind_key=${req.session.discord.user.token_login}`
+                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${item.entities.filename}?key=${req.session.discord.user.token_static}`
                     }
                 }
                 podcastResponse.addItem(podcastItem)
@@ -128,12 +128,12 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.entities.preview || item.entities.full) {
                         if (results.call_uri === '/gallery') {
-                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`}'/>`
-                            xmlItem.image = `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`
+                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}?key=${req.session.discord.user.token_static}`}'/>`
+                            xmlItem.image = `${item.entities.full}?key=${req.session.discord.user.token_static}`
                         } else {
-                            xmlItem.content = `<a href='${item.entities.download}?blind_key=${req.session.discord.user.token_login}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
+                            xmlItem.content = `<a href='${item.entities.download}?key=${req.session.discord.user.token_static}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
                             xmlItem.enclosure = {
-                                url: `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`
+                                url: `${item.entities.full}?key=${req.session.discord.user.token_static}`
                             }
                         }
                     }
