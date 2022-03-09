@@ -237,7 +237,7 @@ module.exports = async (req, res) => {
                     res.status(200).send('OK');
                 }
             } else {
-                const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET ${(req.query.displayname.includes('WebExtension') ? 'messageid' : 'eid')} = ?, name = ?, screen = ?, user = ?, date = ?`, [req.query.imageid, req.query.displayname, (req.query.screen) ? parseInt(req.query.screen) : 0, req.session.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
+                const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET eid = ?, name = ?, screen = ?, user = ?, date = ?`, [req.query.imageid, req.query.displayname, (req.query.screen) ? parseInt(req.query.screen) : 0, req.session.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
                 if (updateHistoryItem.error) {
                     printLine('SQL', `Error adding messages to display history - ${updateHistoryItem.error.sqlMessage}`, 'error', updateHistoryItem.error)
                     res.status(500).send('FAULT');
