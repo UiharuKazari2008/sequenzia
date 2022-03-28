@@ -1664,7 +1664,7 @@ module.exports = async (req, res, next) => {
                                         fullimage = (fullimage) ? fullimage : `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.fileid) {
-                                        downloadimage = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
+                                        downloadimage = `${web.base_url}stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
@@ -2036,7 +2036,7 @@ module.exports = async (req, res, next) => {
                                     }
                                     let inprogress = false
                                     if (item.fileid !== null) {
-                                        downloadurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
+                                        downloadurl = `${web.base_url}stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
@@ -2114,7 +2114,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
                                     if (item.fileid !== null) {
-                                        fullurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
+                                        fullurl = `${web.base_url}stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
