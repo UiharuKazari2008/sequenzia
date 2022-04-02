@@ -39,7 +39,7 @@ module.exports = async (req, res, next) => {
         } else {
             next();
         }
-    } else if (req.path === '/') {
+    } else if (req.path === '/' || req.path === '/homeImage') {
         const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [req.session.discord.user.id, "Homepage"]);
         if (displayConfig && displayConfig.rows.length > 0) {
             const thisConfig = displayConfig.rows[0];
