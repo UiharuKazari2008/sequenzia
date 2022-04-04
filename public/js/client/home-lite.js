@@ -265,7 +265,7 @@ function getRandomImage() {
     //try {
         $.ajax({
             async: true,
-            url: location.href,
+            url: '/homeImage',
             type: "GET", data: '',
             processData: false,
             contentType: false,

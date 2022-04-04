@@ -48,7 +48,7 @@ const closestIndex = (num, arr) => {
 router.get('/juneOS', sessionVerification, ajaxChecker)
 
 router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
-router.get('/', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
+router.get(['/', '/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
@@ -149,9 +149,14 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
-                    if (contentLength)
-                        res.setHeader('Content-Length', contentLength);
-                    res.sendFile(`.${file.fileid}`, { dotfiles : 'allow', root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache) })
+                    /*if (contentLength)
+                        res.setHeader('Content-Length', contentLength);*/
+                    res.sendFile(`.${file.fileid}`, {
+                        dotfiles : 'allow',
+                        root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache),
+                        headers: {
+                            'Content-Disposition': `attachment; filename="${file.real_filename}"`
+                        } })
                 } else if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     printLine('StreamFile', `Preparing to stream spanned file request for ${file.real_filename}`, 'info');
                     let contentLength = 0;

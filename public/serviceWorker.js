@@ -37,6 +37,10 @@ self.addEventListener('fetch', e => {
                     //console.log(resClone)
                     console.log(e.request.url)
                     cache.put(e.request, resClone);
+                    /*if (!e.request.url.startsWith("/gallery" || "/homeImage" || "/files" || "/cards")) {
+                        console.log(e.request.url)
+                        cache.put(e.request, resClone);
+                    }*/
                 });
                 return res;
             })

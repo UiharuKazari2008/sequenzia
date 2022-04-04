@@ -78,7 +78,7 @@ module.exports = async (req, res, next) => {
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${item.entities.filename}?key=${req.session.discord.user.token_static}`
+                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}?key=${req.session.discord.user.token_static}`
                     }
                 }
                 podcastResponse.addItem(podcastItem)
@@ -177,7 +177,7 @@ module.exports = async (req, res, next) => {
             res.render('file_list', results);
         } else if (results.call_uri === '/cards') {
             res.render('card_list', results);
-        } else if (results.call_uri === '/home' || results.call_uri === '/') {
+        } else if (results.call_uri === '/home' || results.call_uri === '/homeImage' || results.call_uri === '/') {
             res.json(results)
         } else if (results.call_uri === '/start') {
             res.render('home_embedded', results);
