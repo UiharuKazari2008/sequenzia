@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express()
+const app = module.exports = express()
 const routes = require('./routes/index');
 const { router: routesDiscord, sessionVerification, loginPage } = require('./routes/discord');
 const { sqlPromiseSafe } = require('./js/sqlClient');
