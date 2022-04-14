@@ -19,7 +19,6 @@ const web = require('./web.config.json')
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
-const {sqlPromiseSimple} = require("../js/sqlClient");
 let activeRequests = new Map();
 let fileIDCache = new Map();
 
