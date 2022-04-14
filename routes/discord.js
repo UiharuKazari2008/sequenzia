@@ -341,32 +341,32 @@ router.post('/persistent/settings', persistSettingsManager);
 
 async function roleGeneration(id, res, req, authToken) {
     return new Promise(async function (resolve) {
-        const users = app.get('users').filter(user => user.id === id);
-        const extraLinks = app.get('extraLinks')
-        const userPermissions = app.get('userPermissions').filter(user => user.userid === id);
-        const allChannels = app.get('allChannels')
-        const disabledChannels = app.get('disabledChannels').filter(user => user.user === id);
-        const allServers = app.get('allServers')
+        const users = app.get('users').rows.filter(user => user.id === id);
+        const extraLinks = app.get('extraLinks').rows
+        const userPermissions = app.get('userPermissions').rows.filter(user => user.userid === id);
+        const allChannels = app.get('allChannels').rows
+        const disabledChannels = app.get('disabledChannels').rows.filter(user => user.user === id);
+        const allServers = app.get('allServers').rows
 
-        const readPermissions = userPermissions.rows.filter(e => e.type === 1).map(e => e.role);
-        const writePermissions = userPermissions.rows.filter(e => e.type === 2).map(e => e.role);
-        const managePermissions = userPermissions.rows.filter(e => e.type === 3).map(e => e.role);
-        const specialPermissions = userPermissions.rows.filter(e => e.type === 4).map(e => e.role);
+        const readPermissions = userPermissions.filter(e => e.type === 1).map(e => e.role);
+        const writePermissions = userPermissions.filter(e => e.type === 2).map(e => e.role);
+        const managePermissions = userPermissions.filter(e => e.type === 3).map(e => e.role);
+        const specialPermissions = userPermissions.filter(e => e.type === 4).map(e => e.role);
 
-        if (disabledChannels && disabledChannels.rows) {
-            req.session.disabled_channels = disabledChannels.rows.map(e => e.cid);
+        if (disabledChannels) {
+            req.session.disabled_channels = disabledChannels.map(e => e.cid);
         } else {
             req.session.disabled_channels = [];
         }
 
-        if (allChannels && allChannels.rows.length > 0 ) {
-            if (users && users.rows.length > 0) {
+        if (allChannels.length > 0 ) {
+            if (users.length > 0) {
                 let _roles_channels = [];
                 let _write_channels = [];
                 let _manage_channels = [];
                 let _server_download = [];
                 let _server_list = [];
-                await allChannels.rows.forEach(u => {
+                await allChannels.forEach(u => {
                     if (readPermissions.indexOf(u.role) !== -1 || specialPermissions.indexOf(u.role) !== -1) {
                         _roles_channels.push(u.channelid)
                     }
@@ -385,8 +385,8 @@ async function roleGeneration(id, res, req, authToken) {
                 })
                 printLine("AuthorizationGenerator", `User ${id} was found and role session data is loaded into memory!`, 'info');
 
-                if (allServers && allServers.rows.length > 0) {
-                    allServers.rows.forEach(e => {
+                if (allServers.length > 0) {
+                    allServers.forEach(e => {
                         _server_list.push({
                             serverid: e.serverid,
                             name: e.name,
@@ -405,7 +405,7 @@ async function roleGeneration(id, res, req, authToken) {
                     _authToken = req.session.discord.user.auth_token;
                 }
                 let homeLinks = [];
-                await extraLinks.rows.forEach(link => {
+                await extraLinks.forEach(link => {
                     homeLinks.push({
                         title: link.name,
                         icon: (link.icon !== url) ? link.icon : undefined,
@@ -416,15 +416,15 @@ async function roleGeneration(id, res, req, authToken) {
                 req.session.discord = {
                     user: {
                         id,
-                        name: users.rows[0].nice_name,
-                        username: users.rows[0].username,
-                        avatar: users.rows[0].avatar,
+                        name: users[0].nice_name,
+                        username: users[0].username,
+                        avatar: users[0].avatar,
                         known: true,
                         auth_token: _authToken,
-                        token: users.rows[0].token,
-                        token_login: users.rows[0].blind_token,
-                        token_static: users.rows[0].token_static,
-                        token_rotation: users.rows[0].token_expires
+                        token: users[0].token,
+                        token_login: users[0].blind_token,
+                        token_static: users[0].token_static,
+                        token_rotation: users[0].token_expires
                     },
                     channels: {
                         read: _roles_channels,
@@ -437,8 +437,8 @@ async function roleGeneration(id, res, req, authToken) {
                     },
                     links: homeLinks
                 }
-                res.cookie('user_token', users.rows[0].token, {
-                    maxAge: (new Date(users.rows[0].token_expires).getTime() - new Date(Date.now()).getTime()).toFixed(0),
+                res.cookie('user_token', users[0].token, {
+                    maxAge: (new Date(users[0].token_expires).getTime() - new Date(Date.now()).getTime()).toFixed(0),
                     httpOnly: true, // The cookie only accessible by the web server
                     signed: true, // Indicates if the cookie should be signed
                 })
@@ -737,7 +737,7 @@ async function sessionVerification(req, res, next) {
         }
     } else if (req.query && req.query.key) {
         printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
-        const user = app.get('users').filter(e => e.token && e.token_static && e.token_static === ((typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()));
+        const user = app.get('users').rows.filter(e => e.token && e.token_static && e.token_static === ((typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()));
         if (user.length === 0 || !user) {
             printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
             if (req.originalUrl && req.originalUrl === '/home') {
