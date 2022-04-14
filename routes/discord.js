@@ -340,12 +340,12 @@ router.post('/persistent/settings', persistSettingsManager);
 
 async function roleGeneration(id, res, req, authToken) {
     return new Promise(async function (resolve) {
-        const users = req.app.locals.databaseCache.get('users').filter(user => user.id === id);
-        const extraLinks = req.app.locals.databaseCache.get('extraLinks')
-        const userPermissions = req.app.locals.databaseCache.get('userPermissions').filter(user => user.userid === id);
-        const allChannels = req.app.locals.databaseCache.get('allChannels')
-        const disabledChannels = req.app.locals.databaseCache.get('disabledChannels').filter(user => user.user === id);
-        const allServers = req.app.locals.databaseCache.get('allServers')
+        const users = req.app.get('users').filter(user => user.id === id);
+        const extraLinks = req.app.get('extraLinks')
+        const userPermissions = req.app.get('userPermissions').filter(user => user.userid === id);
+        const allChannels = req.app.get('allChannels')
+        const disabledChannels = req.app.get('disabledChannels').filter(user => user.user === id);
+        const allServers = req.app.get('allServers')
 
         const readPermissions = userPermissions.rows.filter(e => e.type === 1).map(e => e.role);
         const writePermissions = userPermissions.rows.filter(e => e.type === 2).map(e => e.role);
@@ -736,7 +736,7 @@ async function sessionVerification(req, res, next) {
         }
     } else if (req.query && req.query.key) {
         printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
-        const user = req.app.locals.databaseCache.get('users').filter(e => e.token && e.token_static && e.token_static === ((typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()));
+        const user = req.app.get('users').filter(e => e.token && e.token_static && e.token_static === ((typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()));
         if (user.length === 0 || !user) {
             printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
             if (req.originalUrl && req.originalUrl === '/home') {

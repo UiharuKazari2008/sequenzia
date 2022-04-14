@@ -184,12 +184,12 @@ async function cacheDatabase() {
     const disabledChannels = await sqlPromiseSafe(`SELECT DISTINCT cid FROM sequenzia_hidden_channels`)
     const allServers = await sqlPromiseSafe(`SELECT DISTINCT * FROM discord_servers ORDER BY position`);
 
-    app.locals.databaseCache.set('users', users)
-    app.locals.databaseCache.set('extraLinks', extraLinks)
-    app.locals.databaseCache.set('userPermissions', userPermissions)
-    app.locals.databaseCache.set('allChannels', allChannels)
-    app.locals.databaseCache.set('disabledChannels', disabledChannels)
-    app.locals.databaseCache.set('allServers', allServers)
+    app.set('users', users)
+    app.set('extraLinks', extraLinks)
+    app.set('userPermissions', userPermissions)
+    app.set('allChannels', allChannels)
+    app.set('disabledChannels', disabledChannels)
+    app.set('allServers', allServers)
 }
 setInterval(cacheDatabase, 60000)
 cacheDatabase();
