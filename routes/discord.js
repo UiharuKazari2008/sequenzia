@@ -923,8 +923,9 @@ function manageValidation(req, res, next) {
     }
 }
 function readValidation(req, res, next) {
-    console.log(req.query)
-    if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
+    if (config.bypass_cds_check) {
+        next()
+    } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
         if ( req.session.discord.channels.read && req.session.discord.channels.read.length > 0 ) {
             next();
         } else {
@@ -977,7 +978,9 @@ function readValidation(req, res, next) {
     }
 }
 function downloadValidation(req, res, next) {
-    if (req.originalUrl && (req.originalUrl.includes('/content/link/') || req.originalUrl.includes('/content/json/'))) {
+    if (config.bypass_cds_check) {
+        next()
+    } else if (req.originalUrl && (req.originalUrl.includes('/content/link/') || req.originalUrl.includes('/content/json/'))) {
         printLine('PassportCheck-Proxy', `Request Bypassed for CDS Permalink URL`, 'debug', req.body);
         next();
     } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
