@@ -135,7 +135,13 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length > 0) {
-            const results = await sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+            const results = await (() => {
+                if (config.bypass_cds_check) {
+                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
+                } else {
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                }
+            })()
             if (results.error) {
                 res.status(500)
                 console.error(results.error)
