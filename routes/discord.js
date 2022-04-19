@@ -1,4 +1,5 @@
-const config = require('../host.config.json')
+const config = require('../config.json')
+const host = require('../host.config.json')
 const webconfig = require('../web.config.json')
 const express = require('express');
 const router = express.Router();
@@ -9,7 +10,7 @@ const useragent = require('express-useragent');
 const qrcode = require("qrcode");
 const { printLine } = require("../js/logSystem");
 const { catchAsync } = require('../utils');
-const creds = btoa(`${config.discord_id}:${config.discord_secret}`);
+const creds = btoa(`${host.discord_id}:${host.discord_secret}`);
 const { sqlSafe, sqlSimple, sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const moment = require('moment');
 const persistSettingsManager = require('../js/persistSettingsManager');
@@ -33,7 +34,7 @@ setInterval(cleanDeadCodes, 60 * 1000);
 router.get('/login', (req, res) => {
     try {
         printLine('SessionInit', `Login Attempt!`, 'debug');
-        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${config.discord_id}&scope=identify+guilds&response_type=code&redirect_uri=${encodeURIComponent(`${config.discord_redirect_base}/discord/callback`)}`);
+        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${host.discord_id}&scope=identify+guilds&response_type=code&redirect_uri=${encodeURIComponent(`${host.discord_redirect_base}/discord/callback`)}`);
     } catch (err) {
         res.status(500).json({
             state: 'HALTED',
@@ -56,11 +57,11 @@ router.get('/destroy', catchAsync(async (req, res) => {
                             'Content-Type': 'application/x-www-form-urlencoded'
                         },
                         body: _encode({
-                            'client_id': config.discord_id,
-                            'client_secret': config.discord_secret,
+                            'client_id': host.discord_id,
+                            'client_secret': host.discord_secret,
                             'grant_type': 'authorization_code',
                             'token': token,
-                            'redirect_uri': `${config.discord_redirect_base}/discord/callback`,
+                            'redirect_uri': `${host.discord_redirect_base}/discord/callback`,
                             'scope': 'identify guilds'
                         })
                     });
@@ -96,11 +97,11 @@ router.get('/callback', catchAsync(async (req, res) => {
                         Authorization: `Basic ${creds}`,
                         'Content-Type': 'application/x-www-form-urlencoded'},
                     body: _encode({
-                        'client_id': config.discord_id,
-                        'client_secret': config.discord_secret,
+                        'client_id': host.discord_id,
+                        'client_secret': host.discord_secret,
                         'grant_type': 'authorization_code',
                         'code': code,
-                        'redirect_uri': `${config.discord_redirect_base}/discord/callback`,
+                        'redirect_uri': `${host.discord_redirect_base}/discord/callback`,
                         'scope': 'identify guilds'
                     })
                 });
@@ -634,11 +635,11 @@ async function loginPage(req, res, obj) {
     if (obj) {
         _obj = obj;
     }
-    _obj.enableTelegram = (config.telegram_secret);
+    _obj.enableTelegram = (host.telegram_secret);
     _obj.joinLink = webconfig.discord_join_link;
-    if (config.telegram_callback_url && config.telegram_secret && config.telegram_bot_name) {
-        _obj.telegramCallback = config.telegram_callback_url;
-        _obj.telegramName = config.telegram_bot_name;
+    if (host.telegram_callback_url && host.telegram_secret && host.telegram_bot_name) {
+        _obj.telegramCallback = host.telegram_callback_url;
+        _obj.telegramName = host.telegram_bot_name;
     }
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
@@ -725,8 +726,8 @@ function sessionTransfer(req) {
     }
 }
 async function sessionVerification(req, res, next) {
-    console.log(req.originalUrl)
     if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content'))) {
+        printLine('PassportCheck', `CDS Checks are bypassed`, 'warn');
         next()
     } else if (req.session && req.session.loggedin === true && req.session.discord && req.session.discord.user.id) {
         if (req.session.discord.channels.read && req.session.discord.channels.read.length > 0) {
@@ -927,6 +928,7 @@ function manageValidation(req, res, next) {
 }
 function readValidation(req, res, next) {
     if (config.bypass_cds_check) {
+        printLine('PassportCheck-Read', `CDS Checks are bypassed`, 'warn');
         next()
     } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
         if ( req.session.discord.channels.read && req.session.discord.channels.read.length > 0 ) {
@@ -983,7 +985,7 @@ function readValidation(req, res, next) {
 function downloadValidation(req, res, next) {
     if (config.bypass_cds_check) {
         next()
-    } else if (req.originalUrl && (req.originalUrl.includes('/content/link/') || req.originalUrl.includes('/content/json/'))) {
+    } else if (req.originalUrl && (req.originalUrl.startsWith('/content/link/') || req.originalUrl.startsWith('/content/json/'))) {
         printLine('PassportCheck-Proxy', `Request Bypassed for CDS Permalink URL`, 'debug', req.body);
         next();
     } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
