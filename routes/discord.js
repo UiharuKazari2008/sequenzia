@@ -725,8 +725,8 @@ function sessionTransfer(req) {
     }
 }
 async function sessionVerification(req, res, next) {
-    console.log(req.path)
-    if (config.bypass_cds_check && (req.path.startsWith('/stream') || req.path.startsWith('/content'))) {
+    console.log(req.originalUrl)
+    if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content'))) {
         next()
     } else if (req.session && req.session.loggedin === true && req.session.discord && req.session.discord.user.id) {
         if (req.session.discord.channels.read && req.session.discord.channels.read.length > 0) {
