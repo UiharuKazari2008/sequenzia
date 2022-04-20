@@ -368,8 +368,8 @@ html
                                             i.fas.fa-toolbox.align-middle
                                         .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="toolsMenu")
                                             if (results.length > 1)
-                                                a.dropdown-item(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
-                                                    i.fas.fa-check-circle.hide-review.pr-2
+                                                a.dropdown-item.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
+                                                    i.fas.fa-check-circle.pr-2
                                                     | Select Items
                                                 if (manage_channels && manage_channels.length > 0)
                                                     a.dropdown-item.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-xl-none.d-lg-none
