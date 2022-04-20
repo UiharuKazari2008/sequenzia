@@ -377,7 +377,7 @@ function enableReviewMode(setFromDialog) {
                 } else {
                     recentReviewDestination.unshift(reviewDestination)
                 }
-                recentReviewDestination.slice(0,5)
+                recentReviewDestination = recentReviewDestination.slice(0,5)
                 setCookie('recentReviewDestination', JSON.stringify(recentReviewDestination));
             } catch (e) {
                 console.error("Failed to save recent destinations")
@@ -703,7 +703,7 @@ function clearactionModel() {
         } else {
             recentPostDestination.unshift(postsDestination)
         }
-        recentPostDestination.slice(0,5)
+        recentPostDestination = recentPostDestination.slice(0,5)
         setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
     } catch (e) {
         console.error("Failed to save recent destinations")
