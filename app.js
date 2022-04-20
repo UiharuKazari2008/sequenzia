@@ -50,9 +50,9 @@ app.use('/stream', rateLimit({
 }));
 app.use('/actions', rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 250,
+    max: 1000,
     message:
-        "Action API: Too many requests"
+        "Actions API: Too many requests"
 }));
 app.use([ '/ads-micro', '/ambient-get', '/ads-widget'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
