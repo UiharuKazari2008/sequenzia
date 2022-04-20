@@ -215,12 +215,14 @@ block content
 
                                     div#fastReviewMode.review-item.hidden
                                         .ml-auto.mr-auto.align-self-end.mb-3.shadow-text
-                                            a.reviewAccept.text-light.p-2(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.fas.fa-check(style="font-size: 3em;" id='select-' + item.id)
-                                            a.reviewMove.text-light.p-2(title="Move Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.fas.fa-cut(style="font-size: 3em;" id='select-' + item.id)
-                                            a.reviewReject.text-light.p-2(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.fas.fa-trash-alt(style="font-size: 3em;" id='select-' + item.id)
+                                            a.reviewAccept.text-light.p-2(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`).p-2
+                                                i.fas.fa-check(style="font-size: 2em;")
+                                            a.reviewPreview.text-light(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()`).p-2
+                                                i.fas.fa-search(style="font-size: 2em;")
+                                            a.reviewMove.text-light.p-2(title="Move Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); return false;`).p-2
+                                                i.fas.fa-cut(style="font-size: 2em;")
+                                            a.reviewReject.text-light.p-2(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`).p-2
+                                                i.fas.fa-trash-alt(style="font-size: 2em;")
 
                                 div.text-container.shadow-text
                                     if (!(item.content.single && item.content.single.length > 1) && isVideo)
