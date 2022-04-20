@@ -919,7 +919,7 @@ li.nav-item {
 }
 
 
-.select-item {
+.select-item, .review-item {
     position: absolute;
     right: 1em;
     top: 1em;

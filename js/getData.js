@@ -2,13 +2,11 @@ const global = require('../config.json');
 const config = require('../host.config.json');
 const web = require('../web.config.json');
 const { printLine } = require("./logSystem");
-const { sqlSimple, sqlSafe, sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
+const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
 const getUrls = require('get-urls');
 const moment = require('moment');
 const useragent = require('express-useragent');
-const fs = require("fs");
-const path = require("path");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 
 module.exports = async (req, res, next) => {
@@ -1059,17 +1057,10 @@ module.exports = async (req, res, next) => {
                 }
 
                 if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh')  && req.query.displayname) {
-                    sqlSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname], (err, displayConfig) => {
-                        if (err) {
-                            res.json({
-                                randomImage: images,
-                                randomImagev2: imagesArray,
-                                user_id: req.session.user.id,
-                                user_image: req.session.user.avatar,
-                                user_username: req.session.user.username
-                            })
-                        } else if (displayConfig.length > 0) {
-                            const _configuration = Object.assign({}, displayConfig.pop())
+                    try {
+                        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname])
+                        if (displayConfig && displayConfig.rows.length > 0) {
+                            const _configuration = Object.assign({}, displayConfig.rows.pop())
                             res.json({
                                 randomImage: images,
                                 randomImagev2: imagesArray,
@@ -1087,7 +1078,17 @@ module.exports = async (req, res, next) => {
                                 user_username: req.session.user.username
                             })
                         }
-                    })
+                    } catch (err) {
+                        console.error(`Failed to get display config due to error`)
+                        console.error(err)
+                        res.json({
+                            randomImage: images,
+                            randomImagev2: imagesArray,
+                            user_id: req.session.user.id,
+                            user_image: req.session.user.avatar,
+                            user_username: req.session.user.username
+                        })
+                    }
                 } else if (page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh')  {
                     res.json({
                         randomImage: images,
@@ -1185,18 +1186,18 @@ module.exports = async (req, res, next) => {
                             } else if (!(page_uri.includes('ambient') || page_uri.includes('ads')) && limit >= deleteCount) {
                                 deleteCount = limit
                             }
-                            sqlSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, deleteCount, req.session.discord.user.id, _dn], (err, completed) => {
-                                if (err) {
-                                    printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
-                                }
-                            })
+                            try {
+                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, deleteCount, req.session.discord.user.id, _dn])
+                            } catch (err) {
+                                printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
+                            }
                         } else if (req.query && req.query.history && req.query.history === 'none' && randomImage.length < limit) {
                             printLine('GetData', `Truncating Display History for "${_dn}"`, 'info')
-                            sqlSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, 50, req.session.discord.user.id, _dn], (err, completed) => {
-                                if (err) {
-                                    printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
-                                }
-                            })
+                            try {
+                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, 50, req.session.discord.user.id, _dn])
+                            } catch (err) {
+                                printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
+                            }
                         }
                     }
                 }

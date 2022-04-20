@@ -101,7 +101,7 @@ block content
                         - isVideo = false;
                         if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
                             - isVideo = true
-                        div.col-image.col-dynamic.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(id=`message-${item.id}`)
+                        div.col-image.col-dynamic.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(id=`message-${item.id}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id)
                             if(item.entities.meta.ratio)
                                 if(item.entities.meta.ratio >= 1)
                                     - res = item.entities.meta.height
@@ -157,7 +157,7 @@ block content
                                             else if (item.history.type === 'homepage')
                                                 i.fas.fa-home.pr-1
                                             else if (item.history.type === 'webextention')
-                                                i.fas.fa-edge.pr-1
+                                                i.fab.fa-edge.pr-1
                                             else if (item.history.type === 'pagehistory')
                                                 i.fas.fa-history.pr-1
                                             span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
@@ -212,6 +212,16 @@ block content
                                             i.fas.fa-check-circle.text-gray-600.shadow-text(style="font-size: 3em;" id='select-' + item.id)
                                         a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                             i.fas.fa-check-circle.text-success.shadow-text(style="font-size: 3em;" id='select-' + item.id)
+
+                                    div#fastReviewMode.review-item.hidden
+                                        .ml-auto.mr-auto.align-self-end.mb-3.shadow-text
+                                            a.reviewAccept.text-light.p-2(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.fas.fa-check(style="font-size: 3em;" id='select-' + item.id)
+                                            a.reviewMove.text-light.p-2(title="Move Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.fas.fa-cut(style="font-size: 3em;" id='select-' + item.id)
+                                            a.reviewReject.text-light.p-2(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.fas.fa-trash-alt(style="font-size: 3em;" id='select-' + item.id)
+
                                 div.text-container.shadow-text
                                     if (!(item.content.single && item.content.single.length > 1) && isVideo)
                                         p.text.p-start #{item.entities.filename}
@@ -240,7 +250,7 @@ block content
                                                 else if (item.history.type === 'homepage')
                                                     i.fas.fa-home.pr-1
                                                 else if (item.history.type === 'webextention')
-                                                    i.fas.fa-edge.pr-1
+                                                    i.fab.fa-edge.pr-1
                                                 else if (item.history.type === 'pagehistory')
                                                     i.fas.fa-history.pr-1
                                                 span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
@@ -300,7 +310,7 @@ block content
                                                 a.btn.btn-links.goto-link(data-placement="top" title=`Search for similar Colour` href=`#/gallery?color=${encodeURIComponent(item.entities.meta.color.join(":"))}${showNSFWString}`)
                                                     i.btn-links.fas.fa-swatchbook
                                             if (item.meta.search)
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#` onClick=`getNewContent([], [['search', "text:${item.meta.search}"]])`)
                                                     i.btn-links.fas.fa-user
                                             if (item.meta.parent_search)
                                                 a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Search for Parent "${item.meta.parent_search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.parent_search)}${showNSFWString}`)

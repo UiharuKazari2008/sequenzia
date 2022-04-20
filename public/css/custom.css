@@ -896,6 +896,12 @@ color: #fffafa !important;
 background-color: #000000 !important;
 }
 
+.show-full {
+    background-size: contain!important;
+    background-position: center!important;
+    background-repeat: no-repeat;
+}
+
 .close {
 float: right;
 font-size: 1.5rem;
@@ -1054,6 +1060,22 @@ li.nav-item {
     right: 1em;
     top: 1em;
     z-index: 501;
+}
+
+.review-item {
+/*    position: absolute;
+    right: 1em;
+    top: 1em;*/
+    display: flex;
+    align-items: center;
+    z-index: 501;
+    width: inherit;
+    height: inherit;
+    font-size: 0.6em;
+}
+
+.disabled-pointer {
+    pointer-events: none!important;
 }
 
 .back-to-top {

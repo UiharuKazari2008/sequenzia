@@ -49,7 +49,23 @@ let itemsRemoved = 0;
 let initialLoad = true;
 let postsActions = [];
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
+let recentPostDestination = (getCookie("recentPostsDestination") !== null) ? (() => {
+    try {
+        return JSON.parse(getCookie("recentPostsDestination"))
+    } catch (err) {
+        return []
+    }
+})() : [];
+let reviewDestination = (getCookie("reviewDestination") !== null) ? getCookie("reviewDestination") : '';
+let recentReviewDestination = (getCookie("recentReviewDestination") !== null) ? (() => {
+    try {
+        return JSON.parse(getCookie("recentReviewDestination"))
+    } catch (err) {
+        return []
+    }
+})() : [];
 let _lastChannelSelection = '';
+let _lastReviewChannelSelection = '';
 let fileWorking = false;
 let uploadDestination = (getCookie("UploadChannelSelection") !== null) ? getCookie("UploadChannelSelection") : '';
 let uploadServer = (getCookie("UploadServerSelection") !== null) ? getCookie("UploadServerSelection") : '';
@@ -143,6 +159,8 @@ async function requestCompleted (response, url, lastURL, push) {
             $('[data-tooltip="tooltip"]').tooltip()
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
+        if (inReviewMode)
+            enableReviewMode();
     }
     return false;
 }

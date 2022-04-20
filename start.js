@@ -72,6 +72,7 @@
 
     const server = app.listen((process.env.NODE_APP_INSTANCE) ? parseInt(process.env.NODE_APP_INSTANCE.toString()) + parseInt(config.http_port.toString()) : config.http_port, (newServer) => {
         printLine('ExpressInit', `Web server is running on port ${server.address().port}`, 'debug');
-        process.send('ready');
+        if (process.hasOwnProperty("send"))
+            process.send('ready');
     });
 })()

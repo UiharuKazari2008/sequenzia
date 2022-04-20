@@ -20,7 +20,8 @@ function updateFileName(obj) {
 
 // Post Mangement
 function proccessPost(alt) {
-    disableGallerySelect();
+    if (!inReviewMode)
+        disableGallerySelect();
     $('#actionModel').modal('hide');
     if (actionSelection !== '' && postsActions.length > 0) {
         postsActions.forEach((post, i, a) => {
@@ -340,8 +341,293 @@ function deselectAllPoststoMode() {
     $('#deSelectAll2')[0].classList.add('hidden');
 }
 
+// Fast Review
+function setupReviewMode(bypass) {
+    if (reviewDestination !== '') {
+        setupReviewModel.querySelector("#destination-" + reviewDestination).classList.add('active')
+        setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+        setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
+        setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
+    }
+    if (reviewDestination && reviewDestination.length > 1 && !bypass) {
+        enableReviewMode(true);
+    } else {
+        //recentDestionations
+        let rdest = recentReviewDestination.map(e => {
+            const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<div class="btn btn-info mr-1 mb-1" href="#" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                `    <span>${n}</span>` +
+                `</div>`
+            }
+        }).join('\n')
+        document.getElementById('recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+        $('#setupReviewModel').modal('show');
+    }
+    return false;
+}
+function enableReviewMode(setFromDialog) {
+    if (reviewDestination && reviewDestination.length > 1) {
+        if (setFromDialog) {
+            try {
+                if (recentReviewDestination.indexOf(reviewDestination) !== -1) {
+                    recentReviewDestination.sort(function(x,y){ return x == reviewDestination ? -1 : y == reviewDestination ? 1 : 0; });
+                } else {
+                    recentReviewDestination.unshift(reviewDestination)
+                }
+                setCookie('recentReviewDestination', JSON.stringify(recentReviewDestination));
+            } catch (e) {
+                console.error("Failed to save recent destinations")
+                console.error(e)
+            }
+        }
+        inReviewMode = true;
+        pageType = $.history.url().split('?')[0].substring(1)
+        if (pageType.includes('gallery')) {
+            [].forEach.call(document.getElementsByClassName('review-item'), function (el) {
+                el.classList.remove("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
+                el.style.display = "block";
+                el.classList.add("no-bg");
+            });
+            [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+                el.classList.add("disabled-pointer");
+                el.querySelector('#postImage').classList.add("show-full");
+            });
+        } else if (pageType.includes('file') || pageType.includes('card')) {
+            [].forEach.call(document.getElementsByClassName('file-tools'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('file-select'), function (el) {
+                el.classList.add("hidden");
+            });
+        }
+        document.getElementById('doneBtns').classList.add("hidden")
+        document.getElementById('editBtns').classList.add("hidden");
+        document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
+        document.getElementById('reviewBtns').classList.remove("hidden");
+        $('#setupReviewModel').modal('hide');
+    }
+    return false;
+}
+function disableReviewMode() {
+    inReviewMode = false;
+    pageType = $.history.url().split('?')[0].substring(1)
+    modeSelection = 'none';
+    if (pageType.includes('gallery')) {
+        [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
+            el.classList.add("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('review-item'), function (el) {
+            el.classList.add("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
+            el.removeAttribute("style", 'display')
+            el.classList.remove("no-bg");
+        });
+
+        [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+            el.classList.remove("disabled-pointer");
+            el.querySelector('#postImage').classList.remove("show-full");
+        });
+    } else if (pageType.includes('file') || pageType.includes('card')) {} {
+        [].forEach.call(document.getElementsByClassName('file-tools'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('file-select'), function (el) {
+            el.classList.add("hidden");
+        });
+    }
+    try {
+        document.getElementById('editBtns').classList.remove("hidden");
+        document.getElementById('doneBtns').classList.add("hidden");
+        document.getElementById('reviewBtns').classList.add("hidden");
+    } catch (e) {
+        console.log('Failed to reset button groups')
+    }
+}
+function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
+    if (reviewDestination && reviewDestination.length > 1) {
+        pageType = $.history.url().split('?')[0].substring(1)
+        if (direct) {
+            sendAction(serverid, channelid, messageid, 'MovePost', reviewDestination, false);
+        } else {
+            try {
+                const _post = document.getElementById(`message-${messageid}`);
+                const _movepostImage = actionModel.querySelector("#postImage");
+                if (pageType.includes('gallery')) {
+                    _movepostImage.src = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
+                } else if (pageType.includes('file')) {
+                    if (_post.querySelector('.preview-holder a div') !== null && _post.querySelector('.preview-holder a div').style) {
+                        _movepostImage.src = _post.querySelector('.preview-holder a div').style.backgroundImage.split('"')[1]
+                        actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                        actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                    } else {
+                        actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                        actionModel.querySelector('#sectionImage').classList.add('hidden')
+                    }
+                } else if (pageType.includes('card')) {
+                    if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
+                        _movepostImage.src = _post.querySelector('.card-img').src
+                        actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                        actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                    } else {
+                        actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                        actionModel.querySelector('#sectionImage').classList.add('hidden')
+                    }
+                }
+            } catch (e) {
+                console.log('Can not reset post mode')
+            }
+            postsActions = [
+                {
+                    messageid: messageid,
+                    channelid: channelid,
+                    serverid: serverid,
+                    file: fileStatus
+                }
+            ]
+            selectedActionMenu("MovePost");
+            $('#actionModel').modal('show');
+        }
+    }
+    return false;
+}
+function rejectItem(serverid, channelid, messageid) {
+    sendAction(serverid, channelid, messageid, 'RemovePost', null, false);
+    return false;
+}
+function rejectAllItems() {
+    if (reviewDestination && reviewDestination.length > 1) {
+        [].forEach.call(document.querySelectorAll('[data-msg-id].col-image'), function (el) {
+            const serverid = el.getAttribute('data-msg-server')
+            const channelid = el.getAttribute('data-msg-channel')
+            const messageid = el.getAttribute('data-msg-id')
+            if (serverid && channelid && messageid)
+                rejectItem(serverid, channelid, messageid)
+        });
+    }
+    return false;
+}
+function acceptAllItems() {
+    if (reviewDestination && reviewDestination.length > 1) {
+        [].forEach.call(document.querySelectorAll('[data-msg-id].col-image'), function (el) {
+            const serverid = el.getAttribute('data-msg-server')
+            const channelid = el.getAttribute('data-msg-channel')
+            const messageid = el.getAttribute('data-msg-id')
+            if (serverid && channelid && messageid)
+                acceptItem(serverid, channelid, messageid, true)
+        });
+    }
+    return false;
+}
+function moveAllItems() {
+    if (postsDestination !== '') {
+        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+        actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+        actionModel.querySelector("#channelSelector").classList.add('btn-success')
+        actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')
+    }
+    if (reviewDestination && reviewDestination.length > 1) {
+        postsActions = [];
+        [].forEach.call(document.querySelectorAll('[data-msg-id].col-image'), function (el) {
+            const serverid = el.getAttribute('data-msg-server')
+            const channelid = el.getAttribute('data-msg-channel')
+            const messageid = el.getAttribute('data-msg-id')
+            if (serverid && channelid && messageid) {
+                if (postsActions.length === 0) {
+                    try {
+                        const _post = document.getElementById(`message-${messageid}`);
+                        const _movepostImage = actionModel.querySelector("#postImage");
+                        if (pageType.includes('gallery')) {
+                            _movepostImage.src = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
+                        } else if (pageType.includes('file')) {
+                            if (_post.querySelector('.preview-holder a div') !== null && _post.querySelector('.preview-holder a div').style) {
+                                _movepostImage.src = _post.querySelector('.preview-holder a div').style.backgroundImage.split('"')[1]
+                                actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                                actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                            } else {
+                                actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                                actionModel.querySelector('#sectionImage').classList.add('hidden')
+                            }
+                        } else if (pageType.includes('card')) {
+                            if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
+                                _movepostImage.src = _post.querySelector('.card-img').src
+                                actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                                actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                            } else {
+                                actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                                actionModel.querySelector('#sectionImage').classList.add('hidden')
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Can not reset post mode')
+                    }
+                }
+                postsActions.push({messageid: messageid, channelid: channelid, serverid: serverid, file: fileStatus});
+            }
+        });
+
+        selectedActionMenu("MovePost");
+        $('#actionModel').modal('show');
+    }
+    return false;
+}
+function setReviewChannel(chid) {
+    const chname = setupReviewModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
+    setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+    setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
+    setupReviewModel.querySelector("#selectedChannel").innerText = chname;
+    if (_lastReviewChannelSelection === '') {
+        setupReviewModel.querySelector("#destination-" + chid).classList.add('active')
+    } else {
+        setupReviewModel.querySelector("#destination-" + _lastReviewChannelSelection).classList.remove('active')
+        setupReviewModel.querySelector("#destination-" + chid).classList.add('active')
+    }
+    setupReviewModel.querySelector("#postButton").classList.remove('disabled')
+    _lastReviewChannelSelection = chid
+    reviewDestination = chid;
+    try {
+        setCookie("reviewDestination", chid);
+        setCookie("lastReviewDestination", chid);
+    } catch (e) {
+        console.error("Failed to save cookie for destinations");
+        console.error(e)
+    }
+    return false;
+}
+
 // Move Model Management
-function selectedChannel(chid, chname) {
+function selectedChannel(chid) {
+    const chname = actionModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
     actionModel.querySelector("#channelSelector").classList.add('btn-success')
     actionModel.querySelector("#selectedChannel").innerText = chname;
@@ -381,7 +667,8 @@ function selectedRotate(rotate) {
 }
 function clearactionModel() {
     countdownTimer = -1;
-    disableGallerySelect();
+    if (!inReviewMode)
+        disableGallerySelect();
     actionModel.querySelector("#postID").innerText = 'NaN';
     if (postsDestination === '') {
         actionModel.querySelector("#postButton").classList.add("disabled");

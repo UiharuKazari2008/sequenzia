@@ -88,6 +88,7 @@ html
         script(type='text/javascript' src="/js/client/sideloader.min.js")
         script(type='text/javascript' src="/js/client/displayHistory.min.js")
         script.
+            let inReviewMode = false;
             let initalPageLoad = true;
             let IPHL = history.length;
             function isFirstPage() {
@@ -275,7 +276,7 @@ html
                                                 div#postBackground(style=`background-color: rgb(128, 128, 128)`)
 
                                 script.
-                                    console.log('Welcome to JuneOS for Sequenzia! Version 1.4\n' + '\n' +
+                                    console.log('Welcome to JuneOS for Sequenzia! Version 1.6\n' + '\n' +
                                                 '       __                 ____  _____' + '\n' +
                                                 '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
                                                 ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +

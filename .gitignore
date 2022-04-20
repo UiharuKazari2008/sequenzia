@@ -1,7 +1,6 @@
 /uploads/
 /tmp/
 /node_modules/
-config.json
-host.config.json
+/*config.json
 *.tar
 .idea/

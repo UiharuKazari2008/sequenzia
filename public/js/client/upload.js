@@ -62,9 +62,11 @@ function displayMessageModel(type){
     tmodel.modal('show');
 }
 
-function selectedUploadChannel(chid, server, chname, model, isServer) {
+function selectedUploadChannel(chid, model, isServer) {
     try {
         const tmodel = $(`#${model}`)
+        const server = tmodel.find("#destination-" + chid).getAttribute('data-ch-server')
+        const chname = tmodel.find("#destination-" + chid).getAttribute('data-ch-name')
         if (isServer) {
             if (_lastUploadChannelSelection !== '') {
                 tmodel.find("#destination-" + _lastUploadChannelSelection).removeClass('active');

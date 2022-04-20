@@ -219,6 +219,60 @@ html
                         strong
                     a.btn.btn-success.btn-sm(href='#_')
             #models
+                #setupReviewModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document')
+                        .modal-content
+                            .modal-header.modal-danger
+                                h5.modal-title
+                                    span Fast Review
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                div.row.pl-2.pr-2
+                                    span.text-danger.text-center.font-weight-bolder All actions are immediate and deletions are not confirmed or archived.
+                                div.row.pt-2
+                                    div.col-4.text-center
+                                        i.fas.fa-5x.fa-snowplow
+                                    div.col-8
+                                        div
+                                            | Destination Channel:
+                                            .dropdown
+                                                button#channelSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style='max-width: 11em;')
+                                                    i.fas.fa-cut.pr-2.align-self-center
+                                                    span#selectedChannel.align-self-center.text-ellipsis Select Channel
+                                                .dropdown-menu.scrollable-menu
+                                                    each thisSuperClass, superIndex in sidebar
+                                                        each thisClass in thisSuperClass.entities
+                                                            - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2 })
+                                                            each thisServer, indexServer in server.sort()
+                                                                - _channels = thisClass.entities.filter((e) => { return manage_channels.indexOf(e.id) !== -1 && e.server === thisServer.id && e.type === 0})
+                                                                if (_channels.length > 0)
+                                                                    h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
+                                                                    each thisChannel in _channels
+                                                                        a.dropdown-item(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}` onClick=`setReviewChannel('${thisChannel.id}'); return false;`) #{thisChannel.name}
+                                                            if (_mergedChannels.length > 0)
+                                                                each thisMergedChannel in _mergedChannels
+                                                                    - _managedMergedChannels = thisMergedChannel.entities.filter(f => manage_channels.indexOf(f.id) !== -1)
+                                                                    if (_managedMergedChannels.length > 0)
+                                                                        h6.dropdown-header.text-capitalize.channel-selector.ml-2.pt-1
+                                                                            i.fas.fa-clone.pr-1
+                                                                            | #{thisMergedChannel.name} - #{thisClass.name}
+                                                                        each thisChannel in _managedMergedChannels
+                                                                            a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}` onClick=`setReviewChannel('${thisChannel.id}'); return false;`) #{thisChannel.name}
+                                                        if (superIndex !== sidebar.length - 1)
+                                                            .dropdown-divider.channel-selector
+                                div.row.pl-2.pr-2.pt-3
+                                    div.col-auto.d-flex.align-items-center.p-0.mr-2
+                                        i.fas.fa-clock.fa-2x
+                                    div#recentDestionations.p-0.col
+
+                            .modal-footer
+                                button.btn.btn-secondary.mr-1(type='button' data-dismiss='modal') Cancel
+                                a#postButton.disabled.btn.btn-success(title="Start Review Mode" href='#_' onClick=`enableReviewMode(true); return false;`)
+                                    i.fas.pr-2.fa-flag-checkered
+                                    | OK
+                script.
+                    const setupReviewModel = document.getElementById("setupReviewModel");
                 #actionModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document')
                         .modal-content
@@ -275,7 +329,7 @@ html
                                                                 if (_channels.length > 0)
                                                                     h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
                                                                     each thisChannel in _channels
-                                                                        a.dropdown-item(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                                                        a.dropdown-item(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}` onClick=`selectedChannel('${thisChannel.id}'); return false;`) #{thisChannel.name}
                                                             if (_mergedChannels.length > 0)
                                                                 each thisMergedChannel in _mergedChannels
                                                                     - _managedMergedChannels = thisMergedChannel.entities.filter(f => manage_channels.indexOf(f.id) !== -1)
@@ -284,7 +338,7 @@ html
                                                                             i.fas.fa-clone.pr-1
                                                                             | #{thisMergedChannel.name} - #{thisClass.name}
                                                                         each thisChannel in _managedMergedChannels
-                                                                            a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedChannel('${thisChannel.id}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}'); return false;`) #{thisChannel.name}
+                                                                            a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}` onClick=`selectedChannel('${thisChannel.id}'); return false;`) #{thisChannel.name}
                                                         if (superIndex !== sidebar.length - 1)
                                                             .dropdown-divider.channel-selector
                                         div#sectionRotatePost.hidden
@@ -319,6 +373,13 @@ html
                     const singlePostBtn = actionModel.querySelector('a#postButton');
                     const deletePostBtn = actionModel.querySelector('a#deleteButton');
                     const timerText = actionModel.querySelector("a#postButton #CountDownTimer");
+                    if (postsDestination !== '') {
+                        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+                        actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+                        actionModel.querySelector("#channelSelector").classList.add('btn-success')
+                        actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')
+                        actionModel.querySelector("#postButton").classList.remove('disabled')
+                    }
                 #uploadModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document' style='max-width: 340px;')
                         .modal-content
@@ -362,7 +423,7 @@ html
                                                     if (_channels.length > 0)
                                                         h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
                                                         each thisChannel in _channels
-                                                            a.dropdown-item.text-capitalize(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisServer.id}', '${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}', "uploadModel", false); return false;`) #{thisChannel.name}
+                                                            a.dropdown-item.text-capitalize(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}` data-ch-server=thisChannel.server onClick=`selectedUploadChannel('${thisChannel.id}', "uploadModel", false); return false;`) #{thisChannel.name}
                                                 if (_mergedChannels.length > 0)
                                                     each thisMergedChannel in _mergedChannels
                                                         - _writeMergedChannels = thisMergedChannel.entities.filter(f => write_channels.indexOf(f.id) !== -1)
@@ -371,7 +432,7 @@ html
                                                                 i.fas.fa-clone.pr-1
                                                                 | #{thisMergedChannel.name} - #{thisClass.name}
                                                             each thisChannel in _writeMergedChannels
-                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisChannel.server}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}', "uploadModel", false); return false;`) #{thisChannel.name}
+                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}` data-ch-server=thisChannel.server onClick=`selectedUploadChannel('${thisChannel.id}', "uploadModel", false); return false;`) #{thisChannel.name}
                                             if (superIndex !== sidebar.length - 1)
                                                 .dropdown-divider.channel-selector
                                 a#postButton.btn.btn-success.disabled(title="Upload" href='#_' onClick=`sendFileData(); return false;`)
@@ -428,7 +489,7 @@ html
                                     .dropdown-menu.scrollable-menu
                                         h6.dropdown-header.text-capitalize.channel-selector.server-selection Download to Server
                                         each thisServer, indexServer in server.filter(e => (download.filter(f => f.serverid === e.id).length > 0)).sort()
-                                            a.dropdown-item.server-selection.text-capitalize.d-none(title=thisServer.name id='server-' + thisServer.id href='#_' onClick=`selectedUploadChannel('', '${thisServer.id}', '${thisServer.name}', 'writeModel', true); return false;`) #{thisServer.name}
+                                            a.dropdown-item.server-selection.text-capitalize.d-none(title=thisServer.name id='server-' + thisServer.id href='#_' data-ch-name=thisServer.name data-ch-server=thisServer.id onClick=`selectedUploadChannel('', 'writeModel', true); return false;`) #{thisServer.name}
                                         .dropdown-divider.channel-selector.server-selection.d-none
                                         h6.dropdown-header.text-capitalize.channel-selector.server-selection Download to Channel
                                         each thisSuperClass, superIndex in sidebar
@@ -439,7 +500,7 @@ html
                                                     if (_channels.length > 0)
                                                         h6.dropdown-header.text-capitalize.channel-selector #{thisClass.name} (#{thisServer.name})
                                                         each thisChannel in _channels
-                                                            a.dropdown-item.text-capitalize(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisServer.id}', '${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}', 'writeModel', false); return false;`) #{thisChannel.name}
+                                                            a.dropdown-item.text-capitalize(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisServer.short_name}:/${thisClass.name}/${thisChannel.name}` data-ch-server=thisServer.id onClick=`selectedUploadChannel('${thisChannel.id}', 'writeModel', false); return false;`) #{thisChannel.name}
                                                 if (_mergedChannels.length > 0)
                                                     each thisMergedChannel in _mergedChannels
                                                         - _writeMergedChannels = thisMergedChannel.entities.filter(f => write_channels.indexOf(f.id) !== -1)
@@ -448,7 +509,7 @@ html
                                                                 i.fas.fa-clone.pr-1
                                                                 | #{thisMergedChannel.name} - #{thisClass.name}
                                                             each thisChannel in _writeMergedChannels
-                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' onClick=`selectedUploadChannel('${thisChannel.id}', '${thisChannel.server}', '${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}', "uploadModel", false); return false;`)  #{thisChannel.name}
+                                                                a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}` data-ch-server=thisChannel.server onClick=`selectedUploadChannel('${thisChannel.id}', "uploadModel", false); return false;`)  #{thisChannel.name}
                                             if (superIndex !== sidebar.length - 1)
                                                 .dropdown-divider.channel-selector
                                 div#sendButtons.d-none

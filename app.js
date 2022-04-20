@@ -1,3 +1,7 @@
+const config = require('./host.config.json')
+const global = require('./config.json')
+const web = require('./web.config.json')
+
 const express = require("express");
 const app = module.exports = express()
 const routes = require('./routes/index');
@@ -13,9 +17,6 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const cors = require('cors');
 const morgan = require('morgan');
-const config = require('./host.config.json')
-const global = require('./config.json')
-const web = require('./web.config.json')
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");

@@ -307,21 +307,21 @@ html
                                     div.dropdown
                                         if (write_channels && write_channels.length > 0)
                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Upload File(s)" href='#_' onclick='selectedUploadChannel("' + active_ch + '", "' + active_svr + '", "' + full_title + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Upload File(s)" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
                                                     i.fas.fa-upload.align-middle
                                             else
                                                 a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Upload File(s)" href='#_' onclick='displayUploadModel(); return false;')
                                                     i.fas.fa-upload.align-middle
                                         if (manage_channels && manage_channels.length > 0)
                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Send Text Message" href='#_' onclick='selectedUploadChannel("' + active_ch + '", "' + active_svr + '", "' + full_title + '", "writeModel", false); displayMessageModel(0); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Send Text Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
                                                     i.fas.fa-edit.align-middle
                                             else
                                                 a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block( title="Send Text Message" href='#_' onclick='displayMessageModel(0); return false;')
                                                     i.fas.fa-edit.align-middle
                                         if (download && download.length > 0)
                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Download File from URL" href='#_' onclick='selectedUploadChannel("' + active_ch + '",  "' + active_svr + '", "' + full_title + '", "writeModel", true); displayMessageModel(1); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
                                                     i.fas.fa-cloud-download-alt.align-middle
                                             else
                                                 a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
@@ -331,7 +331,7 @@ html
                                         .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in.d-xxl-none(aria-labelledby="uploadMenu")
                                             if (write_channels && write_channels.length > 0)
                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                    a.dropdown-item(title="Upload File" href='#_' onclick='selectedUploadChannel("' + active_ch + '", "' + active_svr + '", "' + full_title + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                    a.dropdown-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
                                                         i.fas.fa-upload.pr-2
                                                         | Upload File
                                                 else
@@ -340,7 +340,7 @@ html
                                                         | Upload File
                                             if (manage_channels && manage_channels.length > 0)
                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                    a.dropdown-item(title="Send Message" href='#_' onclick='selectedUploadChannel("' + active_ch + '", "' + active_svr + '", "' + full_title + '", "writeModel", false); displayMessageModel(0); return false;')
+                                                    a.dropdown-item(title="Send Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
                                                         i.fas.fa-edit.pr-2
                                                         | Send Message
                                                 else
@@ -349,7 +349,7 @@ html
                                                         | Send Message
                                             if (download && download.length > 0)
                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                    a.dropdown-item(title="Download File from URL" href='#_' onclick='selectedUploadChannel("' + active_ch + '",  "' + active_svr + '", "' + full_title + '", "writeModel", true); displayMessageModel(1); return false;')
+                                                    a.dropdown-item(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
                                                         i.fas.fa-cloud-download-alt.pr-2
                                                         | Download URL
                                                 else
@@ -360,6 +360,9 @@ html
                                     if (results.length > 1)
                                         a.navbar-item.btn.btn-admin(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
                                             i.fas.fa-check-circle.align-middle
+                                        if (manage_channels && manage_channels.length > 0)
+                                            a.navbar-item.btn.btn-admin(title="Review Items" href='#_' onclick='setupReviewMode(); return false;').d-none.d-lg-block
+                                                i.fas.fa-snowplow.align-middle
                                     div.dropdown
                                         a#toolsMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Tools" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="toolsMenu")
                                             i.fas.fa-toolbox.align-middle
@@ -368,6 +371,10 @@ html
                                                 a.dropdown-item(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
                                                     i.fas.fa-check-circle.pr-2
                                                     | Select Items
+                                                if (manage_channels && manage_channels.length > 0)
+                                                    a.dropdown-item(title="Review Items" href='#_' onclick='setupReviewMode(); return false;').d-xl-none.d-lg-none
+                                                        i.fas.pr-2.fa-snowplow
+                                                        | Review Items
                                             span.dropdown-header
                                                 | Filter
                                             if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
@@ -1493,6 +1500,28 @@ html
                                         a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
                                             span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
                                                 i.fas.pl-1.pr-1.fa-info
+                        #reviewBtns.hidden
+                            div.d-flex.align-items-start.mb-2.h4
+                                i.fas.fa-snowplow.pr-2
+                                span#reviewDestinationName NaN
+                            div.d-flex.align-items-center.mb-3
+                                .col.p-0.d-flex
+                                    a.btn.btn-danger.w-100.mr-1(title="ACCEPT ALL ITEMS" href='#_' onclick='acceptAllItems(); return false;')
+                                        i.fas.pr-1.fa-check
+                                        span.d-none.d-sm-inline Accept All
+                                    a.btn.btn-danger.w-100.mr-1.ml-1(title="MOVE ALL ITEMS" href='#_' onclick='moveAllItems(); return false;')
+                                        i.fas.pr-1.fa-cut
+                                        span.d-none.d-sm-inline Move All
+                                    a.btn.btn-danger.w-100.mr-1.ml-1(title="REJECT ALL ITEMS" href='#_' onclick='rejectAllItems(); return false;')
+                                        i.fas.pr-1.fa-trash-alt
+                                        span.d-none.d-sm-inline Reject All
+                                .col-auto.p-0
+                                    a.btn.btn-primary.mr-1.ml-1(title="Setup Review Mode" href='#_' onclick='setupReviewMode(true); return false;')
+                                        i.fas.pr-1.fa-cog
+                                        span.d-none.d-sm-inline Setup
+                                    a.btn.btn-primary.ml-1(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
+                                        i.fas.pr-1.fa-times
+                                        span.d-none.d-sm-inline Exit
                         #contentBlock
                             block content
                         #pageinator
