@@ -9,7 +9,12 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
     console.log('Service Worker: Activated');
     // Remove unwanted caches
-    e.waitUntil(
+    e.waitUntil(async function() {
+        // Feature-detect
+        if (self.registration.navigationPreload) {
+            // Enable navigation preloads!
+            await self.registration.navigationPreload.enable();
+        }
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cache => {
@@ -20,31 +25,21 @@ self.addEventListener('activate', e => {
                 })
             );
         })
-    );
+    }());
 });
 
-// Call Fetch Event
-self.addEventListener('fetch', e => {
+addEventListener('fetch', event => {
     console.log(`Service Worker: Fetching`);
-    e.respondWith(
-        fetch(e.request)
-            .then(res => {
-                // Make copy/clone of response
-                const resClone = res.clone();
-                // Open cache
-                caches.open(cacheName).then(cache => {
-                    // Add response to cache
-                    //console.log(resClone)
-                    console.log(e.request.url)
+    event.respondWith(async function() {
+        // Respond from the cache if we can
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) return cachedResponse;
 
-                    //cache.put(e.request, resClone);
-                    /*if (!e.request.url.startsWith("/gallery" || "/homeImage" || "/files" || "/cards")) {
-                        console.log(e.request.url)
-                        cache.put(e.request, resClone);
-                    }*/
-                });
-                return res;
-            })
-            .catch(err => caches.match(e.request).then(res => res))
-    );
+        // Else, use the preloaded response, if it's there
+        const response = await event.preloadResponse;
+        if (response) return response;
+
+        // Else try the network.
+        return fetch(event.request);
+    }());
 });
