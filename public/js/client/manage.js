@@ -95,6 +95,7 @@ function openActionMenu(mode) {
             actionModel.querySelector('#actionModelThumb').classList.add('d-none');
             actionModel.querySelector('#actionModelThumb').classList.remove('d-flex');
         }
+        updateRecentPostDestinations();
         $('#actionModel').modal('show');
     } else {
         $.snack('warning', `No Items Selected`, 1500);
@@ -111,6 +112,7 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Move'
             actionModel.querySelector("#postID").innerText = `Move ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             actionModel.querySelector("#sectionMovePost").classList.remove("hidden")
+            actionModel.querySelector("#sectionMovePostRecents").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-cut')
         } else if (actionSelection === 'ArchivePost') {
             countdownTimer = 2;
@@ -349,7 +351,7 @@ function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
-    if (reviewDestination && reviewDestination.length > 1 && !bypass) {
+    if (reviewDestination && reviewDestination.length > 1 && bypass === true) {
         enableReviewMode(true);
     } else {
         //recentDestionations
@@ -361,7 +363,7 @@ function setupReviewMode(bypass) {
                 `</div>`
             }
         }).join('\n')
-        document.getElementById('recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+        setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
         $('#setupReviewModel').modal('show');
     }
     return false;
@@ -515,6 +517,7 @@ function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
                     file: fileStatus
                 }
             ]
+            updateRecentPostDestinations();
             selectedActionMenu("MovePost");
             $('#actionModel').modal('show');
         }
@@ -526,8 +529,10 @@ function rejectItem(serverid, channelid, messageid) {
     return false;
 }
 function rejectAllItems() {
+    const pageItems = document.querySelectorAll('[data-msg-id].col-image')
+    //document.querySelector('#LoadNextPage > div').click();
     if (reviewDestination && reviewDestination.length > 1) {
-        [].forEach.call(document.querySelectorAll('[data-msg-id].col-image'), function (el) {
+        [].forEach.call(pageItems, function (el) {
             const serverid = el.getAttribute('data-msg-server')
             const channelid = el.getAttribute('data-msg-channel')
             const messageid = el.getAttribute('data-msg-id')
@@ -538,8 +543,10 @@ function rejectAllItems() {
     return false;
 }
 function acceptAllItems() {
+    const pageItems = document.querySelectorAll('[data-msg-id].col-image')
+    //document.querySelector('#LoadNextPage > div').click();
     if (reviewDestination && reviewDestination.length > 1) {
-        [].forEach.call(document.querySelectorAll('[data-msg-id].col-image'), function (el) {
+        [].forEach.call(pageItems, function (el) {
             const serverid = el.getAttribute('data-msg-server')
             const channelid = el.getAttribute('data-msg-channel')
             const messageid = el.getAttribute('data-msg-id')
@@ -557,8 +564,10 @@ function moveAllItems() {
         actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')
     }
     if (reviewDestination && reviewDestination.length > 1) {
+        const pageItems = document.querySelectorAll('[data-msg-id].col-image');
+        //document.querySelector('#LoadNextPage > div').click();
         postsActions = [];
-        [].forEach.call(document.querySelectorAll('[data-msg-id].col-image'), function (el) {
+        [].forEach.call(pageItems, function (el) {
             const serverid = el.getAttribute('data-msg-server')
             const channelid = el.getAttribute('data-msg-channel')
             const messageid = el.getAttribute('data-msg-id')
@@ -595,7 +604,7 @@ function moveAllItems() {
                 postsActions.push({messageid: messageid, channelid: channelid, serverid: serverid, file: fileStatus});
             }
         });
-
+        updateRecentPostDestinations();
         selectedActionMenu("MovePost");
         $('#actionModel').modal('show');
     }
@@ -626,6 +635,17 @@ function setReviewChannel(chid) {
 }
 
 // Move Model Management
+function updateRecentPostDestinations() {
+    let rdest = recentPostDestination.map(e => {
+        const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+        if (n) {
+            return `<div class="btn btn-info mr-1 mb-1" href="#" onclick="selectedChannel('${e}'); proccessPost(); return false">` +
+                `    <span>${n}</span>` +
+                `</div>`
+        }
+    }).join('\n')
+    actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+}
 function selectedChannel(chid) {
     const chname = actionModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
@@ -666,6 +686,19 @@ function selectedRotate(rotate) {
     return false;
 }
 function clearactionModel() {
+    try {
+        if (recentPostDestination.indexOf(postsDestination) !== -1) {
+            recentPostDestination.sort(function (x, y) {
+                return x == postsDestination ? -1 : y == postsDestination ? 1 : 0;
+            });
+        } else {
+            recentPostDestination.unshift(postsDestination)
+        }
+        setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
+    } catch (e) {
+        console.error("Failed to save recent destinations")
+        console.error(e)
+    }
     countdownTimer = -1;
     if (!inReviewMode)
         disableGallerySelect();
@@ -679,6 +712,7 @@ function clearactionModel() {
     actionModel.querySelector("#ActionName").innerText = "";
     actionModel.querySelector("#postImage").style.transform = 'rotate(0deg)';
     actionModel.querySelector("#sectionMovePost").classList.add("hidden");
+    actionModel.querySelector("#sectionMovePostRecents").classList.add("hidden");
     actionModel.querySelector("#sectionRotatePost").classList.add("hidden");
     actionModel.querySelector("#sectionArchivePost").classList.add("hidden");
     actionModel.querySelector("#sectionGeneratePost").classList.add("hidden");

@@ -341,6 +341,10 @@ html
                                                                             a.dropdown-item.ml-2(title=thisChannel.name id='destination-' + thisChannel.id href='#_' data-ch-name=`${thisChannel.server_short_name}:/${thisClass.name}/${thisChannel.name}` onClick=`selectedChannel('${thisChannel.id}'); return false;`) #{thisChannel.name}
                                                         if (superIndex !== sidebar.length - 1)
                                                             .dropdown-divider.channel-selector
+                                        div#sectionMovePostRecents.row.p-0.pt-3.hidden
+                                            div.col-auto.d-flex.align-items-center.p-0.mr-2
+                                                i.fas.fa-clock.fa-2x
+                                            div#recentDestionations.p-0.col
                                         div#sectionRotatePost.hidden
                                             | Rotate the image:
                                             .dropdown
@@ -637,9 +641,7 @@ html
                 script.
                     let bypassSidebarRefresh = false;
                     // Event Handeling
-                    $('#actionModel').on('hidden.bs.modal', function (e) {
-                        clearactionModel();
-                    });
+                    $('#actionModel').on('hidden.bs.modal', function (e) { clearactionModel(); });
                     try {
                         $('#albumItemModal').on('hidden.bs.modal', function (e) {
                             if (!bypassSidebarRefresh) {

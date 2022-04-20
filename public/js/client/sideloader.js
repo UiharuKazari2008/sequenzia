@@ -49,9 +49,9 @@ let itemsRemoved = 0;
 let initialLoad = true;
 let postsActions = [];
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
-let recentPostDestination = (getCookie("recentPostsDestination") !== null) ? (() => {
+let recentPostDestination = (getCookie("recentPostDestination") !== null) ? (() => {
     try {
-        return JSON.parse(getCookie("recentPostsDestination"))
+        return JSON.parse(getCookie("recentPostDestination"))
     } catch (err) {
         return []
     }
