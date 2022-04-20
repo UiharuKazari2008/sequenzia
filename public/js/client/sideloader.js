@@ -46,6 +46,7 @@ $(function() {
 let last = undefined;
 let responseComplete = false;
 let itemsRemoved = 0;
+let itemsRemovedIds = [];
 let initialLoad = true;
 let postsActions = [];
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
@@ -128,6 +129,8 @@ async function requestCompleted (response, url, lastURL, push) {
             if (!pageTitle.includes(' - Item Details')) {
                 getPaginator(url);
             }
+            if (inReviewMode)
+                enableReviewMode();
         } else {
             $.when($(".container-fluid").fadeOut(250)).done(() => {
                 let contentPage = $(response).find('#content-wrapper').children();
@@ -143,6 +146,8 @@ async function requestCompleted (response, url, lastURL, push) {
                     getPaginator(url);
                 }
                 scrollToTop(true);
+                if (inReviewMode)
+                    enableReviewMode();
             })
         }
         $("title").text(pageTitle);
@@ -155,12 +160,10 @@ async function requestCompleted (response, url, lastURL, push) {
         $.history.push(_url, (_url.includes('offset=')));
         pageType = url.split('/')[0];
         initialLoad = false
-        if(isTouchDevice()===false) {
+        if(!isTouchDevice()) {
             $('[data-tooltip="tooltip"]').tooltip()
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
-        if (inReviewMode)
-            enableReviewMode();
     }
     return false;
 }
@@ -971,28 +974,28 @@ function setImageLayout(size, _html) {
             case '1':
                 classList = 'col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 col-dynamic-large';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '1';
                 break;
             case '2':
                 classList = 'col-6 col-sm-4 col-md-3 col-lg-2 col-xl-2 col-dynamic-small';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '2';
                 break;
             case '3':
-                classList = 'col-3 col-sm-2 col-md-2 col-lg-2 col-xl-1 col-dynamic-small';
+                classList = 'col-3 col-sm-2 col-md-2 col-lg-2 col-xl-1 col-dynamic-tiny';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.add('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.add('dynamic-hide'));
                 html.querySelectorAll('.overlay-icons').forEach(c => c.classList.add('dynamic-hide'));
                 setImageSize = '3';
                 break;
             default:
                 classList = 'col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '0';
                 break;
@@ -1035,6 +1038,7 @@ function sendAction(serverid, channelid, messageid, action, data, confirm) {
                 afterAction(action, data, messageid, confirm);
             } else {
                 console.log(res.responseText);
+                document.getElementById(`message-${messageid}`).classList.remove('hidden')
             }
         },
         error: function (xhr) {
@@ -1045,6 +1049,7 @@ function sendAction(serverid, channelid, messageid, action, data, confirm) {
                 content: `${xhr.responseText}`,
                 delay: 5000,
             });
+            document.getElementById(`message-${messageid}`).classList.remove('hidden')
         }
     });
     return false;

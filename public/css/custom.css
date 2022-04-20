@@ -1067,7 +1067,7 @@ li.nav-item {
     right: 1em;
     top: 1em;*/
     display: flex;
-    align-items: center;
+    flex-direction: column;
     z-index: 501;
     width: inherit;
     height: inherit;
@@ -1709,6 +1709,12 @@ div.collapse-divider {
 .col-dynamic-small > .no-dynamic-small {
     display: none;
 }
+.col-dynamic-tiny > .no-dynamic-tiny {
+    display: none;
+}
+.col-dynamic-tiny > .internal-lightbox > #fastReviewMode > .row > .p-3 {
+    padding: 0.5rem !important;
+}
 .dynamic-hide {
     display: none!important;
 }
@@ -2240,7 +2246,9 @@ footer .server-grid-parent {
         display: block;
         background: none!important;
     }
+    .tz-gallery .col-image.col-dynamic-tiny .internal-lightbox .text-container,
     .tz-gallery .col-image.col-dynamic-small .internal-lightbox .text-container,
+    .tz-gallery .col-image.col-dynamic-tiny .internal-lightbox .image-container,
     .tz-gallery .col-image.col-dynamic-small .internal-lightbox .image-container {
          display: none!important;
      }

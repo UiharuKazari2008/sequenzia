@@ -421,8 +421,11 @@ function enableReviewMode(setFromDialog) {
                 el.classList.add("hidden");
             });
         }
+        [].forEach.call(document.getElementsByClassName('hide-review'), function (el) {
+            el.classList.add("hidden");
+        });
         document.getElementById('doneBtns').classList.add("hidden")
-        document.getElementById('editBtns').classList.add("hidden");
+        document.getElementById('editBtns').classList.remove("hidden");
         document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
         document.getElementById('reviewBtns').classList.remove("hidden");
         $('#setupReviewModel').modal('hide');
@@ -469,6 +472,9 @@ function disableReviewMode() {
             el.classList.add("hidden");
         });
     }
+    [].forEach.call(document.getElementsByClassName('hide-review'), function (el) {
+        el.classList.remove("hidden");
+    });
     try {
         document.getElementById('editBtns').classList.remove("hidden");
         document.getElementById('doneBtns').classList.add("hidden");
@@ -481,6 +487,7 @@ function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     if (reviewDestination && reviewDestination.length > 1) {
         pageType = $.history.url().split('?')[0].substring(1)
         if (direct) {
+            document.getElementById(`message-${messageid}`).classList.add('hidden')
             sendAction(serverid, channelid, messageid, 'MovePost', reviewDestination, false);
         } else {
             try {
@@ -526,6 +533,7 @@ function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     return false;
 }
 function rejectItem(serverid, channelid, messageid) {
+    document.getElementById(`message-${messageid}`).classList.add('hidden')
     sendAction(serverid, channelid, messageid, 'RemovePost', null, false);
     return false;
 }

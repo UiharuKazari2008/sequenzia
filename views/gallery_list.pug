@@ -213,18 +213,36 @@ block content
                                         a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                             i.fas.fa-check-circle.text-success.shadow-text(style="font-size: 3em;" id='select-' + item.id)
 
-                                    div#fastReviewMode.review-item.hidden
-                                        .ml-auto.mr-auto.align-self-end.mb-3.shadow-text
-                                            a.reviewAccept.text-light.p-2(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`).p-2
-                                                i.fas.fa-check(style="font-size: 2em;")
-                                            a.reviewPreview.text-light(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()`).p-2
-                                                i.fas.fa-search(style="font-size: 2em;")
-                                            a.reviewMove.text-light.p-2(title="Move Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); return false;`).p-2
-                                                i.fas.fa-cut(style="font-size: 2em;")
-                                            a.reviewReject.text-light.p-2(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`).p-2
-                                                i.fas.fa-trash-alt(style="font-size: 2em;")
+                                    div#fastReviewMode.review-item.hidden.shadow-text.d-flex
+                                        .row.ml-auto.mr-auto.p-2.align-content-center.no-dynamic-tiny(style="width: inherit;")
+                                            if (user && user.source < 900)
+                                                if (item.pinned)
+                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Remove Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
+                                                        i#button.btn-links.fas.fa-star.favorited
+                                                else
+                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
+                                                        i#button.btn-links.fas.fa-star
+                                            a.btn.btn-links.mr-auto(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                i.btn-links.fas.fa-archive
+                                            if (item.meta.urls && item.meta.urls.length > 0)
+                                                a.btn.btn-links(data-placement="top" title=`Source URL: "${item.meta.urls[0].split("%60").join("")}"` href=item.meta.urls[0].split("%60").join("") target="_blank" rel="noopener noreferrer")
+                                                    i.btn-links.fas.fa-globe-americas
+                                            if (item.meta.search)
+                                                a.btn.btn-links(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
+                                                    i.btn-links.fas.fa-user
 
-                                div.text-container.shadow-text
+                                        .row.ml-auto.mr-auto.align-content-center(style="width: inherit; height: inherit;")
+                                            a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()`)
+                                                i.btn-links.fas.fa-search(style="font-size: 2em;")
+                                        .row.ml-auto.mr-auto(style="width: inherit;")
+                                            a.reviewAccept.btn-links.p-3.mr-auto(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.btn-links.fas.fa-check(style="font-size: 2em;")
+                                            a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.btn-links.fas.fa-cut(style="font-size: 2em;")
+                                            a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.btn-links.fas.fa-trash-alt(style="font-size: 2em;")
+
+                                div.text-container.shadow-text.no-dynamic-tiny
                                     if (!(item.content.single && item.content.single.length > 1) && isVideo)
                                         p.text.p-start #{item.entities.filename}
                                     else
@@ -288,12 +306,12 @@ block content
                                             img(title=`Square Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
                                         else if (item.entities.meta.ratio && item.entities.meta.ratio < 0.9)
                                             img(title=`Widescreen Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
-                                div.image-container
+                                div.image-container.no-dynamic-tiny
                                     if (item.user.avatar)
                                         img.server.rounded-circle(src=item.user.avatar)
                                     else if (item.server.icon)
                                         img.server.rounded-circle(src=item.server.icon)
-                                div.links-container.text-primary
+                                div.links-container.text-primary.no-dynamic-tiny
                                     div.links
                                         div.left-links.row-2
                                             if (user && user.source < 900 && item.entities.meta.fileid !== null && isVideo)

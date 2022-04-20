@@ -301,34 +301,34 @@ html
                                             a.navbar-item.btn.btn-fav(title="Randomize Results" href='#_' onclick=`getNewContent(['offset'], [['sort', 'random']])` role='button').d-none.d-xl-block
                                                 i.fas.fa-dice.align-middle.pr-1
                                     if (!(params.has('album') || params.has('album_name')))
-                                        a.navbar-item.btn.btn-fav(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`).d-none.d-xl-block
+                                        a.navbar-item.btn.btn-fav.hide-review(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`).d-none.d-xl-block
                                             i.fas.fa-address-book.align-middle.pr-1
                                 if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                    div.dropdown
+                                    div.dropdown.hide-review
                                         if (write_channels && write_channels.length > 0)
                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Upload File(s)" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Upload File(s)" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
                                                     i.fas.fa-upload.align-middle
                                             else
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Upload File(s)" href='#_' onclick='displayUploadModel(); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Upload File(s)" href='#_' onclick='displayUploadModel(); return false;')
                                                     i.fas.fa-upload.align-middle
                                         if (manage_channels && manage_channels.length > 0)
                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Send Text Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Send Text Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
                                                     i.fas.fa-edit.align-middle
                                             else
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block( title="Send Text Message" href='#_' onclick='displayMessageModel(0); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review( title="Send Text Message" href='#_' onclick='displayMessageModel(0); return false;')
                                                     i.fas.fa-edit.align-middle
                                         if (download && download.length > 0)
                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
                                                     i.fas.fa-cloud-download-alt.align-middle
                                             else
-                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
+                                                a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
                                                     i.fas.fa-cloud-download-alt.align-middle
-                                        a#uploadOptionsMenu.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-xxl-none(title="Upload Content" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="uploadMenu")
+                                        a#uploadOptionsMenu.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-xxl-none.hide-review(title="Upload Content" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="uploadMenu")
                                             i.fas.fa-upload.align-middle
-                                        .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in.d-xxl-none(aria-labelledby="uploadMenu")
+                                        .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in.d-xxl-none.hide-review(aria-labelledby="uploadMenu")
                                             if (write_channels && write_channels.length > 0)
                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                     a.dropdown-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
@@ -358,10 +358,10 @@ html
                                                         | Download URL
                                 if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
                                     if (results.length > 1)
-                                        a.navbar-item.btn.btn-admin(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
+                                        a.navbar-item.btn.btn-admin.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
                                             i.fas.fa-check-circle.align-middle
                                         if (manage_channels && manage_channels.length > 0)
-                                            a.navbar-item.btn.btn-admin(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-none.d-lg-block
+                                            a.navbar-item.btn.btn-admin.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-none.d-lg-block
                                                 i.fas.fa-snowplow.align-middle
                                     div.dropdown
                                         a#toolsMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Tools" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="toolsMenu")
@@ -369,10 +369,10 @@ html
                                         .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="toolsMenu")
                                             if (results.length > 1)
                                                 a.dropdown-item(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
-                                                    i.fas.fa-check-circle.pr-2
+                                                    i.fas.fa-check-circle.hide-review.pr-2
                                                     | Select Items
                                                 if (manage_channels && manage_channels.length > 0)
-                                                    a.dropdown-item(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-xl-none.d-lg-none
+                                                    a.dropdown-item.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-xl-none.d-lg-none
                                                         i.fas.pr-2.fa-snowplow
                                                         | Review Items
                                             span.dropdown-header
@@ -441,14 +441,14 @@ html
                                             a.dropdown-item(title="Download all images" href='#_' onclick="downloadAllItems(); return false;" role='button')
                                                 i.fas.fa-download.pr-2
                                                 | Download
-                                            a.dropdown-item(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
+                                            a.dropdown-item.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
                                                 i.fas.fa-satellite-dish.pr-2
                                                 | RSS Feed
                                             if (android_uri)
-                                                a.dropdown-item(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#appModal').modal('show'); return false;")
+                                                a.dropdown-item.hide-review(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#appModal').modal('show'); return false;")
                                                     i.fas.pr-2.fa-laptop
                                                     | Set as DWS
-                                            a.dropdown-item(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="loadADSDisplays(); return false;")
+                                            a.dropdown-item.hide-review(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="loadADSDisplays(); return false;")
                                                 i.fas.pr-2.fa-tv
                                                 | Set as ADS
                                             span.dropdown-header

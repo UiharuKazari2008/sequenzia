@@ -43,6 +43,10 @@ function toggleLightboxOverlay() {
   });
   $(window).resize(function() {
     const newWidth = $(window).width();
+    const tw = $('#titleExtra').width() + 10
+    if (tw > 20) {
+      $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${tw}px;} }; @keyframes slidetextextrain { from {max-width: ${tw}px; to {max-width: 0;}} };</style>`);
+    }
     if(newWidth !== cachedWidth){
       if ($(window).width() >= 1700) {
         body.removeClass("sidebar-toggled");
