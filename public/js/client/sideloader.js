@@ -43,6 +43,7 @@ $(function() {
     }).listen('hash');
 });
 
+let pageType = ''
 let last = undefined;
 let responseComplete = false;
 let itemsRemoved = 0;

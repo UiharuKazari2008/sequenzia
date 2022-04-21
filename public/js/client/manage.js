@@ -5,7 +5,6 @@ let actionSelection = '';
 let imageRotate = '';
 let newFileName = '';
 let oldFileName = '';
-let pageType = $.history.url().split('?')[0].substring(1);
 
 // File Name Update
 function updateFileName(obj) {
@@ -355,7 +354,7 @@ function setupReviewMode(bypass) {
         enableReviewMode(true);
     } else {
         //recentDestionations
-        let rdest = recentReviewDestination.map(e => {
+        let rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="btn btn-info mr-1 mb-1" href="#" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
@@ -377,7 +376,7 @@ function enableReviewMode(setFromDialog) {
                 } else {
                     recentReviewDestination.unshift(reviewDestination)
                 }
-                recentReviewDestination = recentReviewDestination.slice(0,5)
+                recentReviewDestination = recentReviewDestination.slice(0,5).filter(e => e.length > 5)
                 setCookie('recentReviewDestination', JSON.stringify(recentReviewDestination));
             } catch (e) {
                 console.error("Failed to save recent destinations")
@@ -645,7 +644,7 @@ function setReviewChannel(chid) {
 
 // Move Model Management
 function updateRecentPostDestinations() {
-    let rdest = recentPostDestination.map(e => {
+    let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
         const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
         if (n) {
             return `<div class="btn btn-info mr-1 mb-1" href="#" onclick="selectedChannel('${e}'); proccessPost(); return false">` +
@@ -703,7 +702,7 @@ function clearactionModel() {
         } else {
             recentPostDestination.unshift(postsDestination)
         }
-        recentPostDestination = recentPostDestination.slice(0,5)
+        recentPostDestination = recentPostDestination.slice(0,5).filter(e => e.length > 5)
         setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
     } catch (e) {
         console.error("Failed to save recent destinations")
