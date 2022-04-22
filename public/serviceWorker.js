@@ -18,10 +18,8 @@ self.addEventListener('activate', e => {
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cache => {
-                    if (cache !== cacheName) {
-                        console.log('Service Worker: Clearing Old Cache');
-                        return caches.delete(cache);
-                    }
+                    console.log('Service Worker: Clearing Old Cache');
+                    return caches.delete(cache);
                 })
             );
         })
