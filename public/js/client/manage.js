@@ -365,8 +365,8 @@ function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
-    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] || (reviewDestination && reviewDestination.length > 1 && bypass === true)) {
-        enableReviewMode(true);
+    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined || (reviewDestination && reviewDestination.length > 1 && bypass)) {
+        enableReviewMode();
     } else {
         //recentDestionations
         let rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
@@ -384,8 +384,9 @@ function setupReviewMode(bypass) {
 }
 function enableReviewMode(setFromDialog) {
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
-    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
+    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`]) {
         setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
+    }
     if (reviewDestination && reviewDestination.length > 1) {
         if (setFromDialog) {
             try {

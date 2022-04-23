@@ -361,7 +361,7 @@ html
                                         a.navbar-item.btn.btn-admin.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
                                             i.fas.fa-check-circle.align-middle
                                         if (manage_channels && manage_channels.length > 0)
-                                            a.navbar-item.btn.btn-admin.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-none.d-lg-block
+                                            a.navbar-item.btn.btn-admin.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(); return false;').d-none.d-lg-block
                                                 i.fas.fa-snowplow.align-middle
                                     div.dropdown
                                         a#toolsMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Tools" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="toolsMenu")
@@ -372,7 +372,7 @@ html
                                                     i.fas.fa-check-circle.pr-2
                                                     | Select Items
                                                 if (manage_channels && manage_channels.length > 0)
-                                                    a.dropdown-item.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(false); return false;').d-xl-none.d-lg-none
+                                                    a.dropdown-item.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(); return false;').d-xl-none.d-lg-none
                                                         i.fas.pr-2.fa-snowplow
                                                         | Review Items
                                             span.dropdown-header
@@ -1507,7 +1507,7 @@ html
                                         i.fas.fa-snowplow.pr-2
                                         span#reviewDestinationName NaN
                                 .col-auto.p-0.d-flex
-                                    a.btn.btn-primary.mr-1.w-100(title="Setup Review Mode" href='#_' onclick='setupReviewMode(false); return false;')
+                                    a.btn.btn-primary.mr-1.w-100(title="Setup Review Mode" href='#_' onclick='setupReviewMode(); return false;')
                                         i.fas.fa-cog
                                     a.btn.btn-primary.ml-1.w-100(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
                                         i.fas.fa-times
