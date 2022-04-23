@@ -236,7 +236,7 @@ block content
                                                 div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; left: 0; text-shadow: none").pl-2
                                                     .collapse(id=`accept-options-${item.id}`)
                                                         div.d-flex.flex-column.badge.bg-success(font-size: inherit)
-                                                            a.reviewAccept.p-2(title="Accept All Items Before" href='#_' onclick=`acceptAllItems(2, "${item.id}"); return false;`)
+                                                            a.reviewAccept.p-2.mb-3(title="Accept All Items Before" href='#_' onclick=`acceptAllItems(2, "${item.id}"); return false;`)
                                                                 i.text-white.fas.fa-arrow-left(style="font-size: 2em;")
                                                             a.reviewAccept.p-2(title="RAccept All Items After" href='#_' onclick=`acceptAllItems(1, "${item.id}"); return false;`)
                                                                 i.text-white.fas.fa-arrow-right(style="font-size: 2em;")
@@ -251,9 +251,9 @@ block content
                                                 div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; right: 0; text-shadow: none").pr-2
                                                     .collapse(id=`delete-options-${item.id}`)
                                                         div.d-flex.flex-column.badge.bg-danger(font-size: inherit)
-                                                            a.reviewReject.p-2(title="Reject Item" href='#_' onclick=`rejectAllItems(2, "${item.id}"); return false;`)
+                                                            a.reviewReject.p-2.mb-3(title="Reject All Items Before" href='#_' onclick=`rejectAllItems(2, "${item.id}"); return false;`)
                                                                 i.text-white.fas.fa-arrow-left(style="font-size: 2em;")
-                                                            a.reviewReject.p-2(title="Reject Item" href='#_' onclick=`rejectAllItems(1, "${item.id}"); return false;`)
+                                                            a.reviewReject.p-2(title="Reject All Items After" href='#_' onclick=`rejectAllItems(1, "${item.id}"); return false;`)
                                                                 i.text-white.fas.fa-arrow-right(style="font-size: 2em;")
                                                     a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#delete-options-${item.id}`)
                                                         i.btn-links.fas.fa-caret-up(style="color: #ff90a8;")
