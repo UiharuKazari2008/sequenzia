@@ -132,6 +132,16 @@ function getSidebar(refreshSidebar, disableModels) {
     });
 }
 
+function toggleFavorite(channelid, eid) {
+    const star = document.querySelector(`#fav-${eid} > i.fas.fa-star`)
+    let isFavorite = false;
+    if (star)
+        isFavorite = star.classList.contains('favorited');
+
+    sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
+
+    return false;
+}
 function sendBasic(channelid, messageid, action, confirm) {
     $.ajax({async: true,
         type: "post",
@@ -166,14 +176,22 @@ function sendBasic(channelid, messageid, action, confirm) {
 }
 function afterAction(action, data, id, confirm) {
     console.log('Message Request Sent!')
-    if (action === 'Pin' || action === 'PinUser') {
-        let icon = document.getElementById('fav-' + id)
-        icon.querySelector("#button").classList.add('favorited')
-        icon.setAttribute('onClick', 'return false;');
-    } else if (action === 'Unpin' || action === 'UnpinUser') {
-        let icon = document.getElementById('fav-' + id)
-        icon.querySelector("#button").classList.remove('favorited')
-        icon.setAttribute('onClick', 'return false;');
+    if (action === 'Pin' || action === 'Unpin') {
+        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+            if (action.startsWith('Un')) {
+                el.classList.remove('favorited')
+            } else {
+                el.classList.add('favorited')
+            }
+        });
+    } else if (action === 'PinUser' || action === 'UnpinUser') {
+        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+            if (action.startsWith('Un')) {
+                el.classList.remove('favorited')
+            } else {
+                el.classList.add('favorited')
+            }
+        });
     }
 }
 
@@ -505,7 +523,9 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
             .register('/serviceWorker.js')
-            .then(reg => console.log('Service Worker: Registered'))
+            .then(reg => {
+                console.log('Service Worker: Registered')
+            })
             .catch(err => console.log(`Service Worker: Error: ${err}`));
     });
 }

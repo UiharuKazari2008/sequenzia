@@ -175,12 +175,8 @@ block content
 
                                     .btn-group.file-tools.d-inline-block
                                         if (user && user.source < 900)
-                                            if (item.pinned)
-                                                a.btn.btn-fav(id='fav-' + item.eid title="Unpin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
-                                                    i#button.fas.fa-star.favorited
-                                            else
-                                                a.btn.btn-fav(id='fav-' + item.eid title="Pin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
-                                                    i#button.fas.fa-star
+                                            a.btn.btn-fav(id='fav-' + item.eid data-placement="top" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                i.btn-fav.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                             if (thisImageManage)
                                                 a.btn.btn-admin(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''});  openActionMenu(); return false;` )
                                                     i#button.fas.fa-paste

@@ -64,12 +64,8 @@ block content
                                     div.links-container.text-primary
                                         div.links
                                             div.left-links.row-1
-                                                if (item.pinned)
-                                                    a.btn.btn-links(id='fav-' + item.id title="Unpin Artist" href='#_' onclick=`sendBasic(null, "${item.id}", "UnpinUser", true);return false;`)
-                                                        i#button.btn-links.fas.fa-star.favorited
-                                                else
-                                                    a.btn.btn-links(id='fav-' + item.id title="Pin Artist" href='#_' onclick=`sendBasic(null, "${item.id}", "PinUser", true);return false;`)
-                                                        i#button.btn-links.fas.fa-star
+                                                a.btn.btn-links(data-placement="top" id='fav-' + item.id title="Toggle Favorite" href='#_' onclick=`toggleFavorite(null, "${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                                 if (item.artist.search)
                                                     a.btn.btn-links.goto-link(title=`Search Artists Images` href=`#/gallery?channel=${item.channel.id}&nsfw=true&search=${encodeURIComponent(item.artist.search)}`)
                                                         i.btn-links.fas.fa-search

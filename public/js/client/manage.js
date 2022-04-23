@@ -53,6 +53,20 @@ function proccessPost(alt) {
             }
         })
     };
+    try {
+        if (recentPostDestination.indexOf(postsDestination) !== -1) {
+            recentPostDestination.sort(function (x, y) {
+                return x == postsDestination ? -1 : y == postsDestination ? 1 : 0;
+            });
+        } else {
+            recentPostDestination.unshift(postsDestination)
+        }
+        recentPostDestination = recentPostDestination.slice(0,5).filter(e => e.length > 8)
+        setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
+    } catch (e) {
+        console.error("Failed to save recent destinations")
+        console.error(e)
+    }
 }
 function openActionMenu(mode) {
     if (postsActions.length > 0) {
@@ -357,7 +371,7 @@ function setupReviewMode(bypass) {
         let rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<div class="btn btn-info mr-1 mb-1" href="#" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
                 `    <span>${n}</span>` +
                 `</div>`
             }
@@ -376,7 +390,7 @@ function enableReviewMode(setFromDialog) {
                 } else {
                     recentReviewDestination.unshift(reviewDestination)
                 }
-                recentReviewDestination = recentReviewDestination.slice(0,5).filter(e => e.length > 5)
+                recentReviewDestination = recentReviewDestination.slice(0,5).filter(e => e.length > 8)
                 setCookie('recentReviewDestination', JSON.stringify(recentReviewDestination));
             } catch (e) {
                 console.error("Failed to save recent destinations")
@@ -531,36 +545,107 @@ function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     }
     return false;
 }
+function exitMoveMenu(messageid) {
+    Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.remove('hidden'));
+    Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')).map(el => el.classList.add('hidden'));
+    return false;
+}
+function acceptMenu(serverid, channelid, messageid, fileStatus) {
+    if (reviewDestination && reviewDestination.length > 1 && recentPostDestination && recentPostDestination.length > 0) {
+        if (recentPostDestination && recentPostDestination.length > 0) {
+            const destinationMenu = document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')
+            let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+                const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+                if (n) {
+                    return `<li class="list-group-item" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
+                        `    <span style="">${n}</span>` +
+                        `</li>`
+                }
+
+            })
+            if (rdest.length > 0) {
+                destinationMenu[0].innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
+                Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.add('hidden'));
+                Array.from(destinationMenu).map(el => el.classList.remove('hidden'));
+            } else {
+                acceptItem(serverid, channelid, messageid, false, fileStatus);
+            }
+        } else {
+            acceptItem(serverid, channelid, messageid, false, fileStatus);
+        }
+    }
+    return false;
+}
 function rejectItem(serverid, channelid, messageid) {
     document.getElementById(`message-${messageid}`).classList.add('hidden')
     sendAction(serverid, channelid, messageid, 'RemovePost', null, false);
     return false;
 }
-function rejectAllItems() {
-    const pageItems = document.querySelectorAll('[data-msg-id].col-image')
+function rejectAllItems(direction, id) {
+    let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image'))
+    switch (direction) {
+        case 1:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(index)
+            } else {
+                pageItems = []
+            }
+            break;
+        case 2:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(0, index + 1)
+            } else {
+                pageItems = []
+            }
+            break;
+        default:
+            break;
+    }
     //document.querySelector('#LoadNextPage > div').click();
     if (reviewDestination && reviewDestination.length > 1) {
-        [].forEach.call(pageItems, function (el) {
+        pageItems.forEach(el => {
             const serverid = el.getAttribute('data-msg-server')
             const channelid = el.getAttribute('data-msg-channel')
             const messageid = el.getAttribute('data-msg-id')
             if (serverid && channelid && messageid)
                 rejectItem(serverid, channelid, messageid)
-        });
+        })
     }
     return false;
 }
-function acceptAllItems() {
-    const pageItems = document.querySelectorAll('[data-msg-id].col-image')
+function acceptAllItems(direction, id) {
+    let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image'))
+    switch (direction) {
+        case 1:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(index)
+            } else {
+                pageItems = []
+            }
+            break;
+        case 2:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(0, index + 1)
+            } else {
+                pageItems = []
+            }
+            break;
+        default:
+            break;
+    }
     //document.querySelector('#LoadNextPage > div').click();
     if (reviewDestination && reviewDestination.length > 1) {
-        [].forEach.call(pageItems, function (el) {
+        pageItems.forEach(el => {
             const serverid = el.getAttribute('data-msg-server')
             const channelid = el.getAttribute('data-msg-channel')
             const messageid = el.getAttribute('data-msg-id')
             if (serverid && channelid && messageid)
                 acceptItem(serverid, channelid, messageid, true)
-        });
+        })
     }
     return false;
 }
@@ -647,7 +732,7 @@ function updateRecentPostDestinations() {
     let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
         const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
         if (n) {
-            return `<div class="btn btn-info mr-1 mb-1" href="#" onclick="selectedChannel('${e}'); proccessPost(); return false">` +
+            return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="selectedChannel('${e}'); proccessPost(); return false">` +
                 `    <span>${n}</span>` +
                 `</div>`
         }
@@ -657,7 +742,7 @@ function updateRecentPostDestinations() {
 function selectedChannel(chid) {
     const chname = actionModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
-    actionModel.querySelector("#channelSelector").classList.add('btn-success')
+    actionModel.querySelector("#channelSelector").style.backgroundColor = chname.toRGB();
     actionModel.querySelector("#selectedChannel").innerText = chname;
     if (_lastChannelSelection === '') {
         actionModel.querySelector("#destination-" + chid).classList.add('active')
@@ -694,20 +779,6 @@ function selectedRotate(rotate) {
     return false;
 }
 function clearactionModel() {
-    try {
-        if (recentPostDestination.indexOf(postsDestination) !== -1) {
-            recentPostDestination.sort(function (x, y) {
-                return x == postsDestination ? -1 : y == postsDestination ? 1 : 0;
-            });
-        } else {
-            recentPostDestination.unshift(postsDestination)
-        }
-        recentPostDestination = recentPostDestination.slice(0,5).filter(e => e.length > 5)
-        setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
-    } catch (e) {
-        console.error("Failed to save recent destinations")
-        console.error(e)
-    }
     countdownTimer = -1;
     if (!inReviewMode)
         disableGallerySelect();

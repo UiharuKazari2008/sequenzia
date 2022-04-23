@@ -1500,28 +1500,17 @@ html
                                         a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
                                             span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
                                                 i.fas.pl-1.pr-1.fa-info
-                        #reviewBtns.hidden
-                            div.d-flex.align-items-start.mb-2.h4
-                                i.fas.fa-snowplow.pr-2
-                                span#reviewDestinationName NaN
-                            div.d-flex.align-items-center.mb-3
-                                .col.p-0.d-flex
-                                    a.btn.btn-danger.w-100.mr-1(title="ACCEPT ALL ITEMS" href='#_' onclick='acceptAllItems(); return false;')
-                                        i.fas.fa-check
-                                        span.pl-1.d-none.d-sm-inline Accept All
-                                    a.btn.btn-danger.w-100.mr-1.ml-1(title="MOVE ALL ITEMS" href='#_' onclick='moveAllItems(); return false;')
-                                        i.fas.fa-cut
-                                        span.pl-1.d-none.d-sm-inline Move All
-                                    a.btn.btn-danger.w-100.mr-1.ml-1(title="REJECT ALL ITEMS" href='#_' onclick='rejectAllItems(); return false;')
-                                        i.fas.fa-trash-alt
-                                        span.pl-1.d-none.d-sm-inline Reject All
-                                .col-auto.p-0
-                                    a.btn.btn-primary.mr-1.ml-1(title="Setup Review Mode" href='#_' onclick='setupReviewMode(fasle); return false;')
+                        #reviewBtns.hidden.mb-3
+                            div.d-sm-flex.align-items-center.d-inline
+                                .col.p-0.d-flex.align-items-center
+                                    h3
+                                        i.fas.fa-snowplow.pr-2
+                                        span#reviewDestinationName NaN
+                                .col-auto.p-0.d-flex
+                                    a.btn.btn-primary.mr-1.w-100(title="Setup Review Mode" href='#_' onclick='setupReviewMode(false); return false;')
                                         i.fas.fa-cog
-                                        span.pl-1.d-none.d-sm-inline Setup
-                                    a.btn.btn-primary.ml-1(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
+                                    a.btn.btn-primary.ml-1.w-100(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
                                         i.fas.fa-times
-                                        span.pl-1.d-none.d-sm-inline Exit
                         #contentBlock
                             block content
                         #pageinator

@@ -77,6 +77,35 @@ let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") 
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
 let downloadURLs = [];
 
+String.prototype.toRGB = function() {
+    var hash = 0;
+    if (this.length === 0) return hash;
+    for (var i = 0; i < this.length; i++) {
+        hash = this.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash;
+    }
+    var rgb = [0, 0, 0];
+    for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 255;
+        rgb[i] = value;
+    }
+    return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+String.prototype.toHex = function() {
+    var hash = 0;
+    if (this.length === 0) return hash;
+    for (var i = 0; i < this.length; i++) {
+        hash = this.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash;
+    }
+    var color = '#';
+    for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 255;
+        color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+}
+
 function isTouchDevice(){
     return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
 }
@@ -1019,6 +1048,16 @@ function setImageLayout(size, _html) {
 }
 
 // Send Action
+function toggleFavorite(channelid, eid) {
+    const star = document.querySelector(`#fav-${eid} > i.fas.fa-star`)
+    let isFavorite = false;
+    if (star)
+        isFavorite = star.classList.contains('favorited');
+
+    sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
+
+    return false;
+}
 function sendAction(serverid, channelid, messageid, action, data, confirm) {
     $.ajax({async: true,
         type: "post",
@@ -1088,26 +1127,36 @@ function sendBasic(channelid, messageid, action, confirm) {
     return false;
 }
 function afterAction(action, data, id, confirm) {
+    const message = document.getElementById(`message-${id}`);
+
     console.log('Message Request Sent!')
-    if (action === 'Pin' || action === 'PinUser') {
-        let icon = document.getElementById('fav-' + id)
-        icon.querySelector("#button").classList.add('favorited')
-        icon.setAttribute('onClick', 'return false;');
-    } else if (action === 'Unpin' || action === 'UnpinUser') {
-        let icon = document.getElementById('fav-' + id)
-        icon.querySelector("#button").classList.remove('favorited')
-        icon.setAttribute('onClick', 'return false;');
+    if (action === 'Pin' || action === 'Unpin') {
+        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+            if (action.startsWith('Un')) {
+                el.classList.remove('favorited')
+            } else {
+                el.classList.add('favorited')
+            }
+        });
+    } else if (action === 'PinUser' || action === 'UnpinUser') {
+        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+            if (action.startsWith('Un')) {
+                el.classList.remove('favorited')
+            } else {
+                el.classList.add('favorited')
+            }
+        });
     } else if (action === 'MovePost' || action === 'RemovePost' || action === 'ArchivePost') {
         itemsRemoved++;
         try {
-            document.getElementById('message-' + id).remove();
+            message.remove();
             postsActions = [];
         } catch (e) {
             console.log(e);
         }
     } else if (action === 'RotatePost') {
         try {
-            document.getElementById('message-' + id).querySelector('div#postImage').style.transform = 'rotate(' + imageRotate + 'deg)';
+            message.querySelector('div#postImage').style.transform = 'rotate(' + imageRotate + 'deg)';
             postsActions = [];
         } catch (e) {
             console.log(e);
@@ -1118,7 +1167,7 @@ function afterAction(action, data, id, confirm) {
                 postsActions = [];
             }
             try {
-                document.getElementById('message-' + id).querySelector('.align-middle').innerText = newFileName;
+                message.querySelector('.align-middle').innerText = newFileName;
             } catch (e) {
                 console.log(e);
             }
@@ -1127,7 +1176,7 @@ function afterAction(action, data, id, confirm) {
         if (confirm) {
             postsActions = [];
             try {
-                document.getElementById('message-' + id).querySelector('.report-link > i').classList.add('reported');
+                message.querySelector('.report-link > i').classList.add('reported');
             } catch (e) {
                 console.log(e);
             }
@@ -1136,7 +1185,7 @@ function afterAction(action, data, id, confirm) {
         if (confirm) {
             postsActions = [];
             try {
-                document.getElementById('message-' + id).querySelector('.report-link > i').classList.remove('reported');
+                message.querySelector('.report-link > i').classList.remove('reported');
             } catch (e) {
                 console.log(e);
             }
