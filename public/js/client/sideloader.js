@@ -66,6 +66,13 @@ let recentReviewDestination = (getCookie("recentReviewDestination") !== null) ? 
         return []
     }
 })() : [];
+let reviewDestinationMap = (getCookie("reviewDestinationMap") !== null) ? (() => {
+    try {
+        return JSON.parse(getCookie("reviewDestinationMap"))
+    } catch (err) {
+        return {}
+    }
+})() : {};
 let _lastChannelSelection = '';
 let _lastReviewChannelSelection = '';
 let fileWorking = false;
