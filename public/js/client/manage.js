@@ -555,28 +555,26 @@ function exitMoveMenu(messageid) {
     return false;
 }
 function acceptMenu(serverid, channelid, messageid, fileStatus) {
-    if (reviewDestination && reviewDestination.length > 1 && recentPostDestination && recentPostDestination.length > 0) {
-        if (recentPostDestination && recentPostDestination.length > 0) {
-            const destinationMenu = document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')
-            let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
-                const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
-                if (n) {
-                    return `<li class="list-group-item" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
-                        `    <span style="">${n}</span>` +
-                        `</li>`
-                }
-
-            })
-            if (rdest.length > 0) {
-                destinationMenu[0].innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
-                Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.add('hidden'));
-                Array.from(destinationMenu).map(el => el.classList.remove('hidden'));
-            } else {
-                acceptItem(serverid, channelid, messageid, false, fileStatus);
+    if (recentPostDestination && recentPostDestination.length > 0) {
+        const destinationMenu = document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')
+        let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<li class="list-group-item" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
+                    `    <span style="">${n}</span>` +
+                    `</li>`
             }
+
+        })
+        if (rdest.length > 0) {
+            destinationMenu[0].innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
+            Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.add('hidden'));
+            Array.from(destinationMenu).map(el => el.classList.remove('hidden'));
         } else {
             acceptItem(serverid, channelid, messageid, false, fileStatus);
         }
+    } else {
+        acceptItem(serverid, channelid, messageid, false, fileStatus);
     }
     return false;
 }
