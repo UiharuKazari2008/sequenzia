@@ -384,9 +384,8 @@ function setupReviewMode(bypass) {
 function enableReviewMode(setFromDialog) {
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
-        reviewDestination = reviewDestinationMap[`${encodeURIComponent(cleanURL)}`];
+        setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
     if (reviewDestination && reviewDestination.length > 1) {
-
         if (setFromDialog) {
             try {
                 if (recentReviewDestination.indexOf(reviewDestination) !== -1) {
@@ -705,7 +704,7 @@ function moveAllItems() {
     }
     return false;
 }
-function setReviewChannel(chid) {
+function setReviewChannel(chid, noSave) {
     const chname = setupReviewModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
     setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
@@ -726,13 +725,15 @@ function setReviewChannel(chid) {
         console.error("Failed to save cookie for destinations");
         console.error(e)
     }
-    try {
-        const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
-        reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
-        setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
-    } catch (e) {
-        console.error(e)
-        console.error('Failed to save review destination map')
+    if (!noSave) {
+        try {
+            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+            reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
+            setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
+        } catch (e) {
+            console.error(e)
+            console.error('Failed to save review destination map')
+        }
     }
     return false;
 }
