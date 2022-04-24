@@ -364,17 +364,19 @@ function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
-    if (reviewDestination && reviewDestination.length > 1 && bypass === true) {
-        enableReviewMode(true);
+    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined || !(reviewDestination && reviewDestination.length > 1)) {
+        enableReviewMode();
     } else {
         //recentDestionations
-        let rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
                 `    <span>${n}</span>` +
                 `</div>`
             }
+            return ''
         }).join('\n')
         setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
         $('#setupReviewModel').modal('show');
@@ -382,6 +384,10 @@ function setupReviewMode(bypass) {
     return false;
 }
 function enableReviewMode(setFromDialog) {
+    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`]) {
+        setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
+    }
     if (reviewDestination && reviewDestination.length > 1) {
         if (setFromDialog) {
             try {
@@ -551,28 +557,26 @@ function exitMoveMenu(messageid) {
     return false;
 }
 function acceptMenu(serverid, channelid, messageid, fileStatus) {
-    if (reviewDestination && reviewDestination.length > 1 && recentPostDestination && recentPostDestination.length > 0) {
-        if (recentPostDestination && recentPostDestination.length > 0) {
-            const destinationMenu = document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')
-            let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
-                const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
-                if (n) {
-                    return `<li class="list-group-item" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
-                        `    <span style="">${n}</span>` +
-                        `</li>`
-                }
-
-            })
-            if (rdest.length > 0) {
-                destinationMenu[0].innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
-                Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.add('hidden'));
-                Array.from(destinationMenu).map(el => el.classList.remove('hidden'));
-            } else {
-                acceptItem(serverid, channelid, messageid, false, fileStatus);
+    if (recentPostDestination && recentPostDestination.length > 0) {
+        const destinationMenu = document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')
+        let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<li class="list-group-item" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
+                    `    <span style="">${n}</span>` +
+                    `</li>`
             }
+
+        })
+        if (rdest.length > 0) {
+            destinationMenu[0].innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
+            Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.add('hidden'));
+            Array.from(destinationMenu).map(el => el.classList.remove('hidden'));
         } else {
             acceptItem(serverid, channelid, messageid, false, fileStatus);
         }
+    } else {
+        acceptItem(serverid, channelid, messageid, false, fileStatus);
     }
     return false;
 }
@@ -703,7 +707,7 @@ function moveAllItems() {
     }
     return false;
 }
-function setReviewChannel(chid) {
+function setReviewChannel(chid, noSave) {
     const chname = setupReviewModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
     setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
@@ -723,6 +727,16 @@ function setReviewChannel(chid) {
     } catch (e) {
         console.error("Failed to save cookie for destinations");
         console.error(e)
+    }
+    if (!noSave) {
+        try {
+            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+            reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
+            setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
+        } catch (e) {
+            console.error(e)
+            console.error('Failed to save review destination map')
+        }
     }
     return false;
 }
