@@ -376,6 +376,7 @@ function setupReviewMode(bypass) {
                 `    <span>${n}</span>` +
                 `</div>`
             }
+            return ''
         }).join('\n')
         setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
         $('#setupReviewModel').modal('show');
