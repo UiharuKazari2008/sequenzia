@@ -365,11 +365,11 @@ function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
-    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined || (reviewDestination && reviewDestination.length > 1 && bypass)) {
+    if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined || (reviewDestination && reviewDestination.length > 1)) {
         enableReviewMode();
     } else {
         //recentDestionations
-        let rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
