@@ -351,7 +351,7 @@ block content
                                                 a.btn.btn-links.goto-link(data-placement="top" title=`Search for similar Colour` href=`#/gallery?color=${encodeURIComponent(item.entities.meta.color.join(":"))}${showNSFWString}`)
                                                     i.btn-links.fas.fa-swatchbook
                                             if (item.meta.search)
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#` onClick=`getNewContent([], [['search', "text:${item.meta.search}"]])`)
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
                                                     i.btn-links.fas.fa-user
                                             if (item.meta.parent_search)
                                                 a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Search for Parent "${item.meta.parent_search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.parent_search)}${showNSFWString}`)
