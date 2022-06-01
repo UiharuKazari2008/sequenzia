@@ -1735,6 +1735,60 @@ html
                                 #feedNoKeydiv.row.pl-3.pr-3.pt-2.d-none
                                     p.text-danger You currently do not have a static login token!
                                     p Go to the user menu > Authentication > Regenerate, Then refresh and try again.
+                #searchModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+                    .modal-dialog(role='document')
+                        .modal-content
+                            .modal-header
+                                h5.modal-title
+                                    span Information
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                                    span(aria-hidden='true') &times;
+                            .modal-body
+                                div.row.pl-3.pr-3
+                                    div#rawBodyContent.mb-3.text-center.w-100
+                                        div
+                                div.row.pl-3.pr-3
+                                    a#goToPostLocation.btn.btn-primary(data-toggle='collapse' href='#_' role='button').w-100
+                                        i.fas.fa-directions.pr-2
+                                        span Go to channel
+                                div.row.pl-3.pr-3
+                                    a#goToPostSource.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mt-2.w-100.hidden
+                                        i.fas.fa-globe-americas.pr-2
+                                        span Go to source
+                                div.row.pl-3.pr-3.mt-3
+                                    h3 Search
+                                div.row.pl-3.pr-3
+                                    div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
+                                        label#searchFilterEverywhere.btn.btn-info.w-100.active
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                            span  Everywhere
+                                        label#searchFilterCurrent.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Current
+                                        label#searchFilterPost.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Post
+                                div.row.pl-3.pr-3
+                                    a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                        i.fas.fa-level-up-alt.pr-2
+                                        span Parent Post
+                                div.row.pl-3.pr-3
+                                    a#searchByUser.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                        i.fas.fa-user.pr-2
+                                        span Artist
+                                div.row.pl-3.pr-3
+                                    a#searchByColor.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                        i.fas.fa-swatchbook.pr-2
+                                        span Similar Color
+                                div.row.pl-3.pr-3
+                                    a#searchByID.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                        i.fas.fa-asterisk.pr-2
+                                        span Related IDs
+                                div.row.pl-3.pr-3
+                                    a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                        i.fas.fa-i-cursor.pr-2
+                                        span Selected Text
+
                 #appModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
                         .modal-content

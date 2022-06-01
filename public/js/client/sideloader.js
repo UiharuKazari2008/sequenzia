@@ -779,6 +779,143 @@ async function startDownloadingFiles() {
     downloadModel.querySelector("#downloadProgText").innerText = `Ready`
     disableGallerySelect();
 }
+async function showSearchOptions(post) {
+    const _post = document.getElementById(`message-${post}`);
+    console.log(_post);
+    const postChannel = _post.getAttribute('data-msg-channel');
+    const postChannelString = _post.getAttribute('data-msg-channel-string');
+    const postEID = _post.getAttribute('data-msg-eid');
+    const postID = _post.getAttribute('data-msg-id');
+    let postBody = _post.getAttribute('data-msg-bodyraw') + '';
+    const nsfwString = _post.getAttribute('data-nsfw-string');
+
+    const searchUser = _post.getAttribute('data-search-user');
+    const searchParent = _post.getAttribute('data-search-parent');
+    const searchColor = _post.getAttribute('data-search-color');
+    const searchSource = _post.getAttribute('data-search-source');
+
+    const modalGoToPostLocation = document.getElementById(`goToPostLocation`);
+    const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
+    const modalGoToPostSource = document.getElementById(`goToPostSource`);
+    const modalSearchByUser = document.getElementById(`searchByUser`);
+    const modalSearchByParent = document.getElementById(`searchByParent`);
+    const modalSearchByColor = document.getElementById(`searchByColor`);
+    const modalSearchByID = document.getElementById(`searchByID`);
+    const modalBodyRaw = document.getElementById(`rawBodyContent`);
+
+    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', postChannel]])}`)
+    document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [])}`)
+
+    modalSearchSelectedText.onclick = function() {
+        const text = window.getSelection().toString()
+        if (text && text.length > 0 && text.trim().length > 0) {
+            $('#searchModal').modal('hide');
+            window.getSelection().toString()
+            window.location.assign(`#${getLocation()}search=text:${text.trim()}${(nsfwString) ? nsfwString : ''}`);
+        } else {
+            alert(`You must select text above first before you can search selected text!`)
+        }
+        return false;
+    }
+    modalGoToPostLocation.onclick = function() {
+        $('#searchModal').modal('hide');
+        window.location.assign(`#${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', '${postChannel}']])}`);
+        return false;
+    }
+    if (postChannelString && postChannelString.length > 0) {
+        modalGoToPostLocation.querySelector('span').textContent = `Go To "${postChannelString}"`
+    } else {
+        modalGoToPostLocation.querySelector('span').textContent = 'Go To Channel'
+    }
+    if (searchSource && searchSource.length > 0) {
+        modalGoToPostSource.querySelector('span').textContent = `Go To "${searchSource}"`
+    } else {
+        modalGoToPostSource.querySelector('span').textContent = 'Go To Source'
+    }
+    if (searchSource && searchSource.length > 0) {
+        modalGoToPostSource.onclick = function() {
+            $('#searchModal').modal('hide');
+            $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
+            return false;
+        }
+        modalGoToPostSource.classList.remove('hidden')
+    } else {
+        modalGoToPostSource.onclick = function() { return false; };
+        modalGoToPostSource.classList.add('hidden')
+    }
+    if (searchUser && searchUser.length > 0) {
+        modalSearchByUser.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}search=text:${searchUser}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByUser.classList.remove('hidden')
+    } else {
+        modalSearchByUser.onclick = function() { return false; };
+        modalSearchByUser.classList.add('hidden')
+    }
+    if (searchParent && searchParent.length > 0) {
+        modalSearchByParent.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}search=text:${searchParent}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByParent.classList.remove('hidden')
+    } else {
+        modalSearchByParent.onclick = function() { return false; };
+        modalSearchByParent.classList.add('hidden')
+    }
+    if (searchColor && searchColor.length > 0) {
+        modalSearchByColor.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}color=${searchColor}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByColor.classList.remove('hidden')
+    } else {
+        modalSearchByColor.onclick = function() { return false; };
+        modalSearchByColor.classList.add('hidden')
+    }
+    if (postID && postID.length > 0) {
+        modalSearchByID.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}search=${encodeURIComponent("id:st:" + postID.substring(0, 6))}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByID.classList.remove('hidden')
+    } else {
+        modalSearchByID.onclick = function() { return false; };
+        modalSearchByID.classList.add('hidden')
+    }
+    if (postBody && postBody.length > 0) {
+        const regexItalic = /\*\*\*(.*?)\*\*\*/g;
+        while (postBody.includes('***')) {
+            let matched = regexItalic.exec(postBody);
+            let wrap = "<i>" + matched[1] + "</i>";
+            postBody = postBody.replace(`***${matched[1]}***`, wrap);
+        }
+        const regexBold = /\*\*(.*?)\*\*/g;
+        while (postBody.includes('**')) {
+            let matched = regexBold.exec(postBody);
+            let wrap = "<b>" + matched[1] + "</b>";
+            postBody = postBody.replace(`**${matched[1]}**`, wrap);
+        }
+
+        modalBodyRaw.querySelector('div').innerHTML = postBody
+        modalBodyRaw.classList.remove('hidden')
+    } else {
+        modalBodyRaw.querySelector('div').innerHTML = ''
+        modalBodyRaw.classList.add('hidden')
+    }
+
+    $('#searchModal').modal('show');
+    return false;
+}
+function getLocation() {
+    const l = document.getElementById('searchLocationSelection').querySelector('.active').getAttribute('data-search-location')
+    return (l.split('?').pop().length > 0) ? l + '&' : l
+}
 
 function showAuthManager() {
     $('#authenticationModel').modal('show');
