@@ -157,7 +157,7 @@ block content
                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                             a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.btn-links.fas.fa-archive
-                                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;` data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}`)
+                                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;`)
                                                 i.btn-links.fas.fa-info-circle
                                             if (thisImageManage && user && user.source < 900)
                                                 a.btn.btn-links(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
@@ -200,12 +200,8 @@ block content
                                             .collapse.p-0.no-dynamic-tiny(id=`options-${item.id}`).mr-auto
                                                 a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                     i.btn-links.fas.fa-archive
-                                                if (item.meta.urls && item.meta.urls.length > 0)
-                                                    a.btn.btn-links(data-placement="top" title=`Source URL: "${item.meta.urls[0].split("%60").join("")}"` href=item.meta.urls[0].split("%60").join("") target="_blank" rel="noopener noreferrer")
-                                                        i.btn-links.fas.fa-globe-americas
-                                                if (item.meta.search)
-                                                    a.btn.btn-links(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
-                                                        i.btn-links.fas.fa-user
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;`)
+                                                    i.btn-links.fas.fa-info-circle
                                             a.btn.btn-links.no-dynamic-tiny(type='button' data-toggle='collapse' data-target=`#options-${item.id}`)
                                                 i.btn-links.fas.fa-ellipsis-h
 
