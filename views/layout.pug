@@ -95,8 +95,8 @@ html
                     div.fixed-top
                         div#userMenu.shown-user-menu
                             div.user-info-bg
-                                div.user.icon.d-flex.flex-column
-                                    .row(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: inherit;")
+                                div.user-icon.d-flex.flex-column(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: inherit;")
+                                    .row(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: 125px;")
                                         .col-auto
                                             img.img-profile.rounded-circle(src=user.avatar style="width: 190px;").p-3
                                         .col
@@ -127,7 +127,7 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                            div.user-menu-buttons
+                            //div.user-menu-buttons
                                 a.dropdown-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
                                     i.fas.fa-sm.fa-fw.mr-2.fa-archive
                                     | Album Manager
