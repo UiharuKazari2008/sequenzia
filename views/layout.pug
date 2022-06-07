@@ -132,38 +132,40 @@ html
                                     span.sidebar-brand-logo.sequenzia-logo(style='font-size: 2.8em; color: #ff9b59;').ml-auto sequenzia
                                 .row
                                     a.user-menu-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
-                                        i.fas.fa-sm.fa-fw.mr-2.fa-archive
-                                        | Album Manager
-                                    a.user-menu-item(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                        i.fas.fa-desktop.fa-sm.fa-fw.mr-2
-                                        | Ambient System
-                                    if (user && user.source < 900)
+                                        i.fas.fa-fw.fa-archive
+                                        | Albums
+                                    a.user-menu-item(data-placement="left" title="Image History and Ambient Manager" href='#_' onclick='showDisplayHistory(); return false;')
+                                        i.fas.fa-desktop.fa-fw
+                                        | Ambient
+                                    //if (user && user.source < 900)
                                         a.user-menu-item(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                            i.fas.fa-key.fa-sm.fa-fw.mr-2
+                                            i.fas.fa-key.fa-fw
                                             | Authentication
-                                    a.user-menu-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
-                                        i.fas.fa-sm.fa-fw.mr-2.fa-eye-slash
+                                    //a.user-menu-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                        i.fas.fa-fw.fa-eye-slash
                                         | Hide Channels
                                     if (webconfig && webconfig.support_lines)
                                         a.user-menu-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                            i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
+                                            i.fas.fa-fw.fa-question-circle
                                             | Support
                                     a.user-menu-item(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                        i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
+                                        i.fas.fa-fw.fa-info-circle
                                         | About
-                                    .user-menu-divider
+                                    a.user-menu-item(title="Options" href='#_' data-toggle='modal' data-target='#settingsModal')
+                                        i.fas.fa-fw.fa-cog
+                                        | Options
 
-                                    a.user-menu-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                        i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                    //a.user-menu-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                                        i.fas.fa-sync.fa-fw
                                         | Restart App
-                                    a.user-menu-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                        i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                    //a.user-menu-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
+                                        i.fas.fa-sync.fa-fw
                                         | Update Sidebar
-                                    a.user-menu-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                        i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                    //a.user-menu-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                        i.fas.fa-sync.fa-fw
                                         | Update Account
                                     a.user-menu-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                        i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
+                                        i.fas.fa-sign-out-alt.fa-fw.text-danger
                                         | Logout
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.d-md-none.text-primary

@@ -1736,6 +1736,15 @@ div.collapse-divider {
 .user-info-bg {
     width: 600px;
 }
+.user-menu-item {
+    flex-direction: row;
+    justify-items: center;
+    padding: 0 1em;
+    display: inline-grid;
+}
+.user-menu-item > i {
+    font-size: 1.5em;
+}
 
 #topbar.shown-user-menu {
     margin-top: 200px;
