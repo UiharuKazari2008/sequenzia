@@ -96,7 +96,70 @@ html
                         div#userMenu.shown-user-menu
                             div.user-info-bg
                                 div.user.icon
+                                    div.align-self-center
+                                        img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
+                                        div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
+                                            if (user && user.source || user && user.source === 0)
+                                                if (user.source === 0)
+                                                    // Logged in with Discord
+                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
+                                                else if (user.source === 1)
+                                                    // Logged in with Discord
+                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
+                                                else if (user.source < 100)
+                                                    // Logged in with Discord
+                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
+                                                else if (user.source == 100)
+                                                    // Logged in with Telegram
+                                                    i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
+                                                else if (user.source == 900)
+                                                    // Logged in with Unauthorized Login Meathod
+                                                    i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                                                else
+                                                    // Logged in with some unknown platform
+                                                    i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
+                                            else
+                                                // Login Source was not detected
+                                                i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
+                                            span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
+                                        if (user && user.source === 900)
+                                            div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
                             div.user-menu-buttons
+                                a.dropdown-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
+                                    i.fas.fa-sm.fa-fw.mr-2.fa-archive
+                                    | Album Manager
+                                a.dropdown-item(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                    i.fas.fa-desktop.fa-sm.fa-fw.mr-2
+                                    | Ambient System
+                                if (user && user.source < 900)
+                                    a.dropdown-item(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                        i.fas.fa-key.fa-sm.fa-fw.mr-2
+                                        | Authentication
+                                a.dropdown-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                    i.fas.fa-sm.fa-fw.mr-2.fa-eye-slash
+                                    | Hide Channels
+                                if (webconfig && webconfig.support_lines)
+                                    a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                        i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
+                                        | Support
+                                a.dropdown-item(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                    i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
+                                    | About
+                                .dropdown-divider
+
+                                a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                                    i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                    | Restart App
+                                a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
+                                    i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                    | Update Sidebar
+                                a.dropdown-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                    i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                    | Update Account
+                                a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                    i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
+                                    | Logout
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.d-md-none.text-primary
                             //    li.nav-item.page-title.no-arrow.only-standalone.mr-1

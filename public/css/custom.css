@@ -1731,7 +1731,12 @@ div.collapse-divider {
 
 #userMenu.shown-user-menu, .user-info-bg {
     height: 200px;
+    background: black;
 }
+.user-info-bg {
+    width: 600px;
+}
+
 #topbar.shown-user-menu {
     margin-top: 200px;
 }
