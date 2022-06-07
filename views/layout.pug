@@ -127,42 +127,42 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                            div.user-menu-buttons.d-flex
-                                .row
+                            div.user-menu-buttons
+                                .row.pt-2.pr-3
                                     span.sidebar-brand-logo.sequenzia-logo(style='font-size: 2.8em; color: #ff9b59;').ml-auto sequenzia
                                 .row
-                                    a.dropdown-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
+                                    a.user-menu-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
                                         i.fas.fa-sm.fa-fw.mr-2.fa-archive
                                         | Album Manager
-                                    a.dropdown-item(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                    a.user-menu-item(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
                                         i.fas.fa-desktop.fa-sm.fa-fw.mr-2
                                         | Ambient System
                                     if (user && user.source < 900)
-                                        a.dropdown-item(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                        a.user-menu-item(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
                                             i.fas.fa-key.fa-sm.fa-fw.mr-2
                                             | Authentication
-                                    a.dropdown-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                    a.user-menu-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
                                         i.fas.fa-sm.fa-fw.mr-2.fa-eye-slash
                                         | Hide Channels
                                     if (webconfig && webconfig.support_lines)
-                                        a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                        a.user-menu-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
                                             i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
                                             | Support
-                                    a.dropdown-item(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                    a.user-menu-item(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
                                         i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
                                         | About
-                                    .dropdown-divider
+                                    .user-menu-divider
 
-                                    a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                                    a.user-menu-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
                                         i.fas.fa-sync.fa-sm.fa-fw.mr-2
                                         | Restart App
-                                    a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
+                                    a.user-menu-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
                                         i.fas.fa-sync.fa-sm.fa-fw.mr-2
                                         | Update Sidebar
-                                    a.dropdown-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                    a.user-menu-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
                                         i.fas.fa-sync.fa-sm.fa-fw.mr-2
                                         | Update Account
-                                    a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                    a.user-menu-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
                                         i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
                                         | Logout
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.ready-to-scroll
