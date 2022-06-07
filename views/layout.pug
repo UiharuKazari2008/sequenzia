@@ -97,7 +97,7 @@ html
                             div.user-info-bg
                                 div.user-icon.d-flex.flex-column(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: inherit;")
                                     .row.mt-auto.p-0
-                                        .col-auto.p-0
+                                        .col-auto.pr-0
                                             img.img-profile.rounded-circle(src=user.avatar style="width: 125px;").p-2
                                         .col.p-0.position-relative
                                             div.text-ellipsis.position-absolute.shadow-text(style="font-size: 2em; bottom: 0; max-width: 480px;")
@@ -127,10 +127,10 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                            div.user-menu-buttons
+                            div.user-menu-buttons.position-relative
                                 .row.pt-2.pr-3
                                     span.sidebar-brand-logo.sequenzia-logo(style='font-size: 2.8em; color: #ff9b59;').ml-auto sequenzia
-                                .row
+                                .row.position-absolute.pb-3(style="display: inline-grid; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
                                     a.user-menu-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
                                         i.fas.fa-fw.fa-archive
                                         | Albums

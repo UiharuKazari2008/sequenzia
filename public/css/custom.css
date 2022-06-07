@@ -1733,6 +1733,14 @@ div.collapse-divider {
     height: 200px;
     background: black;
 }
+
+#userMenu.shown-user-menu, .user-info-bg {
+    height: 200px;
+    background: black;
+}
+.user-menu-item:hover, .user-menu-item:focus, .user-menu-item:active {
+    text-decoration: none;
+}
 .user-info-bg {
     width: 600px;
 }
