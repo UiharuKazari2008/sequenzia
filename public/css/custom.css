@@ -1723,6 +1723,10 @@ div.collapse-divider {
     font-size: 0.85em!important;
 }
 
+#userMenu.shown-user-menu, .user-info-bg {
+    height: 200px;
+}
+
 #accordionSidebar:not(.toggled) > #sidebar > #seqLogoWide, #accordionSidebar.toggled > #sidebar > #seqLogoIcon, #accordionSidebar:not(.toggled) > #sidebar > .server-grid-container {
     display: revert;
 }

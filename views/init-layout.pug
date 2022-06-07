@@ -101,7 +101,10 @@ html
         div.background-image.overlay
         div.background-image.bg-blur
 
-        div(id="userMenu")
+        div(id="userMenu").shown-user-menu
+            div.user-info-bg
+                div.user.icon
+            div.user-menu-buttons
         div(id="wrapper")
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
                 #sidebar
@@ -292,6 +295,9 @@ html
                                     }
                             if (user && user.banner)
                                 style.
+                                    .user-info-bg {
+                                        background-image: url('#{user.banner}');
+                                    }
                                     .background-image:not(.overlay) {
                                         background-image: url('#{user.banner}');
                                     }
