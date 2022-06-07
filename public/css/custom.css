@@ -1742,7 +1742,7 @@ div.collapse-divider {
     text-decoration: none;
 }
 .user-info-bg {
-    width: 600px;
+    min-width: 600px;
 }
 .user-menu-item {
     flex-direction: row;
