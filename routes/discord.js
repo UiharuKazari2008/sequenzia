@@ -130,7 +130,8 @@ router.get('/refresh', async (req, res) => {
                             id: req.session.discord.user.id,
                             source: _source,
                             username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                            avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`
+                            avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                            banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                         }
                         printLine('SessionRefresh', `Successfully refreshed session for ${req.session.discord.user.username}`, 'info');
                         if (req.session.goto && req.session.goto !== '') {
@@ -420,6 +421,7 @@ async function roleGeneration(id, res, req, authToken) {
                         name: users[0].nice_name,
                         username: users[0].username,
                         avatar: users[0].avatar,
+                        banner: users[0].banner,
                         known: true,
                         auth_token: _authToken,
                         token: users[0].token,
@@ -601,6 +603,7 @@ async function checkAccessToken(token, req, res, redirect, next) {
                                 source: 0,
                                 username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
                                 avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                             }
                             printLine("PassportCheck", `User ${user_response_json.username}#${user_response_json.discriminator} (${user_response_json.id}) logged in!`, 'info', user_response_json);
                             if (redirect === true) {
@@ -759,6 +762,7 @@ async function sessionVerification(req, res, next) {
                                 source: 900,
                                 username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
                                 avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                             }
                             req.session.loggedin = true;
                             next();
@@ -803,6 +807,7 @@ async function sessionVerification(req, res, next) {
                                     source: 900,
                                     username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
                                     avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                                 }
                                 req.session.loggedin = true;
                                 next();
@@ -852,6 +857,7 @@ async function sessionVerification(req, res, next) {
                                     source: _source,
                                     username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
                                     avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                                 }
                                 req.session.loggedin = true;
                                 next();
@@ -964,6 +970,7 @@ function readValidation(req, res, next) {
                                     source: 900,
                                     username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
                                     avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                                 }
                                 req.session.loggedin = true;
                                 next();

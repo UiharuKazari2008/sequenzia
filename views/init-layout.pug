@@ -289,16 +289,28 @@ html
                                         console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
                                         getNewContent([], []);
                                     }
-                            style.
-                                .background-image:not(.overlay) {
-                                    background-image: url('/static/img/loading_bg.jpg');
-                                }
+                            if (discord)
+                                style.
+                                    .background-image:not(.overlay) {
+                                        background-image: url('/static/img/loading_bg.jpg');
+                                    }
 
-                                .background-image.overlay {
-                                    background-image: linear-gradient(104deg, #000000, #ffffff00);
-                                    z-index: -99;
-                                    opacity: 0.7;
-                                }
+                                    .background-image.overlay {
+                                        background-image: linear-gradient(104deg, #000000, #ffffff00);
+                                        z-index: -99;
+                                        opacity: 0.7;
+                                    }
+                            else
+                                style.
+                                    .background-image:not(.overlay) {
+                                        background-image: url('/static/img/loading_bg.jpg');
+                                    }
+
+                                    .background-image.overlay {
+                                        background-image: linear-gradient(104deg, #000000, #ffffff00);
+                                        z-index: -99;
+                                        opacity: 0.7;
+                                    }
                         #pageinator
                 #finalLoad
                     // Music Player Enabler
