@@ -222,24 +222,6 @@ module.exports = async (req, res, next) => {
         } else if (typeof req.session.pageinatorEnable === 'undefined') {
             req.session.pageinatorEnable = true;
         }
-        if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
-            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ' ) AND '
-        }
-        let channelFilter = `${baseQ}`
-        if (req.query.album) {
-            enablePrelimit = false;
-            sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
-            android_uri.push(`album=${req.query.album}`);
-            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true)) {
-            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-            android_uri.push('nsfw=true');
-        } else if (req.query.nsfw && req.query.nsfw === 'only') {
-            channelFilter += `( channel_nsfw = 1 )`;
-            android_uri.push('nsfw=only');
-        } else {
-            channelFilter += `( channel_nsfw = 0 )`;
-        }
 
         // Pinned
         let pinsUser = `${req.session.discord.user.id}`
@@ -261,10 +243,12 @@ module.exports = async (req, res, next) => {
 
         // History
         if (req.query && req.query.history && req.query.history === 'only') {
+            hideChannels = false;
             sqlHistoryJoin = 'INNER JOIN'
             android_uri.push('history=only');
             enablePrelimit = false;
         } else if (req.query && req.query.history && req.query.history === 'none') {
+            hideChannels = false;
             sqlHistoryJoin = 'LEFT OUTER JOIN'
             sqlHistoryWherePost = ' WHERE history_date IS NULL'
             android_uri.push('history=none');
@@ -425,6 +409,7 @@ module.exports = async (req, res, next) => {
         }
         if ( req.query.search !== undefined && req.query.search !== '' ) {
             let search = '';
+            hideChannels = false;
             if ( req.query.search.includes(' AND ') ) {
                 sqlquery.push('( ' + getAND(req.query.search).map(a => '( ' + getOR(a).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
             } else if ( req.query.search.includes(' OR ') ) {
@@ -687,6 +672,24 @@ module.exports = async (req, res, next) => {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
         // Where Exec
+        if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
+            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ' ) AND '
+        }
+        let channelFilter = `${baseQ}`
+        if (req.query.album) {
+            enablePrelimit = false;
+            sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
+            android_uri.push(`album=${req.query.album}`);
+            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
+        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true)) {
+            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
+            android_uri.push('nsfw=true');
+        } else if (req.query.nsfw && req.query.nsfw === 'only') {
+            channelFilter += `( channel_nsfw = 1 )`;
+            android_uri.push('nsfw=only');
+        } else {
+            channelFilter += `( channel_nsfw = 0 )`;
+        }
         if (page_uri === '/gallery') {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
