@@ -95,9 +95,10 @@ html
                     div.fixed-top
                         div#userMenu.shown-user-menu
                             div.user-info-bg
-                                div.user.icon
-                                    div.align-self-center
+                                div.user.icon.d-flex.flex-column
+                                    div
                                         img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
+                                    div
                                         div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
                                             if (user && user.source || user && user.source === 0)
                                                 if (user.source === 0)
