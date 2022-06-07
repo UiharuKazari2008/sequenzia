@@ -289,10 +289,10 @@ html
                                         console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
                                         getNewContent([], []);
                                     }
-                            if (discord)
+                            if (discord && discord.user.banner)
                                 style.
                                     .background-image:not(.overlay) {
-                                        background-image: url('/static/img/loading_bg.jpg');
+                                        background-image: url('#{discord.user.banner}');
                                     }
 
                                     .background-image.overlay {
