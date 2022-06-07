@@ -1633,12 +1633,12 @@ module.exports = async (req, res, next) => {
                                                 user: {
                                                     id: item.user,
                                                     name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                                    avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
+                                                    avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                                 },
                                                 server: {
                                                     id: item.server,
                                                     name: item.server_short_name.toUpperCase(),
-                                                    icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                                    icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                                 }
                                             })
                                             imagesArray.push(imageurl);
@@ -1765,12 +1765,12 @@ module.exports = async (req, res, next) => {
                                         user: {
                                             id: item.user,
                                             name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
+                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                         },
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -1991,12 +1991,12 @@ module.exports = async (req, res, next) => {
                                             user: {
                                                 id: item.user,
                                                 name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                                avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
+                                                avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                             },
                                             server: {
                                                 id: item.server,
                                                 name: item.server_short_name.toUpperCase(),
-                                                icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                                icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                             }
                                         })
                                     })
@@ -2099,12 +2099,12 @@ module.exports = async (req, res, next) => {
                                         user: {
                                             id: item.user,
                                             name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
+                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                         },
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -2177,12 +2177,12 @@ module.exports = async (req, res, next) => {
                                         user: {
                                             id: item.user,
                                             name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
+                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                         },
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
