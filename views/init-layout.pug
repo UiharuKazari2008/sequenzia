@@ -97,6 +97,11 @@ html
                     document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
                 }
             }
+        if (user && user.banner)
+            style.
+                .user-info-bg {
+                    background-image: url('#{user.banner}');
+                }
     body(id="page-top").sidebar-toggled
         div.background-image.overlay
         div.background-image.bg-blur
@@ -295,9 +300,6 @@ html
                                     }
                             if (user && user.banner)
                                 style.
-                                    .user-info-bg {
-                                        background-image: url('#{user.banner}');
-                                    }
                                     .background-image:not(.overlay) {
                                         background-image: url('#{user.banner}');
                                     }
