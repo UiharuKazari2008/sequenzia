@@ -93,7 +93,7 @@ html
                     else
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     div.fixed-top
-                        div#userMenu.shown-user-menu
+                        div#userMenu.shown-user-menu.d-flex
                             div.user-info-bg
                                 div.user-icon.d-flex.flex-column(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: inherit;")
                                     .row.mt-auto.p-0
@@ -123,13 +123,13 @@ html
                                                 else
                                                     // Login Source was not detected
                                                     i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
-                                                span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 2.5em; color: white;') #{user.username}
+                                                span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.25em; color: white;') #{user.username}
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
                             div.user-menu-buttons.d-flex
                                 .row
-                                    span.sidebar-brand-logo.sequenzia-logo(style='font-size: 2.8em;') sequenzia
+                                    span.sidebar-brand-logo.sequenzia-logo(style='font-size: 2.8em; color: #ff9b59;').ml-auto sequenzia
                                 .row
                                     a.dropdown-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
                                         i.fas.fa-sm.fa-fw.mr-2.fa-archive
