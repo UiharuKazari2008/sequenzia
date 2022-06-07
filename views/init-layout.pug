@@ -106,10 +106,6 @@ html
         div.background-image.overlay
         div.background-image.bg-blur
 
-        div(id="userMenu").shown-user-menu
-            div.user-info-bg
-                div.user.icon
-            div.user-menu-buttons
         div(id="wrapper")
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
                 #sidebar
@@ -188,86 +184,91 @@ html
                         span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
             div(id="content-wrapper", class="d-flex flex-column")
                 div(id="content")
-                    nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.fixed-top.no-ani
-                        ul.navbar-nav.text-primary.ml-1
-                            li.nav-item.text-right.text-primary.page-title
-                                form.align-self-center.navbar-search.d-inline.d-sm-block(onsubmit="return false;" method="post" )
-                                    .input-group
-                                        .input-group-prepend
-                                            a.btn.input-group-text.bg-transparent.border-0.pl-0
-                                                i.fas.fa-map.align-middle.nav-item
-                                        input#directURI.text-white.form-control.bg-translucent.border-0.small.w-50.rounded-left(type='text' placeholder='Go to Location' aria-label='Go to Location')
-                                        script.
-                                            document.getElementById("directURI").value = decodeURIComponent(document.location.hash.substring(2));
-                                        input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
-                                        .input-group-append
-                                            a.btn.input-group-text.bg-translucent.border-0(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
-                                                i.fas.fa-arrow-right.fa-sm.align-middle.nav-item
-                        div.mr-auto
-                        li.nav-item.dropdown.no-arrow
-                            a#userDropdown.nav-link.dropdown-toggle.pr-0(title="Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                                img.img-profile.rounded-circle(src=user.avatar)
-                            // Dropdown - User Information
-                            .dropdown-menu.dropdown-menu-right.shadow.no-max.animated--grow-in(aria-labelledby='userDropdown')
-                                div.d-sm-flex
-                                    div.pl-sm-3.align-self-center
-                                        img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
-                                        div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
-                                            if (user && user.source || user && user.source === 0)
-                                                if (user.source === 0)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Discord')
-                                                else if (user.source === 1)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Telegram')
-                                                else if (user.source < 100)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified Authentication')
-                                                else if (user.source == 100)
-                                                    // Logged in with Telegram
-                                                    i.fas.fa-lock.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with AuthWare')
-                                                else if (user.source == 900)
-                                                    // Logged in with Unauthorized Login Meathod
-                                                    i.fas.fa-lock-open.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Insecure Authentication Meathod')
+                    div.fixed-top
+                        div#userMenu.shown-user-menu
+                            div.user-info-bg
+                                div.user.icon
+                            div.user-menu-buttons
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.no-ani
+                            ul.navbar-nav.text-primary.ml-1
+                                li.nav-item.text-right.text-primary.page-title
+                                    form.align-self-center.navbar-search.d-inline.d-sm-block(onsubmit="return false;" method="post" )
+                                        .input-group
+                                            .input-group-prepend
+                                                a.btn.input-group-text.bg-transparent.border-0.pl-0
+                                                    i.fas.fa-map.align-middle.nav-item
+                                            input#directURI.text-white.form-control.bg-translucent.border-0.small.w-50.rounded-left(type='text' placeholder='Go to Location' aria-label='Go to Location')
+                                            script.
+                                                document.getElementById("directURI").value = decodeURIComponent(document.location.hash.substring(2));
+                                            input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
+                                            .input-group-append
+                                                a.btn.input-group-text.bg-translucent.border-0(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
+                                                    i.fas.fa-arrow-right.fa-sm.align-middle.nav-item
+                            div.mr-auto
+                            li.nav-item.dropdown.no-arrow
+                                a#userDropdown.nav-link.dropdown-toggle.pr-0(title="Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                                    img.img-profile.rounded-circle(src=user.avatar)
+                                // Dropdown - User Information
+                                .dropdown-menu.dropdown-menu-right.shadow.no-max.animated--grow-in(aria-labelledby='userDropdown')
+                                    div.d-sm-flex
+                                        div.pl-sm-3.align-self-center
+                                            img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
+                                            div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
+                                                if (user && user.source || user && user.source === 0)
+                                                    if (user.source === 0)
+                                                        // Logged in with Discord
+                                                        i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Discord')
+                                                    else if (user.source === 1)
+                                                        // Logged in with Discord
+                                                        i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Telegram')
+                                                    else if (user.source < 100)
+                                                        // Logged in with Discord
+                                                        i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified Authentication')
+                                                    else if (user.source == 100)
+                                                        // Logged in with Telegram
+                                                        i.fas.fa-lock.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with AuthWare')
+                                                    else if (user.source == 900)
+                                                        // Logged in with Unauthorized Login Meathod
+                                                        i.fas.fa-lock-open.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Insecure Authentication Meathod')
+                                                    else
+                                                        // Logged in with some unknown platform
+                                                        i.fas.fa-question-circle.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
                                                 else
-                                                    // Logged in with some unknown platform
-                                                    i.fas.fa-question-circle.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
-                                            else
-                                                // Login Source was not detected
-                                                i.fas.fa-question-circle.text-danger.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
-                                            span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
-                                        if (user && user.source === 900)
-                                            div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
-                                                span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                    div.align-self-center.pr-3
-                                        a.dropdown-item(title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                            i.fas.fa-desktop.fa-sm.fa-fw.mr-2
-                                            | Ambient System
-                                        if (user && user.source < 900)
-                                            a.dropdown-item(title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                                i.fas.fa-key.fa-sm.fa-fw.mr-2
-                                                | Authentication
-                                        if (webconfig && webconfig.support_lines)
-                                            a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                                i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
-                                                | Support
-                                        a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                            i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
-                                            | About
-                                        .dropdown-divider
-                                        a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                            | Restart App
-                                        a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                            | Update Sidebar
-                                        a.dropdown-item(title="Refresh Session" href='/discord/refresh')
-                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                            | Update Account
-                                        a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                            i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
-                                            | Logout
-                        div#topbarBackground(style='display: none;')
+                                                    // Login Source was not detected
+                                                    i.fas.fa-question-circle.text-danger.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
+                                                span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
+                                            if (user && user.source === 900)
+                                                div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                        div.align-self-center.pr-3
+                                            a.dropdown-item(title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                                i.fas.fa-desktop.fa-sm.fa-fw.mr-2
+                                                | Ambient System
+                                            if (user && user.source < 900)
+                                                a.dropdown-item(title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                    i.fas.fa-key.fa-sm.fa-fw.mr-2
+                                                    | Authentication
+                                            if (webconfig && webconfig.support_lines)
+                                                a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                                    i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
+                                                    | Support
+                                            a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                                i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
+                                                | About
+                                            .dropdown-divider
+                                            a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                                | Restart App
+                                            a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
+                                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                                | Update Sidebar
+                                            a.dropdown-item(title="Refresh Session" href='/discord/refresh')
+                                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
+                                                | Update Account
+                                            a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                                i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
+                                                | Logout
+                            div#topbarBackground(style='display: none;')
                     .container-fluid.max-resize
                         #contentBlock
                             div.tz-gallery
