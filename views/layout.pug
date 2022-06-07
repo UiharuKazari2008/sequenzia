@@ -96,36 +96,37 @@ html
                         div#userMenu.shown-user-menu
                             div.user-info-bg
                                 div.user.icon.d-flex.flex-column
-                                    div
-                                        img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
-                                    div
-                                        div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
-                                            if (user && user.source || user && user.source === 0)
-                                                if (user.source === 0)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
-                                                else if (user.source === 1)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
-                                                else if (user.source < 100)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
-                                                else if (user.source == 100)
-                                                    // Logged in with Telegram
-                                                    i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
-                                                else if (user.source == 900)
-                                                    // Logged in with Unauthorized Login Meathod
-                                                    i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                                    .row(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: inherit;")
+                                        .col-auto
+                                            img.img-profile.rounded-circle(src=user.avatar style="width: 190px;").p-3
+                                        .col
+                                            div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
+                                                if (user && user.source || user && user.source === 0)
+                                                    if (user.source === 0)
+                                                        // Logged in with Discord
+                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
+                                                    else if (user.source === 1)
+                                                        // Logged in with Discord
+                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
+                                                    else if (user.source < 100)
+                                                        // Logged in with Discord
+                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
+                                                    else if (user.source == 100)
+                                                        // Logged in with Telegram
+                                                        i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
+                                                    else if (user.source == 900)
+                                                        // Logged in with Unauthorized Login Meathod
+                                                        i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                                                    else
+                                                        // Logged in with some unknown platform
+                                                        i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
                                                 else
-                                                    // Logged in with some unknown platform
-                                                    i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
-                                            else
-                                                // Login Source was not detected
-                                                i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
-                                            span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
-                                        if (user && user.source === 900)
-                                            div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
-                                                span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                                    // Login Source was not detected
+                                                    i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
+                                                span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
+                                            if (user && user.source === 900)
+                                                div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
                             div.user-menu-buttons
                                 a.dropdown-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
                                     i.fas.fa-sm.fa-fw.mr-2.fa-archive
