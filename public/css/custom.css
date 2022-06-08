@@ -176,7 +176,7 @@ i.btn-links.reported {
 }
 
 .navbar {
-    padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+    padding-top: 0.5em;
 }
 
 a.lightbox:before {
@@ -1944,6 +1944,12 @@ footer .server-grid-parent {
     box-shadow: 6px 2px 11px 0 #00000054;
 }
 
+
+.fixed-top {
+    padding-top: calc(env(safe-area-inset-top) + 0px);
+    height: calc(env(safe-area-inset-top) + 0px);
+}
+
 @keyframes slideiconout {
     from {max-width: 0;}
     to {max-width: 4em;}
@@ -2180,7 +2186,7 @@ footer .server-grid-parent {
         padding: 0!important;
     }
     .topbar {
-        height: calc(env(safe-area-inset-top) + 3.5rem);
+        height: 3.5rem;
     }
     .pagination .page-link {
         font-size: 1.2rem;
@@ -2336,8 +2342,8 @@ footer .server-grid-parent {
         /*height: 3.75rem;
         padding-top: 4px;*/
         padding-bottom: 4px;
-        padding-top: calc(env(safe-area-inset-top) + 4px);
-        height: calc(env(safe-area-inset-top) + 3rem);
+        padding-top: 4px;
+        height: 3;
     }
     .img-profile {
         height: 2.2rem!important;
@@ -2390,7 +2396,7 @@ footer .server-grid-parent {
         margin-top: calc(env(safe-area-inset-top) + 2.9em);
     }
     .sidebar {
-        margin-top: calc(env(safe-area-inset-top) + 2.8em);
+        margin-top: 2.8em;
     }
 }
 @media (min-width: 1700px) {
