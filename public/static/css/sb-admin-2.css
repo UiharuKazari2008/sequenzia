@@ -9838,8 +9838,7 @@ a:focus {
   margin-top: -.25rem;
 }
 
-.sidebar .nav-item .nav-link .img-profile,
-.topbar .nav-item .nav-link .img-profile {
+.img-profile {
   height: 2.5rem;
   width: 2.5rem;
 }

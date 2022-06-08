@@ -104,7 +104,7 @@ html
                                         .row.mt-auto.p-0.ml-0.mr-0
                                             if (user && user.banner)
                                                 .col-auto.pr-0.pb-2
-                                                    img.img-profile.rounded-circle.user-infocard-icon(src=user.avatar)
+                                                    img.rounded-circle.user-infocard-icon(src=user.avatar)
                                             .col.p-0.position-relative.pl-2
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
                                                     //if (user && user.source || user && user.source === 0)
@@ -1096,7 +1096,7 @@ html
                                     //                i.fas.fa-folder.fa-sm.align-middle.nav-item
                             // Nav Item - User Information
                             li.nav-item.no-arrow
-                                a#userDropdown.nav-link.pr-0(title="User Account and Settings" href='#_' type="button" data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                a#userDropdown.align-items-center.d-flex.pr-0(title="User Account and Settings" href='#_' type="button" data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                     i.fas.fa-bars.pr-2(style="font-size: 1.3em; margin-right: -.6em;")
                                     img.img-profile.rounded-circle(src=user.avatar)
                             div#topbarBackground(style='display: none;')

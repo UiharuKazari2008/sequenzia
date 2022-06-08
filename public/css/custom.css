@@ -991,7 +991,7 @@ background-color: transparent;
 
 a:hover {
 color: #ba5418;
-text-decoration: underline;
+text-decoration: none;
 }
 
 
@@ -2297,7 +2297,7 @@ footer .server-grid-parent {
         padding-top: calc(env(safe-area-inset-top) + 4px);
         height: calc(env(safe-area-inset-top) + 3rem);
     }
-    .sidebar .nav-item .nav-link .img-profile, .topbar .nav-item .nav-link .img-profile {
+    .img-profile {
         height: 2.2rem!important;
         width: 2.2rem!important;;
     }

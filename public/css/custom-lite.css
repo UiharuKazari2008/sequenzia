@@ -261,7 +261,7 @@ code {
     width: 15rem;
 }
 
-.sidebar .nav-item .nav-link .img-profile, .topbar .nav-item .nav-link .img-profile {
+.img-profile {
     height: 2.7rem;
     width: 2.7rem;
 }
@@ -1661,7 +1661,7 @@ select.form-control:focus::-ms-value {
         padding-top: calc(env(safe-area-inset-top) + 4px);
         height: calc(env(safe-area-inset-top) + 3rem);
     }
-    .sidebar .nav-item .nav-link .img-profile, .topbar .nav-item .nav-link .img-profile {
+    .img-profile {
         height: 2.2rem!important;
         width: 2.2rem!important;;
     }
