@@ -630,19 +630,10 @@ function getNewURIContent(element, type) {
     return false;
 }
 function hideAddressInput() {
-    $('#topAddressBarInfo').removeClass('hidden');
-    $('#innerAddressBarInfo').removeClass('hidden');
-    $('#topAddressBarInput').addClass('hidden')
-    $('#innerAddressBarInput').addClass('hidden')
     document.getElementById("directURI").value = '';
-    document.getElementById("directURIInner").value = '';
     return false;
 }
 function showAddressInput() {
-    $('#topAddressBarInfo').addClass('hidden');
-    $('#innerAddressBarInfo').addClass('hidden');
-    $('#topAddressBarInput').removeClass('hidden')
-    $('#innerAddressBarInput').removeClass('hidden')
     let _uri = new URLSearchParams(document.location.hash.substring(1).split('?').pop());
     _uri.delete('_h')
     if (!_uri.has('folder') && document.getElementById("folderPath")) {
@@ -650,7 +641,6 @@ function showAddressInput() {
         _uri.set('folder', document.getElementById("folderPath").innerText)
     }
     document.getElementById("directURI").value = decodeURIComponent(_uri.toString());
-    document.getElementById("directURIInner").value = decodeURIComponent(_uri.toString());
     return false;
 }
 function feedContent(type) {

@@ -136,8 +136,10 @@ $(document).ready(function () {
         if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); }
         scrollManagerThrottleTimeout = setTimeout(function() {
             const topbar = $('#topbar')
-            if ($(this).scrollTop() > 50) {
-                $('.scrollBtn').fadeIn();
+            const menu = $('#userMenu')
+            if ($(this).scrollTop() > 50 || menu.hasClass('show')) {
+                if ($(this).scrollTop() > 50)
+                    $('.scrollBtn').fadeIn();
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }

@@ -217,8 +217,8 @@ function enableGallerySelect() {
             el.classList.remove("hidden");
         });
     }
-    document.getElementById('doneBtns').classList.remove("hidden")
-    document.getElementById('editBtns').classList.add("hidden");
+    $('.done-btns').removeClass("hidden");
+    $('.edit-btns').addClass("hidden");
 }
 function disableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
@@ -260,8 +260,8 @@ function disableGallerySelect() {
         });
     }
     try {
-        document.getElementById('editBtns').classList.remove("hidden");
-        document.getElementById('doneBtns').classList.add("hidden");
+        $('.done-btns').addClass("hidden");
+        $('.edit-btns').removeClass("hidden");
     } catch (e) {
         console.log('Failed to reset button groups')
     }
@@ -440,11 +440,9 @@ function enableReviewMode(setFromDialog) {
                 el.classList.add("hidden");
             });
         }
-        [].forEach.call(document.getElementsByClassName('hide-review'), function (el) {
-            el.classList.add("hidden");
-        });
-        document.getElementById('doneBtns').classList.add("hidden")
-        document.getElementById('editBtns').classList.remove("hidden");
+        $('.edit-btns').removeClass("hidden");
+        $('.done-btns').addClass("hidden");
+        $('.hide-review').addClass("hidden");
         document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
         document.getElementById('reviewBtns').classList.remove("hidden");
         $('#setupReviewModel').modal('hide');
@@ -493,12 +491,10 @@ function disableReviewMode() {
             el.classList.add("hidden");
         });
     }
-    [].forEach.call(document.getElementsByClassName('hide-review'), function (el) {
-        el.classList.remove("hidden");
-    });
     try {
-        document.getElementById('editBtns').classList.remove("hidden");
-        document.getElementById('doneBtns').classList.add("hidden");
+        $('.hide-review').removeClass("hidden");
+        $('.edit-btns').removeClass("hidden");
+        $('.done-btns').addClass("hidden");
         document.getElementById('reviewBtns').classList.add("hidden");
     } catch (e) {
         console.log('Failed to reset button groups')

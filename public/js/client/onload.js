@@ -14,6 +14,7 @@ _originalURL = (() => {
     }
 })()
 $(document).ready(function () {
+    $('#padding').removeClass('show');
     $('.popover').popover('dispose');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice()===false) {
@@ -49,6 +50,20 @@ if ("IntersectionObserver" in window) {
         imageObserver.observe(image);
     });
 }
+
+$('#userMenu').on('show.bs.collapse', function () {
+    $('#padding').collapse('show');
+    $('#topbarBackground').fadeIn();
+    $('#topbar').addClass('shadow');
+})
+$('#userMenu').on('hidden.bs.collapse', function () {
+    if (!($('#userMenu').hasClass('show'))) {
+        $('#menuItem1').collapse('show');
+        $('#padding').collapse('hide');
+        $('#topbarBackground').fadeOut();
+        $('#topbar').removeClass('shadow');
+    }
+})
 
 $(function () {
     let start = undefined;
