@@ -94,165 +94,635 @@ html
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     div.fixed-top
                         div#userMenu.collapsed.collapse
-                            div.shown-user-menu.d-flex
-                                div.user-info-bg
-                                    div.user-infocard-holder.d-flex.flex-column
-                                        .row.p-0.ml-0.mr-0
-                                            if (user && user.source === 900)
-                                                div.text-center.text-ellipsis.align-middle.p-2
-                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        .row.mt-auto.p-0.ml-0.mr-0
-                                            if (user && user.banner)
-                                                .col-auto.pr-0.pb-2
-                                                    img.img-profile.rounded-circle.user-infocard-icon(src=user.avatar)
-                                            .col.p-0.position-relative.pl-2
-                                                div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
-                                                    //if (user && user.source || user && user.source === 0)
-                                                        if (user.source === 0)
-                                                            // Logged in with Discord
-                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
-                                                        else if (user.source === 1)
-                                                            // Logged in with Discord
-                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
-                                                        else if (user.source < 100)
-                                                            // Logged in with Discord
-                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
-                                                        else if (user.source == 100)
-                                                            // Logged in with Telegram
-                                                            i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
-                                                        else if (user.source == 900)
-                                                            // Logged in with Unauthorized Login Meathod
-                                                            i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                            div#menuMainAccordion
+                                div#menuMainItem1(class="collapse show" data-parent="#menuMainAccordion")
+                                    div.shown-user-menu.d-flex
+                                        div.user-info-bg
+                                            div.user-infocard-holder.d-flex.flex-column
+                                                .row.p-0.ml-0.mr-0
+                                                    if (user && user.source === 900)
+                                                        div.text-center.text-ellipsis.align-middle.p-2
+                                                            span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                                .row.mt-auto.p-0.ml-0.mr-0
+                                                    if (user && user.banner)
+                                                        .col-auto.pr-0.pb-2
+                                                            img.img-profile.rounded-circle.user-infocard-icon(src=user.avatar)
+                                                    .col.p-0.position-relative.pl-2
+                                                        div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
+                                                            //if (user && user.source || user && user.source === 0)
+                                                                if (user.source === 0)
+                                                                    // Logged in with Discord
+                                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
+                                                                else if (user.source === 1)
+                                                                    // Logged in with Discord
+                                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
+                                                                else if (user.source < 100)
+                                                                    // Logged in with Discord
+                                                                    i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
+                                                                else if (user.source == 100)
+                                                                    // Logged in with Telegram
+                                                                    i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
+                                                                else if (user.source == 900)
+                                                                    // Logged in with Unauthorized Login Meathod
+                                                                    i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                                                                else
+                                                                    // Logged in with some unknown platform
+                                                                    i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
+                                                            //else
+                                                                // Login Source was not detected
+                                                                i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
+                                                            span.dropdown-header.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                                        if (user && user.source === 900)
+                                                            div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                                span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                        div.user-menu-buttons(style="width: 100%; height: 100%")
+                                            div#menuAccordion
+                                                div#menuItem1(class="collapse show" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .row.w-100.ml-0.mr-0
+                                                            form.col.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                                .input-group.w-100
+                                                                    input#dropdownSearch2.form-control.top-menu-search-bar(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
+                                                                    .input-group-append
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
+                                                                            i.fas.fa-image.fa-sm.align-middle.nav-item
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
+                                                                            i.fas.fa-folder.fa-sm.align-middle.nav-item
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`)
+                                                                            i.fas.fa-sm.align-middle.nav-item.fa-address-book
+                                                            //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
+                                                        .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                            //a.user-menu-item(title="Homepage" href='/')
+                                                                i.fas.fa-fw.fa-home
+                                                                | Home
+                                                            a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
+                                                                i.fas.fa-fw.fa-images
+                                                                | Pictures
+                                                            a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                                i.fas.fa-fw.fa-folder
+                                                                | Files
+                                                            a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
+                                                                i.fas.fa-fw.fa-star
+                                                                | Favorites
+                                                            a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem2")
+                                                                i.fas.fa-fw.fa-archive
+                                                                | Albums
+                                                            a.user-menu-item(title="Index" href='#/artists?')
+                                                                i.fas.fa-fw.fa-address-book
+                                                                | Artists
+                                                            a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
+                                                                i.fas.fa-fw.fa-dice
+                                                                | Random
+                                                            a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                                                                i.fas.fa-fw.fa-history
+                                                                | History
+                                                            if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
+                                                                if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
+                                                                    if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                                        a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                                            i.fas.fa-upload
+                                                                            | Upload
+                                                                    else
+                                                                        a.user-menu-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
+                                                                            i.fas.fa-upload
+                                                                            | Upload
+                                                                else
+                                                                    a.user-menu-item(title="Upload Items" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem7")
+                                                                        i.fas.fa-fw.fa-upload
+                                                                        | Upload
+                                                            a#userToolsDropdown.user-menu-item(title="Tools" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem4")
+                                                                i.fas.fa-fw.fa-toolbox
+                                                                | Tools
+                                                            a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem3")
+                                                                i.fas.fa-fw.fa-cog
+                                                                | Settings
+                                                div#menuItem3(class="collapse" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .d-flex.w-100
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                                i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Return
+                                                            h4.text-primary.ml-auto
+                                                                i.fas.fa-cog.mr-2
+                                                                | Settings
+                                                        .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                            a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem5")
+                                                                i.fas.fa-sliders-h
+                                                                | Display
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                                                i.fas.fa-desktop.fa-sm.fa-fw
+                                                                | Ambient
+                                                            if (user && user.source < 900)
+                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                                    i.fas.fa-key.fa-sm.fa-fw
+                                                                    | Auth
+                                                            a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                                                i.fas.fa-sm.fa-fw.fa-eye-slash
+                                                                | Channels
+                                                            if (webconfig && webconfig.support_lines)
+                                                                a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                                                    i.fas.fa-sm.fa-fw.fa-question-circle
+                                                                    | Support
+                                                            a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                                                i.fas.fa-sm.fa-fw.fa-info-circle
+                                                                | About
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                                                i.fas.fa-sync.fa-sm.fa-fw
+                                                                | Account
+                                                            a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                                                i.fas.fa-sign-out-alt.fa-fw.text-danger
+                                                                | Logout
+                                                div#menuItem4(class="collapse" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .d-flex.w-100
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                                i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Return
+                                                            h4.text-primary.ml-auto
+                                                                i.fas.fa-toolbox.mr-2
+                                                                | Tools
+                                                        .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                            if (results.length > 1)
+                                                                a.user-menu-item.user-menu-small.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;')
+                                                                    i.fas.fa-check-circle
+                                                                    | Select Items
+                                                                if (manage_channels && manage_channels.length > 0)
+                                                                    a.user-menu-item.user-menu-small.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(); return false;')
+                                                                        i.fas.fa-snowplow
+                                                                        | Review Items
+                                                            a.user-menu-item.user-menu-small(title="External Services" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem6")
+                                                                i.fas.fa-satellite-dish
+                                                                | Services
+                                                            a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="downloadAllItems(); return false;" role='button')
+                                                                i.fas.fa-download
+                                                                | Downloader
+                                                            if (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album')))
+                                                                if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
+                                                                    a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
+                                                                        i.fas.fa-eye-slash
+                                                                        | Exclude NSFW
+                                                                else
+                                                                    a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
+                                                                        i.fas.fa-eye
+                                                                        | Include NSFW
+                                                            if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
+                                                                a.user-menu-item.user-menu-small(title="Show All Content" href='#_' onclick=`getNewContent(['offset', 'flagged'], []); return false;`)
+                                                                    i.fas.fa-flag-checkered
+                                                                    | Remove Flagged
+                                                            else
+                                                                a.user-menu-item.user-menu-small(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
+                                                                    i.fas.fa-flag
+                                                                    | Show Flagged
+                                                div#menuItem5(class="collapse" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .d-flex.w-100
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem3")
+                                                                i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Return
+                                                            form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST").mr-auto
+                                                                .input-group(style='max-width: 130px;')
+                                                                    .input-group-prepend
+                                                                        span.input-group-text.bg-translucent.border-0
+                                                                            i.fas.fa-table.fa-sm.align-middle.text-primary
+                                                                    input(type="submit" style="display: none" onclick=`getLimitContent(); return false;`)
+                                                                    input#limitRequested.form-control.bg-translucent.border-0.small.text-left(type='text' value=req_limit)
+                                                                    .input-group-append
+                                                                        a.input-group-text.btn-primary.border-0.bg-translucent(title="Request New Limit" href='#_', onclick=`getLimitContent(); return false;`)
+                                                                            i.fas.fa-sync.fa-sm.align-middle.nav-item.text-primary
+                                                            h4.text-primary
+                                                                i.fas.fa-sliders-h.mr-2
+                                                                | Display
+                                                        .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                            if (results && path === '/gallery')
+                                                                a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
+                                                                    i.fas.fa-border-all
+                                                                    | Thumbs
+                                                                a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
+                                                                    i.fas.fa-border-all
+                                                                    | Small
+                                                                a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
+                                                                    i.fas.fa-border-all
+                                                                    | Default
+                                                                a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
+                                                                    i.fas.fa-border-all
+                                                                    | Large
+                                                                a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`).d-none.d-xxl-inline-grid
+                                                                    i.fas.fa-arrows-alt-h
+                                                                    | Full Width
+                                                            if (path !== '/gallery')
+                                                                a.user-menu-item.user-menu-small(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
+                                                                    i.fas.fa-images
+                                                                    | Gallery
+                                                            if (path !== '/files')
+                                                                a.user-menu-item.user-menu-small(title="View results as file list" href='#_' onclick=`getNewContent(['offset'], [], "/files?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
+                                                                    i.fas.fa-folder
+                                                                    | Files
+                                                            if (path !== '/cards')
+                                                                a.user-menu-item.user-menu-small(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
+                                                                    i.fas.fa-envelope
+                                                                    | Cards
+
+                                                div#menuItem6(class="collapse" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .d-flex.w-100
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem4")
+                                                                i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Return
+                                                            h4.text-primary.ml-auto
+                                                                i.fas.fa-satellite-dish.mr-2
+                                                                | Services
+                                                        .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                            a.user-menu-item.user-menu-small.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
+                                                                i.fas.fa-satellite-dish
+                                                                | RSS Feed
+                                                            if (android_uri)
+                                                                a.user-menu-item.user-menu-small.hide-review(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#appModal').modal('show'); return false;")
+                                                                    i.fas.fa-laptop
+                                                                    | Set as DWS
+                                                            a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="loadADSDisplays(); return false;")
+                                                                i.fas.fa-tv
+                                                                | Set as ADS
+                                                div#menuItem7(class="collapse" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .d-flex.w-100
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                                i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Return
+                                                            h4.text-primary.ml-auto
+                                                                i.fas.fa-upload.mr-2
+                                                                | Upload
+                                                        .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                            if (write_channels && write_channels.length > 0)
+                                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                                    a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                                        i.fas.fa-upload.pr-2
+                                                                        | Upload File
+                                                                else
+                                                                    a.user-menu-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
+                                                                        i.fas.fa-upload.pr-2
+                                                                        | Upload File
+                                                            if (manage_channels && manage_channels.length > 0)
+                                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                                    a.user-menu-item(title="Send Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
+                                                                        i.fas.fa-edit.pr-2
+                                                                        | Send Message
+                                                                else
+                                                                    a.user-menu-item(title="Send Message" href='#_' onclick='displayMessageModel(0); return false;')
+                                                                        i.fas.fa-edit.pr-2
+                                                                        | Send Message
+                                                            if (download && download.length > 0)
+                                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                                    a.user-menu-item(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
+                                                                        i.fas.fa-cloud-download-alt.pr-2
+                                                                        | Download URL
+                                                                else
+                                                                    a.user-menu-item(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
+                                                                        i.fas.fa-cloud-download-alt.pr-2
+                                                                        | Download URL
+
+                                                div#menuItem2(class="collapse" data-parent="#menuAccordion")
+                                                    div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                        .d-flex.w-100
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                                i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Return
+                                                            a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                                i.fas.fa-cog.fa-fw.mr-md-1
+                                                                span.d-none.d-md-inline Manage
+                                                            h4.text-primary.ml-auto
+                                                                i.fas.fa-archive.mr-2
+                                                                | Albums
+                                                        .w-100.position-absolute.pb-3(style="justify-content: left; bottom: 0;")
+                                                            if (albums)
+                                                                div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                                    each thisAlbum in albums
+                                                                        div.album-item.position-relative
+                                                                            div.album-info.position-absolute.shadow-text.text-ellipsis.pl-3.pr-3(style="justify-content: left; bottom: 0;")
+                                                                                span #{thisAlbum.name}
+                                                                            a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                                if (thisAlbum.image)
+                                                                                    div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                            else
+                                                                h2 No Albums!
+                                div#menuMainItem2(class="collapse" data-parent="#menuMainAccordion")
+                                    div.d-flex.flex-column(style='background: black;')
+                                        if (!(results && results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
+                                            if (search_prev || search_prev === '')
+                                                .alert.alert-info-darktrans.w-100(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center.pl-1
+                                                            if (active_svr)
+                                                                - servericon = discord.servers.list.filter(e => e.serverid === active_svr).map(e => e.icon)
+                                                                if (servericon && servericon.length > 0)
+                                                                    - servericon = servericon.pop()
+                                                                else
+                                                                    - servericon = null
+                                                            if (servericon)
+                                                                img.align-self-center.rounded(src=servericon style='height: 7rem;')
+                                                            else
+                                                                .glyphicon.pl-1
+                                                                    i.fas.fa-directions.text-info
+                                                        .col
+                                                            if (!title || title === '')
+                                                                if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                                    if (params && path === '/artists')
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | Artist Index
+                                                                        div.row
+                                                                            div
+                                                                                | Index of Artists throughout the database
+                                                                    else if (params && params.getAll('sort')[0] === 'random')
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | I'm Feeling Lucky
+                                                                        div.row
+                                                                            div
+                                                                                | Random selection of items from the server
+                                                                    else if (params && params.getAll('sort')[0] === 'fav')
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | Favorites
+                                                                        div.row
+                                                                            div
+                                                                                | Favoured Items
+                                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                            div.row.text-lg
+                                                                                div
+                                                                                    | Favorites
+                                                                            div.row
+                                                                                div
+                                                                                    | Favoured Items
+                                                                        else
+                                                                            if (path === '/files')
+                                                                                div.row.text-lg
+                                                                                    div
+                                                                                        | File Stream
+                                                                                div.row
+                                                                                    div
+                                                                                        | Files in order of upload
+                                                                            else
+                                                                                div.row.text-lg
+                                                                                    div
+                                                                                        | Photo Stream
+                                                                                div.row
+                                                                                    div
+                                                                                        | Images in order of upload
+                                                                    else if (params.has('color'))
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | Colour search
+                                                                        div.row
+                                                                            div
+                                                                                | Images by there averaged colour
+                                                                    else if (params.has('displayname'))
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | History
+                                                                        div.row
+                                                                            div
+                                                                                | History for #{params.getAll('displayname')[0]}
+                                                                    else if (search_prev && search_prev !== '')
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | Search Results
+                                                                        div.row
+                                                                            div
+                                                                                if (search_prev.includes(" AND "))
+                                                                                    - _and = search_prev.split(' AND ')
+                                                                                    | Results for
+                                                                                    each andSearch, andIndex in _and
+                                                                                        if (andSearch.includes(" OR "))
+                                                                                            - _or = andSearch.split(' OR ')
+                                                                                            each orSearch, orIndex in _or
+                                                                                                | '#{orSearch}'
+                                                                                                if (orIndex + 1 !== _or.length)
+                                                                                                    | or
+                                                                                        else
+                                                                                            | '#{andSearch}'
+                                                                                        if (andIndex + 1 !== _and.length)
+                                                                                            | and
+                                                                                else if (search_prev.includes(" OR "))
+                                                                                    - _or = search_prev.split(' OR ')
+                                                                                    | Results for
+                                                                                    each orSearch, orIndex in _or
+                                                                                        | '#{orSearch}'
+                                                                                        if (orIndex + 1 !== _or.length)
+                                                                                            | or
+                                                                                else
+                                                                                    | Results for '#{search_prev}'
+                                                                    else
+                                                                        div.row.text-lg
+                                                                            div
+                                                                                | Recents
+                                                                        div.row
+                                                                            div
+                                                                                | Images in chronologically order
+                                                                else
+                                                                    div.row.text-lg
+                                                                        div
+                                                                            | No Description Available
+                                                            else
+                                                                if (full_title_post)
+                                                                    div.row.text-lg
+                                                                        div
+                                                                            | #{full_title_post}
+                                                                if (folderInfo)
+                                                                    div.row
+                                                                        div.pr-2
+                                                                            | Folder Path:
+                                                                        div
+                                                                            span#folderPath #{folderInfo}
+                                                                if (description)
+                                                                    div.row
+                                                                        div.pr-2
+                                                                            | Description:
+                                                                        div
+                                                                            | #{description}
+                                                                if (params && params.has('album'))
+                                                                    - const albumID = params.getAll('album')[0];
+                                                                    div.row
+                                                                        div.pr-2
+                                                                            | Album ID:
+                                                                        div
+                                                                            | #{albumID}
+                                            if (params && params.has('pins') && params.getAll('pins')[0] !== 'false' && params.getAll('pins')[0] !== 'true' && params.getAll('pins')[0] !== 'false')
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-star.text-warning
+                                                        .align-self-start.align-self-center
+                                                            .text-warning Showing Favorites for user ID : #{params.getAll('pins')[0]}
+                                            if (params && params.has('history_numdays'))
+                                                - const days = parseInt(params.getAll('history_numdays')[0]);
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-history.text-warning
+                                                        .align-self-start.align-self-center
+                                                            .text-warning.d-none.d-sm-inline History from the last #{days} Days
+                                                            .text-warning.d-sm-none #{days} Days
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
+                                            if (params && params.has('fav_numdays'))
+                                                - const days = parseInt(params.getAll('fav_numdays')[0]);
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-history.text-warning
+                                                        .align-self-start.align-self-center
+                                                            .text-warning.d-none.d-sm-inline Favorites from the last #{days} Days
+                                                            .text-warning.d-sm-none #{days} Days
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
+                                            if (params && params.has('numdays'))
+                                                - const days = parseInt(params.getAll('numdays')[0]);
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-clock.text-warning
+                                                        .align-self-start.align-self-center
+                                                            .text-warning.d-none.d-sm-inline Results shown are from the last #{days} Days
+                                                            .text-warning.d-sm-none #{days} Days
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
+                                            else if (params && params.has('datestart'))
+                                                - const datestart = params.getAll('datestart')[0]
+                                                - const dateend = params.getAll('dateend')[0]
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-clock.text-warning
+                                                        .align-self-start.align-self-center
+                                                            .text-warning.d-none.d-sm-inline Results shown are from #{datestart} to #{dateend}
+                                                            .text-warning.d-sm-none #{datestart} - #{dateend}
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays', 'datestart', 'dateend'], []); return false;`) Show All
+                                            if (params.has('minres') || params.has('minhres') || params.has('minwres'))
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.text-warning.fa-ruler-combined
+                                                        .align-self-start.align-self-center
+                                                            if (params.has('minres'))
+                                                                .text-warning.d-none.d-sm-inline Minimum Loose Resolution of #{params.getAll('minres')[0]}px
+                                                                .text-warning.d-sm-none Min Res: #{params.getAll('minres')[0]}px
+                                                            else if (params.has('minhres'))
+                                                                .text-warning.d-none.d-sm-inline Minimum Vertical Resolution of #{params.getAll('minhres')[0]}px
+                                                                .text-warning.d-sm-none Min Vert: #{params.getAll('minhres')[0]}px
+                                                            else if (params.has('minwres'))
+                                                                .text-warning.d-none.d-sm-inline Minimum Horizontal Resolution of #{params.getAll('minwres')[0]}px
+                                                                .text-warning.d-sm-none Min Horiz: #{params.getAll('minwres')[0]}px
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Minimum Pixel Range" href='#_' onclick=`getNewContent(['offset', 'minres', 'minhres', 'minwres'], []); return false;`) Show All
+                                            if (params.has('ratio'))
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.text-warning.fa-ruler-combined
+                                                        .align-self-start.align-self-center
+                                                            - ratio = params.getAll('ratio')[0]
+                                                            if (ratio !== '0.01-1')
+                                                                .text-warning Landscape Images
+                                                            else if (ratio === '0.85-2.1')
+                                                                .text-warning Portrait Images
+                                                            else if (ratio === '1.1-2.1')
+                                                                .text-warning Strictly Portrait Images
+                                                            else if (ratio === '0.01-0.9')
+                                                                .text-warning Strictly Landscape Images
+                                                            else
+                                                                .text-warning Custom Aspect Ratio Range: #{params.getAll('ratio')[0]}
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Ratio Range" href='#_' onclick=`getNewContent(['offset', 'ratio'], []); return false;`) Show All
+                                            if (params.has('dark'))
+                                                .alert.alert-time-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.text-warning.fa-adjust
+                                                        .align-self-start.align-self-center
+                                                            if (params.getAll('dark')[0] === 'false')
+                                                                .text-warning Light Images
+                                                            else if (params.getAll('dark')[0] === 'true')
+                                                                .text-warning Dark Images
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Brightness Filter" href='#_' onclick=`getNewContent(['offset', 'dark'], []); return false;`) Show All
+                                            if (params.has('color'))
+                                                .alert.alert-time-transparent.text-warning(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-swatchbook
+                                                        .align-self-start.align-self-center
+                                                            if (simularColor)
+                                                                .d-inline-flex
+                                                                    span.align-self-center.d-none.d-sm-inline Similar Colour
+                                                                    div.ml-1.color-preview.align-self-center(style=`background-color: ${simularColor}`)
+                                                                    a.text-warning.align-self-center.alert-btn.ml-2(title="Advanced" href='#_' type='button' data-toggle='collapse' data-target='#advancedColorOptions') Advanced
+                                                            else
+                                                                .d-none.d-sm-inline Colour Range: R=#{sliderColorsDefaults[0]} G=#{sliderColorsDefaults[1]} B=#{sliderColorsDefaults[2]}
+                                                                .d-sm-none Custom Colour Range
+                                                        .align-self-center.align-self-start.ml-auto.mr-1
+                                                            a.text-warning.align-self-end.alert-btn(title="Remove Colour Filter" href='#_' onclick=`getNewContent(['offset', 'color'], []); return false;`) Show All
+                                                    if (simularColor)
+                                                        #advancedColorOptions.collapse.mt-2
+                                                            .row.ml-auto.mr-auto
+                                                                .align-self-center
+                                                                    span.mr-2 Step:
+                                                                    a.text-warning.align-self-end.alert-btn(title="Step Range 8" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:8']]); return false;`).mr-1 8
+                                                                    a.text-warning.align-self-end.alert-btn(title="Step Range 16" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:16']]); return false;`).mr-1 16
+                                                                    a.text-warning.align-self-end.alert-btn(title="Step Range 24" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:24']]); return false;`).mr-1 24
+                                                                    a.text-warning.align-self-end.alert-btn(title="Step Range 32" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:32']]); return false;`).mr-1 32
+                                                                    a.text-warning.align-self-end.alert-btn(title="Step Range 48" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:48']]); return false;`).mr-1 48
+                                                                    a.text-warning.align-self-end.alert-btn(title="Step Range 64" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:64']]); return false;`).mr-1 64
+                                                                div.d-inline.mt-sm-0.mt-1
+                                                                    span.d-none.d-sm-inline.mr-2 Emphasis:
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:0']]); return false;` style='background-color: red; border-color: #770e0eab; color: #770000;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:1']]); return false;` style='background-color: rgb(255 128 0); border-color: #77360eab; color: #773700;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:2']]); return false;` style='background-color: rgb(255 255 0); border-color: #775c0eab; color: #776300;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:3']]); return false;` style='background-color: rgb(0 255 0); border-color: #27770eab; color: #447700;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:4']]); return false;` style='background-color: rgb(128 255 128); border-color: #27770eab; color: #447700;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                div.d-inline.mt-sm-0.mt-1
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:5']]); return false;` style='background-color: rgb(14 210 206); border-color: #0d5246ab; color: #007b65;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:6']]); return false;` style='background-color: rgb(0 142 255); border-color: #0e4b77ab; color: #004b77;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:7']]); return false;` style='background-color: rgb(0 60 255); border-color: #5662ffdb; color: #597dff;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:8']]); return false;` style='background-color: rgb(128 0 255); border-color: #4b0e77ab; color: #440077;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                                                    a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:9']]); return false;` style='background-color: rgb(255 0 255); border-color: #790048db; color: #880a8a;').mr-1
+                                                                        i.fas.fa-eye-dropper
+                                            if (nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true'))
+                                                .alert.alert-danger-transparent(role="alert")
+                                                    .row
+                                                        .col-auto.align-self-start.align-self-center
+                                                            .glyphicon
+                                                                i.fas.fa-exclamation-triangle.text-danger
+                                                        if (nsfwEnabled)
+                                                            .align-self-start.align-self-center
+                                                                .text-danger NSFW Content is Enabled
+                                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                                a.text-danger.align-self-end.alert-btn(title="Disable NSFW Results" href='#_' onclick=`getNewContent(['offset', 'nsfw'], [['nsfwEnable', 'false']]); return false;`) Disable
                                                         else
-                                                            // Logged in with some unknown platform
-                                                            i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
-                                                    //else
-                                                        // Login Source was not detected
-                                                        i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
-                                                    span.dropdown-header.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-                                                if (user && user.source === 900)
-                                                    div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
-                                                        span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                div.user-menu-buttons(style="width: 100%; height: 100%")
-                                    div#menuAccordion
-                                        div#menuItem1(class="collapse show" data-parent="#menuAccordion")
-                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                .row.w-100.ml-0.mr-0
-                                                    form.col.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: 100%;" )
-                                                        .input-group.w-100
-                                                            input#dropdownSearch2.form-control.top-menu-search-bar(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
-                                                            input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
-                                                            .input-group-append
-                                                                a.btn.input-group-text.top-menu-search-bar(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
-                                                                    i.fas.fa-image.fa-sm.align-middle.nav-item
-                                                                a.btn.input-group-text.top-menu-search-bar(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
-                                                                    i.fas.fa-folder.fa-sm.align-middle.nav-item
-                                                                a.btn.input-group-text.top-menu-search-bar(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`)
-                                                                    i.fas.fa-sm.align-middle.nav-item.fa-address-book
-                                                    span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
-                                                .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
-                                                    a.user-menu-item(title="Homepage" href='/')
-                                                        i.fas.fa-fw.fa-home
-                                                        | Home
-                                                    a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
-                                                        i.fas.fa-fw.fa-images
-                                                        | Pictures
-                                                    a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                                        i.fas.fa-fw.fa-folder
-                                                        | Files
-                                                    a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
-                                                        i.fas.fa-fw.fa-dice
-                                                        | Random
-                                                    a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
-                                                        i.fas.fa-fw.fa-star
-                                                        | Favorites
-                                                    a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem2")
-                                                        i.fas.fa-fw.fa-archive
-                                                        | Albums
-                                                    a.user-menu-item(title="Index" href='#/artists?')
-                                                        i.fas.fa-fw.fa-address-book
-                                                        | Artists
-                                                    a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                                                        i.fas.fa-fw.fa-history
-                                                        | History
-                                                    //a.user-menu-item(data-placement="left" title="Image History and Ambient Manager" href='#_' onclick='showDisplayHistory(); return false;')
-                                                        i.fas.fa-desktop.fa-fw
-                                                        | Ambient
-                                                    a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem3")
-                                                        i.fas.fa-fw.fa-cog
-                                                        | Settings
-                                                    a.user-menu-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                                        i.fas.fa-sign-out-alt.fa-fw.text-danger
-                                                        | Logout
-                                        div#menuItem3(class="collapse" data-parent="#menuAccordion")
-                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
-                                                        i.fas.fa-arrow-left.fa-fw.mr-md-1
-                                                        span.d-none.d-md-inline Return
-                                                    h4.text-primary.ml-auto
-                                                        i.fas.fa-cog.mr-2
-                                                        | Settings
-                                                .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
-                                                    if (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album')))
-                                                        if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
-                                                            a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
-                                                                i.fas.fa-eye-slash
-                                                                | Exclude NSFW
-                                                        else
-                                                            a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
-                                                                i.fas.fa-eye
-                                                                | Include NSFW
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                                        i.fas.fa-desktop.fa-sm.fa-fw
-                                                        | Ambient Manager
-                                                    if (user && user.source < 900)
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                                            i.fas.fa-key.fa-sm.fa-fw
-                                                            | Auth
-                                                    a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
-                                                        i.fas.fa-sm.fa-fw.fa-eye-slash
-                                                        | Hide Folders
-                                                    if (webconfig && webconfig.support_lines)
-                                                        a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                                            i.fas.fa-sm.fa-fw.fa-question-circle
-                                                            | Support
-                                                    a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                                        i.fas.fa-sm.fa-fw.fa-info-circle
-                                                        | About
-                                                    a.user-menu-item.user-menu-small.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                                        i.fas.fa-sync.fa-sm.fa-fw
-                                                        | Restart App
-                                                    a.user-menu-item.user-menu-small(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                                        i.fas.fa-sync.fa-sm.fa-fw
-                                                        | Update Sidebar
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                                        i.fas.fa-sync.fa-sm.fa-fw
-                                                        | Update Account
-                                        div#menuItem2(class="collapse" data-parent="#menuAccordion")
-                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
-                                                        i.fas.fa-arrow-left.fa-fw.mr-md-1
-                                                        span.d-none.d-md-inline Return
-                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
-                                                        i.fas.fa-cog.fa-fw.mr-md-1
-                                                        span.d-none.d-md-inline Manage
-                                                    h4.text-primary.ml-auto
-                                                        i.fas.fa-archive.mr-2
-                                                        | Albums
-                                                .w-100.position-absolute.pb-3(style="justify-content: left; bottom: 0;")
-                                                    if (albums)
-                                                        div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
-                                                            each thisAlbum in albums
-                                                                div.album-item.position-relative
-                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-3.pr-3(style="justify-content: left; bottom: 0;")
-                                                                        span #{thisAlbum.name}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
-                                                                        if (thisAlbum.image)
-                                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
-                                                    else
-                                                        h2 No Albums!
+                                                            .align-self-start.align-self-center
+                                                                .text-danger NSFW Results are included
+                                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                                a.text-danger.align-self-end.alert-btn(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['offset', 'nsfw'], []); return false;`) Remove
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.d-md-none.text-primary
                             //    li.nav-item.page-title.no-arrow.only-standalone.mr-1
@@ -436,7 +906,7 @@ html
                             if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
                                 ul.navbar-nav.text-primary
                                     li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.ml-2
-                                        a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
+                                        a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem2').collapse('show')`)
                                             span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
                                                 i.fas.pl-1.pr-1.fa-info
                                 ul.navbar-nav.text-primary
@@ -446,183 +916,7 @@ html
                             div.mr-auto
                             li#editBtns.nav-item.no-arrow(style='display: inherit')
                                 if (results && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')))
-                                    .btn-group
                                     if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                            a.navbar-item.btn.btn-fav(title="Show All Results" href='#_' onclick=`getNewContent(['offset', 'pins'], [])` role='button').d-none.d-xl-block
-                                                i.fas.fa-star.align-middle
-                                        else
-                                            a.navbar-item.btn.btn-fav(title="Show Only Favorites" href='#_' onclick=`getNewContent(['offset'], [['pins', 'true']])` role='button').d-none.d-xl-block
-                                                i.fas.fa-star.align-middle
-                                        if (params && !((params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) && params.getAll('sort')[0] === 'random'))
-                                            if (params && params.getAll('sort')[0] === 'random')
-                                                a.navbar-item.btn.btn-fav(title="Show Sorted Results" href='#_' onclick=`getNewContent(['offset', 'sort'], [])` role='button').d-none.d-xl-block
-                                                    i.fas.fa-dice.align-middle.pr-1
-                                            else
-                                                a.navbar-item.btn.btn-fav(title="Randomize Results" href='#_' onclick=`getNewContent(['offset'], [['sort', 'random']])` role='button').d-none.d-xl-block
-                                                    i.fas.fa-dice.align-middle.pr-1
-                                        if (!(params.has('album') || params.has('album_name')))
-                                            a.navbar-item.btn.btn-fav.hide-review(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`).d-none.d-xl-block
-                                                i.fas.fa-address-book.align-middle.pr-1
-                                    if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                        div.dropdown.hide-review
-                                            if (write_channels && write_channels.length > 0)
-                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                    a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Upload File(s)" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
-                                                        i.fas.fa-upload.align-middle
-                                                else
-                                                    a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Upload File(s)" href='#_' onclick='displayUploadModel(); return false;')
-                                                        i.fas.fa-upload.align-middle
-                                            if (manage_channels && manage_channels.length > 0)
-                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                    a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Send Text Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
-                                                        i.fas.fa-edit.align-middle
-                                                else
-                                                    a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review( title="Send Text Message" href='#_' onclick='displayMessageModel(0); return false;')
-                                                        i.fas.fa-edit.align-middle
-                                            if (download && download.length > 0)
-                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                    a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
-                                                        i.fas.fa-cloud-download-alt.align-middle
-                                                else
-                                                    a.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-none.d-xxl-inline-block.hide-review(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
-                                                        i.fas.fa-cloud-download-alt.align-middle
-                                            a#uploadOptionsMenu.nav-item.dropdown.no-arrow.btn.btn-switchmode.d-xxl-none.hide-review(title="Upload Content" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="uploadMenu")
-                                                i.fas.fa-upload.align-middle
-                                            .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in.d-xxl-none.hide-review(aria-labelledby="uploadMenu")
-                                                if (write_channels && write_channels.length > 0)
-                                                    if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                        a.dropdown-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
-                                                            i.fas.fa-upload.pr-2
-                                                            | Upload File
-                                                    else
-                                                        a.dropdown-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
-                                                            i.fas.fa-upload.pr-2
-                                                            | Upload File
-                                                if (manage_channels && manage_channels.length > 0)
-                                                    if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                        a.dropdown-item(title="Send Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
-                                                            i.fas.fa-edit.pr-2
-                                                            | Send Message
-                                                    else
-                                                        a.dropdown-item(title="Send Message" href='#_' onclick='displayMessageModel(0); return false;')
-                                                            i.fas.fa-edit.pr-2
-                                                            | Send Message
-                                                if (download && download.length > 0)
-                                                    if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                        a.dropdown-item(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
-                                                            i.fas.fa-cloud-download-alt.pr-2
-                                                            | Download URL
-                                                    else
-                                                        a.dropdown-item(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
-                                                            i.fas.fa-cloud-download-alt.pr-2
-                                                            | Download URL
-                                    if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                        if (results.length > 1)
-                                            a.navbar-item.btn.btn-admin.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-none.d-lg-block
-                                                i.fas.fa-check-circle.align-middle
-                                            if (manage_channels && manage_channels.length > 0)
-                                                a.navbar-item.btn.btn-admin.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(); return false;').d-none.d-lg-block
-                                                    i.fas.fa-snowplow.align-middle
-                                        div.dropdown
-                                            a#toolsMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Tools" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="toolsMenu")
-                                                i.fas.fa-toolbox.align-middle
-                                            .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in(aria-labelledby="toolsMenu")
-                                                if (results.length > 1)
-                                                    a.dropdown-item.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;').d-xl-none.d-lg-none
-                                                        i.fas.fa-check-circle.pr-2
-                                                        | Select Items
-                                                    if (manage_channels && manage_channels.length > 0)
-                                                        a.dropdown-item.hide-review(title="Review Items" href='#_' onclick='setupReviewMode(); return false;').d-xl-none.d-lg-none
-                                                            i.fas.pr-2.fa-snowplow
-                                                            | Review Items
-                                                span.dropdown-header
-                                                    | Filter
-                                                if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
-                                                    a.dropdown-item(title="Show All Content" href='#_' onclick=`getNewContent(['offset', 'flagged'], []); return false;`)
-                                                        i.fas.fa-flag-checkered.pr-2
-                                                        | Remove
-                                                else
-                                                    a.dropdown-item(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
-                                                        i.fas.fa-flag.pr-2
-                                                        | Show Flagged
-                                                if (!(params.has('album') || params.has('album_name')))
-                                                    span.dropdown-header.d-xl-none
-                                                        | Indexes
-                                                    a.dropdown-item(title="Show Artists" href='#_' onclick=`getNewContent([], [], '/artists', true); return false;`).d-xl-none
-                                                        i.fas.fa-address-book.pr-2
-                                                        | Artists
-                                                span.dropdown-header
-                                                    | Display Mode
-                                                form#ratio2Collapse.accordion.dropdown-item.p-0
-                                                    .div
-                                                        #displayImageSizeHeader.collapsed
-                                                            .mb-0.mr-auto
-                                                                button.dropdown-item(type='button' data-toggle='collapse' data-target=`#displayImageSizeBody`).d-inline-flex
-                                                                    i.fas.pr-2.fa-images.align-self-center
-                                                                    | Image Size
-                                                                    i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                        #displayImageSizeBody.collapse(aria-labelledby=`displayImageSizeHeader` data-parent=`#ratio2Collapse`)
-                                                            div.ml-2
-                                                                a.dropdown-item.pr-1(href='#_' onclick=`setImageLayout(3); return false;`)
-                                                                    | Thumbs
-                                                                a.dropdown-item.pr-1(href='#_' onclick=`setImageLayout(2); return false;`)
-                                                                    | Small
-                                                                a.dropdown-item.pr-1(href='#_' onclick=`setImageLayout(); return false;`)
-                                                                    | Default
-                                                                a.dropdown-item.pr-1(href='#_' onclick=`setImageLayout(1); return false;`)
-                                                                    | Large
-                                                a.dropdown-item(href='#_' onclick=`setPageLayout(true); return false;`).d-none.d-xxl-block
-                                                    i.fas.pr-2.fa-arrows-alt-h
-                                                    | Full Width
-                                                .dropdown-divider
-                                                if (path !== '/gallery')
-                                                    a.dropdown-item(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                        i.fas.fa-images.pr-2
-                                                        | View as Gallery
-                                                if (path !== '/files')
-                                                    a.dropdown-item(title="View results as file list" href='#_' onclick=`getNewContent(['offset'], [], "/files?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                        i.fas.fa-folder.pr-2
-                                                        | View as Files
-                                                if (path !== '/cards')
-                                                    a.dropdown-item(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                        i.fas.fa-envelope.pr-2
-                                                        | View as Cards
-                                                span.dropdown-header
-                                                    | Services
-                                                a.dropdown-item(title="Download all images" href='#_' onclick="downloadAllItems(); return false;" role='button')
-                                                    i.fas.fa-download.pr-2
-                                                    | Download
-                                                a.dropdown-item.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
-                                                    i.fas.fa-satellite-dish.pr-2
-                                                    | RSS Feed
-                                                if (android_uri)
-                                                    a.dropdown-item.hide-review(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#appModal').modal('show'); return false;")
-                                                        i.fas.pr-2.fa-laptop
-                                                        | Set as DWS
-                                                a.dropdown-item.hide-review(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="loadADSDisplays(); return false;")
-                                                    i.fas.pr-2.fa-tv
-                                                    | Set as ADS
-                                                span.dropdown-header
-                                                    | Request Options
-                                                if (pageinatorEnable)
-                                                    a.dropdown-item(title="Hide Paginator" href='#_' onclick=`getNewContent(['pageinatorEnable'], [['pageinatorEnable', 'false']]); return false;`)
-                                                        i.pr-2.fas.fa-book-open
-                                                        | Hide Pages
-                                                else
-                                                    a.dropdown-item(title="Show Paginator" href='#_' onclick=`getNewContent(['pageinatorEnable'], [['pageinatorEnable', 'true']]); return false;`)
-                                                        i.pr-2.fas.fa-book-open
-                                                        | Show Pages
-                                                form.form-group.ml-3.mr-3(onsubmit="return false;" method="POST")
-                                                    .input-group(style='max-width: 130px;')
-                                                        .input-group-prepend
-                                                            span.input-group-text.bg-translucent.border-0
-                                                                i.fas.fa-table.fa-sm.align-middle.text-primary
-                                                        input(type="submit" style="display: none" onclick=`getLimitContent(); return false;`)
-                                                        input#limitRequested.form-control.bg-translucent.border-0.small.text-left(type='text' value=req_limit)
-                                                        .input-group-append
-                                                            a.input-group-text.btn-primary.border-0.bg-translucent(title="Request New Limit" href='#_', onclick=`getLimitContent(); return false;`)
-                                                                i.fas.fa-sync.fa-sm.align-middle.nav-item.text-primary
                                         div.dropdown
                                             a#viewMenu.nav-item.dropdown.no-arrow.btn.btn-ice(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
                                                 i.fas.fa-filter.align-middle
@@ -644,7 +938,7 @@ html
                                                             i.fas.fa-sort-amount-up.pr-2
                                                             | Ascending (Z-A)
                                                     if (params.getAll('sort')[0] !== 'random')
-                                                        a.dropdown-item(title="Randomize" href='#_' onclick=`getNewContent(['offset'], [['sort', 'random']])` role='button').d-xl-none
+                                                        a.dropdown-item(title="Randomize" href='#_' onclick=`getNewContent(['offset'], [['sort', 'random']])` role='button')
                                                             i.fas.fa-dice.pr-2
                                                             | Random
                                                     .dropdown-divider
@@ -657,14 +951,14 @@ html
                                                             i.far.fa-star.pr-2
                                                             | Unfavorited
                                                     if (params.getAll('pins')[0] === 'true')
-                                                        a.dropdown-item(title="Show All" href='#_' onclick=`getNewContent(['offset', 'pins'], [])`  role='button').d-xl-none
+                                                        a.dropdown-item(title="Show All" href='#_' onclick=`getNewContent(['offset', 'pins'], [])`  role='button')
                                                             i.fas.fa-slash.pr-2
                                                             | Show All
                                                     else
-                                                        a.dropdown-item(title="Show only favorites" href='#_' onclick=`getNewContent(['offset'], [['pins', 'true']])` role='button').d-xl-none
+                                                        a.dropdown-item(title="Show only favorites" href='#_' onclick=`getNewContent(['offset'], [['pins', 'true']])` role='button')
                                                             i.fas.fa-star.pr-2
                                                             | Favorites
-                                                    if (!(params.getAll('sort')[0] === 'random'))
+                                                    if (params.getAll('sort')[0] !== 'random')
                                                         if (params.getAll('sort')[0] !== 'eid')
                                                             a.dropdown-item(title="Sort by creation" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'eid']]); return false;` role='button')
                                                                 i.fas.fa-stream.pr-2
@@ -1044,6 +1338,11 @@ html
                                                                             const _cB = $('#colorBSlider').slider()[0].value.split(',').join('-')
                                                                             getNewContent(['offset', 'ratio'], [['color', `${_cR}:${_cG}:${_cB}`]])
                                                                         }
+                                                    span.dropdown-header
+                                                        | Advanced
+                                                    a.dropdown-item(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`)
+                                                        i.fas.fa-address-book.pr-2
+                                                        | Artists
                                         - let search_uri = `/gallery`;
                                         - if (req_uri) { search_uri = req_uri }
                                     else if (results && params && path === '/artists')
@@ -1117,328 +1416,12 @@ html
                                     //                i.fas.fa-folder.fa-sm.align-middle.nav-item
                             // Nav Item - User Information
                             li.nav-item.dropdown.no-arrow
-                                a#userDropdown.nav-link.pr-0(title="User Account and Settings" href='#_' type="button" data-toggle="collapse" data-target="#userMenu" aria-haspopup='true' aria-expanded='false')
+                                a#userDropdown.nav-link.pr-0(title="User Account and Settings" href='#_' type="button" data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                    i.fas.fa-bars.pr-2
                                     img.img-profile.rounded-circle(src=user.avatar)
                             div#topbarBackground(style='display: none;')
 
                     .container-fluid.max-resize
-                        if (!(results && results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
-                            #showResultsWarningsFull.collapse
-                                if (search_prev || search_prev === '')
-                                    .alert.alert-info-darktrans.w-100(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center.pl-1
-                                                if (active_svr)
-                                                    - servericon = discord.servers.list.filter(e => e.serverid === active_svr).map(e => e.icon)
-                                                    if (servericon && servericon.length > 0)
-                                                        - servericon = servericon.pop()
-                                                    else
-                                                        - servericon = null
-                                                if (servericon)
-                                                    img.align-self-center.rounded(src=servericon style='height: 7rem;')
-                                                else
-                                                    .glyphicon.pl-1
-                                                        i.fas.fa-directions.text-info
-                                            .col
-                                                if (!title || title === '')
-                                                    if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                        if (params && path === '/artists')
-                                                            div.row.text-lg
-                                                                div
-                                                                    | Artist Index
-                                                            div.row
-                                                                div
-                                                                    | Index of Artists throughout the database
-                                                        else if (params && params.getAll('sort')[0] === 'random')
-                                                            div.row.text-lg
-                                                                div
-                                                                    | I'm Feeling Lucky
-                                                            div.row
-                                                                div
-                                                                    | Random selection of items from the server
-                                                        else if (params && params.getAll('sort')[0] === 'fav')
-                                                            div.row.text-lg
-                                                                div
-                                                                    | Favorites
-                                                            div.row
-                                                                div
-                                                                    | Favoured Items
-                                                        else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                                                            if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                                div.row.text-lg
-                                                                    div
-                                                                        | Favorites
-                                                                div.row
-                                                                    div
-                                                                        | Favoured Items
-                                                            else
-                                                                if (path === '/files')
-                                                                    div.row.text-lg
-                                                                        div
-                                                                            | File Stream
-                                                                    div.row
-                                                                        div
-                                                                            | Files in order of upload
-                                                                else
-                                                                    div.row.text-lg
-                                                                        div
-                                                                            | Photo Stream
-                                                                    div.row
-                                                                        div
-                                                                            | Images in order of upload
-                                                        else if (params.has('color'))
-                                                            div.row.text-lg
-                                                                div
-                                                                    | Colour search
-                                                            div.row
-                                                                div
-                                                                    | Images by there averaged colour
-                                                        else if (params.has('displayname'))
-                                                            div.row.text-lg
-                                                                div
-                                                                    | History
-                                                            div.row
-                                                                div
-                                                                    | History for #{params.getAll('displayname')[0]}
-                                                        else if (search_prev && search_prev !== '')
-                                                            div.row.text-lg
-                                                                div
-                                                                    | Search Results
-                                                            div.row
-                                                                div
-                                                                    if (search_prev.includes(" AND "))
-                                                                        - _and = search_prev.split(' AND ')
-                                                                        | Results for
-                                                                        each andSearch, andIndex in _and
-                                                                            if (andSearch.includes(" OR "))
-                                                                                - _or = andSearch.split(' OR ')
-                                                                                each orSearch, orIndex in _or
-                                                                                    | '#{orSearch}'
-                                                                                    if (orIndex + 1 !== _or.length)
-                                                                                        | or
-                                                                            else
-                                                                                | '#{andSearch}'
-                                                                            if (andIndex + 1 !== _and.length)
-                                                                                | and
-                                                                    else if (search_prev.includes(" OR "))
-                                                                        - _or = search_prev.split(' OR ')
-                                                                        | Results for
-                                                                        each orSearch, orIndex in _or
-                                                                            | '#{orSearch}'
-                                                                            if (orIndex + 1 !== _or.length)
-                                                                                | or
-                                                                    else
-                                                                        | Results for '#{search_prev}'
-                                                        else
-                                                            div.row.text-lg
-                                                                div
-                                                                    | Recents
-                                                            div.row
-                                                                div
-                                                                    | Images in chronologically order
-                                                    else
-                                                        div.row.text-lg
-                                                            div
-                                                                | No Description Available
-                                                else
-                                                    if (full_title_post)
-                                                        div.row.text-lg
-                                                            div
-                                                                | #{full_title_post}
-                                                    if (folderInfo)
-                                                        div.row
-                                                            div.pr-2
-                                                                | Folder Path:
-                                                            div
-                                                                span#folderPath #{folderInfo}
-                                                    if (description)
-                                                        div.row
-                                                            div.pr-2
-                                                                | Description:
-                                                            div
-                                                                | #{description}
-                                                    if (params && params.has('album'))
-                                                        - const albumID = params.getAll('album')[0];
-                                                        div.row
-                                                            div.pr-2
-                                                                | Album ID:
-                                                            div
-                                                                | #{albumID}
-                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false' && params.getAll('pins')[0] !== 'true' && params.getAll('pins')[0] !== 'false')
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-star.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning Showing Favorites for user ID : #{params.getAll('pins')[0]}
-                                if (params && params.has('history_numdays'))
-                                    - const days = parseInt(params.getAll('history_numdays')[0]);
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-history.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning.d-none.d-sm-inline History from the last #{days} Days
-                                                .text-warning.d-sm-none #{days} Days
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
-                                if (params && params.has('fav_numdays'))
-                                    - const days = parseInt(params.getAll('fav_numdays')[0]);
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-history.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning.d-none.d-sm-inline Favorites from the last #{days} Days
-                                                .text-warning.d-sm-none #{days} Days
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
-                                if (params && params.has('numdays'))
-                                    - const days = parseInt(params.getAll('numdays')[0]);
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-clock.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning.d-none.d-sm-inline Results shown are from the last #{days} Days
-                                                .text-warning.d-sm-none #{days} Days
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
-                                else if (params && params.has('datestart'))
-                                    - const datestart = params.getAll('datestart')[0]
-                                    - const dateend = params.getAll('dateend')[0]
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-clock.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning.d-none.d-sm-inline Results shown are from #{datestart} to #{dateend}
-                                                .text-warning.d-sm-none #{datestart} - #{dateend}
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays', 'datestart', 'dateend'], []); return false;`) Show All
-                                if (params.has('minres') || params.has('minhres') || params.has('minwres'))
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.text-warning.fa-ruler-combined
-                                            .align-self-start.align-self-center
-                                                if (params.has('minres'))
-                                                    .text-warning.d-none.d-sm-inline Minimum Loose Resolution of #{params.getAll('minres')[0]}px
-                                                    .text-warning.d-sm-none Min Res: #{params.getAll('minres')[0]}px
-                                                else if (params.has('minhres'))
-                                                    .text-warning.d-none.d-sm-inline Minimum Vertical Resolution of #{params.getAll('minhres')[0]}px
-                                                    .text-warning.d-sm-none Min Vert: #{params.getAll('minhres')[0]}px
-                                                else if (params.has('minwres'))
-                                                    .text-warning.d-none.d-sm-inline Minimum Horizontal Resolution of #{params.getAll('minwres')[0]}px
-                                                    .text-warning.d-sm-none Min Horiz: #{params.getAll('minwres')[0]}px
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Minimum Pixel Range" href='#_' onclick=`getNewContent(['offset', 'minres', 'minhres', 'minwres'], []); return false;`) Show All
-                                if (params.has('ratio'))
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.text-warning.fa-ruler-combined
-                                            .align-self-start.align-self-center
-                                                - ratio = params.getAll('ratio')[0]
-                                                if (ratio !== '0.01-1')
-                                                    .text-warning Landscape Images
-                                                else if (ratio === '0.85-2.1')
-                                                    .text-warning Portrait Images
-                                                else if (ratio === '1.1-2.1')
-                                                    .text-warning Strictly Portrait Images
-                                                else if (ratio === '0.01-0.9')
-                                                    .text-warning Strictly Landscape Images
-                                                else
-                                                    .text-warning Custom Aspect Ratio Range: #{params.getAll('ratio')[0]}
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Ratio Range" href='#_' onclick=`getNewContent(['offset', 'ratio'], []); return false;`) Show All
-                                if (params.has('dark'))
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.text-warning.fa-adjust
-                                            .align-self-start.align-self-center
-                                                if (params.getAll('dark')[0] === 'false')
-                                                    .text-warning Light Images
-                                                else if (params.getAll('dark')[0] === 'true')
-                                                    .text-warning Dark Images
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Brightness Filter" href='#_' onclick=`getNewContent(['offset', 'dark'], []); return false;`) Show All
-                                if (params.has('color'))
-                                    .alert.alert-time-transparent.text-warning(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-swatchbook
-                                            .align-self-start.align-self-center
-                                                if (simularColor)
-                                                    .d-inline-flex
-                                                        span.align-self-center.d-none.d-sm-inline Similar Colour
-                                                        div.ml-1.color-preview.align-self-center(style=`background-color: ${simularColor}`)
-                                                        a.text-warning.align-self-center.alert-btn.ml-2(title="Advanced" href='#_' type='button' data-toggle='collapse' data-target='#advancedColorOptions') Advanced
-                                                else
-                                                    .d-none.d-sm-inline Colour Range: R=#{sliderColorsDefaults[0]} G=#{sliderColorsDefaults[1]} B=#{sliderColorsDefaults[2]}
-                                                    .d-sm-none Custom Colour Range
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Colour Filter" href='#_' onclick=`getNewContent(['offset', 'color'], []); return false;`) Show All
-                                        if (simularColor)
-                                            #advancedColorOptions.collapse.mt-2
-                                                .row.ml-auto.mr-auto
-                                                    .align-self-center
-                                                        span.mr-2 Step:
-                                                        a.text-warning.align-self-end.alert-btn(title="Step Range 8" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:8']]); return false;`).mr-1 8
-                                                        a.text-warning.align-self-end.alert-btn(title="Step Range 16" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:16']]); return false;`).mr-1 16
-                                                        a.text-warning.align-self-end.alert-btn(title="Step Range 24" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:24']]); return false;`).mr-1 24
-                                                        a.text-warning.align-self-end.alert-btn(title="Step Range 32" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:32']]); return false;`).mr-1 32
-                                                        a.text-warning.align-self-end.alert-btn(title="Step Range 48" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:48']]); return false;`).mr-1 48
-                                                        a.text-warning.align-self-end.alert-btn(title="Step Range 64" href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:64']]); return false;`).mr-1 64
-                                                    div.d-inline.mt-sm-0.mt-1
-                                                        span.d-none.d-sm-inline.mr-2 Emphasis:
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:0']]); return false;` style='background-color: red; border-color: #770e0eab; color: #770000;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:1']]); return false;` style='background-color: rgb(255 128 0); border-color: #77360eab; color: #773700;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:2']]); return false;` style='background-color: rgb(255 255 0); border-color: #775c0eab; color: #776300;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:3']]); return false;` style='background-color: rgb(0 255 0); border-color: #27770eab; color: #447700;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:4']]); return false;` style='background-color: rgb(128 255 128); border-color: #27770eab; color: #447700;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                    div.d-inline.mt-sm-0.mt-1
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:5']]); return false;` style='background-color: rgb(14 210 206); border-color: #0d5246ab; color: #007b65;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:6']]); return false;` style='background-color: rgb(0 142 255); border-color: #0e4b77ab; color: #004b77;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:7']]); return false;` style='background-color: rgb(0 60 255); border-color: #5662ffdb; color: #597dff;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:8']]); return false;` style='background-color: rgb(128 0 255); border-color: #4b0e77ab; color: #440077;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                                        a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:9']]); return false;` style='background-color: rgb(255 0 255); border-color: #790048db; color: #880a8a;').mr-1
-                                                            i.fas.fa-eye-dropper
-                                if (nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true'))
-                                    .alert.alert-danger-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-exclamation-triangle.text-danger
-                                            if (nsfwEnabled)
-                                                .align-self-start.align-self-center
-                                                    .text-danger NSFW Content is Enabled
-                                                .align-self-center.align-self-start.ml-auto.mr-1
-                                                    a.text-danger.align-self-end.alert-btn(title="Disable NSFW Results" href='#_' onclick=`getNewContent(['offset', 'nsfw'], [['nsfwEnable', 'false']]); return false;`) Disable
-                                            else
-                                                .align-self-start.align-self-center
-                                                    .text-danger NSFW Results are included
-                                                .align-self-center.align-self-start.ml-auto.mr-1
-                                                    a.text-danger.align-self-end.alert-btn(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['offset', 'nsfw'], []); return false;`) Remove
                         if (!mastercount)
                             div.row
                                 h2.d-md-none.page-title.page-title-inpage.text-ellipsis.col.text-primary.pr-0

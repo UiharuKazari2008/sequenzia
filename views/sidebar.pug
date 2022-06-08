@@ -578,18 +578,8 @@ html
                     $('#hiddenChannelModel').on('show.bs.modal', function (e) { recalculateChannelFilter(); });
                     $('#hiddenChannelModel').on('hidden.bs.modal', function (e) { cancelChannelFilter(); });
                 script.
-                    let bypassSidebarRefresh = false;
                     // Event Handeling
                     $('#actionModel').on('hidden.bs.modal', function (e) { clearactionModel(); });
-                    try {
-                        $('#albumItemModal').on('hidden.bs.modal', function (e) {
-                            if (!bypassSidebarRefresh) {
-                                getSidebar(true, true);
-                            }
-                        });
-                    } catch (e) {
-                        console.error("Page does not have a album manager")
-                    }
                 // Manager Scripts
                 script(type='text/javascript' src="/js/client/manage.min.js")
                 // Upload Scripts

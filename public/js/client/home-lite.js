@@ -517,8 +517,6 @@ function deleteAlbum(aid) {
         });
     }
 }
-let bypassSidebarRefresh=false;
-
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker

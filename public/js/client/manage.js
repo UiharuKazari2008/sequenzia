@@ -1027,7 +1027,6 @@ function deleteAlbum(aid) {
     }
 }
 function toggleAlbumItem(aid, eid) {
-    bypassSidebarRefresh = true;
     $.ajax({async: true,
         url: `/actions/v1`,
         type: "post",
