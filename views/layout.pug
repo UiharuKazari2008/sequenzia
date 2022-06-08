@@ -97,7 +97,7 @@ html
                             - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     else
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
-                    div.fixed-top
+                    div.fixed-top.top-padding-safety
                         div#userMenu.collapsed.collapse
                             div.shown-user-menu.d-flex
                                 div.user-info-bg
@@ -1060,7 +1060,7 @@ html
                                                     i.fas.fa-paste.align-middle
                                             a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                 i.fas.fa-download.align-middle
-                            div#topbarBackground(style='display: none;')
+                        div#topbarBackground(style='display: none;')
 
                     .container-fluid.max-resize
                         if (!(results && results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))

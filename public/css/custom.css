@@ -697,7 +697,11 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     color: white;
 }
 
-.bg-topbar-primary {
+.top-padding-safety {
+    padding-top: calc(env(safe-area-inset-top) + 0px);
+}
+
+.fixed-top {
     background-color: rgba(0, 0, 0, 0);
     background-image: linear-gradient(180deg, black, transparent);
     background-size: cover;
@@ -2341,8 +2345,8 @@ footer .server-grid-parent {
         /*height: 3.75rem;
         padding-top: 4px;*/
         padding-bottom: 4px;
-        padding-top: calc(env(safe-area-inset-top) + 4px);
-        height: calc(env(safe-area-inset-top) + 3rem);
+        padding-top: 4px;
+        height: 3rem;
     }
     .img-profile {
         height: 2.2rem!important;
@@ -2388,9 +2392,9 @@ footer .server-grid-parent {
     .music-player.toggled {
         margin-left: 5.5em!important;
     }
-    .bg-topbar-primary {
+    /*.fixed-top {
         background-image: linear-gradient(black, transparent)!important;
-    }
+    }*/
     .loading-bar {
         margin-top: calc(env(safe-area-inset-top) + 2.9em);
     }
@@ -2612,7 +2616,7 @@ footer .server-grid-parent {
         background-color: #d07300;
         border-bottom: solid 1px #ffa90073;
     }
-    .bg-topbar-primary {
+    .fixed-top {
         background-image: linear-gradient(rgba(0, 0, 0, 0.57), transparent);
     }
     .sequenzia-logo {
@@ -2673,7 +2677,7 @@ footer .server-grid-parent {
             text-shadow: 3px -3px 20px #00000029;
         }
     }
-    .shadow.bg-topbar-primary {
+    .shadow.fixed-top {
         background-image: linear-gradient(transparent,transparent)!important;
     }
     .shown-user-menu {

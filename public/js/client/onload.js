@@ -52,6 +52,7 @@ if ("IntersectionObserver" in window) {
 }
 
 $('#userMenu').on('show.bs.collapse', function () {
+    $('.fixed-top').removeClass('top-padding-safety');
     $('#padding').collapse('show');
     $('#topbarBackground').fadeIn();
     $('#topbar').addClass('shadow');
@@ -60,8 +61,11 @@ $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
         $('#menuItem1').collapse('show');
         $('#padding').collapse('hide');
-        $('#topbarBackground').fadeOut();
-        $('#topbar').removeClass('shadow');
+        $('.fixed-top').addClass('top-padding-safety');
+        if ($('html').scrollTop() <= 50) {
+            $('#topbarBackground').fadeOut();
+            $('#topbar').removeClass('shadow');
+        }
     }
 })
 

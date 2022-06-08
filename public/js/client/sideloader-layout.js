@@ -137,16 +137,18 @@ $(document).ready(function () {
         scrollManagerThrottleTimeout = setTimeout(function() {
             const topbar = $('#topbar')
             const menu = $('#userMenu')
+            if ($(this).scrollTop() > 50) {
+                $('.scrollBtn').fadeIn();
+            } else {
+                $('.scrollBtn').fadeOut();
+            }
             if ($(this).scrollTop() > 50 || menu.hasClass('show')) {
-                if ($(this).scrollTop() > 50)
-                    $('.scrollBtn').fadeIn();
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
                 $('#topbarBackground').fadeIn();
                 topbar.addClass('shadow');
             } else {
-                $('.scrollBtn').fadeOut();
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
