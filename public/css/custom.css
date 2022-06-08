@@ -176,7 +176,7 @@ i.btn-links.reported {
 }
 
 .navbar {
-    padding-top: 0.5em;
+    padding-top: calc(env(safe-area-inset-top) + 0.5rem);
 }
 
 a.lightbox:before {
@@ -1944,11 +1944,10 @@ footer .server-grid-parent {
     box-shadow: 6px 2px 11px 0 #00000054;
 }
 
-
-.fixed-top {
+/*.fixed-top {
     padding-top: calc(env(safe-area-inset-top) + 0px);
     height: calc(env(safe-area-inset-top) + 0px);
-}
+}*/
 
 @keyframes slideiconout {
     from {max-width: 0;}
@@ -2186,7 +2185,7 @@ footer .server-grid-parent {
         padding: 0!important;
     }
     .topbar {
-        height: 3.5rem;
+        height: calc(env(safe-area-inset-top) + 3.5rem);
     }
     .pagination .page-link {
         font-size: 1.2rem;
@@ -2342,8 +2341,8 @@ footer .server-grid-parent {
         /*height: 3.75rem;
         padding-top: 4px;*/
         padding-bottom: 4px;
-        padding-top: 4px;
-        height: 3;
+        padding-top: calc(env(safe-area-inset-top) + 4px);
+        height: calc(env(safe-area-inset-top) + 3rem);
     }
     .img-profile {
         height: 2.2rem!important;
@@ -2396,7 +2395,7 @@ footer .server-grid-parent {
         margin-top: calc(env(safe-area-inset-top) + 2.9em);
     }
     .sidebar {
-        margin-top: 2.8em;
+        margin-top: calc(env(safe-area-inset-top) + 2.8em);
     }
 }
 @media (min-width: 1700px) {
