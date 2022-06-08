@@ -921,6 +921,7 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                     call_uri: page_uri,
                     device: ua,
                 }
@@ -937,6 +938,7 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1117,6 +1119,7 @@ module.exports = async (req, res, next) => {
                         write_channels: req.session.discord.channels.write,
                         discord: req.session.discord,
                         user: req.session.user,
+                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1133,6 +1136,7 @@ module.exports = async (req, res, next) => {
                         write_channels: req.session.discord.channels.write,
                         discord: req.session.discord,
                         user: req.session.user,
+                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1216,6 +1220,7 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1635,6 +1640,7 @@ module.exports = async (req, res, next) => {
                                                     name: (item.user_nicename) ? item.user_nicename: item.user_name,
                                                     avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                                 },
+                                                albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                                                 server: {
                                                     id: item.server,
                                                     name: item.server_short_name.toUpperCase(),
@@ -1767,6 +1773,7 @@ module.exports = async (req, res, next) => {
                                             name: (item.user_nicename) ? item.user_nicename: item.user_name,
                                             avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                         },
+                                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
@@ -1993,6 +2000,7 @@ module.exports = async (req, res, next) => {
                                                 name: (item.user_nicename) ? item.user_nicename: item.user_name,
                                                 avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                             },
+                                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                                             server: {
                                                 id: item.server,
                                                 name: item.server_short_name.toUpperCase(),
@@ -2101,6 +2109,7 @@ module.exports = async (req, res, next) => {
                                             name: (item.user_nicename) ? item.user_nicename: item.user_name,
                                             avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                         },
+                                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
@@ -2179,6 +2188,7 @@ module.exports = async (req, res, next) => {
                                             name: (item.user_nicename) ? item.user_nicename: item.user_name,
                                             avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
                                         },
+                                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
@@ -2235,6 +2245,7 @@ module.exports = async (req, res, next) => {
                             write_channels: req.session.discord.channels.write,
                             discord: req.session.discord,
                             user: req.session.user,
+                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                             device: ua,
                             folderInfo
                         }
@@ -2280,6 +2291,7 @@ module.exports = async (req, res, next) => {
                             write_channels: req.session.discord.channels.write,
                             discord: req.session.discord,
                             user: req.session.user,
+                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                             device: ua,
                         }
                         next();
@@ -2298,6 +2310,7 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                     device: ua,
                 }
                 next();

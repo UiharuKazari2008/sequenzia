@@ -93,91 +93,166 @@ html
                     else
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     div.fixed-top
-                        div#userMenu.shown-user-menu.d-flex
-                            div.user-info-bg
-                                div.user-icon.d-flex.flex-column(style="background: linear-gradient(0deg, rgba(0,0,0,0.5), transparent); height: inherit;")
-                                    .row.mt-auto.p-0
-                                        .col-auto.pr-0
-                                            img.img-profile.rounded-circle(src=user.avatar style="width: 125px;").p-2
-                                        .col.p-0.position-relative
-                                            div.text-ellipsis.position-absolute.shadow-text(style="font-size: 2em; bottom: 0; max-width: 480px;")
-                                                if (user && user.source || user && user.source === 0)
-                                                    if (user.source === 0)
-                                                        // Logged in with Discord
-                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
-                                                    else if (user.source === 1)
-                                                        // Logged in with Discord
-                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
-                                                    else if (user.source < 100)
-                                                        // Logged in with Discord
-                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
-                                                    else if (user.source == 100)
-                                                        // Logged in with Telegram
-                                                        i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
-                                                    else if (user.source == 900)
-                                                        // Logged in with Unauthorized Login Meathod
-                                                        i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
-                                                    else
-                                                        // Logged in with some unknown platform
-                                                        i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
-                                                else
-                                                    // Login Source was not detected
-                                                    i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
-                                                span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.25em; color: white;') #{user.username}
+                        div#userMenu.collapsed.collapse
+                            div.shown-user-menu.d-flex
+                                div.user-info-bg
+                                    div.user-infocard-holder.d-flex.flex-column
+                                        .row.p-0.ml-0.mr-0
                                             if (user && user.source === 900)
-                                                div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                div.text-center.text-ellipsis.align-middle.p-2
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                            div.user-menu-buttons.position-relative(style="width: 100%;")
-                                .row.pt-2.pr-3
-                                    form.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: unset;" )
-                                        .input-group.w-100
-                                            input#dropdownSearch2.form-control.bg-translucent.border-0.small(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
-                                            input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
-                                            .input-group-append
-                                                a.btn.input-group-text.bg-translucent.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
-                                                    i.fas.fa-image.fa-sm.align-middle.nav-item
-                                                a.btn.input-group-text.bg-translucent.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
-                                                    i.fas.fa-folder.fa-sm.align-middle.nav-item
-                                                a.btn.input-group-text.bg-translucent.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`)
-                                                    i.fas.fa-sm.align-middle.nav-item.fa-address-book
-                                    span.sidebar-brand-logo.sequenzia-logo(style='font-size: 2.8em; color: #ff9b59;').ml-auto sequenzia
-                                .row.position-absolute.pb-3(style="display: inline-grid; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
-                                    a.user-menu-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
-                                        i.fas.fa-fw.fa-archive
-                                        | Albums
-                                    a.user-menu-item(data-placement="left" title="Image History and Ambient Manager" href='#_' onclick='showDisplayHistory(); return false;')
-                                        i.fas.fa-desktop.fa-fw
-                                        | Ambient
-                                    //if (user && user.source < 900)
-                                        a.user-menu-item(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                            i.fas.fa-key.fa-fw
-                                            | Authentication
-                                    //a.user-menu-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
-                                        i.fas.fa-fw.fa-eye-slash
-                                        | Hide Channels
-                                    if (webconfig && webconfig.support_lines)
-                                        a.user-menu-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                            i.fas.fa-fw.fa-question-circle
-                                            | Support
-                                    a.user-menu-item(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                        i.fas.fa-fw.fa-info-circle
-                                        | About
-                                    a.user-menu-item(title="Options" href='#_' data-toggle='modal' data-target='#settingsModal')
-                                        i.fas.fa-fw.fa-cog
-                                        | Options
-
-                                    //a.user-menu-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                        i.fas.fa-sync.fa-fw
-                                        | Restart App
-                                    //a.user-menu-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                        i.fas.fa-sync.fa-fw
-                                        | Update Sidebar
-                                    //a.user-menu-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                        i.fas.fa-sync.fa-fw
-                                        | Update Account
-                                    a.user-menu-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                        i.fas.fa-sign-out-alt.fa-fw.text-danger
-                                        | Logout
+                                        .row.mt-auto.p-0.ml-0.mr-0
+                                            if (user && user.banner)
+                                                .col-auto.pr-0
+                                                    img.img-profile.rounded-circle.user-infocard-icon(src=user.avatar)
+                                            .col.p-0.position-relative.pl-2
+                                                div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
+                                                    //if (user && user.source || user && user.source === 0)
+                                                        if (user.source === 0)
+                                                            // Logged in with Discord
+                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
+                                                        else if (user.source === 1)
+                                                            // Logged in with Discord
+                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
+                                                        else if (user.source < 100)
+                                                            // Logged in with Discord
+                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
+                                                        else if (user.source == 100)
+                                                            // Logged in with Telegram
+                                                            i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
+                                                        else if (user.source == 900)
+                                                            // Logged in with Unauthorized Login Meathod
+                                                            i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                                                        else
+                                                            // Logged in with some unknown platform
+                                                            i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
+                                                    //else
+                                                        // Login Source was not detected
+                                                        i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
+                                                    span.dropdown-header.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                                if (user && user.source === 900)
+                                                    div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
+                                                        span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                div.user-menu-buttons(style="width: 100%; height: 100%")
+                                    div#menuAccordion
+                                        div#menuItem1(class="collapse show" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .row.w-100.ml-0.mr-0
+                                                    form.col.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                        .input-group.w-100
+                                                            input#dropdownSearch2.form-control.top-menu-search-bar(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                            input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
+                                                            .input-group-append
+                                                                a.btn.input-group-text.top-menu-search-bar(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
+                                                                    i.fas.fa-image.fa-sm.align-middle.nav-item
+                                                                a.btn.input-group-text.top-menu-search-bar(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
+                                                                    i.fas.fa-folder.fa-sm.align-middle.nav-item
+                                                                a.btn.input-group-text.top-menu-search-bar(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`)
+                                                                    i.fas.fa-sm.align-middle.nav-item.fa-address-book
+                                                    span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
+                                                .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                    a.user-menu-item(title="Homepage" href='/')
+                                                        i.fas.fa-fw.fa-home
+                                                        | Home
+                                                    a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
+                                                        i.fas.fa-fw.fa-images
+                                                        | Pictures
+                                                    a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                        i.fas.fa-fw.fa-folder
+                                                        | Files
+                                                    a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
+                                                        i.fas.fa-fw.fa-dice
+                                                        | Random
+                                                    a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
+                                                        i.fas.fa-fw.fa-star
+                                                        | Favorites
+                                                    a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem2")
+                                                        i.fas.fa-fw.fa-archive
+                                                        | Albums
+                                                    a.user-menu-item(title="Index" href='#/artists?')
+                                                        i.fas.fa-fw.fa-address-book
+                                                        | Artists
+                                                    a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                                                        i.fas.fa-fw.fa-history
+                                                        | History
+                                                    //a.user-menu-item(data-placement="left" title="Image History and Ambient Manager" href='#_' onclick='showDisplayHistory(); return false;')
+                                                        i.fas.fa-desktop.fa-fw
+                                                        | Ambient
+                                                    a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem3")
+                                                        i.fas.fa-fw.fa-cog
+                                                        | Settings
+                                                    a.user-menu-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                                        i.fas.fa-sign-out-alt.fa-fw.text-danger
+                                                        | Logout
+                                        div#menuItem3(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                        i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                        span.d-none.d-md-inline Return
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-cog.mr-2
+                                                        | Settings
+                                                .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
+                                                    if (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album')))
+                                                        if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
+                                                            a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
+                                                                i.fas.fa-eye-slash
+                                                                | Exclude NSFW
+                                                        else
+                                                            a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
+                                                                i.fas.fa-eye
+                                                                | Include NSFW
+                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                                        i.fas.fa-desktop.fa-sm.fa-fw
+                                                        | Ambient Manager
+                                                    if (user && user.source < 900)
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                            i.fas.fa-key.fa-sm.fa-fw
+                                                            | Auth
+                                                    a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                                        i.fas.fa-sm.fa-fw.fa-eye-slash
+                                                        | Hide Folders
+                                                    if (webconfig && webconfig.support_lines)
+                                                        a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                                            i.fas.fa-sm.fa-fw.fa-question-circle
+                                                            | Support
+                                                    a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                                        i.fas.fa-sm.fa-fw.fa-info-circle
+                                                        | About
+                                                    a.user-menu-item.user-menu-small.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
+                                                        i.fas.fa-sync.fa-sm.fa-fw
+                                                        | Restart App
+                                                    a.user-menu-item.user-menu-small(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
+                                                        i.fas.fa-sync.fa-sm.fa-fw
+                                                        | Update Sidebar
+                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                                        i.fas.fa-sync.fa-sm.fa-fw
+                                                        | Update Account
+                                        div#menuItem2(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                        i.fas.fa-arrow-left.fa-fw.mr-md-1
+                                                        span.d-none.d-md-inline Return
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                        i.fas.fa-cog.fa-fw.mr-md-1
+                                                        span.d-none.d-md-inline Manage
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-archive.mr-2
+                                                        | Albums
+                                                .w-100.position-absolute.pb-3(style="justify-content: left; bottom: 0;")
+                                                    if (albums)
+                                                        div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                            each thisAlbum in albums
+                                                                div.album-item.position-relative
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-3.pr-3(style="justify-content: left; bottom: 0;")
+                                                                        span #{thisAlbum.name}
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                        if (thisAlbum.image)
+                                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                    else
+                                                        h2 No Albums!
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.d-md-none.text-primary
                             //    li.nav-item.page-title.no-arrow.only-standalone.mr-1
@@ -471,15 +546,6 @@ html
                                                     a.dropdown-item(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
                                                         i.fas.fa-flag.pr-2
                                                         | Show Flagged
-                                                if (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album')))
-                                                    if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
-                                                        a.dropdown-item.nsfw-dropdown-item(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
-                                                            i.fas.fa-eye-slash.pr-2
-                                                            | Exclude NSFW
-                                                    else
-                                                        a.dropdown-item.nsfw-dropdown-item(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
-                                                            i.fas.fa-eye.pr-2
-                                                            | Include NSFW
                                                 if (!(params.has('album') || params.has('album_name')))
                                                     span.dropdown-header.d-xl-none
                                                         | Indexes
@@ -1012,38 +1078,6 @@ html
                                                     a.dropdown-item(title="Randomize" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'random']]); return false;` role='button')
                                                         i.fas.fa-dice.pr-2
                                                         | Random
-                                    div.dropdown
-                                        a#searchDropdown.navbar-item.btn.btn-ice(title="Search" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                                            i.fas.fa-search.align-middle
-                                        // Dropdown - Messages
-                                        .search-dropdown.dropdown-menu.dropdown-menu-right.p-3.shadow.animated--grow-in(aria-labelledby='searchDropdown')
-                                            form.form-inline.mr-auto.mw-100.navbar-search(onsubmit="return false;" method="post" )
-                                                .input-group.w-100
-                                                    input#dropdownSearch.form-control.bg-translucent.border-0.small(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
-                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch"); return false;`)
-                                                    .input-group-append
-                                                        if (params && path === '/artists')
-                                                            a.btn.input-group-text.bg-translucent.border-0(title="Search for Artists"  href='#_', onclick=`getSearchContent("dropdownSearch", "/artists"); return false;`)
-                                                                i.fas.fa-sm.align-middle.nav-item.fa-address-book
-                                                        else
-                                                            a.btn.input-group-text.bg-translucent.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch", "/gallery"); return false;`)
-                                                                i.fas.fa-image.fa-sm.align-middle.nav-item
-                                                            a.btn.input-group-text.bg-translucent.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch", "/files"); return false;`)
-                                                                i.fas.fa-folder.fa-sm.align-middle.nav-item
-                                                            a.btn.input-group-text.bg-translucent.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch", "/artists"); return false;`)
-                                                                i.fas.fa-sm.align-middle.nav-item.fa-address-book
-                                else
-                                    form.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: unset;" )
-                                        .input-group.w-100
-                                            input#dropdownSearch.form-control.bg-translucent.border-0.small(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
-                                            input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch"); return false;`)
-                                            .input-group-append
-                                                a.btn.input-group-text.bg-translucent.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch", "/gallery"); return false;`)
-                                                    i.fas.fa-image.fa-sm.align-middle.nav-item
-                                                a.btn.input-group-text.bg-translucent.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch", "/files"); return false;`)
-                                                    i.fas.fa-folder.fa-sm.align-middle.nav-item
-                                                a.btn.input-group-text.bg-translucent.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch", "/artists"); return false;`)
-                                                    i.fas.fa-sm.align-middle.nav-item.fa-address-book
                                 li#doneBtns.nav-item.no-arrow.hidden
                                     if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
                                         .btn-group
@@ -1083,75 +1117,8 @@ html
                                     //                i.fas.fa-folder.fa-sm.align-middle.nav-item
                             // Nav Item - User Information
                             li.nav-item.dropdown.no-arrow
-                                a#userDropdown.nav-link.dropdown-toggle.pr-0(title="User Account and Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                                a#userDropdown.nav-link.pr-0(title="User Account and Settings" href='#_' type="button" data-toggle="collapse" data-target="#userMenu" aria-haspopup='true' aria-expanded='false')
                                     img.img-profile.rounded-circle(src=user.avatar)
-                                // Dropdown - User Information
-                                .dropdown-menu.dropdown-menu-right.shadow.animated--grow-in.no-max(aria-labelledby='userDropdown')
-                                    div.d-sm-flex
-                                        div.pl-sm-3.align-self-center
-                                            img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
-                                            div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
-                                                if (user && user.source || user && user.source === 0)
-                                                    if (user.source === 0)
-                                                        // Logged in with Discord
-                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
-                                                    else if (user.source === 1)
-                                                        // Logged in with Discord
-                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
-                                                    else if (user.source < 100)
-                                                        // Logged in with Discord
-                                                        i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
-                                                    else if (user.source == 100)
-                                                        // Logged in with Telegram
-                                                        i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
-                                                    else if (user.source == 900)
-                                                        // Logged in with Unauthorized Login Meathod
-                                                        i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
-                                                    else
-                                                        // Logged in with some unknown platform
-                                                        i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
-                                                else
-                                                    // Login Source was not detected
-                                                    i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
-                                                span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
-                                            if (user && user.source === 900)
-                                                div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
-                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        div.align-self-center.pr-3
-                                            a.dropdown-item(title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;')
-                                                i.fas.fa-sm.fa-fw.mr-2.fa-archive
-                                                | Album Manager
-                                            a.dropdown-item(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                                i.fas.fa-desktop.fa-sm.fa-fw.mr-2
-                                                | Ambient System
-                                            if (user && user.source < 900)
-                                                a.dropdown-item(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                                    i.fas.fa-key.fa-sm.fa-fw.mr-2
-                                                    | Authentication
-                                            a.dropdown-item(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
-                                                i.fas.fa-sm.fa-fw.mr-2.fa-eye-slash
-                                                | Hide Channels
-                                            if (webconfig && webconfig.support_lines)
-                                                a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                                    i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
-                                                    | Support
-                                            a.dropdown-item(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                                i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
-                                                | About
-                                            .dropdown-divider
-
-                                            a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                                | Restart App
-                                            a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                                | Update Sidebar
-                                            a.dropdown-item(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                                | Update Account
-                                            a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                                i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
-                                                | Logout
                             div#topbarBackground(style='display: none;')
 
                     .container-fluid.max-resize

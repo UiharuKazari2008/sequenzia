@@ -154,7 +154,7 @@ footer.musicActive {
 
 .sidebar {
     width: 4rem;
-    margin-top: calc(env(safe-area-inset-top) + 3em);
+    margin-top: calc(env(safe-area-inset-top) + 3.75em);
     margin-bottom: calc(env(safe-area-inset-bottom) + 3.5em);
 }
 
@@ -1729,21 +1729,89 @@ div.collapse-divider {
     font-size: 0.85em!important;
 }
 
-#userMenu.shown-user-menu, .user-info-bg {
-    height: 200px;
-    background: black;
+.user-menu-small {
+    /*max-width: 74px;*/
+    line-height: 1.2;
+    text-align: center;
+}
+.user-menu-item > i {
+    margin-top: .3em;
 }
 
-#userMenu.shown-user-menu, .user-info-bg {
+.user-infocard-holder {
+    background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);
+    height: inherit;
+}
+.user-infocard-icon {
+    width: 125px;
+}
+.user-infocard-info {
+    font-size: 2em;
+    bottom: 0;
+    max-width: 480px;
+}
+
+.user-infocard-username {
+    font-size: 1.25em;
+    color: white;
+}
+
+.user-menu-icon {
+    font-size: 2.8em;
+    color: #ff9b59;
+}
+
+.shown-user-menu, .user-info-bg, .user-menu-height {
     height: 200px;
+}
+.shown-user-menu {
     background: black;
+}
+.album-info {
+    z-index: 1;
+    font-size: 1.25em;
+    pointer-events: none;
+    width: 100%;
 }
 .user-menu-item:hover, .user-menu-item:focus, .user-menu-item:active {
     text-decoration: none;
 }
 .user-info-bg {
-    min-width: 600px;
+    min-width: 500px;
 }
+
+.album-list {
+    display: flex;
+}
+.album-item {
+    min-height: 120px;
+    min-width: 250px;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+}
+.album-preview {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-position: top;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.top-menu-search-bar {
+    border-bottom: 1px dashed #ff9b59;
+    color: #ff9b59!important;
+    border-left: 0;
+    border-top: 0;
+    border-right: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+.user-menu-item > i {
+    padding-bottom: 0.2em;
+}
+
 .user-menu-item {
     flex-direction: row;
     justify-items: center;
@@ -1882,6 +1950,34 @@ footer .server-grid-parent {
     .container-fluid:not(.max-resize) > div > .tz-gallery > div > div > .overlay-icons .no-dynamic-small.dynamic-hide,
     .container-fluid:not(.max-resize) > div > .tz-gallery > div > div > .internal-lightbox .no-dynamic-small.dynamic-hide  {
         display: inline-block!important;
+    }
+}
+@media (max-width:1400px) {
+    .user-menu-item {
+        font-size: .8em;
+        padding-top: 0.5em;
+    }
+    .user-menu-icon {
+        font-size: 2em;
+    }
+    .shown-user-menu, .user-info-bg, .user-menu-height {
+        height: 175px;
+    }
+    .user-info-bg {
+        min-width: 400px;
+    }
+    .user-infocard-info {
+        font-size: 1.4em;
+    }
+    .user-infocard-icon {
+        width: 100px;
+    }
+    .album-item {
+        min-height: 90px;
+        min-width: 150px;
+    }
+    .album-info {
+        font-size: 1em;
     }
 }
 
@@ -2140,10 +2236,40 @@ footer .server-grid-parent {
         display: block!important;
     }*/
 }
+
 @media (max-width: 767px) {
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/
+    .shown-user-menu {
+        height: 500px;
+        flex-direction: column;
+    }
+
+    .user-info-bg {
+        height: 300px
+    }
+    .user-menu-height {
+        height: 200px
+    }
+
+    .user-infocard-icon {
+        width: 160px;
+        font-size: 1.85em;
+    }
+    .user-infocard-username {
+        font-size: 1.8em;
+    }
+
+
+    .album-item {
+        min-height: 120px;
+        min-width: 150px;
+    }
+    .album-info {
+        font-size: 1em;
+    }
+
     #load{
         width:100%;
         height:100%;
@@ -2245,6 +2371,65 @@ footer .server-grid-parent {
 @media (max-width: 767px) {
     .sidebar.toggled {
         display: none;
+    }
+}
+@media (max-width: 500px) {
+    .shown-user-menu {
+        height: 400px;
+        flex-direction: column;
+    }
+
+    .user-info-bg {
+        height: 200px
+    }
+    .user-menu-height {
+        height: 200px
+    }
+
+    .user-infocard-username {
+        font-size: 1.4em;
+    }
+
+    .user-infocard-icon {
+        width: 120px;
+        font-size: 1.5em;
+    }
+    .album-item {
+        min-height: 120px;
+        min-width: 120px;
+    }
+    .album-info {
+        font-size: 0.8em;
+    }
+
+}
+@media (max-width: 360px) {
+    .shown-user-menu {
+        height: 450px;
+        flex-direction: column;
+    }
+
+    .user-info-bg {
+        height: 200px
+    }
+    .user-menu-height {
+        height: 250px
+    }
+
+    .user-infocard-username {
+        font-size: 1em;
+    }
+
+    .user-infocard-icon {
+        width: 96px;
+        font-size: 1.5em;
+    }
+    .album-item {
+        min-height: 150px;
+        min-width: 120px;
+    }
+    .album-info {
+        font-size: 0.8em;
     }
 }
 

@@ -6,69 +6,8 @@ html
                     span.sidebar-brand-logo.sequenzia-logo sequenzia
                 // Divider
                 if (sidebar && sidebar.length > 0)
-                    li#homePage.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Homepage" href='/' role='button')
-                            i.fas.fa-home
-                            span.text-capitalize Home
-                    li#searchPosts.nav-item.hidden-default
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Search Results" href='#_' role='button')
-                            i.fas.fa-search
-                            span.text-capitalize Search
-                    li#streamPictures.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Recently Uploaded Photo" href='#/gallery?numdays=60&sort=eid')
-                            i.fas.fa-stream
-                            span.text-capitalize Stream
-                    li#streamFiles.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                            i.fas.fa-folder
-                            span.text-capitalize Files
-                    li#recentPosts.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Photos ordered by date" href='#/gallery?numdays=60')
-                            i.fas.fa-clock
-                            span.text-capitalize Recent
-                    li#favoritePosts.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Your Favorites" href='#/gallery?sort=fav&pins=true')
-                            i.fas.fa-star
-                            span.text-capitalize Favorites
-                    li#albums.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="My Albums" href='#_' data-toggle='collapse' data-target=`#albumsMenu`)
-                            i.fas.fa-archive
-                            span.text-capitalize Albums
-                        #albumsMenu.collapse(aria-labelledby='albumsMenu' data-parent='#accordionSidebar' class=isVisible)
-                            .bg-white.py-2.collapse-inner.rounded
-                                if (albums)
-                                    each thisAlbum in albums
-                                        a.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}` id=`album-item-${thisAlbum.aid}`) #{thisAlbum.name}
-                                    if (albums.length > 0)
-                                        .collapse-divider
-                                a.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Manage Albums" href='#_' onclick=`refreshAlbumsList(); return false;`) Manage Albums
-                    li#randomPosts.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="I'm feeling lucky!" href='#/gallery?sort=random')
-                            i.fas.fa-dice
-                            span.text-capitalize Random
-                    if ((webconfig.index_items && webconfig.index_items.length > 0) || (webconfig.pinned_user && webconfig.pinned_user !== user.id))
-                        li#globalTags.nav-item
-                            a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Global Tags" href='#_' data-toggle='collapse' data-target=`#globalTagsMenu`)
-                                i.fas.fa-atlas
-                                span.text-capitalize Index
-                            #globalTagsMenu.collapse(aria-labelledby='globalTagsMenu' data-parent='#accordionSidebar' class=isVisible)
-                                .bg-white.py-2.collapse-inner.rounded
-                                    if (webconfig.pinned_user && webconfig.pinned_user !== user.id)
-                                        a#pinnedKazari.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Pins by Kazari" href=`#/gallery?sort=fav&pins=${webconfig.pinned_user}`) Pinned
-                                    if (webconfig.index_items && webconfig.index_items.length > 0)
-                                        each indexItem, indexIndex in webconfig.index_items
-                                            if (indexItem === null)
-                                                .collapse-divider
-                                            else
-                                                a.collapse-item.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" id='customIndex' + indexIndex title=indexItem.tooltip href='#' + indexItem.url) #{indexItem.name}
-                    li#historyPosts.nav-item
-                        a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                            i.fas.fa-history
-                            span.text-capitalize History
-
                     each thisSuperClass, superIndex in sidebar
-                        // Divider
-                        hr.sidebar-divider
+
                         // Heading
                         .sidebar-heading
                             span #{thisSuperClass.name}
