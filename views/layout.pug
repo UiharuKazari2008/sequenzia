@@ -238,7 +238,7 @@ html
                                                         i.fas.fa-toolbox.mr-2
                                                         | Tools
                                                 .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
-                                                    if (results.length > 1)
+                                                    if (results && results.length > 1)
                                                         a.user-menu-item.user-menu-small.hide-review(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;')
                                                             i.fas.fa-check-circle
                                                             | Select Items
