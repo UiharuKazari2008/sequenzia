@@ -150,7 +150,10 @@ footer.videoActive {
 }
 
 .navbar {
-    padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+    padding-top: 0.5rem;
+}
+.fixed-top {
+    padding-top: calc(env(safe-area-inset-top));
 }
 
 a.lightbox:before {
