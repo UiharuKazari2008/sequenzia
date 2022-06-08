@@ -106,9 +106,9 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle.p-2
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        .row.mt-auto.p-0.ml-0.mr-0
+                                        .row.mt-auto.p-0.mb-2.user-infocard-row1
                                             if (user && user.banner)
-                                                .col-auto.pr-0.pb-2
+                                                .col-auto.p-0
                                                     img.rounded-circle.user-infocard-icon(src=user.avatar)
                                             .col.p-0.position-relative.pl-2
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
@@ -136,7 +136,7 @@ html
                                                         i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
                                 div.user-menu-buttons(style="width: 100%; height: 100%")
-                                    div#menuAccordion
+                                    div#menuAccordion.user-infocard-row2
                                         div#menuItem1(class="collapse show" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .row.w-100.ml-0.mr-0
@@ -177,8 +177,8 @@ html
                                                             i.fas.fa-compass.fa-fw
                                                             | Navigate
                                                         a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
-                                                            i.fas.fa-fw.fa-stream
-                                                            | Stream
+                                                            i.fas.fa-fw.fa-images
+                                                            | Photos
                                                         a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
                                                             i.fas.fa-fw.fa-folder
                                                             | Files
@@ -873,7 +873,7 @@ html
                                                         | Albums
                                                 .w-100.position-absolute.pb-3(style="justify-content: left; bottom: 0;")
                                                     if (albums)
-                                                        div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        div.album-list.mr-3(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in albums
                                                                 div.album-item.position-relative
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
@@ -883,7 +883,7 @@ html
                                                                             div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
                                                     else
                                                         h2 No Albums!
-                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.ready-to-scroll
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
                                     img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.8em; opacity: 0.78;')
@@ -941,10 +941,11 @@ html
                                                     i.fas.fa-star.mr-2
                                                     span(title='Favorited Images').text-uppercase Favorites
                                                 else
-                                                    i.fas.fa-stream.mr-2
                                                     if (path === '/files')
+                                                        i.fas.fa-folder.mr-2
                                                         span(title='Files in order of upload').text-uppercase File Stream
                                                     else
+                                                        i.fas.fa-stream.mr-2
                                                         span(title='Images in order of upload').text-uppercase Photo Stream
                                             else if (params.has('color'))
                                                 if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
@@ -1429,10 +1430,11 @@ html
                                                         i.fas.fa-star.mr-2
                                                         span(title='Favorited Images').text-uppercase Favorites
                                                     else
-                                                        i.fas.fa-stream.mr-2
                                                         if (path === '/files')
+                                                            i.fas.fa-folder.mr-2
                                                             span(title='Files in order of upload').text-uppercase File Stream
                                                         else
+                                                            i.fas.fa-images.mr-2
                                                             span(title='Images in order of upload').text-uppercase Photo Stream
                                                 else if (params.has('color'))
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')

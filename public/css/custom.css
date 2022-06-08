@@ -1734,7 +1734,7 @@ div.collapse-divider {
 }
 
 #padding {
-    margin-top: 225px;
+    margin-top: calc(225px - env(safe-area-inset-top, 0px));
 }
 
 .menu-grid {
@@ -1779,9 +1779,6 @@ div.collapse-divider {
 
 .shown-user-menu, .user-info-bg, .user-menu-height {
     height: 200px;
-}
-.shown-user-menu {
-    background: black;
 }
 .album-info {
     z-index: 1;
@@ -2286,8 +2283,16 @@ footer .server-grid-parent {
         height: 500px;
         flex-direction: column;
     }
+    .user-infocard-row1 {
+        margin-left: calc(env(safe-area-inset-left, 0) + 0.5em);
+        margin-right: calc(env(safe-area-inset-right, 0) + 0.5em);
+    }
+    .user-infocard-row2 {
+        margin-left: calc(env(safe-area-inset-left, 0) + 1em);
+        margin-right: calc(env(safe-area-inset-right, 0) + 1em);
+    }
     #padding {
-        margin-top: 525px;
+        margin-top: calc(525px - env(safe-area-inset-top, 0px));
     }
 
     .user-info-bg {
@@ -2419,6 +2424,18 @@ footer .server-grid-parent {
     width: unset;
     text-decoration: none!important;
 }
+.topbar {
+    padding-left: calc(env(safe-area-inset-left, 0) + 1em);
+    padding-right: calc(env(safe-area-inset-right, 0) + 1em);
+}
+
+.user-infocard-row1 {
+    margin-left: calc(env(safe-area-inset-left, 0) + 0.5em);
+}
+.user-infocard-row2 {
+    margin-right: calc(env(safe-area-inset-right, 0) + 1em);
+}
+
 @media (max-width: 767px) {
     .sidebar.toggled {
         display: none;
@@ -2430,7 +2447,7 @@ footer .server-grid-parent {
         flex-direction: column;
     }
     #padding {
-        margin-top: 425px;
+        margin-top: calc(425px - env(safe-area-inset-top, 0px));
     }
 
     .user-info-bg {
@@ -2463,7 +2480,7 @@ footer .server-grid-parent {
         flex-direction: column;
     }
     #padding {
-        margin-top: 475px;
+        margin-top: calc(475px - env(safe-area-inset-top, 0px));
     }
 
     .user-info-bg {
@@ -2679,9 +2696,6 @@ footer .server-grid-parent {
     }
     .shadow.fixed-top {
         background-image: linear-gradient(transparent,transparent)!important;
-    }
-    .shown-user-menu {
-        background-color: #d07300;
     }
     .shown-user-menu .btn-primary {
         background-color: #5d2800;
