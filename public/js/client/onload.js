@@ -53,12 +53,14 @@ if ("IntersectionObserver" in window) {
 
 $('#userMenu').on('show.bs.collapse', function () {
     $('.fixed-top').removeClass('top-padding-safety');
+    $('.show-menu-open').removeClass('hidden');
     $('#padding').collapse('show');
     $('#topbarBackground').fadeIn();
     $('#topbar').addClass('shadow').addClass('menu-open');
 })
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
+        $('.show-menu-open').addClass('hidden');
         $('#menuItem1').collapse('show');
         $('#padding').collapse('hide');
         $('.fixed-top').addClass('top-padding-safety');

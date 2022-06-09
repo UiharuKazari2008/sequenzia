@@ -3,14 +3,14 @@ const body = $("body")
 
 function toggleMenu() {
   sidebar.toggleClass('open');
+  $('#userMenu').collapse('hide');
   if ($(window).width() <= 767) {
-    $('#userMenu').collapse('hide');
     body.toggleClass("sidebar-toggled");
-    sidebar.toggleClass("toggled");
     $(".music-player").toggleClass("toggled");
-    if (sidebar.hasClass("toggled")) {
-      $('.sidebar .collapse').collapse('hide');
-    }
+  }
+  sidebar.toggleClass("toggled");
+  if (sidebar.hasClass("toggled")) {
+    $('.sidebar .collapse').collapse('hide');
   }
 }
 
@@ -38,13 +38,13 @@ function toggleLightboxOverlay() {
   let cachedWidth = $(window).width();
 
   // Close any open menu accordions when window is resized below 768px
-  $(document).ready(function () {
+ /* $(document).ready(function () {
     if ($(window).width() >= 1700) {
       body.removeClass("sidebar-toggled");
       sidebar.removeClass("toggled");
       $(".music-player").removeClass("toggled");
     }
-  });
+  });*/
   $(window).resize(function() {
     const newWidth = $(window).width();
     const tw = $('#titleExtra').width() + 10
@@ -68,12 +68,12 @@ function toggleLightboxOverlay() {
       }
 
       // Toggle the side navigation when window is resized below 480px
-      if ($(window).width() < 800 && !$(".sidebar").hasClass("toggled")) {
+      /*if ($(window).width() < 800 && !$(".sidebar").hasClass("toggled")) {
         body.addClass("sidebar-toggled");
         sidebar.addClass("toggled");
         $('.sidebar .collapse').collapse('hide');
         $(".music-player").removeClass("toggled");
-      }
+      }*/
       if (calculateTitleWidthPage !== undefined) {
         calculateTitleWidthPage();
       }

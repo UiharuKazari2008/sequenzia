@@ -701,7 +701,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     padding-top: calc(env(safe-area-inset-top) + 0px);
 }
 
-.fixed-top {
+#content > .fixed-top {
     background-color: rgba(0, 0, 0, 0);
     background-image: linear-gradient(180deg, black, transparent);
     background-size: cover;
@@ -1260,7 +1260,9 @@ font-size: 1.3em;
 }
 
 .push-up {
-    vertical-align: text-bottom;
+    position: relative;
+    vertical-align: baseline;
+    top: -0.1rem;
 }
 
 .progress-bar {
@@ -1501,9 +1503,6 @@ background-color: #000000;
     color: #ffbb8a;
 }
 
-.overlay-sidebarbg, #sidebarbottompadding {
-    display: none;
-}
 
 .lds-spinner {
     color: white;
@@ -1740,7 +1739,7 @@ div.collapse-divider {
 .menu-grid {
     display: flex;
     width: inherit;
-    justify-content: center;
+    justify-content: space-evenly;
     grid-auto-flow: column;
     flex-wrap: wrap;
 }
@@ -2125,11 +2124,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         animation: slidetextextraout 1s ease 0s forwards;
     }
 
-    .push-up {
-        position: relative;
-        vertical-align: baseline;
-        top: -0.1rem;
-    }
     .bg-translucent-lg {
         background-color: rgba(0, 0, 0, 0.35) !important;
     }
@@ -2197,18 +2191,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         font-size: 0.85rem;
         margin-right: 0.5rem;
     }
-    .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
-        padding-right: calc(env(safe-area-inset-right) + 1.5rem)!important;
-    }
-    .navbar-nav.sidebar:not(.toggled) .nav-item .collapse-inner {
-        background: #7d2f005c!important;
-    }
-    .card-columns {
-        column-count: 3;
-    }
     .sidebar.toggled {
-        width: calc(env(safe-area-inset-left) + 4rem) !important;
-    }
+         width: calc(env(safe-area-inset-left) + 4rem) !important;
+     }
     .sidebar {
         width: calc(env(safe-area-inset-left) + 14rem) !important;
         padding-left: env(safe-area-inset-left)!important;
@@ -2221,12 +2206,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         position: absolute;
         left: calc(4.5rem + 1.5rem / 2);
     }
-    #btnTop {
-        left: 50%;
-    }
-    .music-player.toggled {
-        margin-left: 15.5em!important;
-    }
     .sidebar-heading {
         text-align: left!important;
         padding: 0 0 0 1rem!important;
@@ -2234,6 +2213,22 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .toggled .sidebar-heading {
         text-align: center!important;
         padding: 0!important;
+    }
+    .navbar-nav.sidebar:not(.toggled) .nav-item .collapse-inner {
+        background: #7d2f005c!important;
+    }
+    .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
+        padding-right: calc(env(safe-area-inset-right) + 1.5rem)!important;
+    }
+    .card-columns {
+        column-count: 3;
+    }
+
+    #btnTop {
+        left: 50%;
+    }
+    .music-player.toggled {
+        margin-left: 15.5em!important;
     }
     .pagination .page-link {
         font-size: 1.2rem;
@@ -2381,9 +2376,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         left: 0;
         z-index: 1030;
     }*/
-    .sidebar-card {
-        display: none!important;
-    }
+
     #btnTop {
         left: 24px;
     }
@@ -2395,40 +2388,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 2.2rem!important;
         width: 2.2rem!important;;
     }
-    .sidebar .nav-item .collapse {
-        left: calc(3.8rem + 1.5rem / 2);
-    }
-    .sidebar .nav-item .nav-link {
-        text-align: center;
-        padding: 0.75rem 0rem;
-        width: 4rem;
-    }
-    .sidebar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1029;
-        background: transparent;
-    }
-    #accordionSidebar > #sidebar > #seqLogoIcon, #accordionSidebar > #sidebar > #seqLogoWide, #accordionSidebar > #sidebar > .server-grid-container {
-        display: none!important;
-    }
-    #accordionSidebar:not(.toggled) > #sidebar > #sidebarbottompadding {
-        display: block;
-        margin-bottom: 20em;
-    }
-    #accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-image: linear-gradient(90deg,#000000f2,#000000c4);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        display: block;
-        height: 100vh;
-        width: 100vw;
-        z-index: -1;
-    }
+
     .music-player {
         margin-left: 1.4em!important;
     }
@@ -2444,6 +2404,46 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .sidebar {
         margin-top: calc(env(safe-area-inset-top) + 3.8em);
     }
+
+    .sidebar .nav-item .collapse {
+        left: calc(3.8rem + 1.5rem / 2);
+    }
+    .sidebar .nav-item .nav-link {
+        text-align: center;
+        padding: 0.75rem 0rem;
+        width: 4rem;
+    }
+    .sidebar-card {
+        display: none!important;
+    }
+
+    #accordionSidebar > #sidebar > #seqLogoIcon, #accordionSidebar > #sidebar > #seqLogoWide, #accordionSidebar > #sidebar > .server-grid-container {
+        display: none!important;
+    }
+}
+
+.sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1029;
+    background: transparent;
+}
+#accordionSidebar:not(.toggled) > #sidebar > #sidebarbottompadding {
+    display: block;
+    margin-bottom: 20em;
+}
+#accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(90deg,#000000f2,#000000c4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: block;
+    height: 100vh;
+    width: 100vw;
+    z-index: -1;
 }
 @media (min-width: 1700px) {
     .hide-1700 {
@@ -2480,6 +2480,12 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 500px) {
+    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo {
+        margin-right: 0!important;
+    }
+    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo > span {
+        display: none!important;
+    }
     .shown-user-menu {
         height: 400px;
         flex-direction: column;
@@ -2512,7 +2518,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
 }
-@media (max-width: 460px) {
+@media (max-width: 476px) {
+    .menu-grid {
+        max-width: 340px;
+    }
     .shown-user-menu {
         height: 450px;
         flex-direction: column;
@@ -2710,7 +2719,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         background-color: #d07300;
         border-bottom: solid 1px #ffa90073;
     }
-    .fixed-top {
+    #content > .fixed-top {
         background-image: linear-gradient(rgba(0, 0, 0, 0.57), transparent);
     }
     .sequenzia-logo {
@@ -2762,16 +2771,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bs-popover-right > .arrow::after, .bs-popover-auto[x-placement^="right"] > .arrow::after {
         border-right-color: white;
     }
-    @media (max-width: 767px) {
-        #accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
-            background-image: linear-gradient(90deg, #643207e8,#9b4410db);
-        }
-        .overlay-sidebarbg > .sequenzia-logo {
-            color: #ffffff;
-            text-shadow: 3px -3px 20px #00000029;
-        }
+    #accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
+        background-image: linear-gradient(90deg, #643207e8,#9b4410db);
     }
-    .shadow.fixed-top {
+    .overlay-sidebarbg > .sequenzia-logo {
+        color: #ffffff;
+        text-shadow: 3px -3px 20px #00000029;
+    }
+    #content > .shadow.fixed-top {
         background-image: linear-gradient(transparent,transparent)!important;
     }
     .shown-user-menu .btn-primary {
