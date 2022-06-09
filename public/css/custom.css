@@ -176,7 +176,7 @@ i.btn-links.reported {
 }
 
 .navbar {
-    padding-top: calc(env(safe-area-inset-top) + 0.5rem);
+    padding-top: 0.5rem;
 }
 
 a.lightbox:before {
