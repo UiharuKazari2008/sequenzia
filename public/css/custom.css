@@ -1931,6 +1931,10 @@ p.status-icons.left-links.history-date {
     margin: auto;
 }
 
+.topbar {
+    height: unset;
+}
+
 .background-image.bg-blur {
     filter: blur(4px);
 }
