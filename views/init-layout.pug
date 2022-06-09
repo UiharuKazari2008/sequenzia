@@ -150,7 +150,7 @@ html
             div(id="content-wrapper", class="d-flex flex-column")
                 div(id="content")
                     div.fixed-top
-                        div#userMenu
+                        div#userMenu.collapsed.collapse.show
                             div.shown-user-menu.d-flex
                                 div.user-info-bg
                                     div.user-infocard-holder.d-flex.flex-column
@@ -158,9 +158,9 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle.p-2
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        .row.mt-auto.p-0.ml-0.mr-0
+                                        .row.mt-auto.p-0.mb-2.user-infocard-row1
                                             if (user && user.banner)
-                                                .col-auto.pr-0.pb-2
+                                                .col-auto.p-0
                                                     img.rounded-circle.user-infocard-icon(src=user.avatar)
                                             .col.p-0.position-relative.pl-2
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
@@ -187,9 +187,8 @@ html
                                                         // Login Source was not detected
                                                         i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-
                                 div.user-menu-buttons(style="width: 100%; height: 100%")
-                                    div#menuAccordion
+                                    div#menuAccordion.user-infocard-row2
                                         div#menuItem1(class="collapse show" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .row.w-100.ml-0.mr-0
@@ -221,80 +220,78 @@ html
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
                                                                             i.fas.fa-arrow-right.fa-sm.align-middle.nav-item
                                                     //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
-                                                .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
-                                                    a.user-menu-item(title="Homepage" href='/')
-                                                        i.fas.fa-fw.fa-home
-                                                        | Home
-                                                    a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
-                                                        i.fas.fa-fw.fa-images
-                                                        | Photos
-                                                    a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                                        i.fas.fa-fw.fa-folder
-                                                        | Files
-                                                    a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
-                                                        i.fas.fa-fw.fa-dice
-                                                        | Random
-                                                    a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
-                                                        i.fas.fa-fw.fa-star
-                                                        | Favorites
-                                                    a.user-menu-item(title="Albums" href='#_').disabled
-                                                        i.fas.fa-fw.fa-archive
-                                                        | Albums
-                                                    a.user-menu-item(title="Index" href='#/artists?')
-                                                        i.fas.fa-fw.fa-address-book
-                                                        | Artists
-                                                    a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                                                        i.fas.fa-fw.fa-history
-                                                        | History
-                                                    //a.user-menu-item(data-placement="left" title="Image History and Ambient Manager" href='#_' onclick='showDisplayHistory(); return false;')
-                                                        i.fas.fa-desktop.fa-fw
-                                                        | Ambient
-                                                    a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem3")
-                                                        i.fas.fa-fw.fa-cog
-                                                        | Settings
-                                                    a.user-menu-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                                        i.fas.fa-sign-out-alt.fa-fw.text-danger
-                                                        | Logout
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        a.user-menu-item(title="Homepage" href='/')
+                                                            i.fas.fa-fw.fa-home
+                                                            | Home
+                                                        a.user-menu-item.d-md-none(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); $('#userMenu').collapse('hide'); toggleMenu(); return false;")
+                                                            i.fas.fa-compass.fa-fw
+                                                            | Navigate
+                                                        a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
+                                                            i.fas.fa-fw.fa-images
+                                                            | Photos
+                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                            i.fas.fa-fw.fa-folder
+                                                            | Files
+                                                        a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
+                                                            i.fas.fa-fw.fa-star
+                                                            | Favorites
+                                                        a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem2")
+                                                            i.fas.fa-fw.fa-archive
+                                                            | Albums
+                                                        a.user-menu-item(title="Index" href='#/artists?')
+                                                            i.fas.fa-fw.fa-address-book
+                                                            | Artists
+                                                        a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
+                                                            i.fas.fa-fw.fa-dice
+                                                            | Random
+                                                        a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                                                            i.fas.fa-fw.fa-history
+                                                            | History
+                                                        a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem3")
+                                                            i.fas.fa-fw.fa-cog
+                                                            | Settings
                                         div#menuItem3(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
-                                                        i.fas.fa-arrow-left.fa-fw.mr-md-1
-                                                        span.d-none.d-md-inline Return
+                                                        i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
                                                         | Settings
-                                                .row.w-100.position-absolute.pb-3(style="display: flex; width: inherit; justify-content: center; grid-auto-flow: column; bottom: 0;")
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                                        i.fas.fa-desktop.fa-sm.fa-fw
-                                                        | Ambient
-                                                    if (user && user.source < 900)
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                                            i.fas.fa-key.fa-sm.fa-fw
-                                                            | AuthWare
-                                                    a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
-                                                        i.fas.fa-sm.fa-fw.fa-eye-slash
-                                                        | Hide Folders
-                                                    if (webconfig && webconfig.support_lines)
-                                                        a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                                            i.fas.fa-sm.fa-fw.fa-question-circle
-                                                            | Support
-                                                    a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                                        i.fas.fa-sm.fa-fw.fa-info-circle
-                                                        | About
-                                                    a.user-menu-item.user-menu-small.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                                        i.fas.fa-sync.fa-sm.fa-fw
-                                                        | Restart App
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                                        i.fas.fa-sync.fa-sm.fa-fw
-                                                        | Sync
-                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.no-ani.shadow
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                                            i.fas.fa-desktop.fa-sm.fa-fw
+                                                            | Ambient
+                                                        if (user && user.source < 900)
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                                i.fas.fa-key.fa-sm.fa-fw
+                                                                | AuthWare
+                                                        a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                                            i.fas.fa-sm.fa-fw.fa-eye-slash
+                                                            | Channels
+                                                        if (webconfig && webconfig.support_lines)
+                                                            a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                                                i.fas.fa-sm.fa-fw.fa-question-circle
+                                                                | Support
+                                                        a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                                            i.fas.fa-sm.fa-fw.fa-info-circle
+                                                            | About
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                                            i.fas.fa-sync.fa-sm.fa-fw
+                                                            | Update
+                                                        a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
+                                                            i.fas.fa-sign-out-alt.fa-fw.text-danger
+                                                            | Logout
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.no-ani.shadow
                             ul.navbar-nav.text-primary.ml-1
                                 li.nav-item.text-right.text-primary.page-title
                                     i.fas.fa-arrow-right.fa-spinner.align-middle.nav-item
                                     span.pl-2 Hello
-                            div.mr-auto
-                            div#topbarBackground
+                            .ml-auto
+                        div#topbarBackground
                     .container-fluid.max-resize
                         #contentBlock
                             div.tz-gallery
@@ -313,7 +310,7 @@ html
                                                 div#postBackground(style=`background-color: rgb(128, 128, 128)`)
 
                                 script.
-                                    console.log('Welcome to JuneOS for Sequenzia! Version 1.6\n' + '\n' +
+                                    console.log('Welcome to JuneOS for Sequenzia! Version 2.1\n' + '\n' +
                                                 '       __                 ____  _____' + '\n' +
                                                 '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
                                                 ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +

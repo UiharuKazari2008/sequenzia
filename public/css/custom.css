@@ -2404,7 +2404,7 @@ footer .server-grid-parent {
         margin-top: calc(env(safe-area-inset-top) + 2.9em);
     }
     .sidebar {
-        margin-top: calc(env(safe-area-inset-top) + 2.8em);
+        margin-top: calc(env(safe-area-inset-top) + 3.8em);
     }
 }
 @media (min-width: 1700px) {
@@ -2474,7 +2474,7 @@ footer .server-grid-parent {
     }
 
 }
-@media (max-width: 380px) {
+@media (max-width: 420px) {
     .shown-user-menu {
         height: 450px;
         flex-direction: column;
