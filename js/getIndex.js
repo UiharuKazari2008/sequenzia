@@ -436,7 +436,7 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
-                    } else {
+                    } else if (item.attachment_hash && item.attachment_name) {
                         function getimageSizeParam() {
                             if (item.sizeH && item.sizeW && (item.sizeH > 512 || item.sizeW > 512)) {
                                 let ih = 512;
