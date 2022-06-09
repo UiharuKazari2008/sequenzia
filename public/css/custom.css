@@ -2082,6 +2082,15 @@ footer .server-grid-parent {
     }
 
 }
+nav > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
+    max-width: 4em;
+    overflow: hidden;
+}
+nav > .col > ul > #topAddressBarInfo > #titleExtra {
+    max-width: 0;
+    overflow: hidden;
+}
+
 @media (min-width:768px) {
     .push-up {
         position: relative;
@@ -2091,14 +2100,14 @@ footer .server-grid-parent {
     .bg-translucent-lg {
         background-color: rgba(0, 0, 0, 0.35) !important;
     }
-    nav.shadow:not(.ready-to-scroll):not(.no-ani) > #sidebarToggleTop {
+    nav.shadow:not(.no-ani) > .col > #sidebarToggleTop {
         max-width: 0;
         overflow: hidden;
         -prefix-animation: slidelogoin 1s ease 0s forwards;
         -webkit-animation: slidelogoin 1s ease 0s forwards;
         animation: slidelogoin 1s ease 0s forwards;
     }
-    nav:not(.shadow):not(.ready-to-scroll):not(.no-ani) > #sidebarToggleTop {
+    nav:not(.shadow):not(.no-ani) > .col > #sidebarToggleTop {
         max-width: 10.8em;
         overflow: hidden;
         -prefix-animation: slidelogoout 1s ease 0s forwards;
@@ -2106,14 +2115,14 @@ footer .server-grid-parent {
         animation: slidelogoout 1s ease 0s forwards;
     }
 
-    nav.shadow:not(.ready-to-scroll):not(.no-ani) > ul > #topAddressBarInfo > #titleExtra {
+    nav.shadow:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 0;
         overflow: hidden;
         -prefix-animation: slidetextextrain 1s ease 0s forwards;
         -webkit-animation: slidetextextrain 1s ease 0s forwards;
         animation: slidetextextrain 1s ease 0s forwards;
     }
-    nav:not(.shadow):not(.ready-to-scroll):not(.no-ani) > ul > #topAddressBarInfo > #titleExtra {
+    nav:not(.shadow):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 10.8em;
         overflow: hidden;
         -prefix-animation: slidetextextraout 1s ease 0s forwards;
@@ -2121,18 +2130,18 @@ footer .server-grid-parent {
         animation: slidetextextraout 1s ease 0s forwards;
     }
 
-    nav > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
+    nav > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
         max-width: 0;
         overflow: hidden;
     }
-    nav.shadow:not(.ready-to-scroll):not(.no-ani) > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
+    nav.shadow:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
         max-width: 4em;
         overflow: hidden;
         -prefix-animation: slideiconout 0.5s ease 0s forwards;
         -webkit-animation: slideiconout 0.5s ease 0s forwards;
         animation: slideiconout 0.5s ease 0s forwards;
     }
-    nav:not(.shadow):not(.ready-to-scroll):not(.no-ani) > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
+    nav:not(.shadow):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
         max-width: 0em;
         overflow: hidden;
         -prefix-animation: slideiconin 0.5s ease 0s forwards;
@@ -2427,8 +2436,10 @@ footer .server-grid-parent {
     text-decoration: none!important;
 }
 .topbar {
-    padding-left: calc(env(safe-area-inset-left, 0) + 1em);
-    padding-right: calc(env(safe-area-inset-right, 0) + 1em);
+    margin-left: calc(env(safe-area-inset-left,0) + 1em);
+    margin-right: calc(env(safe-area-inset-right,0) + 1em);
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .user-infocard-row1 {

@@ -891,175 +891,182 @@ html
                                 li.nav-item.page-title.no-arrow
                                     a.nav-item.btn.btn-navigation.pl-0.pr-1.align-middle(title="Menu" href='#_' role='button' accesskey="," id="sidebarToggleTop2" onclick="scrollToTop(); toggleMenu(); return false;" )
                                         i.fas.fa-compass
-                            ul.navbar-nav.text-primary.text-ellipsis
-                                li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
-                                    if (!title || title === '')
-                                        if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                            if (results && results.length === 1 && params && params.has('search'))
-                                                i.fas.fa-photo-video.mr-2
-                                                span.text-uppercase Item Details
-                                            else if (search_prev)
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else if (search_prev && search_prev.startsWith('id:st'))
-                                                    i.fas.mr-2.fa-asterisk
-                                                else
-                                                    i.fas.fa-search.mr-2
-                                                if (params && path === '/artists')
-                                                    span.text-uppercase Artist Search
-                                                else if (params && search_prev.startsWith('id:st'))
-                                                    span.text-uppercase Related Items
-                                                else
-                                                    span.text-uppercase Search
-                                            else if (params && path === '/artists')
-                                                i.fas.fa-atlas.mr-2
-                                                span(title='Global Artist Search').text-uppercase Artists
-                                            else if (params && params.getAll('sort')[0] === 'random')
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.fa-dice.mr-2
-                                                span(title='Random selection of items from the database').text-uppercase I'm Feeling Lucky
-                                            else if (params && params.getAll('sort')[0] === 'fav')
-                                                if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
-                                                    i.fas.fa-thumbtack.mr-2
-                                                    span(title='Favorited Images by the moderation team').text-uppercase Pinned
-                                                else
-                                                    i.fas.fa-star.mr-2
-                                                    span(title='Favorited Images').text-uppercase Favorites
-                                            else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                                                if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
-                                                    i.fas.fa-thumbtack.mr-2
-                                                    span(title='Favorited Images by the moderation team').text-uppercase Pinned
-                                                else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                    span(title='Favorited Images').text-uppercase Favorites
-                                                else
-                                                    if (path === '/files')
-                                                        i.fas.fa-folder.mr-2
-                                                        span(title='Files in order of upload').text-uppercase File Stream
+                            .col.p-0(style='display: contents')
+                                ul.navbar-nav.text-primary.text-ellipsis
+                                    li#topAddressBarInfo.nav-item.text-right.page-title.text-primary.mr-1
+                                        if (!title || title === '')
+                                            if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                if (results && results.length === 1 && params && params.has('search'))
+                                                    i.fas.fa-photo-video.mr-2
+                                                    span.text-uppercase Item Details
+                                                else if (search_prev)
+                                                    if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                        i.fas.fa-star.mr-2
+                                                    else if (search_prev && search_prev.startsWith('id:st'))
+                                                        i.fas.mr-2.fa-asterisk
                                                     else
-                                                        i.fas.fa-stream.mr-2
-                                                        span(title='Images in order of upload').text-uppercase Photo Stream
-                                            else if (params.has('color'))
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
+                                                        i.fas.fa-search.mr-2
+                                                    if (params && path === '/artists')
+                                                        span.text-uppercase Artist Search
+                                                    else if (params && search_prev.startsWith('id:st'))
+                                                        span.text-uppercase Related Items
+                                                    else
+                                                        span.text-uppercase Search
+                                                else if (params && path === '/artists')
+                                                    i.fas.fa-atlas.mr-2
+                                                    span(title='Global Artist Search').text-uppercase Artists
+                                                else if (params && params.getAll('sort')[0] === 'random')
+                                                    if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                        i.fas.fa-star.mr-2
+                                                    else
+                                                        i.fas.fa-dice.mr-2
+                                                    span(title='Random selection of items from the database').text-uppercase I'm Feeling Lucky
+                                                else if (params && params.getAll('sort')[0] === 'fav')
+                                                    if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
+                                                        i.fas.fa-thumbtack.mr-2
+                                                        span(title='Favorited Images by the moderation team').text-uppercase Pinned
+                                                    else
+                                                        i.fas.fa-star.mr-2
+                                                        span(title='Favorited Images').text-uppercase Favorites
+                                                else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                    if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
+                                                        i.fas.fa-thumbtack.mr-2
+                                                        span(title='Favorited Images by the moderation team').text-uppercase Pinned
+                                                    else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                        i.fas.fa-star.mr-2
+                                                        span(title='Favorited Images').text-uppercase Favorites
+                                                    else
+                                                        if (path === '/files')
+                                                            i.fas.fa-folder.mr-2
+                                                            span(title='Files in order of upload').text-uppercase File Stream
+                                                        else
+                                                            i.fas.fa-stream.mr-2
+                                                            span(title='Images in order of upload').text-uppercase Photo Stream
+                                                else if (params.has('color'))
+                                                    if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                        i.fas.fa-star.mr-2
+                                                    else
+                                                        i.fas.mr-2.fa-swatchbook
+                                                    span(title='Images by there averaged colour').text-uppercase Colour search
+                                                else if (params.has('displayname'))
+                                                    if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                        i.fas.fa-star.mr-2
+                                                    else
+                                                        i.fas.mr-2.fa-history
+                                                    span(title='History for ' + params.getAll('displayname')[0]).text-uppercase History
                                                 else
-                                                    i.fas.mr-2.fa-swatchbook
-                                                span(title='Images by there averaged colour').text-uppercase Colour search
-                                            else if (params.has('displayname'))
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.mr-2.fa-history
-                                                span(title='History for ' + params.getAll('displayname')[0]).text-uppercase History
-                                            else
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.fa-clock.mr-2
-                                                span(title='Chronologically Feed of Images').text-uppercase Recent
-                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                            i.fas.fa-star.mr-2
-                                            span.text-uppercase #{full_title_post}
-                                        else
-                                            if (params && masterCount || results)
-                                                i.fas.fa-home.mr-2
-                                                span.d-none.d-sm-inline-block Home
-                                            else
-                                                i.fas.fa-question.mr-2
-                                                span No Results
-                                    else
-                                        if (active_svr)
-                                            - servericon = discord.servers.list.filter(e => e.serverid === active_svr).map(e => e.icon)
-                                            if (servericon && servericon.length > 0)
-                                                - servericon = servericon.pop()
-                                            else
-                                                - servericon = null
-                                        div#titleIcon(class=((servericon && full_title && full_title_post.includes(' / ')) ? 'icon-avalible' : '')).d-inline-flex
-                                            if (search_prev && search_prev.startsWith('id:st'))
-                                                i.fas.mr-2.fa-asterisk
-                                            else if (search_prev)
-                                                i.fas.fa-search.mr-2
-                                            else if (params && path === '/artists')
-                                                i.fas.fa-atlas.mr-2
-                                            else if (params && params.getAll('sort')[0] === 'random')
-                                                i.fas.fa-dice.mr-2
-                                            else if (params && (params.has('displayname') || params.getAll('history')[0] === 'only'))
-                                                i.fas.fa-history.mr-2
+                                                    if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                        i.fas.fa-star.mr-2
+                                                    else
+                                                        i.fas.fa-clock.mr-2
+                                                    span(title='Chronologically Feed of Images').text-uppercase Recent
                                             else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                 i.fas.fa-star.mr-2
-                                            else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                                                i.fas.fa-stream.mr-2
-                                            else if (active_icon)
-                                                i.fas.mr-2(class=active_icon)
-                                            else if (params && path === '/gallery')
-                                                i.fas.fa-images.mr-2
-                                            else if (params && path === '/files')
-                                                i.fas.fa-folder.mr-2
-                                            else if (params && path === '/cards')
-                                                i.fas.fa-envelope.mr-2
-                                        if (full_title && full_title_post.includes(' / '))
-                                            #titleExtraStyleAdjustment.d-inline-flex
-                                            div#titleExtra.d-inline-flex
-                                                if (servericon)
-                                                    img.pr-1.align-self-center.rounded-circle(src=servericon style='height: 1.8rem;')
-                                                    //i.fas.fa-chevron-right.pr-1.align-self-baseline
-                                                each tp in full_title_post.split(' / ').reverse().splice(1).reverse()
-                                                    span.pr-1.align-self-baseline.text-uppercase #{tp}
-                                                    i.fas.fa-chevron-right.pr-1.align-self-baseline
-                                            div#titleMain.d-inline
-                                                span.align-self-baseline.text-uppercase #{full_title_post.split(' / ').pop()}
-                                            script#setTitleExtraStyleAdjustment.
-                                                extratitlewidth = $('#titleExtra').width() + 10
-                                                if (extratitlewidth > 20) {
-                                                    $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
-                                                }
-                                                $('#setTitleExtraStyleAdjustment').remove();
+                                                span.text-uppercase #{full_title_post}
+                                            else
+                                                if (params && masterCount || results)
+                                                    i.fas.fa-home.mr-2
+                                                    span.d-none.d-sm-inline-block Home
+                                                else
+                                                    i.fas.fa-question.mr-2
+                                                    span No Results
                                         else
-                                            span.text-uppercase #{full_title_post}
-                            if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
-                                ul.navbar-nav.text-primary
-                                    li.nav-item.text-right.page-title.text-primary.ml-2
-                                        a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
-                                            span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
-                                                i.fas.pl-1.pr-1.fa-info
-                                ul.navbar-nav.text-primary
-                                    li#totalCount.nav-item.text-right.page-title.text-primary.ml-1
-                                        span.badge.badge-danger.push-up.p-1
-                                            i.fas.fa-calculator
-                            .mr-auto
-                            ul.navbar-nav.text-primary.text-ellipsis.ml-2
-                                li.nav-item.no-arrow.hidden.done-btns
-                                    if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
-                                        .btn-group
-                                            a.navbar-item.btn.btn-admin(title="Cancel Selection" href='#_' onclick='disableGallerySelect(); clearactionModel(); ;return false;')
-                                                i.fas.fa-times-circle.align-middle.text-danger
+                                            if (active_svr)
+                                                - servericon = discord.servers.list.filter(e => e.serverid === active_svr).map(e => e.icon)
+                                                if (servericon && servericon.length > 0)
+                                                    - servericon = servericon.pop()
+                                                else
+                                                    - servericon = null
+                                            div#titleIcon(class=((servericon && full_title && full_title_post.includes(' / ')) ? 'icon-avalible' : '')).d-inline-flex
+                                                if (search_prev && search_prev.startsWith('id:st'))
+                                                    i.fas.mr-2.fa-asterisk
+                                                else if (search_prev)
+                                                    i.fas.fa-search.mr-2
+                                                else if (params && path === '/artists')
+                                                    i.fas.fa-atlas.mr-2
+                                                else if (params && params.getAll('sort')[0] === 'random')
+                                                    i.fas.fa-dice.mr-2
+                                                else if (params && (params.has('displayname') || params.getAll('history')[0] === 'only'))
+                                                    i.fas.fa-history.mr-2
+                                                else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                    i.fas.fa-star.mr-2
+                                                else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                    i.fas.fa-stream.mr-2
+                                                else if (active_icon)
+                                                    i.fas.mr-2(class=active_icon)
+                                                else if (params && path === '/gallery')
+                                                    i.fas.fa-images.mr-2
+                                                else if (params && path === '/files')
+                                                    i.fas.fa-folder.mr-2
+                                                else if (params && path === '/cards')
+                                                    i.fas.fa-envelope.mr-2
+                                            if (full_title && full_title_post.includes(' / '))
+                                                #titleExtraStyleAdjustment.d-inline-flex
+                                                div#titleExtra.d-inline-flex
+                                                    if (servericon)
+                                                        img.pr-1.align-self-center.rounded-circle(src=servericon style='height: 1.8rem;')
+                                                        //i.fas.fa-chevron-right.pr-1.align-self-baseline
+                                                    each tp in full_title_post.split(' / ').reverse().splice(1).reverse()
+                                                        span.pr-1.align-self-baseline.text-uppercase #{tp}
+                                                        i.fas.fa-chevron-right.pr-1.align-self-baseline
+                                                div#titleMain.d-inline
+                                                    span.align-self-baseline.text-uppercase #{full_title_post.split(' / ').pop()}
+                                                script#setTitleExtraStyleAdjustment.
+                                                    extratitlewidth = 0
+                                                    function calculateTitleWidthPage() {
+                                                        extratitlewidth = $('#titleExtra').width() + 10
+                                                        if (extratitlewidth > 20) {
+                                                            $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
+                                                        }
+                                                    }
+                                                    setTimeout(() => {
+                                                        calculateTitleWidthPage();
+                                                    }, 2500);
+                                            else
+                                                span.text-uppercase #{full_title_post}
+                                if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
+                                    ul.navbar-nav.text-primary
+                                        li.nav-item.text-right.page-title.text-primary.ml-2
+                                            a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
+                                                span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
+                                                    i.fas.pl-1.pr-1.fa-info
+                                    ul.navbar-nav.text-primary
+                                        li#totalCount.nav-item.text-right.page-title.text-primary.ml-1
+                                            span.badge.badge-danger.push-up.p-1
+                                                i.fas.fa-calculator
+                                    .mr-auto
+                            .col-auto.p-0.d-flex
+                                ul.navbar-nav.text-primary.text-ellipsis.ml-2
+                                    li.nav-item.no-arrow.hidden.done-btns
+                                        if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
+                                            .btn-group
+                                                a.navbar-item.btn.btn-admin(title="Cancel Selection" href='#_' onclick='disableGallerySelect(); clearactionModel(); ;return false;')
+                                                    i.fas.fa-times-circle.align-middle.text-danger
 
-                                            a#selectAll1.navbar-item.btn.btn-admin.pr-2(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;').d-none.d-md-block
-                                                i.fas.fa-check-square.align-middle
-                                            a#deSelectAll1.navbar-item.btn.btn-admin.pr-2(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;').d-none.d-md-block.hidden
-                                                i.far.fa-check-square.align-middle
+                                                a#selectAll1.navbar-item.btn.btn-admin.pr-2(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;').d-none.d-md-block
+                                                    i.fas.fa-check-square.align-middle
+                                                a#deSelectAll1.navbar-item.btn.btn-admin.pr-2(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;').d-none.d-md-block.hidden
+                                                    i.far.fa-check-square.align-middle
 
-                                            button.navbar-item.btn.btn-fav(title="Commands" type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false').d-md-none
-                                                i.fas.fa-check-square.align-middle
-                                            .dropdown-menu.d-md-none
-                                                a#selectAll2.dropdown-item(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;')
-                                                    i.fas.fa-check-square.align-middle.pr-2
-                                                    | Select All
-                                                a#deSelectAll2.dropdown-item(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;')
-                                                    i.far.fa-check-square.align-middle.pr-2
-                                                    | Deselect All
-                                            if (enableManageTools)
-                                                a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
-                                                    i.fas.fa-paste.align-middle
-                                            a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
-                                                i.fas.fa-download.align-middle
-                            ul.navbar-nav.text-primary.text-ellipsis.ml-1.ml-md-3
-                                li.nav-item.no-arrow
-                                    a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
-                                        i.fas.fa-bars
-                                        img.img-profile.rounded-circle(src=user.avatar)
+                                                button.navbar-item.btn.btn-fav(title="Commands" type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false').d-md-none
+                                                    i.fas.fa-check-square.align-middle
+                                                .dropdown-menu.d-md-none
+                                                    a#selectAll2.dropdown-item(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;')
+                                                        i.fas.fa-check-square.align-middle.pr-2
+                                                        | Select All
+                                                    a#deSelectAll2.dropdown-item(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;')
+                                                        i.far.fa-check-square.align-middle.pr-2
+                                                        | Deselect All
+                                                if (enableManageTools)
+                                                    a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
+                                                        i.fas.fa-paste.align-middle
+                                                a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
+                                                    i.fas.fa-download.align-middle
+                                ul.navbar-nav.text-primary.text-ellipsis.ml-1.ml-md-3.w-100
+                                    li.nav-item.no-arrow
+                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                            i.fas.fa-bars
+                                            img.img-profile.rounded-circle(src=user.avatar)
 
                         div#topbarBackground(style='display: none;')
 
@@ -1381,104 +1388,6 @@ html
                                                     .text-danger NSFW Results are included
                                                 .align-self-center.align-self-start.ml-auto.mr-1
                                                     a.text-danger.align-self-end.alert-btn(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['offset', 'nsfw'], []); return false;`) Remove
-                        div.row
-                            h2.d-md-none.page-title.page-title-inpage.text-ellipsis.col.text-primary.pr-0
-                                .only-standalone-block
-                                    a.page-title.page-title-inpage.btn.btn-small.pl-0.d-none.d-md-inline-block(title="Go Back"  id="sidebarBackTop" href='#_' onClick="history.go(-1); return false;")
-                                        i.fas.fa-chevron-left
-                                div#innerAddressBarInfo.d-inline
-                                    if (!title || title === '')
-                                        if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                            if (results && results.length === 1 && path ==='/gallery' && params && params.has('search'))
-                                                i.fas.fa-photo-video.mr-2
-                                                span.text-uppercase Item Details
-                                            else if (search_prev)
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else if (search_prev && search_prev.startsWith('id:st'))
-                                                    i.fas.mr-2.fa-asterisk
-                                                else
-                                                    i.fas.fa-search.mr-2
-                                                if (params && path === '/artists')
-                                                    span.text-uppercase Artist Search
-                                                else if (params && search_prev.startsWith('id:st'))
-                                                    span.text-uppercase Related Items
-                                                else
-                                                    span.text-uppercase Search
-                                            else if (params && path === '/artists')
-                                                i.fas.fa-atlas.mr-2
-                                                span(title='Global Artist Search').text-uppercase Artists
-                                            else if (params && params.getAll('sort')[0] === 'random')
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.fa-dice.mr-2
-                                                span(title='Random selection of items from the database').text-uppercase I'm Feeling Lucky
-                                            else if (params && params.getAll('sort')[0] === 'fav')
-                                                if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
-                                                    i.fas.fa-thumbtack.mr-2
-                                                    span(title='Favorited Images by the moderation team').text-uppercase Pinned
-                                                else
-                                                    i.fas.fa-star.mr-2
-                                                    span(title='Favorited Images').text-uppercase Favorites
-                                            else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                                                if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
-                                                    i.fas.fa-thumbtack.mr-2
-                                                    span(title='Favorited Images by the moderation team').text-uppercase Pinned
-                                                else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                    span(title='Favorited Images').text-uppercase Favorites
-                                                else
-                                                    if (path === '/files')
-                                                        i.fas.fa-folder.mr-2
-                                                        span(title='Files in order of upload').text-uppercase File Stream
-                                                    else
-                                                        i.fas.fa-images.mr-2
-                                                        span(title='Images in order of upload').text-uppercase Photo Stream
-                                            else if (params.has('color'))
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.mr-2.fa-swatchbook
-                                                span(title='Images by there averaged colour').text-uppercase Colour search
-                                            else if (params.has('displayname'))
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.mr-2.fa-history
-                                                span(title='History for ' + params.getAll('displayname')[0]).text-uppercase History
-                                            else
-                                                if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
-                                                else
-                                                    i.fas.fa-clock.mr-2
-                                                span(title='Chronologically Feed of Images').text-uppercase Recent
-                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                            i.fas.fa-star.mr-2
-                                            span.text-uppercase #{full_title_post}
-                                        else if (params && (path === '/gallery' || path === '/files' || path === '/cards'))
-                                            i.fas.fa-question.mr-2
-                                            span No Results
-                                    else
-                                        if (search_prev && search_prev.startsWith('id:st'))
-                                            i.fas.mr-2.fa-asterisk
-                                        else if (search_prev)
-                                            i.fas.fa-search.mr-2
-                                        else if (params && path === '/artists')
-                                            i.fas.fa-atlas.mr-2
-                                        else if (params && (params.getAll('history')[0] === 'only' || params.has('displayname')))
-                                            i.fas.fa-history.mr-2
-                                        else if (params && params.getAll('sort')[0] === 'random')
-                                            i.fas.fa-dice.mr-2
-                                        else if (active_icon)
-                                            i.fas.mr-2(class=active_icon)
-                                        else if (params && path === '/gallery')
-                                            i.fas.fa-images.mr-2
-                                        else if (params && path === '/files')
-                                            i.fas.fa-folder.mr-2
-                                        else if (params && path === '/cards')
-                                            i.fas.fa-envelope.mr-2
-                                        span.text-uppercase #{full_title_post}
                         #reviewBtns.hidden.mb-3
                             div.d-sm-flex.align-items-center.d-inline
                                 .col.p-0.d-flex.align-items-center

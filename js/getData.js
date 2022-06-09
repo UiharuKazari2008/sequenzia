@@ -1299,7 +1299,7 @@ module.exports = async (req, res, next) => {
                         req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
                         pageList: pageList,
                         currentPage: currentPage,
-                        resultsCount: count,
+                        resultsCount: (count >= 2048) ? ((count)/1000).toFixed(0) + "K" : count,
                     })
                 } else {
                     res.end();

@@ -70,6 +70,9 @@ function toggleLightboxOverlay() {
         $('.sidebar .collapse').collapse('hide');
         $(".music-player").removeClass("toggled");
       }
+      if (calculateTitleWidthPage !== undefined) {
+        calculateTitleWidthPage();
+      }
       cachedWidth = newWidth;
     }
 
