@@ -2187,9 +2187,6 @@ footer .server-grid-parent {
         text-align: center!important;
         padding: 0!important;
     }
-    .topbar {
-        height: calc(env(safe-area-inset-top) + 3.5rem);
-    }
     .pagination .page-link {
         font-size: 1.2rem;
     }
@@ -2352,11 +2349,8 @@ footer .server-grid-parent {
         left: 24px;
     }
     .topbar {
-        /*height: 3.75rem;
-        padding-top: 4px;*/
         padding-bottom: 4px;
         padding-top: 4px;
-        height: 3rem;
     }
     .img-profile {
         height: 2.2rem!important;
@@ -2425,7 +2419,6 @@ footer .server-grid-parent {
 }
 
 .topbar #sidebarToggleTop {
-    height: 2.5rem;
     width: unset;
     text-decoration: none!important;
 }
