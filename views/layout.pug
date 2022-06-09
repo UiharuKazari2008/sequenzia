@@ -689,21 +689,21 @@ html
                                                             a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem5")
                                                                 i.fas.fa-sliders-h
                                                                 | Display
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='$("#userMenu").collapse("hide"); showDisplayHistory(); return false;')
                                                             i.fas.fa-desktop.fa-sm.fa-fw
                                                             | Ambient
                                                         if (user && user.source < 900)
-                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
                                                                 i.fas.fa-key.fa-sm.fa-fw
                                                                 | AuthWare
-                                                        a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                                        a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
                                                             i.fas.fa-sm.fa-fw.fa-eye-slash
                                                             | Channels
                                                         if (webconfig && webconfig.support_lines)
-                                                            a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
+                                                            a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal' onclick='$("#userMenu").collapse("hide");')
                                                                 i.fas.fa-sm.fa-fw.fa-question-circle
                                                                 | Support
-                                                        a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal')
+                                                        a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                             i.fas.fa-sm.fa-fw.fa-info-circle
                                                             | About
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
@@ -723,17 +723,17 @@ html
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         if (results && results.length > 1 )
-                                                            a.user-menu-item.user-menu-small.hide-review.edit-btns(title="Select Items" href='#_' onclick='enableGallerySelect(); return false;')
+                                                            a.user-menu-item.user-menu-small.hide-review.edit-btns(title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
                                                                 i.fas.fa-check-circle
                                                                 | Select Items
                                                             if (manage_channels && manage_channels.length > 0)
-                                                                a.user-menu-item.user-menu-small.hide-review.edit-btns(title="Review Items" href='#_' onclick='setupReviewMode(); return false;')
+                                                                a.user-menu-item.user-menu-small.hide-review.edit-btns(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
                                                                     i.fas.fa-snowplow
                                                                     | Review Items
                                                         a.user-menu-item.user-menu-small(title="External Services" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem6")
                                                             i.fas.fa-satellite-dish
                                                             | Services
-                                                        a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="downloadAllItems(); return false;" role='button')
+                                                        a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                             i.fas.fa-download
                                                             | Download
                                         div#menuItem5(class="collapse" data-parent="#menuAccordion")
@@ -757,19 +757,19 @@ html
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         if (results && path === '/gallery')
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(3); return false;`)
                                                                 i.fas.fa-border-all
                                                                 | Thumbs
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(2); return false;`)
                                                                 i.fas.fa-border-all
                                                                 | Small
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(); return false;`)
                                                                 i.fas.fa-border-all
                                                                 | Default
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(1); return false;`)
                                                                 i.fas.fa-border-all
                                                                 | Large
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`)
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setPageLayout(true); return false;`)
                                                                 i.fas.fa-arrows-alt-h
                                                                 | Full Width
                                                         if (path !== '/gallery')
@@ -811,14 +811,14 @@ html
                                                         | Services
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
-                                                        a.user-menu-item.user-menu-small.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#feedModel').modal('show'); return false;" role='button')
+                                                        a.user-menu-item.user-menu-small.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#userMenu').collapse('hide'); $('#feedModel').modal('show'); return false;" role='button')
                                                             i.fas.fa-satellite-dish
                                                             | RSS Feed
                                                         if (android_uri)
-                                                            a.user-menu-item.user-menu-small.hide-review(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#appModal').modal('show'); return false;")
+                                                            a.user-menu-item.user-menu-small.hide-review(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); $('#appModal').modal('show'); return false;")
                                                                 i.fas.fa-laptop
                                                                 | Set as DWS
-                                                        a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="loadADSDisplays(); return false;")
+                                                        a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); loadADSDisplays(); return false;")
                                                             i.fas.fa-tv
                                                             | Set as ADS
                                         div#menuItem7(class="collapse" data-parent="#menuAccordion")
@@ -833,7 +833,7 @@ html
                                                     .menu-grid
                                                         if (write_channels && write_channels.length > 0)
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                                a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                                a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='$("#userMenu").collapse("hide"); selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
                                                                     i.fas.fa-upload.pr-2
                                                                     | Upload File
                                                             else
@@ -842,7 +842,7 @@ html
                                                                     | Upload File
                                                         if (manage_channels && manage_channels.length > 0)
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                                a.user-menu-item(title="Send Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
+                                                                a.user-menu-item(title="Send Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='$("#userMenu").collapse("hide"); selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
                                                                     i.fas.fa-edit.pr-2
                                                                     | Send Message
                                                             else
@@ -851,11 +851,11 @@ html
                                                                     | Send Message
                                                         if (download && download.length > 0)
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                                a.user-menu-item(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
+                                                                a.user-menu-item(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='$("#userMenu").collapse("hide"); selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
                                                                     i.fas.fa-cloud-download-alt.pr-2
                                                                     | Download URL
                                                             else
-                                                                a.user-menu-item(title="Download File from URL" href='#_' onclick='displayMessageModel(1); return false;')
+                                                                a.user-menu-item(title="Download File from URL" href='#_' onclick='$("#userMenu").collapse("hide"); displayMessageModel(1); return false;')
                                                                     i.fas.fa-cloud-download-alt.pr-2
                                                                     | Download URL
 
@@ -1033,8 +1033,7 @@ html
                                         li#totalCount.nav-item.text-right.page-title.text-primary.ml-1
                                             span.badge.badge-danger.push-up.p-1
                                                 i.fas.fa-calculator
-                                    .mr-auto
-                            .col-auto.p-0.d-flex
+                                .mr-auto
                                 ul.navbar-nav.text-primary.text-ellipsis.ml-2
                                     li.nav-item.no-arrow.hidden.done-btns
                                         if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
@@ -1061,6 +1060,7 @@ html
                                                         i.fas.fa-paste.align-middle
                                                 a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                     i.fas.fa-download.align-middle
+                            .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.ml-1.ml-md-3.w-100
                                     li.nav-item.no-arrow
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
