@@ -1500,6 +1500,15 @@ module.exports = async (req, res, next) => {
                                     }
                                     user_search = decoded_content.split(' (')[1].split(') - ')[0]
                                     content_urls = Array.from(getUrls(clean_content));
+                                    if (content_urls.length === 0) {
+                                        const user = clean_content.split(' : ')[0].split(') - ').pop()
+                                        const id = clean_content.split('[').pop().split(']')[0]
+                                        content_urls = []
+                                        if (!isNaN(parseInt(id)))
+                                            content_urls.push(`https://www.pixiv.net/en/artworks/${id}`)
+                                        if (!isNaN(parseInt(user)))
+                                            content_urls.push(`https://www.pixiv.net/en/users/${user}`)
+                                    }
                                 } else if (decoded_content.includes('://')) {
                                     content_urls = Array.from(getUrls(clean_content));
                                     if (decoded_content.includes(' by ')) {
