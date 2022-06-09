@@ -1782,7 +1782,7 @@ div.collapse-divider {
 }
 .album-info {
     z-index: 1;
-    font-size: 1.25em;
+    font-size: 1em;
     pointer-events: none;
     width: 100%;
 }
@@ -1795,12 +1795,14 @@ div.collapse-divider {
 
 .album-list {
     display: flex;
+    margin-right: calc(env(safe-area-inset-right, 0) + 2.3em);
 }
 .album-item {
     min-height: 120px;
     min-width: 150px;
     margin-left: 0.25em;
     margin-right: 0.25em;
+    margin-bottom: 1rem;
 }
 .album-preview {
     display: block;
@@ -2293,6 +2295,9 @@ footer .server-grid-parent {
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));
+    }
+    .album-list {
+        margin-right: calc(env(safe-area-inset-right, 0) + 2.3em);
     }
 
     .user-info-bg {
