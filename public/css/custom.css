@@ -2489,7 +2489,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo {
         margin-right: 0!important;
     }
-    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo > span {
+    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo > span,
+    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleMain {
         display: none!important;
     }
     .shown-user-menu {
