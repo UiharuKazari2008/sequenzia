@@ -106,11 +106,11 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle.p-2
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        .row.mt-auto.p-0.mb-2.user-infocard-row1
+                                        .row.mt-auto.p-0.mb-2.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                             if (user && user.banner)
                                                 .col-auto.p-0
                                                     img.rounded-circle.user-infocard-icon(src=user.avatar)
-                                            .col.p-0.position-relative.pl-2
+                                            .col.p-0.position-relative.pl-2(style='width: calc(100% - 1.125em);')
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
                                                     //if (user && user.source || user && user.source === 0)
                                                         if (user.source === 0)
@@ -535,25 +535,28 @@ html
                                                     extratitlewidth = 0
                                                     function calculateTitleWidthPage() {
                                                         $('#titleExtra').style = `min-width: fit-content;`
-                                                        extratitlewidth = $('#titleExtra').width() + 10
-                                                        if (extratitlewidth > 20) {
-                                                            $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
-                                                        }
-                                                        $('#titleExtra').style = ``
+                                                        setTimeout(() => {
+                                                            extratitlewidth = $('#titleExtra').width() + 10
+                                                            if (extratitlewidth > 20) {
+                                                                $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
+                                                            }
+                                                            $('#titleExtra').style = ``
+                                                        }, 1000);
                                                     }
                                                     calculateTitleWidthPage();
                                             else
                                                 span.text-uppercase #{full_title_post}
                                 if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
-                                    ul.navbar-nav.text-primary.show-menu-open.hidden
-                                        li.nav-item.text-right.page-title.text-primary.ml-1
-                                            a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
-                                                span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
-                                                    i.fas.pl-1.pr-1.fa-info
-                                    ul.navbar-nav.text-primary.ml-1
+                                    ul.navbar-nav.text-primary.mr-1
                                         li#totalCount.nav-item.text-right.page-title.text-primary(style="display: contents;")
                                             span.badge.badge-danger.push-up.p-1
                                                 i.fas.fa-calculator
+
+                                if (nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true'))
+                                    ul.navbar-nav.text-primary
+                                        li.nav-item.mr-1
+                                            i.fas.fa-circle.text-danger
+
                                 .mr-auto
                                 ul.navbar-nav.text-primary.text-ellipsis.ml-2
                                     li.nav-item.no-arrow.edit-btns
@@ -1019,6 +1022,9 @@ html
                                                                 a.dropdown-item(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`)
                                                                     i.fas.fa-address-book.pr-2
                                                                     | Artists
+                                        if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
+                                            a.navbar-item.btn.btn-ice.pl-2.pr-2.show-menu-open.hidden(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
+                                                i.fas.fa-info-circle
                                     li.nav-item.no-arrow.hidden.done-btns
                                         if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
                                             .btn-group(style="display: contents;")

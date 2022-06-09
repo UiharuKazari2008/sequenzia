@@ -2217,7 +2217,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         text-align: center!important;
         padding: 0!important;
     }
-    .navbar-nav.sidebar:not(.toggled) .nav-item .collapse-inner {
+    .navbar-nav.sidebar .nav-item .collapse-inner {
         background: #7d2f005c!important;
     }
     .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
@@ -2435,11 +2435,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     z-index: 1029;
     background: transparent;
 }
-#accordionSidebar:not(.toggled) > #sidebar > #sidebarbottompadding {
+#accordionSidebar > #sidebar > #sidebarbottompadding {
     display: block;
     margin-bottom: 20em;
 }
-#accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
+#accordionSidebar.open > #sidebar > .overlay-sidebarbg {
     position: fixed;
     top: 0;
     left: 0;
@@ -2461,6 +2461,13 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         flex: 0 0 11.1%;
         max-width: 11.1%;
     }
+}
+.btn .badge {
+    top: -.1rem;
+}
+
+.shadow .text-danger {
+    color: #c00000!important;
 }
 
 .topbar #sidebarToggleTop {
@@ -2787,7 +2794,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bs-popover-right > .arrow::after, .bs-popover-auto[x-placement^="right"] > .arrow::after {
         border-right-color: white;
     }
-    #accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
+    #accordionSidebar.open > #sidebar > .overlay-sidebarbg {
         background-image: linear-gradient(90deg, #643207e8,#9b4410db);
     }
     .overlay-sidebarbg > .sequenzia-logo {

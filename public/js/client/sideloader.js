@@ -131,10 +131,14 @@ async function setupReq (push) {
     if (push !== true)
         $(".container-fluid").fadeTo(500, 0.4);
 
+
+    if (!initalPageLoad)
+        $("#userMenu").collapse("hide");
+    $(".sidebar").removeClass('open');
+    $("body").addClass("sidebar-toggled");
+    $(".sidebar").addClass("toggled");
+    $('.sidebar .collapse').collapse('hide');
     if ($(window).width() < 1700) {
-        $("body").addClass("sidebar-toggled");
-        $(".sidebar").addClass("toggled");
-        $('.sidebar .collapse').collapse('hide');
         $(".music-player").removeClass("toggled");
     }
     writeLoadingBar();
