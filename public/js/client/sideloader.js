@@ -778,6 +778,7 @@ async function showSearchOptions(post) {
     console.log(_post);
     const postChannel = _post.getAttribute('data-msg-channel');
     const postChannelString = _post.getAttribute('data-msg-channel-string');
+    const postDisplayName = _post.getAttribute('data-msg-displayname');
     const postEID = _post.getAttribute('data-msg-eid');
     const postID = _post.getAttribute('data-msg-id');
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
@@ -790,6 +791,7 @@ async function showSearchOptions(post) {
 
     const modalGoToPostLocation = document.getElementById(`goToPostLocation`);
     const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
+    const modalGoToHistoryDisplay = document.getElementById(`goToHistoryDisplay`);
     const modalGoToPostSource = document.getElementById(`goToPostSource`);
     const modalSearchByUser = document.getElementById(`searchByUser`);
     const modalSearchByParent = document.getElementById(`searchByParent`);
@@ -817,6 +819,11 @@ async function showSearchOptions(post) {
         window.location.assign("#" + params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', `${postChannel}`], ['nsfw', 'true']]));
         return false;
     }
+    modalGoToHistoryDisplay.onclick = function() {
+        $('#searchModal').modal('hide');
+        window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
+        return false;
+    }
     if (postChannelString && postChannelString.length > 0) {
         modalGoToPostLocation.querySelector('span').textContent = `Go To "${postChannelString}"`
     } else {
@@ -824,10 +831,6 @@ async function showSearchOptions(post) {
     }
     if (searchSource && searchSource.length > 0) {
         modalGoToPostSource.querySelector('span').textContent = `Go To "${searchSource}"`
-    } else {
-        modalGoToPostSource.querySelector('span').textContent = 'Go To Source'
-    }
-    if (searchSource && searchSource.length > 0) {
         modalGoToPostSource.onclick = function() {
             $('#searchModal').modal('hide');
             $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
@@ -835,8 +838,22 @@ async function showSearchOptions(post) {
         }
         modalGoToPostSource.classList.remove('hidden')
     } else {
+        modalGoToPostSource.querySelector('span').textContent = 'Go To Source'
         modalGoToPostSource.onclick = function() { return false; };
         modalGoToPostSource.classList.add('hidden')
+    }
+    if (postDisplayName && postDisplayName.length > 0) {
+        modalGoToHistoryDisplay.querySelector('span').textContent = `View "${postDisplayName}"`
+        modalGoToHistoryDisplay.onclick = function() {
+            $('#searchModal').modal('hide');
+            $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
+            return false;
+        }
+        modalGoToHistoryDisplay.classList.remove('hidden')
+    } else {
+        modalGoToHistoryDisplay.querySelector('span').textContent = 'View History'
+        modalGoToHistoryDisplay.onclick = function() { return false; };
+        modalGoToHistoryDisplay.classList.add('hidden')
     }
     if (searchUser && searchUser.length > 0) {
         modalSearchByUser.onclick = function() {

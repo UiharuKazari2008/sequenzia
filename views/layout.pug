@@ -1027,24 +1027,15 @@ html
                                                 i.fas.fa-info-circle
                                     li.nav-item.no-arrow.hidden.done-btns
                                         if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
-                                            .btn-group(style="display: contents;")
+                                            .btn-group
                                                 a.navbar-item.btn.btn-admin(title="Cancel Selection" href='#_' onclick='disableGallerySelect(); clearactionModel(); ;return false;')
                                                     i.fas.fa-times-circle.align-middle
 
-                                                a#selectAll1.navbar-item.btn.btn-admin.pr-2(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;').d-none.d-md-block
+                                                a#selectAll1.navbar-item.btn.btn-admin.pr-2(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;')
                                                     i.fas.fa-check-square.align-middle
-                                                a#deSelectAll1.navbar-item.btn.btn-admin.pr-2(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;').d-none.d-md-block.hidden
+                                                a#deSelectAll1.navbar-item.btn.btn-admin.pr-2(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;').hidden
                                                     i.far.fa-check-square.align-middle
 
-                                                button.navbar-item.btn.btn-fav(title="Commands" type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false').d-md-none
-                                                    i.fas.fa-check-square.align-middle
-                                                .dropdown-menu.d-md-none
-                                                    a#selectAll2.dropdown-item(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;')
-                                                        i.fas.fa-check-square.align-middle.pr-2
-                                                        | Select All
-                                                    a#deSelectAll2.dropdown-item(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;')
-                                                        i.far.fa-check-square.align-middle.pr-2
-                                                        | Deselect All
                                                 if (enableManageTools)
                                                     a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
                                                         i.fas.fa-paste.align-middle
@@ -1625,26 +1616,19 @@ html
                                     div#rawBodyContent.mb-3.text-center.w-100
                                         div
                                 div.row.pl-3.pr-3
-                                    a#goToPostLocation.btn.btn-primary(data-toggle='collapse' href='#_' role='button').w-100
+                                    a#goToPostLocation.btn.btn-primary(href='#_' role='button').w-100
                                         i.fas.fa-directions.pr-2
                                         span Go to channel
                                 div.row.pl-3.pr-3
-                                    a#goToPostSource.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mt-2.w-100.hidden
+                                    a#goToPostSource.btn.btn-primary(href='#_' role='button').mt-2.w-100.hidden
                                         i.fas.fa-globe-americas.pr-2
                                         span Go to source
+                                div.row.pl-3.pr-3
+                                    a#goToHistoryDisplay.btn.btn-primary(href='#_' role='button').mt-2.w-100
+                                        i.fas.fa-history.pr-2
+                                        span Go to display
                                 div.row.pl-3.pr-3.mt-3
                                     h3 Search
-                                div.row.pl-3.pr-3
-                                    div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
-                                        label#searchFilterEverywhere.btn.btn-info.w-100.active
-                                            input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
-                                            span  Everywhere
-                                        label#searchFilterCurrent.btn.btn-info.w-100
-                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
-                                            span  Current
-                                        label#searchFilterPost.btn.btn-info.w-100
-                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
-                                            span  Post
                                 div.row.pl-3.pr-3
                                     a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
                                         i.fas.fa-level-up-alt.pr-2
@@ -1665,6 +1649,20 @@ html
                                     a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
                                         i.fas.fa-i-cursor.pr-2
                                         span Selected Text
+                                div.row.pl-3.pr-3.mt-3
+                                    h5 Location
+                                div.row.pl-3.pr-3
+                                    div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
+                                        label#searchFilterPost.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                            span  Post
+                                        label#searchFilterCurrent.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Current
+                                        label#searchFilterEverywhere.btn.btn-info.w-100.active
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Everywhere
+
 
                 #appModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
