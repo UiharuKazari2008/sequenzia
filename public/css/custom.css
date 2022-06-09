@@ -2582,6 +2582,10 @@ footer .server-grid-parent {
     }
 }
 
+.userDropdown, a.userDropdown, a.userDropdown:hover, a.userDropdown:active {
+    color: #f9c8a7;
+}
+
 @media (prefers-color-scheme: light) {
     .badge-primary {
         color: black;
