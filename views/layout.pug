@@ -891,12 +891,6 @@ html
                                 li.nav-item.page-title.no-arrow
                                     a.nav-item.btn.btn-navigation.pl-0.pr-1.align-middle(title="Menu" href='#_' role='button' accesskey="," id="sidebarToggleTop2" onclick="scrollToTop(); toggleMenu(); return false;" )
                                         i.fas.fa-compass
-
-                            ul.navbar-nav.text-primary.text-ellipsis.mr-1.mr-md-3
-                                li.nav-item.no-arrow
-                                    a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
-                                        i.fas.fa-bars
-                                        img.img-profile.rounded-circle(src=user.avatar)
                             ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
                                     if (!title || title === '')
@@ -1026,7 +1020,7 @@ html
                                             span.text-uppercase #{full_title_post}
                             if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
                                 ul.navbar-nav.text-primary
-                                    li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.ml-2
+                                    li.nav-item.text-right.page-title.text-primary.ml-2
                                         a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
                                             span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
                                                 i.fas.pl-1.pr-1.fa-info
@@ -1034,13 +1028,7 @@ html
                                     li#totalCount.nav-item.text-right.page-title.text-primary.ml-1
                                         span.badge.badge-danger.push-up.p-1
                                             i.fas.fa-calculator
-                            .ml-auto
-                            if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
-                                ul.navbar-nav.text-primary
-                                    li.nav-item.text-right.d-md-none.page-title.text-primary
-                                        a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
-                                            span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
-                                                i.fas.pl-1.pr-1.fa-info
+                            .mr-auto
                             ul.navbar-nav.text-primary.text-ellipsis.ml-2
                                 li.nav-item.no-arrow.hidden.done-btns
                                     if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
@@ -1067,6 +1055,12 @@ html
                                                     i.fas.fa-paste.align-middle
                                             a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                 i.fas.fa-download.align-middle
+                            ul.navbar-nav.text-primary.text-ellipsis.ml-1.ml-md-3
+                                li.nav-item.no-arrow
+                                    a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                        i.fas.fa-bars
+                                        img.img-profile.rounded-circle(src=user.avatar)
+
                         div#topbarBackground(style='display: none;')
 
                     .container-fluid.max-resize
