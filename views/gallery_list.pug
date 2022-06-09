@@ -214,7 +214,7 @@ block content
                                                         i.btn-links.fas.fa-arrow-left(style="color: #bfffbf;")
                                                     .collapse(id=`accept-options-${item.id}`)
                                                         div.d-flex.flex-column.badge.bg-success(font-size: inherit)
-                                                            a.reviewAccept.p-2(title="Accept All Items Before" href='#_' onclick=`acceptAllItems(2, "${item.id}"); return false;`)
+                                                            a.reviewAccept.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
                                                                 i.text-white.fas.fa-check(style="font-size: 2em;")
 
                                             .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
@@ -227,7 +227,7 @@ block content
                                                         i.btn-links.fas.fa-arrow-left(style="color: #ff90a8;")
                                                     .collapse(id=`delete-options-${item.id}`)
                                                         div.d-flex.flex-column.badge.bg-danger(font-size: inherit)
-                                                            a.reviewReject.p-2(title="Reject All Items Before" href='#_' onclick=`rejectAllItems(2, "${item.id}"); return false;`)
+                                                            a.reviewReject.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
                                                                 i.text-white.fas.fa-trash-alt(style="font-size: 2em;")
 
 
