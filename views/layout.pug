@@ -550,8 +550,8 @@ html
                                             a(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
                                                 span.badge.push-up.p-1(class=`badge-${(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'danger' : 'primary'}`)
                                                     i.fas.pl-1.pr-1.fa-info
-                                    ul.navbar-nav.text-primary
-                                        li#totalCount.nav-item.text-right.page-title.text-primary.ml-1(style="display: contents;")
+                                    ul.navbar-nav.text-primary.ml-1
+                                        li#totalCount.nav-item.text-right.page-title.text-primary(style="display: contents;")
                                             span.badge.badge-danger.push-up.p-1
                                                 i.fas.fa-calculator
                                 .mr-auto
