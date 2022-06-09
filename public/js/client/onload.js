@@ -55,13 +55,14 @@ $('#userMenu').on('show.bs.collapse', function () {
     $('.fixed-top').removeClass('top-padding-safety');
     $('#padding').collapse('show');
     $('#topbarBackground').fadeIn();
-    $('#topbar').addClass('shadow');
+    $('#topbar').addClass('shadow').addClass('menu-open');
 })
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
         $('#menuItem1').collapse('show');
         $('#padding').collapse('hide');
         $('.fixed-top').addClass('top-padding-safety');
+        $('#topbar').removeClass('menu-open')
         if ($('html').scrollTop() <= 50) {
             $('#topbarBackground').fadeOut();
             $('#topbar').removeClass('shadow');

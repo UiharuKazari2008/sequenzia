@@ -1832,6 +1832,7 @@ div.collapse-divider {
     justify-items: center;
     padding: 0 1em;
     display: inline-grid;
+    min-width: 85px;
 }
 .user-menu-item > i {
     font-size: 1.5em;
@@ -1987,15 +1988,16 @@ footer .server-grid-parent {
         display: inline-block!important;
     }
 }
-@media (max-width:1100px) {
+@media (max-width:1400px) {
     .menu-grid {
         max-width: 450px;
     }
 }
-@media (max-width:1400px) {
+@media (max-width:1650px) {
     .user-menu-item {
         font-size: .8em;
         padding-top: 0.5em;
+        min-width: 70px;
     }
     .user-menu-icon {
         font-size: 2em;
@@ -2056,6 +2058,12 @@ footer .server-grid-parent {
     }
 }
 
+@media (max-width:990px) {
+    .user-info-bg {
+        min-width: 375px;
+    }
+}
+
 @media (min-width:576px) {
     .card-columns {
         column-count: 2;
@@ -2092,6 +2100,31 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (min-width:768px) {
+    #accordionSidebar.toggled.open {
+        width: unset!important;
+        min-width: calc(env(safe-area-inset-left) + 4rem);
+        overflow: unset;
+        -prefix-animation: slidetextextraout 1s ease 0s forwards;
+        -webkit-animation: slidetextextraout 1s ease 0s forwards;
+        animation: slidetextextraout 1s ease 0s forwards;
+    }
+    #accordionSidebar.open {
+        width: unset!important;
+        min-width: calc(env(safe-area-inset-left) + 14rem);
+        overflow: unset;
+        -prefix-animation: slidetextextraout 1s ease 0s forwards;
+        -webkit-animation: slidetextextraout 1s ease 0s forwards;
+        animation: slidetextextraout 1s ease 0s forwards;
+    }
+    #accordionSidebar:not(.open) {
+        width: 0!important;
+        min-width: 0;
+        overflow: hidden;
+        -prefix-animation: slidetextextraout 1s ease 0s forwards;
+        -webkit-animation: slidetextextraout 1s ease 0s forwards;
+        animation: slidetextextraout 1s ease 0s forwards;
+    }
+
     .push-up {
         position: relative;
         vertical-align: baseline;
@@ -2115,14 +2148,15 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         animation: slidelogoout 1s ease 0s forwards;
     }
 
-    nav.shadow:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleExtra {
+    nav.shadow:not(.no-ani):not(.menu-open) > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 0;
         overflow: hidden;
         -prefix-animation: slidetextextrain 1s ease 0s forwards;
         -webkit-animation: slidetextextrain 1s ease 0s forwards;
         animation: slidetextextrain 1s ease 0s forwards;
     }
-    nav:not(.shadow):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleExtra {
+    nav:not(.shadow):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleExtra,
+    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 10.8em;
         overflow: hidden;
         -prefix-animation: slidetextextraout 1s ease 0s forwards;
@@ -2134,14 +2168,15 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 0;
         overflow: hidden;
     }
-    nav.shadow:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
+    nav.shadow:not(.menu-open):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
         max-width: 4em;
         overflow: hidden;
         -prefix-animation: slideiconout 0.5s ease 0s forwards;
         -webkit-animation: slideiconout 0.5s ease 0s forwards;
         animation: slideiconout 0.5s ease 0s forwards;
     }
-    nav:not(.shadow):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
+    nav:not(.shadow):not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible,
+    nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo > #titleIcon.icon-avalible {
         max-width: 0em;
         overflow: hidden;
         -prefix-animation: slideiconin 0.5s ease 0s forwards;
@@ -2284,13 +2319,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: inline-flex !important;
     }
 }
-@media (max-width: 355px) {
-    /*.sidebar-brand-logo {
-        display: block!important;
-    }*/
-}
-
-@media (max-width: 824px) {
+@media (max-width: 840px) {
     .shown-user-menu {
         height: 500px;
         flex-direction: column;
@@ -2338,9 +2367,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/
-
-
-
     #load{
         width:100%;
         height:100%;
@@ -2441,7 +2467,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     padding-left: 0;
     padding-right: 0;
 }
-
 .user-infocard-row1 {
     margin-left: calc(env(safe-area-inset-left, 0) + 0.5em);
 }
@@ -2487,7 +2512,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
 }
-@media (max-width: 420px) {
+@media (max-width: 460px) {
     .shown-user-menu {
         height: 450px;
         flex-direction: column;
@@ -2501,6 +2526,41 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .user-menu-height {
         height: 250px
+    }
+
+    .user-infocard-username {
+        font-size: 1em;
+    }
+
+    .user-infocard-icon {
+        width: 96px;
+        font-size: 1.5em;
+    }
+    .album-item {
+        min-height: 150px;
+        min-width: 120px;
+    }
+    .album-info {
+        font-size: 0.8em;
+    }
+}
+@media (max-width: 330px) {
+    .menu-grid {
+        max-width: 230px;
+    }
+    .shown-user-menu {
+        height: 500px;
+        flex-direction: column;
+    }
+    #padding {
+        margin-top: calc(525px - env(safe-area-inset-top, 0px));
+    }
+
+    .user-info-bg {
+        height: 200px
+    }
+    .user-menu-height {
+        height: 300px
     }
 
     .user-infocard-username {

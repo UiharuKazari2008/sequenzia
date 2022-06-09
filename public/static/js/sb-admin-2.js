@@ -2,11 +2,15 @@ const sidebar = $(".sidebar")
 const body = $("body")
 
 function toggleMenu() {
-  body.toggleClass("sidebar-toggled");
-  sidebar.toggleClass("toggled");
-  $(".music-player").toggleClass("toggled");
-  if (sidebar.hasClass("toggled")) {
-    $('.sidebar .collapse').collapse('hide');
+  sidebar.toggleClass('open');
+  if ($(window).width() <= 767) {
+    $('#userMenu').collapse('hide');
+    body.toggleClass("sidebar-toggled");
+    sidebar.toggleClass("toggled");
+    $(".music-player").toggleClass("toggled");
+    if (sidebar.hasClass("toggled")) {
+      $('.sidebar .collapse').collapse('hide');
+    }
   }
 }
 

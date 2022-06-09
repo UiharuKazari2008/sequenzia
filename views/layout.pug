@@ -173,9 +173,9 @@ html
                                                         //a.user-menu-item(title="Homepage" href='/')
                                                             i.fas.fa-fw.fa-home
                                                             | Home
-                                                        a.user-menu-item.d-md-none(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); $('#userMenu').collapse('hide'); toggleMenu(); return false;")
+                                                        a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
                                                             i.fas.fa-compass.fa-fw
-                                                            | Navigate
+                                                            | Navigator
                                                         a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
                                                             i.fas.fa-fw.fa-images
                                                             | Photos
@@ -653,6 +653,21 @@ html
                                                                                 a.dropdown-item(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`)
                                                                                     i.fas.fa-address-book.pr-2
                                                                                     | Artists
+                                                        if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
+                                                            if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
+                                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
+                                                                    a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
+                                                                        i.fas.fa-upload
+                                                                        | Upload
+                                                                else
+                                                                    a.user-menu-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
+                                                                        i.fas.fa-upload
+                                                                        | Upload
+                                                            else
+                                                                a.user-menu-item(title="Upload Items" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem7")
+                                                                    i.fas.fa-fw.fa-upload
+                                                                    | Upload
+
                                                         if (params && path !== '/artists')
                                                             a#userToolsDropdown.user-menu-item(title="Tools" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem4")
                                                                 i.fas.fa-fw.fa-toolbox
@@ -718,41 +733,9 @@ html
                                                         a.user-menu-item.user-menu-small(title="External Services" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem6")
                                                             i.fas.fa-satellite-dish
                                                             | Services
-                                                        if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
-                                                            if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
-                                                                if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
-                                                                    a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
-                                                                        i.fas.fa-upload
-                                                                        | Upload
-                                                                else
-                                                                    a.user-menu-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
-                                                                        i.fas.fa-upload
-                                                                        | Upload
-                                                            else
-                                                                a.user-menu-item(title="Upload Items" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem7")
-                                                                    i.fas.fa-fw.fa-upload
-                                                                    | Upload
-
                                                         a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="downloadAllItems(); return false;" role='button')
                                                             i.fas.fa-download
                                                             | Download
-                                                        if (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album')))
-                                                            if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
-                                                                a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
-                                                                    i.fas.fa-eye-slash
-                                                                    | Exclude NSFW
-                                                            else
-                                                                a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
-                                                                    i.fas.fa-eye
-                                                                    | Include NSFW
-                                                        if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
-                                                            a.user-menu-item.user-menu-small(title="Show All Content" href='#_' onclick=`getNewContent(['offset', 'flagged'], []); return false;`)
-                                                                i.fas.fa-flag-checkered
-                                                                | Remove Flagged
-                                                        else
-                                                            a.user-menu-item.user-menu-small(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
-                                                                i.fas.fa-flag
-                                                                | Show Flagged
                                         div#menuItem5(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
@@ -801,6 +784,22 @@ html
                                                             a.user-menu-item.user-menu-small(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                 i.fas.fa-envelope
                                                                 | Cards
+                                                        if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
+                                                            a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
+                                                                i.fas.fa-eye-slash
+                                                                | Exclude NSFW
+                                                        else
+                                                            a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
+                                                                i.fas.fa-eye
+                                                                | Include NSFW
+                                                        if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
+                                                            a.user-menu-item.user-menu-small(title="Show All Content" href='#_' onclick=`getNewContent(['offset', 'flagged'], []); return false;`)
+                                                                i.fas.fa-flag-checkered
+                                                                | Remove Flagged
+                                                        else
+                                                            a.user-menu-item.user-menu-small(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
+                                                                i.fas.fa-flag
+                                                                | Show Flagged
 
                                         div#menuItem6(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
@@ -1014,14 +1013,14 @@ html
                                                 script#setTitleExtraStyleAdjustment.
                                                     extratitlewidth = 0
                                                     function calculateTitleWidthPage() {
+                                                        $('#titleExtra').style = `min-width: fit-content;`
                                                         extratitlewidth = $('#titleExtra').width() + 10
                                                         if (extratitlewidth > 20) {
                                                             $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
                                                         }
+                                                        $('#titleExtra').style = ``
                                                     }
-                                                    setTimeout(() => {
-                                                        calculateTitleWidthPage();
-                                                    }, 2500);
+                                                    calculateTitleWidthPage();
                                             else
                                                 span.text-uppercase #{full_title_post}
                                 if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
