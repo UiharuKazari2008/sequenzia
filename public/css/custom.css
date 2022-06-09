@@ -1779,6 +1779,9 @@ div.collapse-divider {
 .shown-user-menu, .user-info-bg, .user-menu-height {
     height: 200px;
 }
+.topbar .dropdown .dropdown-menu {
+    max-height: calc(80vh - 200px);
+}
 .album-info {
     z-index: 1;
     font-size: 1em;
@@ -2319,6 +2322,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 500px;
         flex-direction: column;
     }
+    .topbar .dropdown .dropdown-menu {
+        max-height: calc(80vh - 500px);
+    }
     .user-infocard-row1 {
         margin-left: calc(env(safe-area-inset-left, 0) + 0.5em);
         margin-right: calc(env(safe-area-inset-right, 0) + 0.5em);
@@ -2490,6 +2496,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 400px;
         flex-direction: column;
     }
+    .topbar .dropdown .dropdown-menu {
+        max-height: calc(80vh - 400px);
+    }
     #padding {
         margin-top: calc(425px - env(safe-area-inset-top, 0px));
     }
@@ -2526,6 +2535,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 450px;
         flex-direction: column;
     }
+    .topbar .dropdown .dropdown-menu {
+        max-height: calc(80vh - 450px);
+    }
     #padding {
         margin-top: calc(475px - env(safe-area-inset-top, 0px));
     }
@@ -2560,6 +2572,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .shown-user-menu {
         height: 500px;
         flex-direction: column;
+    }
+    .topbar .dropdown .dropdown-menu {
+        max-height: calc(80vh - 500px);
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));

@@ -2,7 +2,7 @@ html
     head
         body
             div#wrapper
-                li#totalCount.nav-item.text-right.page-title.text-primary.ml-1.push-up
+                li#totalCount.nav-item.text-right.page-title.text-primary.ml-1.push-up(style="display: contents;")
                     if (pageList && pageList.length > 1)
                         a.btn.dropdown.no-arrow.p-0.d-block(title="Page List" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                             span.results-number.badge.badge-primary.p-1 #{resultsCount}
