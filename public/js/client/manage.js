@@ -896,6 +896,7 @@ function createNewAlbum() {
                     $(`#newAlbumForm`).collapse('hide');
                     refreshAlbumsList();
                     newAlbumNameText.value = '';
+                    getSidebar(true);
                 } else {
                     $.toast({
                         type: 'error',
@@ -943,6 +944,7 @@ function updateAlbum(aid) {
                 success: function (response, textStatus, xhr) {
                     if (xhr.status < 400) {
                         refreshAlbumsList();
+                        getSidebar(true);
                     } else {
                         $.toast({
                             type: 'error',
@@ -992,6 +994,7 @@ function deleteAlbum(aid) {
             success: function (response, textStatus, xhr) {
                 if (xhr.status < 400) {
                     refreshAlbumsList();
+                    getSidebar(true);
                 } else {
                     $.toast({
                         type: 'error',

@@ -191,7 +191,7 @@ module.exports = async (req, res, next) => {
 
             if (userAlbums && userAlbums.rows.length > 0) {
                 req.session.albums = userAlbums.rows.map(e => {
-                    let ranImage = ( e.cache_proxy !== null) ? e.cache_proxy.startsWith('http') ? e.cache_proxy : `https://media.discordapp.net/attachments${e.cache_proxy}` : `https://media.discordapp.net/attachments/` + ((e.attachment_hash.includes('/')) ? e.attachment_hash : `${e.channel}/${e.attachment_hash}/${e.attachment_name}`)
+                    let ranImage = ( e.cache_proxy) ? e.cache_proxy.startsWith('http') ? e.cache_proxy : `https://media.discordapp.net/attachments${e.cache_proxy}` : (e.attachment_hash && e.attachment_name) ? `https://media.discordapp.net/attachments/` + ((e.attachment_hash.includes('/')) ? e.attachment_hash : `${e.channel}/${e.attachment_hash}/${e.attachment_name}`) : undefined
                     return {
                         ...e,
                         image: ranImage
