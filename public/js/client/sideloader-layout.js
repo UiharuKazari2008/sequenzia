@@ -158,7 +158,7 @@ $(document).ready(function () {
             if (!topbar.hasClass('no-ani')) {
                 topbar.removeClass('ready-to-scroll');
             };
-            if (!sidebar.hasClass("toggled")) {
+            if (sidebar.hasClass("open")) {
                 const sidebarTop = $("#accordionSidebar").offset().top; //gets offset of header
                 const sidebarHeight = $("#accordionSidebar").outerHeight(); //gets height of header
                 if ($(window).scrollTop() > (sidebarTop + sidebarHeight)) {

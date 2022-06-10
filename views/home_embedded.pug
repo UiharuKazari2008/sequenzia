@@ -59,9 +59,9 @@ block content
             .row.justify-content-center.mt-2.mb-1
                 a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Recent Photos" href='#_', onclick=`getNewContent([], [['numdays','60']], "/gallery"); return false;`)
                     i.fas.fa-clock
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Photo Stream" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid']], "/gallery"); return false;`)
-                    i.fas.fa-images
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="File Stream" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid'], ['filesonly', 'true']], "/files"); return false;`)
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Latest Media" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid']], "/gallery"); return false;`)
+                    i.fas.fa-photo-video
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Latest Files" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid'], ['filesonly', 'true']], "/files"); return false;`)
                     i.fas.fa-folder
                 a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Favorite Photos" href='#_', onclick=`getNewContent([], [['sort', 'fav'], ['pins', 'true']], "/gallery"); return false;`)
                     i.fas.fa-star

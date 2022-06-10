@@ -873,6 +873,28 @@ function refreshAlbumsList(messageid) {
     });
     $('#albumItemModal').modal('show');
 }
+function getAlbumDirectory() {
+    $.ajax({async: true,
+        url: `/albums?command=getDirectory`,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (response, textStatus, xhr) {
+            if (xhr.status < 400) {
+                $(`#albumDirectoryBody`).html(response);
+            } else {
+                $(`#albumDirectoryBody`).html('<span>Failed to get valid albums list via AJAX</span>');
+            }
+        },
+        error: function (xhr) {
+            $(`#albumDirectoryBody`).html('<span>Failed to get albums list via AJAX</span>');
+        }
+    });
+    $('#albumDirectoryModal').modal('show');
+}
 function createNewAlbum() {
     const newAlbumNameText = document.querySelector("#albumNameText");
     const newAlbumTypeSelect = document.querySelector("#albumTypeSelect");

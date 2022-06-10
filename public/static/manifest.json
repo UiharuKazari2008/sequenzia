@@ -379,14 +379,14 @@
   "theme_color": "#d07300",
   "shortcuts": [
     {
-      "name": "Photo Stream",
+      "name": "Media",
       "short_name": "Photos",
       "description": "Images in order of upload",
       "url": "/gallery?numdays=60&sort=eid",
       "icons": [{"src":"/static/img/icons/actions/stream-192.png","sizes":"192x192","type":"image/png"}, {"src":"/static/img/icons/actions/stream-512.png","sizes":"512x512","type":"image/png"}]
     },
 	{
-      "name": "File Stream",
+      "name": "Files",
       "short_name": "Files",
       "description": "Files in order of upload",
       "url": "/files?numdays=60&sort=eid&filesonly=true",

@@ -74,7 +74,7 @@ function toggleLightboxOverlay() {
         $('.sidebar .collapse').collapse('hide');
         $(".music-player").removeClass("toggled");
       }*/
-      if (calculateTitleWidthPage !== undefined) {
+      if (typeof calculateTitleWidthPage !== 'undefined') {
         calculateTitleWidthPage();
       }
       cachedWidth = newWidth;

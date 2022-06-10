@@ -176,6 +176,8 @@ block content
                                         if (user && user.source < 900)
                                             a.btn.btn-fav(id='fav-' + item.eid data-placement="top" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
                                                 i.btn-fav.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                            a.btn.btn-fav(data-placement="top" title="Add or Remove from Album" href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                i.fas.fa-archive
                                             if (thisImageManage)
                                                 a.btn.btn-admin(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''});  openActionMenu(); return false;` )
                                                     i#button.fas.fa-paste

@@ -8,7 +8,7 @@ doctype html
 html
     head
         script.
-            console.log('Starting JuneOS...')
+            console.log('Waiting for JuneOS to boot...')
         title=`${webconf.site_name}`
 
         meta(charset='utf-8')
@@ -228,9 +228,9 @@ html
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
                                                             i.fas.fa-compass.fa-fw
                                                             | Navigator
-                                                        a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
-                                                            i.fas.fa-fw.fa-images
-                                                            | Photos
+                                                        a.user-menu-item(title="Recently Uploaded Media" href='#/gallery?numdays=60&sort=eid')
+                                                            i.fas.fa-fw.fa-photo-video
+                                                            | Gallery
                                                         a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
                                                             i.fas.fa-fw.fa-folder
                                                             | Files
@@ -528,6 +528,17 @@ html
                                             i.pr-2.fas.fa-folder-plus
                                             | Create
                         #albumItemBody Loading List of Albums...
+        #albumDirectoryModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog.modal-dialog-scrollable(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title.flex-grow-1 Directory
+                        a.align-self-center(href='#_' onclick='getAlbumDirectory(); return false;' role='button').text-white
+                            i.fas.fa-sync-alt
+                        button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
+                            i.fas.fa-times
+                    .modal-body
+                        #albumDirectoryBody Loading List of Albums...
         script(src="/static/js/sb-admin-2.min.js")
         // Modals
         div#dataModels

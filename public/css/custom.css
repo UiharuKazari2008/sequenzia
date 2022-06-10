@@ -1594,6 +1594,22 @@ background-color: #000000;
     background-color: #ff0000d4 !important;
 }
 
+#albumDirectoryBody .album-item {
+    min-height: 200px;
+    min-width: unset;
+}
+
+#albumDirectoryBody .album-icon {
+    font-size: 1.5em;
+}
+#albumDirectoryBody .album-name {
+    font-size: 1.75em;
+}
+#albumDirectoryBody .album-owner {
+    opacity: .75;
+    font-weight: bold;
+}
+
 .no-bg {
     background: none!important;
 }
@@ -1754,11 +1770,12 @@ div.collapse-divider {
 }
 
 .user-infocard-holder {
-    background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);
+    /*background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);*/
     height: inherit;
 }
 .user-infocard-icon {
     width: 125px;
+    box-shadow: 0 0 17px #000000;
 }
 .user-infocard-info {
     font-size: 2em;
@@ -1793,6 +1810,7 @@ div.collapse-divider {
 }
 .user-info-bg {
     min-width: 500px;
+    border-bottom-right-radius: 20px;
 }
 
 .album-list {
@@ -1881,6 +1899,10 @@ div.collapse-divider {
     float: left;
 }
 
+.user-menu-buttons {
+    background-image: linear-gradient(180deg, #4e1e06, transparent);
+}
+
 .btn-group > .btn-group > .btn {
     border-radius: 0;
 }
@@ -1952,6 +1974,16 @@ footer .server-grid-parent {
 
 .server-grid-child > img {
     box-shadow: 6px 2px 11px 0 #00000054;
+}
+
+.userDropdown.collapsed > i {
+    text-shadow: 0 0 10px #ff843c;
+}
+
+.user-menu-item,
+#menuAccordion .navbar-search i,
+#menuAccordion h4 {
+    text-shadow: 0 0 4px #ff5100d6;
 }
 
 /*.fixed-top {
@@ -2341,7 +2373,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .user-info-bg {
-        height: 300px
+        height: 300px;
+        border-bottom-right-radius: 0px;
     }
     .user-menu-height {
         height: 200px
@@ -2687,6 +2720,15 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+
+    .user-menu-item,
+    #menuAccordion .navbar-search i,
+    #menuAccordion h4 {
+        text-shadow: 0 0 4px #cdc4ba;
+    }
+    .user-menu-buttons {
+        background-image: linear-gradient(180deg, #ff8e26, transparent);
+    }
     .badge-primary {
         color: black;
         background-color: #ffffff;
@@ -2742,6 +2784,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         background-color: #d07300;
         border-bottom: solid 1px #ffa90073;
     }
+    /*#topbarBackground {
+        background-color: #d07300f0;
+    }*/
     #content > .fixed-top {
         background-image: linear-gradient(rgba(0, 0, 0, 0.57), transparent);
     }

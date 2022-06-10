@@ -38,9 +38,9 @@ html
                     else if (params && params.getAll('sort')[0] === 'random')
                         title= `${webconf.site_name} - I'm Feeling Lucky`
                     else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid') && path === '/files')
-                        title= `${webconf.site_name} - File Stream`
+                        title= `${webconf.site_name} - Latest Files`
                     else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                        title= `${webconf.site_name} - Photo Stream`
+                        title= `${webconf.site_name} - Latest Media`
                     else if (params.has('color'))
                         title= `${webconf.site_name} - Colour Search`
                     else if (params.has('displayname'))
@@ -176,9 +176,9 @@ html
                                                         //a.user-menu-item(title="Homepage" href='/')
                                                             i.fas.fa-fw.fa-home
                                                             | Home
-                                                        a.user-menu-item(title="Recently Uploaded Photos" href='#/gallery?numdays=60&sort=eid')
-                                                            i.fas.fa-fw.fa-images
-                                                            | Photos
+                                                        a.user-menu-item(title="Recently Uploaded Media" href='#/gallery?numdays=60&sort=eid')
+                                                            i.fas.fa-fw.fa-photo-video
+                                                            | Gallery
                                                         a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
                                                             i.fas.fa-fw.fa-folder
                                                             | Files
@@ -316,24 +316,24 @@ html
                                                                 | Full Width
                                                         if (path !== '/gallery')
                                                             a.user-menu-item.user-menu-small(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                                i.fas.fa-images
-                                                                | Gallery
+                                                                i.fas.fa-photo-video
+                                                                | View as Gallery
                                                         if (path !== '/files')
                                                             a.user-menu-item.user-menu-small(title="View results as file list" href='#_' onclick=`getNewContent(['offset'], [], "/files?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                 i.fas.fa-folder
-                                                                | Files
+                                                                | View as Files
                                                         if (path !== '/cards')
                                                             a.user-menu-item.user-menu-small(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                 i.fas.fa-envelope
-                                                                | Cards
+                                                                | View as Cards
                                                         if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
                                                             a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
                                                                 i.fas.fa-eye-slash
-                                                                | Exclude NSFW
+                                                                | SFW Mode
                                                         else
                                                             a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
                                                                 i.fas.fa-eye
-                                                                | Include NSFW
+                                                                | NSFW Mode
                                                         if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
                                                             a.user-menu-item.user-menu-small(title="Show All Content" href='#_' onclick=`getNewContent(['offset', 'flagged'], []); return false;`)
                                                                 i.fas.fa-flag-checkered
@@ -385,6 +385,9 @@ html
                                                 .d-flex.w-100
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
                                                         i.fas.fa-arrow-left.fa-fw
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                        i.fas.fa-fw.mr-md-1.fa-globe-americas
+                                                        span.d-none.d-md-inline Directory
                                                     a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
                                                         i.fas.fa-cog.fa-fw.mr-md-1
                                                         span.d-none.d-md-inline Manage
@@ -396,14 +399,31 @@ html
                                                         div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in albums
                                                                 div.album-item.position-relative
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                        //x.uri, x.privacy
+                                                                        div.album-icon
+                                                                            if (thisAlbum.uri === 'gallery')
+                                                                                i.fas.fa-photo-video.pr-1
+                                                                            else if (thisAlbum.uri === 'files')
+                                                                                i.fas.fa-folder.pr-1
+                                                                            else if (thisAlbum.uri === 'cards')
+                                                                                i.fas.fa-sticky-note.pr-1
+                                                                            else
+                                                                                i.fas.fa-archive.pr-1
+
+                                                                            if (thisAlbum.privacy === 0)
+                                                                                i.fas.fa-globe-americas.pr-1
+                                                                            else if (thisAlbum.privacy === 1)
+                                                                                i.fas.fa-lock.pr-1
+                                                                            else if (thisAlbum.privacy === 2)
+                                                                                i.fas.fa-link.pr-1
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
                                                                         span #{thisAlbum.name}
                                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                                         if (thisAlbum.image)
                                                                             div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
                                                                         else
-                                                                            div.album-icon
-                                                                            div.album-preview(style=`background: black;`)
+                                                                            div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
 
                                                     else
                                                         h2 No Albums!
@@ -462,10 +482,10 @@ html
                                                     else
                                                         if (path === '/files')
                                                             i.fas.fa-folder.mr-2
-                                                            span(title='Files in order of upload').text-uppercase File Stream
+                                                            span(title='Files in order of upload').text-uppercase Latest Files
                                                         else
-                                                            i.fas.fa-stream.mr-2
-                                                            span(title='Images in order of upload').text-uppercase Photo Stream
+                                                            i.fas.fa-photo-video.mr-2
+                                                            span(title='Images in order of upload').text-uppercase Latest Media
                                                 else if (params.has('color'))
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                         i.fas.fa-star.mr-2
@@ -514,12 +534,10 @@ html
                                                     i.fas.fa-history.mr-2
                                                 else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                     i.fas.fa-star.mr-2
-                                                else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                                                    i.fas.fa-stream.mr-2
                                                 else if (active_icon)
                                                     i.fas.mr-2(class=active_icon)
                                                 else if (params && path === '/gallery')
-                                                    i.fas.fa-images.mr-2
+                                                    i.fas.fa-photo-video.mr-2
                                                 else if (params && path === '/files')
                                                     i.fas.fa-folder.mr-2
                                                 else if (params && path === '/cards')
@@ -562,7 +580,7 @@ html
                                             i.fas.fa-circle.text-danger
 
                                 .mr-auto
-                                ul.navbar-nav.text-primary.text-ellipsis.ml-2
+                                ul.navbar-nav.text-primary.text-ellipsis
                                     li.nav-item.no-arrow.edit-btns
                                         .btn-group.show-menu-open.hidden(style="display: contents;")
                                             if (results && results.length > 1)
@@ -1045,11 +1063,11 @@ html
                                                         i.fas.fa-paste.align-middle
                                                 a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                     i.fas.fa-download.align-middle
-                            .col-auto.p-0.d-flex.pl-1
-                                ul.navbar-nav.text-primary.text-ellipsis.ml-1.ml-md-3.w-100
+                            .col-auto.p-0.d-flex
+                                ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
-                                            i.fas.fa-bars
+                                            i.fas.fa-bars.pl-2
                                             img.img-profile.rounded-circle(src=user.avatar)
 
                         div#topbarBackground(style='display: none;')
@@ -1108,14 +1126,14 @@ html
                                                                 if (path === '/files')
                                                                     div.row.text-lg
                                                                         div
-                                                                            | File Stream
+                                                                            | Latest Files
                                                                     div.row
                                                                         div
                                                                             | Files in order of upload
                                                                 else
                                                                     div.row.text-lg
                                                                         div
-                                                                            | Photo Stream
+                                                                            | Latest Media
                                                                     div.row
                                                                         div
                                                                             | Images in order of upload
