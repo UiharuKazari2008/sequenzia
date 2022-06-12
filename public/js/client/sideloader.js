@@ -1002,8 +1002,10 @@ async function updateNotficationsPanel() {
                     results.push(`<span>${e}</span>`)
                 }
                 results.push(`</a>`)
+                return results.join('\n')
+            } else {
+                return ''
             }
-            return results.join('\n')
         })
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden')
