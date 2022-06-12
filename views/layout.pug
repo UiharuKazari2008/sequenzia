@@ -1630,25 +1630,6 @@ html
                                         a#downloadStopButton.btn.btn-danger.hidden(title="Stop current and pending downloads" href='#_' onclick=`downloadAllController.ready = false; downloadAllController.about.about(); return false;`, role='button')
                                             i.fas.pr-2.fa-ban
                                             | Cancel
-                #downloadSpannedFile.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
-                    .modal-dialog(role='document')
-                        .modal-content
-                            .modal-header
-                                h5.modal-title
-                                    span Unpack File
-                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
-                                    span(aria-hidden='true') &times;
-                            .modal-body
-                                div.row.pl-3.pr-3
-                                    h4#spannedProgText.small.font-weight-bold Ready
-                                div.row.pl-3.pr-3
-                                    div.col.pl-1
-                                        .progress(style="height: 30px;")
-                                            #spannedProgressBar.progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
-                                    div
-                                        a#spannedStopButton.btn.btn-danger.hidden(title="Stop current and pending downloads" href='#_' onclick=`stopUnpackingFiles(); return false;`, role='button')
-                                            i.fas.pr-2.fa-ban
-                                            | Cancel
                 #feedModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                     .modal-dialog(role='document')
                         .modal-content
@@ -1696,19 +1677,33 @@ html
                                 button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                     span(aria-hidden='true') &times;
                             .modal-body
+                                div.row.pl-3.pr-3.flex-nowrap
+                                    a#toggleFavoritePost.btn.btn-primary.mb-2(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis.mr-1
+                                        i.fas.fa-star.pr-sm-2
+                                        span.d-none.d-sm-inline Favorite
+                                    a#manageAlbumPost.btn.btn-primary.mb-2(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis.ml-1
+                                        i.fas.fa-archive.pr-sm-2
+                                        span.d-none.d-sm-inline Albums
+                                    a#managePost.btn.btn-primary.mb-2(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis.ml-2
+                                        i.fas.fa-paste.pr-sm-2
+                                        span.d-none.d-sm-inline Manage
                                 div.row.pl-3.pr-3
-                                    div#rawBodyContent.mb-3.text-center.w-100
-                                        div
+                                    a#goToDownload.btn.btn-success(href='#_' role='button' target="_blank" rel="noopener noreferrer").mb-2.w-100.text-ellipsis
+                                        i.fas.fa-download.pr-2
+                                        span Direct Download
                                 div.row.pl-3.pr-3
-                                    a#goToPostLocation.btn.btn-primary(href='#_' role='button').w-100
+                                    div#rawBodyContent.mb-3.mt-1.text-center.w-100
+                                        div.card-ui
+                                div.row.pl-3.pr-3
+                                    a#goToPostLocation.btn.btn-primary(href='#_' role='button').w-100.text-ellipsis
                                         i.fas.fa-directions.pr-2
                                         span Go to channel
                                 div.row.pl-3.pr-3
-                                    a#goToPostSource.btn.btn-primary(href='#_' role='button').mt-2.w-100.hidden
+                                    a#goToPostSource.btn.btn-primary(href='#_' role='button').mt-2.w-100.hidden.text-ellipsis
                                         i.fas.fa-globe-americas.pr-2
                                         span Go to source
                                 div.row.pl-3.pr-3
-                                    a#goToHistoryDisplay.btn.btn-primary(href='#_' role='button').mt-2.w-100
+                                    a#goToHistoryDisplay.btn.btn-primary(href='#_' role='button').mt-2.w-100.text-ellipsis
                                         i.fas.fa-history.pr-2
                                         span Go to display
                                 div.row.pl-3.pr-3.mt-3

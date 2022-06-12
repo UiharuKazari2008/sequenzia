@@ -776,14 +776,22 @@ async function startDownloadingFiles() {
     disableGallerySelect();
 }
 
-async function openUnpackingFiles(fileid) {
+async function openUnpackingFiles(fileid, playThis) {
     if (fileid) {
         if (downloadSpannedController.size === 0 && !activeSpannedJob) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
                 pending: true,
-                ready: true
+                ready: true,
+                play: playThis
             })
+            $.toast({
+                type: 'success',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is unpacking, check active jobs for progress`,
+                delay: 5000,
+            });
             //$('#downloadSpannedFile').modal('show');
             updateNotficationsPanel();
             notificationControler = setInterval(updateNotficationsPanel, 1000);
@@ -792,6 +800,21 @@ async function openUnpackingFiles(fileid) {
                 activeSpannedJob = downloadSpannedController.get(itemToGet)
                 if (activeSpannedJob.ready && activeSpannedJob.pending) {
                     await unpackFile();
+                    if (activeSpannedJob.play) {
+                        console.log(`Launching File...`)
+                        const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
+                        if (element) {
+                            if (activeSpannedJob.play === 'audio') {
+                                PlayTrack(element.href);
+                            } else if (activeSpannedJob.play === 'video') {
+                                PlayVideo(element.href);
+                            } else {
+                                console.error('No Datatype was provided')
+                            }
+                        } else {
+                            console.error('Data lost!')
+                        }
+                    }
                 }
                 downloadSpannedController.delete(itemToGet);
                 console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
@@ -801,13 +824,28 @@ async function openUnpackingFiles(fileid) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
                 pending: true,
-                ready: true
+                ready: true,
+                play: playThis
             })
+            $.toast({
+                type: 'success',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is added to queued`,
+                delay: 5000,
+            });
+        } else {
+            $.toast({
+                type: 'warning',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is already added to queued`,
+                delay: 5000,
+            });
         }
     }
 }
 async function stopUnpackingFiles(fileid) {
-    $('#downloadSpannedFile').modal('hide');
     if (downloadSpannedController.has(fileid)) {
         const _controller = downloadSpannedController.get(fileid)
         if (_controller.pending === true) {
@@ -824,19 +862,10 @@ async function stopUnpackingFiles(fileid) {
 }
 async function unpackFile() {
     if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
-        const downloadModel = document.getElementById('downloadSpannedFile');
-        downloadModel.querySelector("#spannedProgressBar").style.width = `0%`;
-        downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-danger');
-        downloadModel.querySelector(".modal-header").classList.remove('bg-danger');
-        downloadModel.querySelector("#spannedProgressBar").classList.add('bg-success');
-        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `0%`);
-        $('#spannedStopButton').removeClass('hidden');
-
         console.log(`Downloading File ${activeSpannedJob.id}...`)
         activeSpannedJob.pending = false;
 
         return await new Promise(async (job) => {
-            downloadModel.querySelector("#spannedProgText").innerText = `Getting Metadata...`;
             $.ajax({
                 async: true,
                 url: `/parity/${activeSpannedJob.id}`,
@@ -853,8 +882,7 @@ async function unpackFile() {
                         try {
                             activeSpannedJob = {
                                 ...response,
-                                pending: false,
-                                ready: true,
+                                ...activeSpannedJob,
                                 progress: '0%',
                                 abort: new AbortController(),
                                 blobs: []
@@ -868,13 +896,12 @@ async function unpackFile() {
                                             break;
                                         const percentage = (parseInt(i) / activeSpannedJob.parts.length) * 100
                                         activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
-                                        downloadModel.querySelector("#spannedProgressBar").style.width = `${percentage}%`;
-                                        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `${percentage}%`);
-                                        downloadModel.querySelector("#spannedProgText").innerText = `Downloading Parity File (${parseInt(i) + 1}/${activeSpannedJob.parts.length})...`
 
-                                        const part = await new Promise(ok => {
+                                        await new Promise(ok => {
                                             const url = (() => {
-                                                if (activeSpannedJob.parts[i].includes('discordapp.com/')) {
+                                                if (activeSpannedJob.parts[i].includes('discordapp.com/') && activeSpannedJob.proxy_host) {
+                                                    return `${activeSpannedJob.proxy_host}/pipe${activeSpannedJob.parts[i].split('attachments').pop()}`
+                                                } else if (activeSpannedJob.parts[i].includes('discordapp.com/')) {
                                                     return `${document.location.protocol}//${document.location.host}/pipe${activeSpannedJob.parts[i].split('attachments').pop()}`
                                                 } else if (activeSpannedJob.parts[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
                                                     return activeSpannedJob.parts[i]
@@ -909,73 +936,87 @@ async function unpackFile() {
 
                                     if (activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
                                         activeSpannedJob.progress = `100%`;
-                                        downloadModel.querySelector("#spannedProgressBar").style.width = `100%`;
-                                        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `100%`);
-                                        downloadModel.querySelector("#spannedProgText").innerText = `Parity Download Completed, File is ready!`
-
                                         const downloadedFile = window.URL.createObjectURL(new Blob(activeSpannedJob.blobs));
                                         const link = document.createElement('a');
+                                        link.id = `fileData-${activeSpannedJob.id}`
+                                        link.classList = `hidden`
                                         link.href = downloadedFile;
                                         link.setAttribute('download', activeSpannedJob.filename);
                                         document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
+                                        if (!activeSpannedJob.play) {
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }
 
-                                        $('#downloadSpannedFile').modal('hide');
-                                        downloadModel.querySelector("#spannedProgressBar").style.width = `0%`;
-                                        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `0%`);
-                                        downloadModel.querySelector("#spannedProgText").innerText = `Ready`
-                                        $('#spannedStopButton').addClass('hidden');
+                                        $.toast({
+                                            type: 'success',
+                                            title: 'Unpack File',
+                                            subtitle: 'Now',
+                                            content: `File was unpacked successfully<br/>${activeSpannedJob.filename}`,
+                                            delay: 15000,
+                                        });
                                         job(true);
                                     } else {
-                                        downloadModel.querySelector("#spannedProgText").innerText = `Missing a parity file, Retry to download!`
-                                        downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
-                                        downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
-                                        downloadModel.querySelector(".modal-header").classList.add('bg-danger');
-                                        $('#spannedStopButton').addClass('hidden');
+                                        $.toast({
+                                            type: 'error',
+                                            title: 'Unpack File',
+                                            subtitle: 'Now',
+                                            content: `Missing a downloaded parity file, Retry to download!`,
+                                            delay: 15000,
+                                        });
                                         job(false);
                                     }
                                 } else {
-                                    downloadModel.querySelector("#spannedProgText").innerText = `File is damaged or is missing parts, please report to the site administrator!`
-                                    downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
-                                    downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
-                                    downloadModel.querySelector(".modal-header").classList.add('bg-danger');
-                                    $('#spannedStopButton').addClass('hidden');
+                                    $.toast({
+                                        type: 'error',
+                                        title: 'Unpack File',
+                                        subtitle: 'Now',
+                                        content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                        delay: 15000,
+                                    });
                                     job(false);
                                 }
                             } else {
-                                downloadModel.querySelector("#spannedProgText").innerText = `Failed to read the parity metadata response!`
-                                downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
-                                downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
-                                downloadModel.querySelector(".modal-header").classList.add('bg-danger');
-                                $('#spannedStopButton').addClass('hidden');
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `Failed to read the parity metadata response!`,
+                                    delay: 15000,
+                                });
                                 job(false);
                             }
                         } catch (e) {
                             console.error(e);
-                            downloadModel.querySelector("#spannedProgText").innerText = e.message;
-                            downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
-                            downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
-                            downloadModel.querySelector(".modal-header").classList.add('bg-danger');
-                            $('#spannedStopButton').addClass('hidden');
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File Handeler Fault!<br/>${e.message}`,
+                                delay: 15000,
+                            });
                             job(false);
                         }
                     } else {
-                        downloadModel.querySelector("#spannedProgText").innerText = response
-                        downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
-                        downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
-                        downloadModel.querySelector(".modal-header").classList.add('bg-danger');
-                        $('#spannedStopButton').addClass('hidden');
+                        $.toast({
+                            type: 'error',
+                            title: 'Unpack File',
+                            subtitle: 'Now',
+                            content: `File failed to unpack!<br/>${response}`,
+                            delay: 15000,
+                        });
                         job(false);
                     }
                     activeSpannedJob.blobs = [];
                 },
                 error: function (xhr) {
-                    downloadModel.querySelector("#spannedProgText").innerText = `Failed to get the parity for that file\n${xhr.responseText}`
-                    downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
-                    downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
-                    downloadModel.querySelector(".modal-header").classList.add('bg-danger');
-                    $('#spannedStopButton').addClass('hidden');
+                    $.toast({
+                        type: 'error',
+                        title: 'Unpack File',
+                        subtitle: 'Now',
+                        content: `File failed to unpack!<br/>${xhr.responseText}`,
+                        delay: 15000,
+                    });
                     activeSpannedJob.blobs = [];
                     console.error(xhr.responseText);
                     job(false);
@@ -1037,12 +1078,16 @@ async function showSearchOptions(post) {
     const _post = document.getElementById(`message-${post}`);
     console.log(_post);
     const postChannel = _post.getAttribute('data-msg-channel');
+    const postServer = _post.getAttribute('data-msg-server');
     const postChannelString = _post.getAttribute('data-msg-channel-string');
     const postDisplayName = _post.getAttribute('data-msg-displayname');
+    const postDownload = _post.getAttribute('data-msg-download');
+    const postFilename = _post.getAttribute('data-msg-filename');
     const postEID = _post.getAttribute('data-msg-eid');
     const postID = _post.getAttribute('data-msg-id');
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
     const nsfwString = _post.getAttribute('data-nsfw-string');
+    const manageAllowed = _post.getAttribute('data-msg-manage') + '' === 'true';
 
     const searchUser = _post.getAttribute('data-search-user');
     const searchParent = _post.getAttribute('data-search-parent');
@@ -1052,12 +1097,16 @@ async function showSearchOptions(post) {
     const modalGoToPostLocation = document.getElementById(`goToPostLocation`);
     const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
     const modalGoToHistoryDisplay = document.getElementById(`goToHistoryDisplay`);
+    const modalDownloadButton = document.getElementById(`goToDownload`);
     const modalGoToPostSource = document.getElementById(`goToPostSource`);
     const modalSearchByUser = document.getElementById(`searchByUser`);
     const modalSearchByParent = document.getElementById(`searchByParent`);
     const modalSearchByColor = document.getElementById(`searchByColor`);
     const modalSearchByID = document.getElementById(`searchByID`);
     const modalBodyRaw = document.getElementById(`rawBodyContent`);
+    const modalToggleFav = document.getElementById(`toggleFavoritePost`);
+    const modalToggleAlbum = document.getElementById(`manageAlbumPost`);
+    const modalManagePost = document.getElementById(`managePost`);
 
     document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', postChannel]])}`)
@@ -1084,10 +1133,29 @@ async function showSearchOptions(post) {
         window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
         return false;
     }
+    modalToggleFav.onclick = function() {
+        toggleFavorite(`${postChannel}`, `${postEID}`);
+        return false;
+    }
+    modalToggleAlbum.onclick = function() {
+        refreshAlbumsList(`${postEID}`);
+        return false;
+    }
     if (postChannelString && postChannelString.length > 0) {
         modalGoToPostLocation.querySelector('span').textContent = `Go To "${postChannelString}"`
     } else {
         modalGoToPostLocation.querySelector('span').textContent = 'Go To Channel'
+    }
+    if (manageAllowed) {
+        modalManagePost.onclick = function() {
+            selectPostToMode(`${postServer}`, `${postChannel}`, `${postID}`, false, (item.entities.meta.fileid) ? true : undefined);
+            openActionMenu();
+            return false;
+        }
+        modalManagePost.classList.remove('hidden')
+    } else {
+        modalManagePost.onclick = function() { return false; };
+        modalManagePost.classList.add('hidden')
     }
     if (searchSource && searchSource.length > 0) {
         modalGoToPostSource.querySelector('span').textContent = `Go To "${searchSource}"`
@@ -1101,6 +1169,21 @@ async function showSearchOptions(post) {
         modalGoToPostSource.querySelector('span').textContent = 'Go To Source'
         modalGoToPostSource.onclick = function() { return false; };
         modalGoToPostSource.classList.add('hidden')
+    }
+    if (postDownload && postDownload.length > 0) {
+        modalDownloadButton.querySelector('span').textContent = `Direct Download`
+        modalDownloadButton.href = postDownload
+        if (postFilename && postFilename.length > 0) {
+            modalDownloadButton.download = postDownload
+        } else {
+            modalDownloadButton.download = ''
+        }
+        modalDownloadButton.classList.remove('hidden')
+    } else {
+        modalDownloadButton.href = '#_'
+        modalDownloadButton.download = ''
+        modalDownloadButton.querySelector('span').textContent = 'Direct Download'
+        modalDownloadButton.classList.add('hidden')
     }
     if (postDisplayName && postDisplayName.length > 0) {
         modalGoToHistoryDisplay.querySelector('span').textContent = `View "${postDisplayName}"`

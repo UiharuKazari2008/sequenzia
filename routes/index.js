@@ -143,6 +143,7 @@ router.use('/parity', sessionVerification, readValidation, async (req, res) => {
                 if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     res.status(200).json({
                         parts: files,
+                        proxy_host: global.proxy_host,
                         expected_parts: file.paritycount,
                         filename: file.real_filename
                     })

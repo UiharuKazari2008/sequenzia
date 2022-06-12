@@ -1630,7 +1630,7 @@ module.exports = async (req, res, next) => {
                                                 },
                                                 flagged: (item.flagged === 1),
                                                 content: {
-                                                    raw: decoded_content,
+                                                    raw: item.content_full,
                                                     clean: clean_content,
                                                     short: clean_content.substr(0,70),
                                                     single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -1762,7 +1762,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         content: {
-                                            raw: decoded_content,
+                                            raw: item.content_full,
                                             clean: clean_content,
                                             short: clean_content.substr(0,70),
                                             single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -1991,7 +1991,7 @@ module.exports = async (req, res, next) => {
                                             },
                                             flagged: (item.flagged === 1),
                                             content: {
-                                                raw: decoded_content,
+                                                raw: item.content_full,
                                                 clean: clean_content,
                                                 short: clean_content.substr(0,70),
                                                 single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -2099,7 +2099,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         content: {
-                                            raw: decoded_content,
+                                            raw: item.content_full,
                                             clean: clean_content,
                                             short: clean_content.substr(0,70),
                                             single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -2179,7 +2179,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         content: {
-                                            raw: decoded_content,
+                                            raw: item.content_full,
                                             clean: clean_content,
                                             short: clean_content.substr(0,70),
                                             single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
