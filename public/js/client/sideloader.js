@@ -1013,7 +1013,7 @@ async function updateNotficationsPanel() {
             if (keys.length > 0) {
                 $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
                 if (keys.length <= 9) {
-                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + fkeys.length
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + keys.length
                 } else {
                     document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
                 }
