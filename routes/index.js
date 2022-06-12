@@ -137,13 +137,12 @@ router.use('/parity', sessionVerification, readValidation, async (req, res) => {
                 res.status(404).send(`File ${params[0]} does not exist`)
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
-                const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/pipe${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
 
                 printLine('ClientStreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     res.status(200).json({
                         parts: files,
-                        proxy_host: global.proxy_host,
                         expected_parts: file.paritycount,
                         filename: file.real_filename
                     })

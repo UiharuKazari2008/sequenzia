@@ -898,39 +898,22 @@ async function unpackFile() {
                                         activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
 
                                         await new Promise(ok => {
-                                            const url = (() => {
-                                                if (activeSpannedJob.parts[i].includes('discordapp.com/') && activeSpannedJob.proxy_host) {
-                                                    return `${activeSpannedJob.proxy_host}/pipe${activeSpannedJob.parts[i].split('attachments').pop()}`
-                                                } else if (activeSpannedJob.parts[i].includes('discordapp.com/')) {
-                                                    return `${document.location.protocol}//${document.location.host}/pipe${activeSpannedJob.parts[i].split('attachments').pop()}`
-                                                } else if (activeSpannedJob.parts[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
-                                                    return activeSpannedJob.parts[i]
-                                                } else {
-                                                    return undefined
-                                                }
-                                            })()
-                                            if (url) {
-                                                axios({
-                                                    url,
-                                                    method: 'GET',
-                                                    signal: activeSpannedJob.abort.signal,
-                                                    responseType: 'blob'
+                                            axios({
+                                                url: activeSpannedJob.parts[i],
+                                                method: 'GET',
+                                                signal: activeSpannedJob.abort.signal,
+                                                responseType: 'blob'
+                                            })
+                                                .then((response) => {
+                                                    console.log(`Downloaded Parity ${activeSpannedJob.parts[i]}`)
+                                                    activeSpannedJob.blobs.push(response.data);
+                                                    ok(true);
                                                 })
-                                                    .then((response) => {
-                                                        console.log(`Downloaded Parity ${url}`)
-                                                        activeSpannedJob.blobs.push(response.data);
-                                                        ok(true);
-                                                    })
-                                                    .catch(e => {
-                                                        console.error(`Failed Parity ${url} - ${e.message}`)
-                                                        activeSpannedJob.ready = false;
-                                                        ok(false);
-                                                    })
-                                            } else {
-                                                console.error('Download not possible, not a valid url');
-                                                activeSpannedJob.ready = false;
-                                                ok(false);
-                                            }
+                                                .catch(e => {
+                                                    console.error(`Failed Parity ${activeSpannedJob.parts[i]} - ${e.message}`)
+                                                    activeSpannedJob.ready = false;
+                                                    ok(false);
+                                                })
                                         })
                                     }
 
