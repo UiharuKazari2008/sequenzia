@@ -1014,10 +1014,8 @@ async function updateNotficationsPanel() {
                 $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
                 if (keys.length <= 9) {
                     document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + fkeys.length
-                } else if (keys.length >= 10) {
-                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
                 } else {
-                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-0'
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
                 }
             } else {
                 $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
