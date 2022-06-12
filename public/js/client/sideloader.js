@@ -677,6 +677,8 @@ function feedContent(type) {
     return false;
 }
 let downloadAllController = null;
+let downloadSpannedController = new Map();
+let activeSpannedJob = null;
 function downloadSelectedItems() {
     try {
         pageType = $.history.url().split('?')[0].substring(1);
@@ -773,6 +775,260 @@ async function startDownloadingFiles() {
     downloadModel.querySelector("#downloadProgText").innerText = `Ready`
     disableGallerySelect();
 }
+
+async function openUnpackingFiles(fileid) {
+    if (fileid) {
+        if (downloadSpannedController.size === 0 && !activeSpannedJob) {
+            downloadSpannedController.set(fileid, {
+                id: fileid,
+                pending: true,
+                ready: true
+            })
+            //$('#downloadSpannedFile').modal('show');
+            updateNotficationsPanel();
+            notificationControler = setInterval(updateNotficationsPanel, 1000);
+            while (downloadSpannedController.size !== 0) {
+                const itemToGet = Array.from(downloadSpannedController.keys())[0]
+                activeSpannedJob = downloadSpannedController.get(itemToGet)
+                if (activeSpannedJob.ready && activeSpannedJob.pending) {
+                    await unpackFile();
+                }
+                downloadSpannedController.delete(itemToGet);
+                console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
+            }
+            activeSpannedJob = null;
+        } else if (!downloadSpannedController.has(fileid)) {
+            downloadSpannedController.set(fileid, {
+                id: fileid,
+                pending: true,
+                ready: true
+            })
+        }
+    }
+}
+async function stopUnpackingFiles(fileid) {
+    $('#downloadSpannedFile').modal('hide');
+    if (downloadSpannedController.has(fileid)) {
+        const _controller = downloadSpannedController.get(fileid)
+        if (_controller.pending === true) {
+            _controller.pending = false;
+            _controller.ready = false;
+        } else {
+            activeSpannedJob = false;
+            _controller.ready = false;
+            activeSpannedJob.abort.abort();
+            _controller.abort.abort();
+        }
+    }
+}
+async function unpackFile() {
+    if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
+        const downloadModel = document.getElementById('downloadSpannedFile');
+        downloadModel.querySelector("#spannedProgressBar").style.width = `0%`;
+        downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-danger');
+        downloadModel.querySelector(".modal-header").classList.remove('bg-danger');
+        downloadModel.querySelector("#spannedProgressBar").classList.add('bg-success');
+        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `0%`);
+        $('#spannedStopButton').removeClass('hidden');
+
+        console.log(`Downloading File ${activeSpannedJob.id}...`)
+        activeSpannedJob.pending = false;
+
+        return await new Promise(async (job) => {
+            downloadModel.querySelector("#spannedProgText").innerText = `Getting Metadata...`;
+            $.ajax({
+                async: true,
+                url: `/parity/${activeSpannedJob.id}`,
+                type: "GET",
+                data: '',
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'SequenziaXHR',
+                    'x-Requested-Page': 'SeqClientUnpacker'
+                },
+                success: async function (response, textStatus, xhr) {
+                    if (xhr.status < 400) {
+                        try {
+                            activeSpannedJob = {
+                                ...response,
+                                pending: false,
+                                ready: true,
+                                progress: '0%',
+                                abort: new AbortController(),
+                                blobs: []
+                            };
+
+                            console.log(activeSpannedJob)
+                            if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
+                                if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
+                                    for (let i in activeSpannedJob.parts) {
+                                        if (!activeSpannedJob.ready)
+                                            break;
+                                        const percentage = (parseInt(i) / activeSpannedJob.parts.length) * 100
+                                        activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
+                                        downloadModel.querySelector("#spannedProgressBar").style.width = `${percentage}%`;
+                                        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `${percentage}%`);
+                                        downloadModel.querySelector("#spannedProgText").innerText = `Downloading Parity File (${parseInt(i) + 1}/${activeSpannedJob.parts.length})...`
+
+                                        const part = await new Promise(ok => {
+                                            const url = (() => {
+                                                if (activeSpannedJob.parts[i].includes('discordapp.com/')) {
+                                                    return `${document.location.protocol}//${document.location.host}/pipe${activeSpannedJob.parts[i].split('attachments').pop()}`
+                                                } else if (activeSpannedJob.parts[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
+                                                    return activeSpannedJob.parts[i]
+                                                } else {
+                                                    return undefined
+                                                }
+                                            })()
+                                            if (url) {
+                                                axios({
+                                                    url,
+                                                    method: 'GET',
+                                                    signal: activeSpannedJob.abort.signal,
+                                                    responseType: 'blob'
+                                                })
+                                                    .then((response) => {
+                                                        console.log(`Downloaded Parity ${url}`)
+                                                        activeSpannedJob.blobs.push(response.data);
+                                                        ok(true);
+                                                    })
+                                                    .catch(e => {
+                                                        console.error(`Failed Parity ${url} - ${e.message}`)
+                                                        activeSpannedJob.ready = false;
+                                                        ok(false);
+                                                    })
+                                            } else {
+                                                console.error('Download not possible, not a valid url');
+                                                activeSpannedJob.ready = false;
+                                                ok(false);
+                                            }
+                                        })
+                                    }
+
+                                    if (activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
+                                        activeSpannedJob.progress = `100%`;
+                                        downloadModel.querySelector("#spannedProgressBar").style.width = `100%`;
+                                        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `100%`);
+                                        downloadModel.querySelector("#spannedProgText").innerText = `Parity Download Completed, File is ready!`
+
+                                        const downloadedFile = window.URL.createObjectURL(new Blob(activeSpannedJob.blobs));
+                                        const link = document.createElement('a');
+                                        link.href = downloadedFile;
+                                        link.setAttribute('download', activeSpannedJob.filename);
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+
+                                        $('#downloadSpannedFile').modal('hide');
+                                        downloadModel.querySelector("#spannedProgressBar").style.width = `0%`;
+                                        downloadModel.querySelector("#spannedProgressBar").setAttribute('aria-valuenow', `0%`);
+                                        downloadModel.querySelector("#spannedProgText").innerText = `Ready`
+                                        $('#spannedStopButton').addClass('hidden');
+                                        job(true);
+                                    } else {
+                                        downloadModel.querySelector("#spannedProgText").innerText = `Missing a parity file, Retry to download!`
+                                        downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
+                                        downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
+                                        downloadModel.querySelector(".modal-header").classList.add('bg-danger');
+                                        $('#spannedStopButton').addClass('hidden');
+                                        job(false);
+                                    }
+                                } else {
+                                    downloadModel.querySelector("#spannedProgText").innerText = `File is damaged or is missing parts, please report to the site administrator!`
+                                    downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
+                                    downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
+                                    downloadModel.querySelector(".modal-header").classList.add('bg-danger');
+                                    $('#spannedStopButton').addClass('hidden');
+                                    job(false);
+                                }
+                            } else {
+                                downloadModel.querySelector("#spannedProgText").innerText = `Failed to read the parity metadata response!`
+                                downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
+                                downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
+                                downloadModel.querySelector(".modal-header").classList.add('bg-danger');
+                                $('#spannedStopButton').addClass('hidden');
+                                job(false);
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            downloadModel.querySelector("#spannedProgText").innerText = e.message;
+                            downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
+                            downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
+                            downloadModel.querySelector(".modal-header").classList.add('bg-danger');
+                            $('#spannedStopButton').addClass('hidden');
+                            job(false);
+                        }
+                    } else {
+                        downloadModel.querySelector("#spannedProgText").innerText = response
+                        downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
+                        downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
+                        downloadModel.querySelector(".modal-header").classList.add('bg-danger');
+                        $('#spannedStopButton').addClass('hidden');
+                        job(false);
+                    }
+                    activeSpannedJob.blobs = [];
+                },
+                error: function (xhr) {
+                    downloadModel.querySelector("#spannedProgText").innerText = `Failed to get the parity for that file\n${xhr.responseText}`
+                    downloadModel.querySelector("#spannedProgressBar").classList.add('bg-danger');
+                    downloadModel.querySelector("#spannedProgressBar").classList.remove('bg-success');
+                    downloadModel.querySelector(".modal-header").classList.add('bg-danger');
+                    $('#spannedStopButton').addClass('hidden');
+                    activeSpannedJob.blobs = [];
+                    console.error(xhr.responseText);
+                    job(false);
+                }
+            });
+        })
+    } else {
+        return false
+    }
+}
+
+async function updateNotficationsPanel() {
+    if (downloadSpannedController.size !== 0) {
+        const keys = Array.from(downloadSpannedController.keys()).map(e => {
+            const item = downloadSpannedController.get(e);
+            if (item.ready) {
+                let results = [`<a class="dropdown-item" title="Sort Descending" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
+                if (!item.pending) {
+                    results.push(`<i class="fas fa-spinner text-success pr-2"></i>`)
+                    results.push(`<span>${e}</span>`)
+                    if (activeSpannedJob.progress) {
+                        results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`)
+                    }
+                } else {
+                    results.push(`<span>${e}</span>`)
+                }
+                results.push(`</a>`)
+            }
+            return results.join('\n')
+        })
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').removeClass('hidden')
+            if (keys.length > 0) {
+                $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
+                if (keys.length <= 9) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + keys.length
+                } else {
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
+                }
+            } else {
+                $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
+            }
+        }
+    } else {
+        clearInterval(notificationControler);
+        notificationControler = null;
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').addClass('hidden')
+            $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
+        }
+    }
+}
+let notificationControler = null;
+
 async function showSearchOptions(post) {
     const _post = document.getElementById(`message-${post}`);
     console.log(_post);

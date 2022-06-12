@@ -323,6 +323,16 @@ html
                                     i.far.fa-arrow-right.fa-spinner.align-middle.nav-item
                                     span.pl-2 Initializing...
                             .ml-auto
+                            ul.navbar-nav.text-primary.text-ellipsis
+                                li.nav-item.no-arrow
+                                    div#statusPanel.btn-group.hidden
+                                        div.dropdown(style="display: contents;")
+                                            a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
+                                                i.fas.fa-spinner
+                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
+                                                span.dropdown-header
+                                                    | No Active Tasks
+
                         div#topbarBackground
                     .container-fluid.max-resize
                         #contentBlock

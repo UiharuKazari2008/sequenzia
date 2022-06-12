@@ -119,6 +119,51 @@ router.get('/status', sessionVerification, async (req, res) => {
         });
     }
 });
+router.use('/parity', sessionVerification, readValidation, async (req, res) => {
+    try {
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        if (params.length > 0) {
+            const results = await (() => {
+                if (global.bypass_cds_check) {
+                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
+                } else {
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                }
+            })()
+            if (results.error) {
+                res.status(500)
+                console.error(results.error)
+            } else if (results.rows.length === 0) {
+                res.status(404).send(`File ${params[0]} does not exist`)
+            } else if (results.rows.length > 1) {
+                const file = results.rows[0]
+                const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+
+                printLine('ClientStreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
+                if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
+                    res.status(200).json({
+                        parts: files,
+                        expected_parts: file.paritycount,
+                        filename: file.real_filename
+                    })
+                } else {
+                    res.status(415).send('This content is not streamable or is damaged!')
+                }
+            } else {
+                res.status(415).send('This content is not streamable')
+            }
+        } else {
+            res.status(400).send('Invalid Request')
+        }
+        return false
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+        console.error(err)
+    }
+});
 router.get('/ping', sessionVerification, ((req, res) => {
     if (req.query && req.query.json && req.query.json === 'true') {
         res.json({

@@ -159,7 +159,10 @@ block content
                                         else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp4') || item.entities.preview.toLowerCase().includes('.webm') || item.entities.preview.toLowerCase().includes('.mov') || item.entities.preview.toLowerCase().includes('.m4v')))
                                             a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`PlayVideo("${item.entities.preview}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
-                                        if (item.entities.download && item.entities.download.length > 5)
+                                        if (item.entities.meta.fileid)
+                                            a.btn.btn-switchmode(title="Unpack File Locally" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}")`)
+                                                i.fas.fa-download
+                                        else if (item.entities.download && item.entities.download.length > 5)
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
                                         if (item.content.clean)
