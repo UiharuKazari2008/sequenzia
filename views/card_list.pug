@@ -74,7 +74,11 @@ block content
                                 span.font-italic.text-center.mt-1 "#{item.content.clean}"
                             else if (item.meta.message_type.endsWith('packed'))
                                 span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
-                            if (item.meta.message_type === 'image-unpacked')
+                            if (item.entities.meta.fileid)
+                                a(title="Download this image" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`).btn.btn-success.d-block
+                                    i.fas.fa-download.pr-2
+                                    | Download File
+                            else if (item.meta.message_type === 'image-unpacked')
                                 a(href=item.entities.download target='_blank', rel='noopener noreferrer' download).btn.btn-success.d-block
                                     i.fas.fa-download.pr-2
                                     | Download File
@@ -94,6 +98,12 @@ block content
                             - cardurl = content.split('** - ***').pop().replace('***', '')
                             - cardname = content.split('** - ***')[0].replace('**📼 ', '').replace('- YouTube', '')
                             a(href=cardurl target='_blank', rel='noopener noreferrer').card-link #{cardname}
+                        else if (item.meta.message_type === 'file' && item.entities.meta.fileid)
+                            span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
+                            a(title="Download this image" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`).btn.btn-success.d-block
+                                i.fas.fa-download.pr-2
+                                | Download File
+                            a(id=`request-download-${item.id}` href=item.entities.download target='_blank', rel='noopener noreferrer' download).hidden
                         else if (item.meta.message_type === 'file'|| item.meta.message_type === 'file-unpacked')
                             span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
                             a(id=`request-download-${item.id}` href=item.entities.download target='_blank', rel='noopener noreferrer' download).btn.btn-success.d-block

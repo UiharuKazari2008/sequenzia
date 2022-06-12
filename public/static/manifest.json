@@ -380,7 +380,7 @@
   "shortcuts": [
     {
       "name": "Media",
-      "short_name": "Photos",
+      "short_name": "Media",
       "description": "Images in order of upload",
       "url": "/gallery?numdays=60&sort=eid",
       "icons": [{"src":"/static/img/icons/actions/stream-192.png","sizes":"192x192","type":"image/png"}, {"src":"/static/img/icons/actions/stream-512.png","sizes":"512x512","type":"image/png"}]

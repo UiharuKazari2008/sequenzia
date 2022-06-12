@@ -18,11 +18,13 @@ module.exports = async (req, res, next) => {
                 discord: req.session.discord,
                 user: req.session.user,
                 webconfig: web,
+                albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                applications_list: req.session.applications_list,
                 enableTelegram: (config.telegram_secret)
             })
         } else if (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' && req.headers['x-requested-page'] || (req.query && (req.query.json || req.query.responseType))) {
             next();
-        } else if ( call_uri === '' || call_uri === 'home' ) {
+        } else if ( call_uri === 'home' ) {
             res.render('home_lite', {
                 url: req.url,
                 server: req.session.server_list,

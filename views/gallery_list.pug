@@ -170,8 +170,13 @@ block content
                                                     a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
                                                         i.btn-links.fas.fa-flag
                                         div.right-links.row-1
-                                            a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
-                                                i.btn-links.fas.fa-download
+                                            if (item.entities.meta.fileid)
+                                                a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`)
+                                                    i.btn-links.fas.fa-download
+                                                a.hidden(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                            else
+                                                a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                                    i.btn-links.fas.fa-download
                             div.internal-lightbox.animated--fade-in
                                 - showNSFW = ''
                                 - showNSFWString = ''

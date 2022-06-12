@@ -178,7 +178,7 @@ module.exports = async (req, res, next) => {
             res.render('file_list', results);
         } else if (results.call_uri === '/cards') {
             res.render('card_list', results);
-        } else if (results.call_uri === '/home' || results.call_uri === '/homeImage' || results.call_uri === '/') {
+        } else if (results.call_uri === '/home' || results.call_uri === '/homeImage') {
             res.json(results)
         } else if (results.call_uri === '/start') {
             res.render('home_embedded', results);

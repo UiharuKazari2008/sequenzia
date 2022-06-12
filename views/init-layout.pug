@@ -255,6 +255,9 @@ html
                                                         a.user-menu-item(title="Installed Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                             i.fa-light.fa-fw.fa-browsers
                                                             | Apps
+                                                        a#userToolsDropdown.user-menu-item(title="Tools" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTools")
+                                                            i.fa-light.fa-fw.fa-toolbox
+                                                            | Tools
                                                         a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                             i.fa-light.fa-fw.fa-cog
                                                             | Settings
@@ -268,14 +271,14 @@ html
                                                         | Settings
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='$("#userMenu").collapse("hide"); showDisplayHistory(); return false;')
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
                                                             i.fa-light.fa-desktop
                                                             | Ambient
                                                         if (user && user.source < 900)
-                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
                                                                 i.fa-light.fa-key
                                                                 | AuthWare
-                                                        a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
+                                                        a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
                                                             i.fa-light.fa-compass-slash
                                                             | Hide Channels
                                                         if (webconfig && webconfig.support_lines)
@@ -291,6 +294,64 @@ html
                                                         a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
                                                             i.fa-light.fa-sign-out-alt
                                                             | Logout
+                                        div#menuItemTools(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-toolbox.mr-2
+                                                        | Tools
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        h2 No Available
+                                        div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                        i.fas.fa-fw.mr-md-1.fa-globe-americas
+                                                        span.d-none.d-md-inline Directory
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                        i.fas.fa-cog.fa-fw.mr-md-1
+                                                        span.d-none.d-md-inline Manage
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-archive.mr-2
+                                                        | Albums
+                                                .w-100.position-absolute(style="justify-content: left; bottom: 0;")
+                                                    if (albums && albums.length > 0)
+                                                        div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                            each thisAlbum in albums
+                                                                div.album-item.position-relative
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                        //x.uri, x.privacy
+                                                                        div.album-icon
+                                                                            if (thisAlbum.uri === 'gallery')
+                                                                                i.far.fa-photo-video.pr-1
+                                                                            else if (thisAlbum.uri === 'files')
+                                                                                i.far.fa-folder.pr-1
+                                                                            else if (thisAlbum.uri === 'cards')
+                                                                                i.far.fa-sticky-note.pr-1
+                                                                            else
+                                                                                i.far.fa-archive.pr-1
+
+                                                                            if (thisAlbum.privacy === 0)
+                                                                                i.far.fa-globe-americas.pr-1
+                                                                            else if (thisAlbum.privacy === 1)
+                                                                                i.far.fa-lock.pr-1
+                                                                            else if (thisAlbum.privacy === 2)
+                                                                                i.far.fa-link.pr-1
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
+                                                                        span #{thisAlbum.name}
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                        if (thisAlbum.image)
+                                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                                        else
+                                                                            div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+
+                                                    else
+                                                        h2 No Albums!
                                         div#menuItemApps(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
@@ -330,13 +391,12 @@ html
                                             a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
                                                 i.fas.fa-spinner
                                             .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
-                                                span.dropdown-header
-                                                    | No Active Tasks
+                                                span.dropdown-header No Active Tasks
 
                         div#topbarBackground
                     .container-fluid.max-resize
                         #contentBlock
-                            div.tz-gallery
+                            //div.tz-gallery
                                 div.row
                                     - var n = 0;
                                     while n < 15
@@ -351,19 +411,23 @@ html
                                                 div#postImage.square.img.img-responsive
                                                 div#postBackground(style=`background-color: rgb(128, 128, 128)`)
 
-                                script.
-                                    console.log('Welcome to JuneOS for Sequenzia! Version 2.1\n' + '\n' +
-                                                '       __                 ____  _____' + '\n' +
-                                                '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
-                                                ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
-                                                '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
-                                                '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
-                                    if (window.location.hash.substring(1).length === 0) {
-                                        location.href = '/';
-                                    } else {
-                                        console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
-                                        getNewContent([], []);
-                                    }
+                            script.
+                                console.log('Welcome to JuneOS for Sequenzia! Version 2.1\n' + '\n' +
+                                            '       __                 ____  _____' + '\n' +
+                                            '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
+                                            ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
+                                            '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
+                                            '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
+                                if (window.location.hash.substring(1).length < 2) {
+                                    //location.href = '/';
+                                    console.log(`No Navigation, Ready when you are`);
+                                    $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
+                                    $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
+                                } else {
+                                    $('#loadingLogo').fadeIn();
+                                    console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
+                                    getNewContent([], []);
+                                }
                             if (user && user.banner)
                                 style.
                                     .background-image:not(.overlay) {
@@ -400,7 +464,7 @@ html
                             div
                                 span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
         // OUTSUDE DYNAMIC CONTENT
-        div#loadingLogo.center-block(style="display: inline-block")
+        div#loadingLogo.center-block(style="display: none")
             .lds-spinner
                 div
                 div

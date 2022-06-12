@@ -17,7 +17,7 @@ const generateConfiguration = require('../js/generateADSRequest')
 const ajaxChecker = require('../js/ajaxChecker');
 const ajaxOnly = require('../js/ajaxOnly');
 const { printLine } = require('../js/logSystem');
-const { sessionVerification, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
+const { sessionVerification, sessionVerificationWithReload, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
 const router = express.Router();
 const qrcode = require('qrcode');
 const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
@@ -47,8 +47,9 @@ const closestIndex = (num, arr) => {
 
 router.get('/juneOS', sessionVerification, ajaxChecker)
 
+router.get(['/'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
-router.get(['/', '/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
+router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
