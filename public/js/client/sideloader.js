@@ -1009,15 +1009,19 @@ async function updateNotficationsPanel() {
         })
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden')
-            if (keys.length > 0) {
+            const fkeys = keys.filter(e => e.ready)
+            if (fkeys.length > 0) {
                 $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
-                if (keys.length <= 9) {
-                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + keys.length
-                } else {
+                if (fkeys.length <= 9) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + fkeys.length
+                } else if (fkeys.length >= 10) {
                     document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
+                } else {
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-0'
                 }
             } else {
                 $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
+                document.getElementById('statusMenuIndicator').classList = 'fas fa-square-0'
             }
         }
     } else {
