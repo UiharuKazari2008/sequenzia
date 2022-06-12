@@ -813,6 +813,7 @@ async function stopUnpackingFiles(fileid) {
         if (_controller.pending === true) {
             _controller.pending = false;
             _controller.ready = false;
+            downloadSpannedController.delete(fileid)
         } else {
             activeSpannedJob = false;
             _controller.ready = false;
@@ -1009,12 +1010,11 @@ async function updateNotficationsPanel() {
         })
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden')
-            const fkeys = keys.filter(e => e.ready)
-            if (fkeys.length > 0) {
+            if (keys.length > 0) {
                 $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
-                if (fkeys.length <= 9) {
+                if (keys.length <= 9) {
                     document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + fkeys.length
-                } else if (fkeys.length >= 10) {
+                } else if (keys.length >= 10) {
                     document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
                 } else {
                     document.getElementById('statusMenuIndicator').classList = 'fas fa-square-0'
