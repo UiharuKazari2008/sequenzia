@@ -5,6 +5,7 @@ const web = require('./web.config.json')
 const express = require("express");
 const app = module.exports = express()
 const routes = require('./routes/index');
+const apps = require('./routes/apps');
 const { router: routesDiscord, sessionVerification, loginPage } = require('./routes/discord');
 const { sqlPromiseSafe } = require('./js/sqlClient');
 const routesAccessories = require('./routes/accessories');
@@ -196,6 +197,7 @@ setInterval(cacheDatabase, 60000)
 cacheDatabase();
 
 app.use('/', routes);
+//app.use('/app', apps);
 app.use('/discord', routesDiscord);
 app.use('/telegram', routesTelegram);
 app.use('/upload', routesUpload);

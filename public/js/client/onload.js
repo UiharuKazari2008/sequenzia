@@ -61,7 +61,7 @@ $('#userMenu').on('show.bs.collapse', function () {
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
         $('.show-menu-open').addClass('hidden');
-        $('#menuItem1').collapse('show');
+        $('#menuItemMain').collapse('show');
         $('#padding').collapse('hide');
         $('.fixed-top').addClass('top-padding-safety');
         $('#topbar').removeClass('menu-open')

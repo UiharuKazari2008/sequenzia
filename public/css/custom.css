@@ -779,25 +779,25 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 }
 
 .sidebar-dark .nav-item .nav-link:active, .sidebar-dark .nav-item .nav-link:focus, .sidebar-dark .nav-item .nav-link:hover {
-    color: white;
+    color: #ffecdf;
     text-shadow: 0 0 18px #0a0a0a;
 }
 
 .sidebar-dark .nav-item .nav-link:active i, .sidebar-dark .nav-item .nav-link:focus i, .sidebar-dark .nav-item .nav-link:hover i {
-    color: white;
+    color: #ffecdf;
 }
 
 .sidebar-dark .nav-item .nav-link[data-toggle="collapse"]::after {
-    color: rgba(255, 255, 255, .50);
+    color: #f9c8a7;
 }
 
 .sidebar-dark .nav-item .nav-link {
-    color: #ffffff7a;
+    color: #f9c8a7;
     text-shadow: 0 0 18px #00000070;
 }
 
 .sidebar-dark .nav-item .nav-link i {
-    color: #ffffff7a;
+    color: #f9c8a7;
 }
 
 .sidebar-dark .nav-item.active .nav-link, .sidebar-dark .nav-item.active .nav-link i {
@@ -806,7 +806,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 }
 
 .sidebar-dark .sidebar-heading {
-    color: rgba(255, 255,  255, .40);
+    color: rgb(255, 164, 85, 0.87);
     text-shadow: 0 0 18px #00000070;
 }
 
@@ -2720,6 +2720,38 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+
+    .sidebar-dark .nav-item .nav-link:active, .sidebar-dark .nav-item .nav-link:focus, .sidebar-dark .nav-item .nav-link:hover {
+        color: white;
+        text-shadow: 0 0 18px #0a0a0a;
+    }
+
+    .sidebar-dark .nav-item .nav-link:active i, .sidebar-dark .nav-item .nav-link:focus i, .sidebar-dark .nav-item .nav-link:hover i {
+        color: white;
+    }
+
+    .sidebar-dark .nav-item .nav-link[data-toggle="collapse"]::after {
+        color: #f7dfce;
+    }
+
+    .sidebar-dark .nav-item .nav-link {
+        color: #f7dfce;
+        text-shadow: 0 0 18px #00000070;
+    }
+
+    .sidebar-dark .nav-item .nav-link i {
+        color: #f7dfce;
+    }
+
+    .sidebar-dark .nav-item.active .nav-link, .sidebar-dark .nav-item.active .nav-link i {
+        color: #ffa12c;
+        text-shadow: 0 0 12px #000000;
+    }
+
+    .sidebar-dark .sidebar-heading {
+        color: rgb(255, 164, 85, 0.87);
+        text-shadow: 0 0 18px #00000070;
+    }
 
     .user-menu-item,
     #menuAccordion .navbar-search i,

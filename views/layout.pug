@@ -137,7 +137,7 @@ html
                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
                                 div.user-menu-buttons(style="width: 100%; height: 100%")
                                     div#menuAccordion.user-infocard-row2
-                                        div#menuItem1(class="collapse show" data-parent="#menuAccordion")
+                                        div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .row.w-100.ml-0.mr-0
                                                     div#locationAccordion.w-100
@@ -146,119 +146,122 @@ html
                                                                 .input-group.w-100
                                                                     .input-group-prepend
                                                                         a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationDirect" onclick='showAddressInput(); return false;')
-                                                                            i.fas.fa-map.align-middle
+                                                                            i.far.fa-map.align-middle
                                                                     input#dropdownSearch2.form-control.top-menu-search-bar(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
                                                                     input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
                                                                     .input-group-append
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
-                                                                            i.fas.fa-image.fa-sm.align-middle.nav-item
+                                                                            i.far.fa-image.fa-sm.align-middle.nav-item
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
-                                                                            i.fas.fa-folder.fa-sm.align-middle.nav-item
+                                                                            i.far.fa-folder.fa-sm.align-middle.nav-item
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`)
-                                                                            i.fas.fa-sm.align-middle.nav-item.fa-address-book
+                                                                            i.far.fa-sm.align-middle.nav-item.fa-address-book
                                                         div#locationDirect(class="collapse" data-parent="#locationAccordion")
                                                             form.col.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                 .input-group.w-100
                                                                     .input-group-prepend
                                                                         a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Search Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick='hideAddressInput(); return false;')
-                                                                            i.fas.fa-search.align-middle
+                                                                            i.far.fa-search.align-middle
                                                                     input#directURI.text-white.form-control.top-menu-search-bar(type='text' placeholder='Go to Location' aria-label='Go to Location')
                                                                     input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
                                                                     .input-group-append
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
-                                                                            i.fas.fa-arrow-right.fa-sm.align-middle.nav-item
+                                                                            i.far.fa-arrow-right.fa-sm.align-middle.nav-item
                                                     //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
-                                                            i.fas.fa-compass.fa-fw
+                                                            i.fa-light.fa-sidebar.fa-fw
                                                             | Navigator
                                                         //a.user-menu-item(title="Homepage" href='/')
-                                                            i.fas.fa-fw.fa-home
+                                                            i.fa-light.fa-fw.fa-home
                                                             | Home
                                                         a.user-menu-item(title="Recently Uploaded Media" href='#/gallery?numdays=60&sort=eid')
-                                                            i.fas.fa-fw.fa-photo-video
+                                                            i.fa-light.fa-fw.fa-photo-video
                                                             | Gallery
                                                         a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                                            i.fas.fa-fw.fa-folder
+                                                            i.fa-light.fa-fw.fa-folder
                                                             | Files
                                                         a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
-                                                            i.fas.fa-fw.fa-dice
+                                                            i.fa-light.fa-fw.fa-dice
                                                             | Random
                                                         a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
-                                                            i.fas.fa-fw.fa-star
+                                                            i.fa-light.fa-fw.fa-star
                                                             | Favorites
-                                                        a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem2")
-                                                            i.fas.fa-fw.fa-archive
+                                                        a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                            i.fa-light.fa-fw.fa-archive
                                                             | Albums
                                                         a.user-menu-item(title="Index" href='#/artists?')
-                                                            i.fas.fa-fw.fa-address-book
+                                                            i.fa-light.fa-fw.fa-address-book
                                                             | Artists
                                                         a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                                                            i.fas.fa-fw.fa-history
+                                                            i.fa-light.fa-fw.fa-history
                                                             | History
                                                         if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
                                                             if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
                                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                                     a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
-                                                                        i.fas.fa-upload
+                                                                        i.fa-light.fa-upload
                                                                         | Upload
                                                                 else
                                                                     a.user-menu-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
-                                                                        i.fas.fa-upload
+                                                                        i.fa-light.fa-upload
                                                                         | Upload
                                                             else
-                                                                a.user-menu-item(title="Upload Items" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem7")
-                                                                    i.fas.fa-fw.fa-upload
+                                                                a.user-menu-item(title="Upload Items" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemUpload")
+                                                                    i.fa-light.fa-fw.fa-upload
                                                                     | Upload
+                                                        a.user-menu-item(title="Installed Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                                            i.fa-light.fa-fw.fa-browsers
+                                                            | Apps
                                                         if (params && path !== '/artists')
-                                                            a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem5")
-                                                                i.fas.fa-sliders-h
-                                                                | Display
-                                                        if (params && path !== '/artists')
-                                                            a#userToolsDropdown.user-menu-item(title="Tools" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem4")
-                                                                i.fas.fa-fw.fa-toolbox
+                                                            a#userToolsDropdown.user-menu-item(title="Tools" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTools")
+                                                                i.fa-light.fa-fw.fa-toolbox
                                                                 | Tools
-                                                        a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItem3")
-                                                            i.fas.fa-fw.fa-cog
+                                                        a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                            i.fa-light.fa-fw.fa-cog
                                                             | Settings
-                                        div#menuItem3(class="collapse" data-parent="#menuAccordion")
+                                        div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
                                                         | Settings
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
+                                                        if (params && path !== '/artists')
+                                                            a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
+                                                                i.fa-light.fa-sliders-h
+                                                                | Display
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='$("#userMenu").collapse("hide"); showDisplayHistory(); return false;')
-                                                            i.fas.fa-desktop.fa-sm.fa-fw
+                                                            i.fa-light.fa-desktop
                                                             | Ambient
                                                         if (user && user.source < 900)
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
-                                                                i.fas.fa-key.fa-sm.fa-fw
+                                                                i.fa-light.fa-key
                                                                 | AuthWare
                                                         a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
-                                                            i.fas.fa-sm.fa-fw.fa-eye-slash
-                                                            | Channels
+                                                            i.fa-light.fa-compass-slash
+                                                            | Hide Channels
                                                         if (webconfig && webconfig.support_lines)
                                                             a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal' onclick='$("#userMenu").collapse("hide");')
-                                                                i.fas.fa-sm.fa-fw.fa-question-circle
+                                                                i.fa-light.fa-question-circle
                                                                 | Support
                                                         a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
-                                                            i.fas.fa-sm.fa-fw.fa-info-circle
+                                                            i.fa-light.fa-info-circle
                                                             | About
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                                            i.fas.fa-sync.fa-sm.fa-fw
+                                                            i.fa-light.fa-sync
                                                             | Update
-                                                        a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                                            i.fas.fa-sign-out-alt.fa-fw.text-danger
+                                                        a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                                            i.fa-light.fa-sign-out-alt
                                                             | Logout
-                                        div#menuItem4(class="collapse" data-parent="#menuAccordion")
+                                        div#menuItemTools(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-toolbox.mr-2
@@ -266,33 +269,33 @@ html
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
-                                                            i.fas.fa-download
+                                                            i.fa-light.fa-download
                                                             | Download
                                                         a.user-menu-item.user-menu-small.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#userMenu').collapse('hide'); $('#feedModel').modal('show'); return false;" role='button')
-                                                            i.fas.fa-satellite-dish
+                                                            i.fa-light.fa-square-rss
                                                             | RSS Feed
                                                         if (android_uri)
                                                             a.user-menu-item.user-menu-small.hide-review(title="Send current page results to Wallpaper Service" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); $('#appModal').modal('show'); return false;")
-                                                                i.fas.fa-laptop
+                                                                i.fa-light.fa-laptop
                                                                 | Set as DWS
                                                         a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); loadADSDisplays(); return false;")
-                                                            i.fas.fa-tv
+                                                            i.fa-light.fa-image-landscape
                                                             | Set as ADS
-                                        div#menuItem5(class="collapse" data-parent="#menuAccordion")
+                                        div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST").mr-auto
                                                         .input-group(style='max-width: 130px;')
                                                             .input-group-prepend
                                                                 span.input-group-text.bg-translucent.border-0
-                                                                    i.fas.fa-table.fa-sm.align-middle.text-primary
+                                                                    i.fa-light.fa-rectangles-mixed.fa-sm.align-middle.text-primary
                                                             input(type="submit" style="display: none" onclick=`getLimitContent(); return false;`)
                                                             input#limitRequested.form-control.bg-translucent.border-0.small.text-left(type='text' value=req_limit)
                                                             .input-group-append
                                                                 a.input-group-text.btn-primary.border-0.bg-translucent(title="Request New Limit" href='#_', onclick=`getLimitContent(); return false;`)
-                                                                    i.fas.fa-sync.fa-sm.align-middle.nav-item.text-primary
+                                                                    i.fa-light.fa-sync.fa-sm.align-middle.nav-item.text-primary
                                                     h4.text-primary
                                                         i.fas.fa-sliders-h.mr-2
                                                         | Display
@@ -300,52 +303,52 @@ html
                                                     .menu-grid
                                                         if (results && path === '/gallery')
                                                             a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(3); return false;`)
-                                                                i.fas.fa-border-all
+                                                                i.fa-light.fa-rectangles-mixed
                                                                 | Thumbs
                                                             a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(2); return false;`)
-                                                                i.fas.fa-border-all
+                                                                i.fa-light.fa-rectangles-mixed
                                                                 | Small
                                                             a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(); return false;`)
-                                                                i.fas.fa-border-all
+                                                                i.fa-light.fa-rectangles-mixed
                                                                 | Default
                                                             a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(1); return false;`)
-                                                                i.fas.fa-border-all
+                                                                i.fa-light.fa-rectangles-mixed
                                                                 | Large
                                                             a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setPageLayout(true); return false;`)
-                                                                i.fas.fa-arrows-alt-h
+                                                                i.fa-light.fa-distribute-spacing-horizontal
                                                                 | Full Width
                                                         if (path !== '/gallery')
                                                             a.user-menu-item.user-menu-small(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                                i.fas.fa-photo-video
+                                                                i.fa-duotone.fa-folder-image
                                                                 | View as Gallery
                                                         if (path !== '/files')
                                                             a.user-menu-item.user-menu-small(title="View results as file list" href='#_' onclick=`getNewContent(['offset'], [], "/files?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                                i.fas.fa-folder
+                                                                i.fa-duotone.fa-folder
                                                                 | View as Files
                                                         if (path !== '/cards')
                                                             a.user-menu-item.user-menu-small(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
-                                                                i.fas.fa-envelope
+                                                                i.fa-duotone.fa-folder-grid
                                                                 | View as Cards
                                                         if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
                                                             a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
-                                                                i.fas.fa-eye-slash
+                                                                i.fa-light.fa-shield-cat
                                                                 | SFW Mode
                                                         else
                                                             a.user-menu-item.user-menu-small(title="Include NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','true'],['nsfw','true']]); return false;`)
-                                                                i.fas.fa-eye
+                                                                i.fa-duotone.fa-shield-slash
                                                                 | NSFW Mode
                                                         if (params.has('flagged') && params.getAll('flagged')[0] !== 'true')
                                                             a.user-menu-item.user-menu-small(title="Show All Content" href='#_' onclick=`getNewContent(['offset', 'flagged'], []); return false;`)
-                                                                i.fas.fa-flag-checkered
+                                                                i.fa-light.fa-flag-checkered
                                                                 | Remove Flagged
                                                         else
                                                             a.user-menu-item.user-menu-small(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
-                                                                i.fas.fa-flag
+                                                                i.fa-light.fa-flag
                                                                 | Show Flagged
-                                        div#menuItem7(class="collapse" data-parent="#menuAccordion")
+                                        div#menuItemUpload(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-upload.mr-2
@@ -355,35 +358,35 @@ html
                                                         if (write_channels && write_channels.length > 0)
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                                 a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='$("#userMenu").collapse("hide"); selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')
-                                                                    i.fas.fa-upload.pr-2
+                                                                    i.fa-light.fa-upload.pr-2
                                                                     | Upload File
                                                             else
                                                                 a.user-menu-item(title="Upload File" href='#_' onclick='displayUploadModel(); return false;')
-                                                                    i.fas.fa-upload.pr-2
+                                                                    i.fa-light.fa-upload.pr-2
                                                                     | Upload File
                                                         if (manage_channels && manage_channels.length > 0)
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                                 a.user-menu-item(title="Send Message" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='$("#userMenu").collapse("hide"); selectedUploadChannel("' + active_ch + '", "writeModel", false); displayMessageModel(0); return false;')
-                                                                    i.fas.fa-edit.pr-2
+                                                                    i.fa-light.fa-edit.pr-2
                                                                     | Send Message
                                                             else
                                                                 a.user-menu-item(title="Send Message" href='#_' onclick='displayMessageModel(0); return false;')
-                                                                    i.fas.fa-edit.pr-2
+                                                                    i.fa-light.fa-edit.pr-2
                                                                     | Send Message
                                                         if (download && download.length > 0)
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                                 a.user-menu-item(title="Download File from URL" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='$("#userMenu").collapse("hide"); selectedUploadChannel("' + active_ch + '", "writeModel", true); displayMessageModel(1); return false;')
-                                                                    i.fas.fa-cloud-download-alt.pr-2
+                                                                    i.fa-light.fa-cloud-download-alt.pr-2
                                                                     | Download URL
                                                             else
                                                                 a.user-menu-item(title="Download File from URL" href='#_' onclick='$("#userMenu").collapse("hide"); displayMessageModel(1); return false;')
-                                                                    i.fas.fa-cloud-download-alt.pr-2
+                                                                    i.fa-light.fa-cloud-download-alt.pr-2
                                                                     | Download URL
 
-                                        div#menuItem2(class="collapse" data-parent="#menuAccordion")
+                                        div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItem1")
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-globe-americas
@@ -395,7 +398,7 @@ html
                                                         i.fas.fa-archive.mr-2
                                                         | Albums
                                                 .w-100.position-absolute(style="justify-content: left; bottom: 0;")
-                                                    if (albums)
+                                                    if (albums && albums.length > 0)
                                                         div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in albums
                                                                 div.album-item.position-relative
@@ -403,20 +406,20 @@ html
                                                                         //x.uri, x.privacy
                                                                         div.album-icon
                                                                             if (thisAlbum.uri === 'gallery')
-                                                                                i.fas.fa-photo-video.pr-1
+                                                                                i.far.fa-photo-video.pr-1
                                                                             else if (thisAlbum.uri === 'files')
-                                                                                i.fas.fa-folder.pr-1
+                                                                                i.far.fa-folder.pr-1
                                                                             else if (thisAlbum.uri === 'cards')
-                                                                                i.fas.fa-sticky-note.pr-1
+                                                                                i.far.fa-sticky-note.pr-1
                                                                             else
-                                                                                i.fas.fa-archive.pr-1
+                                                                                i.far.fa-archive.pr-1
 
                                                                             if (thisAlbum.privacy === 0)
-                                                                                i.fas.fa-globe-americas.pr-1
+                                                                                i.far.fa-globe-americas.pr-1
                                                                             else if (thisAlbum.privacy === 1)
-                                                                                i.fas.fa-lock.pr-1
+                                                                                i.far.fa-lock.pr-1
                                                                             else if (thisAlbum.privacy === 2)
-                                                                                i.fas.fa-link.pr-1
+                                                                                i.far.fa-link.pr-1
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
                                                                         span #{thisAlbum.name}
                                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
@@ -427,6 +430,33 @@ html
 
                                                     else
                                                         h2 No Albums!
+                                        div#menuItemApps(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-browsers.mr-2
+                                                        | Applications
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                    if (applications_list && applications_list.length > 0)
+                                                        .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                            each thisApp in applications_list
+                                                                if (thisApp.type == 0)
+                                                                    a.user-menu-item.user-menu-small(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
+                                                                        i.fa-light(class=`${thisApp.icon}`)
+                                                                        | #{thisApp.name}
+                                                                else if (thisApp.type == 1)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href='#/app/web/#{thisApp.id}')
+                                                                        i.fa-light(class=`${thisApp.icon}`)
+                                                                        | #{thisApp.name}
+                                                                else if (thisApp.type == 2)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href='#/app/ext/#{thisApp.id}')
+                                                                        i.fa-light(class=`${thisApp.icon}`)
+                                                                        | #{thisApp.name}
+
+                                                    else
+                                                        h2 No Applications Available!
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
@@ -434,22 +464,22 @@ html
                             //ul.navbar-nav.d-md-none.text-primary
                                 li.nav-item.page-title.no-arrow
                                     a.nav-item.btn.btn-navigation.pl-0.pr-1.align-middle(title="Menu" href='#_' role='button' accesskey="," id="sidebarToggleTop2" onclick="scrollToTop(); toggleMenu(); return false;" )
-                                        i.fas.fa-compass
+                                        i.far.fa-compass
                             .col.p-0(style='display: contents')
                                 ul.navbar-nav.text-primary.text-ellipsis
                                     li#topAddressBarInfo.nav-item.text-right.page-title.text-primary.mr-1
                                         if (!title || title === '')
                                             if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                 if (results && results.length === 1 && params && params.has('search'))
-                                                    i.fas.fa-photo-video.mr-2
+                                                    i.far.fa-photo-video.mr-2
                                                     span.text-uppercase Item Details
                                                 else if (search_prev)
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                     else if (search_prev && search_prev.startsWith('id:st'))
-                                                        i.fas.mr-2.fa-asterisk
+                                                        i.far.mr-2.fa-asterisk
                                                     else
-                                                        i.fas.fa-search.mr-2
+                                                        i.far.fa-search.mr-2
                                                     if (params && path === '/artists')
                                                         span.text-uppercase Artist Search
                                                     else if (params && search_prev.startsWith('id:st'))
@@ -457,62 +487,62 @@ html
                                                     else
                                                         span.text-uppercase Search
                                                 else if (params && path === '/artists')
-                                                    i.fas.fa-atlas.mr-2
+                                                    i.far.fa-atlas.mr-2
                                                     span(title='Global Artist Search').text-uppercase Artists
                                                 else if (params && params.getAll('sort')[0] === 'random')
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                     else
-                                                        i.fas.fa-dice.mr-2
+                                                        i.far.fa-dice.mr-2
                                                     span(title='Random selection of items from the database').text-uppercase I'm Feeling Lucky
                                                 else if (params && params.getAll('sort')[0] === 'fav')
                                                     if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
-                                                        i.fas.fa-thumbtack.mr-2
+                                                        i.far.fa-thumbtack.mr-2
                                                         span(title='Favorited Images by the moderation team').text-uppercase Pinned
                                                     else
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                         span(title='Favorited Images').text-uppercase Favorites
                                                 else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
                                                     if (webconfig && webconfig.pinned_user && params && params.getAll('pins')[0] === webconfig.pinned_user)
-                                                        i.fas.fa-thumbtack.mr-2
+                                                        i.far.fa-thumbtack.mr-2
                                                         span(title='Favorited Images by the moderation team').text-uppercase Pinned
                                                     else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                         span(title='Favorited Images').text-uppercase Favorites
                                                     else
                                                         if (path === '/files')
-                                                            i.fas.fa-folder.mr-2
+                                                            i.far.fa-folder.mr-2
                                                             span(title='Files in order of upload').text-uppercase Latest Files
                                                         else
-                                                            i.fas.fa-photo-video.mr-2
+                                                            i.far.fa-photo-video.mr-2
                                                             span(title='Images in order of upload').text-uppercase Latest Media
                                                 else if (params.has('color'))
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                     else
-                                                        i.fas.mr-2.fa-swatchbook
+                                                        i.far.mr-2.fa-swatchbook
                                                     span(title='Images by there averaged colour').text-uppercase Colour search
                                                 else if (params.has('displayname'))
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                     else
-                                                        i.fas.mr-2.fa-history
+                                                        i.far.mr-2.fa-history
                                                     span(title='History for ' + params.getAll('displayname')[0]).text-uppercase History
                                                 else
                                                     if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                        i.fas.fa-star.mr-2
+                                                        i.far.fa-star.mr-2
                                                     else
-                                                        i.fas.fa-clock.mr-2
+                                                        i.far.fa-clock.mr-2
                                                     span(title='Chronologically Feed of Images').text-uppercase Recent
                                             else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                i.fas.fa-star.mr-2
+                                                i.far.fa-star.mr-2
                                                 span.text-uppercase #{full_title_post}
                                             else
                                                 if (params && masterCount || results)
-                                                    i.fas.fa-home.mr-2
+                                                    i.far.fa-home.mr-2
                                                     span.d-none.d-sm-inline-block Home
                                                 else
-                                                    i.fas.fa-question.mr-2
+                                                    i.far.fa-question.mr-2
                                                     span No Results
                                         else
                                             if (active_svr)
@@ -523,34 +553,34 @@ html
                                                     - servericon = null
                                             div#titleIcon(class=((servericon && full_title && full_title_post.includes(' / ')) ? 'icon-avalible' : '')).d-inline-flex
                                                 if (search_prev && search_prev.startsWith('id:st'))
-                                                    i.fas.mr-2.fa-asterisk
+                                                    i.far.mr-2.fa-asterisk
                                                 else if (search_prev)
-                                                    i.fas.fa-search.mr-2
+                                                    i.far.fa-search.mr-2
                                                 else if (params && path === '/artists')
-                                                    i.fas.fa-atlas.mr-2
+                                                    i.far.fa-atlas.mr-2
                                                 else if (params && params.getAll('sort')[0] === 'random')
-                                                    i.fas.fa-dice.mr-2
+                                                    i.far.fa-dice.mr-2
                                                 else if (params && (params.has('displayname') || params.getAll('history')[0] === 'only'))
-                                                    i.fas.fa-history.mr-2
+                                                    i.far.fa-history.mr-2
                                                 else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.fas.fa-star.mr-2
+                                                    i.far.fa-star.mr-2
                                                 else if (active_icon)
-                                                    i.fas.mr-2(class=active_icon)
+                                                    i.far.mr-2(class=active_icon)
                                                 else if (params && path === '/gallery')
-                                                    i.fas.fa-photo-video.mr-2
+                                                    i.far.fa-photo-video.mr-2
                                                 else if (params && path === '/files')
-                                                    i.fas.fa-folder.mr-2
+                                                    i.far.fa-folder.mr-2
                                                 else if (params && path === '/cards')
-                                                    i.fas.fa-envelope.mr-2
+                                                    i.far.fa-envelope.mr-2
                                             if (full_title && full_title_post.includes(' / '))
                                                 #titleExtraStyleAdjustment.d-inline-flex
                                                 div#titleExtra.d-inline-flex
                                                     if (servericon)
                                                         img.pr-1.align-self-center.rounded-circle(src=servericon style='height: 1.8rem;')
-                                                        //i.fas.fa-chevron-right.pr-1.align-self-baseline
+                                                        //i.far.fa-chevron-right.pr-1.align-self-baseline
                                                     each tp in full_title_post.split(' / ').reverse().splice(1).reverse()
                                                         span.pr-1.align-self-baseline.text-uppercase #{tp}
-                                                        i.fas.fa-chevron-right.pr-1.align-self-baseline
+                                                        i.far.fa-chevron-right.pr-1.align-self-baseline
                                                 div#titleMain.d-inline
                                                     span.align-self-baseline.text-uppercase #{full_title_post.split(' / ').pop()}
                                                 script#setTitleExtraStyleAdjustment.
@@ -572,7 +602,7 @@ html
                                     ul.navbar-nav.text-primary.mr-1
                                         li#totalCount.nav-item.text-right.page-title.text-primary(style="display: contents;")
                                             span.badge.badge-danger.push-up.p-1
-                                                i.fas.fa-calculator
+                                                i.far.fa-calculator
 
                                 if (nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true'))
                                     ul.navbar-nav.text-primary
@@ -585,15 +615,15 @@ html
                                         .btn-group.show-menu-open.hidden(style="display: contents;")
                                             if (results && results.length > 1)
                                                 a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
-                                                    i.fas.fa-check-circle
+                                                    i.far.fa-check-circle
                                                 if (manage_channels && manage_channels.length > 0)
                                                     a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
-                                                        i.fas.fa-snowplow
+                                                        i.far.fa-snowplow
 
                                             if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')))
                                                 div.dropdown(style="display: contents;")
                                                     a#viewMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
-                                                        i.fas.fa-filter
+                                                        i.far.fa-filter
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
                                                         if (path === '/artists')
                                                             span.dropdown-header
@@ -645,7 +675,7 @@ html
                                                             .dropdown-divider
                                                             if (params.getAll('pins')[0] === 'false')
                                                                 a.dropdown-item(title="Show All" href='#_' onclick=`getNewContent(['offset', 'pins'], [])`  role='button')
-                                                                    i.fas.fa-slash.pr-2
+                                                                    i.fas.fa-empty-set.pr-2
                                                                     | Show All
                                                             else
                                                                 a.dropdown-item(title="Show only not favorited" href='#_' onclick=`getNewContent(['offset'], [['pins', 'false']])` role='button')
@@ -653,7 +683,7 @@ html
                                                                     | Unfavorited
                                                             if (params.getAll('pins')[0] === 'true')
                                                                 a.dropdown-item(title="Show All" href='#_' onclick=`getNewContent(['offset', 'pins'], [])`  role='button')
-                                                                    i.fas.fa-slash.pr-2
+                                                                    i.fas.fa-empty-set.pr-2
                                                                     | Show All
                                                             else
                                                                 a.dropdown-item(title="Show only favorites" href='#_' onclick=`getNewContent(['offset'], [['pins', 'true']])` role='button')
@@ -707,7 +737,7 @@ html
                                                                         | Date
                                                                     if (params.has('numdays') || params.has('history_numdays') || params.has('fav_numdays') || params.has('datestart') || params.has('dateend'))
                                                                         a.dropdown-item(title="Remove" href='#_' onclick=`getNewContent(['datestart', 'dateend', 'numdays', 'fav_numdays', 'history_numdays', 'offset'], [])`  role='button')
-                                                                            i.fas.fa-slash.align-middle.pr-2
+                                                                            i.fas.fa-empty-set.align-middle.pr-2
                                                                             | Remove
                                                                     form#dateCollapse.accordion.dropdown-item.p-0
                                                                         if (params.has('pins'))
@@ -831,7 +861,7 @@ html
                                                                         span.pl-1 (#{params.getAll('minres')[0]}px)
                                                                 if (params.has('minhres') || params.has('minwres') || params.has('minres'))
                                                                     a.dropdown-item(title="Show all image resolutions" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], []); return false;`)
-                                                                        i.fas.fa-slash.pr-2
+                                                                        i.fas.fa-empty-set.pr-2
                                                                         | Reset Filter
                                                                 form#resolution2Collapse.accordion.dropdown-item.p-0
                                                                     .div
@@ -930,7 +960,7 @@ html
                                                                         span.pl-1 (#{params.getAll('ratio')[0]})
                                                                 if (params.has('ratio'))
                                                                     a.dropdown-item(title="Show all Aspect Ratios" href='#_' onclick=`getNewContent(['offset', 'ratio'], []); return false;`)
-                                                                        i.fas.fa-slash.pr-2
+                                                                        i.fas.fa-empty-set.pr-2
                                                                         | Remove
                                                                 form#ratio2Collapse.accordion.dropdown-item.p-0
                                                                     .div
@@ -1002,7 +1032,7 @@ html
                                                                     | Colour
                                                                 if (params.has('dark'))
                                                                     a.dropdown-item(title="Show both light and dark images" href='#_' onclick=`getNewContent(['offset', 'dark'], []); return false;`)
-                                                                        i.fas.fa-slash.pr-2
+                                                                        i.fas.fa-empty-set.pr-2
                                                                         | Reset Filter
                                                                 if (params.getAll('dark')[0] !== 'false')
                                                                     a.dropdown-item(title="Show only bright images" href='#_' onclick=`getNewContent(['offset'], [['dark', 'false']]); return false;`)
@@ -1046,28 +1076,28 @@ html
                                                                     | Artists
                                         if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
                                             a.navbar-item.btn.btn-ice.pl-2.pr-2.show-menu-open.hidden(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
-                                                i.fas.fa-info-circle
+                                                i.far.fa-info-circle
                                     li.nav-item.no-arrow.hidden.done-btns
                                         if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
                                             .btn-group
                                                 a.navbar-item.btn.btn-admin(title="Cancel Selection" href='#_' onclick='disableGallerySelect(); clearactionModel(); ;return false;')
-                                                    i.fas.fa-times-circle.align-middle
+                                                    i.far.fa-times-circle.align-middle
 
                                                 a#selectAll1.navbar-item.btn.btn-admin.pr-2(title="Select All" href='#_' onclick='selectAllPoststoMode(); return false;')
-                                                    i.fas.fa-check-square.align-middle
+                                                    i.far.fa-check-square.align-middle
                                                 a#deSelectAll1.navbar-item.btn.btn-admin.pr-2(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;').hidden
                                                     i.far.fa-check-square.align-middle
 
                                                 if (enableManageTools)
                                                     a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
-                                                        i.fas.fa-paste.align-middle
+                                                        i.far.fa-paste.align-middle
                                                 a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
-                                                    i.fas.fa-download.align-middle
+                                                    i.far.fa-download.align-middle
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
-                                            i.fas.fa-bars.pl-2
+                                            i.far.fa-bars.pl-2
                                             img.img-profile.rounded-circle(src=user.avatar)
 
                         div#topbarBackground(style='display: none;')

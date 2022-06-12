@@ -429,6 +429,12 @@ async function roleGeneration(id, res, req, authToken) {
                         token_static: users[0].token_static,
                         token_rotation: users[0].token_expires
                     },
+                    permissions: {
+                        read: readPermissions,
+                        write: writePermissions,
+                        manage: managePermissions,
+                        specialPermissions: specialPermissions
+                    },
                     channels: {
                         read: _roles_channels,
                         write: _write_channels,
