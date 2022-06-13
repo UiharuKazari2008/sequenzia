@@ -91,7 +91,7 @@ block content
                             else
                                 - res = item.entities.meta.height
                             div.overlay-icons
-                                div.icon-container
+                                div.icon-container.no-dynamic-tiny
                                     p.status-icons.left-links
                                         if (res >= 5500)
                                             img(title="Greater then 5500px" src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
@@ -153,14 +153,14 @@ block content
                                     div.links
                                         div.left-links.row-1
                                             if (user && user.source < 900)
-                                                a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
-                                            a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.btn-links.fas.fa-archive
                                             a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;`)
                                                 i.btn-links.fas.fa-info-circle
                                             if (thisImageManage && user && user.source < 900)
-                                                a.btn.btn-links(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
+                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
                                                     i.btn-links.fas.fa-paste
                                             else if (user && user.source < 900)
                                                 if (item.flagged)
@@ -171,11 +171,11 @@ block content
                                                         i.btn-links.fas.fa-flag
                                         div.right-links.row-1
                                             if (item.entities.meta.fileid)
-                                                a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`)
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`)
                                                     i.btn-links.fas.fa-download
                                                 a.hidden(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                                             else
-                                                a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                                                     i.btn-links.fas.fa-download
                             div.internal-lightbox.animated--fade-in
                                 - showNSFW = ''

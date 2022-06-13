@@ -1131,7 +1131,7 @@ async function showSearchOptions(post) {
     }
     if (manageAllowed) {
         modalManagePost.onclick = function() {
-            selectPostToMode(`${postServer}`, `${postChannel}`, `${postID}`, false, (item.entities.meta.fileid) ? true : undefined);
+            selectPostToMode(`${postServer}`, `${postChannel}`, `${postID}`, false);
             openActionMenu();
             return false;
         }
@@ -1486,28 +1486,24 @@ function setImageLayout(size, _html) {
                 classList = 'col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 col-dynamic-large';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
                 html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '1';
                 break;
             case '2':
                 classList = 'col-6 col-sm-4 col-md-3 col-lg-2 col-xl-2 col-dynamic-small';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
                 html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '2';
                 break;
             case '3':
                 classList = 'col-3 col-sm-2 col-md-2 col-lg-2 col-xl-1 col-dynamic-tiny';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
                 html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.add('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.add('dynamic-hide'));
                 setImageSize = '3';
                 break;
             default:
                 classList = 'col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
                 html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '0';
                 break;
         }
