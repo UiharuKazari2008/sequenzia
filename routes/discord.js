@@ -926,6 +926,7 @@ async function sessionVerificationWithReload(req, res, next) {
                                 banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                             }
                             req.session.loggedin = true;
+                            req.session.sidebar = undefined;
                             next();
                         } else {
                             printLine('PassportCheck', `Session Launch Failed using Static Login Token, redirecting to login`, 'warn');
@@ -971,6 +972,7 @@ async function sessionVerificationWithReload(req, res, next) {
                                     banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                                 }
                                 req.session.loggedin = true;
+                                req.session.sidebar = undefined;
                                 next();
                             } else {
                                 printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
@@ -1021,6 +1023,7 @@ async function sessionVerificationWithReload(req, res, next) {
                                     banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                                 }
                                 req.session.loggedin = true;
+                                req.session.sidebar = undefined;
                                 next();
                             } else {
                                 printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
