@@ -197,7 +197,7 @@ setInterval(cacheDatabase, 60000)
 cacheDatabase();
 
 app.use('/', routes);
-//app.use('/app', apps);
+app.use('/app', apps);
 app.use('/discord', routesDiscord);
 app.use('/telegram', routesTelegram);
 app.use('/upload', routesUpload);

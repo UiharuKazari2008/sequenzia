@@ -144,6 +144,7 @@ async function setupReq (push) {
     writeLoadingBar();
     return false;
 }
+let recoverable
 async function requestCompleted (response, url, lastURL, push) {
     responseComplete = true
     itemsRemoved = 0;
@@ -160,45 +161,89 @@ async function requestCompleted (response, url, lastURL, push) {
             delay: 10000,
         });
     } else {
-        if (push === true) {
-            $('#LoadNextPage').remove();
-            $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
-            setImageLayout(setImageSize);
-            setPageLayout(false);
-            $("#contentBlock > style").html($(response).find('#contentBlock > style'));
-            $("#finalLoad").html($(response).find('#finalLoad'));
-            if (!pageTitle.includes(' - Item Details')) {
-                getPaginator(url);
-            }
-            if (inReviewMode)
-                enableReviewMode();
-        } else {
+        if (url.startsWith('/app/web/')) {
             $.when($(".container-fluid").fadeOut(250)).done(() => {
-                let contentPage = $(response).find('#content-wrapper').children();
+                recoverable = response
+                let contentPage = $(response);
+                if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
+                    $("#appStatic").html(contentPage.find('#appStatic').children());
+                }
                 contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
                 contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
                     window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
                     e.preventDefault();
                 });
-                $("#content-wrapper").html(contentPage);
+                if (contentPage.find('#appTitleBar').length > 0) {
+                    $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
+                }
+                if (contentPage.find('#appPanels').length > 0) {
+                    $("#appPanels").html(contentPage.find('#appPanels').children());
+                }
+                if (contentPage.find('#appNavigation').length > 0) {
+                    $("#pageNav").html(contentPage.find('#appNavigation').children());
+                }
+                if (contentPage.find('#appTitleMenu').length > 0) {
+                    $("#appTitleMenu").html(contentPage.find('#appTitleMenu').children());
+                } else {
+                    $("#appTitleMenu").html('');
+                }
+                if (contentPage.find('#appMenuRow1').length > 0) {
+                    $("#appMenuRow1").html(contentPage.find('#appMenuRow1').children());
+                }
+                if (contentPage.find('#appMenuRow2').length > 0) {
+                    $("#appMenuRow2").append(contentPage.html('#appMenuRow2').children());
+                } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
+                    $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
+                }
+                $("#appContainer").html(contentPage.find('#appContent').children());
+                if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
+                    $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
+                }
+                $(".container-fluid").fadeTo(2000, 1)
+                scrollToTop(true);
+                window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+            })
+        } else {
+            if (push === true) {
+                $('#LoadNextPage').remove();
+                $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
                 setPageLayout(false);
+                $("#contentBlock > style").html($(response).find('#contentBlock > style'));
+                $("#finalLoad").html($(response).find('#finalLoad'));
                 if (!pageTitle.includes(' - Item Details')) {
                     getPaginator(url);
                 }
-                scrollToTop(true);
                 if (inReviewMode)
                     enableReviewMode();
-            })
+            } else {
+                $.when($(".container-fluid").fadeOut(250)).done(() => {
+                    let contentPage = $(response).find('#content-wrapper').children();
+                    contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
+                    contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
+                        window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                        e.preventDefault();
+                    });
+                    $("#content-wrapper").html(contentPage);
+                    setImageLayout(setImageSize);
+                    setPageLayout(false);
+                    if (!pageTitle.includes(' - Item Details')) {
+                        getPaginator(url);
+                    }
+                    scrollToTop(true);
+                    if (inReviewMode)
+                        enableReviewMode();
+                })
+            }
+            $("title").text(pageTitle);
+            let addOptions = [];
+            if (url.includes('offset=') && !initialLoad) {
+                let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
+                addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0}`]);
+            }
+            const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
+            $.history.push(_url, (_url.includes('offset=')));
         }
-        $("title").text(pageTitle);
-        let addOptions = [];
-        if (url.includes('offset=') && !initialLoad) {
-            let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
-            addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0 }` ]);
-        }
-        const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
-        $.history.push(_url, (_url.includes('offset=')));
         pageType = url.split('/')[0];
         initialLoad = false
         if(!isTouchDevice()) {

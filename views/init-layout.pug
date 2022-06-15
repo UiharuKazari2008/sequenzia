@@ -369,11 +369,11 @@ html
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href='#/app/web/#{thisApp.id}')
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 2)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href='#/app/ext/#{thisApp.id}')
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                     else
