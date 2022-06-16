@@ -5,6 +5,10 @@ html
                 .overlay-sidebarbg(onclick="toggleMenu(); return false;")
                     span.sidebar-brand-logo.sequenzia-logo sequenzia
                 // Divider
+                li.nav-item
+                    a.nav-link(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='/')
+                        i.fas.fa-house
+                        span.text-capitalize Home
                 if (sidebar && sidebar.length > 0)
                     each thisSuperClass, superIndex in sidebar
 

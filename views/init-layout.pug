@@ -423,6 +423,7 @@ html
                                     console.log(`No Navigation, Ready when you are`);
                                     $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
                                     $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
+                                    hideAddressInput();
                                 } else {
                                     $('#loadingLogo').fadeIn();
                                     console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
