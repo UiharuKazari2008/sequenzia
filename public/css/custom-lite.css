@@ -79,10 +79,6 @@
     font-size: 2em;
 }
 
-.pushUp > div > div > .menu-object {
-    padding-top: calc(env(safe-area-inset-top) + 20% + 4em);
-}
-
 .login-code span {
     color: white;
     font-size: 48px;
@@ -1571,6 +1567,11 @@ select.form-control:focus::-ms-value {
     .server-txt {
         font-size: 16px;
     }
+
+    .pushUp > div > div > .menu-object {
+        padding-top: calc(env(safe-area-inset-top) + 20% + 4em);
+    }
+
 }
 @media (min-height:450px) {
     .no-short {
@@ -1588,6 +1589,10 @@ select.form-control:focus::-ms-value {
     }
     .mid-center-block.pushUp {
         top: calc(env(safe-area-inset-top) + 50%);
+    }
+
+    .pushUp > div > div > .menu-object {
+        padding-top: calc(env(safe-area-inset-top) + 50% + 4em);
     }
 }
 @media (min-width:768px) {
