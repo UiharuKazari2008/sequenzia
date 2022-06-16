@@ -1799,18 +1799,19 @@ div.collapse-divider {
 .topbar .dropdown .dropdown-menu {
     max-height: calc(80vh - 200px);
 }
-.album-info {
-    z-index: 1;
-    font-size: 1em;
-    pointer-events: none;
-    width: 100%;
-}
+
 .user-menu-item:hover, .user-menu-item:focus, .user-menu-item:active {
     text-decoration: none;
 }
 .user-info-bg {
     min-width: 500px;
     border-bottom-right-radius: 20px;
+}
+.album-info {
+    z-index: 1;
+    font-size: 1em;
+    pointer-events: none;
+    width: 100%;
 }
 
 .album-list {

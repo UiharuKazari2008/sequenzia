@@ -14,6 +14,75 @@
     font-display: swap;
 }
 
+.album-info {
+    z-index: 1;
+    font-size: 1em;
+    pointer-events: none;
+    width: 100%;
+}
+
+.album-list {
+    display: flex;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 25vh;
+}
+.album-item {
+    min-height: 150px;
+    min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.5em);
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    margin-bottom: 0.5rem;
+}
+
+.album-item:first-child  {
+    min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+    margin-left: 0;
+}
+.album-item:last-child  {
+    min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+    margin-right: 0;
+}
+
+.album-preview {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background-position: top;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.menu-grid {
+    display: flex;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+    width: 100%;
+    max-height: 25vh;
+    height: fit-content;
+    justify-content: space-evenly;
+    grid-auto-flow: column;
+    flex-wrap: wrap;
+}
+
+.user-menu-small {
+    /*max-width: 74px;*/
+    line-height: 1.2;
+    text-align: center;
+}
+.user-menu-item > i {
+    margin-bottom: .3em;
+    font-size: 2em;
+}
+
+.pushUp > div > div > .menu-object {
+    padding-top: calc(env(safe-area-inset-top) + 20% + 4em);
+}
+
 .login-code span {
     color: white;
     font-size: 48px;

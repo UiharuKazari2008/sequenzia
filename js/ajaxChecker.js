@@ -19,12 +19,13 @@ module.exports = async (req, res, next) => {
                 user: req.session.user,
                 webconfig: web,
                 albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                sidebar: req.session.sidebar,
                 applications_list: req.session.applications_list,
                 enableTelegram: (config.telegram_secret)
             })
         } else if (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' && req.headers['x-requested-page'] || (req.query && (req.query.json || req.query.responseType))) {
             next();
-        } else if ( call_uri === 'home' ) {
+        } else if ( call_uri === 'home' || call_uri === '' ) {
             res.render('home_lite', {
                 url: req.url,
                 server: req.session.server_list,
@@ -33,6 +34,9 @@ module.exports = async (req, res, next) => {
                 write_channels: req.session.discord.channels.write,
                 discord: req.session.discord,
                 user: req.session.user,
+                sidebar: req.session.sidebar,
+                albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                applications_list: req.session.applications_list,
             })
         } else {
             res.redirect(`/juneOS#${req.originalUrl}`);

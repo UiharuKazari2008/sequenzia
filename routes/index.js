@@ -45,9 +45,8 @@ const closestIndex = (num, arr) => {
     return index;
 };
 
-router.get('/juneOS', sessionVerification, ajaxChecker)
-
-router.get(['/'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
+router.get(['/', '/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
+router.get(['/home', '/'], sessionVerification, ajaxChecker);
 router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
 router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
@@ -79,9 +78,6 @@ router.get('/login', (req, res) => {
             message: err.message,
         });
     }
-});
-router.get('/home', (req, res) => {
-    res.redirect('/')
 });
 
 router.post('/actions/v2', sessionVerification, manageValidation, discordActions);

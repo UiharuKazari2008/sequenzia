@@ -32,6 +32,9 @@ module.exports = async (req, res, next) => {
     }
 
     let results = {
+        sidebar: req.session.sidebar,
+        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+        applications_list: req.session.applications_list,
         ...res.locals.response,
         webconfig: web,
         query: req.query
