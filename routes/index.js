@@ -45,7 +45,7 @@ const closestIndex = (num, arr) => {
     return index;
 };
 
-router.get(['/', '/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
+router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, ajaxChecker);
 router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
 router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
