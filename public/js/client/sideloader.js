@@ -625,6 +625,7 @@ function getPaginator(url) {
                 e.preventDefault();
             });
             $('#totalCount').replaceWith(_pn.find('#totalCount'));
+            $('#HistoryDropdown').html(_pn.find('#history').contents());
         },
         error: function (xhr) {
             console.error(`Failed to load paginator - ${xhr.responseText}`)
@@ -1577,6 +1578,26 @@ function toggleFavorite(channelid, eid) {
         isFavorite = star.classList.contains('favorited');
 
     sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
+
+    return false;
+}
+function toggleStarHistoryItem(index) {
+    const star = document.querySelector(`#favHistory-${index} > i.fas.fa-star`)
+    let isFavorite = false;
+    if (star)
+        isFavorite = star.classList.contains('favorited');
+
+    sendBasic(undefined, index, (isFavorite) ? `UnpinHistory`: `PinHistory`, true);
+
+    return false;
+}
+function removeHistoryItem(index) {
+    sendBasic(undefined, index, 'RemoveHistory', true);
+
+    return false;
+}
+function removeAllHistory() {
+    sendBasic(undefined, undefined, 'RemoveHistoryAll', true);
 
     return false;
 }

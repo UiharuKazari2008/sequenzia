@@ -249,7 +249,7 @@ html
                                                         a.user-menu-item(title="Index" href='#/artists?')
                                                             i.fa-light.fa-fw.fa-address-book
                                                             | Artists
-                                                        a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
                                                         a.user-menu-item(title="Installed Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
@@ -601,6 +601,94 @@ html
                                 i.fab.fa-windows.pr-2
                                 | Desktop
                         #displayHistoryBody Please Wait
+        #historyModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            span History
+                        button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.mb-2
+                            a.btn.btn-lucky(title="Show Image History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true' onclick="$('#historyModel').modal('hide'); return false;")
+                                i.fas.fa-history.pr-2
+                                | Image Display History
+                        div.pt-2.pb-1.d-flex
+                            #HistoryDropdown.list-group.w-100
+                                if (history && history.length > 0)
+                                    each historyItem in history
+                                        .list-group-item.d-flex
+                                            div.col.p-0(style='width: 80%;')
+                                                a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`)
+                                                    - path = historyItem.uri.split('?')[0]
+                                                    - params = new URLSearchParams(historyItem.uri.split('?')[1])
+                                                    - console.log(params.values())
+                                                    - console.log(params.keys())
+                                                    - console.log(path)
+                                                    .d-flex.flex-column
+                                                        div
+                                                            if (params && params.has('search'))
+                                                                i.far.fa-search.mr-2
+                                                            else if (params.has('displayname'))
+                                                                i.far.mr-2.fa-history
+                                                            else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                i.far.fa-star.mr-2
+                                                            else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                i.far.fa-star.mr-2
+                                                            else if (params && params.has('album'))
+                                                                i.far.fa-archive.mr-2
+                                                            else if (path === '/gallery')
+                                                                i.far.fa-photo-vide.mr-2
+                                                            else if (path === '/files')
+                                                                i.far.fa-folder.mr-2
+                                                            else if (path === '/cards')
+                                                                i.far.fa-sticky-note.mr-2
+                                                            else if (path === '/artists')
+                                                                i.far.fa-atlas.mr-2
+                                                            else
+                                                                i.far.fa-question.mr-2
+                                                            if (!historyItem.title || historyItem.title === '')
+                                                                if (params && (!(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) || params.getAll('sort')[0] === 'random')
+                                                                    if (params && params.has('search'))
+                                                                        if (path === '/artists')
+                                                                            span Artist Search
+                                                                        else if (params && params.getAll('search')[0].startsWith('id:st'))
+                                                                            span Related Items
+                                                                        else
+                                                                            span Search
+                                                                    else if (params && path === '/artists')
+                                                                        span Artists
+                                                                    else if (params && params.getAll('sort')[0] === 'random')
+                                                                        span I'm Feeling Lucky
+                                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid') && path === '/files')
+                                                                        span Latest Files
+                                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                                        span Latest Media
+                                                                    else if (params.has('color'))
+                                                                        span Colour Search
+                                                                    else if (params.has('displayname'))
+                                                                        span History
+                                                                    else
+                                                                        span Recent
+                                                                else
+                                                                    span
+                                                            else
+                                                                span #{historyItem.title}
+                                                        div.text-ellipsis
+                                                            span #{historyItem.uri}
+                                            div
+                                                a(title="Keep Item at Top" href='#_' onclick=`toggleStarHistoryItem("${historyItem.index}"); return false;` id=`#favHistory-${historyItem.index}`).ml-2
+                                                    i.fas.fa-star.btn-fav(class=`${(historyItem.saved) ? 'favorited' : ''}`)
+                                                a(title="Keep Item at Top" href='#_' onclick=`removeHistoryItem("${historyItem.index}"); return false;`).ml-2
+                                                    i.fas.fa-trash-alt
+
+                                else
+                                    h2 No History
+                        div.mt-2
+                            a.btn.btn-danger(title="Delete all history" href='#_' onclick="removeAllHistory(); $('#historyModel').modal('hide'); return false;").w-100
+                                i.fas.fa-trash.pr-2
+                                | Delete All
         #albumItemModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog.modal-dialog-scrollable(role='document')
                 .modal-content

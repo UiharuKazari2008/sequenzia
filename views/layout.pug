@@ -205,7 +205,7 @@ html
                                                         a.user-menu-item(title="Index" href='#/artists?')
                                                             i.fa-light.fa-fw.fa-address-book
                                                             | Artists
-                                                        a.user-menu-item(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
+                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
                                                         if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
@@ -1710,6 +1710,7 @@ html
                                     #feedNoKeydiv.row.pl-3.pr-3.pt-2.d-none
                                         p.text-danger You currently do not have a static login token!
                                         p Go to the user menu > Authentication > Regenerate, Then refresh and try again.
+
                     #searchModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                         .modal-dialog(role='document')
                             .modal-content

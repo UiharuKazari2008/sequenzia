@@ -1,5 +1,6 @@
 const web = require("../web.config.json");
 const config = require('../host.config.json');
+const {sqlPromiseSafe} = require("./sqlClient");
 
 module.exports = async (req, res, next) => {
     if (req.session.discord && req.session.cache && req.session.cache.channels_view) {
@@ -10,6 +11,7 @@ module.exports = async (req, res, next) => {
             req.session.lite_mode = true
             next();
         } else if (call_uri === 'juneOS') {
+            const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
             res.render('init-layout', {
                 server: req.session.server_list,
                 download: req.session.discord.servers.download,
@@ -21,7 +23,8 @@ module.exports = async (req, res, next) => {
                 albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                 sidebar: req.session.sidebar,
                 applications_list: req.session.applications_list,
-                enableTelegram: (config.telegram_secret)
+                enableTelegram: (config.telegram_secret),
+                history: history_urls.rows
             })
         } else if (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' && req.headers['x-requested-page'] || (req.query && (req.query.json || req.query.responseType))) {
             next();

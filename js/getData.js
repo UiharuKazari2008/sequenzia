@@ -7,6 +7,7 @@ const { sendData } = require('./mqAccess');
 const getUrls = require('get-urls');
 const moment = require('moment');
 const useragent = require('express-useragent');
+const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 
 module.exports = async (req, res, next) => {
@@ -15,6 +16,34 @@ module.exports = async (req, res, next) => {
     const page_uri = `/${req.originalUrl.split('/')[1].split('?')[0]}`
     let android_uri = [`server_hostname=${req.headers.host}`]
     let search_prev = ''
+
+    async function writeHistory(title) {
+        function params(_removeParams, _addParams, _url, searchOnly) {
+            let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
+            _removeParams.forEach(param => {
+                if (_params.has(param)) {
+                    _params.delete(param);
+                }
+            })
+            _addParams.forEach(param => {
+                if (_params.has(param[0])) {
+                    _params.delete(param[0]);
+                }
+                _params.append(param[0], param[1]);
+            })
+            return req.originalUrl.split('?')[0] + `?${_params.toString()}`
+
+        }
+
+        const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
+        await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
+            index: `${req.session.discord.user.id}-${md5(cleanURL)}`,
+            uri: cleanURL,
+            title: title,
+            user: req.session.discord.user.id
+        })
+        await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [req.session.discord.user.id, 50, req.session.discord.user.id])
+    }
 
     console.log(req.query);
 
@@ -1254,7 +1283,8 @@ module.exports = async (req, res, next) => {
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 }
-                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`)
+                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`);
+                const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
 
                 if (countResults && countResults.rows.length > 0) {
                     let pages = [];
@@ -1305,6 +1335,7 @@ module.exports = async (req, res, next) => {
                         pageList: pageList,
                         currentPage: currentPage,
                         resultsCount: (count >= 2048) ? ((count)/1000).toFixed(0) + "K" : count,
+                        history: history_urls.rows
                     })
                 } else {
                     res.end();
@@ -2221,6 +2252,7 @@ module.exports = async (req, res, next) => {
                         })
                     }
                     if (resultsArray.length > 0) {
+                        writeHistory((full_title) ? full_title : page_title)
                         let prevurl = 'NA'
                         let nexturl = 'NA'
                         if (offset >= limit) {
