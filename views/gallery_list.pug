@@ -92,63 +92,45 @@ block content
                                 - res = item.entities.meta.height
                             div.overlay-icons
                                 div.icon-container.no-dynamic-tiny
-                                    p.status-icons.left-links
-                                        if (res >= 5500)
-                                            img(title="Greater then 5500px" src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
-                                        else if (res >= 5000)
-                                            img(title="Greater then 5000px" src="/static/img/icons/status/baseline_5k_white_24dp.png").status-icons
-                                        else if (res >= 4000)
-                                            img(title="Greater then 4000px" src="/static/img/icons/status/baseline_4k_white_24dp.png").status-icons
-                                        else if (res >= 3000)
-                                            img(title="Greater then 3000px" src="/static/img/icons/status/baseline_3k_white_24dp.png").status-icons
-                                        else if (res >= 2000)
-                                            img(title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
-                                        else if (res >= 1080)
-                                            img(title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
-                                        else if (res >= 720)
-                                            img(title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
-                                        else if (res >= 640)
-                                            img(title="Greater then 640px" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else if (res >= 480)
-                                            img(title="Greater then 480px" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else
-                                            img(title="Low Quality" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-
-                                        if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
-                                            img(title="Portrait Image" src="/static/img/icons/status/twotone_stay_primary_portrait_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
-                                            img(title="Square Image" src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio <= 0.9)
-                                            img(title="Widescreen Image" src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
+                                    div.status-icons.left-links.d-flex.w-100
+                                        div.d-inline-flex.size-indictor.shadow-text
+                                            if (res >= 2000)
+                                                each number in (res/1000).toFixed().split('')
+                                                    i.fas.pr-1(class=`fa-${number}`)
+                                                i.fas.fa-k
+                                                //img(title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
+                                            else if (res >= 1080)
+                                                i.fas.fa-f.pr-1
+                                                i.fas.fa-h.pr-1
+                                                i.fas.fa-d
+                                                //img(title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
+                                            else if (res >= 720)
+                                                i.fas.fa-h.pr-1
+                                                i.fas.fa-d
+                                                //img(title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
+                                            else if (res >= 480)
+                                                i.fas.fa-s.pr-1
+                                                i.fas.fa-d
+                                            else
+                                                i.fas.fa-l.pr-1
+                                                i.fas.fa-q
+                                        div.d-inline-flex.ratio-indictor.ml-1.shadow-text
+                                            if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
+                                                i.fas.fa-image-portrait
+                                            else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
+                                                i.fas.fa-image
+                                            else if (item.entities.meta.ratio && item.entities.meta.ratio <= 0.9)
+                                                i.fas.fa-image-landscape
+                                        div.d-inline-flex.ml-2.shadow-text
+                                            if (item.history.name)
+                                                i.fas.fa-history.pr-1
+                                            if (item.flagged)
+                                                i.fas.fa-flag.text-danger
+                                        div.d-inline-flex.ml-auto.shadow-text
+                                            i.fas(class=`${item.channel.icon}`)
                                     if (isVideo)
                                         p.status-icons.center-icons(style='height: 64px;').text-center
                                             i.fas.fa-4x.fa-film(style='color: #838383c9;')
-                                    if (item.history.name)
-                                        p.status-icons.left-links.history-name.shadow-text
-                                            if (item.history.type === 'ads-lite')
-                                                i.fas.fa-image-landscape.pr-1
-                                            else if (item.history.type === 'ads-micro')
-                                                i.fas.fa-laptop.pr-1
-                                            else if (item.history.type === 'ads-widget')
-                                                i.pr-1.fab.fa-app-store-ios
-                                            else if (item.history.type === 'ads-mobile')
-                                                i.fas.fa-mobile-alt.pr-1.pl-1
-                                            else if (item.history.type === 'ads-embed')
-                                                i.fas.fa-dice-five.pr-1.pl-1
-                                            else if (item.history.type === 'homepage')
-                                                i.fas.fa-home.pr-1
-                                            else if (item.history.type === 'webextention')
-                                                i.fab.fa-edge.pr-1
-                                            else if (item.history.type === 'pagehistory')
-                                                i.fas.fa-history.pr-1
-                                            span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
-                                        p.status-icons.left-links.history-date.shadow-text
-                                            span #{item.history.date}
-                                    p.status-icons.right-links
-                                        if (item.pinned)
-                                            img(title="Image is pinned" src="/static/img/icons/status/baseline_star_white_24dp.png").status-icons
-                                        if (item.flagged)
-                                            img(title="Image was reported" src="/static/img/icons/status/baseline_flag_white_24dp.png").status-icons
                                 div.links-container.text-primary
                                     div.links
                                         div.left-links.row-1
@@ -177,150 +159,154 @@ block content
                                             else
                                                 a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                                                     i.btn-links.fas.fa-download
-                            div.internal-lightbox.animated--fade-in
+                            div.internal-lightbox
                                 - showNSFW = ''
                                 - showNSFWString = ''
                                 if (req_uri && req_uri.includes('nsfw=true') || req_uri.includes('album='))
                                     - showNSFW = "['nsfw', 'true'], "
                                     - showNSFWString = "&nsfw=true"
-                                if (thisImageManage && user && user.source < 900)
-                                    div#selectItemCheck.select-item.hidden
-                                        a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                            i.fas.fa-check-circle.text-gray-600.shadow-text(style="font-size: 3em;" id='select-' + item.id)
-                                        a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
-                                            i.fas.fa-check-circle.text-success.shadow-text(style="font-size: 3em;" id='select-' + item.id)
+                                div(id=`imageAccordion-${item.id}` style=`height: 100%`)
+                                    div(class="collapse show" id=`imageCover-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").main-panel.panel-height
+                                        div.text-container.shadow-text.no-dynamic-tiny
+                                            if (!(item.content.single && item.content.single.length > 1) && isVideo)
+                                                p.text #{item.entities.filename}
+                                            else
+                                                p.text #{item.content.single}
+                                            p.date #{item.date.pretty}
+                                            if (item.entities.meta.filesize && item.entities.meta.fileid !== null)
+                                                p.text #{item.entities.meta.filesize} MB
+                                            if (multiChannel && item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
+                                                p.channel
+                                                    i.fas(class=`${item.channel.icon}`).mr-1
+                                                    span #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
+                                            if (item.user.name)
+                                                p.date #{item.user.name}
+                                            p.date #{item.entities.meta.height}x#{item.entities.meta.width}
+                                            if (item.history.name)
+                                                .history-icons-container
+                                                    p.history-name.shadow-text.text.m-0.history-item
+                                                        if (item.history.type === 'ads-lite')
+                                                            i.fas.fa-image-landscape.pr-1
+                                                        else if (item.history.type === 'ads-widget')
+                                                            i.pr-1.fab.fa-app-store-ios
+                                                        else if (item.history.type === 'ads-micro')
+                                                            i.fas.fa-laptop.pr-1
+                                                        else if (item.history.type === 'ads-mobile')
+                                                            i.fas.fa-mobile-alt.pl-1pr-1
+                                                        else if (item.history.type === 'ads-embed')
+                                                            i.fas.fa-dice-five.pr-1.pl-1
+                                                        else if (item.history.type === 'homepage')
+                                                            i.fas.fa-home.pr-1
+                                                        else if (item.history.type === 'webextention')
+                                                            i.fab.fa-edge.pr-1
+                                                        else if (item.history.type === 'pagehistory')
+                                                            i.fas.fa-history.pr-1
+                                                        span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
+                                                    p.history-date.shadow-text.text.m-0.history-item
+                                                        span #{item.history.date}
+                                        div.image-container.no-dynamic-tiny
+                                            if (item.user.avatar)
+                                                img.server.rounded-circle(src=item.user.avatar)
+                                            else if (item.server.icon)
+                                                img.server.rounded-circle(src=item.server.icon)
+                                        div.links-container.text-primary.no-dynamic-tiny
+                                            div.links
+                                                div.left-links.row-2
+                                                    if (user && user.source < 900 && item.entities.meta.fileid !== null && isVideo)
+                                                        a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
+                                                            i.btn-links.fas.fa-play
+                                                div.right-links.row-2
+                                    div(class="collapse" id=`imageCheckBox-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").select-panel.panel-height
+                                        div.shadow-text
+                                            a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                i.fas.fa-check-circle.text-gray-600(style="font-size: 3em;" id='select-' + item.id)
+                                            a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
+                                                i.fas.fa-check-circle.text-success(style="font-size: 3em;" id='select-' + item.id)
+                                    div(class="collapse" id=`imageManage-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").panel-height
+                                        div.shadow-text
+                                            .manage-grid(style=`display: flex; flex-wrap: wrap; flex-direction: row; align-content: flex-start; justify-content: space-evenly; width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;`)
+                                                if (user && user.source < 900)
+                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Move Item(s)" href='#_' onClick=`selectedActionMenu("MovePost"); return false;`).d-flex.flex-column.justify-content-center
+                                                        i.fas.fa-cut.pr-2.align-self-center
+                                                        span Move
+                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Rename Item" href='#_' onClick=`selectedActionMenu("RenamePost"); return false;`).d-none.d-flex.flex-column.justify-content-center
+                                                        i.fas.fa-font.pr-2.align-self-center
+                                                        span Rename
+                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Compile Spanned File" href='#_' onClick=`selectedActionMenu("CompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none.d-flex.flex-column.justify-content-center
+                                                        i.fas.fa-box-open.pr-2.align-self-center
+                                                        span Compile
+                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Rotate Image" href='#_' onClick=`selectedActionMenu("RotatePost"); return false;`).d-none.d-flex.flex-column.justify-content-center
+                                                        i.fas.fa-undo.pr-2.align-self-center
+                                                        span Rotate
 
-                                    div#fastReviewMode.review-item.hidden.shadow-text.d-flex
-                                        .ml-auto.mr-auto.align-items-center.review-menu-move.move-content.hidden(style="width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;")
-                                        .row.ml-auto.mr-auto.p-2.align-items-center.review-menu-move.hidden(style="width: inherit;overflow-x: clip;")
-                                            a.reviewReject.btn-links.mr-auto(title="Cancel" href='#_' onclick=`exitMoveMenu("${item.id}"); return false;`)
-                                                i.btn-links.fas.fa-times(style="font-size: 2em;")
-                                            a.reviewReject.btn-links(title="Move" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.btn-links.fas.fa-folder-plus(style="font-size: 2em;")
+                                                    a.manage-grid-item.btn.btn-danger.mb-1(title="Archive or Delete Item(s)" href='#_' onClick=`selectedActionMenu("ArchivePost"); return false;`).d-flex.d-flex.flex-column.justify-content-center
+                                                        i.fas.fa-trash.pr-2.align-self-center
+                                                        span Delete
+                                                    //a.manage-grid-item.btn.btn-danger.mb-1(title="Generate New Thumbnails" href='#_' onClick=`selectedActionMenu("Thumbnail"); return false;`).d-flex.d-flex.flex-column
+                                                        i.fas.fa-image.pr-2.align-self-center
+                                                        span Repair Thumbnail
+                                                    a.manage-grid-item.btn.btn-danger.mb-1(title="Clear Reported Item(s)" href='#_' onClick=`selectedActionMenu("Report"); return false;`).d-flex.d-flex.flex-column.justify-content-center
+                                                        i.fas.fa-flag.pr-2.align-self-center
+                                                        span Clear Report
+                                            .m-0.row.align-items-center.mt-2(style="width: inherit;overflow-x: clip;")
+                                                a.btn-links.mr-auto(title="Cancel" href='#_' onclick=`exitPanel("${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-times(style="font-size: 2em;")
+                                    div(class="collapse" id=`imageMove-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").panel-height
+                                        div.shadow-text.d-flex.flex-column.review-item
+                                            .m-0.align-items-center.review-menu-move.move-content.rounded(style="width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;")
+                                            .m-0.row.align-items-center.review-menu-move.mt-2(style="width: inherit;overflow-x: clip;")
+                                                a.reviewReject.btn-links.mr-auto(title="Cancel" href='#_' onclick=`exitPanel("${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-times(style="font-size: 2em;")
+                                                a.reviewReject.btn-links(title="Move" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-folder-plus(style="font-size: 2em;")
 
-                                        .row.ml-auto.mr-auto.p-2.align-items-center.review-menu-main(style="width: inherit;")
-                                            if (user && user.source < 900)
-                                                a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
-                                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
-                                            .collapse.p-0.no-dynamic-tiny(id=`options-${item.id}`).mr-auto
-                                                a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
-                                                    i.btn-links.fas.fa-archive
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;`)
-                                                    i.btn-links.fas.fa-info-circle
-                                            a.btn.btn-links.no-dynamic-tiny(type='button' data-toggle='collapse' data-target=`#options-${item.id}`)
-                                                i.btn-links.fas.fa-ellipsis-h
-
-
-
-                                        .row.ml-auto.mr-auto.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
-                                            .col.no-dynamic-tiny(style="height: inherit;").position-relative
-                                                div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; left: 0; text-shadow: none").pl-2
-                                                    a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#accept-options-${item.id}`)
-                                                        i.btn-links.fas.fa-arrow-left(style="color: #bfffbf;")
-                                                    .collapse(id=`accept-options-${item.id}`)
-                                                        div.d-flex.flex-column.badge.bg-success(font-size: inherit)
-                                                            a.reviewAccept.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
-                                                                i.text-white.fas.fa-check(style="font-size: 2em;")
-
-                                            .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
-                                                a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()` style="position: absolute;top: 40%;")
-                                                    i.btn-links.fas.fa-search(style="font-size: 2em;")
-
-                                            .col.no-dynamic-tiny(style="height: inherit;").position-relative
-                                                div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; right: 0; text-shadow: none").pr-2
-                                                    a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#delete-options-${item.id}`)
-                                                        i.btn-links.fas.fa-arrow-left(style="color: #ff90a8;")
-                                                    .collapse(id=`delete-options-${item.id}`)
-                                                        div.d-flex.flex-column.badge.bg-danger(font-size: inherit)
-                                                            a.reviewReject.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
-                                                                i.text-white.fas.fa-trash-alt(style="font-size: 2em;")
+                                    div(class="collapse" id=`imageFastReview-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").review-item-panel.panel-height
+                                        div.shadow-text.d-flex.flex-column.review-item
+                                            .row.m-0.align-items-center.review-menu-main(style="width: inherit;")
+                                                if (user && user.source < 900)
+                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                        i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                                .collapse.p-0.no-dynamic-tiny(id=`options-${item.id}`).mr-auto
+                                                    a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                        i.btn-links.fas.fa-archive
+                                                    a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;`)
+                                                        i.btn-links.fas.fa-info-circle
+                                                a.btn.btn-links.no-dynamic-tiny(type='button' data-toggle='collapse' data-target=`#options-${item.id}`)
+                                                    i.btn-links.fas.fa-ellipsis-h
 
 
-                                        .row.ml-auto.mr-auto.review-menu-main(style="width: inherit;")
-                                            a.reviewAccept.btn-links.p-3.mr-auto(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.btn-links.fas.fa-check(style="font-size: 2em; color: #bfffbf;")
-                                            a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.btn-links.fas.fa-cut(style="font-size: 2em;")
-                                            a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                                i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
 
-                                div.text-container.shadow-text.no-dynamic-tiny
-                                    if (!(item.content.single && item.content.single.length > 1) && isVideo)
-                                        p.text.p-start #{item.entities.filename}
-                                    else
-                                        p.text.p-start #{item.content.single}
-                                    p.date.p-mid #{item.date.pretty}
-                                    if (item.entities.meta.filesize && item.entities.meta.fileid !== null)
-                                        p.text.p-mid #{item.entities.meta.filesize} MB
-                                    if (multiChannel && item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
-                                        p.channel.p-mid #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
-                                    if (item.user.name)
-                                        p.date.p-mid #{item.user.name}
-                                    if (item.history.name)
-                                        .history-icons-container.pt-start
-                                            p.history-name.shadow-text.text.m-0.history-item
-                                                if (item.history.type === 'ads-lite')
-                                                    i.fas.fa-image-landscape.pr-1
-                                                else if (item.history.type === 'ads-widget')
-                                                    i.pr-1.fab.fa-app-store-ios
-                                                else if (item.history.type === 'ads-micro')
-                                                    i.fas.fa-laptop.pr-1
-                                                else if (item.history.type === 'ads-mobile')
-                                                    i.fas.fa-mobile-alt.pl-1pr-1
-                                                else if (item.history.type === 'ads-embed')
-                                                    i.fas.fa-dice-five.pr-1.pl-1
-                                                else if (item.history.type === 'homepage')
-                                                    i.fas.fa-home.pr-1
-                                                else if (item.history.type === 'webextention')
-                                                    i.fab.fa-edge.pr-1
-                                                else if (item.history.type === 'pagehistory')
-                                                    i.fas.fa-history.pr-1
-                                                span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
-                                            p.history-date.shadow-text.text.m-0.history-item
-                                                span #{item.history.date}
-                                    .status-icons-container.pt-start
-                                        if (res >= 5500)
-                                            img(title=`Greater then 5500px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
-                                        else if (res >= 5000)
-                                            img(title=`Greater then 5000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_5k_white_24dp.png").status-icons
-                                        else if (res >= 4000)
-                                            img(title=`Greater then 4000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_4k_white_24dp.png").status-icons
-                                        else if (res >= 3000)
-                                            img(title=`Greater then 3000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_3k_white_24dp.png").status-icons
-                                        else if (res >= 2000)
-                                            img(title=`Greater then 2000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
-                                        else if (res >= 1080)
-                                            img(title=`Greater then 1000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
-                                        else if (res >= 720)
-                                            img(title=`Greater then 720px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
-                                        else if (res >= 640)
-                                            img(title=`Greater then 640px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else if (res >= 480)
-                                            img(title=`Greater then 480px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else
-                                            img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        if (item.flagged)
-                                            img(title="Image was reported" src="/static/img/icons/status/baseline_flag_white_24dp.png").status-icons
+                                            .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
+                                                .col.no-dynamic-tiny(style="height: inherit;").position-relative
+                                                    div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; left: 0; text-shadow: none").pl-2
+                                                        a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#accept-options-${item.id}`)
+                                                            i.btn-links.fas.fa-arrow-left(style="color: #bfffbf;")
+                                                        .collapse(id=`accept-options-${item.id}`)
+                                                            div.d-flex.flex-column.badge.bg-success(font-size: inherit)
+                                                                a.reviewAccept.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
+                                                                    i.text-white.fas.fa-check(style="font-size: 2em;")
 
-                                        if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
-                                            img(title=`Portrait Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_portrait_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
-                                            img(title=`Square Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio < 0.9)
-                                            img(title=`Widescreen Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
-                                div.image-container.no-dynamic-tiny
-                                    if (item.user.avatar)
-                                        img.server.rounded-circle(src=item.user.avatar)
-                                    else if (item.server.icon)
-                                        img.server.rounded-circle(src=item.server.icon)
-                                div.links-container.text-primary.no-dynamic-tiny
-                                    div.links
-                                        div.left-links.row-2
-                                            if (user && user.source < 900 && item.entities.meta.fileid !== null && isVideo)
-                                                a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
-                                                    i.btn-links.fas.fa-play
-                                        div.right-links.row-2
+                                                .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
+                                                    a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()` style="position: absolute;top: 40%;")
+                                                        i.btn-links.fas.fa-search(style="font-size: 2em;")
 
+                                                .col.no-dynamic-tiny(style="height: inherit;").position-relative
+                                                    div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; right: 0; text-shadow: none").pr-2
+                                                        a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#delete-options-${item.id}`)
+                                                            i.btn-links.fas.fa-arrow-left(style="color: #ff90a8;")
+                                                        .collapse(id=`delete-options-${item.id}`)
+                                                            div.d-flex.flex-column.badge.bg-danger(font-size: inherit)
+                                                                a.reviewReject.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
+                                                                    i.text-white.fas.fa-trash-alt(style="font-size: 2em;")
+
+
+                                            .row.m-0.review-menu-main(style="width: inherit;")
+                                                a.reviewAccept.btn-links.p-3.mr-auto(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-check(style="font-size: 2em; color: #bfffbf;")
+                                                a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-cut(style="font-size: 2em;")
+                                                a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
 
                             - fileURL = item.entities.full
                             - previewURL = item.entities.preview;
@@ -335,7 +321,7 @@ block content
                                 if (!isVideo)
                                     if (item.entities.meta.ratio && item.entities.meta.ratio > 1.2)
                                         - positionImage = 'background-position: top;'
-                                    if (item.entities.meta.ratio && (item.entities.meta.ratio >= 1.7 ||item.entities.meta.ratio <= 0.6))
+                                    if (item.entities.meta.ratio && (item.entities.meta.ratio >= 1.7 || item.entities.meta.ratio <= 0.6))
                                         - positionImage = 'background-size: contain!important; background-position: center!important; background-repeat: no-repeat;'
                                         - noHoverClass = 'no-hover'
                                     else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)

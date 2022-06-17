@@ -1677,6 +1677,7 @@ module.exports = async (req, res, next) => {
                                                     vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                                     vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                                     name: channelName,
+                                                    icon: item.class_icon,
                                                     class_name: item.class_name,
                                                     class: item.classification
                                                 },
@@ -1811,6 +1812,7 @@ module.exports = async (req, res, next) => {
                                             vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                             vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                             name: channelName,
+                                            icon: item.class_icon,
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
@@ -2039,6 +2041,7 @@ module.exports = async (req, res, next) => {
                                                 vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                                 vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                                 name: channelName,
+                                                icon: item.class_icon,
                                                 class_name: item.class_name,
                                                 class: item.classification
                                             },
@@ -2149,6 +2152,7 @@ module.exports = async (req, res, next) => {
                                             vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                             vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                             name: channelName,
+                                            icon: item.class_icon,
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
@@ -2229,6 +2233,7 @@ module.exports = async (req, res, next) => {
                                             vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                             vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                             name: channelName,
+                                            icon: item.class_icon,
                                             class_name: item.class_name,
                                             class: item.classification
                                         },

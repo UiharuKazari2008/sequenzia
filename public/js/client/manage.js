@@ -384,6 +384,36 @@ function setupReviewMode(bypass) {
     }
     return false;
 }
+function showManagePanel(messageid) {
+    $(`#imageManage-${messageid}`).collapse('show');
+    const image = document.getElementById(`message-${messageid}`);
+    [].forEach.call(image.querySelectorAll('.overlay-icons'), function (el) {
+        el.classList.add("hidden");
+    });
+    [].forEach.call(image.querySelectorAll('.internal-lightbox'), function (el) {
+        el.style.display = "block";
+        el.classList.add("no-bg");
+    });
+    [].forEach.call(image.querySelectorAll('.lightbox'), function (el) {
+        el.classList.add("disabled-pointer");
+        el.querySelector('#postImage').classList.add("show-full");
+    });
+}
+function exitManagePanel(messageid) {
+    const image = document.getElementById(`message-${messageid}`);
+    [].forEach.call(image.querySelectorAll('.overlay-icons'), function (el) {
+        el.classList.remove("hidden");
+    });
+    [].forEach.call(image.querySelectorAll('.internal-lightbox'), function (el) {
+        el.removeAttribute("style", 'display')
+        el.classList.remove("no-bg");
+    });
+    [].forEach.call(image.querySelectorAll('.lightbox'), function (el) {
+        el.classList.remove("disabled-pointer");
+        el.querySelector('#postImage').classList.remove("show-full");
+    });
+    exitPanel(messageid);
+}
 function enableReviewMode(setFromDialog) {
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
@@ -406,22 +436,8 @@ function enableReviewMode(setFromDialog) {
         inReviewMode = true;
         pageType = $.history.url().split('?')[0].substring(1)
         if (pageType.includes('gallery')) {
-            [].forEach.call(document.getElementsByClassName('review-item'), function (el) {
-                el.classList.remove("hidden");
-            });
-            [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
-                el.classList.add("hidden");
-            });
-            [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
-                el.classList.add("hidden");
-            });
-            [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
-                el.classList.add("hidden");
-            });
-            [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
-                el.classList.add("hidden");
-            });
-            [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+            $('.review-item-panel').collapse('show');
+            [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
                 el.classList.add("hidden");
             });
             [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
@@ -456,29 +472,14 @@ function disableReviewMode() {
     pageType = $.history.url().split('?')[0].substring(1)
     modeSelection = 'none';
     if (pageType.includes('gallery')) {
-        [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('review-item'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+        $('.main-panel').collapse('show');
+        [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
             el.classList.remove("hidden");
         });
         [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
             el.removeAttribute("style", 'display')
             el.classList.remove("no-bg");
         });
-
         [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
             el.classList.remove("disabled-pointer");
             el.querySelector('#postImage').classList.remove("show-full");
@@ -549,27 +550,29 @@ function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     }
     return false;
 }
-function exitMoveMenu(messageid) {
-    Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.remove('hidden'));
-    Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')).map(el => el.classList.add('hidden'));
+function exitPanel(messageid) {
+    if (inReviewMode) {
+        $(`#imageFastReview-${messageid}`).collapse('show');
+    } else {
+        $(`#imageCover-${messageid}`).collapse('show');
+    }
     return false;
 }
 function acceptMenu(serverid, channelid, messageid, fileStatus) {
     if (recentPostDestination && recentPostDestination.length > 0) {
-        const destinationMenu = document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-move')
+        const destinationMenu = document.getElementById(`imageMove-${messageid}`).querySelector('.move-content')
         let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<li class="list-group-item" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
+                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="actionSelection = 'MovePost'; postsDestination = '${e}'; postsActions = [{messageid: '${messageid}', channelid: '${channelid}', serverid: '${serverid}'}]; proccessPost(); return false">` +
                     `    <span style="">${n}</span>` +
                     `</li>`
             }
 
         })
         if (rdest.length > 0) {
-            destinationMenu[0].innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
-            Array.from(document.getElementById(`message-${messageid}`).querySelectorAll('.review-menu-main')).map(el => el.classList.add('hidden'));
-            Array.from(destinationMenu).map(el => el.classList.remove('hidden'));
+            destinationMenu.innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
+            $(`#imageMove-${messageid}`).collapse('show');
         } else {
             acceptItem(serverid, channelid, messageid, false, fileStatus);
         }
