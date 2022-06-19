@@ -190,24 +190,17 @@ function selectedActionMenu(action) {
 function enableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
     if (pageType.includes('gallery')) {
-        [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+        $('.select-panel').collapse('show');
+        [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
             el.classList.add("hidden");
         });
         [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
             el.style.display = "block";
             el.classList.add("no-bg");
+        });
+        [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+            el.classList.add("disabled-pointer");
+            el.querySelector('#postImage').classList.add("show-full");
         });
     } else if (pageType.includes('file') || pageType.includes('card')) {
         [].forEach.call(document.getElementsByClassName('file-tools'), function (el) {
@@ -217,31 +210,28 @@ function enableGallerySelect() {
             el.classList.remove("hidden");
         });
     }
-    $('.done-btns').removeClass("hidden");
-    $('.edit-btns').addClass("hidden");
+    try {
+        $('.done-btns').removeClass("hidden");
+        $('.edit-btns').addClass("hidden");
+    } catch (e) {
+        console.log('Failed to set button groups')
+    }
 }
 function disableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
     modeSelection = 'none';
     if (pageType.includes('gallery')) {
-        [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+        $('.main-panel').collapse('show');
+        [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
             el.classList.remove("hidden");
         });
         [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
             el.removeAttribute("style", 'display')
             el.classList.remove("no-bg");
+        });
+        [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+            el.classList.remove("disabled-pointer");
+            el.querySelector('#postImage').classList.remove("show-full");
         });
         [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
             el.querySelector('#checkItem').classList.remove('hidden')
