@@ -183,6 +183,7 @@ function selectedActionMenu(action) {
             }
             window.setTimeout(buttonCountdown, 1000);
         }
+        $('#actionModel').modal('show');
     }
     return false;
 }
@@ -256,7 +257,12 @@ function disableGallerySelect() {
         console.log('Failed to reset button groups')
     }
 }
-function selectPostToMode(serverid, channelid, messageid, modeType, fileStatus) {
+function selectPostToMode(messageid, modeType) {
+    const _post = document.getElementById(`message-${messageid}`);
+    const channelid = _post.getAttribute('data-msg-channel');
+    const serverid = _post.getAttribute('data-msg-server');
+    const _fileStatus = _post.getAttribute('data-msg-fileid');
+    const fileStatus = (_fileStatus && _fileStatus.length > 5) ? _fileStatus : undefined
     pageType = $.history.url().split('?')[0].substring(1)
 
     if (postsActions.length === 0) {

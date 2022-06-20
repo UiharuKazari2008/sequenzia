@@ -13,6 +13,7 @@ const { router: routesTelegram } = require('./routes/telegram');
 const { printLine } = require('./js/logSystem');
 let routesUpload = require('./routes/upload');
 const bodyParser = require('body-parser');
+const compression = require('compression')
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -118,36 +119,38 @@ app.use(function (req, res, next) {
 })
 
 app.use(cors());
+app.use(compression());
 app.use(morgan(function(tokens, req, res) {
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
     if (req.session && req.session.user && req.session.user.username) {
         username = req.session.user.username;
     }
-    if (res.statusCode !== 304 && res.method === 'GET') {
-        printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
-            method: req.method,
-            url: req.originalUrl,
-            base: baseURL,
-            status: res.statusCode,
-            params: req.query,
-            length: tokens.res(req, res, 'content-length'),
-            time: tokens['response-time'](req, res),
-            username: username,
-        })
-    } else {
-        printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
-            method: req.method,
-            url: req.originalUrl,
-            base: baseURL,
-            status: res.statusCode,
-            params: req.query,
-            length: 0,
-            time: parseInt(tokens['response-time'](req, res)),
-            username: username,
-        })
+    if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
+        if (res.statusCode !== 304 && res.method === 'GET') {
+            printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
+                method: req.method,
+                url: req.originalUrl,
+                base: baseURL,
+                status: res.statusCode,
+                params: req.query,
+                length: tokens.res(req, res, 'content-length'),
+                time: tokens['response-time'](req, res),
+                username: username,
+            })
+        } else {
+            printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
+                method: req.method,
+                url: req.originalUrl,
+                base: baseURL,
+                status: res.statusCode,
+                params: req.query,
+                length: 0,
+                time: parseInt(tokens['response-time'](req, res)),
+                username: username,
+            })
+        }
     }
-
 }));
 
 app.use(bodyParser.urlencoded({ extended: true }));

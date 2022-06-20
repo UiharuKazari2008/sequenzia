@@ -1720,36 +1720,44 @@ html
                                     button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                         span(aria-hidden='true') &times;
                                 .modal-body
-                                    div.row.pl-3.pr-3.flex-nowrap
-                                        a#toggleFavoritePost.btn.btn-primary.mb-2(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis.mr-1
+                                    div.row.px-2.flex-nowrap.mb-2
+                                        a#toggleFavoritePost.btn.btn-primary.mx-1(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis
                                             i.fas.fa-star.pr-sm-2
                                             span.d-none.d-sm-inline Favorite
-                                        a#manageAlbumPost.btn.btn-primary.mb-2(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis.ml-1
+                                        a#manageAlbumPost.btn.btn-primary.mx-1(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis
                                             i.fas.fa-archive.pr-sm-2
                                             span.d-none.d-sm-inline Albums
-                                        a#managePost.btn.btn-primary.mb-2(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis.ml-2
-                                            i.fas.fa-paste.pr-sm-2
-                                            span.d-none.d-sm-inline Manage
-                                    div.row.pl-3.pr-3
-                                        a#goToDownload.btn.btn-success(href='#_' role='button' target="_blank" rel="noopener noreferrer").mb-2.w-100.text-ellipsis
-                                            i.fas.fa-download.pr-2
-                                            span Direct Download
-                                    div.row.pl-3.pr-3
+
+                                    div.row.px-2.flex-nowrap.mb-2
+                                        a#goToPostLocation.btn.btn-primary.mx-1(href='#_' role='button').w-100.text-ellipsis
+                                            i.fas.fa-directions.pr-sm-2
+                                            span.d-none.d-sm-inline Location
+                                        a#goToPostSource.btn.btn-primary.mx-1(href='#_' role='button').w-100.hidden.text-ellipsis
+                                            i.fas.fa-globe-americas.pr-sm-2
+                                            span.d-none.d-sm-inline Source
+                                        a#goToHistoryDisplay.btn.btn-primary.mx-1(href='#_' role='button').w-100.text-ellipsis
+                                            i.fas.fa-history.pr-sm-2
+                                            span.d-none.d-sm-inline History
+                                        a#goToDownload.btn.btn-success.mx-1(href='#_' role='button' target="_blank" rel="noopener noreferrer").w-100.text-ellipsis
+                                            i.fas.fa-download.pr-sm-2
+                                            span.d-none.d-sm-inline Download
+                                    div.row.px-3
                                         div#rawBodyContent.mb-3.mt-1.text-center.w-100
                                             div.card-ui
-                                    div.row.pl-3.pr-3
-                                        a#goToPostLocation.btn.btn-primary(href='#_' role='button').w-100.text-ellipsis
-                                            i.fas.fa-directions.pr-2
-                                            span Go to channel
-                                    div.row.pl-3.pr-3
-                                        a#goToPostSource.btn.btn-primary(href='#_' role='button').mt-2.w-100.hidden.text-ellipsis
-                                            i.fas.fa-globe-americas.pr-2
-                                            span Go to source
-                                    div.row.pl-3.pr-3
-                                        a#goToHistoryDisplay.btn.btn-primary(href='#_' role='button').mt-2.w-100.text-ellipsis
-                                            i.fas.fa-history.pr-2
-                                            span Go to display
-                                    div.row.pl-3.pr-3.mt-3
+                                    div#manageButtons.row.px-2.flex-nowrap
+                                        a#infoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-cut
+                                        a#infoRename.btn.btn-danger.mx-1.mb-2(title="Rename Item" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-font
+                                        a#infoRotae.btn.btn-danger.mx-1.mb-2(title="Rotate Image" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-undo
+                                        a#infoDelete.btn.btn-danger.mx-1.mb-2(title="Archive or Delete Item(s)" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-trash
+                                        a#infoCompile.btn.btn-danger.mx-1.mb-2(title="Compile Spanned File" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-box-open
+                                        a#infoReport.btn.btn-danger.mx-1.mb-2(title="Clear Reported Item(s)" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-flag
+                                    div.row.pl-3.pr-3.mt-2
                                         h3 Search
                                     div.row.pl-3.pr-3
                                         a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
@@ -1771,8 +1779,6 @@ html
                                         a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
                                             i.fas.fa-i-cursor.pr-2
                                             span Selected Text
-                                    div.row.pl-3.pr-3.mt-3
-                                        h5 Location
                                     div.row.pl-3.pr-3
                                         div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
                                             label#searchFilterPost.btn.btn-info.w-100.active
@@ -1784,6 +1790,16 @@ html
                                             label#searchFilterEverywhere.btn.btn-info.w-100
                                                 input(type='radio' name='options' autocomplete='off' data-search-location='')
                                                 span  Everywhere
+                                    //div.row.pl-3.pr-3.mt-3
+                                        h3 Management
+                                    //div.row.pl-3.pr-3
+
+                                    //div.row.pl-3.pr-3
+                                        a#actionModelThumb.btn.btn-danger.w-100.mb-1(title="Generate New Thumbnails" href='#_' onClick=`selectedActionMenu("Thumbnail"); return false;`).d-flex
+                                            i.fas.fa-image.pr-2.align-self-center
+                                            span Repair Thumbnail
+                                    //div.row.pl-3.pr-3
+
 
 
                     #appModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')

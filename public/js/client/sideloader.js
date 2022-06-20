@@ -1105,13 +1105,13 @@ let notificationControler = null;
 
 async function showSearchOptions(post) {
     const _post = document.getElementById(`message-${post}`);
-    console.log(_post);
     const postChannel = _post.getAttribute('data-msg-channel');
     const postServer = _post.getAttribute('data-msg-server');
     const postChannelString = _post.getAttribute('data-msg-channel-string');
     const postDisplayName = _post.getAttribute('data-msg-displayname');
     const postDownload = _post.getAttribute('data-msg-download');
     const postFilename = _post.getAttribute('data-msg-filename');
+    const postFilID = _post.getAttribute('data-msg-fileid');
     const postEID = _post.getAttribute('data-msg-eid');
     const postID = _post.getAttribute('data-msg-id');
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
@@ -1135,7 +1135,13 @@ async function showSearchOptions(post) {
     const modalBodyRaw = document.getElementById(`rawBodyContent`);
     const modalToggleFav = document.getElementById(`toggleFavoritePost`);
     const modalToggleAlbum = document.getElementById(`manageAlbumPost`);
-    const modalManagePost = document.getElementById(`managePost`);
+    const modalManageButtons = document.getElementById(`manageButtons`);
+    const modalMove = document.getElementById(`infoMove`);
+    const modalDelete = document.getElementById(`infoDelete`);
+    const modalRename = document.getElementById(`infoRename`);
+    const modalCompile = document.getElementById(`infoCompile`);
+    const modalRotate = document.getElementById(`infoRotae`);
+    const modalReport = document.getElementById(`infoReport`);
 
     document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', postChannel]])}`)
@@ -1171,23 +1177,79 @@ async function showSearchOptions(post) {
         return false;
     }
     if (postChannelString && postChannelString.length > 0) {
-        modalGoToPostLocation.querySelector('span').textContent = `Go To "${postChannelString}"`
+        modalGoToPostLocation.title = `Go To "${postChannelString}"`
     } else {
-        modalGoToPostLocation.querySelector('span').textContent = 'Go To Channel'
+        modalGoToPostLocation.title = 'Go To Channel'
     }
-    if (manageAllowed) {
-        modalManagePost.onclick = function() {
-            selectPostToMode(`${postServer}`, `${postChannel}`, `${postID}`, false);
-            openActionMenu();
-            return false;
+    if (manageAllowed && !($('.select-panel').hasClass('show'))) {
+        modalReport.classList.remove('hidden');
+        modalReport.onclick = function() {
+            postsActions = [];
+            selectPostToMode(postID, false);
+            selectedActionMenu("Report");
         }
-        modalManagePost.classList.remove('hidden')
+
+        modalMove.classList.remove('hidden');
+        modalMove.onclick = function() {
+            postsActions = [];
+            updateRecentPostDestinations();
+            selectPostToMode(postID, false);
+            selectedActionMenu("MovePost");
+        }
+
+        modalDelete.classList.remove('hidden');
+        modalDelete.onclick = function() {
+            postsActions = [];
+            selectPostToMode(postID, false);
+            selectedActionMenu("ArchivePost");
+        }
+
+        if (pageType.includes('gallery')) {
+            modalRotate.classList.remove('hidden');
+            modalRotate.onclick = function() {
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("RotatePost");
+            }
+        } else {
+            modalRotate.classList.add('hidden');
+            modalRotate.onclick = null;
+        }
+        if (postFilID && postFilID.length > 0) {
+            modalRename.classList.remove('hidden');
+            modalRename.onclick = function() {
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("RenamePost");
+            }
+            modalCompile.classList.remove('hidden');
+            modalCompile.onclick = function() {
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("CompileSF");
+            }
+        } else {
+            modalRename.classList.add('hidden');
+            modalRename.onclick = null;
+            modalCompile.classList.add('hidden');
+            modalCompile.onclick = null;
+        }
     } else {
-        modalManagePost.onclick = function() { return false; };
-        modalManagePost.classList.add('hidden')
+        modalReport.classList.add('hidden');
+        modalReport.onclick = null;
+        modalMove.classList.add('hidden');
+        modalMove.onclick = null;
+        modalDelete.classList.add('hidden');
+        modalDelete.onclick = null;
+        modalRename.classList.add('hidden');
+        modalRename.onclick = null;
+        modalRotate.classList.add('hidden');
+        modalRotate.onclick = null;
+        modalCompile.classList.add('hidden');
+        modalCompile.onclick = null;
     }
     if (searchSource && searchSource.length > 0) {
-        modalGoToPostSource.querySelector('span').textContent = `Go To "${searchSource}"`
+        modalGoToPostSource.title = `Go To "${searchSource}"`
         modalGoToPostSource.onclick = function() {
             $('#searchModal').modal('hide');
             $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
@@ -1195,12 +1257,12 @@ async function showSearchOptions(post) {
         }
         modalGoToPostSource.classList.remove('hidden')
     } else {
-        modalGoToPostSource.querySelector('span').textContent = 'Go To Source'
+        modalGoToPostSource.title = 'Go To Source'
         modalGoToPostSource.onclick = function() { return false; };
         modalGoToPostSource.classList.add('hidden')
     }
     if (postDownload && postDownload.length > 0) {
-        modalDownloadButton.querySelector('span').textContent = `Direct Download`
+        modalDownloadButton.title = `Direct Download`
         modalDownloadButton.href = postDownload
         if (postFilename && postFilename.length > 0) {
             modalDownloadButton.download = postDownload
@@ -1211,11 +1273,11 @@ async function showSearchOptions(post) {
     } else {
         modalDownloadButton.href = '#_'
         modalDownloadButton.download = ''
-        modalDownloadButton.querySelector('span').textContent = 'Direct Download'
+        modalDownloadButton.title = 'Direct Download'
         modalDownloadButton.classList.add('hidden')
     }
     if (postDisplayName && postDisplayName.length > 0) {
-        modalGoToHistoryDisplay.querySelector('span').textContent = `View "${postDisplayName}"`
+        modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
         modalGoToHistoryDisplay.onclick = function() {
             $('#searchModal').modal('hide');
             $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
@@ -1223,7 +1285,7 @@ async function showSearchOptions(post) {
         }
         modalGoToHistoryDisplay.classList.remove('hidden')
     } else {
-        modalGoToHistoryDisplay.querySelector('span').textContent = 'View History'
+        modalGoToHistoryDisplay.title = 'View History'
         modalGoToHistoryDisplay.onclick = function() { return false; };
         modalGoToHistoryDisplay.classList.add('hidden')
     }
@@ -1272,17 +1334,22 @@ async function showSearchOptions(post) {
         modalSearchByID.classList.add('hidden')
     }
     if (postBody && postBody.length > 0) {
-        const regexItalic = /\*\*\*(.*?)\*\*\*/g;
-        while (postBody.includes('***')) {
-            let matched = regexItalic.exec(postBody);
-            let wrap = "<i>" + matched[1] + "</i>";
-            postBody = postBody.replace(`***${matched[1]}***`, wrap);
-        }
-        const regexBold = /\*\*(.*?)\*\*/g;
-        while (postBody.includes('**')) {
-            let matched = regexBold.exec(postBody);
-            let wrap = "<b>" + matched[1] + "</b>";
-            postBody = postBody.replace(`**${matched[1]}**`, wrap);
+        try {
+            const regexItalic = /\*\*\*(.*?)\*\*\*/g;
+            while (postBody.includes('***')) {
+                let matched = regexItalic.exec(postBody);
+                let wrap = "<i>" + matched[1] + "</i>";
+                postBody = postBody.replace(`***${matched[1]}***`, wrap);
+            }
+            const regexBold = /\*\*(.*?)\*\*/g;
+            while (postBody.includes('**')) {
+                let matched = regexBold.exec(postBody);
+                let wrap = "<b>" + matched[1] + "</b>";
+                postBody = postBody.replace(`**${matched[1]}**`, wrap);
+            }
+        } catch (e) {
+            console.error(`Failed to prettyfy the post body!`)
+            console.error(e)
         }
 
         modalBodyRaw.querySelector('div').innerHTML = postBody

@@ -9,8 +9,10 @@ const moment = require('moment');
 const useragent = require('express-useragent');
 const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
+const app = require("../app");
 
 module.exports = async (req, res, next) => {
+    let debugTimes = {};
     const source = req.headers['user-agent']
     const ua = (source) ? useragent.parse(source) : undefined
     const page_uri = `/${req.originalUrl.split('/')[1].split('?')[0]}`
@@ -94,6 +96,7 @@ module.exports = async (req, res, next) => {
             _dn = 'PageResults'
         }
 
+        debugTimes.build_query = new Date();
         // Main Query
         let baseQ = ''
         if (req.query.channel && req.query.channel === 'random') {
@@ -828,9 +831,8 @@ module.exports = async (req, res, next) => {
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
-        const selectUsers = `SELECT DISTINCT id AS user_id, username AS user_name, nice_name AS user_nicename, avatar AS user_avatar FROM discord_users`;
 
-        let sqlCall = `SELECT * FROM (SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}) results LEFT OUTER JOIN (${selectUsers}) users ON ( results.user = users.user_id )`
+        let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
@@ -838,12 +840,16 @@ module.exports = async (req, res, next) => {
             sqlCall += ` ORDER BY ${sqlorder}`
         }
 
+        debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
         let countOfEverything, sumOfEVerything
         if (page_uri === '/start') {
+            debugTimes.sql_query = new Date();
             const totalCountsResults = await sqlPromiseSimple(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE (attachment_hash IS NOT NULL OR fileid IS NOT NULL)`)
             const imageResults = await sqlPromiseSimple(`${sqlCall} LIMIT ${sqllimit}`)
+            debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
 
+            debugTimes.post_proccessing = new Date();
             if (totalCountsResults && totalCountsResults.rows.length > 0) {
                 countOfEverything = totalCountsResults.rows[0].total_count;
                 sumOfEVerything = totalCountsResults.rows[0].total_data;
@@ -937,6 +943,9 @@ module.exports = async (req, res, next) => {
                     printLine('GetData', `Returning ${images.length} Random Images`, 'debug')
                 }
 
+                debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
+                console.log(debugTimes);
+                res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
@@ -957,6 +966,9 @@ module.exports = async (req, res, next) => {
                 }
                 next();
             } else {
+                debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
+                console.log(debugTimes);
+                res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
@@ -976,8 +988,11 @@ module.exports = async (req, res, next) => {
                 next();
             }
         } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
+            debugTimes.sql_query = new Date();
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
             const imageResults = await sqlPromiseSimple(ambientSQL)
+            debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
+            debugTimes.post_proccessing = new Date();
             if (imageResults && imageResults.rows.length > 0) {
                 const randomImage = imageResults.rows.splice(0, limit)
                 let images = [];
@@ -1175,7 +1190,9 @@ module.exports = async (req, res, next) => {
                     }
                     next();
                 }
+                debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
 
+                debugTimes.history_write = new Date();
                 let screenID = 0;
                 if (req.query.setscreen) {
                     switch (req.query.setscreen) {
@@ -1241,6 +1258,8 @@ module.exports = async (req, res, next) => {
                         }
                     }
                 }
+                debugTimes.history_write = (new Date() - debugTimes.history_write) / 1000;
+                console.log(debugTimes);
             } else {
                 res.locals.response = {
                     url: req.url,
@@ -1283,9 +1302,14 @@ module.exports = async (req, res, next) => {
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 }
+                debugTimes.sql_query_1 = new Date();
                 let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`);
+                debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
+                debugTimes.sql_query_2 = new Date();
                 const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
+                debugTimes.sql_query_2 = (new Date() - debugTimes.sql_query_2) / 1000;
 
+                debugTimes.post_proccessing = new Date();
                 if (countResults && countResults.rows.length > 0) {
                     let pages = [];
                     let currentPage = undefined;
@@ -1330,6 +1354,8 @@ module.exports = async (req, res, next) => {
                     } catch (e) {
                         pageList = undefined
                     }
+                    debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
+                    debugTimes.render = new Date();
                     res.render('pageinator', {
                         req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
                         pageList: pageList,
@@ -1337,6 +1363,8 @@ module.exports = async (req, res, next) => {
                         resultsCount: (count >= 2048) ? ((count)/1000).toFixed(0) + "K" : count,
                         history: history_urls.rows
                     })
+                    debugTimes.render = (new Date() - debugTimes.render) / 1000;
+                    console.log(debugTimes);
                 } else {
                     res.end();
                 }
@@ -1344,7 +1372,13 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
+            debugTimes.sql_query = new Date();
+            console.log(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
             const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
+            debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
+            const users = app.get('users').rows
+            const user_index = users.map(e => e.id)
+
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
@@ -1364,6 +1398,7 @@ module.exports = async (req, res, next) => {
                     let folderInfo;
                     let channelid = []
 
+                    debugTimes.post_proccessing = new Date();
                     if (req.query.title && req.query.title !== '') {
                         page_title = ''
                         full_title = ''
@@ -1621,6 +1656,19 @@ module.exports = async (req, res, next) => {
                                         }
                                     }
                                 }
+                                let post_user = (() => {
+                                    const _u = (user_index.indexOf(item.user) !== -1) ? users[user_index.indexOf(item.user)] : false
+                                    if (_u) {
+                                        return {
+                                            id: item.user,
+                                            name: (_u.nice_name) ? _u.nice_name: _u.username,
+                                            avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                        }
+                                    }
+                                    return {
+                                        id: item.user
+                                    }
+                                })()
 
                                 if (item.attachment_extra !== null) {
                                     // Unpack data here
@@ -1681,13 +1729,7 @@ module.exports = async (req, res, next) => {
                                                     class_name: item.class_name,
                                                     class: item.classification
                                                 },
-                                                user: {
-                                                    id: item.user,
-                                                    name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                                    avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
-                                                },
-                                                albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                                                applications_list: req.session.applications_list,
+                                                user: post_user,
                                                 server: {
                                                     id: item.server,
                                                     name: item.server_short_name.toUpperCase(),
@@ -1816,13 +1858,7 @@ module.exports = async (req, res, next) => {
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
-                                        user: {
-                                            id: item.user,
-                                            name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
-                                        },
-                                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                                        applications_list: req.session.applications_list,
+                                        user: post_user,
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
@@ -1879,6 +1915,19 @@ module.exports = async (req, res, next) => {
                                     })
                                 }
                                 const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                let post_user = (() => {
+                                    const _u = (user_index.indexOf(item.user) !== -1) ? users[user_index.indexOf(item.user)] : false
+                                    if (_u) {
+                                        return {
+                                            id: item.user,
+                                            name: (_u.nice_name) ? _u.nice_name: _u.username,
+                                            avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                        }
+                                    }
+                                    return {
+                                        id: item.user
+                                    }
+                                })()
 
                                 let _message_type
                                 let _message_extra
@@ -2045,13 +2094,7 @@ module.exports = async (req, res, next) => {
                                                 class_name: item.class_name,
                                                 class: item.classification
                                             },
-                                            user: {
-                                                id: item.user,
-                                                name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                                avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
-                                            },
-                                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                                            applications_list: req.session.applications_list,
+                                            user: post_user,
                                             server: {
                                                 id: item.server,
                                                 name: item.server_short_name.toUpperCase(),
@@ -2156,13 +2199,7 @@ module.exports = async (req, res, next) => {
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
-                                        user: {
-                                            id: item.user,
-                                            name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
-                                        },
-                                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                                        applications_list: req.session.applications_list,
+                                        user: post_user,
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
@@ -2237,13 +2274,7 @@ module.exports = async (req, res, next) => {
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
-                                        user: {
-                                            id: item.user,
-                                            name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png?size=4096` : null,
-                                        },
-                                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                                        applications_list: req.session.applications_list,
+                                        user: post_user,
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
@@ -2273,6 +2304,7 @@ module.exports = async (req, res, next) => {
 
                         let _req_uri = req.protocol + '://' + req.get('host') + req.originalUrl;
 
+                        debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
                         res.locals.response = {
                             title: page_title,
                             full_title: full_title,
@@ -2328,6 +2360,8 @@ module.exports = async (req, res, next) => {
                             username: req.session.discord.user.username,
                             folderInfo
                         })
+                        console.log(debugTimes);
+                        res.locals.debugTimes = debugTimes;
                         next();
                     } else {
                         printLine('GetImages', `No Results were returned`, 'warn');

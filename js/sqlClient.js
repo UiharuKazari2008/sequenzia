@@ -10,7 +10,8 @@ const sqlConnection = mysql.createPool({
     charset : 'utf8mb4',
     waitForConnections: true,
     connectionLimit: 5,
-    queueLimit: 0
+    queueLimit: 0,
+    debug: false
 });
 
 const sqlPromise = sqlConnection.promise();
