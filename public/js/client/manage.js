@@ -316,7 +316,6 @@ function selectPostToMode(messageid, modeType) {
         }
         try {
             $('#deSelectAll1')[0].classList.remove('hidden');
-            $('#deSelectAll2')[0].classList.remove('hidden');
         } catch (e) {
             console.log('Failed to reset selection button');
         }
@@ -339,17 +338,13 @@ function selectAllPoststoMode() {
     const selectButtons = document.querySelectorAll('.selectPostToMode:not(.hidden)');
     selectButtons.forEach(div => { div.click(); });
     $('#selectAll1')[0].classList.add('hidden');
-    $('#selectAll2')[0].classList.add('hidden');
     $('#deSelectAll1')[0].classList.remove('hidden');
-    $('#deSelectAll2')[0].classList.remove('hidden');
 }
 function deselectAllPoststoMode() {
     const selectButtons = document.querySelectorAll('.deselectPostToMode:not(.hidden)');
     selectButtons.forEach(div => { div.click(); });
     $('#selectAll1')[0].classList.remove('hidden');
-    $('#selectAll2')[0].classList.remove('hidden');
     $('#deSelectAll1')[0].classList.add('hidden');
-    $('#deSelectAll2')[0].classList.add('hidden');
 }
 
 // Fast Review
