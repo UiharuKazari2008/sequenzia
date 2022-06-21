@@ -130,14 +130,14 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Rename'
             actionModel.querySelector("#postID").innerText = `Rename ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             actionModel.querySelector("#sectionRenamePost").classList.remove("hidden")
-            oldFileName = $(`#message-${postsActions[0].messageid}`)[0].querySelector('.align-middle').innerText
+            oldFileName = document.getElementById(`message-${postsActions[0].messageid}`).getAttribute('data-msg-filename');
             actionModel.querySelector('#sectionIcon i').classList.add('fa-pencil-alt')
             actionModel.querySelector('#newName').value = oldFileName
-        } else if (actionSelection === 'Report') {
+        } else if (actionSelection === 'RemoveReport') {
             countdownTimer = 2;
             actionModel.querySelector("#ActionName").innerText = 'Clear'
             actionModel.querySelector("#postID").innerText = `Clear ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
-            actionModel.querySelector("#sectionArchivePost").classList.remove("hidden")
+            actionModel.querySelector("#sectionReportPost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-flag')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'Thumbnail') {
@@ -815,6 +815,7 @@ function clearactionModel() {
     actionModel.querySelector("#sectionRotatePost").classList.add("hidden");
     actionModel.querySelector("#sectionArchivePost").classList.add("hidden");
     actionModel.querySelector("#sectionGeneratePost").classList.add("hidden");
+    actionModel.querySelector("#sectionReportPost").classList.add("hidden");
     actionModel.querySelector("#sectionRenamePost").classList.add("hidden");
     actionModel.querySelector('#selectedMenu').classList.remove('d-none');
     actionModel.querySelector('#selectedAction').classList.add('d-none');

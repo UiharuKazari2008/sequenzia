@@ -140,6 +140,7 @@ async function setupReq (push) {
     $("body").addClass("sidebar-toggled");
     $(".sidebar").addClass("toggled");
     $('.sidebar .collapse').collapse('hide');
+    $('.modal').modal('hide');
     if ($(window).width() < 1700) {
         $(".music-player").removeClass("toggled");
     }
@@ -557,11 +558,11 @@ function getSearchContent(element, url) {
     }
     return false;
 }
-function getLimitContent() {
+function getLimitContent(perm) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
     const requestLimit = document.getElementById('limitRequested').value;
     if (requestLimit !== null && requestLimit !== '') {
-        const _url = params([], [['limit', requestLimit ]]);
+        const _url = params([], [[(perm) ? 'limit' : num, requestLimit ]]);
         setupReq()
         requestInprogress = $.ajax({async: true,
             url: _url,
@@ -1129,13 +1130,18 @@ async function showSearchOptions(post) {
     const postChannel = _post.getAttribute('data-msg-channel');
     const postServer = _post.getAttribute('data-msg-server');
     const postChannelString = _post.getAttribute('data-msg-channel-string');
+    const postChannelIcon = _post.getAttribute('data-msg-channel-icon');
     const postDisplayName = _post.getAttribute('data-msg-displayname');
     const postDownload = _post.getAttribute('data-msg-download');
     const postFilename = _post.getAttribute('data-msg-filename');
     const postFilID = _post.getAttribute('data-msg-fileid');
     const postEID = _post.getAttribute('data-msg-eid');
     const postID = _post.getAttribute('data-msg-id');
+    const postDate = _post.getAttribute('data-msg-date');
+    const postAuthorName = _post.getAttribute('data-msg-author');
+    const postAuthorImage = _post.getAttribute('data-msg-author-img');
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
+    const postFlagged = _post.getAttribute('data-msg-flagged') + '' === 'true';
     const nsfwString = _post.getAttribute('data-nsfw-string');
     const manageAllowed = _post.getAttribute('data-msg-manage') + '' === 'true';
 
@@ -1143,6 +1149,8 @@ async function showSearchOptions(post) {
     const searchParent = _post.getAttribute('data-search-parent');
     const searchColor = _post.getAttribute('data-search-color');
     const searchSource = _post.getAttribute('data-search-source');
+    const resolutionRatio = _post.getAttribute('data-msg-res');
+    const fileSize = _post.getAttribute('data-msg-filesize');
 
     const modalGoToPostLocation = document.getElementById(`goToPostLocation`);
     const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
@@ -1154,9 +1162,12 @@ async function showSearchOptions(post) {
     const modalSearchByColor = document.getElementById(`searchByColor`);
     const modalSearchByID = document.getElementById(`searchByID`);
     const modalBodyRaw = document.getElementById(`rawBodyContent`);
+    const modalInfoRaw = document.getElementById(`rawInfoContent`);
+    const modalAuthorData = document.getElementById(`authorData`);
+    const modalAdvRaw = document.getElementById(`advancedInfoBlock`);
     const modalToggleFav = document.getElementById(`toggleFavoritePost`);
+    const modalAddFlag = document.getElementById(`addFlagPost`);
     const modalToggleAlbum = document.getElementById(`manageAlbumPost`);
-    const modalManageButtons = document.getElementById(`manageButtons`);
     const modalMove = document.getElementById(`infoMove`);
     const modalDelete = document.getElementById(`infoDelete`);
     const modalRename = document.getElementById(`infoRename`);
@@ -1164,9 +1175,67 @@ async function showSearchOptions(post) {
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
 
+    let normalInfo = [];
+    let advancedInfo = [];
+
     document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', postChannel]])}`)
     document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [])}`)
+
+    advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
+    advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
+
+    if (postFlagged) {
+        normalInfo.push('<div class="badge badge-danger mx-1 ">')
+        normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
+        normalInfo.push('</div>')
+    }
+    if (resolutionRatio && resolutionRatio.length > 0) {
+        normalInfo.push('<div class="badge badge-light mx-1">')
+        const ratio = parseFloat(resolutionRatio.split(':')[1])
+        if (!isNaN(ratio)) {
+            if (ratio > 1.15) {
+                normalInfo.push(`<i class="fa fa-image-portrait pr-1"></i>`)
+            } else if (ratio >= 0.9 && ratio <= 1.15) {
+                normalInfo.push(`<i class="fa fa-image pr-1"></i>`)
+            } else {
+                normalInfo.push(`<i class="fa fa-image-landscape pr-1"></i>`)
+            }
+        }
+        normalInfo.push(`<i class="fa fa-ruler-triangle pr-1"></i><span>${resolutionRatio.split(':')[0]}</span>`)
+        normalInfo.push('</div>')
+    }
+    if (fileSize && fileSize.length > 0) {
+        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize} MB</span>`)
+        normalInfo.push('</div>')
+    }
+    if (postDate && postDate.length > 0) {
+        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>${postDate}</span>`)
+        normalInfo.push('</div>')
+    }
+    normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
+    if (postFilID && postFilID.length > 0) {
+        normalInfo.push('<div class="badge badge-warning text-dark mx-1 ">')
+        normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
+        normalInfo.push('</div>')
+        advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
+    }
+    if (postAuthorImage && postAuthorImage.length > 0) {
+        let imageURL = postAuthorImage
+        if (imageURL.includes('?size='))
+            imageURL = imageURL.split('?size=')[0] + '?size=64'
+        modalAuthorData.querySelector('img').src = imageURL
+    }
+    if (postAuthorName && postAuthorName.length > 0) {
+        modalAuthorData.querySelector('span').innerText = postAuthorName;
+    } else {
+        modalAuthorData.querySelector('span').innerText = 'Framework';
+        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
+        normalInfo.push('</div>')
+    }
 
     modalSearchSelectedText.onclick = function() {
         const text = window.getSelection().toString()
@@ -1197,6 +1266,10 @@ async function showSearchOptions(post) {
         refreshAlbumsList(`${postEID}`);
         return false;
     }
+    modalAddFlag.onclick = function() {
+        sendBasic(postChannel, postID, "Report", true);
+        return false;
+    }
     if (postChannelString && postChannelString.length > 0) {
         modalGoToPostLocation.title = `Go To "${postChannelString}"`
     } else {
@@ -1207,7 +1280,7 @@ async function showSearchOptions(post) {
         modalReport.onclick = function() {
             postsActions = [];
             selectPostToMode(postID, false);
-            selectedActionMenu("Report");
+            selectedActionMenu("RemoveReport");
         }
 
         modalMove.classList.remove('hidden');
@@ -1380,6 +1453,12 @@ async function showSearchOptions(post) {
         modalBodyRaw.classList.add('hidden')
     }
 
+    advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);
+    advancedInfo.push(`<div><i class="fa fa-folder pr-1"></i><span class="text-monospace" title="Discord Channel ID">${postChannel}</span></div>`);
+    advancedInfo.push(`<div><i class="fa fa-server pr-1"></i><span class="text-monospace" title="Discord Server ID">${postServer}</span></div>`);
+
+    modalInfoRaw.innerHTML = normalInfo.join('');
+    modalAdvRaw.innerHTML = advancedInfo.join('');
     $('#searchModal').modal('show');
     return false;
 }
@@ -2010,24 +2089,13 @@ function afterAction(action, data, id, confirm) {
                 console.log(e);
             }
         } else if (action === 'RenamePost') {
+            document.getElementById(`message-${id}`).setAttribute('data-msg-filename', newFileName);
             if (pageType.includes('file')) {
                 try {
                     message.querySelector('.align-middle').innerText = newFileName;
                 } catch (e) {
                     console.log(e);
                 }
-            }
-        } else if (action === 'Report') {
-            try {
-                message.querySelector('.report-link > i').classList.add('reported');
-            } catch (e) {
-                console.log(e);
-            }
-        } else if (action === 'RemoveReport') {
-            try {
-                message.querySelector('.report-link > i').classList.remove('reported');
-            } catch (e) {
-                console.log(e);
             }
         }
         if (confirm) {

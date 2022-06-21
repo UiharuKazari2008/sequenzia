@@ -314,49 +314,51 @@ html
                                                         i.fas.fa-arrow-left.fa-fw
                                                     if (!appData)
                                                         form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST").mr-auto
-                                                            .input-group(style='max-width: 130px;')
+                                                            .input-group(style='max-width: 160px;')
                                                                 .input-group-prepend
                                                                     span.input-group-text.bg-translucent.border-0
-                                                                        i.fa-light.fa-rectangles-mixed.fa-sm.align-middle.text-primary
+                                                                        i.fa-light.fa-grid.fa-sm.align-middle.text-primary
                                                                 input(type="submit" style="display: none" onclick=`getLimitContent(); return false;`)
                                                                 input#limitRequested.form-control.bg-translucent.border-0.small.text-left(type='text' value=req_limit)
                                                                 .input-group-append
-                                                                    a.input-group-text.btn-primary.border-0.bg-translucent(title="Request New Limit" href='#_', onclick=`getLimitContent(); return false;`)
+                                                                    a.input-group-text.btn-primary.border-0.bg-translucent(title="Get Temp Limit" href='#_', onclick=`getLimitContent(); return false;`)
                                                                         i.fa-light.fa-sync.fa-sm.align-middle.nav-item.text-primary
+                                                                    a.input-group-text.btn-primary.border-0.bg-translucent(title="Set New Limit" href='#_', onclick=`getLimitContent(true); return false;`)
+                                                                        i.fa-light.fa-floppy-disk.fa-sm.align-middle.nav-item.text-primary
                                                     h4.text-primary
                                                         i.fas.fa-sliders-h.mr-2
-                                                        | Display
+                                                        span.d-none.d-sm-inline Display
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         if (results && path === '/gallery')
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(3); return false;`)
-                                                                i.fa-light.fa-rectangles-mixed
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
+                                                                i.fa-light.fa-grid-5
                                                                 | Thumbs
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(2); return false;`)
-                                                                i.fa-light.fa-rectangles-mixed
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
+                                                                i.fa-light.fa-grid-4
                                                                 | Small
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(); return false;`)
-                                                                i.fa-light.fa-rectangles-mixed
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
+                                                                i.fa-light.fa-grid
                                                                 | Default
-                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setImageLayout(1); return false;`)
-                                                                i.fa-light.fa-rectangles-mixed
+                                                            a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
+                                                                i.fa-light.fa-grid-2
                                                                 | Large
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`$("#userMenu").collapse("hide"); setPageLayout(true); return false;`)
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`)
                                                             i.fa-light.fa-distribute-spacing-horizontal
                                                             | Full Width
                                                         if (!appData)
                                                             if (path !== '/gallery')
                                                                 a.user-menu-item.user-menu-small(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                     i.fa-duotone.fa-folder-image
-                                                                    | View as Gallery
+                                                                    | As Gallery
                                                             if (path !== '/files')
                                                                 a.user-menu-item.user-menu-small(title="View results as file list" href='#_' onclick=`getNewContent(['offset'], [], "/files?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                     i.fa-duotone.fa-folder
-                                                                    | View as Files
+                                                                    | As Files
                                                             if (path !== '/cards')
                                                                 a.user-menu-item.user-menu-small(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                     i.fa-duotone.fa-folder-grid
-                                                                    | View as Cards
+                                                                    | As Cards
                                                             if (params.getAll('nsfw')[0] === 'true' || (nsfwEnabled))
                                                                 a.user-menu-item.user-menu-small(title="Exclude NSFW Content" href='#_' onclick=`getNewContent(['offset'], [['nsfwEnable','false']]); return false;`)
                                                                     i.fa-light.fa-shield-cat
@@ -372,7 +374,7 @@ html
                                                             else
                                                                 a.user-menu-item.user-menu-small(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
                                                                     i.fa-light.fa-flag
-                                                                    | Show Flagged
+                                                                    | Only Flagged
                                         div#menuItemUpload(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
@@ -685,6 +687,7 @@ html
                                                     div.dropdown(style="display: contents;")
                                                         a#viewMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
                                                             i.far.fa-filter
+                                                            #postRange
                                                         .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
                                                             if (path === '/artists')
                                                                 span.dropdown-header
@@ -1742,6 +1745,9 @@ html
                                         a#manageAlbumPost.btn.btn-primary.mx-1(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis
                                             i.fas.fa-archive.pr-sm-2
                                             span.d-none.d-sm-inline Albums
+                                        a#addFlagPost.btn.btn-primary.mx-1(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`).w-100.text-ellipsis
+                                            i.fas.fa-flag.pr-sm-2
+                                            span.d-none.d-sm-inline Flag
 
                                     div.row.px-2.flex-nowrap.mb-2
                                         a#goToPostLocation.btn.btn-primary.mx-1(href='#_' role='button').w-100.text-ellipsis
@@ -1757,8 +1763,13 @@ html
                                             i.fas.fa-download.pr-sm-2
                                             span.d-none.d-sm-inline Download
                                     div.row.px-3
-                                        div#rawBodyContent.mb-3.mt-1.text-center.w-100
+                                        div#authorData.mt-1.w-100.d-flex.flex-row.align-items-start
+                                            img(style='height: 64px;').rounded-circle.pr-2
+                                            span(style='font-size: 1.5em;').text-ellipsis.align-self-center
+                                        div#rawBodyContent.mt-1.text-center.w-100
                                             div.card-ui
+                                    div.row.px-3
+                                        div#rawInfoContent.mb-2.mt-1.text-center.w-100
                                     div#manageButtons.row.px-2.flex-nowrap
                                         a#infoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
                                             i.fas.fa-cut
@@ -1805,17 +1816,13 @@ html
                                             label#searchFilterEverywhere.btn.btn-info.w-100
                                                 input(type='radio' name='options' autocomplete='off' data-search-location='')
                                                 span  Everywhere
-                                    //div.row.pl-3.pr-3.mt-3
-                                        h3 Management
-                                    //div.row.pl-3.pr-3
-
-                                    //div.row.pl-3.pr-3
-                                        a#actionModelThumb.btn.btn-danger.w-100.mb-1(title="Generate New Thumbnails" href='#_' onClick=`selectedActionMenu("Thumbnail"); return false;`).d-flex
-                                            i.fas.fa-image.pr-2.align-self-center
-                                            span Repair Thumbnail
-                                    //div.row.pl-3.pr-3
-
-
+                                    div.row.pl-3.pr-3.mt-2.d-flex.flex-column
+                                        a#AdvancedInfoCollapseButton.btn.btn-primary.collapsed(href='#_' data-toggle='collapse' data-target=`#AdvancedInfoCollapse`)
+                                            i.fas.pr-2.fa-info-circle
+                                            span.text-capitalize Debug
+                                            i.fas.fa-chevron-down.pl-2
+                                        div#AdvancedInfoCollapse.collapse(aria-labelledby='#AdvancedInfoCollapseButton')
+                                            div#advancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
 
                     #appModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                         .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')

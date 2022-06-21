@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap');
 @font-face {
     font-family: 'Product Sans';
     font-style: normal;
@@ -848,7 +849,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 }
 body {
     margin: 0;
-    font-family: "Product Sans", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: "Comfortaa", "Product Sans", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
@@ -1385,7 +1386,8 @@ background: #c35715;
 
 
 .page-title, .page-title a {
-color: rgb(249, 200, 167);
+    color: rgb(249, 200, 167);
+    font-family: "Product Sans", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 .page-title-inpage :not(.badge), .page-title-inpage a :not(.badge) {
 -webkit-text-stroke: 2px #00000024;
@@ -2056,7 +2058,7 @@ footer .server-grid-parent {
 }
 @media (max-width:1400px) {
     .menu-grid {
-        max-width: 450px;
+        max-width: 490px;
     }
 }
 @media (max-width:1650px) {
@@ -2382,7 +2384,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: inline-flex !important;
     }
 }
-@media (max-width: 840px) {
+@media (max-width: 880px) {
     .shown-user-menu {
         height: 500px;
         flex-direction: column;
@@ -2601,7 +2603,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
 }
-@media (max-width: 476px) {
+@media (max-width: 509px) {
     .menu-grid {
         max-width: 340px;
     }
@@ -2639,9 +2641,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         font-size: 0.8em;
     }
 }
-@media (max-width: 330px) {
+@media (max-width: 350px) {
     .menu-grid {
-        max-width: 230px;
+        max-width: 245px;
     }
     .shown-user-menu {
         height: 500px;

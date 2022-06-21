@@ -99,6 +99,7 @@ module.exports = async (req, res, next) => {
         debugTimes.build_query = new Date();
         // Main Query
         let baseQ = ''
+        let addSearchTerm = [];
         if (req.query.channel && req.query.channel === 'random') {
             multiChannel = true;
         } else if (req.query.vchannel) {
@@ -148,6 +149,10 @@ module.exports = async (req, res, next) => {
                 if (c.length > 0) {
                     // If server is name is present
                     let _os = 0;
+                    if (!isNaN(parseInt(c[c.length - 1]))) {
+                        const __id = c.pop()
+                        addSearchTerm.push(`eid:${__id}`);
+                    }
                     if (c.length === 3) {
                         if (c.length >= 1 && c[0] !== "*") {
                             fsv = c[0];
@@ -439,9 +444,14 @@ module.exports = async (req, res, next) => {
                 return _sh.join(' OR ')
             }
         }
+        if (addSearchTerm.length > 0) {
+            sqlquery.push('( ' + addSearchTerm.map(e => '( ' + getType(e) + ' )').join(' AND ') + ' )')
+        }
         if ( req.query.search !== undefined && req.query.search !== '' ) {
             let search = '';
             hideChannels = false;
+            if (addSearchTerm.length > 0)
+                sqlquery.push(' AND ')
             if ( req.query.search.includes(' AND ') ) {
                 sqlquery.push('( ' + getAND(req.query.search).map(a => '( ' + getOR(a).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
             } else if ( req.query.search.includes(' OR ') ) {
@@ -886,7 +896,7 @@ module.exports = async (req, res, next) => {
                     }
 
                     // Image Date
-                    const _messageDate = moment(Date.parse(image.date)).add(5, 'h')
+                    const _messageDate = moment(Date.parse(image.date))
                     let messageDate = `${_messageDate.format('MMMM')} ${parseInt(_messageDate.format('DD'))}, ${_messageDate.format('YYYY')}`
 
                     // If Image is Favorited
@@ -1026,7 +1036,7 @@ module.exports = async (req, res, next) => {
                         })
                     }
                     // Image Date
-                    const _messageDate = moment(Date.parse(image.date)).add(5, 'h')
+                    const _messageDate = moment(Date.parse(image.date))
                     let messageDate = `${_messageDate.format('MMMM')} ${parseInt(_messageDate.format('DD'))}, ${_messageDate.format('YYYY')}`
 
                     // If Image is Favorited
@@ -1680,7 +1690,7 @@ module.exports = async (req, res, next) => {
                                             if (imageurl === undefined) {
                                                 imageurl = attachment[1]
                                             }
-                                            const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                            const _date = moment(Date.parse(item.date))
                                             resultsArray.push({
                                                 id: item.id,
                                                 eid: item.eid,
@@ -1802,7 +1812,7 @@ module.exports = async (req, res, next) => {
                                             messageAction: 'CacheColor',
                                         }, function (ok) { })
                                     }
-                                    const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                    const _date = moment(Date.parse(item.date))
                                     resultsArray.push({
                                         id: item.id,
                                         eid: item.eid,
@@ -1914,7 +1924,7 @@ module.exports = async (req, res, next) => {
                                         }
                                     })
                                 }
-                                const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                const _date = moment(Date.parse(item.date))
                                 let post_user = (() => {
                                     const _u = (user_index.indexOf(item.user) !== -1) ? users[user_index.indexOf(item.user)] : false
                                     if (_u) {
@@ -2044,7 +2054,7 @@ module.exports = async (req, res, next) => {
                                     // Unpack data here
                                     const extractedItems = JSON.parse(item.attachment_extra)
                                     extractedItems.reverse().forEach(function (attachment) {
-                                        const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                        const _date = moment(Date.parse(item.date))
                                         resultsArray.push({
                                             id: item.id,
                                             eid: item.eid,
