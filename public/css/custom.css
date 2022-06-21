@@ -2286,6 +2286,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
         padding-right: calc(env(safe-area-inset-right) + 1.5rem)!important;
+        padding-left: calc(env(safe-area-inset-left) + 1.5rem)!important;
     }
     .card-columns {
         column-count: 3;

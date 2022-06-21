@@ -1978,7 +1978,7 @@ function sendBasic(channelid, messageid, action, confirm) {
 }
 function afterAction(action, data, id, confirm) {
     const message = document.getElementById(`message-${id}`);
-    if (message) {
+    if (message || (action === 'Pin' || action === 'Unpin' || action === 'PinUser' || action === 'UnpinUser')) {
         console.log('Message Request Sent!')
         if (action === 'Pin' || action === 'Unpin') {
             [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {

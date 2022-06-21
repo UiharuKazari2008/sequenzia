@@ -53,20 +53,7 @@ function proccessPost(alt) {
             }
         })
     };
-    try {
-        if (recentPostDestination.indexOf(postsDestination) !== -1) {
-            recentPostDestination.sort(function (x, y) {
-                return x == postsDestination ? -1 : y == postsDestination ? 1 : 0;
-            });
-        } else {
-            recentPostDestination.unshift(postsDestination)
-        }
-        recentPostDestination = recentPostDestination.slice(0,5).filter(e => e.length > 8)
-        setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
-    } catch (e) {
-        console.error("Failed to save recent destinations")
-        console.error(e)
-    }
+    shiftRecentPostDestinations();
 }
 function openActionMenu(mode) {
     if (postsActions.length > 0) {
@@ -555,7 +542,7 @@ function acceptMenu(serverid, channelid, messageid, fileStatus) {
         let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); return false">` +
+                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations(); return false">` +
                     `    <span style="">${n}</span>` +
                     `</li>`
             }
@@ -754,6 +741,22 @@ function updateRecentPostDestinations() {
         }
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+}
+function shiftRecentPostDestinations() {
+    try {
+        if (recentPostDestination.indexOf(postsDestination) !== -1) {
+            recentPostDestination.sort(function (x, y) {
+                return x == postsDestination ? -1 : y == postsDestination ? 1 : 0;
+            });
+        } else {
+            recentPostDestination.unshift(postsDestination)
+        }
+        recentPostDestination = recentPostDestination.slice(0,10).filter(e => e.length > 8)
+        setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
+    } catch (e) {
+        console.error("Failed to save recent destinations")
+        console.error(e)
+    }
 }
 function selectedChannel(chid) {
     const chname = actionModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
