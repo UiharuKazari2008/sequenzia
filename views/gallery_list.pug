@@ -138,7 +138,7 @@ block content
                                                 i.btn-links.fas.fa-archive
                                             a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                 i.btn-links.fas.fa-info-circle
-                                            else if (user && user.source < 900)
+                                            if (user && user.source < 900)
                                                 if (item.flagged)
                                                     a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Image Reported" href='#_')
                                                         i.btn-links.fas.fa-flag.reported
