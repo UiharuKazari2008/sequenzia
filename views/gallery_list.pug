@@ -266,38 +266,23 @@ block content
                                                 if (user && user.source < 900)
                                                     a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
                                                         i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
-                                                .collapse.p-0.no-dynamic-tiny(id=`options-${item.id}`).mr-auto
-                                                    a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
-                                                        i.btn-links.fas.fa-archive
                                                     a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                         i.btn-links.fas.fa-info-circle
-                                                a.btn.btn-links.no-dynamic-tiny(type='button' data-toggle='collapse' data-target=`#options-${item.id}`)
-                                                    i.btn-links.fas.fa-ellipsis-h
-
 
 
                                             .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
-                                                .col.no-dynamic-tiny(style="height: inherit;").position-relative
-                                                    div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; left: 0; text-shadow: none").pl-2
-                                                        a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#accept-options-${item.id}`)
-                                                            i.btn-links.fas.fa-arrow-left(style="color: #bfffbf;")
-                                                        .collapse(id=`accept-options-${item.id}`)
-                                                            div.d-flex.flex-column.badge.bg-success(font-size: inherit)
-                                                                a.reviewAccept.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
-                                                                    i.text-white.fas.fa-check(style="font-size: 2em;")
+                                                .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
+                                                    a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
+                                                        i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
 
                                                 .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
                                                     a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()` style="position: absolute;top: 40%;")
                                                         i.btn-links.fas.fa-search(style="font-size: 2em;")
 
-                                                .col.no-dynamic-tiny(style="height: inherit;").position-relative
-                                                    div.d-flex.align-items-end.flex-column(style="position: absolute; bottom: 0; right: 0; text-shadow: none").pr-2
-                                                        a.btn.btn-links.pl-2.pr-2(type='button' data-toggle='collapse' data-target=`#delete-options-${item.id}`)
-                                                            i.btn-links.fas.fa-arrow-left(style="color: #ff90a8;")
-                                                        .collapse(id=`delete-options-${item.id}`)
-                                                            div.d-flex.flex-column.badge.bg-danger(font-size: inherit)
-                                                                a.reviewReject.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
-                                                                    i.text-white.fas.fa-trash-alt(style="font-size: 2em;")
+                                                .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
+                                                    a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
+                                                        i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ff90a8;")
+
 
 
                                             .row.m-0.review-menu-main(style="width: inherit;")

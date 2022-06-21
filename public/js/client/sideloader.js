@@ -50,6 +50,7 @@ let itemsRemoved = 0;
 let itemsRemovedIds = [];
 let initialLoad = true;
 let postsActions = [];
+let apiActions = {};
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
 let recentPostDestination = (getCookie("recentPostDestination") !== null) ? (() => {
     try {
@@ -83,6 +84,7 @@ let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
 let downloadURLs = [];
+let undoActions = [];
 
 String.prototype.toRGB = function() {
     var hash = 0;
@@ -209,13 +211,23 @@ async function requestCompleted (response, url, lastURL, push) {
                 $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
                 setPageLayout(false);
+                if (Object.values(apiActions).length > 0) {
+                    const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                    $(Array.from(response.find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                    if ($.find('[data-msg-id].col-image.hidden').length > 0) {
+                        $.find('#hiddenItemsAlert').removeClass('hidden')
+                    }
+                }
                 $("#contentBlock > style").html($(response).find('#contentBlock > style'));
                 $("#finalLoad").html($(response).find('#finalLoad'));
+
                 if (!pageTitle.includes(' - Item Details')) {
                     getPaginator(url);
                 }
                 if (inReviewMode)
                     enableReviewMode();
+                updateActionsPanel();
+                undoActions = [];
             } else {
                 $.when($(".container-fluid").fadeOut(250)).done(() => {
                     let contentPage = $(response).find('#content-wrapper').children();
@@ -233,6 +245,15 @@ async function requestCompleted (response, url, lastURL, push) {
                     scrollToTop(true);
                     if (inReviewMode)
                         enableReviewMode();
+                    updateActionsPanel();
+                    undoActions = [];
+                    if (Object.values(apiActions).length > 0) {
+                        const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                        $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                        if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
+                            $('#hiddenItemsAlert').removeClass('hidden')
+                        }
+                    }
                 })
             }
             $("title").text(pageTitle);
@@ -1668,27 +1689,84 @@ function removeAllHistory() {
 
     return false;
 }
-function sendAction(serverid, channelid, messageid, action, data, confirm) {
+function queueAction(serverid, channelid, messageid, action, data, isReviewAction, noUndo) {
+    let preview = undefined
+    const _post = document.getElementById(`message-${messageid}`)
+    if (pageType.includes('gallery')) {
+        preview = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
+    } else if (pageType.includes('file')) {
+        if (_post.querySelector('.preview-holder a div') !== null && _post.querySelector('.preview-holder a div').style) {
+            preview = _post.querySelector('.preview-holder a div').style.backgroundImage.split('"')[1]
+        }
+    } else if (pageType.includes('card')) {
+        if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
+            preview = _post.querySelector('.card-img').src
+        }
+    }
+    apiActions[messageid] = {serverid, channelid, messageid, action, data, preview, isReviewAction: (isReviewAction)};
+    if (!noUndo)
+        undoActions.push(messageid);
+    updateActionsPanel();
+}
+function commitPendingActions() {
     $.ajax({async: true,
         type: "post",
         url: "/actions/v2",
-        data: { 'serverid': serverid,
-            'channelid': channelid,
-            'messageid': messageid,
-            'action': action,
-            'data': data },
+        data: {
+            batch: Object.values(apiActions)
+        },
+        json: true,
         cache: false,
         headers: {
             'X-Requested-With': 'SequenziaXHR'
         },
         success: function (res, txt, xhr) {
-            if (xhr.status < 400) {
+            if (xhr.status === 202) {
+                $.toast({
+                    type: 'success',
+                    title: 'Completed Actions',
+                    subtitle: 'Now',
+                    content: `${res.status}`,
+                    delay: 5000,
+                });
                 console.log(res);
                 if (confirm) { $.snack('success', `${res}`, 5000) };
-                afterAction(action, data, messageid, confirm);
+                if (res.status.includes('Actions Failed')) {
+                    Object.keys(res.results).map((response) => {
+                        if (res.results[response] === 200 || res.results[response] === 404) {
+                            delete apiActions[response];
+                            const request = apiActions[response];
+                            afterAction(request.action, request.data, request.messageid);
+                        } else {
+                            const message = document.getElementById(`message-${response}`)
+                            if (message) {
+                                message.classList.remove('hidden')
+                            }
+                            console.log(`${response} Failed on the server`)
+                        }
+                    })
+                } else {
+                    Object.values(apiActions).map((request) => {
+                        afterAction(request.action, request.data, request.messageid);
+                    });
+                    apiActions = {};
+                }
+                updateActionsPanel();
             } else {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed Actions',
+                    subtitle: 'Now',
+                    content: `${res.responseText}`,
+                    delay: 15000,
+                });
                 console.log(res.responseText);
-                document.getElementById(`message-${messageid}`).classList.remove('hidden')
+                Object.values(apiActions).map((request) => {
+                    const message = document.getElementById(`message-${request.messageid}`)
+                    if (message) {
+                        message.classList.remove('hidden')
+                    }
+                })
             }
         },
         error: function (xhr) {
@@ -1699,9 +1777,171 @@ function sendAction(serverid, channelid, messageid, action, data, confirm) {
                 content: `${xhr.responseText}`,
                 delay: 5000,
             });
-            document.getElementById(`message-${messageid}`).classList.remove('hidden')
+            Object.values(apiActions).map((request) => {
+                const message = document.getElementById(`message-${request.messageid}`)
+                if (message) {
+                    message.classList.remove('hidden')
+                }
+            })
         }
     });
+    return false;
+}
+function cancelPendingAction(messageid) {
+    if (messageid === -1) {
+        Object.values(apiActions).map((request) => {
+            const message = document.getElementById(`message-${request.messageid}`)
+            if (message) {
+                message.classList.remove('hidden')
+            }
+        })
+        apiActions = {};
+    } else {
+        const message = document.getElementById(`message-${messageid}`)
+        if (message) {
+            message.classList.remove('hidden')
+        }
+        delete apiActions[messageid]
+    }
+    updateActionsPanel();
+}
+function undoPendingAction() {
+    if (undoActions.length > 0) {
+        const lastAction = undoActions.pop();
+        if (typeof lastAction === 'string') {
+            const post = document.getElementById(`message-${lastAction}`)
+            if (post)
+                post.classList.remove('hidden')
+            delete apiActions[lastAction];
+        } else {
+            lastAction.map(e => {
+                const post = document.getElementById(`message-${e}`)
+                if (post)
+                    post.classList.remove('hidden')
+                delete apiActions[e];
+            })
+        }
+    }
+    updateActionsPanel();
+}
+function updateActionsPanel() {
+    if (Object.keys(apiActions).length !== 0) {
+        const keys = Object.values(apiActions).reverse().map((item) => {
+            let results = [`<a class="action-item" href='#_' onclick="cancelPendingAction(${item.messageid}); return false;" role='button')>`]
+            if (item.preview) {
+                results.push(`<div style="background-image: url('${item.preview}');"></div>`)
+            } else {
+                results.push(`<span>${item.messageid}</span>`)
+            }
+            switch (item.action) {
+                case 'RemoveReport':
+                    results.push(`<i style="color: #6bff64;" class="fas fa-flag"></i>`);
+                    break;
+                case 'Report':
+                    results.push(`<i style="color: #ff6464;" class="fas fa-flag"></i>`);
+                    break;
+                case 'MovePost':
+                    if (item.isReviewAction) {
+                        results.push(`<i style="color: #6bff64;" class="fas fa-check"></i>`);
+                    } else {
+                        results.push(`<i style="color: #71cdff;" class="fas fa-paste"></i>`);
+                    }
+                    break;
+                case 'RenamePost':
+                    results.push(`<i style="color: #71CDFFFF;" class="fas fa-pen-alt"></i>`);
+                    break;
+                case 'RotatePost':
+                    results.push(`<i style="color: #71CDFFFF;" class="fas fa-rotate-90"></i>`);
+                    break;
+                case 'RemovePost':
+                case 'ArchivePost':
+                    results.push(`<i style="color: #ff6464;" class="fas fa-trash-alt"></i>`);
+                    break;
+                case 'RequestFile':
+                    results.push(`<i style="color: #6bff64;" class="fas fa-box-open"></i>`);
+                    break;
+                default:
+                    results.push(`<i class="fas fa-question"></i>`);
+                    break;
+            }
+            results.push(`</a>`)
+            return results.join('\n')
+        })
+        if (document.getElementById('actionPanel')) {
+            $('#actionPanel').removeClass('hidden')
+            if (keys.length > 0) {
+                const newMenu = [
+                    '<a class="dropdown-item" onclick="commitPendingActions(); return false;">',
+                        '<i class="fas fa-inbox-out pr-2"></i>',
+                        '<span>Commit</span>',
+                    '</a>',
+                    '<div class="action-container">',
+                        ...keys,
+                    '</div>',
+                    '<a class="dropdown-item" onclick="cancelPendingAction(-1); return false;">',
+                        '<i class="fas fa-trash-alt pr-2"></i>',
+                        '<span>Cancel</span>',
+                    '</a>',
+                ]
+                $('#actionPanel > .dropdown > .dropdown-menu').html($(newMenu.join('\n')))
+                document.getElementById('pendingActionsIndicator').innerText = keys.length
+            } else {
+                $('#actionPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Pending Actions</span>')
+                document.getElementById('pendingActionsIndicator').innerText = "0"
+            }
+        }
+    } else {
+        if (document.getElementById('statusPanel')) {
+            $('#actionPanel').addClass('hidden')
+            $('#actionPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Pending Actions</span>')
+        }
+    }
+}
+function sendAction(serverid, channelid, messageid, action, data, confirm) {
+    if (inReviewMode) {
+        queueAction(serverid, channelid, messageid, action, data);
+        document.getElementById(`message-${messageid}`).classList.add('hidden');
+    } else {
+        $.ajax({
+            async: true,
+            type: "post",
+            url: "/actions/v2",
+            data: {
+                'serverid': serverid,
+                'channelid': channelid,
+                'messageid': messageid,
+                'action': action,
+                'data': data
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    console.log(res);
+                    if (confirm) {
+                        $.snack('success', `${res}`, 5000)
+                    }
+                    ;
+                    afterAction(action, data, messageid, confirm);
+                } else {
+                    console.log(res.responseText);
+                    document.getElementById(`message-${messageid}`).classList.remove('hidden')
+                }
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                document.getElementById(`message-${messageid}`).classList.remove('hidden')
+            }
+        });
+    }
     return false;
 }
 function sendBasic(channelid, messageid, action, confirm) {
@@ -1738,67 +1978,60 @@ function sendBasic(channelid, messageid, action, confirm) {
 }
 function afterAction(action, data, id, confirm) {
     const message = document.getElementById(`message-${id}`);
-
-    console.log('Message Request Sent!')
-    if (action === 'Pin' || action === 'Unpin') {
-        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
-            if (action.startsWith('Un')) {
-                el.classList.remove('favorited')
-            } else {
-                el.classList.add('favorited')
-            }
-        });
-    } else if (action === 'PinUser' || action === 'UnpinUser') {
-        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
-            if (action.startsWith('Un')) {
-                el.classList.remove('favorited')
-            } else {
-                el.classList.add('favorited')
-            }
-        });
-    } else if (action === 'MovePost' || action === 'RemovePost' || action === 'ArchivePost') {
-        itemsRemoved++;
-        try {
-            message.remove();
-            postsActions = [];
-        } catch (e) {
-            console.log(e);
-        }
-    } else if (action === 'RotatePost') {
-        try {
-            message.querySelector('div#postImage').style.transform = 'rotate(' + imageRotate + 'deg)';
-            postsActions = [];
-        } catch (e) {
-            console.log(e);
-        }
-    } else if (action === 'RenamePost') {
-        if (pageType.includes('file')) {
-            if (confirm) {
-                postsActions = [];
-            }
+    if (message) {
+        console.log('Message Request Sent!')
+        if (action === 'Pin' || action === 'Unpin') {
+            [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+                if (action.startsWith('Un')) {
+                    el.classList.remove('favorited')
+                } else {
+                    el.classList.add('favorited')
+                }
+            });
+        } else if (action === 'PinUser' || action === 'UnpinUser') {
+            [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+                if (action.startsWith('Un')) {
+                    el.classList.remove('favorited')
+                } else {
+                    el.classList.add('favorited')
+                }
+            });
+        } else if (action === 'MovePost' || action === 'RemovePost' || action === 'ArchivePost') {
+            itemsRemoved++;
             try {
-                message.querySelector('.align-middle').innerText = newFileName;
+                message.remove();
             } catch (e) {
                 console.log(e);
             }
-        }
-    } else if (action === 'Report') {
-        if (confirm) {
-            postsActions = [];
+        } else if (action === 'RotatePost') {
+            try {
+                message.querySelector('div#postImage').style.transform = 'rotate(' + imageRotate + 'deg)';
+            } catch (e) {
+                console.log(e);
+            }
+        } else if (action === 'RenamePost') {
+            if (pageType.includes('file')) {
+                try {
+                    message.querySelector('.align-middle').innerText = newFileName;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        } else if (action === 'Report') {
             try {
                 message.querySelector('.report-link > i').classList.add('reported');
             } catch (e) {
                 console.log(e);
             }
-        }
-    } else if (action === 'RemoveReport') {
-        if (confirm) {
-            postsActions = [];
+        } else if (action === 'RemoveReport') {
             try {
                 message.querySelector('.report-link > i').classList.remove('reported');
             } catch (e) {
                 console.log(e);
             }
+        }
+        if (confirm) {
+            postsActions = [];
         }
     }
     return false;

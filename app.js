@@ -153,9 +153,12 @@ app.use(morgan(function(tokens, req, res) {
     }
 }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({limit: '20mb'}));
-app.use(express.urlencoded({extended : true, limit: '20mb'}));
+app.use(bodyParser.urlencoded({
+    limit: '50mb',
+    parameterLimit: 100000,
+    extended: true
+}));
+app.use(express.json({limit: '50mb'}));
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-WSS-Key, X-API-Key, X-User-Agent, User-Agent");

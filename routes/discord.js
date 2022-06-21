@@ -1062,8 +1062,8 @@ async function sessionVerificationWithReload(req, res, next) {
 }
 function manageValidation(req, res, next) {
     if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
-        if (req.body && req.body.serverid && req.body.channelid) {
-            if ((req.session.discord.channels.manage && req.session.discord.channels.manage.length > 0 && req.session.discord.channels.manage.indexOf(req.body.channelid) !== -1) || req.body.action && req.body.action === 'RequestFile') {
+        if (req.body && (req.body.batch || req.body.serverid && req.body.channelid)) {
+            if (req.body.action && req.body.action === 'RequestFile' || (req.session.discord.channels.manage && req.session.discord.channels.manage.length > 0 && ((req.body.batch && req.body.batch.filter(e => e.action !== 'RequestFile').map(e => e.channelid).filter(e => req.session.discord.channels.manage.indexOf(e) === -1).length === 0) || req.session.discord.channels.manage.indexOf(req.body.channelid) !== -1))) {
                 next();
             } else {
                 printLine('PassportCheck-Manage', `User ${req.session.discord.user.username} does not have the rights to manage this channel`, 'error', req.body);

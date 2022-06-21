@@ -652,6 +652,17 @@ html
                                 else
                                     ul.navbar-nav.text-primary.text-ellipsis
                                         li.nav-item.no-arrow
+                                            div#actionPanel.btn-group.hidden(style="display: contents;")
+                                                a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
+                                                    i.far.fa-trash-can-undo
+                                                div.dropdown(style="display: contents;")
+                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
+                                                        i.fas.fa-clipboard.pr-1
+                                                        span#pendingActionsIndicator.badge.badge-primary ...
+                                                    .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
+                                                        span.dropdown-header
+                                                            | No Pending Actions
+
                                             div#statusPanel.btn-group.hidden(style="display: contents;")
                                                 div.dropdown(style="display: contents;")
                                                     a#statusMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
@@ -660,10 +671,7 @@ html
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
                                                         span.dropdown-header
                                                             | No Active Tasks
-                                                        a.dropdown-item
-                                                            | test
-                                                        a.dropdown-item
-                                                            | test
+
                                         li.nav-item.no-arrow.edit-btns
                                             .btn-group.show-menu-open.hidden(style="display: contents;")
                                                 if (path !== '/artists' && results && results.length > 1)
@@ -671,7 +679,7 @@ html
                                                         i.far.fa-check-circle
                                                     if (manage_channels && manage_channels.length > 0)
                                                         a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
-                                                            i.far.fa-snowplow
+                                                            i.far.fa-check-to-slot
 
                                                 if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')))
                                                     div.dropdown(style="display: contents;")
@@ -1156,6 +1164,13 @@ html
                         div#topbarBackground(style='display: none;')
 
                     .container-fluid.max-resize
+                        #hiddenItemsAlert.alert.alert-danger-transparent.hidden(role="alert")
+                            .row
+                                .col-auto.align-self-start.align-self-center
+                                    .glyphicon
+                                        i.fas.fa-empty-set.text-danger
+                                .align-self-start.align-self-center
+                                    .text-danger There are actions pending and are hidden from results
                         if (!(results && results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
                             #showResultsWarningsFull.collapse
                                 if (search_prev || search_prev === '')
@@ -1477,7 +1492,7 @@ html
                             div.d-sm-flex.align-items-center.d-inline
                                 .col.p-0.d-flex.align-items-center
                                     h3
-                                        i.fas.fa-snowplow.pr-2
+                                        i.fas.fa-check-to-slot.pr-2
                                         span#reviewDestinationName NaN
                                 .col-auto.p-0.d-flex
                                     a.btn.btn-primary.mr-1.w-100(title="Setup Review Mode" href='#_' onclick='setupReviewMode(true); return false;')
