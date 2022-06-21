@@ -165,12 +165,6 @@ block content
                                         else if (item.entities.download && item.entities.download.length > 5)
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
-                                        if (item.content.clean)
-                                            if (item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1)
-                                                a.btn.btn-fav(tabindex="0" role='button' data-toggle='popover' title='Message Contents' data-html="true" data-content=item.content.raw.split("\n").join('<br/>'))
-                                                    i.fas.fa-info-circle
-                                        a.btn.btn-fav(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
-                                            i.fas.fa-info-circle
                                         //if (item.permalink)
                                             a.btn.btn-fav(title="Permalink" href=item.permalink)
                                                 i.fas.fa-link
@@ -181,9 +175,8 @@ block content
                                                 i.btn-fav.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                             a.btn.btn-fav(data-placement="top" title="Add or Remove from Album" href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.fas.fa-archive
-                                            if (thisImageManage)
-                                                a.btn.btn-admin(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.id}");  openActionMenu(); return false;` )
-                                                    i#button.fas.fa-paste
+                                            a.btn.btn-fav(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
+                                                i.fas.fa-info-circle
                             td.d-none.d-sm-table-cell #{item.date.pretty}
                             td.d-none.d-sm-table-cell #{item.entities.meta.filesize} MB
     else

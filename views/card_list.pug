@@ -54,11 +54,6 @@ block content
                                     a.dropdown-item(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                         i.fas.fa-info-circle.pr-2
                                         | Information
-                                    if (thisImageManage)
-                                        .dropdown-divider
-                                        a.dropdown-item(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.id}"); openActionMenu(); return false;` )
-                                            i.fas.fa-paste.pr-2
-                                            | Manage
                         if (thisImageManage && user && user.source < 900)
                             .file-select.hidden
                                 a#checkItem.btn.selectPostToMode.file-CheckItem(href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)

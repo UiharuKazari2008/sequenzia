@@ -65,9 +65,6 @@ block content
                         else if (item.flagged)
                             a.btn(data-placement="top" title="Image was reported" href='#_')
                                 i.fas.fa-flag.text-danger
-                        if (item.manage && user && user.source < 900)
-                            a.btn(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.id}"); openActionMenu(); return false;` )
-                                i.fas.fa-paste
                 if (item.content.clean && item.content.clean.length > 0)
                     div.row(style="background-color: #000000c7").row.justify-content-center.p-2.contents-col-single
                         span.font-italic.text-center(style="font-size: large;") "#{item.content.clean}"
@@ -141,9 +138,6 @@ block content
                                                 i.btn-links.fas.fa-archive
                                             a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                 i.btn-links.fas.fa-info-circle
-                                            if (thisImageManage && user && user.source < 900)
-                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.id}"); openActionMenu(); return false;` )
-                                                    i.btn-links.fas.fa-paste
                                             else if (user && user.source < 900)
                                                 if (item.flagged)
                                                     a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Image Reported" href='#_')
