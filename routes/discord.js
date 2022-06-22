@@ -116,6 +116,33 @@ router.get('/callback', catchAsync(async (req, res) => {
         });
     }
 }));
+if (config.enable_impersonation) {
+    printLine("Init", `User Impersonation is ENABLED! You should never enable this on a non-localhost instance for testing only!`, 'critical');
+    router.get('/impersonate/:userId', catchAsync(async (req, res) => {
+        try {
+            await roleGeneration(req.params.userId, res, req)
+                .then((config) => {
+                    if (config) {
+                        req.session.loggedin = true;
+                        req.session.user = {
+                            id: req.session.discord.user.id,
+                            source: 0,
+                            username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                            avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                            banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                        }
+                        printLine("PassportImpersonation", `User ${req.session.user.username} (${req.session.user.id}) logged in!`, 'info');
+                        res.redirect('/');
+                    }
+                })
+        } catch (err) {
+            res.status(500).json({
+                state: 'HALTED',
+                message: err.message,
+            });
+        }
+    }));
+}
 router.get('/refresh', async (req, res) => {
     try {
         async function _generate(token) {

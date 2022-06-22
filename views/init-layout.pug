@@ -106,10 +106,23 @@ html
                 .user-info-bg, #topbarUserBackground {
                     background-image: url('#{user.banner}');
                 }
+                @media (max-width: 880px) {
+                    #topbarUserBackground {
+                        background-image: url('#{user.banner}');
+                    }
+                }
         else if (user && user.avatar)
             style.
                 .user-info-bg {
                     background-image: url('#{user.avatar}');
+                }
+                #topbarUserBackground {
+                    background-color: transparent;
+                }
+                @media (max-width: 880px) {
+                    #topbarUserBackground {
+                        background-image: url('#{user.avatar}');
+                    }
                 }
     body(id="page-top").sidebar-toggled
         div.background-image.overlay

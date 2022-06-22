@@ -361,9 +361,9 @@ color: #b3ff85;
 
 #mainMenuBar {
     box-shadow: 0px 0 20px 0 #00000000;
-    -prefix-animation: mainMenuBar-close 1s ease 0s forwards;
-    -webkit-animation: mainMenuBar-close 1s ease 0s forwards;
-    animation: mainMenuBar-close 1s ease 0s forwards;
+    -prefix-animation: mainMenuBar-close 0.5s ease 0s forwards;
+    -webkit-animation: mainMenuBar-close 0.5s ease 0s forwards;
+    animation: mainMenuBar-close 0.5s ease 0s forwards;
 }
 .menu-open  #mainMenuBar {
     box-shadow: 0px 0 20px 0 #000000e6;
@@ -1920,11 +1920,11 @@ div.collapse-divider {
     height: inherit;
 }
 .user-infocard-icon {
-    width: 125px;
+    width: 96px;
     box-shadow: 0 0 17px #000000;
 }
 .user-infocard-info {
-    font-size: 2em;
+    font-size: 1.5em;
     bottom: 0;
     max-width: 480px;
 }
@@ -2294,7 +2294,7 @@ footer .server-grid-parent {
         font-size: 1.4em;
     }
     .user-infocard-icon {
-        width: 100px;
+        width: 96px;
     }
 
     .album-info {
@@ -2596,25 +2596,26 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
-        height: 275px;
+        height: 260px;
         opacity: 0.4;
     }
     #topbarUserBackground {
         display: initial;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 255px);
+        height: calc(env(safe-area-inset-top, 0) + 215px);
         flex-direction: column;
     }
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 255px);
+        height: calc(env(safe-area-inset-bottom, 0) + 215px);
         flex-direction: column;
     }
     .topbar .dropdown .dropdown-menu {
         max-height: calc(80vh - 500px);
     }
     .user-infocard-row1 {
-        margin-top: calc(env(safe-area-inset-top, 0) + 0.5em);
+        margin-top: calc(env(safe-area-inset-top, 0) + 1em);
+        display: none;
         margin-left: calc(env(safe-area-inset-left, 0) + 1em);
         margin-right: calc(env(safe-area-inset-right, 0) + 1em);
     }
@@ -2633,23 +2634,23 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     #menuAccordion>div>div, #menuAccordion>#appPanels>div>div {
-        margin-top: calc(env(safe-area-inset-top, 0) + 0.5em + 2.5rem);
+        margin-top: calc(env(safe-area-inset-top, 0) + 1em);
         padding: 0!important;
     }
     .bottom-bar #menuAccordion>div>div, .bottom-bar #menuAccordion>#appPanels>div>div {
-        margin-top: 2.5em;
+        margin-top: 0;
     }
 
     .user-info-bg, .bottom-bar .user-info-bg {
-        height: 0px;
-        border-bottom-right-radius: 0px;
-        border-top-right-radius: 0px;
+        height: 0;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
         background: none!important;
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 255px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 215px + 2.5rem + 1.5rem);
     }
 
     .user-menu-height {
@@ -2663,7 +2664,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .user-infocard-username {
         font-size: 1em;
-        text-shadow: none;
         color: #ffa554;
         text-shadow: 0 0 4px #ff5100d6;
     }
@@ -2822,29 +2822,29 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
-        height: 325px;
+        height: 300px;
     }
     .menu-grid {
         max-width: 340px;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 305px);
+        height: calc(env(safe-area-inset-top, 0) + 265px);
         flex-direction: column;
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 305px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 265px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 305px);
+        height: calc(env(safe-area-inset-bottom, 0) + 265px);
     }
     .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-top, 0) + 450px));
+        max-height: calc(80vh - (env(safe-area-inset-top, 0) + 265px));
     }
     .bottom-bar .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 450px));
+        max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 265px));
     }
     #padding {
         margin-top: calc(475px - env(safe-area-inset-top, 0px));
@@ -2872,23 +2872,23 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 245px;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 345px);
+        height: calc(env(safe-area-inset-top, 0) + 320px);
         flex-direction: column;
     }
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 345px);
+        height: calc(env(safe-area-inset-bottom, 0) + 320px);
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 345px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 320px + 2.5rem + 1.5rem);
     }
 
     .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-top, 0) + 350px));
+        max-height: calc(80vh - (env(safe-area-inset-top, 0) + 320px));
     }
     .bottom-bar .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 350px));
+        max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 320px));
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));
@@ -3091,12 +3091,12 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     /*#topbarBackground {
         background-color: #d07300f0;
     }*/
-    #content > #mainMenuBar {
+    /*#content > #mainMenuBar {
         background-image: linear-gradient(180deg, #d07300f7 ,transparent);
     }
     .bottom-bar #content > #mainMenuBar {
         background-image: linear-gradient(0deg,rgb(147, 47, 0),rgb(147, 47, 0, 0.57) calc(env(safe-area-inset-bottom,0)),transparent)
-    }
+    }*/
     .sequenzia-logo {
         color: white;
     }

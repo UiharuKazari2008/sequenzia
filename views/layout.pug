@@ -111,30 +111,8 @@ html
                                             if (user && user.banner)
                                                 .col-auto.p-0
                                                     img.rounded-circle.user-infocard-icon(src=user.avatar)
-                                            .col.p-0.position-relative.pl-2(style='width: calc(100% - 1.125em);')
+                                            .col.p-0.position-relative.pl-2.text-ellipsis
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
-                                                    //if (user && user.source || user && user.source === 0)
-                                                        if (user.source === 0)
-                                                            // Logged in with Discord
-                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
-                                                        else if (user.source === 1)
-                                                            // Logged in with Discord
-                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
-                                                        else if (user.source < 100)
-                                                            // Logged in with Discord
-                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
-                                                        else if (user.source == 100)
-                                                            // Logged in with Telegram
-                                                            i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
-                                                        else if (user.source == 900)
-                                                            // Logged in with Unauthorized Login Meathod
-                                                            i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
-                                                        else
-                                                            // Logged in with some unknown platform
-                                                            i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
-                                                    //else
-                                                        // Login Source was not detected
-                                                        i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
                                 div.user-menu-buttons(style="width: 100%; height: 100%")
                                     div#menuAccordion.user-infocard-row2
