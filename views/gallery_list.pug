@@ -141,7 +141,7 @@ block content
                                     - showNSFWString = "&nsfw=true"
                                 div(id=`imageAccordion-${item.id}` style=`height: 100%`)
                                     div(class="collapse show" id=`imageCover-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").main-panel.panel-height
-                                        div.text-container.shadow-text.no-dynamic-tiny
+                                        //div.text-container.shadow-text.no-dynamic-tiny
                                             if (!(item.content.single && item.content.single.length > 1) && isVideo)
                                                 p.text #{item.entities.filename}
                                             else
@@ -178,7 +178,7 @@ block content
                                                         span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
                                                     p.history-date.shadow-text.text.m-0.history-item
                                                         span #{item.history.date}
-                                        div.image-container.no-dynamic-tiny
+                                        //div.image-container.no-dynamic-tiny
                                             if (item.user.avatar)
                                                 img.server.rounded-circle(src=item.user.avatar)
                                             else if (item.server.icon)
@@ -196,35 +196,6 @@ block content
                                                 i.fas.fa-check-circle.text-gray-600(style="font-size: 3em;" id='select-' + item.id)
                                             a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                                 i.fas.fa-check-circle.text-success(style="font-size: 3em;" id='select-' + item.id)
-                                    div(class="collapse" id=`imageManage-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").panel-height
-                                        div.shadow-text
-                                            .manage-grid(style=`display: flex; flex-wrap: wrap; flex-direction: row; align-content: flex-start; justify-content: space-evenly; width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;`)
-                                                if (user && user.source < 900)
-                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Move Item(s)" href='#_' onClick=`selectedActionMenu("MovePost"); return false;`).d-flex.flex-column.justify-content-center
-                                                        i.fas.fa-cut.pr-2.align-self-center
-                                                        span Move
-                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Rename Item" href='#_' onClick=`selectedActionMenu("RenamePost"); return false;`).d-none.d-flex.flex-column.justify-content-center
-                                                        i.fas.fa-font.pr-2.align-self-center
-                                                        span Rename
-                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Compile Spanned File" href='#_' onClick=`selectedActionMenu("CompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none.d-flex.flex-column.justify-content-center
-                                                        i.fas.fa-box-open.pr-2.align-self-center
-                                                        span Compile
-                                                    a.manage-grid-item.btn.btn-primary.mb-1(title="Rotate Image" href='#_' onClick=`selectedActionMenu("RotatePost"); return false;`).d-none.d-flex.flex-column.justify-content-center
-                                                        i.fas.fa-undo.pr-2.align-self-center
-                                                        span Rotate
-
-                                                    a.manage-grid-item.btn.btn-danger.mb-1(title="Archive or Delete Item(s)" href='#_' onClick=`selectedActionMenu("ArchivePost"); return false;`).d-flex.d-flex.flex-column.justify-content-center
-                                                        i.fas.fa-trash.pr-2.align-self-center
-                                                        span Delete
-                                                    //a.manage-grid-item.btn.btn-danger.mb-1(title="Generate New Thumbnails" href='#_' onClick=`selectedActionMenu("Thumbnail"); return false;`).d-flex.d-flex.flex-column
-                                                        i.fas.fa-image.pr-2.align-self-center
-                                                        span Repair Thumbnail
-                                                    a.manage-grid-item.btn.btn-danger.mb-1(title="Clear Reported Item(s)" href='#_' onClick=`selectedActionMenu("Report"); return false;`).d-flex.d-flex.flex-column.justify-content-center
-                                                        i.fas.fa-flag.pr-2.align-self-center
-                                                        span Clear Report
-                                            .m-0.row.align-items-center.mt-2(style="width: inherit;overflow-x: clip;")
-                                                a.btn-links.mr-auto(title="Cancel" href='#_' onclick=`exitPanel("${item.id}"); return false;`)
-                                                    i.btn-links.fas.fa-times(style="font-size: 2em;")
                                     div(class="collapse" id=`imageMove-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").panel-height
                                         div.shadow-text.d-flex.flex-column.review-item
                                             .m-0.align-items-center.review-menu-move.move-content.rounded(style="width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;")

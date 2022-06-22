@@ -362,36 +362,6 @@ function setupReviewMode(bypass) {
     }
     return false;
 }
-function showManagePanel(messageid) {
-    $(`#imageManage-${messageid}`).collapse('show');
-    const image = document.getElementById(`message-${messageid}`);
-    [].forEach.call(image.querySelectorAll('.overlay-icons'), function (el) {
-        el.classList.add("hidden");
-    });
-    [].forEach.call(image.querySelectorAll('.internal-lightbox'), function (el) {
-        el.style.display = "block";
-        el.classList.add("no-bg");
-    });
-    [].forEach.call(image.querySelectorAll('.lightbox'), function (el) {
-        el.classList.add("disabled-pointer");
-        el.querySelector('#postImage').classList.add("show-full");
-    });
-}
-function exitManagePanel(messageid) {
-    const image = document.getElementById(`message-${messageid}`);
-    [].forEach.call(image.querySelectorAll('.overlay-icons'), function (el) {
-        el.classList.remove("hidden");
-    });
-    [].forEach.call(image.querySelectorAll('.internal-lightbox'), function (el) {
-        el.removeAttribute("style", 'display')
-        el.classList.remove("no-bg");
-    });
-    [].forEach.call(image.querySelectorAll('.lightbox'), function (el) {
-        el.classList.remove("disabled-pointer");
-        el.querySelector('#postImage').classList.remove("show-full");
-    });
-    exitPanel(messageid);
-}
 function enableReviewMode(setFromDialog) {
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])

@@ -2730,15 +2730,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         background-position: center!important;
         background-repeat: no-repeat;
     }
-    .tz-gallery .col-image:hover .overlay-icons .links-container {
-        opacity: 1;
-    }
-    .tz-gallery .col-image:hover .overlay-icons .icon-container {
-        opacity: 0;
-    }
-    .tz-gallery .col-image:hover .internal-lightbox {
-        display: block
-    }
     .only-ios {
         display: none!important;
     }
@@ -2752,23 +2743,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 @supports (-webkit-touch-callout: initial) {
     .background-image {
         background-attachment: scroll!important;
-    }
-    .tz-gallery .col-image .internal-lightbox {
-        display: block;
-        background: none!important;
-    }
-    .tz-gallery .col-image.col-dynamic-tiny .internal-lightbox .text-container,
-    .tz-gallery .col-image.col-dynamic-small .internal-lightbox .text-container,
-    .tz-gallery .col-image.col-dynamic-tiny .internal-lightbox .image-container,
-    .tz-gallery .col-image.col-dynamic-small .internal-lightbox .image-container {
-         display: none!important;
-     }
-    .tz-gallery .col-image .internal-lightbox .links,
-    .tz-gallery .col-image .overlay-icons .links-container {
-        opacity: 1;
-    }
-    .tz-gallery .col-image .icon-container {
-        display: none!important;
     }
     .no-ios {
         display: none!important;
