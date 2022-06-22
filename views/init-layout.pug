@@ -709,7 +709,7 @@ html
                             span(aria-hidden='true') &times;
                     .modal-body
                         div.mb-2
-                            a.btn.btn-lucky(title="Show Image History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true' onclick="$('#historyModel').modal('hide'); return false;")
+                            a.btn.btn-lucky(title="Show Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
                                 i.fas.fa-history.pr-2
                                 | Image Display History
                         div.pt-2.pb-1.d-flex
