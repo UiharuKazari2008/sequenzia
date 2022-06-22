@@ -1929,7 +1929,7 @@ div.collapse-divider {
     min-width: 500px;
     border-bottom-right-radius: 20px;
 }
-.bottom-bar .dropdown-menu {
+.bottom-bar .nav-item .dropdown-menu {
     bottom: 100%;
     top: unset;
 }
