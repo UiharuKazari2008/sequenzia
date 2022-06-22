@@ -51,6 +51,7 @@ let itemsRemovedIds = [];
 let initialLoad = true;
 let postsActions = [];
 let apiActions = {};
+let menuBarLocation = (getCookie("menuBarLocation") !== null) ? getCookie("menuBarLocation") : '';
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
 let recentPostDestination = (getCookie("recentPostDestination") !== null) ? (() => {
     try {
@@ -1511,7 +1512,7 @@ function authwareLogin() {
         const code = document.getElementById('expressLoginCode').value.trim();
         $.ajax({
             async: true,
-            url: `https://${document.location.host}/transfer?code=${code}`,
+            url: `/transfer?code=${code}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1736,6 +1737,24 @@ function setImageLayout(size, _html) {
         }
     }
     return false;
+}
+function setMenuBarLocation() {
+    switch (menuBarLocation) {
+        case 'bottom':
+            menuBarLocation = 'top';
+            $('body').removeClass('bottom-bar');
+            break;
+        default:
+            menuBarLocation = 'bottom';
+            $('body').addClass('bottom-bar');
+            break;
+    }
+    try {
+        setCookie("menuBarLocation", menuBarLocation);
+    } catch (e) {
+        console.error("Failed to save cookie for menubar preference");
+        console.error(e)
+    }
 }
 
 // Send Action

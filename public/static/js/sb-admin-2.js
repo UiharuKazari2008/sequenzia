@@ -11,8 +11,9 @@ function toggleMenu() {
   sidebar.toggleClass("toggled");
   if (sidebar.hasClass("toggled")) {
     $('.sidebar .collapse').collapse('hide');
-    if (window.location.hash.substring(1).length <= 1)
+    if (window.location.hash.substring(1).length <= 1) {
       $('#userMenu').collapse('show');
+    }
   }
 }
 
@@ -93,5 +94,13 @@ function toggleLightboxOverlay() {
       e.preventDefault();
     }
   });
+  switch (menuBarLocation) {
+    case 'bottom':
+      $('body').addClass('bottom-bar');
+      break;
+    default:
+      $('body').removeClass('bottom-bar');
+      break;
+  }
 
 })(jQuery); // End of use strict

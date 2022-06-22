@@ -14,7 +14,6 @@ _originalURL = (() => {
     }
 })()
 $(document).ready(function () {
-    $('#padding').removeClass('show');
     $('.popover').popover('dispose');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice()===false) {
@@ -52,23 +51,23 @@ if ("IntersectionObserver" in window) {
 }
 
 $('#userMenu').on('show.bs.collapse', function () {
-    $('.fixed-top').removeClass('top-padding-safety');
+    $('#mainMenuBar').removeClass('top-padding-safety');
     $('.show-menu-open').removeClass('hidden');
-    $('#padding').collapse('show');
     $('#topbarBackground').fadeIn();
     $('#topbar').addClass('shadow').addClass('menu-open');
+    $('body').addClass('menu-open');
 })
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
         $('.show-menu-open').addClass('hidden');
         $('#menuItemMain').collapse('show');
-        $('#padding').collapse('hide');
-        $('.fixed-top').addClass('top-padding-safety');
+        $('#mainMenuBar').addClass('top-padding-safety');
         $('#topbar').removeClass('menu-open')
         if ($('html').scrollTop() <= 50) {
             $('#topbarBackground').fadeOut();
             $('#topbar').removeClass('shadow');
         }
+        $('body').removeClass('menu-open');
     }
 })
 

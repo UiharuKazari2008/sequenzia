@@ -200,7 +200,7 @@ function authwareLogin() {
         const code = document.getElementById('expressLoginCode').value.trim();
         $.ajax({
             async: true,
-            url: `https://${document.location.host}/transfer?code=${code}`,
+            url: `/transfer?code=${code}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,

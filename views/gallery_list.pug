@@ -105,13 +105,29 @@ block content
                                                 i.fas.fa-image
                                             else if (item.entities.meta.ratio && item.entities.meta.ratio <= 0.9)
                                                 i.fas.fa-image-landscape
-                                        div.d-inline-flex.ml-2.shadow-text
+                                        div.d-inline-flex.ml-1.shadow-text
                                             if (item.history.name)
-                                                i.fas.fa-history.pr-1
+                                                if (item.history.type === 'ads-lite')
+                                                    i.fas.fa-tv.pr-1
+                                                else if (item.history.type === 'ads-widget')
+                                                    i.pr-1.fab.fa-app-store-ios
+                                                else if (item.history.type === 'ads-micro')
+                                                    i.fas.fa-laptop.pr-1
+                                                else if (item.history.type === 'ads-mobile')
+                                                    i.fas.fa-mobile-alt.pl-1pr-1
+                                                else if (item.history.type === 'ads-embed')
+                                                    i.fas.fa-dice-five.pr-1.pl-1
+                                                else if (item.history.type === 'homepage')
+                                                    i.fas.fa-home.pr-1
+                                                else if (item.history.type === 'webextention')
+                                                    i.fab.fa-edge.pr-1
+                                                else if (item.history.type === 'pagehistory')
+                                                    i.fas.fa-history.pr-1
+                                                //span.pr-1.text-ellipsis.no-dynamic-tiny(style='line-height: 1.1;') #{(item.history.name.startsWith('ADS')) ? item.history.name.split('-').splice(1).join('-') : item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
                                             if (item.flagged)
                                                 i.fas.fa-flag.text-danger
                                         div.d-inline-flex.ml-auto.shadow-text
-                                            i.fas(class=`${item.channel.icon}`)
+                                            i.fas(class=`${item.channel.icon}`).pr-1
                                     if (isVideo)
                                         p.status-icons.center-icons(style='height: 64px;').text-center
                                             i.fas.fa-4x.fa-film(style='color: #838383c9;')

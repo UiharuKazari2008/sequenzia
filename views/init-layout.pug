@@ -103,7 +103,7 @@ html
             }
         if (user && user.banner)
             style.
-                .user-info-bg {
+                .user-info-bg, #topbarUserBackground {
                     background-image: url('#{user.banner}');
                 }
         else if (user && user.avatar)
@@ -115,7 +115,6 @@ html
         div.background-image.overlay
         div.background-image.bg-blur
 
-        div#padding.collapsed.collapse
         div(id="wrapper")
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
                 #sidebar
@@ -153,7 +152,7 @@ html
                         span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
             div(id="content-wrapper", class="d-flex flex-column")
                 div(id="content")
-                    div.fixed-top
+                    div#mainMenuBar
                         div#userMenu.collapsed.collapse.show
                             div.shown-user-menu.d-flex
                                 div.user-info-bg
@@ -162,7 +161,7 @@ html
                                             if (user && user.source === 900)
                                                 div.text-center.text-ellipsis.align-middle.p-2
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        .row.mt-auto.p-0.mb-2.user-infocard-row1
+                                        .row.p-0.user-infocard-row1
                                             if (user && user.banner)
                                                 .col-auto.p-0
                                                     img.rounded-circle.user-infocard-icon(src=user.avatar)
@@ -226,7 +225,7 @@ html
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
                                                                             i.far.fa-arrow-right.fa-sm.align-middle.nav-item
                                                     //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
                                                             i.fa-light.fa-sidebar.fa-fw
@@ -272,7 +271,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
                                                         | Settings
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
                                                             i.fa-light.fa-desktop
@@ -305,7 +304,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-toolbox.mr-2
                                                         | Tools
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         h2 No Available
                                         div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
@@ -363,7 +362,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-browsers.mr-2
                                                         | Applications
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
                                                     if (applications_list && applications_list.length > 0)
                                                         .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                             each thisApp in applications_list
@@ -396,6 +395,7 @@ html
                                             .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
                                                 span.dropdown-header No Active Tasks
 
+                        div#topbarUserBackground
                         div#topbarIcon
                         div#topbarBackground
                     .container-fluid.max-resize
@@ -483,7 +483,7 @@ html
                 div
                 div
                 div
-        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='bottom: 24px; position: fixed; display: none; z-index: 500;' href='#_' onclick="scrollToTop(); return false;")
+        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='display: none;' href='#_' onclick="scrollToTop(); return false;")
             i.fa.fa-arrow-up
 
         div#musicplayer.fixed-bottom.music-player(role="alert" style="display: none;")
