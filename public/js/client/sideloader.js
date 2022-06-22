@@ -1790,7 +1790,7 @@ function removeAllHistory() {
 }
 function queueAction(serverid, channelid, messageid, action, data, isReviewAction, noUndo) {
     let preview = undefined
-    const _post = document.getElementById(`message-${messageid}`)
+/*    const _post = document.getElementById(`message-${messageid}`)
     if (pageType.includes('gallery')) {
         preview = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
     } else if (pageType.includes('file')) {
@@ -1801,7 +1801,7 @@ function queueAction(serverid, channelid, messageid, action, data, isReviewActio
         if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
             preview = _post.querySelector('.card-img').src
         }
-    }
+    }*/
     apiActions[messageid] = {serverid, channelid, messageid, action, data, preview, isReviewAction: (isReviewAction)};
     if (!noUndo)
         undoActions.push(messageid);
@@ -1829,7 +1829,6 @@ function commitPendingActions() {
                     delay: 5000,
                 });
                 console.log(res);
-                if (confirm) { $.snack('success', `${res}`, 5000) };
                 if (res.status.includes('Actions Failed')) {
                     Object.keys(res.results).map((response) => {
                         if (res.results[response] === 200 || res.results[response] === 404) {
@@ -1924,7 +1923,15 @@ function undoPendingAction() {
     updateActionsPanel();
 }
 function updateActionsPanel() {
-    if (Object.keys(apiActions).length !== 0) {
+    if (document.getElementById('actionPanel')) {
+        if (Object.keys(apiActions).length > 0) {
+            $('#actionPanel').removeClass('hidden')
+        } else {
+            $('#actionPanel').addClass('hidden')
+        }
+        document.getElementById('pendingActionsIndicator').innerText = Object.keys(apiActions).length
+    }
+    /*if (Object.keys(apiActions).length !== 0) {
         const keys = Object.values(apiActions).reverse().map((item) => {
             let results = [`<a class="action-item" href='#_' onclick="cancelPendingAction(${item.messageid}); return false;" role='button')>`]
             if (item.preview) {
@@ -1994,7 +2001,7 @@ function updateActionsPanel() {
             $('#actionPanel').addClass('hidden')
             $('#actionPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Pending Actions</span>')
         }
-    }
+    }*/
 }
 function sendAction(serverid, channelid, messageid, action, data, confirm) {
     if (inReviewMode) {

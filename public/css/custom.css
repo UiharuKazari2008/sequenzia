@@ -339,7 +339,37 @@ color: #b3ff85;
 
 .bottom-bar  #topbarBackground {
     border-bottom: none;
-    border-top: solid 1px #77777740;
+    border-top: solid 1px #3a1a0c;
+}
+
+@keyframes mainMenuBar-open {
+    from {
+        box-shadow: 0px 0 20px 0 #00000000;
+    }
+    to {
+        box-shadow: 0px 0 20px 0 #000000e6;
+    }
+}
+@keyframes mainMenuBar-close {
+    from {
+        box-shadow: 0px 0 20px 0 #000000e6;
+    }
+    to {
+        box-shadow: 0px 0 20px 0 #00000000;
+    }
+}
+
+#mainMenuBar {
+    box-shadow: 0px 0 20px 0 #00000000;
+    -prefix-animation: mainMenuBar-close 1s ease 0s forwards;
+    -webkit-animation: mainMenuBar-close 1s ease 0s forwards;
+    animation: mainMenuBar-close 1s ease 0s forwards;
+}
+.menu-open  #mainMenuBar {
+    box-shadow: 0px 0 20px 0 #000000e6;
+    -prefix-animation: mainMenuBar-open 1s ease 0s forwards;
+    -webkit-animation: mainMenuBar-open 1s ease 0s forwards;
+    animation: mainMenuBar-open 1s ease 0s forwards;
 }
 
 #content-wrapper > div > #mainMenuBar {
@@ -821,7 +851,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     background-size: cover;
 }
 .bottom-bar #content > #mainMenuBar {
-    background-image: linear-gradient(0deg, black, transparent);
+    background-image: linear-gradient(0deg, black, rgba(0,0,0,0.85) calc(env(safe-area-inset-bottom, 0)), transparent);
 }
 
 #postBackground {
@@ -1871,7 +1901,7 @@ div.collapse-divider {
 .menu-grid {
     display: flex;
     width: inherit;
-    justify-content: space-evenly;
+    justify-content: center;
     grid-auto-flow: column;
     flex-wrap: wrap;
 }
@@ -1952,25 +1982,25 @@ div.collapse-divider {
 
 .page-navigator {
     position: fixed;
-    right: calc(env(safe-area-inset-right, 0) + 24px);
-    bottom: calc(env(safe-area-inset-bottom, 0) + 24px);
+    right: calc(env(safe-area-inset-right, 0) + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
     z-index: 500;
 }
 
 .scrollBtn {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
     position: fixed;
     z-index: 500;
 }
 
 .bottom-bar .page-navigator,
 .bottom-bar .scrollBtn {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 2.5em + 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 3rem + 1.5rem);
 }
 
 .bottom-bar.menu-open .page-navigator,
 .bottom-bar.menu-open .scrollBtn {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 200px + 2.5em + 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 200px + 3rem + 1.5rem);
 }
 
 .btn .badge {
@@ -2566,18 +2596,18 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
-        height: 300px;
+        height: 275px;
         opacity: 0.4;
     }
     #topbarUserBackground {
         display: initial;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 275px);
+        height: calc(env(safe-area-inset-top, 0) + 255px);
         flex-direction: column;
     }
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 275px);
+        height: calc(env(safe-area-inset-bottom, 0) + 255px);
         flex-direction: column;
     }
     .topbar .dropdown .dropdown-menu {
@@ -2585,8 +2615,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .user-infocard-row1 {
         margin-top: calc(env(safe-area-inset-top, 0) + 0.5em);
-        margin-left: calc(env(safe-area-inset-left, 0) + 0.5em);
-        margin-right: calc(env(safe-area-inset-right, 0) + 0.5em);
+        margin-left: calc(env(safe-area-inset-left, 0) + 1em);
+        margin-right: calc(env(safe-area-inset-right, 0) + 1em);
+    }
+    .bottom-bar .user-infocard-row1 {
+        margin-top: 0;
     }
     .user-infocard-row2 {
         margin-left: calc(env(safe-area-inset-left, 0) + 1em);
@@ -2600,11 +2633,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     #menuAccordion>div>div, #menuAccordion>#appPanels>div>div {
-        margin-top: calc(env(safe-area-inset-top, 0) + 4.5rem);
+        margin-top: calc(env(safe-area-inset-top, 0) + 0.5em + 2.5rem);
         padding: 0!important;
     }
     .bottom-bar #menuAccordion>div>div, .bottom-bar #menuAccordion>#appPanels>div>div {
-        margin-top: 4.5em;
+        margin-top: 2.5em;
     }
 
     .user-info-bg, .bottom-bar .user-info-bg {
@@ -2616,7 +2649,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 275px + 2.5em + 24px);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 255px + 2.5rem + 1.5rem);
     }
 
     .user-menu-height {
@@ -2624,12 +2657,12 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .user-infocard-icon {
-        width: 48px;
+        width: 32px;
         font-size: 1.85em;
         box-shadow: 0 0 4px #ff5100d6!important;
     }
     .user-infocard-username {
-        font-size: 1.25em;
+        font-size: 1em;
         text-shadow: none;
         color: #ffa554;
         text-shadow: 0 0 4px #ff5100d6;
@@ -2757,13 +2790,13 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: none!important;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 400px);
+        height: calc(env(safe-area-inset-top, 0) + 0.5em + 400px);
         flex-direction: column;
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 400px + 2.5em + 24px);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 400px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
@@ -2774,10 +2807,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     #padding {
         margin-top: calc(425px - env(safe-area-inset-top, 0px));
-    }
-
-    .user-menu-height {
-        height: 200px
     }
 
     .album-item {
@@ -2793,23 +2822,23 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
-        height: 380px;
+        height: 325px;
     }
     .menu-grid {
         max-width: 340px;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 325px);
+        height: calc(env(safe-area-inset-top, 0) + 305px);
         flex-direction: column;
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 325px + 2.5em + 24px);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 305px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 325px);
+        height: calc(env(safe-area-inset-bottom, 0) + 305px);
     }
     .topbar .dropdown .dropdown-menu {
         max-height: calc(80vh - (env(safe-area-inset-top, 0) + 450px));
@@ -2837,22 +2866,22 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
-        height: 375px;
+        height: 350px;
     }
     .menu-grid {
         max-width: 245px;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 375px);
+        height: calc(env(safe-area-inset-top, 0) + 345px);
         flex-direction: column;
     }
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 375px);
+        height: calc(env(safe-area-inset-bottom, 0) + 345px);
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 375px + 2.5em + 24px);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 345px + 2.5rem + 1.5rem);
     }
 
     .topbar .dropdown .dropdown-menu {
@@ -2860,19 +2889,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .bottom-bar .topbar .dropdown .dropdown-menu {
         max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 350px));
-    }
-    .user-infocard-icon {
-        width: 38px;
-    }
-    .user-infocard-username {
-        font-size: 1em;
-    }
-    #menuAccordion>div>div, #menuAccordion>#appPanels>div>div {
-        margin-top: calc(env(safe-area-inset-top, 0) + 3.75rem);
-        padding: 0!important;
-    }
-    .bottom-bar #menuAccordion>div>div, .bottom-bar #menuAccordion>#appPanels>div>div {
-        margin-top: 3.75em;
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));
@@ -2942,17 +2958,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     /* CSS for other than iOS devices */
     .maxphone {
         height: 100vh;
-    }
-
-    @media (max-width: 880px) {
-        .bottom-bar .user-infocard-holder {
-            margin-top: calc((env(safe-area-inset-bottom, 1rem) - 1rem) * -1);
-        }
-    }
-    @media (max-width: 509px) {
-        .bottom-bar .user-infocard-holder {
-            margin-top: calc((env(safe-area-inset-bottom, -0.5) + 0.5rem) * -1);
-        }
     }
 }
 
@@ -3087,10 +3092,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         background-color: #d07300f0;
     }*/
     #content > #mainMenuBar {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.57), transparent);
+        background-image: linear-gradient(180deg, #d07300f7 ,transparent);
     }
     .bottom-bar #content > #mainMenuBar {
-        background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.57));
+        background-image: linear-gradient(0deg,rgb(147, 47, 0),rgb(147, 47, 0, 0.57) calc(env(safe-area-inset-bottom,0)),transparent)
     }
     .sequenzia-logo {
         color: white;

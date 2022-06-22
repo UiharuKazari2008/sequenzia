@@ -668,8 +668,12 @@ html
                                                         i.fas.fa-clipboard.pr-1
                                                         span#pendingActionsIndicator.badge.badge-primary ...
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
-                                                        span.dropdown-header
-                                                            | No Pending Actions
+                                                        a.dropdown-item(onclick="commitPendingActions(); return false;")
+                                                            i.fas.fa-inbox-out.pr-2
+                                                            span Commit
+                                                        a.dropdown-item(onclick="cancelPendingAction(-1); return false;")
+                                                            i.fas.fa-trash-alt.pr-2
+                                                            span Cancel
 
                                             div#statusPanel.btn-group.hidden(style="display: contents;")
                                                 div.dropdown(style="display: contents;")

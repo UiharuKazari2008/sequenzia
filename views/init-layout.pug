@@ -225,7 +225,7 @@ html
                                                                         a.btn.input-group-text.top-menu-search-bar(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
                                                                             i.far.fa-arrow-right.fa-sm.align-middle.nav-item
                                                     //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
-                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
                                                             i.fa-light.fa-sidebar.fa-fw
@@ -271,7 +271,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
                                                         | Settings
-                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
                                                             i.fa-light.fa-desktop
@@ -304,7 +304,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-toolbox.mr-2
                                                         | Tools
-                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         h2 No Available
                                         div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
@@ -362,7 +362,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-browsers.mr-2
                                                         | Applications
-                                                .row.ml-0.mr-0.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     if (applications_list && applications_list.length > 0)
                                                         .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                             each thisApp in applications_list
