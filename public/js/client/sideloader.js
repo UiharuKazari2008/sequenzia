@@ -562,7 +562,7 @@ function getLimitContent(perm) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
     const requestLimit = document.getElementById('limitRequested').value;
     if (requestLimit !== null && requestLimit !== '') {
-        const _url = params([], [[(perm) ? 'limit' : num, requestLimit ]]);
+        const _url = params([], [[(perm) ? 'limit' : 'num', requestLimit ]]);
         setupReq()
         requestInprogress = $.ajax({async: true,
             url: _url,

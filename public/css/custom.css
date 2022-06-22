@@ -312,11 +312,39 @@ color: #b3ff85;
     left: 0;
     height: 100%;
     width: 100%;
-    z-index: -1;
+    z-index: -2;
     /*backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);*/
     background-color: #000000eb;
     border-bottom: solid 1px #77777740;
+}
+
+#sidebarIcon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    opacity: 0.7;
+    margin-left: 125px;
+    background-image: url("/static/img/aak.png");
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    background-size: contain;
+}
+#topbarIcon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    opacity: 0.5;
+    background-image: url("/static/img/aak.png");
+    background-repeat: no-repeat;
+    background-position: top right;
+    background-size: 300px;
 }
 
 .home-items {
@@ -2385,6 +2413,12 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 880px) {
+    #topbarIcon {
+        top: unset;
+        bottom: 0;
+        height: 250px;
+        opacity: 0.4;
+    }
     .shown-user-menu {
         height: 500px;
         flex-direction: column;
@@ -2604,6 +2638,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 
 }
 @media (max-width: 509px) {
+    #topbarIcon {
+        top: unset;
+        bottom: 0;
+        height: 300px;
+    }
     .menu-grid {
         max-width: 340px;
     }
@@ -2642,6 +2681,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 350px) {
+    #topbarIcon {
+        top: unset;
+        bottom: 0;
+        height: 350px;
+    }
     .menu-grid {
         max-width: 245px;
     }
@@ -2848,7 +2892,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     #topbarBackground {
-        background-color: #d07300;
+        background-color: #d07300f7;
         border-bottom: solid 1px #ffa90073;
     }
     /*#topbarBackground {
