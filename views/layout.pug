@@ -239,7 +239,7 @@ html
                                                             a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
                                                                 i.fa-light.fa-sliders-h
                                                                 | Display
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
                                                             i.fa-light.fa-desktop
                                                             | Ambient
                                                         if (user && user.source < 900)
@@ -453,24 +453,24 @@ html
                                                         i.fas.fa-browsers.mr-2
                                                         | Applications
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
-                                                    if (applications_list && applications_list.length > 0)
-                                                        .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
-                                                            each thisApp in applications_list
-                                                                if (thisApp.type == 0)
-                                                                    a.user-menu-item.user-menu-small(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
-                                                                        i.fa-light(class=`${thisApp.icon}`)
-                                                                        | #{thisApp.name}
-                                                                else if (thisApp.type == 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
-                                                                        i.fa-light(class=`${thisApp.icon}`)
-                                                                        | #{thisApp.name}
-                                                                else if (thisApp.type == 2)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
-                                                                        i.fa-light(class=`${thisApp.icon}`)
-                                                                        | #{thisApp.name}
-
-                                                    else
-                                                        h2 No Applications Available!
+                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                                            i.fa-light.fa-tv
+                                                            | Ambient
+                                                        if (applications_list && applications_list.length > 0)
+                                                                each thisApp in applications_list
+                                                                    if (thisApp.type == 0)
+                                                                        a.user-menu-item.user-menu-small(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                                                                    else if (thisApp.type == 1)
+                                                                        a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                                                                    else if (thisApp.type == 2)
+                                                                        a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
                                         div#appPanels(style=`display: contents;`)
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.text-primary.text-ellipsis

@@ -376,23 +376,24 @@ html
                                                         i.fas.fa-browsers.mr-2
                                                         | Applications
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
-                                                    if (applications_list && applications_list.length > 0)
-                                                        .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
-                                                            each thisApp in applications_list
-                                                                if (thisApp.type == 0)
-                                                                    a.user-menu-item.user-menu-small(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
-                                                                        i.fa-light(class=`${thisApp.icon}`)
-                                                                        | #{thisApp.name}
-                                                                else if (thisApp.type == 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
-                                                                        i.fa-light(class=`${thisApp.icon}`)
-                                                                        | #{thisApp.name}
-                                                                else if (thisApp.type == 2)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
-                                                                        i.fa-light(class=`${thisApp.icon}`)
-                                                                        | #{thisApp.name}
-                                                    else
-                                                        h2 No Applications Available!
+                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                                            i.fa-light.fa-tv
+                                                            | ADS
+                                                        if (applications_list && applications_list.length > 0)
+                                                                each thisApp in applications_list
+                                                                    if (thisApp.type == 0)
+                                                                        a.user-menu-item.user-menu-small(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                                                                    else if (thisApp.type == 1)
+                                                                        a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                                                                    else if (thisApp.type == 2)
+                                                                        a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.no-ani.shadow
                             ul.navbar-nav.text-primary.ml-1
                                 li.nav-item.text-right.text-primary.page-title

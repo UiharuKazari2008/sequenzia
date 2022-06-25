@@ -336,6 +336,10 @@ html
                                             span Apps
                                 .dimmed.d-flex(style='max-width: 600px;').mb-3
                                     div.menu-grid.user-menu-small
+                                        .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                                i.shadow-blk.fas.fa-tv
+                                                | ADS
                                         if (applications_list && applications_list.length > 0)
                                             each thisApp in applications_list
                                                 if (thisApp.type == 0)
@@ -346,9 +350,6 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.shadow-blk.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
-                                        else
-                                            span(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title=`If applications are available you may need to launch juneOS at least once to load them`) No Applications Available!
-
                         if (url)
                             if (url.includes('search=true'))
                                 form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
