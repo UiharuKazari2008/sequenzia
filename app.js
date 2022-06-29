@@ -22,8 +22,20 @@ const morgan = require('morgan');
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
+const fs = require("fs");
+const host = require("./host.config.json");
 let activeRequests = new Map();
 let fileIDCache = new Map();
+
+
+if (fs.existsSync('./user-config.json')) {
+    const userConfig = require('./user-config.json');
+    if (userConfig.cookie_secret)
+        config.cookie_secret = userConfig.cookie_secret;
+    if (userConfig.use_secure_cookie === false ||userConfig.use_secure_cookie === true)
+        config.use_secure_cookie = (userConfig.use_secure_cookie);
+
+}
 
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({

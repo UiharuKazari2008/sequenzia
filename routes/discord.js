@@ -1,5 +1,18 @@
 const config = require('../config.json')
-const host = require('../host.config.json')
+let host = require('../host.config.json');
+const fs = require("fs");
+if (fs.existsSync('../user-config.json')) {
+    const userConfig = require('../user-config.json');
+    if (userConfig.discord_id)
+        host.discord_id = userConfig.discord_id;
+    if (userConfig.discord_secret)
+        host.discord_secret = userConfig.discord_secret;
+    if (userConfig.discord_redirect_base)
+        host.discord_redirect_base = userConfig.discord_redirect_base;
+    if (userConfig.enable_impersonation)
+        host.enable_impersonation = userConfig.enable_impersonation;
+
+}
 const webconfig = require('../web.config.json')
 const express = require('express');
 const router = express.Router();
