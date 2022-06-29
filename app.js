@@ -27,14 +27,13 @@ const host = require("./host.config.json");
 let activeRequests = new Map();
 let fileIDCache = new Map();
 
-
-if (fs.existsSync('./user-config.json')) {
+try {
     const userConfig = require('./user-config.json');
     if (userConfig.cookie_secret)
         config.cookie_secret = userConfig.cookie_secret;
     if (userConfig.use_secure_cookie === false ||userConfig.use_secure_cookie === true)
         config.use_secure_cookie = (userConfig.use_secure_cookie);
-
+} catch (e) {
 }
 
 //  Rate Limiters
