@@ -8,8 +8,8 @@ try {
         host.discord_secret = userConfig.discord_secret;
     if (userConfig.discord_redirect_base)
         host.discord_redirect_base = userConfig.discord_redirect_base;
-    if (userConfig.enable_impersonation)
-        host.enable_impersonation = userConfig.enable_impersonation;
+    if (userConfig.enable_impersonation === true || userConfig.enable_impersonation === false)
+        host.enable_impersonation = (userConfig.enable_impersonation);
 } catch (e) {
 }
 const webconfig = require('../web.config.json')
