@@ -608,13 +608,13 @@ html
                                                     script#setTitleExtraStyleAdjustment.
                                                         extratitlewidth = 0
                                                         function calculateTitleWidthPage() {
-                                                            $('#titleExtra').style = `min-width: fit-content;`
+                                                            document.getElementById('titleExtra').style['min-width'] = `min-width: fit-content;`
                                                             setTimeout(() => {
                                                                 extratitlewidth = $('#titleExtra').width() + 10
                                                                 if (extratitlewidth > 20) {
                                                                     $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
                                                                 }
-                                                                $('#titleExtra').style = ``
+                                                                document.getElementById('titleExtra').style['min-width'] = ``
                                                             }, 1000);
                                                         }
                                                         calculateTitleWidthPage();
