@@ -1,5 +1,13 @@
 const global = require('../../config.json');
-const config = require('../../host.config.json');
+let config = require('../../host.config.json');
+
+if (process.env.MQ_HOST)
+    config.mq_host = process.env.MQ_HOST
+if (process.env.RABBITMQ_DEFAULT_USER)
+    config.mq_user = process.env.RABBITMQ_DEFAULT_USER
+if (process.env.RABBITMQ_DEFAULT_PASS)
+    config.mq_pass = process.env.RABBITMQ_DEFAULT_PASS
+
 const { sqlSimple, sqlSafe, sqlPromiseSafe } = require('../sqlClient');
 
 const amqp = require('amqplib/callback_api');

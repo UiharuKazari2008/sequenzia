@@ -1,4 +1,12 @@
-const config = require('../host.config.json');
+let config = require('../host.config.json');
+if (process.env.DATABASE_HOST)
+    config.sql_host = process.env.DATABASE_HOST
+if (process.env.DATABASE_NAME)
+    config.sql_database = process.env.DATABASE_NAME
+if (process.env.DATABASE_USERNAME)
+    config.sql_user = process.env.DATABASE_USERNAME
+if (process.env.DATABASE_PASSWORD)
+    config.sql_pass = process.env.DATABASE_PASSWORD
 
 const mysql = require('mysql2');
 const { printLine } = require('./logSystem');

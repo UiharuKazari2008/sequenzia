@@ -2,6 +2,17 @@ let config = require('./host.config.json')
 let global = require('./config.json')
 let web = require('./web.config.json')
 
+if (process.env.SYSTEM_NAME)
+    config.system_name = process.env.SYSTEM_NAME
+if (process.env.DATABASE_HOST)
+    config.sql_host = process.env.DATABASE_HOST
+if (process.env.DATABASE_NAME)
+    config.sql_database = process.env.DATABASE_NAME
+if (process.env.DATABASE_USERNAME)
+    config.sql_user = process.env.DATABASE_USERNAME
+if (process.env.DATABASE_PASSWORD)
+    config.sql_pass = process.env.DATABASE_PASSWORD
+
 const express = require("express");
 const app = module.exports = express()
 const routes = require('./routes/index');

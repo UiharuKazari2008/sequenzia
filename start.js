@@ -1,7 +1,12 @@
+const config = require("./host.config.json");
 (async () => {
     const app = require('./app');
     const config = require('./config.json');
-    const host = require('./host.config.json');
+    let host = require('./host.config.json');
+
+    if (process.env.SYSTEM_NAME)
+        host.system_name = process.env.SYSTEM_NAME
+
     const request = require("request");
     const fs = require("fs");
     const { printLine } = require('./js/logSystem');

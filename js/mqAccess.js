@@ -1,4 +1,14 @@
-const config = require('../host.config.json');
+let config = require('../host.config.json');
+
+if (process.env.SYSTEM_NAME)
+    config.system_name = process.env.SYSTEM_NAME
+if (process.env.MQ_HOST)
+    config.mq_host = process.env.MQ_HOST
+if (process.env.RABBITMQ_DEFAULT_USER)
+    config.mq_user = process.env.RABBITMQ_DEFAULT_USER
+if (process.env.RABBITMQ_DEFAULT_PASS)
+    config.mq_pass = process.env.RABBITMQ_DEFAULT_PASS
+
 const amqp = require('amqplib/callback_api');
 const { printLine } = require('./logSystem');
 let amqpConn = null;

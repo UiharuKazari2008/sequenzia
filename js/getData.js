@@ -1,5 +1,9 @@
 const global = require('../config.json');
-const config = require('../host.config.json');
+let config = require('../host.config.json');
+
+if (process.env.SYSTEM_NAME)
+    config.system_name = process.env.SYSTEM_NAME
+
 let web = require('../web.config.json');
 const { printLine } = require("./logSystem");
 const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
