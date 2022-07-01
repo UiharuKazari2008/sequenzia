@@ -24,17 +24,8 @@ const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
 let activeRequests = new Map();
 let fileIDCache = new Map();
-
-try {
-    const userConfig = require('./user-config.json');
-    if (userConfig.cookie_secret)
-        config.cookie_secret = userConfig.cookie_secret;
-    if (userConfig.Base_URL)
-        web.base_url = userConfig.Base_URL;
-    if (userConfig.use_secure_cookie === false ||userConfig.use_secure_cookie === true)
-        config.use_secure_cookie = (userConfig.use_secure_cookie);
-} catch (e) {
-}
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({

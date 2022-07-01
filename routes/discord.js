@@ -1,17 +1,5 @@
 let config = require('../config.json')
 let host = require('../host.config.json');
-try {
-    const userConfig = require('../user-config.json');
-    if (userConfig.discord_id)
-        host.discord_id = userConfig.discord_id;
-    if (userConfig.discord_secret)
-        host.discord_secret = userConfig.discord_secret;
-    if (userConfig.discord_redirect_base)
-        host.discord_redirect_base = userConfig.discord_redirect_base;
-    if (userConfig.enable_impersonation === true || userConfig.enable_impersonation === false)
-        config.enable_impersonation = (userConfig.enable_impersonation);
-} catch (e) {
-}
 const webconfig = require('../web.config.json')
 const express = require('express');
 const router = express.Router();
@@ -27,6 +15,7 @@ const { sqlSafe, sqlSimple, sqlPromiseSafe, sqlPromiseSimple } = require('../js/
 const moment = require('moment');
 const persistSettingsManager = require('../js/persistSettingsManager');
 const app = require('./../app');
+const web = require("../web.config.json");
 
 function _encode(obj) {
     let string = "";
@@ -46,7 +35,7 @@ setInterval(cleanDeadCodes, 60 * 1000);
 router.get('/login', (req, res) => {
     try {
         printLine('SessionInit', `Login Attempt!`, 'debug');
-        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${host.discord_id}&scope=identify+guilds&response_type=code&redirect_uri=${encodeURIComponent(`${host.discord_redirect_base}/discord/callback`)}`);
+        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${host.discord_id}&scope=identify+guilds&response_type=code&redirect_uri=${encodeURIComponent(`${(host.discord_redirect_base) ? host.discord_redirect_base : web.base_url}/discord/callback`)}`);
     } catch (err) {
         res.status(500).json({
             state: 'HALTED',
@@ -73,7 +62,7 @@ router.get('/destroy', catchAsync(async (req, res) => {
                             'client_secret': host.discord_secret,
                             'grant_type': 'authorization_code',
                             'token': token,
-                            'redirect_uri': `${host.discord_redirect_base}/discord/callback`,
+                            'redirect_uri': `${(host.discord_redirect_base) ? host.discord_redirect_base : web.base_url}/discord/callback`,
                             'scope': 'identify guilds'
                         })
                     });
@@ -113,7 +102,7 @@ router.get('/callback', catchAsync(async (req, res) => {
                         'client_secret': host.discord_secret,
                         'grant_type': 'authorization_code',
                         'code': code,
-                        'redirect_uri': `${host.discord_redirect_base}/discord/callback`,
+                        'redirect_uri': `${(host.discord_redirect_base) ? host.discord_redirect_base : web.base_url}/discord/callback`,
                         'scope': 'identify guilds'
                     })
                 });

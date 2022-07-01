@@ -44,13 +44,8 @@ const closestIndex = (num, arr) => {
     };
     return index;
 };
-
-try {
-    const userConfig = require('./user-config.json');
-    if (userConfig.Base_URL)
-        web.base_url = userConfig.Base_URL;
-} catch (e) {
-}
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
 router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);

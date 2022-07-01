@@ -10,13 +10,9 @@ const useragent = require('express-useragent');
 const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 const app = require("../app");
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
-try {
-    const userConfig = require('./user-config.json');
-    if (userConfig.Base_URL)
-        web.base_url = userConfig.Base_URL;
-} catch (e) {
-}
 
 module.exports = async (req, res, next) => {
     let debugTimes = {};
