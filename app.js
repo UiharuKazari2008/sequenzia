@@ -2,16 +2,16 @@ let config = require('./host.config.json')
 let global = require('./config.json')
 let web = require('./web.config.json')
 
-if (process.env.SYSTEM_NAME)
-    config.system_name = process.env.SYSTEM_NAME
-if (process.env.DATABASE_HOST)
-    config.sql_host = process.env.DATABASE_HOST
-if (process.env.DATABASE_NAME)
-    config.sql_database = process.env.DATABASE_NAME
-if (process.env.DATABASE_USERNAME)
-    config.sql_user = process.env.DATABASE_USERNAME
-if (process.env.DATABASE_PASSWORD)
-    config.sql_pass = process.env.DATABASE_PASSWORD
+if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+    config.system_name = process.env.SYSTEM_NAME.trim()
+if (process.env.DATABASE_HOST && process.env.DATABASE_HOST.trim().length > 0)
+    config.sql_host = process.env.DATABASE_HOST.trim()
+if (process.env.DATABASE_NAME && process.env.DATABASE_NAME.trim().length > 0)
+    config.sql_database  = process.env.DATABASE_NAME.trim()
+if (process.env.DATABASE_USERNAME && process.env.DATABASE_USERNAME.trim().length > 0)
+    config.sql_user = process.env.DATABASE_USERNAME.trim()
+if (process.env.DATABASE_PASSWORD && process.env.DATABASE_PASSWORD.trim().length > 0)
+    config.sql_pass = process.env.DATABASE_PASSWORD.trim()
 
 const express = require("express");
 const app = module.exports = express()

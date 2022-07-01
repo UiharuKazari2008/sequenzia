@@ -4,8 +4,8 @@ const config = require("./host.config.json");
     const config = require('./config.json');
     let host = require('./host.config.json');
 
-    if (process.env.SYSTEM_NAME)
-        host.system_name = process.env.SYSTEM_NAME
+    if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+        host.system_name = process.env.SYSTEM_NAME.trim()
 
     const request = require("request");
     const fs = require("fs");

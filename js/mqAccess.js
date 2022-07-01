@@ -1,13 +1,13 @@
 let config = require('../host.config.json');
 
-if (process.env.SYSTEM_NAME)
-    config.system_name = process.env.SYSTEM_NAME
-if (process.env.MQ_HOST)
-    config.mq_host = process.env.MQ_HOST
-if (process.env.RABBITMQ_DEFAULT_USER)
-    config.mq_user = process.env.RABBITMQ_DEFAULT_USER
-if (process.env.RABBITMQ_DEFAULT_PASS)
-    config.mq_pass = process.env.RABBITMQ_DEFAULT_PASS
+if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+    config.system_name = process.env.SYSTEM_NAME.trim()
+if (process.env.MQ_HOST && process.env.MQ_HOST.trim().length > 0)
+    config.mq_host = process.env.MQ_HOST.trim()
+if (process.env.RABBITMQ_DEFAULT_USER && process.env.RABBITMQ_DEFAULT_USER.trim().length > 0)
+    config.mq_user = process.env.RABBITMQ_DEFAULT_USER.trim()
+if (process.env.RABBITMQ_DEFAULT_PASS && process.env.RABBITMQ_DEFAULT_PASS.trim().length > 0)
+    config.mq_pass = process.env.RABBITMQ_DEFAULT_PASS.trim()
 
 const amqp = require('amqplib/callback_api');
 const { printLine } = require('./logSystem');
