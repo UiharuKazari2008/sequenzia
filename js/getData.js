@@ -1,6 +1,6 @@
 const global = require('../config.json');
 const config = require('../host.config.json');
-const web = require('../web.config.json');
+let web = require('../web.config.json');
 const { printLine } = require("./logSystem");
 const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
@@ -10,6 +10,13 @@ const useragent = require('express-useragent');
 const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 const app = require("../app");
+
+try {
+    const userConfig = require('./user-config.json');
+    if (userConfig.Base_URL)
+        web.base_url = userConfig.Base_URL;
+} catch (e) {
+}
 
 module.exports = async (req, res, next) => {
     let debugTimes = {};

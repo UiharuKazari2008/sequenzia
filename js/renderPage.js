@@ -1,9 +1,16 @@
 const config = require('../config.json');
-const web = require('../web.config.json');
+let web = require('../web.config.json');
 const moment = require('moment');
 const feed = require('feed').Feed;
 const podcast = require('podcast');
 const useragent = require('express-useragent');
+
+try {
+    const userConfig = require('./user-config.json');
+    if (userConfig.Base_URL)
+        web.base_url = userConfig.Base_URL;
+} catch (e) {
+}
 
 module.exports = async (req, res, next) => {
     function params(_removeParams, _addParams, _url, searchOnly) {

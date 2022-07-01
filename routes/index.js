@@ -1,6 +1,6 @@
 const global = require('../config.json');
 const config = require('../host.config.json');
-const web = require('../web.config.json')
+let web = require('../web.config.json')
 const express = require('express');
 const getImages = require('../js/getData');
 const getIndex = require('../js/getIndex');
@@ -44,6 +44,13 @@ const closestIndex = (num, arr) => {
     };
     return index;
 };
+
+try {
+    const userConfig = require('./user-config.json');
+    if (userConfig.Base_URL)
+        web.base_url = userConfig.Base_URL;
+} catch (e) {
+}
 
 router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);

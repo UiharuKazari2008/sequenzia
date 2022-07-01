@@ -1,6 +1,6 @@
-const config = require('./host.config.json')
-const global = require('./config.json')
-const web = require('./web.config.json')
+let config = require('./host.config.json')
+let global = require('./config.json')
+let web = require('./web.config.json')
 
 const express = require("express");
 const app = module.exports = express()
@@ -22,8 +22,6 @@ const morgan = require('morgan');
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
-const fs = require("fs");
-const host = require("./host.config.json");
 let activeRequests = new Map();
 let fileIDCache = new Map();
 
@@ -31,6 +29,8 @@ try {
     const userConfig = require('./user-config.json');
     if (userConfig.cookie_secret)
         config.cookie_secret = userConfig.cookie_secret;
+    if (userConfig.Base_URL)
+        web.base_url = userConfig.Base_URL;
     if (userConfig.use_secure_cookie === false ||userConfig.use_secure_cookie === true)
         config.use_secure_cookie = (userConfig.use_secure_cookie);
 } catch (e) {
