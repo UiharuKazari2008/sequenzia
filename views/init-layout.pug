@@ -8,7 +8,7 @@ doctype html
 html
     head
         script.
-            console.log('Starting JuneOS...')
+            console.log('Waiting for JuneOS to boot...')
         title=`${webconf.site_name}`
 
         meta(charset='utf-8')
@@ -22,28 +22,37 @@ html
         meta(content="Image Gallery and File Manager" property="og:description")
         meta(content="Sequenzia" property="og:site_name")
         //meta(name="theme-color" content="#4285f4")
-        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
-        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
-        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
         link(rel='manifest' href='/static/manifest.json')
         link(rel='preconnect' href='https://cdn.discordapp.com')
         link(rel='preconnect' href='https://media.discordapp.net')
         link(rel='preload', href="https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2" as="font" crossorigin)
-        link(rel='preload', href="/static/vendor/fontawesome-free/css/all.min.css" as='style')
-        link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
-        link(rel='preload', href="/css/custom.min.css" as='style')
-        //link(rel='preload', href="https://fonts.googleapis.com/icon?family=Material+Icons" as='style')
+        link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-light-300.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-thin-100.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href='/static/vendor/jquery/jquery.min.js' as='script')
+        link(rel='preload', href='/static/js/moment.min.js' as='script')
+        link(rel='preload', href='/static/js/jquery.history.min.js' as='script')
         link(rel='preload', href="/static/css/jquery.fancybox.min.css" as='style')
         link(rel='preload', href="/static/css/daterangepicker.min.css" as='style')
+        link(rel='preload', href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" as='script')
+        link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
+
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+
+        link(rel='preload', href="/static/vendor/fontawesome/css/all.min.css" as='style')
+        link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
+        link(rel='preload', href="/css/custom.min.css" as='style')
+
         link(rel='preload', href="/static/img/sequenzia-logo-orange.png" as='image')
         link(rel='preload', href="/static/img/sequenzia-logo-mini.png" as='image')
         link(rel='preload', href="/static/img/loading_bg.jpg" as='image')
-        //link(rel='preload', href="https://fonts.googleapis.com/css2?family=Material+Icons" as='style')
-
+        link(rel='preload', href="/static/img/aak.png" as='image')
 
         link(rel='preload', href="/js/client/onload.min.js" as='script')
         link(rel='preload', href="/js/client/sideloader-layout.min.js" as='script')
@@ -53,11 +62,7 @@ html
         link(rel='preload', href="/js/client/manage.min.js" as='script')
         link(rel='preload', href="/js/client/upload.min.js" as='script')
         link(rel='preload', href="/js/client/status.min.js" as='script')
-        link(rel='preload', href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" as='script')
-        link(rel='preload', href='/static/vendor/jquery/jquery.min.js' as='script')
-        link(rel='preload', href='/static/js/jquery.history.min.js' as='script')
-        link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
-        link(rel='preload', href='/static/js/moment.min.js' as='script')
+
         link(rel='preload', href='/static/vendor/bootstrap/js/bootstrap.bundle.min.js' as='script')
         link(rel='preload', href='/static/vendor/jquery-easing/jquery.easing.min.js' as='script')
         link(rel='preload', href='https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js' as='script')
@@ -66,18 +71,18 @@ html
         link(rel="stylesheet", href="/static/css/jquery.fancybox.min.css")
         link(rel='stylesheet' type='text/css' href='/static/css/bootstrap-slider.min.css')
         link(rel='stylesheet', href='/static/css/fluid-gallery.min.css')
-        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
         link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
         link(rel='stylesheet' type='text/css' href='/static/css/daterangepicker.min.css')
         link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
         link(rel="stylesheet", href="/css/custom.min.css")
         //link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
 
-        script(src="/static/vendor/jquery/jquery.min.js")
-        script(src="/static/js/jquery.history.min.js")
+        script(type='text/javascript' src="/static/vendor/jquery/jquery.min.js")
+        script(type='text/javascript' src="/static/js/jquery.history.min.js")
         script(type='text/javascript' src='/static/js/moment.min.js')
-        script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
-        script(src="/static/vendor/jquery-easing/jquery.easing.min.js")
+        script(type='text/javascript' src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+        script(type='text/javascript' src="/static/vendor/jquery-easing/jquery.easing.min.js")
         script(type='text/javascript' src="/static/js/toast.min.js")
         script(type='text/javascript' src="/static/js/daterangepicker.min.js")
         script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
@@ -88,6 +93,7 @@ html
         script(type='text/javascript' src="/js/client/sideloader.min.js")
         script(type='text/javascript' src="/js/client/displayHistory.min.js")
         script.
+            let inReviewMode = false;
             let initalPageLoad = true;
             let IPHL = history.length;
             function isFirstPage() {
@@ -95,6 +101,29 @@ html
                     document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
                 }
             }
+        if (user && user.banner)
+            style.
+                .user-info-bg, #topbarUserBackground {
+                    background-image: url('#{user.banner}');
+                }
+                @media (max-width: 880px) {
+                    #topbarUserBackground {
+                        background-image: url('#{user.banner}');
+                    }
+                }
+        else if (user && user.avatar)
+            style.
+                .user-info-bg {
+                    background-image: url('#{user.avatar}');
+                }
+                #topbarUserBackground {
+                    background-color: transparent;
+                }
+                @media (max-width: 880px) {
+                    #topbarUserBackground {
+                        background-image: url('#{user.avatar}');
+                    }
+                }
     body(id="page-top").sidebar-toggled
         div.background-image.overlay
         div.background-image.bg-blur
@@ -102,47 +131,6 @@ html
         div(id="wrapper")
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
                 #sidebar
-                    li#homePage.nav-item
-                        a.nav-link.collapsed(title="Homepage" href='/' role='button')
-                            i.fas.fa-home
-                            span.text-capitalize Home
-                    li#streamPictures.nav-item
-                        a.nav-link.collapsed(title="Recently Uploaded Photo" href='#/gallery?numdays=60&sort=eid')
-                            i.fas.fa-stream
-                            span.text-capitalize Stream
-                    li#streamFiles.nav-item
-                        a.nav-link.collapsed(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                            i.fas.fa-folder
-                            span.text-capitalize Files
-                    li#recentPosts.nav-item
-                        a.nav-link.collapsed(title="Photos ordered by date" href='#/gallery?numdays=60')
-                            i.fas.fa-clock
-                            span.text-capitalize Recent
-                    li#favoritePosts.nav-item
-                        a.nav-link.collapsed(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
-                            i.fas.fa-star
-                            span.text-capitalize Favorites
-                    li#albums.nav-item
-                        a.nav-link.collapsed(title="My Albums" href='#_' data-toggle='collapse' data-target=`#albumsMenu`)
-                            i.fas.fa-archive
-                            span.text-capitalize Albums
-                    li#randomPosts.nav-item
-                        a.nav-link.collapsed(title="I'm feeling lucky!" href='#/gallery?sort=random')
-                            i.fas.fa-dice
-                            span.text-capitalize Random
-                    li#globalTags.nav-item
-                        a.nav-link.collapsed(title="Global Tags" href='#_' data-toggle='collapse' data-target=`#globalTagsMenu`)
-                            i.fas.fa-atlas
-                            span.text-capitalize Index
-                        #globalTagsMenu.collapse(aria-labelledby='globalTagsMenu' data-parent='#accordionSidebar' class=isVisible)
-                            .bg-white.py-2.collapse-inner.rounded
-                                a#allArtists.collapse-item.text-capitalize(title="Global Artists Directory" href='#/artists') Artists
-                    li#historyPosts.nav-item
-                        a.nav-link.collapsed(title="History" href='#/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                            i.fas.fa-history
-                            span.text-capitalize History
-                    // Placeholder while loading
-                    hr.sidebar-divider
                     .sidebar-heading
                         span ⬜⬜⬜
                     li.nav-item
@@ -177,89 +165,256 @@ html
                         span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
             div(id="content-wrapper", class="d-flex flex-column")
                 div(id="content")
-                    nav#topbar.navbar.navbar-expand.navbar-light.topbar.mb-2.bg-topbar-primary.fixed-top.no-ani
-                        ul.navbar-nav.text-primary.ml-1
-                            li.nav-item.text-right.text-primary.page-title
-                                form.align-self-center.navbar-search.d-inline.d-sm-block(onsubmit="return false;" method="post" )
-                                    .input-group
-                                        .input-group-prepend
-                                            a.btn.input-group-text.bg-transparent.border-0.pl-0
-                                                i.fas.fa-map.align-middle.nav-item
-                                        input#directURI.text-white.form-control.bg-translucent.border-0.small.w-50.rounded-left(type='text' placeholder='Go to Location' aria-label='Go to Location')
-                                        script.
-                                            document.getElementById("directURI").value = decodeURIComponent(document.location.hash.substring(2));
-                                        input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
-                                        .input-group-append
-                                            a.btn.input-group-text.bg-translucent.border-0(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
-                                                i.fas.fa-arrow-right.fa-sm.align-middle.nav-item
-                        div.mr-auto
-                        li.nav-item.dropdown.no-arrow
-                            a#userDropdown.nav-link.dropdown-toggle.pr-0(title="Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                                img.img-profile.rounded-circle(src=user.avatar)
-                            // Dropdown - User Information
-                            .dropdown-menu.dropdown-menu-right.shadow.no-max.animated--grow-in(aria-labelledby='userDropdown')
-                                div.d-sm-flex
-                                    div.pl-sm-3.align-self-center
-                                        img.dropdown-header.img-profile.rounded-circle(src=user.avatar style="width: 190px;").pt-3
-                                        div.text-center.text-ellipsis(style='padding: .5rem 1.5rem; max-width: 190px;')
-                                            if (user && user.source || user && user.source === 0)
-                                                if (user.source === 0)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Discord')
-                                                else if (user.source === 1)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with Telegram')
-                                                else if (user.source < 100)
-                                                    // Logged in with Discord
-                                                    i.fas.fa-check-circle.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified Authentication')
-                                                else if (user.source == 100)
-                                                    // Logged in with Telegram
-                                                    i.fas.fa-lock.pr-2.text-success(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Verified with AuthWare')
-                                                else if (user.source == 900)
-                                                    // Logged in with Unauthorized Login Meathod
-                                                    i.fas.fa-lock-open.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Insecure Authentication Meathod')
-                                                else
-                                                    // Logged in with some unknown platform
-                                                    i.fas.fa-question-circle.pr-2.text-danger(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
-                                            else
-                                                // Login Source was not detected
-                                                i.fas.fa-question-circle.text-danger.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Unknown Platform')
-                                            span.dropdown-header.p-0.font-weight-light.d-inline(style='font-size: 1.1em; color: white;') #{user.username}
-                                        if (user && user.source === 900)
-                                            div.text-center.text-ellipsis.align-middle(style='max-width: 190px;')
-                                                span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                    div.align-self-center.pr-3
-                                        a.dropdown-item(title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                            i.fas.fa-desktop.fa-sm.fa-fw.mr-2
-                                            | Ambient System
-                                        if (user && user.source < 900)
-                                            a.dropdown-item(title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
-                                                i.fas.fa-key.fa-sm.fa-fw.mr-2
-                                                | Authentication
-                                        if (webconfig && webconfig.support_lines)
-                                            a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#supportModal')
-                                                i.fas.fa-sm.fa-fw.mr-2.fa-question-circle
-                                                | Support
-                                        a.dropdown-item(title="Support" href='#_' data-toggle='modal' data-target='#aboutModal')
-                                            i.fas.fa-sm.fa-fw.mr-2.fa-info-circle
-                                            | About
-                                        .dropdown-divider
-                                        a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                            | Restart App
-                                        a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                            | Update Sidebar
-                                        a.dropdown-item(title="Refresh Session" href='/discord/refresh')
-                                            i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                            | Update Account
-                                        a.dropdown-item(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                            i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
-                                            | Logout
-                        div#topbarBackground(style='display: none;')
+                    div#mainMenuBar
+                        div#userMenu.collapsed.collapse.show
+                            div.shown-user-menu.d-flex
+                                div.user-info-bg
+                                    div.user-infocard-holder.d-flex.flex-column
+                                        .row.p-0.ml-0.mr-0
+                                            if (user && user.source === 900)
+                                                div.text-center.text-ellipsis.align-middle.p-2
+                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                        .row.p-0.user-infocard-row1
+                                            if (user && user.banner)
+                                                .col-auto.p-0
+                                                    img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                            .col.p-0.position-relative.pl-2(style="min-height: 75px;")
+                                                div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
+                                                    //if (user && user.source || user && user.source === 0)
+                                                        if (user.source === 0)
+                                                            // Logged in with Discord
+                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
+                                                        else if (user.source === 1)
+                                                            // Logged in with Discord
+                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified with Telegram')
+                                                        else if (user.source < 100)
+                                                            // Logged in with Discord
+                                                            i.fas.fa-check-circle.pr-2.text-success(title='Verified Authentication')
+                                                        else if (user.source == 100)
+                                                            // Logged in with Telegram
+                                                            i.fas.fa-lock.pr-2.text-success(title='Verified with AuthWare')
+                                                        else if (user.source == 900)
+                                                            // Logged in with Unauthorized Login Meathod
+                                                            i.fas.fa-lock-open.pr-2.text-danger(title='Insecure Authentication Meathod')
+                                                        else
+                                                            // Logged in with some unknown platform
+                                                            i.fas.fa-question-circle.pr-2.text-danger(title='Unknown Platform')
+                                                    //else
+                                                        // Login Source was not detected
+                                                        i.fas.fa-question-circle.text-danger.pr-2(title='Unknown Platform')
+                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                div.user-menu-buttons(style="width: 100%; height: 100%")
+                                    div#menuAccordion.user-infocard-row2
+                                        div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .row.w-100.ml-0.mr-0
+                                                    div#locationAccordion.w-100
+                                                        div#locationSearch(class="collapse" data-parent="#locationAccordion")
+                                                            form.col.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                                .input-group.w-100
+                                                                    .input-group-prepend
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationDirect" onclick='showAddressInput(); return false;')
+                                                                            i.far.fa-map.align-middle
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelpModal')
+                                                                            i.far.fa-question-circle.align-middle
+                                                                    input#dropdownSearch2.form-control.top-menu-search-bar(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
+                                                                    .input-group-append
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
+                                                                            i.far.fa-image.fa-sm.align-middle.nav-item
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
+                                                                            i.far.fa-folder.fa-sm.align-middle.nav-item
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`)
+                                                                            i.far.fa-sm.align-middle.nav-item.fa-address-book
+                                                        div#locationDirect(class="collapse show" data-parent="#locationAccordion")
+                                                            form.col.form-inline.navbar-search(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                                .input-group.w-100
+                                                                    .input-group-prepend
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Search Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick='hideAddressInput(); return false;')
+                                                                            i.far.fa-search.align-middle
+                                                                    input#directURI.text-white.form-control.top-menu-search-bar(type='text' placeholder='Go to Location' aria-label='Go to Location')
+                                                                    input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
+                                                                    .input-group-append
+                                                                        a.btn.input-group-text.top-menu-search-bar(title="Go to..." href='#_', onclick=`getNewURIContent("directURI"); return false;`)
+                                                                            i.far.fa-arrow-right.fa-sm.align-middle.nav-item
+                                                    //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
+                                                            i.fa-light.fa-sidebar.fa-fw
+                                                            | Navigator
+                                                        //a.user-menu-item(title="Homepage" href='/')
+                                                            i.fa-light.fa-fw.fa-home
+                                                            | Home
+                                                        a.user-menu-item(title="Recently Uploaded Media" href='#/gallery?numdays=60&sort=eid')
+                                                            i.fa-light.fa-fw.fa-photo-video
+                                                            | Gallery
+                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                            i.fa-light.fa-fw.fa-folder
+                                                            | Files
+                                                        a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
+                                                            i.fa-light.fa-fw.fa-dice
+                                                            | Random
+                                                        a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
+                                                            i.fa-light.fa-fw.fa-star
+                                                            | Favorites
+                                                        a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                            i.fa-light.fa-fw.fa-archive
+                                                            | Albums
+                                                        a.user-menu-item(title="Index" href='#/artists?')
+                                                            i.fa-light.fa-fw.fa-address-book
+                                                            | Artists
+                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
+                                                            i.fa-light.fa-fw.fa-history
+                                                            | History
+                                                        a.user-menu-item(title="Installed Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                                            i.fa-light.fa-fw.fa-browsers
+                                                            | Apps
+                                                        a#userToolsDropdown.user-menu-item(title="Tools" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTools")
+                                                            i.fa-light.fa-fw.fa-toolbox
+                                                            | Tools
+                                                        a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                            i.fa-light.fa-fw.fa-cog
+                                                            | Settings
+                                        div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-cog.mr-2
+                                                        | Settings
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
+                                                            i.fa-light.fa-desktop
+                                                            | Ambient
+                                                        if (user && user.source < 900)
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
+                                                                i.fa-light.fa-key
+                                                                | AuthWare
+                                                        a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
+                                                            i.fa-light.fa-compass-slash
+                                                            | Hide Channels
+                                                        if (webconfig && webconfig.support_lines)
+                                                            a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal' onclick='$("#userMenu").collapse("hide");')
+                                                                i.fa-light.fa-question-circle
+                                                                | Support
+                                                        a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
+                                                            i.fa-light.fa-info-circle
+                                                            | About
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
+                                                            i.fa-light.fa-sync
+                                                            | Update
+                                                        a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                                            i.fa-light.fa-sign-out-alt
+                                                            | Logout
+                                        div#menuItemTools(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-toolbox.mr-2
+                                                        | Tools
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        h2 No Available
+                                        div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                        i.fas.fa-fw.mr-md-1.fa-globe-americas
+                                                        span.d-none.d-md-inline Directory
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                        i.fas.fa-cog.fa-fw.mr-md-1
+                                                        span.d-none.d-md-inline Manage
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-archive.mr-2
+                                                        | Albums
+                                                .w-100.position-absolute(style="justify-content: left; bottom: 0;")
+                                                    if (albums && albums.length > 0)
+                                                        div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                            each thisAlbum in albums
+                                                                div.album-item.position-relative
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                        //x.uri, x.privacy
+                                                                        div.album-icon
+                                                                            if (thisAlbum.uri === 'gallery')
+                                                                                i.far.fa-photo-video.pr-1
+                                                                            else if (thisAlbum.uri === 'files')
+                                                                                i.far.fa-folder.pr-1
+                                                                            else if (thisAlbum.uri === 'cards')
+                                                                                i.far.fa-sticky-note.pr-1
+                                                                            else
+                                                                                i.far.fa-archive.pr-1
+
+                                                                            if (thisAlbum.privacy === 0)
+                                                                                i.far.fa-globe-americas.pr-1
+                                                                            else if (thisAlbum.privacy === 1)
+                                                                                i.far.fa-lock.pr-1
+                                                                            else if (thisAlbum.privacy === 2)
+                                                                                i.far.fa-link.pr-1
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
+                                                                        span #{thisAlbum.name}
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                        if (thisAlbum.image)
+                                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                                        else
+                                                                            div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+
+                                                    else
+                                                        h2 No Albums!
+                                        div#menuItemApps(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-browsers.mr-2
+                                                        | Applications
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                                            i.fa-light.fa-tv
+                                                            | ADS
+                                                        if (applications_list && applications_list.length > 0)
+                                                                each thisApp in applications_list
+                                                                    if (thisApp.type == 0)
+                                                                        a.user-menu-item.user-menu-small(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                                                                    else if (thisApp.type == 1)
+                                                                        a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                                                                    else if (thisApp.type == 2)
+                                                                        a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                                            | #{thisApp.name}
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.no-ani.shadow
+                            ul.navbar-nav.text-primary.ml-1
+                                li.nav-item.text-right.text-primary.page-title
+                                    i.far.fa-arrow-right.fa-spinner.align-middle.nav-item
+                                    span.pl-2 Initializing...
+                            .ml-auto
+                            ul.navbar-nav.text-primary.text-ellipsis
+                                li.nav-item.no-arrow
+                                    div#statusPanel.btn-group.hidden
+                                        div.dropdown(style="display: contents;")
+                                            a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
+                                                i.fas.fa-spinner
+                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
+                                                span.dropdown-header No Active Tasks
+
+                        div#topbarUserBackground
+                        div#topbarIcon
+                        div#topbarBackground
                     .container-fluid.max-resize
                         #contentBlock
-                            div.tz-gallery
+                            //div.tz-gallery
                                 div.row
                                     - var n = 0;
                                     while n < 15
@@ -274,29 +429,46 @@ html
                                                 div#postImage.square.img.img-responsive
                                                 div#postBackground(style=`background-color: rgb(128, 128, 128)`)
 
-                                script.
-                                    console.log('Welcome to JuneOS for Sequenzia! Version 1.4\n' + '\n' +
-                                                '       __                 ____  _____' + '\n' +
-                                                '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
-                                                ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
-                                                '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
-                                                '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
-                                    if (window.location.hash.substring(1).length === 0) {
-                                        location.href = '/';
-                                    } else {
-                                        console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
-                                        getNewContent([], []);
+                            script.
+                                console.log('Welcome to JuneOS for Sequenzia! Version 2.1\n' + '\n' +
+                                            '       __                 ____  _____' + '\n' +
+                                            '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
+                                            ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
+                                            '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
+                                            '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
+                                if (window.location.hash.substring(1).length < 2) {
+                                    //location.href = '/';
+                                    console.log(`No Navigation, Ready when you are`);
+                                    $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
+                                    $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
+                                    hideAddressInput();
+                                } else {
+                                    $('#loadingLogo').fadeIn();
+                                    console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
+                                    getNewContent([], []);
+                                }
+                            if (user && user.banner)
+                                style.
+                                    .background-image:not(.overlay) {
+                                        background-image: url('#{user.banner}');
                                     }
-                            style.
-                                .background-image:not(.overlay) {
-                                    background-image: url('/static/img/loading_bg.jpg');
-                                }
 
-                                .background-image.overlay {
-                                    background-image: linear-gradient(104deg, #000000, #ffffff00);
-                                    z-index: -99;
-                                    opacity: 0.7;
-                                }
+                                    .background-image.overlay {
+                                        background-image: linear-gradient(104deg, #000000, #ffffff00);
+                                        z-index: -99;
+                                        opacity: 0.7;
+                                    }
+                            else
+                                style.
+                                    .background-image:not(.overlay) {
+                                        background-image: url('/static/img/loading_bg.jpg');
+                                    }
+
+                                    .background-image.overlay {
+                                        background-image: linear-gradient(104deg, #000000, #ffffff00);
+                                        z-index: -99;
+                                        opacity: 0.7;
+                                    }
                         #pageinator
                 #finalLoad
                     // Music Player Enabler
@@ -311,7 +483,7 @@ html
                             div
                                 span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
         // OUTSUDE DYNAMIC CONTENT
-        div#loadingLogo.center-block(style="display: inline-block")
+        div#loadingLogo.center-block(style="display: none")
             .lds-spinner
                 div
                 div
@@ -325,7 +497,7 @@ html
                 div
                 div
                 div
-        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='bottom: 24px; position: fixed; display: none; z-index: 500;' href='#_' onclick="scrollToTop(); return false;")
+        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='display: none;' href='#_' onclick="scrollToTop(); return false;")
             i.fa.fa-arrow-up
 
         div#musicplayer.fixed-bottom.music-player(role="alert" style="display: none;")
@@ -359,7 +531,7 @@ html
                     .modal-body
                         div.row.pl-3.pr-3
                             img(src="/static/img/sequenzia-logo-new.png").img-fluid
-                            span Sequenzia™ II - Image and File Manager for the Kanmi System
+                            span Sequenzia™ II - Image and File Manager for the Kanmi Framework
                             br
                             span Copyright &copy; Academy City Research #{moment(Date.now()).format('YYYY')}
                         div.row.pl-3.pr-3.pt-2
@@ -367,7 +539,7 @@ html
                             br
                             span Developed and Maintained by Academy City Research (acr.moe)
                             br
-                            span JuneFS™ Storage System
+                            span JuneFS™ Storage Framework
                             br
                             span Kanmi™ Content Distribution and Auditing System (CDS)
                             br
@@ -389,6 +561,100 @@ html
                                         else
                                             i.fas.fa-database.pr-2.pl-1
                                             span Storage Server
+        #searchHelpModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Search Help
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            h3 Fields
+                        div.row.pl-3.pr-3
+                            h4
+                                span.pr-2 Message ID
+                                code id:
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                span.pr-2 Starting With
+                                code id:st:
+                            div
+                                span.pr-2 Ending With
+                                code id:ed:
+
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 Entity ID
+                                code eid:
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                span.pr-2 Starting With
+                                code eid:st:
+                            div
+                                span.pr-2 Ending With
+                                code eid:ed:
+                            div
+                                span.pr-2 Greater Then or Equal
+                                code eid:gt:
+                            div
+                                span.pr-2 Less Then or Equal
+                                code eid:lt:
+
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 Artist Name
+                                code artist:
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 Message Text
+                                code text:
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                span.pr-2 Starting With
+                                code text:st:
+                            div
+                                span.pr-2 Ending With
+                                code text:ed:
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 File Name
+                                code name:
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                span.pr-2 Starting With
+                                code name:st:
+                            div
+                                span.pr-2 Ending With
+                                code name:ed:
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 Search All Fields
+                                code full:
+                        div.row.pl-3.pr-3.pt-2
+                            h3 Operators
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 AND
+                                code AND
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                code name:st:MyProjects_ AND name:ed:.blend
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 OR
+                                code OR
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                code name:ed:.fbx OR name:ed:.blend
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 Groups
+                                code ()
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                code (name:ed:.fbx OR name:ed:.blend) AND name:st:MyProjects_
+
         if (webconfig && webconfig.support_lines)
             #supportModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
                 .modal-dialog(role='document' style="max-width: 25em;")
@@ -400,7 +666,7 @@ html
                         .modal-body
                             div.row
                                 div.col-auto.align-self-center
-                                    img(src="/static/img/admin-avatar.jpg" style="width: 128px;").img-profile.rounded-circle
+                                    img(src="/static/img/admin-avatar.jpg" style="height: 128px;width: 128px;").img-profile.rounded-circle
                                 div.col-auto.align-self-center
                                     each line in webconfig.support_lines
                                         p #{line}
@@ -437,7 +703,7 @@ html
                     .modal-body
                         div
                             a.btn.btn-lucky(href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
-                                i.fas.fa-tv.pr-2
+                                i.fas.fa-image-landscape.pr-2
                                 | Launch Ambient Display
                         div.pt-2.pb-1.d-flex
                             a.btn.btn-lucky.mr-1(href='#_' role='button' onclick="$('#displayHistoryModal').modal('hide'); $('#appModal').modal('show'); return false;")
@@ -447,6 +713,91 @@ html
                                 i.fab.fa-windows.pr-2
                                 | Desktop
                         #displayHistoryBody Please Wait
+        #historyModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            span History
+                        button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.mb-2
+                            a.btn.btn-lucky(title="Show Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
+                                i.fas.fa-history.pr-2
+                                | Image Display History
+                        div.pt-2.pb-1.d-flex
+                            #HistoryDropdown.list-group.w-100
+                                if (history && history.length > 0)
+                                    each historyItem in history
+                                        .list-group-item.d-flex
+                                            div.col.p-0(style='width: 80%;')
+                                                a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`)
+                                                    - path = historyItem.uri.split('?')[0]
+                                                    - params = new URLSearchParams(historyItem.uri.split('?')[1])
+                                                    .d-flex.flex-column
+                                                        div
+                                                            if (params && params.has('search'))
+                                                                i.far.fa-search.mr-2
+                                                            else if (params.has('displayname'))
+                                                                i.far.mr-2.fa-history
+                                                            else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                i.far.fa-star.mr-2
+                                                            else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                i.far.fa-star.mr-2
+                                                            else if (params && params.has('album'))
+                                                                i.far.fa-archive.mr-2
+                                                            else if (path === '/gallery')
+                                                                i.far.fa-photo-vide.mr-2
+                                                            else if (path === '/files')
+                                                                i.far.fa-folder.mr-2
+                                                            else if (path === '/cards')
+                                                                i.far.fa-sticky-note.mr-2
+                                                            else if (path === '/artists')
+                                                                i.far.fa-atlas.mr-2
+                                                            else
+                                                                i.far.fa-question.mr-2
+                                                            if (!historyItem.title || historyItem.title === '')
+                                                                if (params && (!(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) || params.getAll('sort')[0] === 'random')
+                                                                    if (params && params.has('search'))
+                                                                        if (path === '/artists')
+                                                                            span Artist Search
+                                                                        else if (params && params.getAll('search')[0].startsWith('id:st'))
+                                                                            span Related Items
+                                                                        else
+                                                                            span Search
+                                                                    else if (params && path === '/artists')
+                                                                        span Artists
+                                                                    else if (params && params.getAll('sort')[0] === 'random')
+                                                                        span I'm Feeling Lucky
+                                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid') && path === '/files')
+                                                                        span Latest Files
+                                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                                        span Latest Media
+                                                                    else if (params.has('color'))
+                                                                        span Colour Search
+                                                                    else if (params.has('displayname'))
+                                                                        span History
+                                                                    else
+                                                                        span Recent
+                                                                else
+                                                                    span
+                                                            else
+                                                                span #{historyItem.title}
+                                                        div.text-ellipsis
+                                                            span #{historyItem.uri}
+                                            div
+                                                a(title="Keep Item at Top" href='#_' onclick=`toggleStarHistoryItem("${historyItem.index}"); return false;` id=`#favHistory-${historyItem.index}`).ml-2
+                                                    i.fas.fa-star.btn-fav(class=`${(historyItem.saved) ? 'favorited' : ''}`)
+                                                a(title="Keep Item at Top" href='#_' onclick=`removeHistoryItem("${historyItem.index}"); return false;`).ml-2
+                                                    i.fas.fa-trash-alt
+
+                                else
+                                    h2 No History
+                        div.mt-2
+                            a.btn.btn-danger(title="Delete all history" href='#_' onclick="removeAllHistory(); $('#historyModel').modal('hide'); return false;").w-100
+                                i.fas.fa-trash.pr-2
+                                | Delete All
         #albumItemModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog.modal-dialog-scrollable(role='document')
                 .modal-content
@@ -481,6 +832,17 @@ html
                                             i.pr-2.fas.fa-folder-plus
                                             | Create
                         #albumItemBody Loading List of Albums...
+        #albumDirectoryModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog.modal-dialog-scrollable(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title.flex-grow-1 Directory
+                        a.align-self-center(href='#_' onclick='getAlbumDirectory(); return false;' role='button').text-white
+                            i.fas.fa-sync-alt
+                        button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
+                            i.fas.fa-times
+                    .modal-body
+                        #albumDirectoryBody Loading List of Albums...
         script(src="/static/js/sb-admin-2.min.js")
         // Modals
         div#dataModels

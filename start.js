@@ -1,7 +1,12 @@
+const config = require("./host.config.json");
 (async () => {
     const app = require('./app');
     const config = require('./config.json');
-    const host = require('./host.config.json');
+    let host = require('./host.config.json');
+
+    if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+        host.system_name = process.env.SYSTEM_NAME.trim()
+
     const request = require("request");
     const fs = require("fs");
     const { printLine } = require('./js/logSystem');
@@ -27,7 +32,7 @@
         })
     }
 
-    if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === "0") {
+    if (!process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE == 0) {
         // Bootup Maintenance
         if (config.enable_maintenance) {
             await sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`);
@@ -41,7 +46,7 @@
                     .filter(e => e.startsWith('.'))
                     .map(async (e) => {
                         const fileData = (await sqlPromiseSafe(`SELECT eid, real_filename FROM kanmi_records WHERE fileid = ?`, [e.substring(1)], true)).rows
-                        if (fileData.length === 0 && ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (config.spanned_cache_max_age * 86400000)))) {
+                        if ((new Date().getTime()) > ((new Date((fs.statSync(path.join(directory, e))).atime).getTime()) + (config.spanned_cache_max_age * 86400000)) || fs.statSync(path.join(directory, e)).size < 10 ) {
                             rimraf(path.join(directory, e), error => {})
                             if (fileData.length > 0) {
                                 rimraf(path.join(directory, `${fileData[0].eid}-${fileData[0].real_filename}`), error => {
@@ -72,6 +77,7 @@
 
     const server = app.listen((process.env.NODE_APP_INSTANCE) ? parseInt(process.env.NODE_APP_INSTANCE.toString()) + parseInt(config.http_port.toString()) : config.http_port, (newServer) => {
         printLine('ExpressInit', `Web server is running on port ${server.address().port}`, 'debug');
-        process.send('ready');
+        if (process.hasOwnProperty("send"))
+            process.send('ready');
     });
 })()

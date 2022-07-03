@@ -100,19 +100,19 @@ async function printLine(proccess, text, level, object, object2) {
             process.exit(4);
         })
     } else if (level === "notice") {
-        if (remoteLogging1) { logger1.notice(logString, logObject) } else { console.log(logObject) }
+        if (remoteLogging1) { logger1.notice(logString, logObject) } else if (config.log_objects) { console.log(logObject) }
         if (remoteLogging2) { logger2.notice(logString, logObject) }
         console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.green)
     } else if (level === "alert") {
-        if (remoteLogging1) { logger1.alert(logString, logObject) } else { console.log(logObject) }
+        if (remoteLogging1) { logger1.alert(logString, logObject) } else if (config.log_objects) { console.log(logObject) }
         if (remoteLogging2) { logger2.alert(logString, logObject) }
         console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.green)
     } else if (level === "debug") {
-        if (remoteLogging1) { logger1.debug(logString, logObject) } else { console.log(logObject) }
+        if (remoteLogging1) { logger1.debug(logString, logObject) } else if (config.log_objects) { console.log(logObject) }
         if (remoteLogging2) { logger2.debug(logString, logObject) }
         console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.gray)
     } else if (level === "info") {
-        if (remoteLogging1) { logger1.info(logString, logObject) } else { console.log(logObject) }
+        if (remoteLogging1) { logger1.info(logString, logObject) } else if (config.log_objects) { console.log(logObject) }
         if (remoteLogging2) { logger2.info(logString, logObject) }
         if (text.includes("Sent message to ") || text.includes("Connected to Kanmi Exchange as ")) {
             console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.gray)
@@ -120,7 +120,7 @@ async function printLine(proccess, text, level, object, object2) {
             console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.blue)
         }
     } else {
-        if (remoteLogging1) { logger1.error(logString, logObject) } else { console.log(logObject) }
+        if (remoteLogging1) { logger1.error(logString, logObject) } else if (config.log_objects) { console.log(logObject) }
         if (remoteLogging2) { logger2.error(logString, logObject) }
         console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`)
     }

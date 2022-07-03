@@ -1,8 +1,11 @@
-const web = require('../web.config.json');
+const config = require('../config.json');
+let web = require('../web.config.json');
 const moment = require('moment');
 const feed = require('feed').Feed;
 const podcast = require('podcast');
 const useragent = require('express-useragent');
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
 module.exports = async (req, res, next) => {
     function params(_removeParams, _addParams, _url, searchOnly) {
@@ -31,6 +34,9 @@ module.exports = async (req, res, next) => {
     }
 
     let results = {
+        sidebar: req.session.sidebar,
+        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+        applications_list: req.session.applications_list,
         ...res.locals.response,
         webconfig: web,
         query: req.query
@@ -74,11 +80,11 @@ module.exports = async (req, res, next) => {
                 }
                 if (item.entities.download && item.entities.download.length > 5) {
                     podcastItem.enclosure = {
-                        url: `${item.entities.download}?blind_key=${req.session.discord.user.token_login}`
+                        url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${item.entities.filename}?blind_key=${req.session.discord.user.token_login}`
+                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                     }
                 }
                 podcastResponse.addItem(podcastItem)
@@ -128,12 +134,12 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.entities.preview || item.entities.full) {
                         if (results.call_uri === '/gallery') {
-                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`}'/>`
-                            xmlItem.image = `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`
+                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`}'/>`
+                            xmlItem.image = `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                         } else {
-                            xmlItem.content = `<a href='${item.entities.download}?blind_key=${req.session.discord.user.token_login}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
+                            xmlItem.content = `<a href='${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
                             xmlItem.enclosure = {
-                                url: `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`
+                                url: `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                             }
                         }
                     }
@@ -177,7 +183,7 @@ module.exports = async (req, res, next) => {
             res.render('file_list', results);
         } else if (results.call_uri === '/cards') {
             res.render('card_list', results);
-        } else if (results.call_uri === '/home' || results.call_uri === '/') {
+        } else if (results.call_uri === '/home' || results.call_uri === '/homeImage') {
             res.json(results)
         } else if (results.call_uri === '/start') {
             res.render('home_embedded', results);

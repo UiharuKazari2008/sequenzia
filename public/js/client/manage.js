@@ -5,7 +5,6 @@ let actionSelection = '';
 let imageRotate = '';
 let newFileName = '';
 let oldFileName = '';
-let pageType = $.history.url().split('?')[0].substring(1);
 
 // File Name Update
 function updateFileName(obj) {
@@ -20,7 +19,8 @@ function updateFileName(obj) {
 
 // Post Mangement
 function proccessPost(alt) {
-    disableGallerySelect();
+    if (!inReviewMode)
+        disableGallerySelect();
     $('#actionModel').modal('hide');
     if (actionSelection !== '' && postsActions.length > 0) {
         postsActions.forEach((post, i, a) => {
@@ -45,14 +45,15 @@ function proccessPost(alt) {
             } else {
                 let data = undefined
                 if (actionSelection === 'RenamePost') { data = newFileName  } else if (actionSelection === 'RotatePost') { data = imageRotate } else if (actionSelection === 'MovePost') { data = postsDestination } else { data = null }
-                if (alt) {
-                    sendAction(post.serverid, post.channelid, post.messageid, alt, data, confirm);
+                if (a.length !== 1 && i + 1 !== a.length) {
+                    queueAction(post.serverid, post.channelid, post.messageid, (alt) ? alt : actionSelection, data)
                 } else {
-                    sendAction(post.serverid, post.channelid, post.messageid, actionSelection, data, confirm);
+                    sendAction(post.serverid, post.channelid, post.messageid, (alt) ? alt : actionSelection, data);
                 }
             }
         })
     };
+    shiftRecentPostDestinations();
 }
 function openActionMenu(mode) {
     if (postsActions.length > 0) {
@@ -94,6 +95,7 @@ function openActionMenu(mode) {
             actionModel.querySelector('#actionModelThumb').classList.add('d-none');
             actionModel.querySelector('#actionModelThumb').classList.remove('d-flex');
         }
+        updateRecentPostDestinations();
         $('#actionModel').modal('show');
     } else {
         $.snack('warning', `No Items Selected`, 1500);
@@ -110,6 +112,7 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Move'
             actionModel.querySelector("#postID").innerText = `Move ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             actionModel.querySelector("#sectionMovePost").classList.remove("hidden")
+            actionModel.querySelector("#sectionMovePostRecents").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-cut')
         } else if (actionSelection === 'ArchivePost') {
             countdownTimer = 2;
@@ -127,14 +130,14 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Rename'
             actionModel.querySelector("#postID").innerText = `Rename ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             actionModel.querySelector("#sectionRenamePost").classList.remove("hidden")
-            oldFileName = $(`#message-${postsActions[0].messageid}`)[0].querySelector('.align-middle').innerText
+            oldFileName = document.getElementById(`message-${postsActions[0].messageid}`).getAttribute('data-msg-filename');
             actionModel.querySelector('#sectionIcon i').classList.add('fa-pencil-alt')
             actionModel.querySelector('#newName').value = oldFileName
-        } else if (actionSelection === 'Report') {
+        } else if (actionSelection === 'RemoveReport') {
             countdownTimer = 2;
             actionModel.querySelector("#ActionName").innerText = 'Clear'
             actionModel.querySelector("#postID").innerText = `Clear ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
-            actionModel.querySelector("#sectionArchivePost").classList.remove("hidden")
+            actionModel.querySelector("#sectionReportPost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-flag')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'Thumbnail') {
@@ -167,6 +170,7 @@ function selectedActionMenu(action) {
             }
             window.setTimeout(buttonCountdown, 1000);
         }
+        $('#actionModel').modal('show');
     }
     return false;
 }
@@ -174,24 +178,17 @@ function selectedActionMenu(action) {
 function enableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
     if (pageType.includes('gallery')) {
-        [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+        $('.select-panel').collapse('show');
+        [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
             el.classList.add("hidden");
         });
         [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
             el.style.display = "block";
             el.classList.add("no-bg");
+        });
+        [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+            el.classList.add("disabled-pointer");
+            el.querySelector('#postImage').classList.add("show-full");
         });
     } else if (pageType.includes('file') || pageType.includes('card')) {
         [].forEach.call(document.getElementsByClassName('file-tools'), function (el) {
@@ -201,31 +198,28 @@ function enableGallerySelect() {
             el.classList.remove("hidden");
         });
     }
-    document.getElementById('doneBtns').classList.remove("hidden")
-    document.getElementById('editBtns').classList.add("hidden");
+    try {
+        $('.done-btns').removeClass("hidden");
+        $('.edit-btns').addClass("hidden");
+    } catch (e) {
+        console.log('Failed to set button groups')
+    }
 }
 function disableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
     modeSelection = 'none';
     if (pageType.includes('gallery')) {
-        [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
-            el.classList.add("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('text-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('image-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('icon-container'), function (el) {
-            el.classList.remove("hidden");
-        });
-        [].forEach.call(document.getElementsByClassName('links-container'), function (el) {
+        $('.main-panel').collapse('show');
+        [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
             el.classList.remove("hidden");
         });
         [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
             el.removeAttribute("style", 'display')
             el.classList.remove("no-bg");
+        });
+        [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+            el.classList.remove("disabled-pointer");
+            el.querySelector('#postImage').classList.remove("show-full");
         });
         [].forEach.call(document.getElementsByClassName('select-item'), function (el) {
             el.querySelector('#checkItem').classList.remove('hidden')
@@ -244,13 +238,18 @@ function disableGallerySelect() {
         });
     }
     try {
-        document.getElementById('editBtns').classList.remove("hidden");
-        document.getElementById('doneBtns').classList.add("hidden");
+        $('.done-btns').addClass("hidden");
+        $('.edit-btns').removeClass("hidden");
     } catch (e) {
         console.log('Failed to reset button groups')
     }
 }
-function selectPostToMode(serverid, channelid, messageid, modeType, fileStatus) {
+function selectPostToMode(messageid, modeType) {
+    const _post = document.getElementById(`message-${messageid}`);
+    const channelid = _post.getAttribute('data-msg-channel');
+    const serverid = _post.getAttribute('data-msg-server');
+    const _fileStatus = _post.getAttribute('data-msg-fileid');
+    const fileStatus = (_fileStatus && _fileStatus.length > 5) ? _fileStatus : undefined
     pageType = $.history.url().split('?')[0].substring(1)
 
     if (postsActions.length === 0) {
@@ -304,7 +303,6 @@ function selectPostToMode(serverid, channelid, messageid, modeType, fileStatus) 
         }
         try {
             $('#deSelectAll1')[0].classList.remove('hidden');
-            $('#deSelectAll2')[0].classList.remove('hidden');
         } catch (e) {
             console.log('Failed to reset selection button');
         }
@@ -327,23 +325,413 @@ function selectAllPoststoMode() {
     const selectButtons = document.querySelectorAll('.selectPostToMode:not(.hidden)');
     selectButtons.forEach(div => { div.click(); });
     $('#selectAll1')[0].classList.add('hidden');
-    $('#selectAll2')[0].classList.add('hidden');
     $('#deSelectAll1')[0].classList.remove('hidden');
-    $('#deSelectAll2')[0].classList.remove('hidden');
 }
 function deselectAllPoststoMode() {
     const selectButtons = document.querySelectorAll('.deselectPostToMode:not(.hidden)');
     selectButtons.forEach(div => { div.click(); });
     $('#selectAll1')[0].classList.remove('hidden');
-    $('#selectAll2')[0].classList.remove('hidden');
     $('#deSelectAll1')[0].classList.add('hidden');
-    $('#deSelectAll2')[0].classList.add('hidden');
+}
+
+// Fast Review
+function setupReviewMode(bypass) {
+    if (reviewDestination !== '') {
+        setupReviewModel.querySelector("#destination-" + reviewDestination).classList.add('active')
+        setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+        setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
+        setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
+    }
+    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
+        enableReviewMode();
+    } else {
+        //recentDestionations
+        inReviewMode = false;
+        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+            const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                `    <span>${n}</span>` +
+                `</div>`
+            }
+            return ''
+        }).join('\n')
+        setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+        $('#setupReviewModel').modal('show');
+    }
+    return false;
+}
+function enableReviewMode(setFromDialog) {
+    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
+        setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
+    if (reviewDestination && reviewDestination.length > 1) {
+        if (setFromDialog) {
+            try {
+                if (recentReviewDestination.indexOf(reviewDestination) !== -1) {
+                    recentReviewDestination.sort(function(x,y){ return x == reviewDestination ? -1 : y == reviewDestination ? 1 : 0; });
+                } else {
+                    recentReviewDestination.unshift(reviewDestination)
+                }
+                recentReviewDestination = recentReviewDestination.slice(0,5).filter(e => e.length > 8)
+                setCookie('recentReviewDestination', JSON.stringify(recentReviewDestination));
+            } catch (e) {
+                console.error("Failed to save recent destinations")
+                console.error(e)
+            }
+        }
+        inReviewMode = true;
+        pageType = $.history.url().split('?')[0].substring(1)
+        if (pageType.includes('gallery')) {
+            $('.review-item-panel').collapse('show');
+            [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
+                el.style.display = "block";
+                el.classList.add("no-bg");
+            });
+            [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+                el.classList.add("disabled-pointer");
+                el.querySelector('#postImage').classList.add("show-full");
+            });
+        } else if (pageType.includes('file') || pageType.includes('card')) {
+            [].forEach.call(document.getElementsByClassName('file-tools'), function (el) {
+                el.classList.add("hidden");
+            });
+            [].forEach.call(document.getElementsByClassName('file-select'), function (el) {
+                el.classList.add("hidden");
+            });
+        }
+        $('.edit-btns').removeClass("hidden");
+        $('.done-btns').addClass("hidden");
+        $('.hide-review').addClass("hidden");
+        document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
+        document.getElementById('reviewBtns').classList.remove("hidden");
+        $('#setupReviewModel').modal('hide');
+    } else {
+        setupReviewMode(true);
+    }
+    return false;
+}
+function disableReviewMode() {
+    inReviewMode = false;
+    pageType = $.history.url().split('?')[0].substring(1)
+    modeSelection = 'none';
+    if (pageType.includes('gallery')) {
+        $('.main-panel').collapse('show');
+        [].forEach.call(document.getElementsByClassName('overlay-icons'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('internal-lightbox'), function (el) {
+            el.removeAttribute("style", 'display')
+            el.classList.remove("no-bg");
+        });
+        [].forEach.call(document.getElementsByClassName('lightbox'), function (el) {
+            el.classList.remove("disabled-pointer");
+            el.querySelector('#postImage').classList.remove("show-full");
+        });
+    } else if (pageType.includes('file') || pageType.includes('card')) {} {
+        [].forEach.call(document.getElementsByClassName('file-tools'), function (el) {
+            el.classList.remove("hidden");
+        });
+        [].forEach.call(document.getElementsByClassName('file-select'), function (el) {
+            el.classList.add("hidden");
+        });
+    }
+    try {
+        $('.hide-review').removeClass("hidden");
+        $('.edit-btns').removeClass("hidden");
+        $('.done-btns').addClass("hidden");
+        document.getElementById('reviewBtns').classList.add("hidden");
+    } catch (e) {
+        console.log('Failed to reset button groups')
+    }
+}
+function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
+    if (reviewDestination && reviewDestination.length > 1) {
+        pageType = $.history.url().split('?')[0].substring(1)
+        if (direct) {
+            document.getElementById(`message-${messageid}`).classList.add('hidden')
+            queueAction(serverid, channelid, messageid, 'MovePost', reviewDestination, true)
+        } else {
+            try {
+                const _post = document.getElementById(`message-${messageid}`);
+                const _movepostImage = actionModel.querySelector("#postImage");
+                if (pageType.includes('gallery')) {
+                    _movepostImage.src = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
+                } else if (pageType.includes('file')) {
+                    if (_post.querySelector('.preview-holder a div') !== null && _post.querySelector('.preview-holder a div').style) {
+                        _movepostImage.src = _post.querySelector('.preview-holder a div').style.backgroundImage.split('"')[1]
+                        actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                        actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                    } else {
+                        actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                        actionModel.querySelector('#sectionImage').classList.add('hidden')
+                    }
+                } else if (pageType.includes('card')) {
+                    if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
+                        _movepostImage.src = _post.querySelector('.card-img').src
+                        actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                        actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                    } else {
+                        actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                        actionModel.querySelector('#sectionImage').classList.add('hidden')
+                    }
+                }
+            } catch (e) {
+                console.log('Can not reset post mode')
+            }
+            postsActions = [
+                {
+                    messageid: messageid,
+                    channelid: channelid,
+                    serverid: serverid,
+                    file: fileStatus
+                }
+            ]
+            updateRecentPostDestinations();
+            selectedActionMenu("MovePost");
+            $('#actionModel').modal('show');
+        }
+    }
+    return false;
+}
+function exitPanel(messageid) {
+    if (inReviewMode) {
+        $(`#imageFastReview-${messageid}`).collapse('show');
+    } else {
+        $(`#imageCover-${messageid}`).collapse('show');
+    }
+    return false;
+}
+function acceptMenu(serverid, channelid, messageid, fileStatus) {
+    if (recentPostDestination && recentPostDestination.length > 0) {
+        const destinationMenu = document.getElementById(`imageMove-${messageid}`).querySelector('.move-content')
+        let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations(); return false">` +
+                    `    <span style="">${n}</span>` +
+                    `</li>`
+            }
+
+        })
+        if (rdest.length > 0) {
+            destinationMenu.innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
+            $(`#imageMove-${messageid}`).collapse('show');
+        } else {
+            acceptItem(serverid, channelid, messageid, false, fileStatus);
+        }
+    } else {
+        acceptItem(serverid, channelid, messageid, false, fileStatus);
+    }
+    return false;
+}
+function rejectItem(serverid, channelid, messageid) {
+    document.getElementById(`message-${messageid}`).classList.add('hidden');
+    queueAction(serverid, channelid, messageid, 'RemovePost', null, true);
+    return false;
+}
+function rejectAllItems(direction, id) {
+    let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image:not(.hidden)'))
+    switch (direction) {
+        case 1:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(index)
+            } else {
+                pageItems = []
+            }
+            break;
+        case 2:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(0, index + 1)
+            } else {
+                pageItems = []
+            }
+            break;
+        default:
+            break;
+    }
+    //document.querySelector('#LoadNextPage > div').click();
+    if (reviewDestination && reviewDestination.length > 1) {
+        let itemCount = [];
+        pageItems.forEach(el => {
+            const serverid = el.getAttribute('data-msg-server')
+            const channelid = el.getAttribute('data-msg-channel')
+            const messageid = el.getAttribute('data-msg-id')
+            if (serverid && channelid && messageid) {
+                document.getElementById(`message-${messageid}`).classList.add('hidden');
+                queueAction(serverid, channelid, messageid, 'RemovePost', null, true, true);
+                itemCount.push(messageid)
+            }
+        })
+        undoActions.push(itemCount);
+    }
+    return false;
+}
+function acceptAllItems(direction, id) {
+    let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image:not(.hidden)'))
+    switch (direction) {
+        case 1:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(index)
+            } else {
+                pageItems = []
+            }
+            break;
+        case 2:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(0, index + 1)
+            } else {
+                pageItems = []
+            }
+            break;
+        default:
+            break;
+    }
+    //document.querySelector('#LoadNextPage > div').click();
+    if (reviewDestination && reviewDestination.length > 1) {
+        let itemCount = [];
+        pageItems.forEach(el => {
+            const serverid = el.getAttribute('data-msg-server')
+            const channelid = el.getAttribute('data-msg-channel')
+            const messageid = el.getAttribute('data-msg-id')
+            if (serverid && channelid && messageid) {
+                document.getElementById(`message-${messageid}`).classList.add('hidden');
+                queueAction(serverid, channelid, messageid, 'MovePost', reviewDestination, true, true);
+                itemCount.push(messageid)
+            }
+        })
+        undoActions.push(itemCount);
+    }
+    return false;
+}
+function moveAllItems() {
+    if (postsDestination !== '') {
+        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+        actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+        actionModel.querySelector("#channelSelector").classList.add('btn-success')
+        actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')
+    }
+    if (reviewDestination && reviewDestination.length > 1) {
+        const pageItems = document.querySelectorAll('[data-msg-id].col-image:not(.hidden)');
+        //document.querySelector('#LoadNextPage > div').click();
+        postsActions = [];
+        [].forEach.call(pageItems, function (el) {
+            const serverid = el.getAttribute('data-msg-server')
+            const channelid = el.getAttribute('data-msg-channel')
+            const messageid = el.getAttribute('data-msg-id')
+            if (serverid && channelid && messageid) {
+                if (postsActions.length === 0) {
+                    try {
+                        const _post = document.getElementById(`message-${messageid}`);
+                        const _movepostImage = actionModel.querySelector("#postImage");
+                        if (pageType.includes('gallery')) {
+                            _movepostImage.src = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
+                        } else if (pageType.includes('file')) {
+                            if (_post.querySelector('.preview-holder a div') !== null && _post.querySelector('.preview-holder a div').style) {
+                                _movepostImage.src = _post.querySelector('.preview-holder a div').style.backgroundImage.split('"')[1]
+                                actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                                actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                            } else {
+                                actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                                actionModel.querySelector('#sectionImage').classList.add('hidden')
+                            }
+                        } else if (pageType.includes('card')) {
+                            if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
+                                _movepostImage.src = _post.querySelector('.card-img').src
+                                actionModel.querySelector('#sectionIcon').classList.add('hidden')
+                                actionModel.querySelector('#sectionImage').classList.remove('hidden')
+                            } else {
+                                actionModel.querySelector('#sectionIcon').classList.remove('hidden')
+                                actionModel.querySelector('#sectionImage').classList.add('hidden')
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Can not reset post mode')
+                    }
+                }
+                postsActions.push({messageid: messageid, channelid: channelid, serverid: serverid, file: fileStatus});
+            }
+        });
+        updateRecentPostDestinations();
+        selectedActionMenu("MovePost");
+        $('#actionModel').modal('show');
+    }
+    return false;
+}
+function setReviewChannel(chid, noSave) {
+    const chname = setupReviewModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
+    setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
+    setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
+    setupReviewModel.querySelector("#selectedChannel").innerText = chname;
+    if (_lastReviewChannelSelection === '') {
+        setupReviewModel.querySelector("#destination-" + chid).classList.add('active')
+    } else {
+        setupReviewModel.querySelector("#destination-" + _lastReviewChannelSelection).classList.remove('active')
+        setupReviewModel.querySelector("#destination-" + chid).classList.add('active')
+    }
+    setupReviewModel.querySelector("#postButton").classList.remove('disabled')
+    _lastReviewChannelSelection = chid
+    reviewDestination = chid;
+    try {
+        setCookie("reviewDestination", chid);
+        setCookie("lastReviewDestination", chid);
+    } catch (e) {
+        console.error("Failed to save cookie for destinations");
+        console.error(e)
+    }
+    if (!noSave) {
+        try {
+            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+            reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
+            setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
+        } catch (e) {
+            console.error(e)
+            console.error('Failed to save review destination map')
+        }
+    }
+    return false;
 }
 
 // Move Model Management
-function selectedChannel(chid, chname) {
+function updateRecentPostDestinations() {
+    let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+        const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+        if (n) {
+            return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="selectedChannel('${e}'); proccessPost(); return false">` +
+                `    <span>${n}</span>` +
+                `</div>`
+        }
+    }).join('\n')
+    actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+}
+function shiftRecentPostDestinations() {
+    try {
+        if (recentPostDestination.indexOf(postsDestination) !== -1) {
+            recentPostDestination.sort(function (x, y) {
+                return x == postsDestination ? -1 : y == postsDestination ? 1 : 0;
+            });
+        } else {
+            recentPostDestination.unshift(postsDestination)
+        }
+        recentPostDestination = recentPostDestination.slice(0,10).filter(e => e.length > 8)
+        setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
+    } catch (e) {
+        console.error("Failed to save recent destinations")
+        console.error(e)
+    }
+}
+function selectedChannel(chid) {
+    const chname = actionModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
-    actionModel.querySelector("#channelSelector").classList.add('btn-success')
+    actionModel.querySelector("#channelSelector").style.backgroundColor = chname.toRGB();
     actionModel.querySelector("#selectedChannel").innerText = chname;
     if (_lastChannelSelection === '') {
         actionModel.querySelector("#destination-" + chid).classList.add('active')
@@ -381,7 +769,8 @@ function selectedRotate(rotate) {
 }
 function clearactionModel() {
     countdownTimer = -1;
-    disableGallerySelect();
+    if (!inReviewMode)
+        disableGallerySelect();
     actionModel.querySelector("#postID").innerText = 'NaN';
     if (postsDestination === '') {
         actionModel.querySelector("#postButton").classList.add("disabled");
@@ -392,9 +781,11 @@ function clearactionModel() {
     actionModel.querySelector("#ActionName").innerText = "";
     actionModel.querySelector("#postImage").style.transform = 'rotate(0deg)';
     actionModel.querySelector("#sectionMovePost").classList.add("hidden");
+    actionModel.querySelector("#sectionMovePostRecents").classList.add("hidden");
     actionModel.querySelector("#sectionRotatePost").classList.add("hidden");
     actionModel.querySelector("#sectionArchivePost").classList.add("hidden");
     actionModel.querySelector("#sectionGeneratePost").classList.add("hidden");
+    actionModel.querySelector("#sectionReportPost").classList.add("hidden");
     actionModel.querySelector("#sectionRenamePost").classList.add("hidden");
     actionModel.querySelector('#selectedMenu').classList.remove('d-none');
     actionModel.querySelector('#selectedAction').classList.add('d-none');
@@ -460,6 +851,28 @@ function refreshAlbumsList(messageid) {
     });
     $('#albumItemModal').modal('show');
 }
+function getAlbumDirectory() {
+    $.ajax({async: true,
+        url: `/albums?command=getDirectory`,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (response, textStatus, xhr) {
+            if (xhr.status < 400) {
+                $(`#albumDirectoryBody`).html(response);
+            } else {
+                $(`#albumDirectoryBody`).html('<span>Failed to get valid albums list via AJAX</span>');
+            }
+        },
+        error: function (xhr) {
+            $(`#albumDirectoryBody`).html('<span>Failed to get albums list via AJAX</span>');
+        }
+    });
+    $('#albumDirectoryModal').modal('show');
+}
 function createNewAlbum() {
     const newAlbumNameText = document.querySelector("#albumNameText");
     const newAlbumTypeSelect = document.querySelector("#albumTypeSelect");
@@ -483,6 +896,7 @@ function createNewAlbum() {
                     $(`#newAlbumForm`).collapse('hide');
                     refreshAlbumsList();
                     newAlbumNameText.value = '';
+                    getSidebar(true);
                 } else {
                     $.toast({
                         type: 'error',
@@ -530,6 +944,7 @@ function updateAlbum(aid) {
                 success: function (response, textStatus, xhr) {
                     if (xhr.status < 400) {
                         refreshAlbumsList();
+                        getSidebar(true);
                     } else {
                         $.toast({
                             type: 'error',
@@ -579,6 +994,7 @@ function deleteAlbum(aid) {
             success: function (response, textStatus, xhr) {
                 if (xhr.status < 400) {
                     refreshAlbumsList();
+                    getSidebar(true);
                 } else {
                     $.toast({
                         type: 'error',
@@ -610,7 +1026,6 @@ function deleteAlbum(aid) {
     }
 }
 function toggleAlbumItem(aid, eid) {
-    bypassSidebarRefresh = true;
     $.ajax({async: true,
         url: `/actions/v1`,
         type: "post",

@@ -1,6 +1,22 @@
+let config = require('./host.config.json')
+let global = require('./config.json')
+let web = require('./web.config.json')
+
+if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+    config.system_name = process.env.SYSTEM_NAME.trim()
+if (process.env.DATABASE_HOST && process.env.DATABASE_HOST.trim().length > 0)
+    config.sql_host = process.env.DATABASE_HOST.trim()
+if (process.env.DATABASE_NAME && process.env.DATABASE_NAME.trim().length > 0)
+    config.sql_database  = process.env.DATABASE_NAME.trim()
+if (process.env.DATABASE_USERNAME && process.env.DATABASE_USERNAME.trim().length > 0)
+    config.sql_user = process.env.DATABASE_USERNAME.trim()
+if (process.env.DATABASE_PASSWORD && process.env.DATABASE_PASSWORD.trim().length > 0)
+    config.sql_pass = process.env.DATABASE_PASSWORD.trim()
+
 const express = require("express");
-const app = express()
+const app = module.exports = express()
 const routes = require('./routes/index');
+const apps = require('./routes/apps');
 const { router: routesDiscord, sessionVerification, loginPage } = require('./routes/discord');
 const { sqlPromiseSafe } = require('./js/sqlClient');
 const routesAccessories = require('./routes/accessories');
@@ -8,19 +24,19 @@ const { router: routesTelegram } = require('./routes/telegram');
 const { printLine } = require('./js/logSystem');
 let routesUpload = require('./routes/upload');
 const bodyParser = require('body-parser');
+const compression = require('compression')
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const cors = require('cors');
 const morgan = require('morgan');
-const config = require('./host.config.json')
-const global = require('./config.json')
-const web = require('./web.config.json')
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
 let activeRequests = new Map();
 let fileIDCache = new Map();
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
@@ -49,9 +65,9 @@ app.use('/stream', rateLimit({
 }));
 app.use('/actions', rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 250,
+    max: 1000,
     message:
-        "Action API: Too many requests"
+        "Actions API: Too many requests"
 }));
 app.use([ '/ads-micro', '/ambient-get', '/ads-widget'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -116,41 +132,46 @@ app.use(function (req, res, next) {
 })
 
 app.use(cors());
+app.use(compression());
 app.use(morgan(function(tokens, req, res) {
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
     if (req.session && req.session.user && req.session.user.username) {
         username = req.session.user.username;
     }
-    if (res.statusCode !== 304 && res.method === 'GET') {
-        printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
-            method: req.method,
-            url: req.originalUrl,
-            base: baseURL,
-            status: res.statusCode,
-            params: req.query,
-            length: tokens.res(req, res, 'content-length'),
-            time: tokens['response-time'](req, res),
-            username: username,
-        })
-    } else {
-        printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
-            method: req.method,
-            url: req.originalUrl,
-            base: baseURL,
-            status: res.statusCode,
-            params: req.query,
-            length: 0,
-            time: parseInt(tokens['response-time'](req, res)),
-            username: username,
-        })
+    if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
+        if (res.statusCode !== 304 && res.method === 'GET') {
+            printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
+                method: req.method,
+                url: req.originalUrl,
+                base: baseURL,
+                status: res.statusCode,
+                params: req.query,
+                length: tokens.res(req, res, 'content-length'),
+                time: tokens['response-time'](req, res),
+                username: username,
+            })
+        } else {
+            printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
+                method: req.method,
+                url: req.originalUrl,
+                base: baseURL,
+                status: res.statusCode,
+                params: req.query,
+                length: 0,
+                time: parseInt(tokens['response-time'](req, res)),
+                username: username,
+            })
+        }
     }
-
 }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({limit: '20mb'}));
-app.use(express.urlencoded({extended : true, limit: '20mb'}));
+app.use(bodyParser.urlencoded({
+    limit: '50mb',
+    parameterLimit: 100000,
+    extended: true
+}));
+app.use(express.json({limit: '50mb'}));
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-WSS-Key, X-API-Key, X-User-Agent, User-Agent");
@@ -174,7 +195,28 @@ app.use(session({
 }));
 app.set('trust proxy', 1);
 
+app.locals.databaseCache = new Map();
+
+async function cacheDatabase() {
+    const users = await sqlPromiseSafe(`SELECT * FROM discord_users`)
+    const extraLinks = await sqlPromiseSafe(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
+    const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type, userid, serverid FROM discord_users_permissons")
+    const allChannels = await sqlPromiseSafe("SELECT x.*, y.chid_download FROM ( SELECT DISTINCT kanmi_channels.channelid, kanmi_channels.serverid, kanmi_channels.role, kanmi_channels.role_write, kanmi_channels.role_manage FROM kanmi_channels, sequenzia_class WHERE kanmi_channels.role IS NOT NULL AND kanmi_channels.classification = sequenzia_class.class) x LEFT OUTER JOIN (SELECT chid_download, serverid FROM discord_servers) y ON (x.serverid = y.serverid AND x.channelid = y.chid_download)");
+    const disabledChannels = await sqlPromiseSafe(`SELECT DISTINCT user, cid FROM sequenzia_hidden_channels`)
+    const allServers = await sqlPromiseSafe(`SELECT DISTINCT * FROM discord_servers ORDER BY position`);
+
+    app.set('users', users)
+    app.set('extraLinks', extraLinks)
+    app.set('userPermissions', userPermissions)
+    app.set('allChannels', allChannels)
+    app.set('disabledChannels', disabledChannels)
+    app.set('allServers', allServers)
+}
+setInterval(cacheDatabase, 60000)
+cacheDatabase();
+
 app.use('/', routes);
+app.use('/app', apps);
 app.use('/discord', routesDiscord);
 app.use('/telegram', routesTelegram);
 app.use('/upload', routesUpload);

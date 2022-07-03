@@ -1,12 +1,13 @@
 const global = require('../config.json');
 const config = require('../host.config.json');
-const web = require('../web.config.json')
+let web = require('../web.config.json')
 const express = require('express');
 const getImages = require('../js/getData');
 const getIndex = require('../js/getIndex');
 const renderResults = require('../js/renderPage');
 const downloadResults = require('../js/downloadFile');
 const renderIndex = require('../js/renderIndex');
+const renderSidebar = require('../js/renderSidebar');
 const getHistory = require('../js/getHistory');
 const getAlbums = require('../js/getAlbums');
 const discordActions = require('../js/discordActions');
@@ -16,7 +17,7 @@ const generateConfiguration = require('../js/generateADSRequest')
 const ajaxChecker = require('../js/ajaxChecker');
 const ajaxOnly = require('../js/ajaxOnly');
 const { printLine } = require('../js/logSystem');
-const { sessionVerification, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
+const { sessionVerification, sessionVerificationWithReload, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
 const router = express.Router();
 const qrcode = require('qrcode');
 const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
@@ -43,13 +44,15 @@ const closestIndex = (num, arr) => {
     };
     return index;
 };
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
-router.get('/juneOS', sessionVerification, ajaxChecker)
-
+router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
+router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
-router.get('/', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
+router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
-router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar);
+router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
 
 router.get('/lite', sessionVerification, (req,res) => {
@@ -77,9 +80,6 @@ router.get('/login', (req, res) => {
             message: err.message,
         });
     }
-});
-router.get('/home', (req, res) => {
-    res.redirect('/')
 });
 
 router.post('/actions/v2', sessionVerification, manageValidation, discordActions);
@@ -118,6 +118,51 @@ router.get('/status', sessionVerification, async (req, res) => {
         });
     }
 });
+router.use('/parity', sessionVerification, readValidation, async (req, res) => {
+    try {
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        if (params.length > 0) {
+            const results = await (() => {
+                if (global.bypass_cds_check) {
+                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
+                } else {
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                }
+            })()
+            if (results.error) {
+                res.status(500)
+                console.error(results.error)
+            } else if (results.rows.length === 0) {
+                res.status(404).send(`File ${params[0]} does not exist`)
+            } else if (results.rows.length > 1) {
+                const file = results.rows[0]
+                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/pipe${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+
+                printLine('ClientStreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
+                if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
+                    res.status(200).json({
+                        parts: files,
+                        expected_parts: file.paritycount,
+                        filename: file.real_filename
+                    })
+                } else {
+                    res.status(415).send('This content is not streamable or is damaged!')
+                }
+            } else {
+                res.status(415).send('This content is not streamable')
+            }
+        } else {
+            res.status(400).send('Invalid Request')
+        }
+        return false
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+        console.error(err)
+    }
+});
 router.get('/ping', sessionVerification, ((req, res) => {
     if (req.query && req.query.json && req.query.json === 'true') {
         res.json({
@@ -134,7 +179,13 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length > 0) {
-            const results = await sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+            const results = await (() => {
+                if (global.bypass_cds_check) {
+                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
+                } else {
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                }
+            })()
             if (results.error) {
                 res.status(500)
                 console.error(results.error)
@@ -148,9 +199,14 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
-                    if (contentLength)
-                        res.setHeader('Content-Length', contentLength);
-                    res.sendFile(`.${file.fileid}`, { dotfiles : 'allow', root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache) })
+                    /*if (contentLength)
+                        res.setHeader('Content-Length', contentLength);*/
+                    res.sendFile(`.${file.fileid}`, {
+                        dotfiles : 'allow',
+                        root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache),
+                        headers: {
+                            'Content-Disposition': `attachment; filename="${file.real_filename}"`
+                        } })
                 } else if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     printLine('StreamFile', `Preparing to stream spanned file request for ${file.real_filename}`, 'info');
                     let contentLength = 0;
@@ -202,6 +258,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             passTrough.on('end', () => {
                                 printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
                                 passTrough.close()
+                                passTrough.destroy();
                                 passTrough = null;
                             })
                             passTrough.on('error', () => { res.status(500).end(); })
@@ -255,6 +312,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                 })
                             }
                             printLine('StreamFile', `Parity Stream completed for ${file.real_filename}`, 'info');
+                            passTrough.destroy()
                             passTrough.close()
                         } else if (global.fw_serve || global.spanned_cache) {
                             printLine('StreamFile', `Stalled build for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB), due to file size being to large!`, 'info');

@@ -43,13 +43,40 @@ $(function() {
     }).listen('hash');
 });
 
+let pageType = ''
 let last = undefined;
 let responseComplete = false;
 let itemsRemoved = 0;
+let itemsRemovedIds = [];
 let initialLoad = true;
 let postsActions = [];
+let apiActions = {};
+let menuBarLocation = (getCookie("menuBarLocation") !== null) ? getCookie("menuBarLocation") : '';
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
+let recentPostDestination = (getCookie("recentPostDestination") !== null) ? (() => {
+    try {
+        return JSON.parse(getCookie("recentPostDestination"))
+    } catch (err) {
+        return []
+    }
+})() : [];
+let reviewDestination = (getCookie("reviewDestination") !== null) ? getCookie("reviewDestination") : '';
+let recentReviewDestination = (getCookie("recentReviewDestination") !== null) ? (() => {
+    try {
+        return JSON.parse(getCookie("recentReviewDestination"))
+    } catch (err) {
+        return []
+    }
+})() : [];
+let reviewDestinationMap = (getCookie("reviewDestinationMap") !== null) ? (() => {
+    try {
+        return JSON.parse(getCookie("reviewDestinationMap"))
+    } catch (err) {
+        return {}
+    }
+})() : {};
 let _lastChannelSelection = '';
+let _lastReviewChannelSelection = '';
 let fileWorking = false;
 let uploadDestination = (getCookie("UploadChannelSelection") !== null) ? getCookie("UploadChannelSelection") : '';
 let uploadServer = (getCookie("UploadServerSelection") !== null) ? getCookie("UploadServerSelection") : '';
@@ -58,6 +85,36 @@ let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
 let downloadURLs = [];
+let undoActions = [];
+
+String.prototype.toRGB = function() {
+    var hash = 0;
+    if (this.length === 0) return hash;
+    for (var i = 0; i < this.length; i++) {
+        hash = this.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash;
+    }
+    var rgb = [0, 0, 0];
+    for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 255;
+        rgb[i] = value;
+    }
+    return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+String.prototype.toHex = function() {
+    var hash = 0;
+    if (this.length === 0) return hash;
+    for (var i = 0; i < this.length; i++) {
+        hash = this.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash;
+    }
+    var color = '#';
+    for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 255;
+        color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+}
 
 function isTouchDevice(){
     return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
@@ -77,15 +134,21 @@ async function setupReq (push) {
     if (push !== true)
         $(".container-fluid").fadeTo(500, 0.4);
 
+
+    if (!initalPageLoad)
+        $("#userMenu").collapse("hide");
+    $(".sidebar").removeClass('open');
+    $("body").addClass("sidebar-toggled");
+    $(".sidebar").addClass("toggled");
+    $('.sidebar .collapse').collapse('hide');
+    $('.modal').modal('hide');
     if ($(window).width() < 1700) {
-        $("body").addClass("sidebar-toggled");
-        $(".sidebar").addClass("toggled");
-        $('.sidebar .collapse').collapse('hide');
         $(".music-player").removeClass("toggled");
     }
     writeLoadingBar();
     return false;
 }
+let recoverable
 async function requestCompleted (response, url, lastURL, push) {
     responseComplete = true
     itemsRemoved = 0;
@@ -102,44 +165,111 @@ async function requestCompleted (response, url, lastURL, push) {
             delay: 10000,
         });
     } else {
-        if (push === true) {
-            $('#LoadNextPage').remove();
-            $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
-            setImageLayout(setImageSize);
-            setPageLayout(false);
-            $("#contentBlock > style").html($(response).find('#contentBlock > style'));
-            $("#finalLoad").html($(response).find('#finalLoad'));
-            if (!pageTitle.includes(' - Item Details')) {
-                getPaginator(url);
-            }
-        } else {
+        if (url.startsWith('/app/web/')) {
             $.when($(".container-fluid").fadeOut(250)).done(() => {
-                let contentPage = $(response).find('#content-wrapper').children();
+                recoverable = response
+                let contentPage = $(response);
+                if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
+                    $("#appStatic").html(contentPage.find('#appStatic').children());
+                }
                 contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
                 contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
                     window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
                     e.preventDefault();
                 });
-                $("#content-wrapper").html(contentPage);
+                if (contentPage.find('#appTitleBar').length > 0) {
+                    $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
+                }
+                if (contentPage.find('#appPanels').length > 0) {
+                    $("#appPanels").html(contentPage.find('#appPanels').children());
+                }
+                if (contentPage.find('#appNavigation').length > 0) {
+                    $("#pageNav").html(contentPage.find('#appNavigation').children());
+                }
+                if (contentPage.find('#appTitleMenu').length > 0) {
+                    $("#appTitleMenu").html(contentPage.find('#appTitleMenu').children());
+                } else {
+                    $("#appTitleMenu").html('');
+                }
+                if (contentPage.find('#appMenuRow1').length > 0) {
+                    $("#appMenuRow1").html(contentPage.find('#appMenuRow1').children());
+                }
+                if (contentPage.find('#appMenuRow2').length > 0) {
+                    $("#appMenuRow2").append(contentPage.html('#appMenuRow2').children());
+                } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
+                    $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
+                }
+                $("#appContainer").html(contentPage.find('#appContent').children());
+                if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
+                    $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
+                }
+                $(".container-fluid").fadeTo(2000, 1)
+                scrollToTop(true);
+                window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+            })
+        } else {
+            if (push === true) {
+                $('#LoadNextPage').remove();
+                $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
                 setPageLayout(false);
+                if (Object.values(apiActions).length > 0) {
+                    const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                    $(Array.from(response.find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                    if ($.find('[data-msg-id].col-image.hidden').length > 0) {
+                        $.find('#hiddenItemsAlert').removeClass('hidden')
+                    }
+                }
+                $("#contentBlock > style").html($(response).find('#contentBlock > style'));
+                $("#finalLoad").html($(response).find('#finalLoad'));
+
                 if (!pageTitle.includes(' - Item Details')) {
                     getPaginator(url);
                 }
-                scrollToTop(true);
-            })
+                if (inReviewMode)
+                    enableReviewMode();
+                updateActionsPanel();
+                undoActions = [];
+            } else {
+                $.when($(".container-fluid").fadeOut(250)).done(() => {
+                    let contentPage = $(response).find('#content-wrapper').children();
+                    contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
+                    contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
+                        window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                        e.preventDefault();
+                    });
+                    $("#content-wrapper").html(contentPage);
+                    setImageLayout(setImageSize);
+                    setPageLayout(false);
+                    if (!pageTitle.includes(' - Item Details')) {
+                        getPaginator(url);
+                    }
+                    scrollToTop(true);
+                    if (inReviewMode)
+                        enableReviewMode();
+                    updateActionsPanel();
+                    undoActions = [];
+                    if (Object.values(apiActions).length > 0) {
+                        const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                        $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                        if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
+                            $('#hiddenItemsAlert').removeClass('hidden')
+                        }
+                    }
+                })
+            }
+            $("title").text(pageTitle);
+            let addOptions = [];
+            if (url.includes('offset=') && !initialLoad) {
+                let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
+                addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0}`]);
+            }
+            const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
+            $.history.push(_url, (_url.includes('offset=')));
         }
-        $("title").text(pageTitle);
-        let addOptions = [];
-        if (url.includes('offset=') && !initialLoad) {
-            let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
-            addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0 }` ]);
-        }
-        const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
-        $.history.push(_url, (_url.includes('offset=')));
         pageType = url.split('/')[0];
         initialLoad = false
-        if(isTouchDevice()===false) {
+        if(!isTouchDevice()) {
             $('[data-tooltip="tooltip"]').tooltip()
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
@@ -429,11 +559,11 @@ function getSearchContent(element, url) {
     }
     return false;
 }
-function getLimitContent() {
+function getLimitContent(perm) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
     const requestLimit = document.getElementById('limitRequested').value;
     if (requestLimit !== null && requestLimit !== '') {
-        const _url = params([], [['limit', requestLimit ]]);
+        const _url = params([], [[(perm) ? 'limit' : 'num', requestLimit ]]);
         setupReq()
         requestInprogress = $.ajax({async: true,
             url: _url,
@@ -518,6 +648,7 @@ function getPaginator(url) {
                 e.preventDefault();
             });
             $('#totalCount').replaceWith(_pn.find('#totalCount'));
+            $('#HistoryDropdown').html(_pn.find('#history').contents());
         },
         error: function (xhr) {
             console.error(`Failed to load paginator - ${xhr.responseText}`)
@@ -572,19 +703,10 @@ function getNewURIContent(element, type) {
     return false;
 }
 function hideAddressInput() {
-    $('#topAddressBarInfo').removeClass('hidden');
-    $('#innerAddressBarInfo').removeClass('hidden');
-    $('#topAddressBarInput').addClass('hidden')
-    $('#innerAddressBarInput').addClass('hidden')
     document.getElementById("directURI").value = '';
-    document.getElementById("directURIInner").value = '';
     return false;
 }
 function showAddressInput() {
-    $('#topAddressBarInfo').addClass('hidden');
-    $('#innerAddressBarInfo').addClass('hidden');
-    $('#topAddressBarInput').removeClass('hidden')
-    $('#innerAddressBarInput').removeClass('hidden')
     let _uri = new URLSearchParams(document.location.hash.substring(1).split('?').pop());
     _uri.delete('_h')
     if (!_uri.has('folder') && document.getElementById("folderPath")) {
@@ -592,7 +714,6 @@ function showAddressInput() {
         _uri.set('folder', document.getElementById("folderPath").innerText)
     }
     document.getElementById("directURI").value = decodeURIComponent(_uri.toString());
-    document.getElementById("directURIInner").value = decodeURIComponent(_uri.toString());
     return false;
 }
 function feedContent(type) {
@@ -625,6 +746,8 @@ function feedContent(type) {
     return false;
 }
 let downloadAllController = null;
+let downloadSpannedController = new Map();
+let activeSpannedJob = null;
 function downloadSelectedItems() {
     try {
         pageType = $.history.url().split('?')[0].substring(1);
@@ -722,6 +845,630 @@ async function startDownloadingFiles() {
     disableGallerySelect();
 }
 
+async function openUnpackingFiles(fileid, playThis) {
+    if (fileid) {
+        if (downloadSpannedController.size === 0 && !activeSpannedJob) {
+            downloadSpannedController.set(fileid, {
+                id: fileid,
+                pending: true,
+                ready: true,
+                play: playThis
+            })
+            $.toast({
+                type: 'success',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is unpacking, check active jobs for progress`,
+                delay: 5000,
+            });
+            //$('#downloadSpannedFile').modal('show');
+            updateNotficationsPanel();
+            notificationControler = setInterval(updateNotficationsPanel, 1000);
+            while (downloadSpannedController.size !== 0) {
+                const itemToGet = Array.from(downloadSpannedController.keys())[0]
+                activeSpannedJob = downloadSpannedController.get(itemToGet)
+                if (activeSpannedJob.ready && activeSpannedJob.pending) {
+                    await unpackFile();
+                    if (activeSpannedJob.play) {
+                        console.log(`Launching File...`)
+                        const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
+                        if (element) {
+                            if (activeSpannedJob.play === 'audio') {
+                                PlayTrack(element.href);
+                            } else if (activeSpannedJob.play === 'video') {
+                                PlayVideo(element.href);
+                            } else {
+                                console.error('No Datatype was provided')
+                            }
+                        } else {
+                            console.error('Data lost!')
+                        }
+                    }
+                }
+                downloadSpannedController.delete(itemToGet);
+                console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
+            }
+            activeSpannedJob = null;
+        } else if (!downloadSpannedController.has(fileid)) {
+            downloadSpannedController.set(fileid, {
+                id: fileid,
+                pending: true,
+                ready: true,
+                play: playThis
+            })
+            $.toast({
+                type: 'success',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is added to queued`,
+                delay: 5000,
+            });
+        } else {
+            $.toast({
+                type: 'warning',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is already added to queued`,
+                delay: 5000,
+            });
+        }
+    }
+}
+async function stopUnpackingFiles(fileid) {
+    if (downloadSpannedController.has(fileid)) {
+        const _controller = downloadSpannedController.get(fileid)
+        if (_controller.pending === true) {
+            _controller.pending = false;
+            _controller.ready = false;
+            downloadSpannedController.delete(fileid)
+        } else {
+            activeSpannedJob = false;
+            _controller.ready = false;
+            activeSpannedJob.abort.abort();
+            _controller.abort.abort();
+        }
+    }
+}
+async function unpackFile() {
+    if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
+        console.log(`Downloading File ${activeSpannedJob.id}...`)
+        activeSpannedJob.pending = false;
+
+        return await new Promise(async (job) => {
+            $.ajax({
+                async: true,
+                url: `/parity/${activeSpannedJob.id}`,
+                type: "GET",
+                data: '',
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'SequenziaXHR',
+                    'x-Requested-Page': 'SeqClientUnpacker'
+                },
+                success: async function (response, textStatus, xhr) {
+                    if (xhr.status < 400) {
+                        try {
+                            activeSpannedJob = {
+                                ...response,
+                                ...activeSpannedJob,
+                                progress: '0%',
+                                abort: new AbortController(),
+                                blobs: []
+                            };
+
+                            console.log(activeSpannedJob)
+                            if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
+                                if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
+                                    for (let i in activeSpannedJob.parts) {
+                                        if (!activeSpannedJob.ready)
+                                            break;
+                                        const percentage = (parseInt(i) / activeSpannedJob.parts.length) * 100
+                                        activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
+
+                                        await new Promise(ok => {
+                                            axios({
+                                                url: activeSpannedJob.parts[i],
+                                                method: 'GET',
+                                                signal: activeSpannedJob.abort.signal,
+                                                responseType: 'blob'
+                                            })
+                                                .then((response) => {
+                                                    console.log(`Downloaded Parity ${activeSpannedJob.parts[i]}`)
+                                                    activeSpannedJob.blobs.push(response.data);
+                                                    ok(true);
+                                                })
+                                                .catch(e => {
+                                                    console.error(`Failed Parity ${activeSpannedJob.parts[i]} - ${e.message}`)
+                                                    activeSpannedJob.ready = false;
+                                                    ok(false);
+                                                })
+                                        })
+                                    }
+
+                                    if (activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
+                                        activeSpannedJob.progress = `100%`;
+                                        const downloadedFile = window.URL.createObjectURL(new Blob(activeSpannedJob.blobs));
+                                        const link = document.createElement('a');
+                                        link.id = `fileData-${activeSpannedJob.id}`
+                                        link.classList = `hidden`
+                                        link.href = downloadedFile;
+                                        link.setAttribute('download', activeSpannedJob.filename);
+                                        document.body.appendChild(link);
+                                        if (!activeSpannedJob.play) {
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }
+
+                                        $.toast({
+                                            type: 'success',
+                                            title: 'Unpack File',
+                                            subtitle: 'Now',
+                                            content: `File was unpacked successfully<br/>${activeSpannedJob.filename}`,
+                                            delay: 15000,
+                                        });
+                                        job(true);
+                                    } else {
+                                        $.toast({
+                                            type: 'error',
+                                            title: 'Unpack File',
+                                            subtitle: 'Now',
+                                            content: `Missing a downloaded parity file, Retry to download!`,
+                                            delay: 15000,
+                                        });
+                                        job(false);
+                                    }
+                                } else {
+                                    $.toast({
+                                        type: 'error',
+                                        title: 'Unpack File',
+                                        subtitle: 'Now',
+                                        content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                        delay: 15000,
+                                    });
+                                    job(false);
+                                }
+                            } else {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `Failed to read the parity metadata response!`,
+                                    delay: 15000,
+                                });
+                                job(false);
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File Handeler Fault!<br/>${e.message}`,
+                                delay: 15000,
+                            });
+                            job(false);
+                        }
+                    } else {
+                        $.toast({
+                            type: 'error',
+                            title: 'Unpack File',
+                            subtitle: 'Now',
+                            content: `File failed to unpack!<br/>${response}`,
+                            delay: 15000,
+                        });
+                        job(false);
+                    }
+                    activeSpannedJob.blobs = [];
+                },
+                error: function (xhr) {
+                    $.toast({
+                        type: 'error',
+                        title: 'Unpack File',
+                        subtitle: 'Now',
+                        content: `File failed to unpack!<br/>${xhr.responseText}`,
+                        delay: 15000,
+                    });
+                    activeSpannedJob.blobs = [];
+                    console.error(xhr.responseText);
+                    job(false);
+                }
+            });
+        })
+    } else {
+        return false
+    }
+}
+
+async function updateNotficationsPanel() {
+    if (downloadSpannedController.size !== 0) {
+        const keys = Array.from(downloadSpannedController.keys()).map(e => {
+            const item = downloadSpannedController.get(e);
+            if (item.ready) {
+                let results = [`<a class="dropdown-item" title="Sort Descending" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
+                if (!item.pending) {
+                    results.push(`<i class="fas fa-spinner text-success pr-2"></i>`)
+                    results.push(`<span>${e}</span>`)
+                    if (activeSpannedJob.progress) {
+                        results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`)
+                    }
+                } else {
+                    results.push(`<span>${e}</span>`)
+                }
+                results.push(`</a>`)
+                return results.join('\n')
+            } else {
+                return ''
+            }
+        })
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').removeClass('hidden')
+            if (keys.length > 0) {
+                $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
+                if (keys.length <= 9) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + keys.length
+                } else {
+                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
+                }
+            } else {
+                $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
+                document.getElementById('statusMenuIndicator').classList = 'fas fa-square-0'
+            }
+        }
+    } else {
+        clearInterval(notificationControler);
+        notificationControler = null;
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').addClass('hidden')
+            $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
+        }
+    }
+}
+let notificationControler = null;
+
+async function showSearchOptions(post) {
+    pageType = $.history.url().split('?')[0].substring(1);
+    const _post = document.getElementById(`message-${post}`);
+    const postChannel = _post.getAttribute('data-msg-channel');
+    const postServer = _post.getAttribute('data-msg-server');
+    const postChannelString = _post.getAttribute('data-msg-channel-string');
+    const postChannelIcon = _post.getAttribute('data-msg-channel-icon');
+    const postDisplayName = _post.getAttribute('data-msg-displayname');
+    const postDownload = _post.getAttribute('data-msg-download');
+    const postFilename = _post.getAttribute('data-msg-filename');
+    const postFilID = _post.getAttribute('data-msg-fileid');
+    const postEID = _post.getAttribute('data-msg-eid');
+    const postID = _post.getAttribute('data-msg-id');
+    const postDate = _post.getAttribute('data-msg-date');
+    const postAuthorName = _post.getAttribute('data-msg-author');
+    const postAuthorImage = _post.getAttribute('data-msg-author-img');
+    let postBody = _post.getAttribute('data-msg-bodyraw') + '';
+    const postFlagged = _post.getAttribute('data-msg-flagged') + '' === 'true';
+    const nsfwString = _post.getAttribute('data-nsfw-string');
+    const manageAllowed = _post.getAttribute('data-msg-manage') + '' === 'true';
+
+    const searchUser = _post.getAttribute('data-search-user');
+    const searchParent = _post.getAttribute('data-search-parent');
+    const searchColor = _post.getAttribute('data-search-color');
+    const searchSource = _post.getAttribute('data-search-source');
+    const resolutionRatio = _post.getAttribute('data-msg-res');
+    const fileSize = _post.getAttribute('data-msg-filesize');
+
+    const modalGoToPostLocation = document.getElementById(`goToPostLocation`);
+    const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
+    const modalGoToHistoryDisplay = document.getElementById(`goToHistoryDisplay`);
+    const modalDownloadButton = document.getElementById(`goToDownload`);
+    const modalGoToPostSource = document.getElementById(`goToPostSource`);
+    const modalSearchByUser = document.getElementById(`searchByUser`);
+    const modalSearchByParent = document.getElementById(`searchByParent`);
+    const modalSearchByColor = document.getElementById(`searchByColor`);
+    const modalSearchByID = document.getElementById(`searchByID`);
+    const modalBodyRaw = document.getElementById(`rawBodyContent`);
+    const modalInfoRaw = document.getElementById(`rawInfoContent`);
+    const modalAuthorData = document.getElementById(`authorData`);
+    const modalAdvRaw = document.getElementById(`advancedInfoBlock`);
+    const modalToggleFav = document.getElementById(`toggleFavoritePost`);
+    const modalAddFlag = document.getElementById(`addFlagPost`);
+    const modalToggleAlbum = document.getElementById(`manageAlbumPost`);
+    const modalMove = document.getElementById(`infoMove`);
+    const modalDelete = document.getElementById(`infoDelete`);
+    const modalRename = document.getElementById(`infoRename`);
+    const modalCompile = document.getElementById(`infoCompile`);
+    const modalRotate = document.getElementById(`infoRotae`);
+    const modalReport = document.getElementById(`infoReport`);
+
+    let normalInfo = [];
+    let advancedInfo = [];
+
+    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', postChannel]])}`)
+    document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [])}`)
+
+    advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
+    advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
+
+    if (postFlagged) {
+        normalInfo.push('<div class="badge badge-danger mx-1 ">')
+        normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
+        normalInfo.push('</div>')
+    }
+    if (resolutionRatio && resolutionRatio.length > 0) {
+        normalInfo.push('<div class="badge badge-light mx-1">')
+        const ratio = parseFloat(resolutionRatio.split(':')[1])
+        if (!isNaN(ratio)) {
+            if (ratio > 1.15) {
+                normalInfo.push(`<i class="fa fa-image-portrait pr-1"></i>`)
+            } else if (ratio >= 0.9 && ratio <= 1.15) {
+                normalInfo.push(`<i class="fa fa-image pr-1"></i>`)
+            } else {
+                normalInfo.push(`<i class="fa fa-image-landscape pr-1"></i>`)
+            }
+        }
+        normalInfo.push(`<i class="fa fa-ruler-triangle pr-1"></i><span>${resolutionRatio.split(':')[0]}</span>`)
+        normalInfo.push('</div>')
+    }
+    if (fileSize && fileSize.length > 0) {
+        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize} MB</span>`)
+        normalInfo.push('</div>')
+    }
+    if (postDate && postDate.length > 0) {
+        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>${postDate}</span>`)
+        normalInfo.push('</div>')
+    }
+    normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
+    if (postFilID && postFilID.length > 0) {
+        normalInfo.push('<div class="badge badge-warning text-dark mx-1 ">')
+        normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
+        normalInfo.push('</div>')
+        advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
+    }
+    if (postAuthorImage && postAuthorImage.length > 0) {
+        let imageURL = postAuthorImage
+        if (imageURL.includes('?size='))
+            imageURL = imageURL.split('?size=')[0] + '?size=64'
+        modalAuthorData.querySelector('img').src = imageURL
+    }
+    if (postAuthorName && postAuthorName.length > 0) {
+        modalAuthorData.querySelector('span').innerText = postAuthorName;
+    } else {
+        modalAuthorData.querySelector('span').innerText = 'Framework';
+        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
+        normalInfo.push('</div>')
+    }
+
+    modalSearchSelectedText.onclick = function() {
+        const text = window.getSelection().toString()
+        if (text && text.length > 0 && text.trim().length > 0) {
+            $('#searchModal').modal('hide');
+            window.getSelection().toString()
+            window.location.assign(`#${getLocation()}search=text:${text.trim()}${(nsfwString) ? nsfwString : ''}`);
+        } else {
+            alert(`You must select text above first before you can search selected text!`)
+        }
+        return false;
+    }
+    modalGoToPostLocation.onclick = function() {
+        $('#searchModal').modal('hide');
+        window.location.assign("#" + params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', `${postChannel}`], ['nsfw', 'true']]));
+        return false;
+    }
+    modalGoToHistoryDisplay.onclick = function() {
+        $('#searchModal').modal('hide');
+        window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
+        return false;
+    }
+    modalToggleFav.onclick = function() {
+        toggleFavorite(`${postChannel}`, `${postEID}`);
+        return false;
+    }
+    modalToggleAlbum.onclick = function() {
+        refreshAlbumsList(`${postEID}`);
+        return false;
+    }
+    modalAddFlag.onclick = function() {
+        sendBasic(postChannel, postID, "Report", true);
+        return false;
+    }
+    if (postChannelString && postChannelString.length > 0) {
+        modalGoToPostLocation.title = `Go To "${postChannelString}"`
+    } else {
+        modalGoToPostLocation.title = 'Go To Channel'
+    }
+    if (manageAllowed && !($('.select-panel').hasClass('show'))) {
+        modalReport.classList.remove('hidden');
+        modalReport.onclick = function() {
+            postsActions = [];
+            selectPostToMode(postID, false);
+            selectedActionMenu("RemoveReport");
+        }
+
+        modalMove.classList.remove('hidden');
+        modalMove.onclick = function() {
+            postsActions = [];
+            updateRecentPostDestinations();
+            selectPostToMode(postID, false);
+            selectedActionMenu("MovePost");
+        }
+
+        modalDelete.classList.remove('hidden');
+        modalDelete.onclick = function() {
+            postsActions = [];
+            selectPostToMode(postID, false);
+            selectedActionMenu("ArchivePost");
+        }
+
+        if (pageType.includes('gallery')) {
+            modalRotate.classList.remove('hidden');
+            modalRotate.onclick = function() {
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("RotatePost");
+            }
+        } else {
+            modalRotate.classList.add('hidden');
+            modalRotate.onclick = null;
+        }
+        if (postFilID && postFilID.length > 0) {
+            modalRename.classList.remove('hidden');
+            modalRename.onclick = function() {
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("RenamePost");
+            }
+            modalCompile.classList.remove('hidden');
+            modalCompile.onclick = function() {
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("CompileSF");
+            }
+        } else {
+            modalRename.classList.add('hidden');
+            modalRename.onclick = null;
+            modalCompile.classList.add('hidden');
+            modalCompile.onclick = null;
+        }
+    } else {
+        modalReport.classList.add('hidden');
+        modalReport.onclick = null;
+        modalMove.classList.add('hidden');
+        modalMove.onclick = null;
+        modalDelete.classList.add('hidden');
+        modalDelete.onclick = null;
+        modalRename.classList.add('hidden');
+        modalRename.onclick = null;
+        modalRotate.classList.add('hidden');
+        modalRotate.onclick = null;
+        modalCompile.classList.add('hidden');
+        modalCompile.onclick = null;
+    }
+    if (searchSource && searchSource.length > 0) {
+        modalGoToPostSource.title = `Go To "${searchSource}"`
+        modalGoToPostSource.onclick = function() {
+            $('#searchModal').modal('hide');
+            $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
+            return false;
+        }
+        modalGoToPostSource.classList.remove('hidden')
+    } else {
+        modalGoToPostSource.title = 'Go To Source'
+        modalGoToPostSource.onclick = function() { return false; };
+        modalGoToPostSource.classList.add('hidden')
+    }
+    if (postDownload && postDownload.length > 0) {
+        modalDownloadButton.title = `Direct Download`
+        modalDownloadButton.href = postDownload
+        if (postFilename && postFilename.length > 0) {
+            modalDownloadButton.download = postDownload
+        } else {
+            modalDownloadButton.download = ''
+        }
+        modalDownloadButton.classList.remove('hidden')
+    } else {
+        modalDownloadButton.href = '#_'
+        modalDownloadButton.download = ''
+        modalDownloadButton.title = 'Direct Download'
+        modalDownloadButton.classList.add('hidden')
+    }
+    if (postDisplayName && postDisplayName.length > 0) {
+        modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
+        modalGoToHistoryDisplay.onclick = function() {
+            $('#searchModal').modal('hide');
+            $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
+            return false;
+        }
+        modalGoToHistoryDisplay.classList.remove('hidden')
+    } else {
+        modalGoToHistoryDisplay.title = 'View History'
+        modalGoToHistoryDisplay.onclick = function() { return false; };
+        modalGoToHistoryDisplay.classList.add('hidden')
+    }
+    if (searchUser && searchUser.length > 0) {
+        modalSearchByUser.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}search=text:${searchUser}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByUser.classList.remove('hidden')
+    } else {
+        modalSearchByUser.onclick = function() { return false; };
+        modalSearchByUser.classList.add('hidden')
+    }
+    if (searchParent && searchParent.length > 0) {
+        modalSearchByParent.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}search=text:${searchParent}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByParent.classList.remove('hidden')
+    } else {
+        modalSearchByParent.onclick = function() { return false; };
+        modalSearchByParent.classList.add('hidden')
+    }
+    if (searchColor && searchColor.length > 0) {
+        modalSearchByColor.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}color=${searchColor}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByColor.classList.remove('hidden')
+    } else {
+        modalSearchByColor.onclick = function() { return false; };
+        modalSearchByColor.classList.add('hidden')
+    }
+    if (postID && postID.length > 0) {
+        modalSearchByID.onclick = function() {
+            $('#searchModal').modal('hide');
+            window.location.assign(`#${getLocation()}search=${encodeURIComponent("id:st:" + postID.substring(0, 6))}${(nsfwString) ? nsfwString : ''}`);
+            return false;
+        }
+        modalSearchByID.classList.remove('hidden')
+    } else {
+        modalSearchByID.onclick = function() { return false; };
+        modalSearchByID.classList.add('hidden')
+    }
+    if (postBody && postBody.length > 0) {
+        try {
+            const regexItalic = /\*\*\*(.*?)\*\*\*/g;
+            while (postBody.includes('***')) {
+                let matched = regexItalic.exec(postBody);
+                let wrap = "<i>" + matched[1] + "</i>";
+                postBody = postBody.replace(`***${matched[1]}***`, wrap);
+            }
+            const regexBold = /\*\*(.*?)\*\*/g;
+            while (postBody.includes('**')) {
+                let matched = regexBold.exec(postBody);
+                let wrap = "<b>" + matched[1] + "</b>";
+                postBody = postBody.replace(`**${matched[1]}**`, wrap);
+            }
+        } catch (e) {
+            console.error(`Failed to prettyfy the post body!`)
+            console.error(e)
+        }
+
+        modalBodyRaw.querySelector('div').innerHTML = postBody
+        modalBodyRaw.classList.remove('hidden')
+    } else {
+        modalBodyRaw.querySelector('div').innerHTML = ''
+        modalBodyRaw.classList.add('hidden')
+    }
+
+    advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);
+    advancedInfo.push(`<div><i class="fa fa-folder pr-1"></i><span class="text-monospace" title="Discord Channel ID">${postChannel}</span></div>`);
+    advancedInfo.push(`<div><i class="fa fa-server pr-1"></i><span class="text-monospace" title="Discord Server ID">${postServer}</span></div>`);
+
+    modalInfoRaw.innerHTML = normalInfo.join('');
+    modalAdvRaw.innerHTML = advancedInfo.join('');
+    $('#searchModal').modal('show');
+    return false;
+}
+function getLocation() {
+    const l = document.getElementById('searchLocationSelection').querySelector('.active').getAttribute('data-search-location')
+    return (l.split('?').pop().length > 0) ? l + '&' : l
+}
+
 function showAuthManager() {
     $('#authenticationModel').modal('show');
     $.ajax({async: true,
@@ -765,7 +1512,7 @@ function authwareLogin() {
         const code = document.getElementById('expressLoginCode').value.trim();
         $.ajax({
             async: true,
-            url: `https://${document.location.host}/transfer?code=${code}`,
+            url: `/transfer?code=${code}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -953,29 +1700,25 @@ function setImageLayout(size, _html) {
             case '1':
                 classList = 'col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 col-dynamic-large';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '1';
                 break;
             case '2':
                 classList = 'col-6 col-sm-4 col-md-3 col-lg-2 col-xl-2 col-dynamic-small';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '2';
                 break;
             case '3':
-                classList = 'col-3 col-sm-2 col-md-2 col-lg-2 col-xl-1 col-dynamic-small';
+                classList = 'col-3 col-sm-2 col-md-2 col-lg-2 col-xl-1 col-dynamic-tiny';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.add('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.add('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.add('dynamic-hide'));
                 setImageSize = '3';
                 break;
             default:
                 classList = 'col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.internal-lightbox').forEach(c => c.classList.remove('dynamic-hide'));
-                html.querySelectorAll('.overlay-icons').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '0';
                 break;
         }
@@ -995,28 +1738,133 @@ function setImageLayout(size, _html) {
     }
     return false;
 }
+function setMenuBarLocation() {
+    switch (menuBarLocation) {
+        case 'bottom':
+            menuBarLocation = 'top';
+            $('body').removeClass('bottom-bar');
+            break;
+        default:
+            menuBarLocation = 'bottom';
+            $('body').addClass('bottom-bar');
+            break;
+    }
+    try {
+        setCookie("menuBarLocation", menuBarLocation);
+    } catch (e) {
+        console.error("Failed to save cookie for menubar preference");
+        console.error(e)
+    }
+}
 
 // Send Action
-function sendAction(serverid, channelid, messageid, action, data, confirm) {
+function toggleFavorite(channelid, eid) {
+    const star = document.querySelector(`#fav-${eid} > i.fas.fa-star`)
+    let isFavorite = false;
+    if (star)
+        isFavorite = star.classList.contains('favorited');
+
+    sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
+
+    return false;
+}
+function toggleStarHistoryItem(index) {
+    const star = document.querySelector(`#favHistory-${index} > i.fas.fa-star`)
+    let isFavorite = false;
+    if (star)
+        isFavorite = star.classList.contains('favorited');
+
+    sendBasic(undefined, index, (isFavorite) ? `UnpinHistory`: `PinHistory`, true);
+
+    return false;
+}
+function removeHistoryItem(index) {
+    sendBasic(undefined, index, 'RemoveHistory', true);
+
+    return false;
+}
+function removeAllHistory() {
+    sendBasic(undefined, undefined, 'RemoveHistoryAll', true);
+
+    return false;
+}
+function queueAction(serverid, channelid, messageid, action, data, isReviewAction, noUndo) {
+    let preview = undefined
+/*    const _post = document.getElementById(`message-${messageid}`)
+    if (pageType.includes('gallery')) {
+        preview = _post.querySelector('#postImage').style.backgroundImage.split('"')[1];
+    } else if (pageType.includes('file')) {
+        if (_post.querySelector('.preview-holder a div') !== null && _post.querySelector('.preview-holder a div').style) {
+            preview = _post.querySelector('.preview-holder a div').style.backgroundImage.split('"')[1]
+        }
+    } else if (pageType.includes('card')) {
+        if (_post.querySelector('.card-img') !== null && _post.querySelector('.card-img').src) {
+            preview = _post.querySelector('.card-img').src
+        }
+    }*/
+    apiActions[messageid] = {serverid, channelid, messageid, action, data, preview, isReviewAction: (isReviewAction)};
+    if (!noUndo)
+        undoActions.push(messageid);
+    updateActionsPanel();
+}
+function commitPendingActions() {
     $.ajax({async: true,
         type: "post",
         url: "/actions/v2",
-        data: { 'serverid': serverid,
-            'channelid': channelid,
-            'messageid': messageid,
-            'action': action,
-            'data': data },
+        data: {
+            batch: Object.values(apiActions)
+        },
+        json: true,
         cache: false,
         headers: {
             'X-Requested-With': 'SequenziaXHR'
         },
         success: function (res, txt, xhr) {
-            if (xhr.status < 400) {
+            if (xhr.status === 202) {
+                $.toast({
+                    type: 'success',
+                    title: 'Completed Actions',
+                    subtitle: 'Now',
+                    content: `${res.status}`,
+                    delay: 5000,
+                });
                 console.log(res);
-                if (confirm) { $.snack('success', `${res}`, 5000) };
-                afterAction(action, data, messageid, confirm);
+                if (res.status.includes('Actions Failed')) {
+                    Object.keys(res.results).map((response) => {
+                        if (res.results[response] === 200 || res.results[response] === 404) {
+                            delete apiActions[response];
+                            const request = apiActions[response];
+                            afterAction(request.action, request.data, request.messageid);
+                        } else {
+                            const message = document.getElementById(`message-${response}`)
+                            if (message) {
+                                message.classList.remove('hidden')
+                            }
+                            console.log(`${response} Failed on the server`)
+                        }
+                    })
+                } else {
+                    Object.values(apiActions).map((request) => {
+                        afterAction(request.action, request.data, request.messageid);
+                    });
+                    apiActions = {};
+                }
+                updateActionsPanel();
             } else {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed Actions',
+                    subtitle: 'Now',
+                    content: `${res.responseText}`,
+                    delay: 15000,
+                });
                 console.log(res.responseText);
+                Object.values(apiActions).map((request) => {
+                    const message = document.getElementById(`message-${request.messageid}`)
+                    if (message) {
+                        message.classList.remove('hidden')
+                    }
+                })
             }
         },
         error: function (xhr) {
@@ -1027,8 +1875,179 @@ function sendAction(serverid, channelid, messageid, action, data, confirm) {
                 content: `${xhr.responseText}`,
                 delay: 5000,
             });
+            Object.values(apiActions).map((request) => {
+                const message = document.getElementById(`message-${request.messageid}`)
+                if (message) {
+                    message.classList.remove('hidden')
+                }
+            })
         }
     });
+    return false;
+}
+function cancelPendingAction(messageid) {
+    if (messageid === -1) {
+        Object.values(apiActions).map((request) => {
+            const message = document.getElementById(`message-${request.messageid}`)
+            if (message) {
+                message.classList.remove('hidden')
+            }
+        })
+        apiActions = {};
+    } else {
+        const message = document.getElementById(`message-${messageid}`)
+        if (message) {
+            message.classList.remove('hidden')
+        }
+        delete apiActions[messageid]
+    }
+    updateActionsPanel();
+}
+function undoPendingAction() {
+    if (undoActions.length > 0) {
+        const lastAction = undoActions.pop();
+        if (typeof lastAction === 'string') {
+            const post = document.getElementById(`message-${lastAction}`)
+            if (post)
+                post.classList.remove('hidden')
+            delete apiActions[lastAction];
+        } else {
+            lastAction.map(e => {
+                const post = document.getElementById(`message-${e}`)
+                if (post)
+                    post.classList.remove('hidden')
+                delete apiActions[e];
+            })
+        }
+    }
+    updateActionsPanel();
+}
+function updateActionsPanel() {
+    if (document.getElementById('actionPanel')) {
+        if (Object.keys(apiActions).length > 0) {
+            $('#actionPanel').removeClass('hidden')
+        } else {
+            $('#actionPanel').addClass('hidden')
+        }
+        document.getElementById('pendingActionsIndicator').innerText = Object.keys(apiActions).length
+    }
+    /*if (Object.keys(apiActions).length !== 0) {
+        const keys = Object.values(apiActions).reverse().map((item) => {
+            let results = [`<a class="action-item" href='#_' onclick="cancelPendingAction(${item.messageid}); return false;" role='button')>`]
+            if (item.preview) {
+                results.push(`<div style="background-image: url('${item.preview}');"></div>`)
+            } else {
+                results.push(`<span>${item.messageid}</span>`)
+            }
+            switch (item.action) {
+                case 'RemoveReport':
+                    results.push(`<i style="color: #6bff64;" class="fas fa-flag"></i>`);
+                    break;
+                case 'Report':
+                    results.push(`<i style="color: #ff6464;" class="fas fa-flag"></i>`);
+                    break;
+                case 'MovePost':
+                    if (item.isReviewAction) {
+                        results.push(`<i style="color: #6bff64;" class="fas fa-check"></i>`);
+                    } else {
+                        results.push(`<i style="color: #71cdff;" class="fas fa-paste"></i>`);
+                    }
+                    break;
+                case 'RenamePost':
+                    results.push(`<i style="color: #71CDFFFF;" class="fas fa-pen-alt"></i>`);
+                    break;
+                case 'RotatePost':
+                    results.push(`<i style="color: #71CDFFFF;" class="fas fa-rotate-90"></i>`);
+                    break;
+                case 'RemovePost':
+                case 'ArchivePost':
+                    results.push(`<i style="color: #ff6464;" class="fas fa-trash-alt"></i>`);
+                    break;
+                case 'RequestFile':
+                    results.push(`<i style="color: #6bff64;" class="fas fa-box-open"></i>`);
+                    break;
+                default:
+                    results.push(`<i class="fas fa-question"></i>`);
+                    break;
+            }
+            results.push(`</a>`)
+            return results.join('\n')
+        })
+        if (document.getElementById('actionPanel')) {
+            $('#actionPanel').removeClass('hidden')
+            if (keys.length > 0) {
+                const newMenu = [
+                    '<a class="dropdown-item" onclick="commitPendingActions(); return false;">',
+                        '<i class="fas fa-inbox-out pr-2"></i>',
+                        '<span>Commit</span>',
+                    '</a>',
+                    '<div class="action-container">',
+                        ...keys,
+                    '</div>',
+                    '<a class="dropdown-item" onclick="cancelPendingAction(-1); return false;">',
+                        '<i class="fas fa-trash-alt pr-2"></i>',
+                        '<span>Cancel</span>',
+                    '</a>',
+                ]
+                $('#actionPanel > .dropdown > .dropdown-menu').html($(newMenu.join('\n')))
+                document.getElementById('pendingActionsIndicator').innerText = keys.length
+            } else {
+                $('#actionPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Pending Actions</span>')
+                document.getElementById('pendingActionsIndicator').innerText = "0"
+            }
+        }
+    } else {
+        if (document.getElementById('statusPanel')) {
+            $('#actionPanel').addClass('hidden')
+            $('#actionPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Pending Actions</span>')
+        }
+    }*/
+}
+function sendAction(serverid, channelid, messageid, action, data, confirm) {
+    if (inReviewMode) {
+        queueAction(serverid, channelid, messageid, action, data);
+        document.getElementById(`message-${messageid}`).classList.add('hidden');
+    } else {
+        $.ajax({
+            async: true,
+            type: "post",
+            url: "/actions/v2",
+            data: {
+                'serverid': serverid,
+                'channelid': channelid,
+                'messageid': messageid,
+                'action': action,
+                'data': data
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    console.log(res);
+                    if (confirm) {
+                        $.snack('success', `${res}`, 5000)
+                    }
+                    ;
+                    afterAction(action, data, messageid, confirm);
+                } else {
+                    console.log(res.responseText);
+                    document.getElementById(`message-${messageid}`).classList.remove('hidden')
+                }
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                document.getElementById(`message-${messageid}`).classList.remove('hidden')
+            }
+        });
+    }
     return false;
 }
 function sendBasic(channelid, messageid, action, confirm) {
@@ -1064,58 +2083,50 @@ function sendBasic(channelid, messageid, action, confirm) {
     return false;
 }
 function afterAction(action, data, id, confirm) {
-    console.log('Message Request Sent!')
-    if (action === 'Pin' || action === 'PinUser') {
-        let icon = document.getElementById('fav-' + id)
-        icon.querySelector("#button").classList.add('favorited')
-        icon.setAttribute('onClick', 'return false;');
-    } else if (action === 'Unpin' || action === 'UnpinUser') {
-        let icon = document.getElementById('fav-' + id)
-        icon.querySelector("#button").classList.remove('favorited')
-        icon.setAttribute('onClick', 'return false;');
-    } else if (action === 'MovePost' || action === 'RemovePost' || action === 'ArchivePost') {
-        itemsRemoved++;
-        try {
-            document.getElementById('message-' + id).remove();
-            postsActions = [];
-        } catch (e) {
-            console.log(e);
-        }
-    } else if (action === 'RotatePost') {
-        try {
-            document.getElementById('message-' + id).querySelector('div#postImage').style.transform = 'rotate(' + imageRotate + 'deg)';
-            postsActions = [];
-        } catch (e) {
-            console.log(e);
-        }
-    } else if (action === 'RenamePost') {
-        if (pageType.includes('file')) {
-            if (confirm) {
-                postsActions = [];
-            }
+    const message = document.getElementById(`message-${id}`);
+    if (message || (action === 'Pin' || action === 'Unpin' || action === 'PinUser' || action === 'UnpinUser')) {
+        console.log('Message Request Sent!')
+        if (action === 'Pin' || action === 'Unpin') {
+            [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+                if (action.startsWith('Un')) {
+                    el.classList.remove('favorited')
+                } else {
+                    el.classList.add('favorited')
+                }
+            });
+        } else if (action === 'PinUser' || action === 'UnpinUser') {
+            [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+                if (action.startsWith('Un')) {
+                    el.classList.remove('favorited')
+                } else {
+                    el.classList.add('favorited')
+                }
+            });
+        } else if (action === 'MovePost' || action === 'RemovePost' || action === 'ArchivePost') {
+            itemsRemoved++;
             try {
-                document.getElementById('message-' + id).querySelector('.align-middle').innerText = newFileName;
+                message.remove();
             } catch (e) {
                 console.log(e);
             }
+        } else if (action === 'RotatePost') {
+            try {
+                message.querySelector('div#postImage').style.transform = 'rotate(' + imageRotate + 'deg)';
+            } catch (e) {
+                console.log(e);
+            }
+        } else if (action === 'RenamePost') {
+            document.getElementById(`message-${id}`).setAttribute('data-msg-filename', newFileName);
+            if (pageType.includes('file')) {
+                try {
+                    message.querySelector('.align-middle').innerText = newFileName;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
         }
-    } else if (action === 'Report') {
         if (confirm) {
             postsActions = [];
-            try {
-                document.getElementById('message-' + id).querySelector('.report-link > i').classList.add('reported');
-            } catch (e) {
-                console.log(e);
-            }
-        }
-    } else if (action === 'RemoveReport') {
-        if (confirm) {
-            postsActions = [];
-            try {
-                document.getElementById('message-' + id).querySelector('.report-link > i').classList.remove('reported');
-            } catch (e) {
-                console.log(e);
-            }
         }
     }
     return false;

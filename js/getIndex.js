@@ -20,6 +20,8 @@ module.exports = async (req, res, next) => {
             write_channels: req.session.discord.channels.write,
             discord: req.session.discord,
             user: req.session.user,
+            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+            applications_list: req.session.applications_list,
             device: ua
         };
         next();
@@ -340,7 +342,7 @@ module.exports = async (req, res, next) => {
                         req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
                         pageList: pageList,
                         currentPage: currentPage,
-                        resultsCount: count,
+                        resultsCount: (count > 2048) ? ((count)/1000).toFixed(0) + "K" : count,
                     })
                 } else {
                     res.end();
@@ -435,7 +437,7 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
-                    } else {
+                    } else if (item.attachment_hash && item.attachment_name) {
                         function getimageSizeParam() {
                             if (item.sizeH && item.sizeW && (item.sizeH > 512 || item.sizeW > 512)) {
                                 let ih = 512;
@@ -528,6 +530,8 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     device: ua,
                     folderInfo
                 }
@@ -552,6 +556,8 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     device: ua,
                     folderInfo
                 })
@@ -574,6 +580,8 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     device: ua,
                 }
                 next();

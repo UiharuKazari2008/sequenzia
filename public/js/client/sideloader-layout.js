@@ -86,6 +86,17 @@ function params(_removeParams, _addParams, _url, keep) {
 
 }
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/serviceWorker.js')
+            .then(reg => {
+                console.log('Service Worker: Registered')
+            })
+            .catch(err => console.log(`Service Worker: Error: ${err}`));
+    });
+}
+
 $(document).ready(function () {
     var lazyloadImages;
     if ("IntersectionObserver" in window) {
@@ -125,15 +136,19 @@ $(document).ready(function () {
         if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); }
         scrollManagerThrottleTimeout = setTimeout(function() {
             const topbar = $('#topbar')
+            const menu = $('#userMenu')
             if ($(this).scrollTop() > 50) {
                 $('.scrollBtn').fadeIn();
+            } else {
+                $('.scrollBtn').fadeOut();
+            }
+            if ($(this).scrollTop() > 50 || menu.hasClass('show')) {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
                 $('#topbarBackground').fadeIn();
                 topbar.addClass('shadow');
             } else {
-                $('.scrollBtn').fadeOut();
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
@@ -143,7 +158,7 @@ $(document).ready(function () {
             if (!topbar.hasClass('no-ani')) {
                 topbar.removeClass('ready-to-scroll');
             };
-            if (!sidebar.hasClass("toggled")) {
+            if (sidebar.hasClass("open")) {
                 const sidebarTop = $("#accordionSidebar").offset().top; //gets offset of header
                 const sidebarHeight = $("#accordionSidebar").outerHeight(); //gets height of header
                 if ($(window).scrollTop() > (sidebarTop + sidebarHeight)) {

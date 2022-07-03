@@ -57,6 +57,46 @@ module.exports = (req, res, next) => {
                         }
                     })
                     break;
+                case 'PinHistory':
+                case 'UnpinHistory':
+                    printLine("ActionParser", `Request to Pin History ${req.body.messageid}`, 'info', req.body)
+                    sqlSafe(`UPDATE sequenzia_navigation_history SET saved = ? WHERE \`index\` = ? AND user = ?`, [(req.body.action === 'PinHistory'), req.body.messageid, req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to update history save status for ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.affectedRows && result.affectedRows > 0) {
+                            res.status(200).send(`Favorite Saved`);
+                        } else {
+                            res.status(500).send(`Favorite Failed`);
+                        }
+                    })
+                    break;
+                case 'RemoveHistory':
+                    printLine("ActionParser", `Request to Remove History Item ${req.body.messageid}`, 'info', req.body)
+                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE \`index\` = ? AND user = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to remove history item ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.affectedRows && result.affectedRows > 0) {
+                            res.status(200).send(`Item Deleted`);
+                        } else {
+                            res.status(500).send(`Failed to delete`);
+                        }
+                    })
+                    break;
+                case 'RemoveHistoryAll':
+                    printLine("ActionParser", `Request to dump History`, 'info', req.body)
+                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE user = ? AND saved = 0`, [req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to remove all history: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.affectedRows && result.affectedRows > 0) {
+                            res.status(200).send(`History Deleted`);
+                        } else {
+                            res.status(500).send(`Failed to delete history`);
+                        }
+                    })
+                    break;
                 case 'PinUser':
                 case 'UnpinUser':
                     sqlSafe(`SELECT * FROM sequenzia_artists_favorites WHERE id = ? AND userid = ? LIMIT 1`, [req.body.messageid, req.session.discord.user.id], (err, found) => {

@@ -50,6 +50,27 @@ if ("IntersectionObserver" in window) {
     });
 }
 
+$('#userMenu').on('show.bs.collapse', function () {
+    $('#mainMenuBar').removeClass('top-padding-safety');
+    $('.show-menu-open').removeClass('hidden');
+    $('#topbarBackground').fadeIn();
+    $('#topbar').addClass('shadow').addClass('menu-open');
+    $('body').addClass('menu-open');
+})
+$('#userMenu').on('hidden.bs.collapse', function () {
+    if (!($('#userMenu').hasClass('show'))) {
+        $('.show-menu-open').addClass('hidden');
+        $('#menuItemMain').collapse('show');
+        $('#mainMenuBar').addClass('top-padding-safety');
+        $('#topbar').removeClass('menu-open')
+        if ($('html').scrollTop() <= 50) {
+            $('#topbarBackground').fadeOut();
+            $('#topbar').removeClass('shadow');
+        }
+        $('body').removeClass('menu-open');
+    }
+})
+
 $(function () {
     let start = undefined;
     let end = undefined;

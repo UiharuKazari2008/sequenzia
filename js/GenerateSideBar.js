@@ -1,3 +1,4 @@
+const global = require("../config.json")
 const webconfig = require("../web.config.json")
 const {printLine} = require("./logSystem");
 const { sqlSimple, sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient');
@@ -12,6 +13,7 @@ module.exports = async (req, res, next) => {
                 url: req.url,
                 sidebar: req.session.sidebar,
                 albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                applications_list: req.session.applications_list,
                 server: req.session.server_list,
                 download: req.session.discord.servers.download,
                 manage_channels: req.session.discord.channels.manage,
@@ -25,10 +27,42 @@ module.exports = async (req, res, next) => {
             next();
         }
     } else {
+        req.session.applications_list = [];
+
+        if (global.web_applications) {
+            const perms = [
+                req.session.discord.permissions.read,
+                req.session.discord.permissions.write,
+                req.session.discord.permissions.manage,
+                req.session.discord.permissions.specialPermissions
+            ]
+            req.session.applications_list.push(...Object.keys(global.web_applications).filter(k =>
+                perms.filter(p => global.web_applications[k].read_roles.indexOf(p) === -1).length > 0
+            ).map(k => {
+                const app = global.web_applications[k];
+                if (app.embedded) {
+                    return {
+                        type: 1,
+                        id: k,
+                        icon: app.icon,
+                        name: app.name
+                    }
+                } else {
+                    return {
+                        type: 0,
+                        id: k,
+                        icon: app.icon,
+                        name: app.name,
+                        url: app.url
+                    }
+                }
+            }))
+        }
+
         let SidebarArray = [];
         const sidebarObject = await sqlPromiseSimple(`SELECT * FROM ${req.session.cache.sidebar_view}`)
         const customChannelObject = await sqlPromiseSimple(`SELECT * FROM sequenzia_custom_channels`)
-        const userAlbums = await sqlPromiseSafe('SELECT DISTINCT * FROM sequenzia_albums WHERE owner = ? ORDER BY name ASC', [req.session.discord.user.id])
+        const userAlbums = await sqlPromiseSafe('SELECT x.aid, x.name, x.uri, x.owner, x.privacy, y.* FROM (SELECT x.*, y.eid FROM (SELECT DISTINCT * FROM sequenzia_albums WHERE owner = ? ORDER BY name ASC) AS x LEFT JOIN (SELECT *, ROW_NUMBER() OVER(PARTITION BY aid ORDER BY RAND()) AS RowNo FROM sequenzia_album_items) AS y ON x.aid = y.aid AND y.RowNo=1) x LEFT JOIN (SELECT eid, channel, attachment_hash, attachment_name, cache_proxy FROM kanmi_records) y ON y.eid = x.eid ORDER BY name ASC', [req.session.discord.user.id])
 
         if (sidebarObject && sidebarObject.rows.length > 0) {
             const superClasses = (e => {
@@ -190,13 +224,20 @@ module.exports = async (req, res, next) => {
             req.session.sidebar = SidebarArray;
 
             if (userAlbums && userAlbums.rows.length > 0) {
-                req.session.albums = userAlbums.rows;
+                req.session.albums = userAlbums.rows.map(e => {
+                    let ranImage = ( e.cache_proxy) ? e.cache_proxy.startsWith('http') ? e.cache_proxy : `https://media.discordapp.net/attachments${e.cache_proxy}` : (e.attachment_hash && e.attachment_name) ? `https://media.discordapp.net/attachments/` + ((e.attachment_hash.includes('/')) ? e.attachment_hash : `${e.channel}/${e.attachment_hash}/${e.attachment_name}`) : undefined
+                    return {
+                        ...e,
+                        image: ranImage
+                    }
+                });
             }
             if (req.headers['x-requested-page'] === 'SeqSidebar') {
                 res.render('sidebar', {
                     url: req.url,
                     sidebar: req.session.sidebar,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     server: req.session.server_list,
                     download: req.session.discord.servers.download,
                     manage_channels: req.session.discord.channels.manage,

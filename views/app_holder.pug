@@ -1,0 +1,33 @@
+extends layout
+
+block content
+    if (user && user.banner)
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('#{user.banner}');
+            }
+
+            .background-image.overlay {
+                background-image: linear-gradient(104deg, #000000, #ffffff00);
+                z-index: -99;
+                opacity: 0.7;
+            }
+    else
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpg');
+            }
+
+            .background-image.overlay {
+                background-image: linear-gradient(104deg, #000000, #ffffff00);
+                z-index: -99;
+                opacity: 0.7;
+            }
+
+    script.
+        SEQ_APP_URL = `#{appUrl}`
+        getNewContent([],[],SEQ_APP_URL)
+    div#appStatic
+    div#appContainer
+        h2 Waiting for Application...
+    div#appStaticPost

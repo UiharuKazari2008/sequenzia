@@ -1,22 +1,58 @@
 const global = require('../config.json');
-const config = require('../host.config.json');
-const web = require('../web.config.json');
+let config = require('../host.config.json');
+
+if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+    config.system_name = process.env.SYSTEM_NAME.trim()
+
+let web = require('../web.config.json');
 const { printLine } = require("./logSystem");
-const { sqlSimple, sqlSafe, sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
+const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
 const getUrls = require('get-urls');
 const moment = require('moment');
 const useragent = require('express-useragent');
-const fs = require("fs");
-const path = require("path");
+const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
+const app = require("../app");
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
+
 
 module.exports = async (req, res, next) => {
+    let debugTimes = {};
     const source = req.headers['user-agent']
     const ua = (source) ? useragent.parse(source) : undefined
     const page_uri = `/${req.originalUrl.split('/')[1].split('?')[0]}`
     let android_uri = [`server_hostname=${req.headers.host}`]
     let search_prev = ''
+
+    async function writeHistory(title) {
+        function params(_removeParams, _addParams, _url, searchOnly) {
+            let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
+            _removeParams.forEach(param => {
+                if (_params.has(param)) {
+                    _params.delete(param);
+                }
+            })
+            _addParams.forEach(param => {
+                if (_params.has(param[0])) {
+                    _params.delete(param[0]);
+                }
+                _params.append(param[0], param[1]);
+            })
+            return req.originalUrl.split('?')[0] + `?${_params.toString()}`
+
+        }
+
+        const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
+        await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
+            index: `${req.session.discord.user.id}-${md5(cleanURL)}`,
+            uri: cleanURL,
+            title: title,
+            user: req.session.discord.user.id
+        })
+        await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [req.session.discord.user.id, 50, req.session.discord.user.id])
+    }
 
     console.log(req.query);
 
@@ -67,8 +103,10 @@ module.exports = async (req, res, next) => {
             _dn = 'PageResults'
         }
 
+        debugTimes.build_query = new Date();
         // Main Query
         let baseQ = ''
+        let addSearchTerm = [];
         if (req.query.channel && req.query.channel === 'random') {
             multiChannel = true;
         } else if (req.query.vchannel) {
@@ -118,6 +156,10 @@ module.exports = async (req, res, next) => {
                 if (c.length > 0) {
                     // If server is name is present
                     let _os = 0;
+                    if (!isNaN(parseInt(c[c.length - 1]))) {
+                        const __id = c.pop()
+                        addSearchTerm.push(`eid:${__id}`);
+                    }
                     if (c.length === 3) {
                         if (c.length >= 1 && c[0] !== "*") {
                             fsv = c[0];
@@ -224,24 +266,6 @@ module.exports = async (req, res, next) => {
         } else if (typeof req.session.pageinatorEnable === 'undefined') {
             req.session.pageinatorEnable = true;
         }
-        if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
-            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ' ) AND '
-        }
-        let channelFilter = `${baseQ}`
-        if (req.query.album) {
-            enablePrelimit = false;
-            sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
-            android_uri.push(`album=${req.query.album}`);
-            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true)) {
-            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-            android_uri.push('nsfw=true');
-        } else if (req.query.nsfw && req.query.nsfw === 'only') {
-            channelFilter += `( channel_nsfw = 1 )`;
-            android_uri.push('nsfw=only');
-        } else {
-            channelFilter += `( channel_nsfw = 0 )`;
-        }
 
         // Pinned
         let pinsUser = `${req.session.discord.user.id}`
@@ -263,10 +287,12 @@ module.exports = async (req, res, next) => {
 
         // History
         if (req.query && req.query.history && req.query.history === 'only') {
+            hideChannels = false;
             sqlHistoryJoin = 'INNER JOIN'
             android_uri.push('history=only');
             enablePrelimit = false;
         } else if (req.query && req.query.history && req.query.history === 'none') {
+            hideChannels = false;
             sqlHistoryJoin = 'LEFT OUTER JOIN'
             sqlHistoryWherePost = ' WHERE history_date IS NULL'
             android_uri.push('history=none');
@@ -281,7 +307,7 @@ module.exports = async (req, res, next) => {
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
             sqlorder = [`date`, 'DESC']
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             if (!req.query.displaySlave) {
                 sqlorder.push(`RAND()`)
             } else {
@@ -386,6 +412,17 @@ module.exports = async (req, res, next) => {
                 } else {
                     return `kanmi_records.content_full LIKE '%${_id}%'`
                 }
+            } else if (i.startsWith('!text:')) {
+                _id = i.split('!text:')[1];
+                if (_id.startsWith('st:')) {
+                    _id = _id.split('st:')[1]
+                    return `kanmi_records.content_full NOT LIKE '${_id}%'`
+                } else if (_id.startsWith('ed:')) {
+                    _id = _id.split('ed:')[1]
+                    return `kanmi_records.content_full NOT LIKE '%${_id}'`
+                } else {
+                    return `kanmi_records.content_full NOT LIKE '%${_id}%'`
+                }
             } else if (i.startsWith('name:')) {
                 _id = i.split('name:')[1];
                 if (_id.startsWith('st:')) {
@@ -414,8 +451,14 @@ module.exports = async (req, res, next) => {
                 return _sh.join(' OR ')
             }
         }
+        if (addSearchTerm.length > 0) {
+            sqlquery.push('( ' + addSearchTerm.map(e => '( ' + getType(e) + ' )').join(' AND ') + ' )')
+        }
         if ( req.query.search !== undefined && req.query.search !== '' ) {
             let search = '';
+            hideChannels = false;
+            if (addSearchTerm.length > 0)
+                sqlquery.push(' AND ')
             if ( req.query.search.includes(' AND ') ) {
                 sqlquery.push('( ' + getAND(req.query.search).map(a => '( ' + getOR(a).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
             } else if ( req.query.search.includes(' OR ') ) {
@@ -456,7 +499,7 @@ module.exports = async (req, res, next) => {
                 sqlquery.push(`date >= NOW() - INTERVAL ${numOfDays} DAY`);
                 android_uri.push(`numdays=${numOfDays}`);
             }
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start') {
+        } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start') {
             sqlquery.push(`date >= NOW() - INTERVAL 360 DAY`);
             android_uri.push(`numdays=360`);
         }
@@ -663,7 +706,7 @@ module.exports = async (req, res, next) => {
             } else {
                 limit = 100;
             }
-        } else if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient'))) {
+        } else if (!(page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient'))) {
             if ( req.session.current_limit ) {
                 limit = req.session.current_limit;
             } else if (page_uri === '/files') {
@@ -674,10 +717,28 @@ module.exports = async (req, res, next) => {
         }
         const sqllimit = limit + 1;
         // Offset
-        if (!(page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
+        if (!(page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
         // Where Exec
+        if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
+            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ' ) AND '
+        }
+        let channelFilter = `${baseQ}`
+        if (req.query.album) {
+            enablePrelimit = false;
+            sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
+            android_uri.push(`album=${req.query.album}`);
+            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
+        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true)) {
+            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
+            android_uri.push('nsfw=true');
+        } else if (req.query.nsfw && req.query.nsfw === 'only') {
+            channelFilter += `( channel_nsfw = 1 )`;
+            android_uri.push('nsfw=only');
+        } else {
+            channelFilter += `( channel_nsfw = 0 )`;
+        }
         if (page_uri === '/gallery') {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
@@ -709,7 +770,7 @@ module.exports = async (req, res, next) => {
                     "attachment_name = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
@@ -787,9 +848,8 @@ module.exports = async (req, res, next) => {
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
-        const selectUsers = `SELECT DISTINCT id AS user_id, username AS user_name, nice_name AS user_nicename, avatar AS user_avatar FROM discord_users`;
 
-        let sqlCall = `SELECT * FROM (SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}) results LEFT OUTER JOIN (${selectUsers}) users ON ( results.user = users.user_id )`
+        let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
@@ -797,12 +857,16 @@ module.exports = async (req, res, next) => {
             sqlCall += ` ORDER BY ${sqlorder}`
         }
 
+        debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
         let countOfEverything, sumOfEVerything
         if (page_uri === '/start') {
+            debugTimes.sql_query = new Date();
             const totalCountsResults = await sqlPromiseSimple(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE (attachment_hash IS NOT NULL OR fileid IS NOT NULL)`)
             const imageResults = await sqlPromiseSimple(`${sqlCall} LIMIT ${sqllimit}`)
+            debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
 
+            debugTimes.post_proccessing = new Date();
             if (totalCountsResults && totalCountsResults.rows.length > 0) {
                 countOfEverything = totalCountsResults.rows[0].total_count;
                 sumOfEVerything = totalCountsResults.rows[0].total_data;
@@ -839,7 +903,7 @@ module.exports = async (req, res, next) => {
                     }
 
                     // Image Date
-                    const _messageDate = moment(Date.parse(image.date)).add(5, 'h')
+                    const _messageDate = moment(Date.parse(image.date))
                     let messageDate = `${_messageDate.format('MMMM')} ${parseInt(_messageDate.format('DD'))}, ${_messageDate.format('YYYY')}`
 
                     // If Image is Favorited
@@ -896,6 +960,9 @@ module.exports = async (req, res, next) => {
                     printLine('GetData', `Returning ${images.length} Random Images`, 'debug')
                 }
 
+                debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
+                console.log(debugTimes);
+                res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
@@ -909,11 +976,16 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     call_uri: page_uri,
                     device: ua,
                 }
                 next();
             } else {
+                debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
+                console.log(debugTimes);
+                res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
@@ -925,14 +997,19 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     device: ua,
                     call_uri: page_uri,
                 }
                 next();
             }
-        } else if (page_uri === '/' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
+        } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
+            debugTimes.sql_query = new Date();
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
             const imageResults = await sqlPromiseSimple(ambientSQL)
+            debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
+            debugTimes.post_proccessing = new Date();
             if (imageResults && imageResults.rows.length > 0) {
                 const randomImage = imageResults.rows.splice(0, limit)
                 let images = [];
@@ -966,7 +1043,7 @@ module.exports = async (req, res, next) => {
                         })
                     }
                     // Image Date
-                    const _messageDate = moment(Date.parse(image.date)).add(5, 'h')
+                    const _messageDate = moment(Date.parse(image.date))
                     let messageDate = `${_messageDate.format('MMMM')} ${parseInt(_messageDate.format('DD'))}, ${_messageDate.format('YYYY')}`
 
                     // If Image is Favorited
@@ -1013,7 +1090,7 @@ module.exports = async (req, res, next) => {
                             console.error(err);
                             return null;
                         })*/
-                    images.push([ranImage, ranfullImage, contentText, messageDate, [ image.class_name, `${channelName}`, `${image.server_short_name}` ], image.id.substring(0,7), imagelink, imageFav, image.id, ranfullImagePerma, [ image.sizeH ,image.sizeW ,image.sizeR ], [ image.colorR, image.colorG, image.colorB ]]);
+                    images.push([ranImage, ranfullImage, contentText, messageDate, [ image.class_name, `${channelName}`, `${image.server_short_name}` ], image.id.substring(0,7), imagelink, imageFav, image.eid, ranfullImagePerma, [ image.sizeH ,image.sizeW ,image.sizeR ], [ image.colorR, image.colorG, image.colorB ]]);
                     imagesArray.push({
                         id: image.id,
                         eid: image.eid,
@@ -1048,17 +1125,10 @@ module.exports = async (req, res, next) => {
                 }
 
                 if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh')  && req.query.displayname) {
-                    sqlSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname], (err, displayConfig) => {
-                        if (err) {
-                            res.json({
-                                randomImage: images,
-                                randomImagev2: imagesArray,
-                                user_id: req.session.user.id,
-                                user_image: req.session.user.avatar,
-                                user_username: req.session.user.username
-                            })
-                        } else if (displayConfig.length > 0) {
-                            const _configuration = Object.assign({}, displayConfig.pop())
+                    try {
+                        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname])
+                        if (displayConfig && displayConfig.rows.length > 0) {
+                            const _configuration = Object.assign({}, displayConfig.rows.pop())
                             res.json({
                                 randomImage: images,
                                 randomImagev2: imagesArray,
@@ -1076,7 +1146,17 @@ module.exports = async (req, res, next) => {
                                 user_username: req.session.user.username
                             })
                         }
-                    })
+                    } catch (err) {
+                        console.error(`Failed to get display config due to error`)
+                        console.error(err)
+                        res.json({
+                            randomImage: images,
+                            randomImagev2: imagesArray,
+                            user_id: req.session.user.id,
+                            user_image: req.session.user.avatar,
+                            user_username: req.session.user.username
+                        })
+                    }
                 } else if (page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh')  {
                     res.json({
                         randomImage: images,
@@ -1102,6 +1182,8 @@ module.exports = async (req, res, next) => {
                         write_channels: req.session.discord.channels.write,
                         discord: req.session.discord,
                         user: req.session.user,
+                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                        applications_list: req.session.applications_list,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1118,12 +1200,16 @@ module.exports = async (req, res, next) => {
                         write_channels: req.session.discord.channels.write,
                         discord: req.session.discord,
                         user: req.session.user,
+                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                        applications_list: req.session.applications_list,
                         device: ua,
                         call_uri: page_uri,
                     }
                     next();
                 }
+                debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
 
+                debugTimes.history_write = new Date();
                 let screenID = 0;
                 if (req.query.setscreen) {
                     switch (req.query.setscreen) {
@@ -1174,21 +1260,23 @@ module.exports = async (req, res, next) => {
                             } else if (!(page_uri.includes('ambient') || page_uri.includes('ads')) && limit >= deleteCount) {
                                 deleteCount = limit
                             }
-                            sqlSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, deleteCount, req.session.discord.user.id, _dn], (err, completed) => {
-                                if (err) {
-                                    printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
-                                }
-                            })
+                            try {
+                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, deleteCount, req.session.discord.user.id, _dn])
+                            } catch (err) {
+                                printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
+                            }
                         } else if (req.query && req.query.history && req.query.history === 'none' && randomImage.length < limit) {
                             printLine('GetData', `Truncating Display History for "${_dn}"`, 'info')
-                            sqlSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, 50, req.session.discord.user.id, _dn], (err, completed) => {
-                                if (err) {
-                                    printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
-                                }
-                            })
+                            try {
+                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, 50, req.session.discord.user.id, _dn])
+                            } catch (err) {
+                                printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
+                            }
                         }
                     }
                 }
+                debugTimes.history_write = (new Date() - debugTimes.history_write) / 1000;
+                console.log(debugTimes);
             } else {
                 res.locals.response = {
                     url: req.url,
@@ -1201,6 +1289,8 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1229,8 +1319,14 @@ module.exports = async (req, res, next) => {
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 }
-                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`)
+                debugTimes.sql_query_1 = new Date();
+                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`);
+                debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
+                debugTimes.sql_query_2 = new Date();
+                const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
+                debugTimes.sql_query_2 = (new Date() - debugTimes.sql_query_2) / 1000;
 
+                debugTimes.post_proccessing = new Date();
                 if (countResults && countResults.rows.length > 0) {
                     let pages = [];
                     let currentPage = undefined;
@@ -1275,12 +1371,17 @@ module.exports = async (req, res, next) => {
                     } catch (e) {
                         pageList = undefined
                     }
+                    debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
+                    debugTimes.render = new Date();
                     res.render('pageinator', {
                         req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
                         pageList: pageList,
                         currentPage: currentPage,
-                        resultsCount: count,
+                        resultsCount: (count >= 2048) ? ((count)/1000).toFixed(0) + "K" : count,
+                        history: history_urls.rows
                     })
+                    debugTimes.render = (new Date() - debugTimes.render) / 1000;
+                    console.log(debugTimes);
                 } else {
                     res.end();
                 }
@@ -1288,7 +1389,13 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
+            debugTimes.sql_query = new Date();
+            console.log(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
             const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
+            debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
+            const users = app.get('users').rows
+            const user_index = users.map(e => e.id)
+
             if (messageResults && messageResults.rows.length > 0) {
                 ((messages) => {
                     let page_title
@@ -1308,6 +1415,7 @@ module.exports = async (req, res, next) => {
                     let folderInfo;
                     let channelid = []
 
+                    debugTimes.post_proccessing = new Date();
                     if (req.query.title && req.query.title !== '') {
                         page_title = ''
                         full_title = ''
@@ -1480,6 +1588,15 @@ module.exports = async (req, res, next) => {
                                     }
                                     user_search = decoded_content.split(' (')[1].split(') - ')[0]
                                     content_urls = Array.from(getUrls(clean_content));
+                                    if (content_urls.length === 0) {
+                                        const user = clean_content.split(' : ')[0].split(') - ').pop()
+                                        const id = clean_content.split('[').pop().split(']')[0]
+                                        content_urls = []
+                                        if (!isNaN(parseInt(id)))
+                                            content_urls.push(`https://www.pixiv.net/en/artworks/${id}`)
+                                        if (!isNaN(parseInt(user)))
+                                            content_urls.push(`https://www.pixiv.net/en/users/${user}`)
+                                    }
                                 } else if (decoded_content.includes('://')) {
                                     content_urls = Array.from(getUrls(clean_content));
                                     if (decoded_content.includes(' by ')) {
@@ -1556,6 +1673,19 @@ module.exports = async (req, res, next) => {
                                         }
                                     }
                                 }
+                                let post_user = (() => {
+                                    const _u = (user_index.indexOf(item.user) !== -1) ? users[user_index.indexOf(item.user)] : false
+                                    if (_u) {
+                                        return {
+                                            id: item.user,
+                                            name: (_u.nice_name) ? _u.nice_name: _u.username,
+                                            avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                        }
+                                    }
+                                    return {
+                                        id: item.user
+                                    }
+                                })()
 
                                 if (item.attachment_extra !== null) {
                                     // Unpack data here
@@ -1567,7 +1697,7 @@ module.exports = async (req, res, next) => {
                                             if (imageurl === undefined) {
                                                 imageurl = attachment[1]
                                             }
-                                            const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                            const _date = moment(Date.parse(item.date))
                                             resultsArray.push({
                                                 id: item.id,
                                                 eid: item.eid,
@@ -1596,7 +1726,7 @@ module.exports = async (req, res, next) => {
                                                 },
                                                 flagged: (item.flagged === 1),
                                                 content: {
-                                                    raw: decoded_content,
+                                                    raw: item.content_full,
                                                     clean: clean_content,
                                                     short: clean_content.substr(0,70),
                                                     single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -1612,18 +1742,15 @@ module.exports = async (req, res, next) => {
                                                     vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                                     vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                                     name: channelName,
+                                                    icon: item.class_icon,
                                                     class_name: item.class_name,
                                                     class: item.classification
                                                 },
-                                                user: {
-                                                    id: item.user,
-                                                    name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                                    avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
-                                                },
+                                                user: post_user,
                                                 server: {
                                                     id: item.server,
                                                     name: item.server_short_name.toUpperCase(),
-                                                    icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                                    icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                                 }
                                             })
                                             imagesArray.push(imageurl);
@@ -1653,7 +1780,7 @@ module.exports = async (req, res, next) => {
                                         fullimage = (fullimage) ? fullimage : `${web.base_url}stream/${item.fileid}/${item.real_filename}`
                                     }
                                     if (item.fileid) {
-                                        downloadimage = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
+                                        downloadimage = `${web.base_url}stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
@@ -1692,7 +1819,7 @@ module.exports = async (req, res, next) => {
                                             messageAction: 'CacheColor',
                                         }, function (ok) { })
                                     }
-                                    const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                    const _date = moment(Date.parse(item.date))
                                     resultsArray.push({
                                         id: item.id,
                                         eid: item.eid,
@@ -1726,7 +1853,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         content: {
-                                            raw: decoded_content,
+                                            raw: item.content_full,
                                             clean: clean_content,
                                             short: clean_content.substr(0,70),
                                             single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -1744,18 +1871,15 @@ module.exports = async (req, res, next) => {
                                             vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                             vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                             name: channelName,
+                                            icon: item.class_icon,
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
-                                        user: {
-                                            id: item.user,
-                                            name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
-                                        },
+                                        user: post_user,
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -1807,7 +1931,20 @@ module.exports = async (req, res, next) => {
                                         }
                                     })
                                 }
-                                const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                const _date = moment(Date.parse(item.date))
+                                let post_user = (() => {
+                                    const _u = (user_index.indexOf(item.user) !== -1) ? users[user_index.indexOf(item.user)] : false
+                                    if (_u) {
+                                        return {
+                                            id: item.user,
+                                            name: (_u.nice_name) ? _u.nice_name: _u.username,
+                                            avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                        }
+                                    }
+                                    return {
+                                        id: item.user
+                                    }
+                                })()
 
                                 let _message_type
                                 let _message_extra
@@ -1924,7 +2061,7 @@ module.exports = async (req, res, next) => {
                                     // Unpack data here
                                     const extractedItems = JSON.parse(item.attachment_extra)
                                     extractedItems.reverse().forEach(function (attachment) {
-                                        const _date = moment(Date.parse(item.date)).add(5, 'h')
+                                        const _date = moment(Date.parse(item.date))
                                         resultsArray.push({
                                             id: item.id,
                                             eid: item.eid,
@@ -1953,7 +2090,7 @@ module.exports = async (req, res, next) => {
                                             },
                                             flagged: (item.flagged === 1),
                                             content: {
-                                                raw: decoded_content,
+                                                raw: item.content_full,
                                                 clean: clean_content,
                                                 short: clean_content.substr(0,70),
                                                 single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -1970,18 +2107,15 @@ module.exports = async (req, res, next) => {
                                                 vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                                 vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                                 name: channelName,
+                                                icon: item.class_icon,
                                                 class_name: item.class_name,
                                                 class: item.classification
                                             },
-                                            user: {
-                                                id: item.user,
-                                                name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                                avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
-                                            },
+                                            user: post_user,
                                             server: {
                                                 id: item.server,
                                                 name: item.server_short_name.toUpperCase(),
-                                                icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                                icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                             }
                                         })
                                     })
@@ -2025,7 +2159,7 @@ module.exports = async (req, res, next) => {
                                     }
                                     let inprogress = false
                                     if (item.fileid !== null) {
-                                        downloadurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
+                                        downloadurl = `${web.base_url}stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
@@ -2059,7 +2193,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         content: {
-                                            raw: decoded_content,
+                                            raw: item.content_full,
                                             clean: clean_content,
                                             short: clean_content.substr(0,70),
                                             single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -2078,18 +2212,15 @@ module.exports = async (req, res, next) => {
                                             vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                             vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                             name: channelName,
+                                            icon: item.class_icon,
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
-                                        user: {
-                                            id: item.user,
-                                            name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
-                                        },
+                                        user: post_user,
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -2103,7 +2234,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
                                     }
                                     if (item.fileid !== null) {
-                                        fullurl = `${web.base_url}stream/${item.fileid}/${item.real_filename}`
+                                        fullurl = `${web.base_url}stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
@@ -2137,7 +2268,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         content: {
-                                            raw: decoded_content,
+                                            raw: item.content_full,
                                             clean: clean_content,
                                             short: clean_content.substr(0,70),
                                             single: clean_content.split('\n')[0].substr(0,70) + ((clean_content.split('\n')[0].length > 75) ? '...' : '')
@@ -2156,18 +2287,15 @@ module.exports = async (req, res, next) => {
                                             vid: (item.virtual_channel_eid) ? item.virtual_channel_eid : undefined,
                                             vname: (item.virtual_channel_name) ? item.virtual_channel_name : undefined,
                                             name: channelName,
+                                            icon: item.class_icon,
                                             class_name: item.class_name,
                                             class: item.classification
                                         },
-                                        user: {
-                                            id: item.user,
-                                            name: (item.user_nicename) ? item.user_nicename: item.user_name,
-                                            avatar: (item.user_avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${item.user_avatar}.png` : null,
-                                        },
+                                        user: post_user,
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png`
+                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -2177,6 +2305,7 @@ module.exports = async (req, res, next) => {
                         })
                     }
                     if (resultsArray.length > 0) {
+                        writeHistory((full_title) ? full_title : page_title)
                         let prevurl = 'NA'
                         let nexturl = 'NA'
                         if (offset >= limit) {
@@ -2192,6 +2321,7 @@ module.exports = async (req, res, next) => {
 
                         let _req_uri = req.protocol + '://' + req.get('host') + req.originalUrl;
 
+                        debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
                         res.locals.response = {
                             title: page_title,
                             full_title: full_title,
@@ -2220,6 +2350,8 @@ module.exports = async (req, res, next) => {
                             write_channels: req.session.discord.channels.write,
                             discord: req.session.discord,
                             user: req.session.user,
+                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                            applications_list: req.session.applications_list,
                             device: ua,
                             folderInfo
                         }
@@ -2245,6 +2377,8 @@ module.exports = async (req, res, next) => {
                             username: req.session.discord.user.username,
                             folderInfo
                         })
+                        console.log(debugTimes);
+                        res.locals.debugTimes = debugTimes;
                         next();
                     } else {
                         printLine('GetImages', `No Results were returned`, 'warn');
@@ -2265,6 +2399,8 @@ module.exports = async (req, res, next) => {
                             write_channels: req.session.discord.channels.write,
                             discord: req.session.discord,
                             user: req.session.user,
+                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                            applications_list: req.session.applications_list,
                             device: ua,
                         }
                         next();
@@ -2283,6 +2419,8 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    applications_list: req.session.applications_list,
                     device: ua,
                 }
                 next();
