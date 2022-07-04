@@ -847,7 +847,33 @@ async function startDownloadingFiles() {
 
 async function openUnpackingFiles(fileid, playThis) {
     if (fileid) {
-        if (downloadSpannedController.size === 0 && !activeSpannedJob) {
+        if (document.getElementById('fileData-' + fileid)) {
+            const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
+            $.toast({
+                type: 'success',
+                title: 'Unpack File',
+                subtitle: 'Now',
+                content: `File is already cached`,
+                delay: 5000,
+            });
+            if (playThis) {
+                console.log(`Launching File...`)
+                if (element) {
+                    if (playThis === 'audio') {
+                        PlayTrack(element.href);
+                    } else if (playThis === 'video') {
+                        PlayVideo(element.href);
+                    } else {
+                        console.error('No Datatype was provided')
+                    }
+                } else {
+                    console.error('Data lost!')
+                }
+            } else {
+                element.click();
+                element.remove();
+            }
+        } else if (downloadSpannedController.size === 0 && !activeSpannedJob) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
                 pending: true,
