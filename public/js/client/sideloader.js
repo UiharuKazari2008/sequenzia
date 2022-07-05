@@ -949,10 +949,10 @@ async function stopUnpackingFiles(fileid) {
             downloadSpannedController.delete(fileid)
         } else {
             activeSpannedJob.abort.abort();
-            activeSpannedJob = false;
+            activeSpannedJob = null;
             _controller.abort.abort();
             _controller.ready = false;
-            downloadSpannedController.delete(fileid)
+            downloadSpannedController.delete(fileid);
         }
     }
 }
@@ -1087,6 +1087,7 @@ async function unpackFile() {
                         job(false);
                     }
                     activeSpannedJob.blobs = [];
+                    activeSpannedJob = false;
                 },
                 error: function (xhr) {
                     $.toast({
