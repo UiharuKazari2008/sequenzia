@@ -745,7 +745,11 @@ module.exports = async (req, res, next) => {
                 channelFilter,
                 `(${[
                     '(' + [
-                        "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                        '(' + [
+                            "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                            "cache_proxy LIKE '%-t9-preview-video.gif'",
+                            "cache_proxy LIKE '%-t9-preview-video.gifv'"
+                        ].join(' OR ') + ')',
                         '(' + [
                             "real_filename LIKE '%.mp4'",
                             "real_filename LIKE '%.mov'",
@@ -754,7 +758,11 @@ module.exports = async (req, res, next) => {
                         "attachment_extra IS NULL"
                     ].join(' AND ') + ')',
                     '(' + [
-                        "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                        '(' + [
+                            "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                            "cache_proxy LIKE '%-t9-preview-video.gif'",
+                            "cache_proxy LIKE '%-t9-preview-video.gifv'"
+                        ].join(' OR ') + ')',
                         '(' + [
                             "attachment_name LIKE '%.mp4'",
                             "attachment_name LIKE '%.mov'",

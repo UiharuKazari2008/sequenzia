@@ -1210,6 +1210,7 @@ async function showSearchOptions(post) {
     const modalCompile = document.getElementById(`infoCompile`);
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
+    const modalRepair = document.getElementById(`infoRepair`);
 
     let normalInfo = [];
     let advancedInfo = [];
@@ -1323,6 +1324,12 @@ async function showSearchOptions(post) {
             postsActions = [];
             selectPostToMode(postID, false);
             selectedActionMenu("RemoveReport");
+        }
+        modalRepair.classList.remove('hidden');
+        modalRepair.onclick = function() {
+            postsActions = [];
+            selectPostToMode(postID, false);
+            selectedActionMenu("Thumbnail");
         }
 
         modalMove.classList.remove('hidden');
