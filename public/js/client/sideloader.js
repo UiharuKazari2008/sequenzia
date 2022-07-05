@@ -757,8 +757,8 @@ function downloadSelectedItems() {
             fileids: [],
             about: new AbortController()
         };
-        downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
-        downloadAllController.fileids = postsActions.map(e => document.getElementById(`message-${e.messageid}`).getAttribute('data-msg-fileid'))
+        downloadAllController.urls = postsActions.filter(e => document.getElementById(`request-download-${e.messageid}`) && document.getElementById(`request-download-${e.messageid}`).href).map(e => document.getElementById(`request-download-${e.messageid}`).href)
+        downloadAllController.fileids = postsActions.filter(e => document.getElementById(`message-${e.messageid}`) && document.getElementById(`message-${e.messageid}`).hasAttribute('data-msg-fileid')).map(e => document.getElementById(`message-${e.messageid}`).getAttribute('data-msg-fileid'))
         document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length + downloadAllController.fileids.length} items!`
         $('#downloadAll').modal('show');
     } catch (e) {
