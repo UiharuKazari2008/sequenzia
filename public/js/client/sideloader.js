@@ -2162,7 +2162,7 @@ function afterAction(action, data, id, confirm) {
                 }
             }
         } else if (action === 'EditTextPost') {
-            document.getElementById(`message-${id}`).setAttribute('data-msg-bodyraw', newContents);
+            document.getElementById(`message-${id}`).setAttribute('data-msg-bodyraw', newContents.split('\n').join('<br/>'));
         }
         if (confirm) {
             postsActions = [];
