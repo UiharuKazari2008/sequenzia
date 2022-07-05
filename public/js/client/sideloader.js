@@ -777,7 +777,7 @@ function downloadAllItems() {
         $('a[id^=request-download]').each(function () {
             downloadAllController.urls.push($(this).attr('href'));
         });
-        $('div[data-msg-fileid]').each(function () {
+        $('div[data-msg-fileid], tr[data-msg-fileid]').each(function () {
             downloadAllController.fileids.push($(this).getAttribute('data-msg-fileid'));
         });
         document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length + downloadAllController.fileids.length} items!`
