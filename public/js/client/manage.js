@@ -5,6 +5,8 @@ let actionSelection = '';
 let imageRotate = '';
 let newFileName = '';
 let oldFileName = '';
+let newContents = '';
+let oldContents = '';
 
 // File Name Update
 function updateFileName(obj) {
@@ -13,6 +15,16 @@ function updateFileName(obj) {
         singlePostBtn.classList.remove("disabled");
     } else {
         newFileName = '';
+        singlePostBtn.classList.add("disabled");
+    }
+}
+// Contents Update
+function updateTextContents(obj) {
+    newContents = obj.value;
+    if (newContents.length <= 2000 && newContents !== oldContents ) {
+        singlePostBtn.classList.remove("disabled");
+    } else {
+        newContents = '';
         singlePostBtn.classList.add("disabled");
     }
 }
@@ -44,7 +56,7 @@ function proccessPost(alt) {
                 }
             } else {
                 let data = undefined
-                if (actionSelection === 'RenamePost') { data = newFileName  } else if (actionSelection === 'RotatePost') { data = imageRotate } else if (actionSelection === 'MovePost') { data = postsDestination } else { data = null }
+                if (actionSelection === 'RenamePost') { data = newFileName  } else if (actionSelection === 'EditTextPost') { data = newContents  } else if (actionSelection === 'RotatePost') { data = imageRotate } else if (actionSelection === 'MovePost') { data = postsDestination } else { data = null }
                 if (a.length !== 1 && i + 1 !== a.length) {
                     queueAction(post.serverid, post.channelid, post.messageid, (alt) ? alt : actionSelection, data)
                 } else {
@@ -114,6 +126,10 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#sectionMovePost").classList.remove("hidden")
             actionModel.querySelector("#sectionMovePostRecents").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-cut')
+        } else if (actionSelection === 'EditTextPost') {
+            actionModel.querySelector("#ActionName").innerText = 'Edit Contents'
+            actionModel.querySelector("#postID").innerText = `Edit ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
+            actionModel.querySelector("#sectionEditPost").classList.remove("hidden")
         } else if (actionSelection === 'ArchivePost') {
             countdownTimer = 2;
             actionModel.querySelector("#ActionName").innerText = 'Archive'
@@ -157,7 +173,7 @@ function selectedActionMenu(action) {
         actionModel.querySelector('#selectedMenu').classList.add('d-none');
         actionModel.querySelector('#selectedAction').classList.remove('d-none');
 
-        if (actionSelection !== 'MovePost' && actionSelection !== 'RenamePost' && actionSelection !== 'RotatePost') {
+        if (actionSelection !== 'MovePost' && actionSelection !== 'RenamePost' && actionSelection !== 'EditTextPost' && actionSelection !== 'RotatePost') {
             try {
                 if ((imageRotate === '' && actionSelection === 'RotatePost') || actionSelection !== 'RotatePost') {
                     actionModel.querySelector("#postButton").classList.add("disabled");
@@ -780,6 +796,7 @@ function clearactionModel() {
     actionModel.querySelector("#CountDownTimer").innerText = "";
     actionModel.querySelector("#ActionName").innerText = "";
     actionModel.querySelector("#postImage").style.transform = 'rotate(0deg)';
+    actionModel.querySelector("#sectionEditPost").classList.add("hidden");
     actionModel.querySelector("#sectionMovePost").classList.add("hidden");
     actionModel.querySelector("#sectionMovePostRecents").classList.add("hidden");
     actionModel.querySelector("#sectionRotatePost").classList.add("hidden");

@@ -948,10 +948,11 @@ async function stopUnpackingFiles(fileid) {
             _controller.ready = false;
             downloadSpannedController.delete(fileid)
         } else {
-            activeSpannedJob = false;
-            _controller.ready = false;
             activeSpannedJob.abort.abort();
+            activeSpannedJob = false;
             _controller.abort.abort();
+            _controller.ready = false;
+            downloadSpannedController.delete(fileid)
         }
     }
 }
@@ -1124,7 +1125,7 @@ async function updateNotficationsPanel() {
                 results.push(`</a>`)
                 return results.join('\n')
             } else {
-                return ''
+                return `<span>${e}</span>`
             }
         })
         if (document.getElementById('statusPanel')) {
@@ -1199,6 +1200,7 @@ async function showSearchOptions(post) {
     const modalMove = document.getElementById(`infoMove`);
     const modalDelete = document.getElementById(`infoDelete`);
     const modalRename = document.getElementById(`infoRename`);
+    const modalEditText = document.getElementById(`infoEditText`);
     const modalCompile = document.getElementById(`infoCompile`);
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
@@ -1326,6 +1328,13 @@ async function showSearchOptions(post) {
             selectedActionMenu("ArchivePost");
         }
 
+        modalEditText.classList.remove('hidden');
+        modalEditText.onclick = function() {
+            postsActions = [];
+            selectPostToMode(postID, false);
+            selectedActionMenu("EditTextPost");
+        }
+
         if (pageType.includes('gallery')) {
             modalRotate.classList.remove('hidden');
             modalRotate.onclick = function() {
@@ -1369,6 +1378,8 @@ async function showSearchOptions(post) {
         modalRotate.onclick = null;
         modalCompile.classList.add('hidden');
         modalCompile.onclick = null;
+        modalEditText.classList.add('hidden');
+        modalEditText.onclick = null;
     }
     if (searchSource && searchSource.length > 0) {
         modalGoToPostSource.title = `Go To "${searchSource}"`
@@ -2150,6 +2161,8 @@ function afterAction(action, data, id, confirm) {
                     console.log(e);
                 }
             }
+        } else if (action === 'EditTextPost') {
+            document.getElementById(`message-${id}`).setAttribute('data-msg-bodyraw', newContents);
         }
         if (confirm) {
             postsActions = [];

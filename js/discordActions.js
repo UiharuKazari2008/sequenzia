@@ -138,6 +138,23 @@ module.exports = async (req, res, next) => {
                             res.status(200).send(`Requested to Rename Message`);
                         }
                         break;
+                    case 'EditTextPost':
+                        printLine("ActionParser", `Request to Edit Contents ${job.messageid} to "${job.data}"`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageData: job.data.substring(0,2000),
+                            messageType: 'command',
+                            messageAction: 'EditTextPost'
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to edit Message Contenst`);
+                        }
+                        break;
                     case 'RequestFile':
                         printLine("ActionParser", `Request to Download File ${job.messageid}:${job.channelid}"`, 'info', job)
                         if (global.mq_fileworker_cds) {

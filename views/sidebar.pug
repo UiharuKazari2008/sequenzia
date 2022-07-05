@@ -233,6 +233,9 @@ html
                                         a.btn.btn-primary.w-100.mb-1(title="Move Item(s)" href='#_' onClick=`selectedActionMenu("MovePost"); return false;`).d-flex
                                             i.fas.fa-cut.pr-2.align-self-center
                                             span Move File
+                                        a.btn.btn-primary.w-100.mb-1(title="Edit Item(s) Contents" href='#_' onClick=`selectedActionMenu("EditTextPost"); return false;`).d-flex
+                                            i.fas.fa-cut.pr-2.align-self-center
+                                            span Edit Contents
                                         a#actionModelRename.btn.btn-primary.w-100.mb-1(title="Rename Item" href='#_' onClick=`selectedActionMenu("RenamePost"); return false;`).d-none
                                             i.fas.fa-font.pr-2.align-self-center
                                             span Rename File
@@ -308,6 +311,9 @@ html
                                         div#sectionRenamePost.hidden
                                             strong.text-center File Name:
                                             input#newName(name="filename" onchange="updateFileName(this);" onkeyup="updateFileName(this);" onpaste="updateFileName(this);" oninput="updateFileName(this);").form-group.col
+                                        div#sectionEditPost.hidden
+                                            strong.text-center File Name:
+                                            input#newContents(name="filename" onchange="updateTextContents(this);" onkeyup="updateTextContents(this);" onpaste="updateTextContents(this);" oninput="updateTextContents(this);").form-group.col
                             .modal-footer
                                 button.btn.btn-secondary.mr-1(type='button' data-dismiss='modal') Cancel
                                 div#finalButton.d-none
