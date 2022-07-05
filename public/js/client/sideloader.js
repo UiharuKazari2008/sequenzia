@@ -754,10 +754,12 @@ function downloadSelectedItems() {
         downloadAllController = {
             ready: true,
             urls: [],
+            fileids: [],
             about: new AbortController()
         };
         downloadAllController.urls = postsActions.map(e => document.getElementById(`request-download-${e.messageid}`).href)
-        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length} items!`
+        downloadAllController.fileids = postsActions.map(e => document.getElementById(`message-${e.messageid}`).getAttribute('data-msg-fileid'))
+        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length + downloadAllController.fileids.length} items!`
         $('#downloadAll').modal('show');
     } catch (e) {
         alert(`Error starting downloader: ${e.message}`)
@@ -769,12 +771,16 @@ function downloadAllItems() {
         downloadAllController = {
             ready: true,
             urls: [],
+            fileids: [],
             about: new AbortController()
         };
         $('a[id^=request-download]').each(function () {
             downloadAllController.urls.push($(this).attr('href'));
         });
-        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length} items!`
+        $('div[data-msg-fileid]').each(function () {
+            downloadAllController.fileids.push($(this).getAttribute('data-msg-fileid'));
+        });
+        document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length + downloadAllController.fileids.length} items!`
         $('#downloadAll').modal('show');
     } catch (e) {
         alert(`Error starting downloader: ${e.message}`)
@@ -782,10 +788,11 @@ function downloadAllItems() {
 }
 async function startDownloadingFiles() {
     const downloadModel = document.getElementById('downloadAll')
-    console.log(`Downloading ${downloadAllController.urls.length} files`)
+    console.log(`Downloading ${downloadAllController.urls.length} files...`)
 
     $('#downloadStartButton').addClass('hidden');
     $('#downloadStopButton').removeClass('hidden');
+    downloadAllController.fileids.map(async (e) => await openUnpackingFiles(e))
     for (let i in downloadAllController.urls) {
         if (!downloadAllController.ready)
             break;
