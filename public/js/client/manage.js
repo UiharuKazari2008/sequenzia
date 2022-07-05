@@ -41,12 +41,12 @@ function proccessPost(alt) {
                 confirm = false
             }
             if (actionSelection === 'CompileSF') {
-                if (post.file === false || post.file === true) {
-                    sendDownloadRequest(post.serverid, post.channelid, post.messageid, !(postsActions.filter(e => e.file === true ||  e.file === false).length > 1));
+                if (post.file !== undefined) {
+                    sendDownloadRequest(post.serverid, post.channelid, post.messageid, !(postsActions.filter(e => e.file !== undefined).length > 1));
                 }
                 if (confirm) {
                     postsActions = [];
-                    $.snack('success', `Requested to Compile ${(postsActions.length > 1) ? postsActions.filter(e => e.file === true ||  e.file === false).length + " Files" : "File"}`, 5000)
+                    $.snack('success', `Requested to Compile ${(postsActions.length > 1) ? postsActions.filter(e => e.file !== undefined).length + " Files" : "File"}`, 5000)
                 }
             } else if (actionSelection === 'Report' || actionSelection === 'RemoveReport') {
                 if (alt) {
@@ -88,7 +88,7 @@ function openActionMenu(mode) {
             actionModel.querySelector('#actionModelRename').classList.add('d-none');
             actionModel.querySelector('#actionModelRename').classList.remove('d-flex');
         }
-        const fileCompileable = postsActions.filter(e => e.file === true || e.file === false)
+        const fileCompileable = postsActions.filter(e => e.file !== undefined)
         if (fileCompileable.length > 0) {
             actionModel.querySelector('#actionModelCompile').classList.remove('d-none');
             actionModel.querySelector('#actionModelCompile').classList.add('d-flex');
