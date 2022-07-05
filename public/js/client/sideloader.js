@@ -1252,6 +1252,12 @@ async function showSearchOptions(post) {
         normalInfo.push('</div>')
         advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
     }
+    if (postFilename && postFilename.length > 0) {
+        normalInfo.push('<div class="badge badge-light text-dark mx-1 ">')
+        normalInfo.push(`<i class="fa fa-font pr-1"></i><span>${postFilename}</span>`)
+        normalInfo.push('</div>')
+        advancedInfo.push(`<div><i class="fa fa-font pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
+    }
     if (postAuthorImage && postAuthorImage.length > 0) {
         let imageURL = postAuthorImage
         if (imageURL.includes('?size='))
