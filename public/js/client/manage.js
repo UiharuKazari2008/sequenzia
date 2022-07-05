@@ -135,6 +135,7 @@ function selectedActionMenu(action) {
                 oldContents = oldContents.slice(2)
             oldContents = oldContents.join('\n')
             actionModel.querySelector('#newContents').value = oldContents
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-pen-line')
             actionModel.querySelector("#sectionEditPost").classList.remove("hidden")
         } else if (actionSelection === 'ArchivePost') {
             countdownTimer = 2;
