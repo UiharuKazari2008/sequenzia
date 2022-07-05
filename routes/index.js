@@ -136,7 +136,7 @@ router.use('/parity', sessionVerification, readValidation, async (req, res) => {
                 res.status(404).send(`File ${params[0]} does not exist`)
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
-                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/pipe${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/attachments${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
 
                 printLine('ClientStreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
@@ -633,7 +633,7 @@ router.use('/content', downloadValidation, async function (req, res) {
         });
     }
 });
-router.use('/pipe', async function (req, res) {
+router.use('/attachments', async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length === 3) {

@@ -803,7 +803,7 @@ async function startDownloadingFiles() {
         await new Promise(ok => {
             const url = (() => {
                 if (downloadAllController.urls[i].includes('discordapp.com/')) {
-                    return `${document.location.protocol}//${document.location.host}/pipe${downloadAllController.urls[i].split('attachments').pop()}`
+                    return `${document.location.protocol}//${document.location.host}/attachments${downloadAllController.urls[i].split('attachments').pop()}`
                 } else if (downloadAllController.urls[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
                     return downloadAllController.urls[i]
                 } else {

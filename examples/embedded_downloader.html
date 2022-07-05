@@ -39,7 +39,7 @@
                         const part = await new Promise(ok => {
                             const url = (() => {
                                 if (controller.parts[i].includes('discordapp.com/')) {
-                                    return `${document.location.protocol}//${document.location.host}/pipe${controller.parts[i].split('attachments').pop()}`
+                                    return `${document.location.protocol}//${document.location.host}/attachments${controller.parts[i].split('attachments').pop()}`
                                 } else if (controller.parts[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
                                     return controller.parts[i]
                                 } else {
