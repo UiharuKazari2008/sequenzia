@@ -1475,7 +1475,7 @@ async function showSearchOptions(post) {
     }
     if (postBody && postBody.length > 0) {
         postBody = postBody.split('<br/>')
-        if (postBody[0].includes('**🧩 File'))
+        if (postBody[0].includes('🧩 File'))
             postBody = postBody.slice(2)
         postBody = postBody.join('<br/>')
     }
