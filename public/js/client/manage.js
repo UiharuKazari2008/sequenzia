@@ -131,7 +131,7 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#postID").innerText = `Edit ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             oldContents = document.getElementById(`message-${postsActions[0].messageid}`).getAttribute('data-msg-bodyraw');
             oldContents = oldContents.split('<br/>')
-            if (oldContents[0].contains('**🧩 File'))
+            if (oldContents[0].includes('**🧩 File'))
                 oldContents = oldContents.slice(2)
             oldContents = oldContents.join('\n')
             actionModel.querySelector('#newContents').value = oldContents

@@ -1473,6 +1473,12 @@ async function showSearchOptions(post) {
         modalSearchByID.classList.add('hidden')
     }
     if (postBody && postBody.length > 0) {
+        postBody = postBody.split('<br/>')
+        if (postBody[0].includes('**🧩 File'))
+            postBody = postBody.slice(2)
+        postBody = postBody.join('<br/>')
+    }
+    if (postBody && postBody.length > 0) {
         try {
             const regexItalic = /\*\*\*(.*?)\*\*\*/g;
             while (postBody.includes('***')) {
