@@ -130,10 +130,10 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Edit Contents'
             actionModel.querySelector("#postID").innerText = `Edit ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             oldContents = document.getElementById(`message-${postsActions[0].messageid}`).getAttribute('data-msg-bodyraw');
-            oldFileName = oldFileName.split('<br/>')
-            if (oldFileName[0].contains('**🧩 File'))
-                oldFileName = oldFileName.slice(2)
-            oldFileName = oldFileName.join('\n')
+            oldContents = oldContents.split('<br/>')
+            if (oldContents[0].contains('**🧩 File'))
+                oldContents = oldContents.slice(2)
+            oldContents = oldContents.join('\n')
             actionModel.querySelector('#newContents').value = oldContents
             actionModel.querySelector("#sectionEditPost").classList.remove("hidden")
         } else if (actionSelection === 'ArchivePost') {
