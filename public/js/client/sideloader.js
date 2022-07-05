@@ -957,8 +957,6 @@ async function stopUnpackingFiles(fileid) {
         } else {
             activeSpannedJob.abort.abort();
             activeSpannedJob = null;
-            _controller.abort.abort();
-            _controller.ready = false;
             downloadSpannedController.delete(fileid);
         }
     }
@@ -1124,7 +1122,7 @@ async function updateNotficationsPanel() {
                 if (!item.pending) {
                     results.push(`<i class="fas fa-spinner text-success pr-2"></i>`)
                     results.push(`<span>${e}</span>`)
-                    if (activeSpannedJob.progress) {
+                    if (activeSpannedJob && activeSpannedJob.progress) {
                         results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`)
                     }
                 } else {

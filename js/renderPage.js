@@ -84,7 +84,7 @@ module.exports = async (req, res, next) => {
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
+                        url: `/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                     }
                 }
                 podcastResponse.addItem(podcastItem)
