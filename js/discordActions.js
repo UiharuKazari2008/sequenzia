@@ -162,7 +162,7 @@ module.exports = async (req, res, next) => {
                             if (foundMessages.rows && foundMessages.rows.length > 0) {
                                 sendData(global.mq_fileworker_cds, {
                                     fromClient: `return.Sequenzia.${config.system_name}`,
-                                    fileUUID: foundMessages[0].fileid,
+                                    fileUUID: foundMessages.rows[0].fileid,
                                     messageType: 'command',
                                     messageAction: 'CacheSpannedFile'
                                 }, function (callback) {
