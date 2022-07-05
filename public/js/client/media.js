@@ -2,7 +2,10 @@ var music = document.getElementById('audioplayerobject');
 var video = document.getElementById('videoplayerobject');
 
 music.addEventListener('ended', CloseMusic);
-music.volume = 1
+video.addEventListener('ended', CloseVideo);
+
+music.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
+video.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 
 function PlayTrack(file) {
     music.setAttribute("src", file);
@@ -36,6 +39,7 @@ function CloseMusic() {
     });
     $('footer')[0].classList.remove("musicActive");
     $('#pageNav')[0].classList.remove("musicActive");
+    setCookie("userVolume", music.volume);
     return null;
 }
 function CloseVideo() {
@@ -46,5 +50,6 @@ function CloseVideo() {
     });
     $('footer')[0].classList.remove("videoActive");
     $('#pageNav')[0].classList.remove("videoActive");
+    setCookie("userVolume", video.volume);
     return null;
 }
