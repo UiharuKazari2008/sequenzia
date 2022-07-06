@@ -919,7 +919,7 @@ async function openUnpackingFiles(messageid, playThis) {
                             if (activeSpannedJob.play === 'audio') {
                                 PlayTrack(element.href);
                             } else if (activeSpannedJob.play === 'video') {
-                                PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`);
+                                PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`);
                             } else {
                                 console.error('No Datatype was provided')
                             }
@@ -1179,7 +1179,7 @@ async function updateNotficationsPanel() {
                 if (item.play) {
                     let clickAction = undefined;
                     if (item.play === 'video') {
-                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size})');`
+                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size} MB)');`
                     } else if (item.play === 'audio') {
                         clickAction = `PlayTrack('${element.href}');`
                     }
