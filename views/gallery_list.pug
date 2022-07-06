@@ -142,6 +142,9 @@ block content
                                             a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                 i.btn-links.fas.fa-info-circle
                                         div.right-links.row-1
+                                            if (item.entities.meta.fileid !== null && isVideo)
+                                                a.btn.btn-links.btn-switchmode.goto-link.no-dynamic-tiny(data-placement="top" title="Play Video" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}", "video");`)
+                                                    i.btn-links.fas.fa-play
                                             if (item.entities.meta.fileid)
                                                 a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`)
                                                     i.btn-links.fas.fa-download
@@ -201,9 +204,6 @@ block content
                                         div.links-container.text-primary.no-dynamic-tiny
                                             div.links
                                                 div.left-links.row-2
-                                                    if (user && user.source < 900 && item.entities.meta.fileid !== null && isVideo)
-                                                        a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.full}"); return false;` id=`play-${item.id}`)
-                                                            i.btn-links.fas.fa-play
                                                 div.right-links.row-2
                                     div(class="collapse" id=`imageCheckBox-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").select-panel.panel-height
                                         div.shadow-text

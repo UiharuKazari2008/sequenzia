@@ -46,10 +46,15 @@ function PlayTrack(file) {
 
 }
 function PlayVideo(file) {
-    $.fancybox.open({
+    $.fancybox.open([{
         src : file,
         type : "video",
         opts: {}
+    }],{
+        touch: false,
+        video: {
+            autoStart: true
+        }
     })
 }
 function CloseMusic() {

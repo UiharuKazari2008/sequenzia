@@ -895,6 +895,9 @@ async function openUnpackingFiles(fileid, playThis) {
                                     touch: false,
                                     afterShow : function( instance, current ) {
                                         element.delete()
+                                    },
+                                    video: {
+                                        autoStart: true
                                     }
                                 })
                             } else {
