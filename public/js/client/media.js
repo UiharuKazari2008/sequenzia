@@ -46,43 +46,11 @@ function PlayTrack(file) {
 
 }
 function PlayVideo(file) {
-    if (file.startsWith("http")) {
-        video.setAttribute("src", file);
-        video.play();
-
-        $('#videoplayer').fadeIn(500);
-        [].forEach.call(document.getElementsByClassName('bottomBtn'), function (el) {
-            el.classList.add("videoActive");
-        });
-        $('footer')[0].classList.add("videoActive");
-        $('#pageNav')[0].classList.add("videoActive");
-    } else {
-        $.fancybox({
-            hash: false,
-            selector : '[data-fancybox=videos]',
-            infobar: true,
-            smallBtn: "auto",
-            toolbar: "auto",
-            image: {
-                preload: false
-            },
-            defaultType: "image",
-            animationEffect: "zoom",
-            transitionEffect: "slide",
-            wheel: "auto",
-            thumbs: {
-                autoStart: true
-            },
-            touch: false,
-            buttons: [
-                "slideShow",
-                "fullScreen",
-                "download",
-                "thumbs",
-                "close"
-            ]
-        }).open({ src : file, type : "video"})
-    }
+    $.fancybox.open({
+        src : file,
+        type : "video",
+        opts: {}
+    })
 }
 function CloseMusic() {
     music.pause();

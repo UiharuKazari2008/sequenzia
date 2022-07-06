@@ -854,33 +854,7 @@ async function startDownloadingFiles() {
 
 async function openUnpackingFiles(fileid, playThis) {
     if (fileid) {
-        if (document.getElementById('fileData-' + fileid)) {
-            const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
-            $.toast({
-                type: 'success',
-                title: 'Unpack File',
-                subtitle: 'Now',
-                content: `File is already cached`,
-                delay: 5000,
-            });
-            if (playThis) {
-                console.log(`Launching File...`)
-                if (element) {
-                    if (playThis === 'audio') {
-                        PlayTrack(element.href);
-                    } else if (playThis === 'video') {
-                        PlayVideo(element.href);
-                    } else {
-                        console.error('No Datatype was provided')
-                    }
-                } else {
-                    console.error('Data lost!')
-                }
-            } else {
-                element.click();
-                element.remove();
-            }
-        } else if (downloadSpannedController.size === 0 && !activeSpannedJob) {
+        if (downloadSpannedController.size === 0 && !activeSpannedJob) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
                 pending: true,
@@ -909,7 +883,20 @@ async function openUnpackingFiles(fileid, playThis) {
                             if (activeSpannedJob.play === 'audio') {
                                 PlayTrack(element.href);
                             } else if (activeSpannedJob.play === 'video') {
-                                PlayVideo(element.href);
+                                $.fancybox.open([
+                                    {
+                                        src : element.href,
+                                        type : "video",
+                                        opts: {
+                                            
+                                        }
+                                    }
+                                ], {
+                                    touch: false,
+                                    afterShow : function( instance, current ) {
+                                        element.delete()
+                                    }
+                                })
                             } else {
                                 console.error('No Datatype was provided')
                             }
@@ -921,7 +908,7 @@ async function openUnpackingFiles(fileid, playThis) {
                 downloadSpannedController.delete(itemToGet);
                 console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
             }
-            activeSpannedJob = null;
+            activeSpannedJob = false;
         } else if (!downloadSpannedController.has(fileid)) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
@@ -1096,7 +1083,6 @@ async function unpackFile() {
                         job(false);
                     }
                     activeSpannedJob.blobs = [];
-                    activeSpannedJob = false;
                 },
                 error: function (xhr) {
                     $.toast({
