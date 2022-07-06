@@ -236,7 +236,7 @@ block content
                                                         i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
 
                                                 .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
-                                                    a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox]").click()` style="position: absolute;top: 40%;")
+                                                    a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox=gallery]").click()` style="position: absolute;top: 40%;")
                                                         i.btn-links.fas.fa-search(style="font-size: 2em;")
 
                                                 .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
@@ -260,7 +260,7 @@ block content
                             if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
                                 - fileURL = item.entities.download
                                 - previewURL = item.entities.download
-                            a.lightbox(href=fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + item.content.single + ' (' + item.date.pretty + ')', data-fancybox="gallery")
+                            a.lightbox(href=fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox="gallery")
                                 - positionImage = ''
                                 - noHoverClass = ''
                                 if (!isVideo)

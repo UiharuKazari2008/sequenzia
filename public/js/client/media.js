@@ -7,6 +7,32 @@ video.addEventListener('ended', CloseVideo);
 music.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 video.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 
+const videobox = $().fancybox({
+    hash: false,
+    selector : '[data-fancybox=videos]',
+    infobar: true,
+    smallBtn: "auto",
+    toolbar: "auto",
+    image: {
+        preload: false
+    },
+    defaultType: "image",
+    animationEffect: "zoom",
+    transitionEffect: "slide",
+    wheel: "auto",
+    thumbs: {
+        autoStart: true
+    },
+    touch: false,
+    buttons: [
+        "slideShow",
+        "fullScreen",
+        "download",
+        "thumbs",
+        "close"
+    ]
+});
+
 function PlayTrack(file) {
     music.setAttribute("src", file);
     music.play();
@@ -19,17 +45,20 @@ function PlayTrack(file) {
     $('#pageNav')[0].classList.add("musicActive");
 
 }
-function PlayVideo(file) {
-    video.setAttribute("src", file);
-    video.play();
+function PlayVideo(file, embedded) {
+    if (embedded) {
+        video.setAttribute("src", file);
+        video.play();
 
-    $('#videoplayer').fadeIn(500);
-    [].forEach.call(document.getElementsByClassName('bottomBtn'), function (el) {
-        el.classList.add("videoActive");
-    });
-    $('footer')[0].classList.add("videoActive");
-    $('#pageNav')[0].classList.add("videoActive");
-
+        $('#videoplayer').fadeIn(500);
+        [].forEach.call(document.getElementsByClassName('bottomBtn'), function (el) {
+            el.classList.add("videoActive");
+        });
+        $('footer')[0].classList.add("videoActive");
+        $('#pageNav')[0].classList.add("videoActive");
+    } else {
+        videobox.Thumbs.toggle();
+    }
 }
 function CloseMusic() {
     music.pause();

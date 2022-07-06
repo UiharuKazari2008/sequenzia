@@ -1532,7 +1532,8 @@ html
                     // Enable Gallery
                     if (path === '/gallery')
                         script.
-                            toggleLightbox = false; $("[data-fancybox]").fancybox(options);
+                            toggleLightbox = false;
+                            $("[data-fancybox=gallery]").fancybox(options);
                     // Gallery Custom Buttons
                     //script.
                         $.fancybox.defaults.btnTpl.downloadios = '<button data-fancybox-downloadios class="fancybox-button fancybox-button-downloadios" title="Download Image">' +

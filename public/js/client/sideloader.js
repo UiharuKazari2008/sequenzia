@@ -1023,6 +1023,10 @@ async function unpackFile() {
                                         const downloadedFile = window.URL.createObjectURL(new Blob(activeSpannedJob.blobs));
                                         const link = document.createElement('a');
                                         link.id = `fileData-${activeSpannedJob.id}`
+                                        if (activeSpannedJob.play === 'video') {
+                                            link.setAttribute('data-fancybox', 'videos')
+                                            link.setAttribute('data-type', 'video')
+                                        }
                                         link.classList = `hidden`
                                         link.href = downloadedFile;
                                         link.setAttribute('download', activeSpannedJob.filename);
