@@ -45,8 +45,8 @@ function PlayTrack(file) {
     $('#pageNav')[0].classList.add("musicActive");
 
 }
-function PlayVideo(file, embedded) {
-    if (embedded) {
+function PlayVideo(file) {
+    if (file.startsWith("http")) {
         video.setAttribute("src", file);
         video.play();
 
@@ -57,7 +57,31 @@ function PlayVideo(file, embedded) {
         $('footer')[0].classList.add("videoActive");
         $('#pageNav')[0].classList.add("videoActive");
     } else {
-        videobox.Thumbs.toggle();
+        $.fancybox({
+            hash: false,
+            selector : '[data-fancybox=videos]',
+            infobar: true,
+            smallBtn: "auto",
+            toolbar: "auto",
+            image: {
+                preload: false
+            },
+            defaultType: "image",
+            animationEffect: "zoom",
+            transitionEffect: "slide",
+            wheel: "auto",
+            thumbs: {
+                autoStart: true
+            },
+            touch: false,
+            buttons: [
+                "slideShow",
+                "fullScreen",
+                "download",
+                "thumbs",
+                "close"
+            ]
+        }).open({ src : file, type : "video"})
     }
 }
 function CloseMusic() {
