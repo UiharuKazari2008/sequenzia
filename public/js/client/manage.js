@@ -57,11 +57,10 @@ function proccessPost(alt) {
             } else {
                 let data = undefined
                 if (actionSelection === 'RenamePost') { data = newFileName  } else if (actionSelection === 'EditTextPost') { data = newContents  } else if (actionSelection === 'RotatePost') { data = imageRotate } else if (actionSelection === 'MovePost') { data = postsDestination } else { data = null }
-                if (a.length !== 1 && i + 1 !== a.length) {
-                    queueAction(post.serverid, post.channelid, post.messageid, (alt) ? alt : actionSelection, data)
-                } else {
-                    sendAction(post.serverid, post.channelid, post.messageid, (alt) ? alt : actionSelection, data);
+                if (actionSelection === 'MovePost' || actionSelection === 'RemovePost' || actionSelection === 'ArchivePost') {
+                    document.getElementById(`message-${post.messageid}`).classList.add('hidden')
                 }
+                queueAction(post.serverid, post.channelid, post.messageid, (alt) ? alt : actionSelection, data)
             }
         })
     };

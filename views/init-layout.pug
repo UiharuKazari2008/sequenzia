@@ -400,6 +400,9 @@ html
                                     i.far.fa-arrow-right.fa-spinner.align-middle.nav-item
                                     span.pl-2 Initializing...
                             .ml-auto
+                            ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                li.nav-item.no-arrow
+                                    i.fas.fa-spinner.fa-spin-pulse
                             ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.no-arrow
                                     div#statusPanel.btn-group.hidden
@@ -483,7 +486,7 @@ html
                             div
                                 span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
         // OUTSUDE DYNAMIC CONTENT
-        div#loadingLogo.center-block(style="display: none")
+        //div#loadingLogo.center-block(style="display: none")
             .lds-spinner
                 div
                 div

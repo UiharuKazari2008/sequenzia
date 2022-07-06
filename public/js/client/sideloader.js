@@ -124,13 +124,13 @@ async function writeLoadingBar(){
         setTimeout(writeLoadingBar, 250)
     } else {
         responseComplete = true
-        $('#loadingLogo').fadeOut(500)
+        $('#loadingSpinner').fadeOut(500)
     }
     return false;
 }
 async function setupReq (push) {
     responseComplete = false;
-    $('#loadingLogo').fadeIn();
+    $('#loadingSpinner').fadeIn();
     if (push !== true)
         $(".container-fluid").fadeTo(500, 0.4);
 
@@ -150,7 +150,6 @@ async function setupReq (push) {
 }
 let recoverable
 async function requestCompleted (response, url, lastURL, push) {
-    responseComplete = true
     itemsRemoved = 0;
     const pageTitle = $(response).filter('title').text()
     if (pageTitle === 'Lets Login') {
@@ -164,6 +163,7 @@ async function requestCompleted (response, url, lastURL, push) {
             content: `Nothing was found, Please try another option or search term`,
             delay: 10000,
         });
+        responseComplete = true
     } else {
         if (url.startsWith('/app/web/')) {
             $.when($(".container-fluid").fadeOut(250)).done(() => {
@@ -206,6 +206,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 $(".container-fluid").fadeTo(2000, 1)
                 scrollToTop(true);
                 window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                responseComplete = true
             })
         } else {
             if (push === true) {
@@ -230,6 +231,7 @@ async function requestCompleted (response, url, lastURL, push) {
                     enableReviewMode();
                 updateActionsPanel();
                 undoActions = [];
+                responseComplete = true
             } else {
                 $.when($(".container-fluid").fadeOut(250)).done(() => {
                     let contentPage = $(response).find('#content-wrapper').children();
@@ -248,6 +250,7 @@ async function requestCompleted (response, url, lastURL, push) {
                     if (inReviewMode)
                         enableReviewMode();
                     updateActionsPanel();
+                    updateNotficationsPanel();
                     undoActions = [];
                     if (Object.values(apiActions).length > 0) {
                         const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
@@ -256,6 +259,7 @@ async function requestCompleted (response, url, lastURL, push) {
                             $('#hiddenItemsAlert').removeClass('hidden')
                         }
                     }
+                    responseComplete = true
                 })
             }
             $("title").text(pageTitle);
@@ -266,6 +270,7 @@ async function requestCompleted (response, url, lastURL, push) {
             }
             const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
+            responseComplete = true
         }
         pageType = url.split('/')[0];
         initialLoad = false
@@ -747,6 +752,7 @@ function feedContent(type) {
 }
 let downloadAllController = null;
 let downloadSpannedController = new Map();
+let memorySpannedController = [];
 let activeSpannedJob = null;
 function downloadSelectedItems() {
     try {
@@ -778,7 +784,7 @@ function downloadAllItems() {
             downloadAllController.urls.push($(this).attr('href'));
         });
         $('div[data-msg-fileid], tr[data-msg-fileid]').each(function () {
-            downloadAllController.fileids.push($(this).attr('data-msg-fileid'));
+            downloadAllController.fileids.push($(this).attr('id').split('-')[1]);
         });
         document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length + downloadAllController.fileids.length} items!`
         $('#downloadAll').modal('show');
@@ -852,11 +858,41 @@ async function startDownloadingFiles() {
     disableGallerySelect();
 }
 
-async function openUnpackingFiles(fileid, playThis) {
-    if (fileid) {
-        if (downloadSpannedController.size === 0 && !activeSpannedJob) {
+async function openUnpackingFiles(messageid, playThis) {
+    const _post = document.getElementById(`message-${messageid}`);
+    const fileid = _post.getAttribute('data-msg-fileid');
+    const filename = _post.getAttribute('data-msg-filename');
+    const filesize = _post.getAttribute('data-msg-filesize');
+    const channelString = _post.getAttribute('data-msg-channel-string');
+
+    if (fileid && fileid.length > 0) {
+        const element = document.getElementById(`fileData-${fileid}`);
+        if (element) {
+            if (activeSpannedJob.play === 'audio') {
+                PlayTrack(element.href);
+            } else if (activeSpannedJob.play === 'video') {
+                $.fancybox.open([
+                    {
+                        src : element.href,
+                        type : "video",
+                        opts: {
+                            caption : `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`,
+                            autoStart: true
+                        }
+                    }
+                ], {
+                    touch: false,
+                    afterShow : function( instance, current ) { }
+                })
+            } else {
+                element.click();
+            }
+        } else if (downloadSpannedController.size === 0 && !activeSpannedJob) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
+                name: filename,
+                size: filesize,
+                channel: channelString,
                 pending: true,
                 ready: true,
                 play: playThis
@@ -883,23 +919,7 @@ async function openUnpackingFiles(fileid, playThis) {
                             if (activeSpannedJob.play === 'audio') {
                                 PlayTrack(element.href);
                             } else if (activeSpannedJob.play === 'video') {
-                                $.fancybox.open([
-                                    {
-                                        src : element.href,
-                                        type : "video",
-                                        opts: {
-                                            
-                                        }
-                                    }
-                                ], {
-                                    touch: false,
-                                    afterShow : function( instance, current ) {
-                                        element.delete()
-                                    },
-                                    video: {
-                                        autoStart: true
-                                    }
-                                })
+                                PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`);
                             } else {
                                 console.error('No Datatype was provided')
                             }
@@ -909,12 +929,16 @@ async function openUnpackingFiles(fileid, playThis) {
                     }
                 }
                 downloadSpannedController.delete(itemToGet);
+                memorySpannedController.push(activeSpannedJob);
                 console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
             }
             activeSpannedJob = false;
         } else if (!downloadSpannedController.has(fileid)) {
             downloadSpannedController.set(fileid, {
                 id: fileid,
+                name: filename,
+                size: filesize,
+                channel: channelString,
                 pending: true,
                 ready: true,
                 play: playThis
@@ -982,30 +1006,42 @@ async function unpackFile() {
                             console.log(activeSpannedJob)
                             if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
                                 if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
-                                    for (let i in activeSpannedJob.parts) {
+                                    let pendingBlobs = {}
+                                    activeSpannedJob.parts.map((e,i) => {
+                                        pendingBlobs[i] = e;
+                                    })
+                                    function calculatePercent() {
+                                        const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
+                                        activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
+                                    }
+                                    while (Object.keys(pendingBlobs).length !== 0) {
                                         if (!activeSpannedJob.ready)
                                             break;
-                                        const percentage = (parseInt(i) / activeSpannedJob.parts.length) * 100
-                                        activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
-
-                                        await new Promise(ok => {
-                                            axios({
-                                                url: activeSpannedJob.parts[i],
-                                                method: 'GET',
-                                                signal: activeSpannedJob.abort.signal,
-                                                responseType: 'blob'
+                                        let downloadKeys = Object.keys(pendingBlobs).slice(0,8)
+                                        const results = await Promise.all(downloadKeys.map(async item => {
+                                            return new Promise(ok => {
+                                                axios({
+                                                    url: pendingBlobs[item],
+                                                    method: 'GET',
+                                                    signal: activeSpannedJob.abort.signal,
+                                                    responseType: 'blob'
+                                                })
+                                                    .then((block) => {
+                                                        console.log(`Downloaded Parity ${item}`)
+                                                        activeSpannedJob.blobs[item] = block.data;
+                                                        calculatePercent();
+                                                        delete pendingBlobs[item];
+                                                        ok(true);
+                                                    })
+                                                    .catch(e => {
+                                                        console.error(`Failed Parity ${item} - ${e.message}`)
+                                                        activeSpannedJob.ready = false;
+                                                        ok(false);
+                                                    })
                                             })
-                                                .then((response) => {
-                                                    console.log(`Downloaded Parity ${activeSpannedJob.parts[i]}`)
-                                                    activeSpannedJob.blobs.push(response.data);
-                                                    ok(true);
-                                                })
-                                                .catch(e => {
-                                                    console.error(`Failed Parity ${activeSpannedJob.parts[i]} - ${e.message}`)
-                                                    activeSpannedJob.ready = false;
-                                                    ok(false);
-                                                })
-                                        })
+                                        }))
+                                        if (results.filter(e => !e).length > 0)
+                                            break;
                                     }
 
                                     if (activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
@@ -1085,7 +1121,8 @@ async function unpackFile() {
                         });
                         job(false);
                     }
-                    activeSpannedJob.blobs = [];
+                    delete activeSpannedJob.blobs
+                    delete activeSpannedJob.parts
                 },
                 error: function (xhr) {
                     $.toast({
@@ -1095,7 +1132,8 @@ async function unpackFile() {
                         content: `File failed to unpack!<br/>${xhr.responseText}`,
                         delay: 15000,
                     });
-                    activeSpannedJob.blobs = [];
+                    delete activeSpannedJob.blobs
+                    delete activeSpannedJob.parts
                     console.error(xhr.responseText);
                     job(false);
                 }
@@ -1107,46 +1145,95 @@ async function unpackFile() {
 }
 
 async function updateNotficationsPanel() {
-    if (downloadSpannedController.size !== 0) {
+    if (downloadSpannedController.size !== 0 || memorySpannedController.length > 0) {
+        let activeProgress = [];
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
             if (item.ready) {
-                let results = [`<a class="dropdown-item" title="Sort Descending" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
+                let results = [`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
                 if (!item.pending) {
-                    results.push(`<i class="fas fa-spinner text-success pr-2"></i>`)
-                    results.push(`<span>${e}</span>`)
+                    results.push(`<i class="fas fa-spinner text-success pr-2"></i>`);
+                    results.push(`<span>${item.name} (${item.size} MB)</span>`);
                     if (activeSpannedJob && activeSpannedJob.progress) {
-                        results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`)
+                        results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`);
+                        /*activeProgress.push(`<div class="progress pl-2" style="height: 30px;">`);
+                            activeProgress.push(`<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style='width: ${activeSpannedJob.progress}%' aria-valuenow='${activeSpannedJob.progress}' aria-valuemin='0' aria-valuemax='100'></div>`);
+                        activeProgress.push('</div>');*/
                     }
                 } else {
-                    results.push(`<span>${e}</span>`)
+                    results.push(`<span>${item.name} (${item.size} MB)</span>`)
                 }
-                results.push(`</a>`)
-                return results.join('\n')
+                results.push(`</a>`);
+                return results.join('\n');
             } else {
-                return `<span>${e}</span>`
+                return `<span>${item.name} (${item.size} MB)</span>`
             }
         })
-        if (document.getElementById('statusPanel')) {
-            $('#statusPanel').removeClass('hidden')
-            if (keys.length > 0) {
-                $('#statusPanel > .dropdown > .dropdown-menu').html($(keys.join('\n')))
-                if (keys.length <= 9) {
-                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-' + keys.length
+        let completedKeys = [];
+        if (memorySpannedController.length > 0) {
+            if (keys.length > 0)
+                completedKeys.push(`<div class="dropdown-divider"></div>`);
+            completedKeys.push(...memorySpannedController.map(item => {
+                let results = [];
+                const element = document.getElementById(`fileData-${item.id}`);
+                if (item.play) {
+                    let clickAction = undefined;
+                    if (item.play === 'video') {
+                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size})');`
+                    } else if (item.play === 'audio') {
+                        clickAction = `PlayTrack('${element.href}');`
+                    }
+                    results.push(`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
                 } else {
-                    document.getElementById('statusMenuIndicator').classList = 'fas fa-square-ellipsis'
+                    results.push(`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
+                }
+                if (item.play === 'video') {
+                    results.push(`<i class="fas fa-film mr-1"></i>`)
+                } else if (item.play === 'audio') {
+                    results.push(`<i class="fas fa-music mr-1"></i>`)
+                } else {
+                    results.push(`<i class="fas fa-file mr-1"></i>`)
+                }
+                results.push(`<span>${item.name} (${item.size} MB)</span>`)
+                results.push(`</a>`);
+                return results.join('\n');
+            }))
+        }
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').removeClass('hidden');
+            if (keys.length > 0 || completedKeys.length > 0) {
+                $('#statusPanel > .dropdown > .dropdown-menu').html($([...keys, ...completedKeys].join('\n')));
+                $('#statusMenuProgress').html($(activeProgress.join('\n')));
+                if (keys.length <= 9 && keys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-' + keys.length;
+                } else if (keys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-ellipsis';
+                } else if (completedKeys.length <= 9 && completedKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-' + completedKeys.length;
+                } else if (completedKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-ellipsis';
                 }
             } else {
-                $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
-                document.getElementById('statusMenuIndicator').classList = 'fas fa-square-0'
+                $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>');
+                document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-0';
             }
+        }
+        if (activeSpannedJob && activeSpannedJob.progress) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-laptop-arrow-down fa-fade';
+        } else if (downloadSpannedController.size !== 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
+        } else if (memorySpannedController.length !== 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-usb-drive';
+            clearInterval(notificationControler);
+            notificationControler = null;
         }
     } else {
         clearInterval(notificationControler);
         notificationControler = null;
         if (document.getElementById('statusPanel')) {
-            $('#statusPanel').addClass('hidden')
-            $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>')
+            $('#statusPanel').addClass('hidden');
+            $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>');
+            $('#statusMenuProgress').html('');
         }
     }
 }

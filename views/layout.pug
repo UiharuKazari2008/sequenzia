@@ -635,14 +635,20 @@ html
                                 .mr-auto
                                 if (appData)
                                     ul#appTitleMenu.navbar-nav.text-primary.text-ellipsis(style="display: contents;")
+                                    ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                        li.nav-item.no-arrow
+                                            i.fas.fa-spinner.fa-spin-pulse
                                 else
+                                    ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                        li.nav-item.no-arrow
+                                            i.fas.fa-spinner.fa-spin-pulse
                                     ul.navbar-nav.text-primary.text-ellipsis
                                         li.nav-item.no-arrow
                                             div#actionPanel.btn-group.hidden(style="display: contents;")
                                                 a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
                                                     i.far.fa-trash-can-undo
                                                 div.dropdown(style="display: contents;")
-                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
+                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.pl-2.pr-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
                                                         i.fas.fa-clipboard.pr-1
                                                         span#pendingActionsIndicator.badge.badge-primary ...
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
@@ -656,8 +662,9 @@ html
                                             div#statusPanel.btn-group.hidden(style="display: contents;")
                                                 div.dropdown(style="display: contents;")
                                                     a#statusMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
-                                                        i.fas.fa-spinner.pr-1
-                                                        i#statusMenuIndicator.fas.fa-square-0
+                                                        i#statusMenuIcon.fas.fa-spinner
+                                                        i#statusMenuIndicator.fas.fa-square-0.pl-1
+                                                        div#statusMenuProgress
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
                                                         span.dropdown-header
                                                             | No Active Tasks
@@ -1773,7 +1780,7 @@ html
                                             i.fas.fa-undo
                                         a#infoDelete.btn.btn-danger.mx-1.mb-2(title="Archive or Delete Item(s)" href='#_').w-100.text-ellipsis
                                             i.fas.fa-trash
-                                        a#infoRepair.btn.btn-danger.mx-1.mb-2(title="Repair Thumbnail" href='#_').w-100.text-ellipsis
+                                        a#infoRepair.btn.btn-danger.mx-1.mb-2.d-none(title="Repair Thumbnail" href='#_').w-100.text-ellipsis
                                             i.fas.fa-image-slash
                                         a#infoCompile.btn.btn-danger.mx-1.mb-2(title="Compile Spanned File" href='#_').w-100.text-ellipsis
                                             i.fas.fa-box-open

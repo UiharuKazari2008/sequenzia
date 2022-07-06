@@ -45,17 +45,21 @@ function PlayTrack(file) {
     $('#pageNav')[0].classList.add("musicActive");
 
 }
-function PlayVideo(file) {
-    $.fancybox.open([{
-        src : file,
-        type : "video",
-        opts: {}
-    }],{
-        touch: false,
-        video: {
-            autoStart: true
+function PlayVideo(file, caption) {
+    $.fancybox.open([
+        {
+            src : file,
+            type : "video",
+            opts: {
+                caption : caption,
+                autoStart: true,
+                volume: video.volume
+            }
         }
-    })
+    ], {
+        touch: false,
+        afterShow : function( instance, current ) { }
+    });
 }
 function CloseMusic() {
     music.pause();

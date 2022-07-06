@@ -136,7 +136,7 @@ block content
                                                 i.fas.fa-check-circle(id='select-' + item.id)
                                     .btn-group.d-inline-block
                                         if (item.entities.meta.fileid && item.entities.filename && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp3') || item.entities.filename.toLowerCase().includes('.m4a') || item.entities.filename.toLowerCase().includes('.ogg') || item.entities.filename.toLowerCase().includes('.wav')))
-                                            a.btn.btn-switchmode(title="Play Audio" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}", "audio"); return false;` id=`play-${item.id}`)
+                                            a.btn.btn-switchmode(title="Play Audio" href='#_' onclick=`openUnpackingFiles("${item.id}", "audio"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp3') || item.entities.download.toLowerCase().includes('.m4a') || item.entities.download.toLowerCase().includes('.ogg') || item.entities.download.toLowerCase().includes('.wav')))
                                             a.btn.btn-switchmode(title="Play Audio" href='#_' onclick=`PlayTrack("${item.entities.download}"); return false;` id=`play-${item.id}`)
@@ -148,7 +148,7 @@ block content
                                             a.btn.btn-switchmode(title="Play Audio" href='#_'  onclick=`PlayTrack("${item.entities.preview}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.meta.fileid && item.entities.filename && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.webm') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v')))
-                                            a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`openUnpackingFiles("${item.entities.meta.fileid}", "video"); return false;` id=`play-${item.id}`)
+                                            a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`openUnpackingFiles("${item.id}", "video"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp4') || item.entities.download.toLowerCase().includes('.webm') || item.entities.download.toLowerCase().includes('.webm') || item.entities.download.toLowerCase().includes('.m4v')))
                                             a.btn.btn-switchmode(title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
@@ -160,7 +160,7 @@ block content
                                             a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`PlayVideo("${item.entities.preview}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         if (item.entities.meta.fileid)
-                                            a.btn.btn-switchmode(title="Download File" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`)
+                                            a.btn.btn-switchmode(title="Download File" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
                                                 i.fas.fa-download
                                         else if (item.entities.download && item.entities.download.length > 5)
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))

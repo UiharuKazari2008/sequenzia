@@ -143,10 +143,10 @@ block content
                                                 i.btn-links.fas.fa-info-circle
                                         div.right-links.row-1
                                             if (item.entities.meta.fileid !== null && isVideo)
-                                                a.btn.btn-links.btn-switchmode.goto-link.no-dynamic-tiny(data-placement="top" title="Play Video" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}", "video");`)
+                                                a.btn.btn-links.btn-switchmode.goto-link.no-dynamic-tiny(data-placement="top" title="Play Video" href='#_' onclick=`openUnpackingFiles("${item.id}", "video");`)
                                                     i.btn-links.fas.fa-play
                                             if (item.entities.meta.fileid)
-                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`)
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
                                                     i.btn-links.fas.fa-download
                                             else
                                                 a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)

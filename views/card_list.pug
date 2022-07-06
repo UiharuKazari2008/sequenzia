@@ -70,7 +70,7 @@ block content
                             else if (item.meta.message_type.endsWith('packed'))
                                 span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
                             if (item.entities.meta.fileid)
-                                a(title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`).btn.btn-success.d-block
+                                a(title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`).btn.btn-success.d-block
                                     i.fas.fa-download.pr-2
                                     | Download File
                             else if (item.meta.message_type === 'image-unpacked')
@@ -95,7 +95,7 @@ block content
                             a(href=cardurl target='_blank', rel='noopener noreferrer').card-link #{cardname}
                         else if (item.meta.message_type === 'file' && item.entities.meta.fileid)
                             span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
-                            a(title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.entities.meta.fileid}"); return false;`).btn.btn-success.d-block
+                            a(title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`).btn.btn-success.d-block
                                 i.fas.fa-download.pr-2
                                 | Download File
                         else if (item.meta.message_type === 'file'|| item.meta.message_type === 'file-unpacked')

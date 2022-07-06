@@ -228,12 +228,13 @@ a.lightbox:before {
 }
 
 .music-player {
-    margin-left: 5.5em;
+    margin-left: 1.4em;
     margin-right: 1.4em;
     background-color: transparent;
     padding: 0;
-    margin-bottom: 1rem;
     width: 50em;
+    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
+    position: fixed;
 }
 
 .modal-backdrop {
@@ -248,11 +249,6 @@ a.lightbox:before {
     left: 50%;
     position: absolute;
 }
-
-#btnTop.bottomBtn.musicActive {
-    bottom: 90px !important;
-}
-
 .bg-white.py-2.collapse-inner {
     background-color: #000000c7!important;
     /*backdrop-filter: blur(2px)!important;
@@ -1994,12 +1990,14 @@ div.collapse-divider {
 }
 
 .bottom-bar .page-navigator,
-.bottom-bar .scrollBtn {
+.bottom-bar .scrollBtn,
+.bottom-bar .music-player {
     bottom: calc(env(safe-area-inset-bottom, 0) + 3rem + 1.5rem);
 }
 
 .bottom-bar.menu-open .page-navigator,
-.bottom-bar.menu-open .scrollBtn {
+.bottom-bar.menu-open .scrollBtn,
+.bottom-bar.menu-open .music-player {
     bottom: calc(env(safe-area-inset-bottom, 0) + 200px + 3rem + 1.5rem);
 }
 
@@ -2501,9 +2499,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #btnTop {
         left: 50%;
     }
-    .music-player.toggled {
-        margin-left: 15.5em!important;
-    }
     .pagination .page-link {
         font-size: 1.2rem;
     }
@@ -2533,23 +2528,17 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         column-count: 8;
     }
 }
-@media (min-width: 1081px) {
-    #btnTop.bottomBtn.videoActive {
-        bottom: 460px!important;
+@media (max-width: 1680px) {
+    .scrollBtn.musicActive {
+        margin-bottom: 3em;
     }
 }
 @media (max-width: 1080px) {
     .music-player {
         width: unset!important;
     }
-    #pageNav.musicActive {
-        bottom: 90px !important;
-    }
-    #pageNav.videoActive {
-        bottom: 280px !important;
-    }
-    #btnTop.videoActive {
-        bottom: 280px!important;
+    .page-navigator.musicActive {
+        margin-bottom: 4.25em;
     }
     video#videoplayerobject {
         height: 250px;
@@ -2649,7 +2638,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .bottom-bar.menu-open .page-navigator,
-    .bottom-bar.menu-open .scrollBtn {
+    .bottom-bar.menu-open .scrollBtn,
+    .bottom-bar.menu-open .music-player {
         bottom: calc(env(safe-area-inset-bottom, 0) + 215px + 2.5rem + 1.5rem);
     }
 
@@ -2710,9 +2700,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 
     .music-player {
         margin-left: 1.4em!important;
-    }
-    .music-player.toggled {
-        margin-left: 5.5em!important;
     }
     /*.fixed-top {
         background-image: linear-gradient(black, transparent)!important;
@@ -2795,7 +2782,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .bottom-bar.menu-open .page-navigator,
-    .bottom-bar.menu-open .scrollBtn {
+    .bottom-bar.menu-open .scrollBtn ,
+    .bottom-bar.menu-open .music-player {
         bottom: calc(env(safe-area-inset-bottom, 0) + 400px + 2.5rem + 1.5rem);
     }
 
@@ -2833,7 +2821,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .bottom-bar.menu-open .page-navigator,
-    .bottom-bar.menu-open .scrollBtn {
+    .bottom-bar.menu-open .scrollBtn,
+    .bottom-bar.menu-open .music-player {
         bottom: calc(env(safe-area-inset-bottom, 0) + 265px + 2.5rem + 1.5rem);
     }
 
@@ -2880,7 +2869,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .bottom-bar.menu-open .page-navigator,
-    .bottom-bar.menu-open .scrollBtn {
+    .bottom-bar.menu-open .scrollBtn,
+    .bottom-bar.menu-open .music-player {
         bottom: calc(env(safe-area-inset-bottom, 0) + 320px + 2.5rem + 1.5rem);
     }
 
