@@ -1340,7 +1340,7 @@ async function showSearchOptions(post) {
         normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
         normalInfo.push('</div>')
         if (postCached) {
-            normalInfo.push('<div class="badge badge-success text-dark mx-1 ">')
+            normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
             normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Fast Access</span>`)
             normalInfo.push('</div>')
         }
