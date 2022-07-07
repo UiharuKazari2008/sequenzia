@@ -1018,7 +1018,7 @@ async function unpackFile() {
                                     while (Object.keys(pendingBlobs).length !== 0) {
                                         if (!activeSpannedJob.ready)
                                             break;
-                                        let downloadKeys = Object.keys(pendingBlobs).slice(0,8)
+                                        let downloadKeys = Object.keys(pendingBlobs).slice(0,10)
                                         const results = await Promise.all(downloadKeys.map(async item => {
                                             return new Promise(ok => {
                                                 axios({
