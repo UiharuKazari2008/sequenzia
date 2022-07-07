@@ -197,7 +197,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
 
                 printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
-                    printLine('StreamFile', `Sending file request for ${file.real_filename}`, 'info');
+                    printLine('StreamFile', `Sending cached file for ${file.real_filename}`, 'info');
                     const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
                     /*if (contentLength)
                         res.setHeader('Content-Length', contentLength);*/
@@ -205,7 +205,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                         dotfiles : 'allow',
                         root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache),
                         headers: {
-                            'Content-Disposition': `attachment; filename="${file.real_filename}"`
+                            'Content-Disposition': `attachment; filename="${encodeURIComponent(file.real_filename)}"`
                         } })
                 } else if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     printLine('StreamFile', `Preparing to stream spanned file request for ${file.real_filename}`, 'info');
