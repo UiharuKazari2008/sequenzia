@@ -165,14 +165,11 @@ block content
                                         else if (item.entities.download && item.entities.download.length > 5)
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
-                                        //if (item.permalink)
-                                            a.btn.btn-fav(title="Permalink" href=item.permalink)
-                                                i.fas.fa-link
 
                                     .btn-group.file-tools.d-inline-block
                                         if (user && user.source < 900)
                                             a.btn.btn-fav(id='fav-' + item.eid data-placement="top" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
-                                                i.btn-fav.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                                i.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                             a.btn.btn-fav(data-placement="top" title="Add or Remove from Album" href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.fas.fa-archive
                                             a.btn.btn-fav(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)

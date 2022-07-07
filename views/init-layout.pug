@@ -792,7 +792,7 @@ html
                                                             span #{historyItem.uri}
                                             div
                                                 a(title="Keep Item at Top" href='#_' onclick=`toggleStarHistoryItem("${historyItem.index}"); return false;` id=`#favHistory-${historyItem.index}`).ml-2
-                                                    i.fas.fa-star.btn-fav(class=`${(historyItem.saved) ? 'favorited' : ''}`)
+                                                    i.fas.fa-star(class=`${(historyItem.saved) ? 'favorited' : ''}`)
                                                 a(title="Keep Item at Top" href='#_' onclick=`removeHistoryItem("${historyItem.index}"); return false;`).ml-2
                                                     i.fas.fa-trash-alt
 
