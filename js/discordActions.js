@@ -156,7 +156,8 @@ module.exports = async (req, res, next) => {
                         }
                         break;
                     case 'RequestFile':
-                        printLine("ActionParser", `Request to Download File ${job.messageid}:${job.channelid}"`, 'info', job)
+                    case 'DeCacheFile':
+                        printLine("ActionParser", `Request to ${(job.action === 'RequestFile') ? 'Download' : 'Decache'} File ${job.messageid}:${job.channelid}"`, 'info', job)
                         if (global.mq_fileworker_cds) {
                             const foundMessages = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE id = ? AND channel = ? LIMIt 1`, [job.messageid, job.channelid])
                             if (foundMessages.rows && foundMessages.rows.length > 0) {
@@ -164,7 +165,7 @@ module.exports = async (req, res, next) => {
                                     fromClient: `return.Sequenzia.${config.system_name}`,
                                     fileUUID: foundMessages.rows[0].fileid,
                                     messageType: 'command',
-                                    messageAction: 'CacheSpannedFile'
+                                    messageAction: (job.action === 'RequestFile') ? 'CacheSpannedFile' : 'RemoveSpannedFile'
                                 }, function (callback) {
                                     if (callback) {
                                         printLine("KanmiMQ", `Sent to ${global.mq_fileworker_cds}`, 'info')
@@ -175,7 +176,7 @@ module.exports = async (req, res, next) => {
                                 if (req.body.batch) {
                                     _return = 200
                                 } else {
-                                    res.status(200).send(`Request Fetch, please wait...`)
+                                    res.status(200).send((job.action === 'RequestFile') ? `Request Fetch, please wait...` : 'Requested to remove cache')
                                 }
                             } else {
                                 printLine("ActionParser", `Unable to request download for ${job.messageid}:${job.channelid} : Not Found`, 'error');

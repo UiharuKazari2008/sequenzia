@@ -1250,6 +1250,7 @@ async function showSearchOptions(post) {
     const postDownload = _post.getAttribute('data-msg-download');
     const postFilename = _post.getAttribute('data-msg-filename');
     const postFilID = _post.getAttribute('data-msg-fileid');
+    const postCached = _post.getAttribute('data-msg-filecached') === 'true';
     const postEID = _post.getAttribute('data-msg-eid');
     const postID = _post.getAttribute('data-msg-id');
     const postDate = _post.getAttribute('data-msg-date');
@@ -1288,6 +1289,7 @@ async function showSearchOptions(post) {
     const modalRename = document.getElementById(`infoRename`);
     const modalEditText = document.getElementById(`infoEditText`);
     const modalCompile = document.getElementById(`infoCompile`);
+    const modalDecompile = document.getElementById(`infoDecompile`);
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
     const modalRepair = document.getElementById(`infoRepair`);
@@ -1452,21 +1454,36 @@ async function showSearchOptions(post) {
                 selectPostToMode(postID, false);
                 selectedActionMenu("RenamePost");
             }
-            modalCompile.classList.remove('hidden');
-            modalCompile.onclick = function() {
-                postsActions = [];
-                selectPostToMode(postID, false);
-                selectedActionMenu("CompileSF");
+            if (postCached) {
+                modalCompile.classList.add('hidden');
+                modalDecompile.classList.remove('hidden');
+                modalDecompile.onclick = function () {
+                    postsActions = [];
+                    selectPostToMode(postID, false);
+                    selectedActionMenu("DecompileSF");
+                }
+            } else {
+                modalDecompile.classList.add('hidden');
+                modalCompile.classList.remove('hidden');
+                modalCompile.onclick = function () {
+                    postsActions = [];
+                    selectPostToMode(postID, false);
+                    selectedActionMenu("CompileSF");
+                }
             }
         } else {
             modalRename.classList.add('hidden');
             modalRename.onclick = null;
             modalCompile.classList.add('hidden');
             modalCompile.onclick = null;
+            modalDecompile.classList.add('hidden');
+            modalDecompile.onclick = null;
         }
     } else {
         modalReport.classList.add('hidden');
         modalReport.onclick = null;
+        modalRepair.classList.add('hidden');
+        modalRepair.onclick = null;
         modalMove.classList.add('hidden');
         modalMove.onclick = null;
         modalDelete.classList.add('hidden');
@@ -1477,6 +1494,8 @@ async function showSearchOptions(post) {
         modalRotate.onclick = null;
         modalCompile.classList.add('hidden');
         modalCompile.onclick = null;
+        modalDecompile.classList.add('hidden');
+        modalDecompile.onclick = null;
         modalEditText.classList.add('hidden');
         modalEditText.onclick = null;
     }

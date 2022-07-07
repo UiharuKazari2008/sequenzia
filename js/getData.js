@@ -1768,7 +1768,7 @@ module.exports = async (req, res, next) => {
                                     let filename = item.attachment_name
                                     let fileid = ''
                                     let inprogress = false
-                                    const isCached = (item.fileid && item.filecached === 1)
+                                    const isCached = (item.fileid && item.filecached === 1 && (global.fw_serve || global.spanned_cache))
                                     if (item.real_filename !== null) {
                                         filename = item.real_filename
                                         fileid = item.fileid
@@ -1927,7 +1927,7 @@ module.exports = async (req, res, next) => {
                                     _ca.shift()
                                     clean_content = _ca.join('\n')
                                 }
-                                const isCached = (item.filecached === 1)
+                                const isCached = (item.fileid && item.filecached === 1 && (global.fw_serve || global.spanned_cache))
                                 let channelName = ''
                                 if (item.channel_nice) {
                                     channelName = item.channel_nice

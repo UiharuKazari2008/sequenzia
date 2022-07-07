@@ -238,7 +238,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
 
 
                         if ((!web.stream_max_file_size || (web.stream_max_file_size && (contentLength / 1024000).toFixed(2) <= web.stream_max_file_size)) && contentLength <= os.freemem() - (256 * 1024000)) {
-                            res.setHeader('Content-Disposition', `attachment; filename="${file.real_filename}"`);
+                            res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.real_filename)}"`);
                             let fileIndex = 0;
                             let startByteOffset = 0;
                             if (requestedStartBytes !== 0) {
@@ -261,7 +261,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                 passTrough.destroy();
                                 passTrough = null;
                             })
-                            passTrough.on('error', () => { res.status(500).end(); })
+                            passTrough.on('error', (error) => { res.status(500).send(error.message); })
                             // Pipeline Files to Save for future requests
                             if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0 && !(req.query.nocache && !req.query.nocache === 'true') && (!web.cache_max_file_size || (web.cache_max_file_size && (contentLength / 1024000).toFixed(2) <= web.cache_max_file_size))) {
                                 printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');

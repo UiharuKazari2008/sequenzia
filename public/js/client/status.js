@@ -1,5 +1,5 @@
-function sendDownloadRequest(serverid, channelid, messageid, wait) {
-    if (fileWorking === false || !wait) {
+function sendDownloadRequest(serverid, channelid, messageid, wait, create) {
+    if (fileWorking === false || !wait || !create) {
         $.ajax({async: true,
             type: "post",
             url: "/actions/v2",
@@ -8,22 +8,26 @@ function sendDownloadRequest(serverid, channelid, messageid, wait) {
                     'serverid': serverid,
                     'channelid': channelid,
                     'messageid': messageid,
-                    'action': 'RequestFile'
+                    'action': (create) ? 'RequestFile' : 'DeCacheFile'
                 },
             cache: false,
             headers: {
                 'X-Requested-With': 'SequenziaXHR'
             },
             success: function (html) {
-                try {
-                    $('#sectionRequestText')[0].classList.remove('hidden');
-                } catch (e) {
-                    console.error(e)
-                }
-                if (wait) {
-                    refreshFileStatus(messageid)
-                    count = 0;
-                    console.log('Message Sent')
+                if (create) {
+                    try {
+                        $('#sectionRequestText')[0].classList.remove('hidden');
+                    } catch (e) {
+                        console.error(e)
+                    }
+                    if (wait) {
+                        refreshFileStatus(messageid)
+                        count = 0;
+                        console.log('Message Sent')
+                    }
+                } else {
+
                 }
             },
             error: function (html) {

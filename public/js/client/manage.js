@@ -40,13 +40,13 @@ function proccessPost(alt) {
             if (a.length !== 1 && i + 1 !== a.length) {
                 confirm = false
             }
-            if (actionSelection === 'CompileSF') {
+            if (actionSelection === 'CompileSF' || actionSelection === 'DecompileSF') {
                 if (post.file !== undefined) {
-                    sendDownloadRequest(post.serverid, post.channelid, post.messageid, !(postsActions.filter(e => e.file !== undefined).length > 1));
+                    sendDownloadRequest(post.serverid, post.channelid, post.messageid, !(postsActions.filter(e => e.file !== undefined).length > 1), (actionSelection === 'CompileSF'));
                 }
                 if (confirm) {
                     postsActions = [];
-                    $.snack('success', `Requested to Compile ${(postsActions.length > 1) ? postsActions.filter(e => e.file !== undefined).length + " Files" : "File"}`, 5000)
+                    $.snack('success', `Requested to ${(actionSelection === 'CompileSF') ? 'Compile' : 'Remove Cache'} ${(postsActions.length > 1) ? postsActions.filter(e => e.file !== undefined).length + " Files" : "File"}`, 5000)
                 }
             } else if (actionSelection === 'Report' || actionSelection === 'RemoveReport') {
                 if (alt) {
@@ -174,6 +174,12 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#postID").innerText = `Compile ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-box-open')
+            actionModel.querySelector("#postButton").classList.remove("disabled");
+        } else if (actionSelection === 'DecompileSF') {
+            actionModel.querySelector("#ActionName").innerText = 'Remove Cache'
+            actionModel.querySelector("#postID").innerText = `Decompile ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
+            actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-cloud-xmark')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         }
         actionModel.querySelector('#selectedMenu').classList.add('d-none');

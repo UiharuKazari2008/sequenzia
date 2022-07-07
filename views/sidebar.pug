@@ -242,6 +242,9 @@ html
                                         a#actionModelCompile.btn.btn-primary.w-100.mb-1(title="Compile Spanned File" href='#_' onClick=`selectedActionMenu("CompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none
                                             i.fas.fa-box-open.pr-2.align-self-center
                                             span Compile File
+                                        a#actionModelDeCompile.btn.btn-primary.w-100.mb-1(title="Remove the Compipled Cache of Spanned File(s)" href='#_' onClick=`selectedActionMenu("DecompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none
+                                            i.fas.fa-cloud-xmark.pr-2.align-self-center
+                                            span Remove Cached
                                         a#actionModelRotate.btn.btn-primary.w-100.mb-1(title="Rotate Image" href='#_' onClick=`selectedActionMenu("RotatePost"); return false;`).d-none
                                             i.fas.fa-undo.pr-2.align-self-center
                                             span Rotate Image
@@ -307,7 +310,7 @@ html
                                         div#sectionArchivePost.hidden
                                             strong.text-center Are you sure you want to archive or delete these messages
                                         div#sectionGeneratePost.hidden
-                                            strong.text-center Are you sure you want to repair these messages
+                                            strong.text-center Are you sure you want to process these messages
                                         div#sectionRenamePost.hidden
                                             strong.text-center File Name:
                                             input#newName(name="filename" onchange="updateFileName(this);" onkeyup="updateFileName(this);" onpaste="updateFileName(this);" oninput="updateFileName(this);").form-group.col
