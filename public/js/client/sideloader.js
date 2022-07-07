@@ -912,25 +912,29 @@ async function openUnpackingFiles(messageid, playThis) {
                 const itemToGet = Array.from(downloadSpannedController.keys())[0]
                 activeSpannedJob = downloadSpannedController.get(itemToGet)
                 if (activeSpannedJob.ready && activeSpannedJob.pending) {
-                    await unpackFile();
-                    if (activeSpannedJob.play) {
-                        console.log(`Launching File...`)
-                        const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
-                        if (element) {
-                            if (activeSpannedJob.play === 'audio') {
-                                PlayTrack(element.href);
-                            } else if (activeSpannedJob.play === 'video') {
-                                PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`);
+                    const download = await unpackFile();
+                    if (download) {
+                        memorySpannedController.push(activeSpannedJob);
+                        if (activeSpannedJob.play) {
+                            console.log(`Launching File...`)
+                            const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
+                            if (element) {
+                                if (activeSpannedJob.play === 'audio') {
+                                    PlayTrack(element.href);
+                                } else if (activeSpannedJob.play === 'video') {
+                                    PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`);
+                                } else {
+                                    console.error('No Datatype was provided')
+                                }
                             } else {
-                                console.error('No Datatype was provided')
+                                console.error('Data lost!')
                             }
-                        } else {
-                            console.error('Data lost!')
                         }
                     }
+
                 }
                 downloadSpannedController.delete(itemToGet);
-                memorySpannedController.push(activeSpannedJob);
+
                 console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
             }
             activeSpannedJob = false;
