@@ -105,6 +105,7 @@ module.exports = async (req, res, next) => {
                         }
                         break;
                     case 'Thumbnail':
+                    case 'VideoThumbnail':
                         printLine("ActionParser", `Request to Generate Thumbnail ${job.messageid} from ${job.channelid}`, 'info', job)
                         sendRequest({
                             fromClient: `return.Sequenzia.${config.system_name}`,
@@ -113,7 +114,7 @@ module.exports = async (req, res, next) => {
                             messageChannelID: job.channelid,
                             messageServerID: job.serverid,
                             messageType: 'command',
-                            messageAction: 'CacheImage'
+                            messageAction: (job.action === 'Thumbnail') ? 'CacheImage' : 'CacheVideo'
                         })
                         if (req.body.batch) {
                             _return = 200

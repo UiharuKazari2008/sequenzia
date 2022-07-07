@@ -45,7 +45,7 @@ function PlayTrack(file) {
     $('#pageNav')[0].classList.add("musicActive");
 
 }
-function PlayVideo(file, caption) {
+function PlayVideo(file, caption, fileid) {
     $.fancybox.open([
         {
             src : file,
@@ -58,7 +58,28 @@ function PlayVideo(file, caption) {
         }
     ], {
         touch: false,
-        afterShow : function( instance, current ) { }
+        afterShow : function( instance, current ) {
+            if (fileid && memoryVideoPositions.has(fileid)) {
+                const player = $('.fancybox-container.fancybox-is-open .fancybox-video')[0]
+                 if (player.currentTime !== player.duration) {
+                     player.currentTime = memoryVideoPositions.get(fileid);
+                 } else {
+                     memoryVideoPositions.delete(fileid);
+                 }
+            }
+            return true;
+        },
+        beforeClose: function () {
+            if (fileid) {
+                const player = $('.fancybox-container.fancybox-is-open .fancybox-video')[0]
+                if (player.currentTime !== player.duration) {
+                    memoryVideoPositions.set(fileid, player.currentTime)
+                } else {
+                    memoryVideoPositions.delete(fileid);
+                }
+            }
+            return true;
+        }
     });
 }
 function CloseMusic() {

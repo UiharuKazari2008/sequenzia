@@ -131,6 +131,7 @@ $(document).ready(function () {
         window.addEventListener("orientationChange", lazyload);
     }
 
+    $('#videoBuilderModal').on('hidden.bs.modal', cancelPendingUnpack);
     var scrollManagerThrottleTimeout;
     function scrollManager () {
         if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); }

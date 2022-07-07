@@ -753,6 +753,7 @@ function feedContent(type) {
 let downloadAllController = null;
 let downloadSpannedController = new Map();
 let memorySpannedController = [];
+let memoryVideoPositions = new Map();
 let activeSpannedJob = null;
 function downloadSelectedItems() {
     try {
@@ -865,26 +866,21 @@ async function openUnpackingFiles(messageid, playThis) {
     const filename = _post.getAttribute('data-msg-filename');
     const filesize = _post.getAttribute('data-msg-filesize');
     const channelString = _post.getAttribute('data-msg-channel-string');
-
+    const videoModel = document.getElementById('videoBuilderModal');
     if (fileid && fileid.length > 0) {
         const element = document.getElementById(`fileData-${fileid}`);
-        if (element) {
-            if (activeSpannedJob.play === 'audio') {
+        const memoryJobIndex = memorySpannedController.indexOf(fileid)
+        if (element && memoryJobIndex > -1) {
+            const previousJob = memorySpannedController[memoryJobIndex];
+            if (previousJob.play === 'audio') {
                 PlayTrack(element.href);
-            } else if (activeSpannedJob.play === 'video') {
-                $.fancybox.open([
-                    {
-                        src : element.href,
-                        type : "video",
-                        opts: {
-                            caption : `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`,
-                            autoStart: true
-                        }
-                    }
-                ], {
-                    touch: false,
-                    afterShow : function( instance, current ) { }
-                })
+            } else if (previousJob.play === 'video') {
+                $('#videoBuilderModal').modal('hide');
+                const videoPlayer = videoModel.querySelector('video')
+                if (!videoPlayer.paused)
+                    memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
+                videoPlayer.pause();
+                PlayVideo(element.href, `${previousJob.channel}/${previousJob.name} (${previousJob.size} MB)`, fileid);
             } else {
                 element.click();
             }
@@ -898,14 +894,15 @@ async function openUnpackingFiles(messageid, playThis) {
                 ready: true,
                 play: playThis
             })
-            $.toast({
-                type: 'success',
-                title: 'Unpack File',
-                subtitle: 'Now',
-                content: `File is unpacking, check active jobs for progress`,
-                delay: 5000,
-            });
-            //$('#downloadSpannedFile').modal('show');
+            if (!playThis || playThis !== 'video') {
+                $.toast({
+                    type: 'success',
+                    title: 'Unpack File',
+                    subtitle: 'Now',
+                    content: `File is unpacking, check active jobs for progress`,
+                    delay: 5000,
+                });
+            }
             updateNotficationsPanel();
             notificationControler = setInterval(updateNotficationsPanel, 1000);
             while (downloadSpannedController.size !== 0) {
@@ -922,7 +919,11 @@ async function openUnpackingFiles(messageid, playThis) {
                                 if (activeSpannedJob.play === 'audio') {
                                     PlayTrack(element.href);
                                 } else if (activeSpannedJob.play === 'video') {
-                                    PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`);
+                                    $('#videoBuilderModal').modal('hide');
+                                    const videoPlayer = videoModel.querySelector('video')
+                                    videoPlayer.pause();
+                                    memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
+                                    PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`, activeSpannedJob.id);
                                 } else {
                                     console.error('No Datatype was provided')
                                 }
@@ -948,13 +949,15 @@ async function openUnpackingFiles(messageid, playThis) {
                 ready: true,
                 play: playThis
             })
-            $.toast({
-                type: 'success',
-                title: 'Unpack File',
-                subtitle: 'Now',
-                content: `File is added to queued`,
-                delay: 5000,
-            });
+            if (!playThis || playThis !== 'video') {
+                $.toast({
+                    type: 'success',
+                    title: 'Unpack File',
+                    subtitle: 'Now',
+                    content: `File is added to queued`,
+                    delay: 5000,
+                });
+            }
         } else {
             $.toast({
                 type: 'warning',
@@ -965,6 +968,75 @@ async function openUnpackingFiles(messageid, playThis) {
             });
         }
     }
+}
+async function openPreviewUnpacking(messageid) {
+    const _post = document.getElementById(`message-${messageid}`);
+    const fileid = _post.getAttribute('data-msg-fileid');
+    const filename = _post.getAttribute('data-msg-filename');
+    const filesize = _post.getAttribute('data-msg-filesize');
+    const channelString = _post.getAttribute('data-msg-channel-string');
+    const previewURL = _post.getAttribute('data-msg-url-preview');
+    const fullURL = _post.getAttribute('data-msg-url-full');
+
+    const element = document.getElementById(`fileData-${fileid}`);
+    const memoryJobIndex = memorySpannedController.indexOf(fileid);
+    if (element && memoryJobIndex > -1) {
+        PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`, fileid);
+    } else {
+        const videoModel = document.getElementById('videoBuilderModal');
+        videoModel.querySelector('span.status-text').innerText = `${filename} (${filesize} MB)`;
+        videoModel.querySelector('.progress > .progress-bar').style.width = "0%";
+        videoModel.querySelector('.progress > .progress-bar').classList.add('bg-success');
+        videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-danger');
+        videoModel.querySelector('.modal-footer button').classList.add('btn-secondary');
+        videoModel.querySelector('.modal-footer button').classList.remove('btn-danger');
+        videoModel.querySelector('.modal-footer a').classList.remove('disabled');
+        videoModel.setAttribute('pendingMessage', messageid);
+        const videoPlayer = videoModel.querySelector('video')
+        const imagePreview = videoModel.querySelector('img')
+
+        if (fullURL && fullURL.endsWith('.mp4')) {
+            videoPlayer.src = fullURL;
+            videoPlayer.play();
+            videoPlayer.classList.remove('hidden');
+            imagePreview.classList.add('hidden');
+        } else if (previewURL && previewURL.endsWith('.mp4')) {
+            videoPlayer.src = previewURL;
+            videoPlayer.play();
+            videoPlayer.classList.remove('hidden');
+            imagePreview.classList.add('hidden');
+        } else if (fullURL) {
+            imagePreview.src = fullURL;
+            videoPlayer.classList.add('hidden');
+            imagePreview.classList.remove('hidden');
+        } else if (previewURL) {
+            imagePreview.src = previewURL;
+            videoPlayer.classList.add('hidden');
+            imagePreview.classList.remove('hidden');
+        } else {
+            imagePreview.classList.add('hidden');
+            videoPlayer.classList.add('hidden');
+            console.log('No Preview');
+        }
+        $('#videoBuilderModal').modal('show');
+    }
+}
+async function startPendingUnpack() {
+    const videoModel = document.getElementById('videoBuilderModal');
+    const messageid = videoModel.getAttribute('pendingMessage');
+    videoModel.querySelector('.modal-footer button').classList.remove('btn-secondary');
+    videoModel.querySelector('.modal-footer button').classList.add('btn-danger');
+    videoModel.querySelector('.modal-footer a').classList.add('disabled');
+
+    openUnpackingFiles(messageid, 'video');
+}
+async function cancelPendingUnpack() {
+    const videoModel = document.getElementById('videoBuilderModal');
+    const messageid = videoModel.getAttribute('pendingMessage');
+    const fileid = document.getElementById(`message-${messageid}`).getAttribute('data-msg-fileid');
+    videoModel.querySelector('video').pause();
+    stopUnpackingFiles(fileid);
+    $('#videoBuilderModal').modal('hide');
 }
 async function stopUnpackingFiles(fileid) {
     if (downloadSpannedController.has(fileid)) {
@@ -984,7 +1056,11 @@ async function unpackFile() {
     if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
         console.log(`Downloading File ${activeSpannedJob.id}...`)
         activeSpannedJob.pending = false;
+        const videoModel = document.getElementById('videoBuilderModal');
+        const videoStatus = videoModel.querySelector('span.status-text');
+        const videoProgress = videoModel.querySelector('.progress > .progress-bar');
 
+        videoStatus.innerText = 'Getting Parity Metadata...';
         return await new Promise(async (job) => {
             $.ajax({
                 async: true,
@@ -1011,6 +1087,7 @@ async function unpackFile() {
                             console.log(activeSpannedJob)
                             if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
                                 if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
+                                    videoStatus.innerText = `Expecting ${activeSpannedJob.expected_parts} Parts`;
                                     let pendingBlobs = {}
                                     activeSpannedJob.parts.map((e,i) => {
                                         pendingBlobs[i] = e;
@@ -1018,6 +1095,8 @@ async function unpackFile() {
                                     function calculatePercent() {
                                         const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
                                         activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
+                                        videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Remaining`;
+                                        videoProgress.style.width = activeSpannedJob.progress;
                                     }
                                     while (Object.keys(pendingBlobs).length !== 0) {
                                         if (!activeSpannedJob.ready)
@@ -1054,89 +1133,128 @@ async function unpackFile() {
                                         const downloadedFile = window.URL.createObjectURL(new Blob(activeSpannedJob.blobs));
                                         const link = document.createElement('a');
                                         link.id = `fileData-${activeSpannedJob.id}`
-                                        if (activeSpannedJob.play === 'video') {
+                                        /*if (activeSpannedJob.play === 'video') {
                                             link.setAttribute('data-fancybox', 'videos')
                                             link.setAttribute('data-type', 'video')
-                                        }
+                                        }*/
                                         link.classList = `hidden`
                                         link.href = downloadedFile;
                                         link.setAttribute('download', activeSpannedJob.filename);
                                         document.body.appendChild(link);
                                         if (!activeSpannedJob.play) {
                                             link.click();
-                                            document.body.removeChild(link);
                                         }
 
-                                        $.toast({
-                                            type: 'success',
-                                            title: 'Unpack File',
-                                            subtitle: 'Now',
-                                            content: `File was unpacked successfully<br/>${activeSpannedJob.filename}`,
-                                            delay: 15000,
-                                        });
+                                        if (activeSpannedJob.play === 'video') {
+                                            videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
+                                        } else {
+                                            $.toast({
+                                                type: 'success',
+                                                title: 'Unpack File',
+                                                subtitle: 'Now',
+                                                content: `File was unpacked successfully<br/>${activeSpannedJob.filename}`,
+                                                delay: 15000,
+                                            });
+                                        }
                                         job(true);
+                                    } else {
+                                        if (activeSpannedJob.play === 'video') {
+                                            videoStatus.innerText = `Failed, Not all blocks where downloaded`;
+                                            videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-success');
+                                            videoModel.querySelector('.progress > .progress-bar').classList.add('bg-danger');
+                                        } else {
+                                            $.toast({
+                                                type: 'error',
+                                                title: 'Unpack File',
+                                                subtitle: 'Now',
+                                                content: `Missing a downloaded parity file, Retry to download!`,
+                                                delay: 15000,
+                                            });
+                                        }
+                                        job(false);
+                                    }
+                                } else {
+                                    if (activeSpannedJob.play === 'video') {
+                                        videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
+                                        videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-success');
+                                        videoModel.querySelector('.progress > .progress-bar').classList.add('bg-danger');
                                     } else {
                                         $.toast({
                                             type: 'error',
                                             title: 'Unpack File',
                                             subtitle: 'Now',
-                                            content: `Missing a downloaded parity file, Retry to download!`,
+                                            content: `File is damaged or is missing parts, please report to the site administrator!`,
                                             delay: 15000,
                                         });
-                                        job(false);
                                     }
+                                    job(false);
+                                }
+                            } else {
+                                if (activeSpannedJob.play === 'video') {
+                                    videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
+                                    videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-success');
+                                    videoModel.querySelector('.progress > .progress-bar').classList.add('bg-danger');
                                 } else {
                                     $.toast({
                                         type: 'error',
                                         title: 'Unpack File',
                                         subtitle: 'Now',
-                                        content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                        content: `Failed to read the parity metadata response!`,
                                         delay: 15000,
                                     });
-                                    job(false);
                                 }
+                                job(false);
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            if (activeSpannedJob.play === 'video') {
+                                videoStatus.innerText = `Handler Failure: ${e.message}`;
+                                videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-success');
+                                videoModel.querySelector('.progress > .progress-bar').classList.add('bg-danger');
                             } else {
                                 $.toast({
                                     type: 'error',
                                     title: 'Unpack File',
                                     subtitle: 'Now',
-                                    content: `Failed to read the parity metadata response!`,
+                                    content: `File Handeler Fault!<br/>${e.message}`,
                                     delay: 15000,
                                 });
-                                job(false);
                             }
-                        } catch (e) {
-                            console.error(e);
+                            job(false);
+                        }
+                    } else {
+                        if (activeSpannedJob.play === 'video') {
+                            videoStatus.innerText = `Server Error: ${response}`;
+                            videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-success');
+                            videoModel.querySelector('.progress > .progress-bar').classList.add('bg-danger');
+                        } else {
                             $.toast({
                                 type: 'error',
                                 title: 'Unpack File',
                                 subtitle: 'Now',
-                                content: `File Handeler Fault!<br/>${e.message}`,
+                                content: `File failed to unpack!<br/>${response}`,
                                 delay: 15000,
                             });
-                            job(false);
                         }
-                    } else {
-                        $.toast({
-                            type: 'error',
-                            title: 'Unpack File',
-                            subtitle: 'Now',
-                            content: `File failed to unpack!<br/>${response}`,
-                            delay: 15000,
-                        });
                         job(false);
                     }
                     delete activeSpannedJob.blobs
                     delete activeSpannedJob.parts
                 },
                 error: function (xhr) {
-                    $.toast({
-                        type: 'error',
-                        title: 'Unpack File',
-                        subtitle: 'Now',
-                        content: `File failed to unpack!<br/>${xhr.responseText}`,
-                        delay: 15000,
-                    });
+                    if (activeSpannedJob.play === 'video') {
+                        videoStatus.innerText = `Server Error: ${xhr.responseText}`;
+                        videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-success');
+                        videoModel.querySelector('.progress > .progress-bar').classList.add('bg-danger');
+                    } else {
+                        $.toast({
+                            type: 'error',
+                            title: 'Unpack File',
+                            subtitle: 'Now',
+                            content: `File failed to unpack!<br/>${xhr.responseText}`,
+                            delay: 15000,
+                        });
+                    }
                     delete activeSpannedJob.blobs
                     delete activeSpannedJob.parts
                     console.error(xhr.responseText);
@@ -1181,16 +1299,18 @@ async function updateNotficationsPanel() {
             completedKeys.push(...memorySpannedController.map(item => {
                 let results = [];
                 const element = document.getElementById(`fileData-${item.id}`);
+                results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
                 if (item.play) {
                     let clickAction = undefined;
                     if (item.play === 'video') {
-                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size} MB)');`
+                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size} MB)', '${item.id}');`
                     } else if (item.play === 'audio') {
                         clickAction = `PlayTrack('${element.href}');`
+                        clickAction = `PlayTrack('${element.href}');`
                     }
-                    results.push(`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
+                    results.push(`<a class="text-ellipsis" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
                 } else {
-                    results.push(`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
+                    results.push(`<a class="text-ellipsis" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
                 }
                 if (item.play === 'video') {
                     results.push(`<i class="fas fa-film mr-1"></i>`)
@@ -1200,7 +1320,17 @@ async function updateNotficationsPanel() {
                     results.push(`<i class="fas fa-file mr-1"></i>`)
                 }
                 results.push(`<span>${item.name} (${item.size} MB)</span>`)
+                if (item.play) {
+                    results.push(`</a>`);
+                    results.push(`<a title="Save File" href='#_' onclick="document.getElementById('fileData-${item.id}').click(); return false;">`);
+                    results.push(`<i class="fas fa-download px-2"></i>`)
+                    results.push(`</a>`);
+                }
                 results.push(`</a>`);
+                results.push(`<a title="Remove File from Memory" href='#_' onclick="removeCacheItem('${item.id}'); return false;">`);
+                results.push(`<i class="fas fa-trash-alt px-2"></i>`)
+                results.push(`</a>`);
+                results.push(`</div>`)
                 return results.join('\n');
             }))
         }
@@ -1242,6 +1372,14 @@ async function updateNotficationsPanel() {
         }
     }
 }
+async function removeCacheItem(id, noupdate) {
+    const link = document.getElementById('fileData-' + id);
+    if (link)
+        document.body.removeChild(link);
+    memorySpannedController = memorySpannedController.filter(e => e.id !== id);
+    if (!noupdate)
+        updateNotficationsPanel();
+}
 let notificationControler = null;
 
 async function showSearchOptions(post) {
@@ -1263,6 +1401,7 @@ async function showSearchOptions(post) {
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
     const postFlagged = _post.getAttribute('data-msg-flagged') + '' === 'true';
+    const postIsVideo = _post.getAttribute('data-msg-isvideo') + '' === 'true';
     const nsfwString = _post.getAttribute('data-nsfw-string');
     const manageAllowed = _post.getAttribute('data-msg-manage') + '' === 'true';
 
@@ -1421,7 +1560,7 @@ async function showSearchOptions(post) {
         modalRepair.onclick = function() {
             postsActions = [];
             selectPostToMode(postID, false);
-            selectedActionMenu("Thumbnail");
+            selectedActionMenu((postIsVideo) ? "VideoThumbnail" : "Thumbnail");
         }
 
         modalMove.classList.remove('hidden');

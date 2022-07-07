@@ -166,7 +166,7 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#sectionReportPost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-flag')
             actionModel.querySelector("#postButton").classList.remove("disabled");
-        } else if (actionSelection === 'Thumbnail') {
+        } else if (actionSelection === 'Thumbnail' || actionSelection === 'VideoThumbnail') {
             countdownTimer = 2;
             actionModel.querySelector("#ActionName").innerText = 'Generate'
             actionModel.querySelector("#postID").innerText = `Generate ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid} Thumbnail`
