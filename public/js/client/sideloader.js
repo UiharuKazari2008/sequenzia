@@ -767,6 +767,7 @@ function downloadSelectedItems() {
         downloadAllController.fileids = postsActions.filter(e => document.getElementById(`message-${e.messageid}`) && document.getElementById(`message-${e.messageid}`).hasAttribute('data-msg-fileid')).map(e => document.getElementById(`message-${e.messageid}`).getAttribute('data-msg-fileid'))
         document.getElementById("downloadProgText").innerText = `Ready to download ${downloadAllController.urls.length + downloadAllController.fileids.length} items!`
         $('#downloadAll').modal('show');
+        postsActions = [];
     } catch (e) {
         alert(`Error starting downloader: ${e.message}`)
     }

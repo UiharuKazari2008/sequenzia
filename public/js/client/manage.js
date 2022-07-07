@@ -46,7 +46,7 @@ function proccessPost(alt) {
                 }
                 if (confirm) {
                     postsActions = [];
-                    $.snack('success', `Requested to ${(actionSelection === 'CompileSF') ? 'Compile' : 'Remove Cache'} ${(postsActions.length > 1) ? postsActions.filter(e => e.file !== undefined).length + " Files" : "File"}`, 5000)
+                    $.snack('success', `Requested to ${(actionSelection === 'CompileSF') ? 'Generate' : 'Remove'} Cache ${(postsActions.length > 1) ? postsActions.filter(e => e.file !== undefined).length + " Files" : "File"}`, 5000)
                 }
             } else if (actionSelection === 'Report' || actionSelection === 'RemoveReport') {
                 if (alt) {
@@ -175,13 +175,13 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'CompileSF') {
             actionModel.querySelector("#ActionName").innerText = 'Compile'
-            actionModel.querySelector("#postID").innerText = `Compile ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
+            actionModel.querySelector("#postID").innerText = `Compile Fast Access Cache ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
-            actionModel.querySelector('#sectionIcon i').classList.add('fa-box-open')
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-cloud-check')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'DecompileSF') {
-            actionModel.querySelector("#ActionName").innerText = 'Remove Cache'
-            actionModel.querySelector("#postID").innerText = `Decompile ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
+            actionModel.querySelector("#ActionName").innerText = 'Remove'
+            actionModel.querySelector("#postID").innerText = `Remove Cache ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-cloud-xmark')
             actionModel.querySelector("#postButton").classList.remove("disabled");
