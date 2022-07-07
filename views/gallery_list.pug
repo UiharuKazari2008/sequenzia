@@ -129,6 +129,9 @@ block content
                                         div.d-inline-flex.ml-auto.shadow-text
                                             i.fas(class=`${item.channel.icon}`).pr-1
                                     if (isVideo)
+                                        div.status-icons.left-links.d-flex.w-100.no-dynamic-tiny(style='padding-top: 1.4em;')
+                                            div.d-flex.shadow-text.text-ellipsis
+                                                span.text-ellipsis(style='line-height: 1.1; text-weight: bold;') #{item.entities.filename}
                                         p.status-icons.center-icons(style='height: 64px;').text-center
                                             i.fas.fa-4x.fa-film(style='color: #838383c9;')
                                 div.links-container.text-primary
