@@ -284,6 +284,10 @@ module.exports = async (req, res, next) => {
             android_uri.push(`pins=${req.query.pins}`);
             enablePrelimit = false;
         }
+        // Show only Cached
+        if (req.query && req.query.cached && req.query.cached === 'true') {
+            sqlquery.push('((fileid IS NOT NULL AND filecached = 1) OR fileid IS NULL)')
+        }
 
         // History
         if (req.query && req.query.history && req.query.history === 'only') {

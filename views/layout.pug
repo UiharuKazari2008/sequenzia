@@ -748,6 +748,15 @@ html
                                                                     a.dropdown-item(title="Show only favorites" href='#_' onclick=`getNewContent(['offset'], [['pins', 'true']])` role='button')
                                                                         i.fas.fa-star.pr-2
                                                                         | Favorites
+                                                                if (params.getAll('cached')[0] === 'true')
+                                                                    a.dropdown-item(title="Show All regardless of accessibility" href='#_' onclick=`getNewContent(['offset', 'cached'], [])`  role='button')
+                                                                        i.fas.fa-empty-set.pr-2
+                                                                        | Show All
+                                                                else
+                                                                    a.dropdown-item(title="Show only Fast Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
+                                                                        i.fas.fa-cloud-check.pr-2
+                                                                        | Fast Access
+                                                                .dropdown-divider
                                                                 if (params.getAll('sort')[0] !== 'random')
                                                                     if (params.getAll('sort')[0] !== 'eid')
                                                                         a.dropdown-item(title="Sort by creation" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'eid']]); return false;` role='button')
@@ -1322,6 +1331,14 @@ html
                                                     i.fas.fa-star.text-warning
                                             .align-self-start.align-self-center
                                                 .text-warning Showing Favorites for user ID : #{params.getAll('pins')[0]}
+                                if (params && params.has('cached') && params.getAll('cached')[0] === 'true')
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-cloud-check.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning Showing only Fast Access or Directly Accessible items
                                 if (params && params.has('history_numdays'))
                                     - const days = parseInt(params.getAll('history_numdays')[0]);
                                     .alert.alert-time-transparent(role="alert")
