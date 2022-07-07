@@ -91,9 +91,13 @@ function openActionMenu(mode) {
         if (fileCompileable.length > 0) {
             actionModel.querySelector('#actionModelCompile').classList.remove('d-none');
             actionModel.querySelector('#actionModelCompile').classList.add('d-flex');
+            actionModel.querySelector('#actionModelDeCompile').classList.remove('d-none');
+            actionModel.querySelector('#actionModelDeCompile').classList.add('d-flex');
         } else {
             actionModel.querySelector('#actionModelCompile').classList.add('d-none');
             actionModel.querySelector('#actionModelCompile').classList.remove('d-flex');
+            actionModel.querySelector('#actionModelDeCompile').classList.add('d-none');
+            actionModel.querySelector('#actionModelDeCompile').classList.remove('d-flex');
         }
         if (pageType.includes('gallery')) {
             actionModel.querySelector('#actionModelRotate').classList.remove('d-none');
