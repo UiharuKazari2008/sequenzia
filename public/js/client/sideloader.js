@@ -1276,7 +1276,7 @@ async function updateNotficationsPanel() {
                 let results = [`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
                 if (!item.pending) {
                     results.push(`<i class="fas fa-spinner text-success pr-2"></i>`);
-                    results.push(`<span>${item.name} (${item.size} MB)</span>`);
+                    results.push(`<span>${item.name} (${item.size})</span>`);
                     if (activeSpannedJob && activeSpannedJob.progress) {
                         results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`);
                         /*activeProgress.push(`<div class="progress pl-2" style="height: 30px;">`);
@@ -1284,12 +1284,12 @@ async function updateNotficationsPanel() {
                         activeProgress.push('</div>');*/
                     }
                 } else {
-                    results.push(`<span>${item.name} (${item.size} MB)</span>`)
+                    results.push(`<span>${item.name} (${item.size})</span>`)
                 }
                 results.push(`</a>`);
                 return results.join('\n');
             } else {
-                return `<span>${item.name} (${item.size} MB)</span>`
+                return `<span>${item.name} (${item.size})</span>`
             }
         })
         let completedKeys = [];
@@ -1303,7 +1303,7 @@ async function updateNotficationsPanel() {
                 if (item.play) {
                     let clickAction = undefined;
                     if (item.play === 'video') {
-                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size} MB)', '${item.id}');`
+                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
                     } else if (item.play === 'audio') {
                         clickAction = `PlayTrack('${element.href}');`
                         clickAction = `PlayTrack('${element.href}');`
@@ -1319,7 +1319,7 @@ async function updateNotficationsPanel() {
                 } else {
                     results.push(`<i class="fas fa-file mr-1"></i>`)
                 }
-                results.push(`<span>${item.name} (${item.size} MB)</span>`)
+                results.push(`<span>${item.name} (${item.size})</span>`)
                 if (item.play) {
                     results.push(`</a>`);
                     results.push(`<a title="Save File" href='#_' onclick="document.getElementById('fileData-${item.id}').click(); return false;">`);
