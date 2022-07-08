@@ -23,7 +23,7 @@
 
 .album-list {
     display: flex;
-    overflow-x: hidden;
+    overflow-x: auto;
     overflow-y: scroll;
     white-space: nowrap;
     flex-wrap: wrap;
@@ -31,19 +31,19 @@
     height: 25vh;
 }
 .album-item {
-    min-height: 150px;
-    min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.5em);
+    min-height: 100px;
+    min-width: calc(25% - 0.5em);
     margin-left: 0.25em;
     margin-right: 0.25em;
     margin-bottom: 0.5rem;
 }
 
 .album-item:first-child  {
-    min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+    min-width: calc(25% - 0.25em);
     margin-left: 0;
 }
 .album-item:last-child  {
-    min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+    min-width: calc(25% - 0.25em);
     margin-right: 0;
 }
 
@@ -59,7 +59,7 @@
 .menu-grid {
     display: flex;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
     white-space: nowrap;
     width: 100%;
     max-height: 25vh;
@@ -67,6 +67,9 @@
     justify-content: space-evenly;
     grid-auto-flow: column;
     flex-wrap: wrap;
+}
+a.user-menu-item {
+    padding: 0.5em;
 }
 
 .user-menu-small {
@@ -1521,7 +1524,6 @@ select.form-control:focus::-ms-value {
     padding-top: 60%;
 }
 
-
 @media (min-width:356px) {
     .card-columns {
         column-count: 1;
@@ -1571,7 +1573,42 @@ select.form-control:focus::-ms-value {
     .pushUp > div > div > .menu-object {
         padding-top: calc(env(safe-area-inset-top) + 20% + 4em);
     }
+    .album-item {
+        min-height: 100px;
+        min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.5em);
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+        margin-bottom: 0.5rem;
+    }
 
+    .album-item:first-child  {
+        min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+        margin-left: 0;
+    }
+    .album-item:last-child  {
+        min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+        margin-right: 0;
+    }
+
+}
+
+@media (max-width:420px) {
+    .album-item {
+        min-height: 100px;
+        min-width: calc(50% - 0.5em);
+        margin-left: 0.25em;
+        margin-right: 0.25em;
+        margin-bottom: 0.5rem;
+    }
+
+    .album-item:first-child  {
+        min-width: calc(50% - 0.25em);
+        margin-left: 0;
+    }
+    .album-item:last-child  {
+        min-width: calc(50% - 0.25em);
+        margin-right: 0;
+    }
 }
 @media (min-height:450px) {
     .no-short {

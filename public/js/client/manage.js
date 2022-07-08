@@ -826,9 +826,7 @@ function clearactionModel() {
 
     try {
         $('#selectAll1')[0].classList.remove('hidden');
-        $('#selectAll2')[0].classList.remove('hidden');
         $('#deSelectAll1')[0].classList.add('hidden');
-        $('#deSelectAll2')[0].classList.add('hidden');
     } catch (e) {
         console.log('Could not reset the selection buttons')
     }

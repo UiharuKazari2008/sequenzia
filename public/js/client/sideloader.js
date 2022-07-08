@@ -880,7 +880,7 @@ async function openUnpackingFiles(messageid, playThis) {
                 if (!videoPlayer.paused)
                     memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
                 videoPlayer.pause();
-                PlayVideo(element.href, `${previousJob.channel}/${previousJob.name} (${previousJob.size} MB)`, fileid);
+                PlayVideo(element.href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
             } else {
                 element.click();
             }
@@ -923,7 +923,7 @@ async function openUnpackingFiles(messageid, playThis) {
                                     const videoPlayer = videoModel.querySelector('video')
                                     videoPlayer.pause();
                                     memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
-                                    PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`, activeSpannedJob.id);
+                                    PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, activeSpannedJob.id);
                                 } else {
                                     console.error('No Datatype was provided')
                                 }
@@ -981,10 +981,10 @@ async function openPreviewUnpacking(messageid) {
     const element = document.getElementById(`fileData-${fileid}`);
     const memoryJobIndex = memorySpannedController.indexOf(fileid);
     if (element && memoryJobIndex > -1) {
-        PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size} MB)`, fileid);
+        PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, fileid);
     } else {
         const videoModel = document.getElementById('videoBuilderModal');
-        videoModel.querySelector('span.status-text').innerText = `${filename} (${filesize} MB)`;
+        videoModel.querySelector('span.status-text').innerText = `${filename} (${filesize})`;
         videoModel.querySelector('.progress > .progress-bar').style.width = "0%";
         videoModel.querySelector('.progress > .progress-bar').classList.add('bg-success');
         videoModel.querySelector('.progress > .progress-bar').classList.remove('bg-danger');
@@ -1385,6 +1385,7 @@ let notificationControler = null;
 async function showSearchOptions(post) {
     pageType = $.history.url().split('?')[0].substring(1);
     const _post = document.getElementById(`message-${post}`);
+    const _model = document.getElementById('searchModal')
     const postChannel = _post.getAttribute('data-msg-channel');
     const postServer = _post.getAttribute('data-msg-server');
     const postChannelString = _post.getAttribute('data-msg-channel-string');
@@ -1398,10 +1399,13 @@ async function showSearchOptions(post) {
     const postID = _post.getAttribute('data-msg-id');
     const postDate = _post.getAttribute('data-msg-date');
     const postAuthorName = _post.getAttribute('data-msg-author');
+    const postPreviewImage = _post.getAttribute('data-msg-url-preview');
+    const postFullImage = _post.getAttribute('data-msg-url-full');
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
     const postFlagged = _post.getAttribute('data-msg-flagged') + '' === 'true';
     const postIsVideo = _post.getAttribute('data-msg-isvideo') + '' === 'true';
+    const postIsAudio = _post.getAttribute('data-msg-isaudio') + '' === 'true';
     const nsfwString = _post.getAttribute('data-nsfw-string');
     const manageAllowed = _post.getAttribute('data-msg-manage') + '' === 'true';
 
@@ -1416,6 +1420,7 @@ async function showSearchOptions(post) {
     const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
     const modalGoToHistoryDisplay = document.getElementById(`goToHistoryDisplay`);
     const modalDownloadButton = document.getElementById(`goToDownload`);
+    const modalPlayButton = document.getElementById(`goToPlay`);
     const modalGoToPostSource = document.getElementById(`goToPostSource`);
     const modalSearchByUser = document.getElementById(`searchByUser`);
     const modalSearchByParent = document.getElementById(`searchByParent`);
@@ -1428,6 +1433,7 @@ async function showSearchOptions(post) {
     const modalToggleFav = document.getElementById(`toggleFavoritePost`);
     const modalAddFlag = document.getElementById(`addFlagPost`);
     const modalToggleAlbum = document.getElementById(`manageAlbumPost`);
+    const modalFilename = document.getElementById(`infoFilename`);
     const modalMove = document.getElementById(`infoMove`);
     const modalDelete = document.getElementById(`infoDelete`);
     const modalRename = document.getElementById(`infoRename`);
@@ -1448,11 +1454,21 @@ async function showSearchOptions(post) {
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
 
-    if (postFlagged) {
-        normalInfo.push('<div class="badge badge-danger mx-1 ">')
-        normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
-        normalInfo.push('</div>')
+    if (postPreviewImage) {
+        if (postPreviewImage.split('?')[0].endsWith('.jpg') ||
+            postPreviewImage.split('?')[0].endsWith('.jpeg') ||
+            postPreviewImage.split('?')[0].endsWith('.jfif') ||
+            postPreviewImage.split('?')[0].endsWith('.png') ||
+            postPreviewImage.split('?')[0].endsWith('.gif') ||
+            postPreviewImage.split('?')[0].endsWith('.webm')) {
+            _model.querySelector('.modal-background').style.backgroundImage = `url("${postPreviewImage}")`
+        } else {
+            _model.querySelector('.modal-background').style.backgroundImage = undefined;
+        }
+    } else {
+        _model.querySelector('.modal-background').style.backgroundImage = undefined;
     }
+
     if (resolutionRatio && resolutionRatio.length > 0) {
         normalInfo.push('<div class="badge badge-light mx-1">')
         const ratio = parseFloat(resolutionRatio.split(':')[1])
@@ -1470,15 +1486,68 @@ async function showSearchOptions(post) {
     }
     if (fileSize && fileSize.length > 0) {
         normalInfo.push('<div class="badge badge-light mx-1 ">')
-        normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize} MB</span>`)
+        normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize}</span>`)
         normalInfo.push('</div>')
+    }
+    if (postFilename && postFilename.length > 0) {
+        normalInfo.push('<div class="badge badge-light text-dark mx-1 ">')
+        if (postIsVideo) {
+            normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+        } else if (postIsAudio) {
+            normalInfo.push(`<i class="fa fa-file-audio pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+        } else {
+            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+        }
+        normalInfo.push('</div>')
+        advancedInfo.push(`<div><i class="fa fa-font pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
+        modalFilename.innerText = postFilename.split('.')[0];
+        modalFilename.classList.remove('hidden');
+    } else {
+        modalFilename.innerText = "Unknown";
+        modalFilename.classList.add('hidden');
     }
     if (postDate && postDate.length > 0) {
         normalInfo.push('<div class="badge badge-light mx-1 ">')
         normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>${postDate}</span>`)
         normalInfo.push('</div>')
     }
-    normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
+    if (postIsVideo) {
+        modalPlayButton.title = `Play Video`
+        if ((!postFilID && postDownload && postDownload.length > 0) || (postFilID && postFilID.length > 0 && postCached && postDownload && postDownload.length > 0)) {
+            modalPlayButton.onclick = function () {
+                PlayVideo(postDownload, `${postChannelString}/${postFilename} (${fileSize}`);
+                $('#searchModal').modal('hide');
+                return false;
+            }
+        } else if (postFilID && postFilID.length > 0) {
+            modalPlayButton.onclick = function () {
+                openPreviewUnpacking(postID);
+                $('#searchModal').modal('hide');
+                return false;
+            }
+        }
+        modalPlayButton.classList.remove('hidden')
+    } else if (postIsAudio) {
+        modalPlayButton.title = `Play Audio`
+        if ((!postFilID && postDownload && postDownload.length > 0) || (postFilID && postFilID.length > 0 && postCached && postDownload && postDownload.length > 0)) {
+            modalPlayButton.onclick = function () {
+                PlayTrack(postDownload);
+                $('#searchModal').modal('hide');
+                return false;
+            }
+        } else if (postFilID && postFilID.length > 0) {
+            modalPlayButton.onclick = function () {
+                openUnpackingFiles(postID, 'audio');
+                $('#searchModal').modal('hide');
+                return false;
+            }
+        }
+        modalPlayButton.classList.remove('hidden')
+    } else {
+        modalPlayButton.title = `Play`
+        modalDownloadButton.onclick = null;
+        modalPlayButton.classList.add('hidden')
+    }
     if (postFilID && postFilID.length > 0) {
         normalInfo.push('<div class="badge badge-warning text-dark mx-1 ">')
         normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
@@ -1487,20 +1556,48 @@ async function showSearchOptions(post) {
             normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
             normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Fast Access</span>`)
             normalInfo.push('</div>')
+            modalDownloadButton.title = `Fast Access Download`
+            modalDownloadButton.href = postDownload
+            if (postFilename && postFilename.length > 0) {
+                modalDownloadButton.download = postFilename
+            } else {
+                modalDownloadButton.download = undefined
+            }
+            modalDownloadButton.onclick = null;
+        } else {
+            modalDownloadButton.title = `Unpack Download`
+            modalDownloadButton.href = '#_'
+            modalDownloadButton.download = undefined
+            modalDownloadButton.onclick = function () {
+                openUnpackingFiles(postID, 'video');
+                $('#searchModal').modal('hide');
+                return false;
+            }
         }
+
+        modalDownloadButton.classList.remove('hidden')
         advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
+    } else if (postDownload && postDownload.length > 0) {
+        modalDownloadButton.title = `Direct Download`
+        modalDownloadButton.href = postDownload
+        modalDownloadButton.onclick = null;
+        if (postFilename && postFilename.length > 0) {
+            modalDownloadButton.download = postFilename
+        } else {
+            modalDownloadButton.download = ''
+        }
+        modalDownloadButton.classList.remove('hidden')
+    } else {
+        modalDownloadButton.href = '#_'
+        modalDownloadButton.download = undefined
+        modalDownloadButton.onclick = null;
+        modalDownloadButton.title = 'Direct Download'
+        modalDownloadButton.classList.add('hidden')
     }
-    if (postFilename && postFilename.length > 0) {
-        normalInfo.push('<div class="badge badge-light text-dark mx-1 ">')
-        normalInfo.push(`<i class="fa fa-font pr-1"></i><span>${postFilename}</span>`)
+    if (postFlagged) {
+        normalInfo.push('<div class="badge badge-danger mx-1 ">')
+        normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
         normalInfo.push('</div>')
-        advancedInfo.push(`<div><i class="fa fa-font pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
-    }
-    if (postAuthorImage && postAuthorImage.length > 0) {
-        let imageURL = postAuthorImage
-        if (imageURL.includes('?size='))
-            imageURL = imageURL.split('?size=')[0] + '?size=64'
-        modalAuthorData.querySelector('img').src = imageURL
     }
     if (postAuthorName && postAuthorName.length > 0) {
         modalAuthorData.querySelector('span').innerText = postAuthorName;
@@ -1509,6 +1606,13 @@ async function showSearchOptions(post) {
         normalInfo.push('<div class="badge badge-light mx-1 ">')
         normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
         normalInfo.push('</div>')
+    }
+    normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
+    if (postAuthorImage && postAuthorImage.length > 0) {
+        let imageURL = postAuthorImage
+        if (imageURL.includes('?size='))
+            imageURL = imageURL.split('?size=')[0] + '?size=64'
+        modalAuthorData.querySelector('img').src = imageURL
     }
 
     modalSearchSelectedText.onclick = function() {
@@ -1660,21 +1764,6 @@ async function showSearchOptions(post) {
         modalGoToPostSource.title = 'Go To Source'
         modalGoToPostSource.onclick = function() { return false; };
         modalGoToPostSource.classList.add('hidden')
-    }
-    if (postDownload && postDownload.length > 0) {
-        modalDownloadButton.title = `Direct Download`
-        modalDownloadButton.href = postDownload
-        if (postFilename && postFilename.length > 0) {
-            modalDownloadButton.download = postDownload
-        } else {
-            modalDownloadButton.download = ''
-        }
-        modalDownloadButton.classList.remove('hidden')
-    } else {
-        modalDownloadButton.href = '#_'
-        modalDownloadButton.download = ''
-        modalDownloadButton.title = 'Direct Download'
-        modalDownloadButton.classList.add('hidden')
     }
     if (postDisplayName && postDisplayName.length > 0) {
         modalGoToHistoryDisplay.title = `View "${postDisplayName}"`

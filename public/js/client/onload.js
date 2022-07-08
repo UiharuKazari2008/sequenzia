@@ -124,3 +124,12 @@ if (initalPageLoad) {
     initalPageLoad = false;
     console.log(`Registering inital page history (IPHL) as ${IPHL}`)
 }
+$('.tz-gallery .col-image[data-msg-url-extpreview]')
+    .mouseover(function() {
+        const el = this.querySelector('div#postImage');
+        el.style.backgroundImage = 'url("' + this.getAttribute('data-msg-url-preview') + '")';
+    })
+    .mouseout(function() {
+        const el = this.querySelector('div#postImage');
+        el.style.backgroundImage = 'url("' + this.getAttribute('data-msg-url-extpreview') + '")';
+    });

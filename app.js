@@ -194,6 +194,10 @@ app.use(session({
     saveUninitialized: true
 }));
 app.set('trust proxy', 1);
+if (process.env.NODE_ENV !== 'production') {
+    printLine("Init", `View Caching is not enabled and performance WILL SUFFER GREATLY, Set the environment variable NODE_ENV to production`, 'critical');
+    app.disable('view cache')
+}
 
 app.locals.databaseCache = new Map();
 

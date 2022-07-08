@@ -315,7 +315,7 @@ html
                                                                 i.far.fa-sticky-note.pr-1
                                                             else
                                                                 i.far.fa-archive.pr-1
-                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.dimmed(style="justify-content: left; bottom: 0;")
+                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.dimmed(style="justify-content: left; bottom: 0; background: #00000091")
                                                         span #{thisAlbum.name}
                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                         if (thisAlbum.image)
@@ -336,10 +336,9 @@ html
                                             span Apps
                                 .dimmed.d-flex(style='max-width: 600px;').mb-3
                                     div.menu-grid.user-menu-small
-                                        .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
-                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
-                                                i.shadow-blk.fas.fa-tv
-                                                | ADS
+                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                            i.shadow-blk.fas.fa-tv
+                                            | Photo Frame
                                         if (applications_list && applications_list.length > 0)
                                             each thisApp in applications_list
                                                 if (thisApp.type == 0)

@@ -5,7 +5,7 @@ const { sqlSimple, sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient
 const md5 = require("md5");
 
 module.exports = async (req, res, next) => {
-    if (req.headers && !req.headers['x-requested-page'] || req.originalUrl.split('/')[1].split('?')[0].length === 0) {
+    if (req.headers && !req.headers['x-requested-page'] && !req.originalUrl.split('/')[1].split('?')[0].length === 0) {
         next();
     } else if (req.session.sidebar && !(req.query && req.query.refresh)) {
         if (req.headers['x-requested-page'] === 'SeqSidebar') {
@@ -232,6 +232,8 @@ module.exports = async (req, res, next) => {
                     }
                 });
             }
+
+
             if (req.headers['x-requested-page'] === 'SeqSidebar') {
                 res.render('sidebar', {
                     url: req.url,

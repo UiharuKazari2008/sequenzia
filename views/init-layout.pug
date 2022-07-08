@@ -287,8 +287,8 @@ html
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Image History" href='#_' onclick='showDisplayHistory(); return false;')
-                                                            i.fa-light.fa-desktop
-                                                            | Ambient
+                                                            i.fa-light.fa-tv
+                                                            | Photo Frame
                                                         if (user && user.source < 900)
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
                                                                 i.fa-light.fa-key
@@ -334,7 +334,7 @@ html
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-archive.mr-2
                                                         | Albums
-                                                .w-100.position-absolute(style="justify-content: left; bottom: 0;")
+                                                .w-100.position-absolute(style="justify-content: left; top: 3em;")
                                                     if (albums && albums.length > 0)
                                                         div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in albums
@@ -379,7 +379,7 @@ html
                                                     .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
                                                         a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                                             i.fa-light.fa-tv
-                                                            | ADS
+                                                            | Photo Frame
                                                         if (applications_list && applications_list.length > 0)
                                                                 each thisApp in applications_list
                                                                     if (thisApp.type == 0)
@@ -698,12 +698,12 @@ html
                 .modal-content
                     .modal-header
                         h5.modal-title
-                            span Setup Ambient Display
+                            span Setup Photo Frame
                         button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
                         div.row.pl-3.pr-3.pb-2
-                            span Select an Ambient Display:
+                            span Select an Photo Frame:
                         div
                             #sendADSStatus.mb-2
                                 span Please Wait...
@@ -718,7 +718,7 @@ html
             .modal-dialog.modal-dialog-scrollable(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title.flex-grow-1 Ambient System
+                        h5.modal-title.flex-grow-1 Photo Frames
                         a.align-self-center(href='#_' onclick='getDisplayHistory("command=getAll"); return false;' role='button').text-white
                             i.fas.fa-sync-alt
                         button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
@@ -727,7 +727,7 @@ html
                         div
                             a.btn.btn-lucky(href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                 i.fas.fa-image-landscape.pr-2
-                                | Launch Ambient Display
+                                | Launch Web Photo Frame
                         div.pt-2.pb-1.d-flex
                             a.btn.btn-lucky.mr-1(href='#_' role='button' onclick="$('#displayHistoryModal').modal('hide'); $('#appModal').modal('show'); return false;")
                                 i.fas.fa-mobile-alt.pl-2.pr-2
@@ -942,8 +942,8 @@ html
                                                     i.fas.fa-key.pr-2
                                                     span Erase
                                             div.pt-2
-                                                p.text-danger This token can be use to bypass the standard discord login system and should not be used regularly, You should only use this key for Ambient Displays and Podcast Applications.
+                                                p.text-danger This token can be use to bypass the standard discord login system and should not be used regularly, You should only use this key for Photo Frames and Podcast Applications.
                                                 p If you are solely using this for Podcasts, as long as the key is visible you are done and can now generate a podcast feed url from "External Feeds".
-                                                p If you are using this for Ambient Displays, Copy this key and add it to the URL as "https://seq.moe/ambient?displayname=Untitled&key=<YOUR KEY>"
+                                                p If you are using this for Ambient Displays / Photo Frame, Copy this key and add it to the URL as "https://seq.moe/ambient?displayname=Untitled&key=<YOUR KEY>"
         // Music Manager
         script(type='text/javascript' src="/js/client/media.min.js")

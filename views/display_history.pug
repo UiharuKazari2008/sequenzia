@@ -48,8 +48,8 @@ div#displayHistoryResults
                                         div.wide-full(style=`background: linear-gradient(0deg, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
                             div(style='position: absolute; z-index: 4;').row.m-2.h5
                                 if ( display.display === 'Untitled' )
-                                    i.fas.fa-image-landscape.pr-2.align-self-center
-                                    | Ambient
+                                    i.fas.fa-tv.pr-2.align-self-center
+                                    | Frame
                                 else if ( display.display === 'Homepage' )
                                     i.fas.fa-home.pr-2.align-self-center
                                     | Homepage
@@ -81,7 +81,7 @@ div#displayHistoryResults
                                     i.fas.fa-mobile-alt.pr-2.align-self-center
                                     | #{(display.name.startsWith('ADSMobile-')) ? display.name.split('ADSMobile-')[1] : display.name}
                                 else
-                                    i.fas.fa-image-landscape.pr-2.align-self-center
+                                    i.fas.fa-tv.pr-2.align-self-center
                                     | #{display.name}
                             if (secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row

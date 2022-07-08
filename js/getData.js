@@ -855,7 +855,7 @@ module.exports = async (req, res, next) => {
             `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
         ].join(' AND ');
 
-        const selectBase = `SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '');
+        const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
@@ -1621,7 +1621,16 @@ module.exports = async (req, res, next) => {
                                 let channelName = ''
                                 let filesize = 'Unknown'
                                 if (item.filesize !== null) {
-                                    filesize = item.filesize
+                                    if (item.filesize > 100000) {
+                                        filesize = (item.filesize / 100000).toFixed(2) + ' TB'
+                                    } else if (item.filesize > 1000) {
+                                        filesize = (item.filesize / 1000).toFixed(2) + ' GB'
+                                    } else if (item.filesize > 1) {
+                                        filesize = item.filesize + ' MB'
+                                    } else {
+                                        filesize = '< 1 MB'
+                                    }
+
                                 }
                                 if (item.channel_nice) {
                                     channelName = item.channel_nice
@@ -1702,13 +1711,14 @@ module.exports = async (req, res, next) => {
                                 if (item.attachment_extra !== null) {
                                     // Unpack data here
                                     const extractedItems = JSON.parse(item.attachment_extra)
-                                    extractedItems.reverse().forEach(function (attachment) {
+                                    extractedItems.reverse().forEach(function (attachment, index) {
                                         if (attachment[0].includes('.jp') || attachment[0].includes('.png') ||
                                             attachment[0].includes('.gif') || attachment[0].includes('.jfif') || attachment[0].includes('.web')) {
                                             let imageurl = attachment[2]
                                             if (imageurl === undefined) {
                                                 imageurl = attachment[1]
                                             }
+                                            const extended_previews = (item.data && item.data.preview_image && item.data.preview_image[index]) ? "https://media.discordapp.net" + item.data.preview_image[index] : undefined
                                             const _date = moment(Date.parse(item.date))
                                             resultsArray.push({
                                                 id: item.id,
@@ -1720,6 +1730,7 @@ module.exports = async (req, res, next) => {
                                                 entities: {
                                                     full: attachment[1],
                                                     preview: attachment[2],
+                                                    ext_preview: extended_previews,
                                                     filename: item.attachment_name,
                                                     meta: {
                                                         width: item.sizeW,
@@ -1832,6 +1843,7 @@ module.exports = async (req, res, next) => {
                                         }, function (ok) { })
                                     }
                                     const _date = moment(Date.parse(item.date))
+                                    const extended_previews = (item.data && item.data.preview_image) ? "https://media.discordapp.net" + item.data.preview_image : undefined
                                     resultsArray.push({
                                         id: item.id,
                                         eid: item.eid,
@@ -1843,6 +1855,7 @@ module.exports = async (req, res, next) => {
                                             full: fullimage,
                                             download: downloadimage,
                                             preview: imageurl,
+                                            ext_preview: extended_previews,
                                             filename: filename,
                                             meta: {
                                                 width: item.sizeW,
@@ -1920,7 +1933,15 @@ module.exports = async (req, res, next) => {
                                     fileid = item.fileid
                                 }
                                 if (item.filesize !== null) {
-                                    filesize = item.filesize
+                                    if (item.filesize > 100000) {
+                                        filesize = (item.filesize / 100000).toFixed(2) + ' TB'
+                                    } else if (item.filesize > 1000) {
+                                        filesize = (item.filesize / 1000).toFixed(2) + ' GB'
+                                    } else if (item.filesize > 1) {
+                                        filesize = item.filesize + ' MB'
+                                    } else {
+                                        filesize = '< 1 MB'
+                                    }
                                 }
                                 if (decoded_content.includes('🧩 File : ')) {
                                     decoded_content = decoded_content.split("\n").filter((e,i) => { if (i > 1) { return e } }).join("\n")
@@ -1966,9 +1987,9 @@ module.exports = async (req, res, next) => {
                                     _message_header = '🖼 Large Image'
                                     if (isCached) {
                                         _message_type = 'image-unpacked'
-                                        _message_header += `${(item.filesize) ? ' (' + item.filesize + ' MB' : ''})`
+                                        _message_header += `(${filesize})`
                                     } else {
-                                        _message_header += ` (Packed${(item.filesize) ? ' - ' + item.filesize + ' MB' : ''})`
+                                        _message_header += ` (Packed - ${filesize})`
                                         _message_type = 'image-packed'
                                     }
                                 } else if (item.attachment_hash !== null && item.attachment_name !== null && (item.attachment_name.includes('.jp') || item.attachment_name.includes('.jfif') || item.attachment_name.includes('.png') || item.attachment_name.includes('.gif'))) {
@@ -1982,13 +2003,13 @@ module.exports = async (req, res, next) => {
                                     _message_header = '🔗 Link'
                                 } else if (item.fileid !== null && item.filecached === 1) {
                                     _message_type = 'file-unpacked'
-                                    _message_header = `🗄 Large File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
+                                    _message_header = `🗄 Large File (${filesize})`
                                 } else if (item.fileid !== null) {
                                     _message_type = 'file-packed'
-                                    _message_header = `📦 Packed File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
+                                    _message_header = `📦 Packed File (${filesize})`
                                 } else if (item.attachment_hash !== null) {
                                     _message_type = 'file'
-                                    _message_header = `🗄 File ${(item.filesize) ? '(' + item.filesize + ' MB)' : ''}`
+                                    _message_header = `🗄 File (${filesize})`
                                 } else if (item.content_full.length > 5) {
                                     _message_type = 'text'
                                     _message_header = '✉️ Message'
@@ -2068,6 +2089,7 @@ module.exports = async (req, res, next) => {
                                         }, function (ok) { })
                                     }
                                 }
+                                const extended_previews = (item.data && item.data.preview_image) ? "https://media.discordapp.net" + item.data.preview_image : undefined;
 
                                 if (item.attachment_extra !== null) {
                                     // Unpack data here
@@ -2084,6 +2106,7 @@ module.exports = async (req, res, next) => {
                                             entities: {
                                                 full: attachment[1],
                                                 preview: attachment[2],
+                                                ext_preview: extended_previews,
                                                 filename: item.attachment_name,
                                                 meta: {
                                                     width: item.sizeW,
@@ -2169,6 +2192,7 @@ module.exports = async (req, res, next) => {
                                             }, function (ok) { })
                                         }
                                     }
+                                    const extended_previews = (item.data && item.data.preview_image) ? "https://media.discordapp.net" + item.data.preview_image : undefined
                                     let inprogress = false
                                     if (item.fileid !== null) {
                                         downloadurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
@@ -2184,6 +2208,7 @@ module.exports = async (req, res, next) => {
                                             full: fullurl,
                                             download: downloadurl,
                                             preview: imageurl,
+                                            ext_preview: extended_previews,
                                             filename: filename,
                                             meta: {
                                                 width: item.sizeW,
