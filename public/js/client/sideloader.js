@@ -1308,9 +1308,9 @@ async function updateNotficationsPanel() {
                         clickAction = `PlayTrack('${element.href}');`
                         clickAction = `PlayTrack('${element.href}');`
                     }
-                    results.push(`<a class="text-ellipsis" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
+                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
                 } else {
-                    results.push(`<a class="text-ellipsis" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
+                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
                 }
                 if (item.play === 'video') {
                     results.push(`<i class="fas fa-film mr-1"></i>`)
@@ -1689,7 +1689,7 @@ async function showSearchOptions(post) {
             selectedActionMenu("EditTextPost");
         }
 
-        if (pageType.includes('gallery')) {
+        if (pageType.includes('gallery') && !postIsAudio && !postIsVideo) {
             modalRotate.classList.remove('hidden');
             modalRotate.onclick = function() {
                 postsActions = [];
