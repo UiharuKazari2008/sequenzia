@@ -50,12 +50,12 @@ html
                                                 if (thisVirtualChannel.nsfw)
                                                     - nsfwSearch = "&nsfw=true"
                                                     - nsfwIndex = "&nsfw=true"
-                                                div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id="vc_" + thisVirtualChannel.id)
+                                                div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id="vc_" + thisVirtualChannel.id).pr-0
                                                     a.text-capitalize(href=`#/${thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
                                                         div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
                                                             if (thisVirtualChannel.nsfw)
                                                                 i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                    a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#vc_c_' + thisVirtualChannel.id)
+                                                    a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#vc_c_' + thisVirtualChannel.id).px-3
                                                         i.fas.fa-chevron-right.align-self-center
                                                 .collapse.m-0(id='vc_c_' + thisVirtualChannel.id style="position: unset;")
                                                     each thisChannel, indexChannel in thisVirtualChannel.entities
