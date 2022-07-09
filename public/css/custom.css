@@ -334,6 +334,10 @@ color: #b3ff85;
 }
 
 .bottom-bar  #topbarBackground {
+    display: block!important;
+    opacity: 1!important;
+}
+.bottom-bar  #topbarBackground {
     border-bottom: none;
     border-top: solid 1px #3a1a0c;
 }
