@@ -21,6 +21,7 @@ module.exports = async (req, res, next) => {
             discord: req.session.discord,
             user: req.session.user,
             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
             applications_list: req.session.applications_list,
             device: ua
         };
@@ -72,9 +73,10 @@ module.exports = async (req, res, next) => {
 
         // Search
         if (req.query.search !== undefined && req.query.search !== '' ) {
-            if (req.query.search.includes(' OR ')) {
+            search_prev = decodeURIComponent(req.query.search)
+            if (search_prev.includes(' OR ')) {
                 let _orOptions = []
-                req.query.search.split(' OR ').forEach((or) => {
+                search_prev.split(' OR ').forEach((or) => {
                     or.split(' ').forEach((queryString) => {
                         _orOptions.push('(' + [
                             `sequenzia_index_artists.artist LIKE '%${queryString}%'`,
@@ -84,14 +86,13 @@ module.exports = async (req, res, next) => {
                 })
                 sqlquery.push('(' + _orOptions.join(' OR ') + ')');
             } else {
-                req.query.search.split(' ').forEach((queryString) => {
+                search_prev.split(' ').forEach((queryString) => {
                     sqlquery.push('(' + [
                         `sequenzia_index_artists.artist LIKE '%${queryString}%'`,
                         `sequenzia_index_artists.name LIKE '%${queryString}%'`
                     ].join(' OR ') + ')');
                 });
             }
-            search_prev = decodeURIComponent(req.query.search)
         }
 
         // Main Query
@@ -531,6 +532,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     device: ua,
                     folderInfo
@@ -557,6 +559,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     device: ua,
                     folderInfo
@@ -581,6 +584,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     device: ua,
                 }

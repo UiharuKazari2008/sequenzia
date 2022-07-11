@@ -1825,7 +1825,7 @@ select.form-control:focus::-ms-value {
     }
 }
 @media (min-width: 2000px) {
-    .col-xl-2 {
+    .container-fluid:not(.max-resize) .col-xl-2 {
         flex: 0 0 11.1%;
         max-width: 11.1%;
     }

@@ -13,6 +13,7 @@ module.exports = async (req, res, next) => {
                 url: req.url,
                 sidebar: req.session.sidebar,
                 albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                 applications_list: req.session.applications_list,
                 server: req.session.server_list,
                 download: req.session.discord.servers.download,
@@ -63,6 +64,7 @@ module.exports = async (req, res, next) => {
         const sidebarObject = await sqlPromiseSimple(`SELECT * FROM ${req.session.cache.sidebar_view}`)
         const customChannelObject = await sqlPromiseSimple(`SELECT * FROM sequenzia_custom_channels`)
         const userAlbums = await sqlPromiseSafe('SELECT x.aid, x.name, x.uri, x.owner, x.privacy, y.* FROM (SELECT x.*, y.eid FROM (SELECT DISTINCT * FROM sequenzia_albums WHERE owner = ? ORDER BY name ASC) AS x LEFT JOIN (SELECT *, ROW_NUMBER() OVER(PARTITION BY aid ORDER BY RAND()) AS RowNo FROM sequenzia_album_items) AS y ON x.aid = y.aid AND y.RowNo=1) x LEFT JOIN (SELECT eid, channel, attachment_hash, attachment_name, cache_proxy FROM kanmi_records) y ON y.eid = x.eid ORDER BY name ASC', [req.session.discord.user.id])
+        const libraryLists = await sqlPromiseSimple(`SELECT g.* FROM (SELECT * FROM kongou_media_groups) g LEFT JOIN (SELECT media_group FROM ${req.session.cache.channels_view}) a ON (g.media_group = a.media_group) GROUP BY g.media_group`)
 
         if (sidebarObject && sidebarObject.rows.length > 0) {
             const superClasses = (e => {
@@ -232,6 +234,9 @@ module.exports = async (req, res, next) => {
                     }
                 });
             }
+            if (libraryLists && libraryLists.rows.length > 0) {
+                req.session.media_groups = libraryLists.rows
+            }
 
 
             if (req.headers['x-requested-page'] === 'SeqSidebar') {
@@ -239,6 +244,7 @@ module.exports = async (req, res, next) => {
                     url: req.url,
                     sidebar: req.session.sidebar,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     server: req.session.server_list,
                     download: req.session.discord.servers.download,

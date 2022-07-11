@@ -21,6 +21,7 @@ module.exports = async (req, res, next) => {
                 user: req.session.user,
                 webconfig: web,
                 albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                 sidebar: req.session.sidebar,
                 applications_list: req.session.applications_list,
                 enableTelegram: (config.telegram_secret),
@@ -39,6 +40,7 @@ module.exports = async (req, res, next) => {
                 user: req.session.user,
                 sidebar: req.session.sidebar,
                 albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                 applications_list: req.session.applications_list,
             })
         } else {

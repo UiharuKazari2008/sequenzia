@@ -1,0 +1,50 @@
+extends layout
+
+block content
+    if (results && results.length > 0 )
+        // Page Heading
+        if errors
+            ul.my-errors
+                for error in errors
+                    li= error.msg
+        - backgrounds = results.filter(e => !!e.background)
+        - backgroundImg = backgrounds[Math.floor(Math.random() * backgrounds.length)].background.pop()
+        style.
+            .background-image:not(.overlay) {
+                background-image: url("!{backgroundImg}");
+            }
+
+            .background-image.overlay {
+                background-image: linear-gradient(0deg, #000000, #00000000);
+                z-index: -99;
+                opacity: 1;
+            }
+            .bottom-bar .background-image.overlay {
+                background-image: linear-gradient(180deg, #000000, #00000000);
+                z-index: -99;
+                opacity: 1;
+            }
+        div.tz-gallery
+            div.row
+                each item, indexImage in results
+                    div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2(id=`series-${item.id}`)
+                        a(href=`#/listTheater?show_id=${item.id}`)
+                            if (indexImage < 10)
+                                div#postImage.tv-poster.img.img-responsive(style=`background-image : url("${item.poster[0]}"); background-size: cover!important;`)
+                            else
+                                div#postImage.tv-poster.img.img-responsive.lazy(data-src=`${item.poster[0]}` style=`background-size: cover!important;`)
+                            div#postBackground
+    else
+
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpg');
+            }
+        .alert.alert-danger(role='alert')
+            h4.alert-heading No Results
+            p
+                | Your search query or requested channel is either invalid or does not contain any gallery content
+            hr
+            p.mb-0
+                | Please go back to a valid channel or retry your search with another (maybe less specific) query
+

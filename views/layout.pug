@@ -174,6 +174,9 @@ html
                                                         a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
                                                             i.fa-light.fa-fw.fa-folder
                                                             | Files
+                                                        a.user-menu-item(title="Video Library" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
+                                                            i.fa-light.fa-fw.fa-clapperboard-play
+                                                            | Library
                                                         a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
                                                             i.fa-light.fa-fw.fa-dice
                                                             | Random
@@ -186,9 +189,6 @@ html
                                                         a.user-menu-item(title="Index" href='#/artists?')
                                                             i.fa-light.fa-fw.fa-address-book
                                                             | Artists
-                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
-                                                            i.fa-light.fa-fw.fa-history
-                                                            | History
                                                         if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
                                                             if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
                                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
@@ -245,7 +245,7 @@ html
                                                         if (user && user.source < 900)
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
                                                                 i.fa-light.fa-key
-                                                                | AuthWare
+                                                                | Security
                                                         a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
                                                             i.fa-light.fa-compass-slash
                                                             | Hide Channels
@@ -272,6 +272,9 @@ html
                                                         | Tools
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     .menu-grid
+                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
+                                                            i.fa-light.fa-fw.fa-history
+                                                            | History
                                                         if (params && path !== '/artists' && !appData)
                                                             a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                                 i.fa-light.fa-download
@@ -286,8 +289,6 @@ html
                                                             a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display or Photo Frame" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); loadADSDisplays(); return false;")
                                                                 i.fa-light.fa-image-landscape
                                                                 | Set Frame
-                                                        else
-                                                            h2 No Tools Available
                                         div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
@@ -471,6 +472,28 @@ html
                                                                         a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                             i.fa-light(class=`${thisApp.icon}`)
                                                                             | #{thisApp.name}
+                                        div#menuItemTheater(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-clapperboard-play.mr-2
+                                                        | Libraries
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        if (theaters && theaters.length > 0)
+                                                            each thisTheater in theaters
+                                                                //if (thisTheater.type === 2)
+                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                                    i.fa-light(class=`${thisTheater.icon}`)
+                                                                    | #{thisTheater.name}
+                                                                //else if (thisTheater.type === 1)
+                                                                    a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/movieTheater?group=${thisTheater.media_group}`)
+                                                                        i.fa-light(class=`${thisTheater.icon}`)
+                                                                        | #{thisTheater.name}
+                                                        else
+                                                            h2 No Libraries
                                         div#appPanels(style=`display: contents;`)
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.text-primary.text-ellipsis
@@ -594,6 +617,8 @@ html
                                                         i.far.fa-folder.mr-2
                                                     else if (params && path === '/cards')
                                                         i.far.fa-envelope.mr-2
+                                                    else if (params && path === '/tvTheater')
+                                                        i.far.fa-clapperboard-play.mr-2
                                                 if (full_title && full_title_post.includes(' / '))
                                                     #titleExtraStyleAdjustment.d-inline-flex
                                                     div#titleExtra.d-inline-flex

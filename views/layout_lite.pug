@@ -34,7 +34,7 @@ html
                 img(src="/static/img/sequenzia-logo-orange.png")
             div.search-box
                 form
-                    input(type='text' placeholder='Search...' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=(search_prev) ? search_prev : "")
+                    input(type='text' placeholder='Search...' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=(search_prev) ? encodeURIComponent(search_prev) : "")
         div.topbar-menubar
             ul.menubar-list
                 li.menubar-item

@@ -519,6 +519,7 @@ async function generateViews(req, id) {
         'kanmi_channels.role_write',
         'kanmi_channels.role_manage',
         'kanmi_channels.classification',
+        'kanmi_channels.media_group',
         'sequenzia_class.name AS class_name',
         'sequenzia_class.icon AS class_icon',
     ].join(', ');

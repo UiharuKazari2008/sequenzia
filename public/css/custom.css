@@ -1105,6 +1105,12 @@ border-top: 1px solid #ffffff3b;
     background-size: cover;
     background-position: center;
 }
+.tv-poster {
+    width: 100%;
+    padding-bottom: 150%;
+    background-size: cover;
+    background-position: center;
+}
 
 .artist-box {
     width: 100%;
@@ -2266,6 +2272,135 @@ footer .server-grid-parent {
     background-image: linear-gradient(0deg, black, transparent);
 }
 
+.episode-number {
+    position: absolute;
+    padding-top: 0;
+    padding-left: .125em;
+    font-size: 7em;
+    line-height: 1;
+    opacity: 0.4;
+}
+.episode-name span {
+    font-size: 3em;
+    line-height: 1;
+}
+.episode-preview, .episode-preview-image {
+    height: 144px;
+    width: 256px;
+}
+.episode-preview-image {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat;
+}
+.show-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-height: 100%;
+    min-width: 100%;
+    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='6' height='1'%3E%3CfeGaussianBlur stdDeviation='6' result='b'/%3E%3CfeMorphology operator='dilate' radius='2'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a");
+    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='6' height='1'%3E%3CfeGaussianBlur stdDeviation='6' result='b'/%3E%3CfeMorphology operator='dilate' radius='2'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: -2;
+    background-clip: content-box;
+    opacity: 0.5;
+}
+.show-preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-height: 100%;
+    min-width: 100%;
+    background-image: linear-gradient(180deg, black, #00000085);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: -1;
+    background-clip: content-box;
+    opacity: 0.5;
+}
+.show-header {
+    position: relative;
+    min-height: 128px;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: top;
+    justify-content: flex-start;
+}
+.show-title {
+    font-size: 3em;
+    line-height: 1;
+}
+.show-description {
+    max-height: 150px;
+    overflow: auto;
+}
+.show-og-title {
+    font-size: 2em;
+    opacity: 0.8;
+}
+.show-poster img {
+    height: 250px;
+}
+.episode-description {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    height: 60px;
+}
+.episode-name {
+    height: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.episode-body {
+    max-height: 140px;
+    max-width: calc(100% - 256px);
+}
+.preview-controls {
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    padding: 0.5em;
+    pointer-events: none;
+}
+.play-icon {
+    font-size: 1.4em;
+}
+.kms-media-container {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background: black;
+    z-index: 10000;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+img.kms-logo {
+    height: 32px
+}
+.kms-title-bar, .kms-player-controls {
+    padding: 0.5em;
+    background: #131313;
+}
+.kms-player-body, .kms-player-video {
+    height: 100%;
+    width: 100%;
+}
+.video-background {
+    height: 100%;
+    width: 100%;
+    background: #131313;
+}
+
 @keyframes slideiconout {
     from {max-width: 0;}
     to {max-width: 4em;}
@@ -2710,6 +2845,38 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/
+    .show-poster img {
+        height: 200px;
+    }
+    .show-title {
+        font-size: 2em;
+    }
+    .show-og-title {
+        font-size: 1em;
+    }
+    .show-description {
+        max-height: 110px;
+    }
+    .episode-preview, .episode-preview-image {
+        height: 72px;
+        width: 128px;
+    }
+    .episode-number {
+        font-size: 3em;
+    }
+    .episode-name span {
+        font-size: 1.5em;
+    }
+    .episode-name {
+        height: 23px;
+    }
+    .episode-description {
+        display: none;
+    }
+    .episode-body {
+        max-height: 72px;
+        max-width: calc(100% - 128px);
+    }
     #load{
         width:100%;
         height:100%;
@@ -2796,7 +2963,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (min-width: 2000px) {
-    .col-xl-2 {
+    .container-fluid:not(.max-resize) .col-xl-2 {
         flex: 0 0 11.1%;
         max-width: 11.1%;
     }
@@ -2808,6 +2975,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 500px) {
+    show-poster img {
+        height: 150px;
+    }
     nav.menu-open:not(.no-ani) > .col > ul > #topAddressBarInfo {
         margin-right: 0!important;
     }

@@ -4,6 +4,7 @@ let web = require('../web.config.json')
 const express = require('express');
 const getImages = require('../js/getData');
 const getIndex = require('../js/getIndex');
+const getKMSListing = require('../js/getKMSShows');
 const renderResults = require('../js/renderPage');
 const downloadResults = require('../js/downloadFile');
 const renderIndex = require('../js/renderIndex');
@@ -49,7 +50,8 @@ if (web.Base_URL)
 
 router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
-router.get(['/gallery', '/files', '/cards', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
+router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
+router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, renderResults);
 router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);

@@ -36,6 +36,7 @@ module.exports = async (req, res, next) => {
     let results = {
         sidebar: req.session.sidebar,
         albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
         applications_list: req.session.applications_list,
         ...res.locals.response,
         webconfig: web,
@@ -179,10 +180,14 @@ module.exports = async (req, res, next) => {
     } else {
         if (results.call_uri === '/gallery') {
             res.render('gallery_list', results);
+        } else if (results.call_uri === '/listTheater') {
+            res.render('episode_list', results);
         } else if (results.call_uri === '/files') {
             res.render('file_list', results);
         } else if (results.call_uri === '/cards') {
             res.render('card_list', results);
+        } else  if (results.call_uri === '/tvTheater') {
+            res.render('kms_shows', results);
         } else if (results.call_uri === '/home' || results.call_uri === '/homeImage') {
             res.json(results)
         } else if (results.call_uri === '/start') {

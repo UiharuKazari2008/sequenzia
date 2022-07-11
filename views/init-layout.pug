@@ -252,6 +252,9 @@ html
                                                         a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
                                                             i.fa-light.fa-fw.fa-folder
                                                             | Files
+                                                        a.user-menu-item(title="Video Library" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
+                                                            i.fa-light.fa-fw.fa-clapperboard-play
+                                                            | Library
                                                         a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
                                                             i.fa-light.fa-fw.fa-dice
                                                             | Random
@@ -264,9 +267,6 @@ html
                                                         a.user-menu-item(title="Index" href='#/artists?')
                                                             i.fa-light.fa-fw.fa-address-book
                                                             | Artists
-                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
-                                                            i.fa-light.fa-fw.fa-history
-                                                            | History
                                                         a.user-menu-item(title="Installed Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                             i.fa-light.fa-fw.fa-browsers
                                                             | Apps
@@ -292,7 +292,7 @@ html
                                                         if (user && user.source < 900)
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
                                                                 i.fa-light.fa-key
-                                                                | AuthWare
+                                                                | Security
                                                         a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$('#hiddenChannelModel').modal('show'); return false;`)
                                                             i.fa-light.fa-compass-slash
                                                             | Hide Channels
@@ -319,7 +319,9 @@ html
                                                         | Tools
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
-                                                        h2 No Available
+                                                        a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
+                                                            i.fa-light.fa-fw.fa-history
+                                                            | History
                                         div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
@@ -394,6 +396,28 @@ html
                                                                         a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                             i.fa-light(class=`${thisApp.icon}`)
                                                                             | #{thisApp.name}
+                                        div#menuItemTheater(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-clapperboard-play.mr-2
+                                                        | Libraries
+                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        if (theaters && theaters.length > 0)
+                                                                each thisTheater in theaters
+                                                                    if (thisTheater.type === 2)
+                                                                        a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                                            i.fa-light(class=`${thisTheater.icon}`)
+                                                                            | #{thisTheater.name}
+                                                                    else if (thisTheater.type === 1)
+                                                                        a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/movieTheater?group=${thisTheater.media_group}`)
+                                                                            i.fa-light(class=`${thisTheater.icon}`)
+                                                                            | #{thisTheater.name}
+                                                        else
+                                                            h2 No Libraries
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.no-ani.shadow
                             ul.navbar-nav.text-primary.ml-1
                                 li.nav-item.text-right.text-primary.page-title
@@ -877,7 +901,7 @@ html
                     .modal-content
                         .modal-header
                             h5.modal-title
-                                span AuthWare™ Manager
+                                span Security Settings
                             button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                 span(aria-hidden='true') &times;
                         .modal-body

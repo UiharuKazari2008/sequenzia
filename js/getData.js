@@ -321,6 +321,8 @@ module.exports = async (req, res, next) => {
                 sqlHistorySort = 'history_date DESC'
             }
             enablePrelimit = false;
+        } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+            sqlorder.push('season_num ASC, episode_num ASC')
         } else {
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
@@ -459,18 +461,17 @@ module.exports = async (req, res, next) => {
             sqlquery.push('( ' + addSearchTerm.map(e => '( ' + getType(e) + ' )').join(' AND ') + ' )')
         }
         if ( req.query.search !== undefined && req.query.search !== '' ) {
-            let search = '';
+            search_prev = decodeURIComponent(req.query.search)
             hideChannels = false;
             if (addSearchTerm.length > 0)
                 sqlquery.push(' AND ')
-            if ( req.query.search.includes(' AND ') ) {
-                sqlquery.push('( ' + getAND(req.query.search).map(a => '( ' + getOR(a).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
-            } else if ( req.query.search.includes(' OR ') ) {
-                sqlquery.push('( ' + getOR(req.query.search).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )')
+            if ( search_prev.includes(' AND ') ) {
+                sqlquery.push('( ' + getAND(search_prev).map(a => '( ' + getOR(a).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
+            } else if ( search_prev.includes(' OR ') ) {
+                sqlquery.push('( ' + getOR(search_prev).map( b => '( ' + getType(b) + ' )' ).join(' OR ') + ' )')
             } else {
-                sqlquery.push('( ' + getType(req.query.search) + ' )')
+                sqlquery.push('( ' + getType(search_prev) + ' )')
             }
-            search_prev = decodeURIComponent(req.query.search)
             android_uri.push(`search=${req.query.search}`);
         }
         // Flagged
@@ -689,8 +690,16 @@ module.exports = async (req, res, next) => {
         } else {
             android_uri.push(`brightness=0`);
         }
+        if (req.query.show_id && !isNaN(parseInt(req.query.show_id))) {
+            sqlquery.push(`kongou_shows.show_id = ${parseInt(req.query.show_id)}`)
+        }
+        if (req.query.group) {
+            sqlquery.push(`kongou_shows.media_group = '${req.query.group}'`)
+        }
         // Limit
-        if (page_uri === '/ambient-get') {
+        if (page_uri === '/listTheater') {
+            limit = 1000;
+        } else if (page_uri === '/ambient-get') {
             limit = 1;
             enablePrelimit = false;
         } else if (req.query.responseType) {
@@ -743,7 +752,7 @@ module.exports = async (req, res, next) => {
         } else {
             channelFilter += `( channel_nsfw = 0 )`;
         }
-        if (page_uri === '/gallery') {
+        if (page_uri === '/gallery' || page_uri === '/listTheater') {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
@@ -839,7 +848,7 @@ module.exports = async (req, res, next) => {
         sqlFields = [
             'kanmi_records.*',
             `${req.session.cache.channels_view}.*`
-        ].join(', ');
+        ];
         const sqlAlbumFields = [
             'sequenzia_album_items.eid',
             'sequenzia_albums.privacy AS album_privacy',
@@ -850,16 +859,46 @@ module.exports = async (req, res, next) => {
         sqlTables = [
             'kanmi_records',
             req.session.cache.channels_view
-        ].join(', ');
+        ];
         sqlWhere = [
             `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
-        ].join(' AND ');
+        ];
 
-        const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
+        if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+            // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
+            sqlFields.push(...[
+                'kongou_episodes.season_num',
+                'kongou_episodes.episode_num',
+                'kongou_episodes.data AS episode_data',
+                'kongou_episodes.show_id',
+
+                'kongou_shows.name AS show_name',
+                'kongou_shows.original_name AS show_original_name',
+                'kongou_shows.data AS show_data',
+
+                'kongou_media_groups.type AS group_type',
+                'kongou_media_groups.name AS group_name',
+                'kongou_media_groups.description AS group_description',
+                'kongou_media_groups.icon AS group_icon',
+            ])
+            sqlTables.push(...[
+                'kongou_episodes',
+                'kongou_shows',
+                'kongou_media_groups'
+            ])
+            sqlWhere.push(...[
+                'kanmi_records.eid = kongou_episodes.eid',
+                'kongou_episodes.show_id = kongou_shows.show_id',
+                'kongou_shows.media_group = kongou_media_groups.media_group'
+            ])
+        }
+
+        const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
+        const kongouShows = `SELECT kms_ep.eid, kms_show.group_name, kms_show.description, kms_show.icon, kms_show.show_id, kms_ep.episode_num, kms_ep.episode_name AS kms_episode_name, kms_ep.season_num, kms_ep.data AS episode_data, kms_show.name AS kms_series_name, kms_show.original_name AS kms_series_original_name, kms_show.nsfw AS kms_series_nsfw, kms_show.data AS series_data FROM (SELECT * FROM kongou_episodes) kms_ep LEFT OUTER JOIN (SELECT * FROM (SELECT show_id, media_group, name, original_name, nsfw, genres, data FROM kongou_shows) s LEFT JOIN (SELECT media_group AS group_id, type, name AS group_name, description, icon FROM kongou_media_groups) g ON (s.media_group = g.group_id)) kms_show ON (kms_ep.show_id = kms_show.show_id)`
 
         let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
         if (sqlAlbumWhere.length > 0) {
@@ -989,6 +1028,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     call_uri: page_uri,
                     device: ua,
@@ -1010,6 +1050,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     device: ua,
                     call_uri: page_uri,
@@ -1195,6 +1236,7 @@ module.exports = async (req, res, next) => {
                         discord: req.session.discord,
                         user: req.session.user,
                         albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                         applications_list: req.session.applications_list,
                         device: ua,
                         call_uri: page_uri,
@@ -1213,6 +1255,7 @@ module.exports = async (req, res, next) => {
                         discord: req.session.discord,
                         user: req.session.user,
                         albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                         applications_list: req.session.applications_list,
                         device: ua,
                         call_uri: page_uri,
@@ -1302,6 +1345,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     device: ua,
                     call_uri: page_uri,
@@ -1330,6 +1374,8 @@ module.exports = async (req, res, next) => {
                     sqlTables += ', sequenzia_album_items, sequenzia_albums';
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
+                } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+                    sqlCountFeild = 'kongou_episodes.eid';
                 }
                 debugTimes.sql_query_1 = new Date();
                 let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`);
@@ -1536,6 +1582,10 @@ module.exports = async (req, res, next) => {
                     } else if (req.query && req.query.displayname && req.query.displayname !== '*' && req.query.history  && req.query.history === 'only') {
                         page_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                         full_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
+                    } else if (page_uri === '/listTheater') {
+                        page_title = messages[0].show_name
+                        full_title = `Kongou / ${messages[0].group_name} / ${messages[0].show_name}`
+                        currentClassIcon = messages[0].group_icon
                     } else {
                         page_title = ''
                         full_title = ''
@@ -1551,7 +1601,7 @@ module.exports = async (req, res, next) => {
                             currentChannelId = messages[0].channel;
                         }
                     }
-                    if (page_uri === '/gallery') {
+                    if (page_uri === '/gallery' || page_uri === '/listTheater') {
                         messages.forEach(function (item, index) {
                             if (index + 1 <= limit) {
                                 realoffset++
@@ -1889,6 +1939,17 @@ module.exports = async (req, res, next) => {
                                             parent_search: parent_search,
                                             cached: isCached,
                                             proccessing: inprogress,
+                                        },
+                                        media: {
+                                            season: item.season_num,
+                                            episode: item.episode_num,
+                                            show: {
+                                                id: item.show_id,
+                                                name: item.show_name,
+                                                original_name: item.show_original_name,
+                                                meta: item.show_data
+                                            },
+                                            meta: item.episode_data
                                         },
                                         channel: {
                                             id: item.channel,
@@ -2388,6 +2449,7 @@ module.exports = async (req, res, next) => {
                             discord: req.session.discord,
                             user: req.session.user,
                             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                             applications_list: req.session.applications_list,
                             device: ua,
                             folderInfo
@@ -2437,6 +2499,7 @@ module.exports = async (req, res, next) => {
                             discord: req.session.discord,
                             user: req.session.user,
                             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                             applications_list: req.session.applications_list,
                             device: ua,
                         }
@@ -2457,6 +2520,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     applications_list: req.session.applications_list,
                     device: ua,
                 }
