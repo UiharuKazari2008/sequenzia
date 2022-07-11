@@ -1800,7 +1800,7 @@ async function showSearchOptions(post) {
         if (text && text.length > 0 && text.trim().length > 0) {
             $('#searchModal').modal('hide');
             window.getSelection().toString()
-            window.location.assign(`#${getLocation()}search=text:${text.trim()}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(`#${getLocation()}search=${encodeURIComponent('text:' + text.trim())}${(nsfwString) ? nsfwString : ''}`);
         } else {
             alert(`You must select text above first before you can search selected text!`)
         }

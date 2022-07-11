@@ -696,14 +696,14 @@ html
 
                                         li.nav-item.no-arrow.edit-btns
                                             .btn-group.show-menu-open.hidden(style="display: contents;")
-                                                if (path !== '/artists' && results && results.length > 1)
+                                                if (path !== '/artists' && path !== '/tvTheater' && path !== '/listTheater' && results && results.length > 1)
                                                     a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
                                                         i.far.fa-check-circle
                                                     if (manage_channels && manage_channels.length > 0)
                                                         a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
                                                             i.far.fa-check-to-slot
 
-                                                if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')))
+                                                if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')) && path !== '/tvTheater' && path !== '/listTheater')
                                                     div.dropdown(style="display: contents;")
                                                         a#viewMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
                                                             i.far.fa-filter

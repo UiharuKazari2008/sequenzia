@@ -407,16 +407,10 @@ html
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         if (theaters && theaters.length > 0)
-                                                                each thisTheater in theaters
-                                                                    if (thisTheater.type === 2)
-                                                                        a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
-                                                                            i.fa-light(class=`${thisTheater.icon}`)
-                                                                            | #{thisTheater.name}
-                                                                    else if (thisTheater.type === 1)
-                                                                        a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/movieTheater?group=${thisTheater.media_group}`)
-                                                                            i.fa-light(class=`${thisTheater.icon}`)
-                                                                            | #{thisTheater.name}
-                                                        else
+                                                            each thisTheater in theaters
+                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                                    i.fa-light(class=`${thisTheater.icon}`)
+                                                                    | #{thisTheater.name}
                                                             h2 No Libraries
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.no-ani.shadow
                             ul.navbar-nav.text-primary.ml-1
@@ -890,6 +884,29 @@ html
                             i.fas.fa-times
                     .modal-body
                         #albumDirectoryBody Loading List of Albums...
+        #kongouMediaPlayer.kms-media-container.d-none
+            .kms-title-bar.d-flex
+                img.kms-logo(src='/static/img/kongoumedialogo-wide.png').mr-auto
+                .progress(style="height: 30px;width: 500px;background: black;")
+                    .progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
+                a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
+                    i.fas.fa-times
+            .kms-player-body
+                .kms-player-video.d-flex
+                    video#kongouMediaVideoPreview(preload="false" controls style="background: transparent; background-clip: content-box;").mt-auto.mb-auto.w-100
+                        .video-background
+                    video#kongouMediaVideoFull(preload="true" autoplay='false' controls style="background: transparent; background-clip: content-box;" ).mt-auto.mb-auto.w-100
+                        .video-background
+                .kms-player-playlist
+            .kms-player-controls.d-flex
+                a#kongouMediaPlayerPrev(href='#_' onclick=`kmsPlayPrev(); return false;`)
+                    i.fas.fa-backward-fast
+                    span.pl-2 Previous Episode: Name Goes Here
+                .kms-status-bar.ml-auto.mr-auto
+                    span
+                a#kongouMediaPlayerNext(href='#_' onclick=`kmsPlayNext(); return false;`)
+                    span.pr-2 Next Episode: Name Goes Here
+                    i.fas.fa-forward-fast
         script(src="/static/js/sb-admin-2.min.js")
         // Modals
         div#dataModels

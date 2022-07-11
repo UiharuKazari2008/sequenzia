@@ -875,6 +875,8 @@ module.exports = async (req, res, next) => {
                 'kongou_shows.name AS show_name',
                 'kongou_shows.original_name AS show_original_name',
                 'kongou_shows.data AS show_data',
+                'kongou_shows.background AS show_background',
+                'kongou_shows.poster AS show_poster',
 
                 'kongou_media_groups.type AS group_type',
                 'kongou_media_groups.name AS group_name',
@@ -898,7 +900,6 @@ module.exports = async (req, res, next) => {
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
-        const kongouShows = `SELECT kms_ep.eid, kms_show.group_name, kms_show.description, kms_show.icon, kms_show.show_id, kms_ep.episode_num, kms_ep.episode_name AS kms_episode_name, kms_ep.season_num, kms_ep.data AS episode_data, kms_show.name AS kms_series_name, kms_show.original_name AS kms_series_original_name, kms_show.nsfw AS kms_series_nsfw, kms_show.data AS series_data FROM (SELECT * FROM kongou_episodes) kms_ep LEFT OUTER JOIN (SELECT * FROM (SELECT show_id, media_group, name, original_name, nsfw, genres, data FROM kongou_shows) s LEFT JOIN (SELECT media_group AS group_id, type, name AS group_name, description, icon FROM kongou_media_groups) g ON (s.media_group = g.group_id)) kms_show ON (kms_ep.show_id = kms_show.show_id)`
 
         let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
         if (sqlAlbumWhere.length > 0) {
@@ -1378,7 +1379,7 @@ module.exports = async (req, res, next) => {
                     sqlCountFeild = 'kongou_episodes.eid';
                 }
                 debugTimes.sql_query_1 = new Date();
-                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables} WHERE (${execute}${favmatch} AND (${sqlWhere}))`);
+                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
                 debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
                 debugTimes.sql_query_2 = new Date();
                 const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
@@ -1947,6 +1948,8 @@ module.exports = async (req, res, next) => {
                                                 id: item.show_id,
                                                 name: item.show_name,
                                                 original_name: item.show_original_name,
+                                                background: item.show_background,
+                                                poster: item.show_poster,
                                                 meta: item.show_data
                                             },
                                             meta: item.episode_data

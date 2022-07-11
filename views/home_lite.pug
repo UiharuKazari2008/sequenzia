@@ -279,14 +279,14 @@ html
                                                 i.shadow-blk.fas.fa-photo-video
                                             a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Files', href=`/files?numdays=60&sort=eid&filesonly=true`)
                                                 i.shadow-blk.fas.fa-folder
+                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
+                                                i.shadow-blk.fas.fa-clapperboard-play
                                             a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="I'm Feeling Lucky", href='/gallery?sort=random')
                                                 i.shadow-blk.fas.fa-dice
                                             a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Your Favorites", href='/gallery?sort=fav&pins=true')
                                                 i.shadow-blk.fas.fa-star
                                             a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
                                                 i.shadow-blk.fas.fa-archive
-                                            //a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Image History', style='text-decoration: none;', href='/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                                                i.shadow-blk.fas.fa-history
                                             a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                 i.shadow-blk.fas.fa-browsers
                             div#menuItemAlbums.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
@@ -349,6 +349,23 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.shadow-blk.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
+                            div#menuItemLibrary.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
+                                .dimmed.d-flex
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.shadow-blk.fas.fa-clapperboard-play.pr-2
+                                            span Libraries
+                                .dimmed.d-flex(style='max-width: 600px;').mb-3
+                                    div.menu-grid.user-menu-small
+                                        if (theaters && theaters.length > 0)
+                                            each thisTheater in theaters
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                    i.shadow-blk.fas(class=`${thisTheater.icon}`)
+                                                    | #{thisTheater.name}
                         if (url)
                             if (url.includes('search=true'))
                                 form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
