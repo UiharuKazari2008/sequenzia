@@ -338,7 +338,7 @@ html
                                                         | Albums
                                                 .w-100.position-absolute(style="justify-content: left; top: 3em;")
                                                     if (albums && albums.length > 0)
-                                                        div.album-list(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                        div.album-list(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in albums
                                                                 div.album-item.position-relative
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
@@ -378,7 +378,7 @@ html
                                                         i.fas.fa-browsers.mr-2
                                                         | Applications
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
-                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                    .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                                             i.fa-light.fa-tv
                                                             | Photo Frame
@@ -405,7 +405,7 @@ html
                                                         i.fas.fa-clapperboard-play.mr-2
                                                         | Libraries
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
-                                                    .menu-grid(style='overflow-x: scroll; overflow-y:hidden; white-space: nowrap;')
+                                                    .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         if (theaters && theaters.length > 0)
                                                                 each thisTheater in theaters
                                                                     if (thisTheater.type === 2)
