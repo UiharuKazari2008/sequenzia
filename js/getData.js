@@ -1585,7 +1585,7 @@ module.exports = async (req, res, next) => {
                         full_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                     } else if (page_uri === '/listTheater') {
                         page_title = messages[0].show_name
-                        full_title = `Kongou / ${messages[0].group_name} / ${messages[0].show_name}`
+                        full_title = `Library / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
                         currentClassIcon = messages[0].group_icon
                     } else {
                         page_title = ''

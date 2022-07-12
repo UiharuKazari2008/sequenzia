@@ -152,8 +152,8 @@ module.exports = async (req, res, next) => {
             console.log(`${sqlCall} LIMIT ${sqllimit + 10} OFFSET ${offset}`)
             const messageResults = await sqlPromiseSimple(`${sqlCall} LIMIT ${sqllimit + 10} OFFSET ${offset}`);
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
-            let pageTitle = 'Kongou Media Browser'
-            let pageFullTitle = 'Kongou Media'
+            let pageTitle = 'Media Browser'
+            let pageFullTitle = 'Library'
             let activeIcon
 
             if (messageResults && messageResults.rows.length > 0) {
@@ -171,7 +171,7 @@ module.exports = async (req, res, next) => {
                             })
                         }
                     })
-                    pageFullTitle = 'Kongou'
+                    pageFullTitle = 'Library'
 
                     if (resultsArray.length > 0) {
                         if (media_group.length > 0) {
