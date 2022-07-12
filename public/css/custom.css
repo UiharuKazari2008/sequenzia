@@ -2373,32 +2373,86 @@ footer .server-grid-parent {
     font-size: 1.4em;
 }
 .kms-media-container {
-    display: flex;
-    position: fixed;
-    top: 0;
+    -webkit-backface-visibility: hidden;
+    height: 100%;
     left: 0;
-    height: 100vh;
-    width: 100vw;
+    outline: 0;
+    position: fixed;
+    -webkit-tap-highlight-color: transparent;
+    top: 0;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    transform: translateZ(0);
+    width: 100%;
+    z-index: 100000;
+}
+.kms-media-inner, .kms-background {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.kms-stage {
+    -webkit-backface-visibility: hidden;
+    display: block;
+    height: 100%;
+    left: 0;
+    outline: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    transition-property: transform,opacity;
+    white-space: normal;
+    width: 100%;
+    z-index: 100001;
+}
+.kms-media-player {
     background: black;
-    z-index: 10000;
-    flex-direction: column;
-    flex-wrap: nowrap;
+    display: inline-block;
+    margin: 0;
+    max-width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    position: relative;
+    text-align: left;
+    vertical-align: middle;
+    box-shadow: 0 2px 24px 8px rgb(0 0 0 / 41%);
+}
+.kms-background {
+    background: black;
+    opacity: .75;
+}
+.kms-info-bar, .kms-player-controls {
+    display: flex;
+}
+.kms-status-bar {
+    align-self: center;
 }
 img.kms-logo {
     height: 32px
 }
-.kms-title-bar, .kms-player-controls {
-    padding: 0.5em;
-    background: #131313;
-}
-.kms-player-body, .kms-player-video {
-    height: 100%;
+.kms-title-bar {
+    position: absolute;
     width: 100%;
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    z-index: 100005;
 }
-.video-background {
+.kms-player-video {
+    background: 0 0;
+    border: 0;
+    display: block;
     height: 100%;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
     width: 100%;
-    background: #131313;
 }
 
 @keyframes slideiconout {
