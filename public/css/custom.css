@@ -3244,7 +3244,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         color: black;
         background-color: #ffffff;
     }
-    .shadow .badge-primary {
+    .bottom-bar .badge-primary, .shadow .badge-primary {
         color: #d07300;
         background-color: #ffffff;
     }
