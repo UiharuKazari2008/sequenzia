@@ -380,7 +380,7 @@ function setupReviewMode(bypass) {
     } else {
         //recentDestionations
         inReviewMode = false;
-        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
@@ -541,7 +541,7 @@ function exitPanel(messageid) {
 function acceptMenu(serverid, channelid, messageid, fileStatus) {
     if (recentPostDestination && recentPostDestination.length > 0) {
         const destinationMenu = document.getElementById(`imageMove-${messageid}`).querySelector('.move-content')
-        let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+        let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map(e => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations(); return false">` +
@@ -734,7 +734,7 @@ function setReviewChannel(chid, noSave) {
 
 // Move Model Management
 function updateRecentPostDestinations() {
-    let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e))).map(e => {
+    let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map(e => {
         const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
         if (n) {
             return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="selectedChannel('${e}'); proccessPost(); return false">` +
