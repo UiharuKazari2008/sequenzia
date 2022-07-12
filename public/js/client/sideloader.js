@@ -1065,16 +1065,18 @@ async function openKMSPlayer(messageid) {
         mediaPlayer.removeAttribute('nextPlayback');
     }
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
-    const prevEpisode = Array.from(allEpisodes).slice(0, index + 1);
-    if (prevEpisode.length > 1) {
-        const prevName = prevEpisode.pop().querySelector('.episode-name > span').innerText
-        prevEpisodeGroup.querySelector('span').innerText = prevName;
-        prevEpisodeGroup.classList.remove('hidden')
-        mediaPlayer.setAttribute('prevPlayback', prevEpisode.pop().id.split('-').pop());
-    } else {
-        prevEpisodeGroup.querySelector('span').innerText = '';
-        prevEpisodeGroup.classList.add('hidden')
-        mediaPlayer.removeAttribute('prevPlayback');
+    if (index > 0) {
+        const prevEpisode = Array.from(allEpisodes).slice(0, index);
+        if (prevEpisode.length > 1) {
+            const prevName = prevEpisode.pop().querySelector('.episode-name > span').innerText
+            prevEpisodeGroup.querySelector('span').innerText = prevName;
+            prevEpisodeGroup.classList.remove('hidden')
+            mediaPlayer.setAttribute('prevPlayback', prevEpisode.pop().id.split('-').pop());
+        } else {
+            prevEpisodeGroup.querySelector('span').innerText = '';
+            prevEpisodeGroup.classList.add('hidden')
+            mediaPlayer.removeAttribute('prevPlayback');
+        }
     }
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
