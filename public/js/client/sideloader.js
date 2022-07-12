@@ -932,7 +932,8 @@ async function openUnpackingFiles(messageid, playThis) {
                                     memoryVideoPositions.set(activeSpannedJob.id, videoPreviewPlayer.currentTime);
                                     videoFullPlayer.src = element.href
                                     videoFullPlayer.volume = 0
-                                    await videoFullPlayer.play()
+                                    if (!videoPreviewPlayer.paused)
+                                        await videoFullPlayer.play()
                                     videoFullPlayer.currentTime = videoPreviewPlayer.currentTime
                                     setTimeout(() => {
                                         videoFullPlayer.volume = videoPreviewPlayer.volume
