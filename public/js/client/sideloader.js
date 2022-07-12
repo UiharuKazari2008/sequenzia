@@ -895,7 +895,7 @@ async function openUnpackingFiles(messageid, playThis) {
                 ready: true,
                 play: playThis
             })
-            if (!playThis || (playThis !== 'video' && playThis !== 'kms-video' playThis !== 'kms-video-preemptive')) {
+            if (!playThis || (playThis !== 'video' && playThis !== 'kms-video' && playThis !== 'kms-video-preemptive')) {
                 $.toast({
                     type: 'success',
                     title: 'Unpack File',
