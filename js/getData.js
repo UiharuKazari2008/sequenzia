@@ -1358,21 +1358,23 @@ module.exports = async (req, res, next) => {
                 let sqlCountFeild = 'eid';
                 let favmatch = '';
                 if (req.query && req.query.pins && req.query.pins !== 'false') {
-                    sqlTables += ', sequenzia_favorites';
+                    sqlTables.push('sequenzia_favorites');
                     sqlCountFeild = 'sequenzia_favorites.date';
                     favmatch = `AND sequenzia_favorites.eid = kanmi_records.eid AND sequenzia_favorites.userid = '${pinsUser.replace(/'/g, '\\\'')}'${(sqlFavWhere.length > 0) ? ' AND ' + sqlFavWhere.join(' AND ').replace('fav_date', 'sequenzia_favorites.date') : ''}`;
                 }
                 if (req.query && req.query.history && req.query.history === 'only') {
-                    sqlTables += ', sequenzia_display_history';
+                    sqlTables.push('sequenzia_display_history');
                     sqlCountFeild = 'sequenzia_display_history.date';
                     favmatch = `AND sequenzia_display_history.eid = kanmi_records.eid AND sequenzia_display_history.user = '${req.session.discord.user.id}'${(_dn !== '*') ? "  AND sequenzia_display_history.name = '" + _dn.replace(/'/g, '\\\'') + "'" : ''}`;
                 }
                 if (sqlAlbumWhere.length > 0) {
-                    sqlTables += ', sequenzia_album_items, sequenzia_albums';
+                    sqlTables.push('sequenzia_album_items');
+                    sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 } else if (req.query.album_name) {
-                    sqlTables += ', sequenzia_album_items, sequenzia_albums';
+                    sqlTables.push('sequenzia_album_items');
+                    sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
