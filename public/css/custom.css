@@ -2414,6 +2414,7 @@ footer .server-grid-parent {
     background: black;
     display: inline-block;
     margin: 0;
+    width: 100%;
     max-width: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
@@ -2425,10 +2426,12 @@ footer .server-grid-parent {
 }
 .kms-background {
     background: black;
-    opacity: .75;
 }
 .kms-info-bar, .kms-player-controls {
     display: flex;
+}
+.kms-player-controls {
+    font-size: 1.5em;
 }
 .kms-status-bar {
     align-self: center;
@@ -2437,6 +2440,7 @@ img.kms-logo {
     height: 32px
 }
 .kms-title-bar {
+    background: linear-gradient(0deg, transparent, black);
     position: absolute;
     width: 100%;
     padding: 1.5em;
@@ -2452,6 +2456,7 @@ img.kms-logo {
     margin: 0;
     overflow: hidden;
     padding: 0;
+    justify-content: center;
     width: 100%;
 }
 

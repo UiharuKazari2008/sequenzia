@@ -899,11 +899,13 @@ html
                                 a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
                                     i.fas.fa-times
                             .kms-player-controls.px-2.mt-2
-                                a#kongouMediaPlayerPrev.mr-auto.text-ellipsis(href='#_' onclick=`kmsPlayPrev(); return false;`)
+                                a#kongouMediaPlayerPrev.d-flex.w-50.align-items-baseline.justify-content-start(href='#_' onclick=`kmsPlayPrev(); return false;`)
                                     i.fas.fa-backward-fast
-                                    span.pl-2 Previous Episode: Name Goes Here
-                                a#kongouMediaPlayerNext.ml-auto.text-ellipsis(href='#_' onclick=`kmsPlayNext(); return false;`)
-                                    span.pr-2 Next Episode: Name Goes Here
+                                    .div.text-ellipsis.d-none.d-md-block
+                                        span.pl-2 Previous Episode: Name Goes Here
+                                a#kongouMediaPlayerNext.d-flex.w-50.align-items-baseline.justify-content-end(href='#_' onclick=`kmsPlayNext(); return false;`)
+                                    .div.text-ellipsis.d-none.d-md-block
+                                        span.pr-2 Next Episode: Name Goes Here
                                     i.fas.fa-forward-fast
                         video#kongouMediaVideoPreview.kms-media-player(preload="false" controls style="background: transparent; background-clip: content-box;")
                         video#kongouMediaVideoFull.kms-media-player(preload="true" autoplay='false' controls style="background: transparent; background-clip: content-box;" )
