@@ -1136,18 +1136,10 @@ async function openKMSPlayer(messageid) {
     mediaPlayer.removeAttribute('nextVideoReady');
 }
 async function kmsPlayNext() {
-    const mediaPlayer = document.getElementById('kongouMediaPlayer');
-    const messageid = mediaPlayer.getAttribute('nextPlayback');
-    const isReady = mediaPlayer.getAttribute('nextVideoReady') === 'true';
-    const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-
-    if (messageid && !mediaPlayer.classList.contains('d-none') &&
-        !isReady &&
-        !videoFullPlayer.classList.contains('hidden') &&
-        ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.75)) {
-        mediaPlayer.setAttribute('nextVideoReady', 'true');
-        openUnpackingFiles(messageid, 'kms-video-preemptive');
-    }
+    const videoModel = document.getElementById('kongouMediaPlayer');
+    const messageid = videoModel.getAttribute('nextPlayback');
+    if (messageid)
+        openKMSPlayer(messageid);
 }
 async function kmsPlayPrev() {
     const videoModel = document.getElementById('kongouMediaPlayer');
@@ -1179,9 +1171,18 @@ async function closeKMSPlayer() {
     videoModel.classList.add('d-none')
 }
 async function checkKMSTimecode() {
-    const videoModel = document.getElementById('kongouMediaPlayer');
-    const messageid = videoModel.getAttribute('nextPlayback');
+    const mediaPlayer = document.getElementById('kongouMediaPlayer');
+    const messageid = mediaPlayer.getAttribute('nextPlayback');
+    const isReady = mediaPlayer.getAttribute('nextVideoReady') === 'true';
+    const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
 
+    if (messageid && !mediaPlayer.classList.contains('d-none') &&
+        !isReady &&
+        !videoFullPlayer.classList.contains('hidden') &&
+        ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.75)) {
+        mediaPlayer.setAttribute('nextVideoReady', 'true');
+        openUnpackingFiles(messageid, 'kms-video-preemptive');
+    }
 }
 async function startPendingUnpack() {
     const videoModel = document.getElementById('videoBuilderModal');
