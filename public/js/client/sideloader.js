@@ -930,17 +930,19 @@ async function openUnpackingFiles(messageid, playThis) {
                                     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
                                     const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
                                     memoryVideoPositions.set(activeSpannedJob.id, videoPreviewPlayer.currentTime);
-                                    videoFullPlayer.src = element.href
-                                    videoFullPlayer.volume = 0
+                                    videoFullPlayer.src = element.href;
+                                    videoFullPlayer.volume = 0;
                                     if (!videoPreviewPlayer.paused)
-                                        await videoFullPlayer.play()
-                                    videoFullPlayer.currentTime = videoPreviewPlayer.currentTime
+                                        await videoFullPlayer.play();
+                                    videoFullPlayer.currentTime = videoPreviewPlayer.currentTime;
                                     setTimeout(() => {
+                                        if (videoPreviewPlayer.paused)
+                                            videoFullPlayer.pause();
                                         videoFullPlayer.volume = videoPreviewPlayer.volume
                                         videoPreviewPlayer.pause()
                                         videoPreviewPlayer.classList.add('hidden');
                                         videoFullPlayer.classList.remove('hidden');
-                                    }, 1000);
+                                    }, 500);
                                 } else if (activeSpannedJob.play === 'kms-video-preemptive') {
                                     console.log('Next Video is now ready!')
                                 } else {
