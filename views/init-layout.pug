@@ -484,6 +484,7 @@ html
                                     $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
                                     $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
                                     hideAddressInput();
+                                    $('#bootUpDisplay').fadeOut(500);
                                 } else {
                                     $('#loadingLogo').fadeIn();
                                     console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
