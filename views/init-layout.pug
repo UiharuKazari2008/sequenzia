@@ -23,9 +23,19 @@ html
         meta(content="Image Gallery and File Manager" property="og:description")
         meta(content="Sequenzia" property="og:site_name")
         //meta(name="theme-color" content="#4285f4")
-        link(rel='manifest' href='/static/manifest.json')
         link(rel='preconnect' href='https://cdn.discordapp.com')
         link(rel='preconnect' href='https://media.discordapp.net')
+        link(rel='manifest' href='/static/manifest.json')
+        link(rel='preload', href='/static/vendor/jquery/jquery.min.js' as='script')
+        link(rel='preload', href='/static/js/moment.min.js' as='script')
+        link(rel='preload', href='/static/js/jquery.history.min.js' as='script')
+        link(rel='preload', href="/static/css/jquery.fancybox.min.css" as='style')
+        link(rel='preload', href="/static/css/daterangepicker.min.css" as='style')
+        script(type='text/javascript' src="/static/vendor/jquery/jquery.min.js")
+        script(type='text/javascript' src="/static/js/jquery.history.min.js")
+        script(type='text/javascript' src='/static/js/moment.min.js')
+        script(type='text/javascript' src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+        script(type='text/javascript' src="/static/vendor/jquery-easing/jquery.easing.min.js")
         link(rel='preload', href="https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2" as="font" crossorigin)
         link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
@@ -34,14 +44,8 @@ html
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-thin-100.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href='/static/vendor/jquery/jquery.min.js' as='script')
-        link(rel='preload', href='/static/js/moment.min.js' as='script')
-        link(rel='preload', href='/static/js/jquery.history.min.js' as='script')
-        link(rel='preload', href="/static/css/jquery.fancybox.min.css" as='style')
-        link(rel='preload', href="/static/css/daterangepicker.min.css" as='style')
         link(rel='preload', href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" as='script')
         link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
-
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
         link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
@@ -50,7 +54,6 @@ html
         link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
         link(rel='preload', href="/css/custom.min.css" as='style')
 
-        link(rel='preload', href="/static/img/sequenzia-logo-orange.png" as='image')
         link(rel='preload', href="/static/img/sequenzia-logo-mini.png" as='image')
         link(rel='preload', href="/static/img/loading_bg.jpg" as='image')
         link(rel='preload', href="/static/img/aak.png" as='image')
@@ -58,11 +61,6 @@ html
         link(rel='preload', href="/js/client/onload.min.js" as='script')
         link(rel='preload', href="/js/client/sideloader-layout.min.js" as='script')
         link(rel='preload', href="/js/client/sideloader.min.js" as='script')
-        link(rel='preload', href="/js/client/displayHistory.min.js" as='script')
-        link(rel='preload', href="/js/client/media-enabler.min.js" as='script')
-        link(rel='preload', href="/js/client/manage.min.js" as='script')
-        link(rel='preload', href="/js/client/upload.min.js" as='script')
-        link(rel='preload', href="/js/client/status.min.js" as='script')
 
         link(rel='preload', href='/static/vendor/bootstrap/js/bootstrap.bundle.min.js' as='script')
         link(rel='preload', href='/static/vendor/jquery-easing/jquery.easing.min.js' as='script')
@@ -79,11 +77,6 @@ html
         link(rel="stylesheet", href="/css/custom.min.css")
         //link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
 
-        script(type='text/javascript' src="/static/vendor/jquery/jquery.min.js")
-        script(type='text/javascript' src="/static/js/jquery.history.min.js")
-        script(type='text/javascript' src='/static/js/moment.min.js')
-        script(type='text/javascript' src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
-        script(type='text/javascript' src="/static/vendor/jquery-easing/jquery.easing.min.js")
         script(type='text/javascript' src="/static/js/toast.min.js")
         script(type='text/javascript' src="/static/js/daterangepicker.min.js")
         script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
@@ -128,13 +121,13 @@ html
     body(id="page-top").sidebar-toggled
         #bootUpDisplay
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-5
-                .boot-logo.animation--fade-in
+                .boot-logo.animated--fade-in
                     img(src='/static/img/boot-logo.png' style='max-width: 40em; width: 100%; max-height: 45vh;')
                 .boot-text.mt-5.mb-5
                     .boot-loader-bar.ml-auto.mr-auto.rounded
                     .boot-span.mt-3.text-center
                         span Starting JuneOS...
-        #contextSwitchIndicator.animation--fade-in
+        #contextSwitchIndicator.animated--fade-in
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
                 .context-switch-items.fa-2x
                     i#contextFrom.fas.fa-house
@@ -478,18 +471,20 @@ html
                                             '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
                                 let currentContext = false;
                                 let nextContext = 'seq';
-                                if (window.location.hash.substring(1).length < 2) {
-                                    //location.href = '/';
-                                    console.log(`No Navigation, Ready when you are`);
-                                    $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
-                                    $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
-                                    hideAddressInput();
-                                    $('#bootUpDisplay').fadeOut(500);
-                                } else {
-                                    $('#loadingLogo').fadeIn();
-                                    console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
-                                    getNewContent([], []);
-                                }
+                                $(document).ready(function () {
+                                    if (window.location.hash.substring(1).length < 2) {
+                                        //location.href = '/';
+                                        console.log(`No Navigation, Ready when you are`);
+                                        $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
+                                        $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
+                                        hideAddressInput();
+                                        $('#bootUpDisplay').fadeOut(500);
+                                    } else {
+                                        $('#loadingLogo').fadeIn();
+                                        console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
+                                        getNewContent([], []);
+                                    }
+                                })
                             if (user && user.banner)
                                 style.
                                     .background-image:not(.overlay) {

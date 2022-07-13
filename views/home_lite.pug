@@ -47,10 +47,20 @@ html
         script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
         script(type='text/javascript' src="/static/js/toast.min.js")
         script(type='text/javascript' src="/js/client/home-lite.min.js")
+        link(rel='preload', href="/static/img/boot-logo.png" as='image')
 
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
     body
+        #bootUpDisplay.animated--grow-in.d-none
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-5
+                .boot-logo.animated--fade-in
+                    img(src='/static/img/boot-logo.png' style='max-width: 40em; width: 100%; max-height: 45vh;')
+                .boot-text.mt-5.mb-5
+                    .boot-loader-bar.ml-auto.mr-auto.rounded
+                    .boot-span.mt-3.text-center
+                        span Starting JuneOS...
+
         if (discord)
             #homeBg.background-image.overlay.animated--fade-in
             #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpg'); display: none;`)

@@ -334,6 +334,27 @@ code {
     width: 2.7rem;
 }
 
+
+div#bootUpDisplay {
+    position: fixed;
+    display: flex;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: all;
+    z-index: 500000;
+    background: black;
+}
+.boot-text {
+    margin-bottom: 10em;
+}
+.boot-loader-bar {
+    height: 1.25em;
+    max-width: 20em;
+    background: #ec5822;
+    animation: animateBg 2s linear infinite;
+}
 .home-items {
     margin-left: 0.125em;
     margin-right: 0.125em;

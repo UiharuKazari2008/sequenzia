@@ -336,6 +336,7 @@ function getNewContent(remove, add, url, keep) {
                 return null
             } catch (e) {
                 console.error("Failed to access URL data, falling back")
+                console.error(e)
                 if (window.location.hash.substring(1).length > 2) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
                 return null
             }
@@ -434,6 +435,7 @@ function getMoreContent(remove, add, url, keep) {
             return null
         } catch (e) {
             console.error("Failed to access URL data, falling back")
+            console.error(e)
             if (window.location.hash.substring(1).length > 2) { return window.location.hash.substring(1).split('://' + window.location.host).pop()}
             return null
         }
@@ -533,6 +535,7 @@ function getSearchContent(element, url) {
                 return null
             } catch (e) {
                 console.error("Failed to access URL data, falling back")
+                console.error(e)
                 if (window.location.hash.substring(1).length > 2) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
                 return null
             }

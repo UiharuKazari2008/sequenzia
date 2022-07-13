@@ -37,7 +37,7 @@ function params(_removeParams, _addParams, _url) {
 }
 
 function getNewContent(remove, add, url) {
-    $('#loadingLogo').fadeIn();
+    document.getElementById('bootUpDisplay').classList.remove('d-none');
     let _url = (() => {
         try {
             if (url) { return url.split('://' + window.location.host).pop() }
@@ -45,6 +45,7 @@ function getNewContent(remove, add, url) {
             return null
         } catch (e) {
             console.error("Failed to access URL data, falling back")
+            console.error(e)
             return null
         }
     })()
@@ -87,7 +88,7 @@ function getNewContent(remove, add, url) {
         return false;
     }
     console.log(_url);
-    window.location.href = `/juneOS#${_url}`;
+    setTimeout(() => {window.location.href = `/juneOS#${_url}`;}, 400)
 }
 $.toastDefaults = {
     position: 'top-center', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
