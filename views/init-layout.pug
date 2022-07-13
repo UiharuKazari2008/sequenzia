@@ -11,6 +11,7 @@ html
             console.log('Waiting for JuneOS to boot...')
         title=`${webconf.site_name}`
 
+        link(rel='preload', href="/static/img/boot-logo.png" as='image')
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
@@ -125,6 +126,23 @@ html
                     }
                 }
     body(id="page-top").sidebar-toggled
+        #bootUpDisplay
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto
+                .boot-logo.animation--fade-in
+                    img(src='/static/img/boot-logo.png' style='max-width: 40em;')
+                .boot-text.mt-5.mb-5
+                    .boot-loader-bar.ml-auto.mr-auto.rounded
+                    .boot-span.mt-3.text-center
+                        span Starting JuneOS...
+        #contextSwitchIndicator.animation--fade-in
+            .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
+                .context-switch-items.fa-2x
+                    i#contextFrom.fas.fa-house
+                    img#contextFromSeq.hidden(src='/static/img/sequenzia-logo-mini.png' style='height: 1.2em;margin-top: -0.15em;margin-right: -0.15em;')
+                    i.fas.fa-arrow-right.px-2
+                    i#contextTo.hidden.fas.fa-browser
+                    img#contextToSeq(src='/static/img/sequenzia-logo-mini.png' style='height: 1.2em;margin-top: -0.15em;margin-right: -0.15em;')
+
         div.background-image.overlay
         div.background-image.bg-blur
 
@@ -458,6 +476,8 @@ html
                                             ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
                                             '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
                                             '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
+                                let currentContext = false;
+                                let nextContext = 'seq';
                                 if (window.location.hash.substring(1).length < 2) {
                                     //location.href = '/';
                                     console.log(`No Navigation, Ready when you are`);
@@ -885,26 +905,26 @@ html
                             i.fas.fa-times
                     .modal-body
                         #albumDirectoryBody Loading List of Albums...
-        #kongouMediaPlayer.kms-media-container.d-none
+        #kongouMediaPlayer.kms-media-container.animated--grow-in.d-none
             .kms-background
+                .kms-logo-center
             .kms-media-inner
                 .kms-stage
                     .kms-player-video.d-flex
                         .kms-title-bar.d-flex
+                            .kms-progress-bar.hidden(style='width: 100%')
                             .kms-info-bar
                                 img.kms-logo(src='/static/img/kongoumedialogo-wide.png').mr-auto
                                 .kms-status-bar.pr-2.text-ellipsis
                                     span
-                                .progress(style="height: 30px;width: 500px;background: black; opacity: 0.5;")
-                                    .progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
                                 a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
                                     i.fas.fa-times
                             .kms-player-controls.px-2.mt-2
-                                a#kongouMediaPlayerPrev.d-flex.w-50.align-items-baseline.justify-content-start(href='#_' onclick=`kmsPlayPrev(); return false;`)
+                                a#kongouMediaPlayerPrev.d-flex.w-50.align-items-baseline.justify-content-start.mr-auto(href='#_' onclick=`kmsPlayPrev(); return false;`)
                                     i.fas.fa-backward-fast
                                     .div.text-ellipsis.d-none.d-md-block
                                         span.pl-2 Previous Episode: Name Goes Here
-                                a#kongouMediaPlayerNext.d-flex.w-50.align-items-baseline.justify-content-end(href='#_' onclick=`kmsPlayNext(); return false;`)
+                                a#kongouMediaPlayerNext.d-flex.w-50.align-items-baseline.justify-content-end.ml-auto(href='#_' onclick=`kmsPlayNext(); return false;`)
                                     .div.text-ellipsis.d-none.d-md-block
                                         span.pr-2 Next Episode: Name Goes Here
                                     i.fas.fa-forward-fast

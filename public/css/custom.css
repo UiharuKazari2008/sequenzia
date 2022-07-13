@@ -2306,7 +2306,6 @@ footer .server-grid-parent {
     background-repeat: no-repeat;
     z-index: -2;
     background-clip: content-box;
-    opacity: 0.5;
 }
 .show-preview-overlay {
     position: absolute;
@@ -2423,6 +2422,8 @@ footer .server-grid-parent {
     text-align: left;
     vertical-align: middle;
     box-shadow: 0 2px 24px 8px rgb(0 0 0 / 41%);
+    -webkit-animation-duration: 600ms;
+    animation-duration: 600ms;
 }
 .kms-background {
     background: black;
@@ -2438,6 +2439,13 @@ footer .server-grid-parent {
 }
 img.kms-logo {
     height: 32px
+}
+.kms-progress-bar {
+    height: 0.5em;
+    position: absolute;
+    background: #d37f00;
+    left: 0;
+    top: 0;
 }
 .kms-title-bar {
     background: linear-gradient(0deg, transparent, black);
@@ -2458,6 +2466,48 @@ img.kms-logo {
     padding: 0;
     justify-content: center;
     width: 100%;
+}
+
+div#contextSwitchIndicator {
+    position: fixed;
+    display: flex;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 200000;
+}
+div#bootUpDisplay {
+    position: fixed;
+    display: flex;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: all;
+    z-index: 500000;
+    background: black;
+}
+.boot-text {
+    margin-bottom: 10em;
+}
+.boot-loader-bar {
+    height: 1.25em;
+    width: 20em;
+    background: linear-gradient(90deg,#ec5822 0,#f5e4d3 50%,#ec5822 100%) 0 0/300% 100%;
+    animation: animateBg 2s linear infinite;
+}
+@keyframes animateBg {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 300% 0;
+    }
+}
+.context-switch-container {
+    background: #000000bf;
 }
 
 @keyframes slideiconout {

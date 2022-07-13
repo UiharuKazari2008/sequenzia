@@ -128,13 +128,42 @@ async function writeLoadingBar(){
     }
     return false;
 }
-async function setupReq (push) {
+async function setupReq(push, url) {
+    nextContext = (() => {
+        if (url && url.startsWith('/app/web/')) {
+            return 'browser'
+        } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
+            return 'tv'
+        } else if (url) {
+            return 'seq'
+        }
+        return 'question'
+    })()
+    if (!currentContext || (currentContext && currentContext !== nextContext)) {
+        let cxswch = document.getElementById('contextSwitchIndicator');
+        if (currentContext) {
+            if (currentContext === 'seq') {
+                cxswch.querySelector('#contextFrom').classList = 'hidden';
+                cxswch.querySelector('#contextFromSeq').classList = '';
+            } else {
+                cxswch.querySelector('#contextFrom').classList = 'fas fa-' + currentContext;
+                cxswch.querySelector('#contextFromSeq').classList = 'hidden';
+            }
+            if (nextContext === 'seq') {
+                cxswch.querySelector('#contextTo').classList = 'hidden';
+                cxswch.querySelector('#contextToSeq').classList = '';
+            } else {
+                cxswch.querySelector('#contextTo').classList = 'fas fa-' + nextContext;
+                cxswch.querySelector('#contextToSeq').classList = 'hidden';
+            }
+        }
+        cxswch.classList.remove('hidden');
+        cxswch.style.display = null;
+    }
     responseComplete = false;
     $('#loadingSpinner').fadeIn();
     if (push !== true)
         $(".container-fluid").fadeTo(500, 0.4);
-
-
     if (!initalPageLoad)
         $("#userMenu").collapse("hide");
     $(".sidebar").removeClass('open');
@@ -149,6 +178,7 @@ async function setupReq (push) {
     return false;
 }
 let recoverable
+let contextFadeDelay = null
 async function requestCompleted (response, url, lastURL, push) {
     itemsRemoved = 0;
     const pageTitle = $(response).filter('title').text()
@@ -273,12 +303,24 @@ async function requestCompleted (response, url, lastURL, push) {
             responseComplete = true
         }
         pageType = url.split('/')[0];
+        if (initialLoad) {
+            setTimeout(() => {
+                $('#bootUpDisplay').fadeOut(500);
+            }, 1000)
+        }
         initialLoad = false
         if(!isTouchDevice()) {
             $('[data-tooltip="tooltip"]').tooltip()
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
     }
+    if (contextFadeDelay)
+        clearTimeout(contextFadeDelay);
+    contextFadeDelay = setTimeout(() => {
+        $('#contextSwitchIndicator').fadeOut(500);
+    }, 4000)
+    currentContext = nextContext;
+
     return false;
 }
 
@@ -286,7 +328,6 @@ let requestInprogress
 let paginatorInprogress
 function getNewContent(remove, add, url, keep) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
-    setupReq()
     let _url = (() => {
             try {
                 if (url) { return url.split('://' + window.location.host).pop() }
@@ -311,6 +352,7 @@ function getNewContent(remove, add, url, keep) {
         responseComplete = true
         return false;
     }
+    setupReq(undefined, _url)
     try {
         let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
         const _pathname = _url.split('?')[0];
@@ -384,7 +426,6 @@ function getNewContent(remove, add, url, keep) {
 }
 function getMoreContent(remove, add, url, keep) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
-    setupReq(true)
     let _url = (() => {
         try {
             if (url) { return url.split('://' + window.location.host).pop() }
@@ -409,6 +450,7 @@ function getMoreContent(remove, add, url, keep) {
         responseComplete = true
         return false;
     }
+    setupReq(true, _url);
     try {
         let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
         const _pathname = _url.split('?')[0];
@@ -536,7 +578,7 @@ function getSearchContent(element, url) {
             responseComplete = true
             return false;
         }
-        setupReq()
+        setupReq(undefined, _url)
         requestInprogress = $.ajax({async: true,
             url: _url,
             type: "GET", data: '',
@@ -569,7 +611,7 @@ function getLimitContent(perm) {
     const requestLimit = document.getElementById('limitRequested').value;
     if (requestLimit !== null && requestLimit !== '') {
         const _url = params([], [[(perm) ? 'limit' : 'num', requestLimit ]]);
-        setupReq()
+        setupReq(undefined, _url)
         requestInprogress = $.ajax({async: true,
             url: _url,
             type: "GET", data: '',
@@ -662,13 +704,12 @@ function getPaginator(url) {
     return false;
 }
 function launchContent(remove, add, url) {
-    setupReq()
+    setupReq(undefined, _url)
     document.location.href = params(remove, add, url);
     return false;
 }
 function getNewURIContent(element, type) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
-    setupReq()
     try {
         let _url = document.querySelector('#' + element).value.toString().trim()
         if (_url && _url.length > 2) {
@@ -693,6 +734,7 @@ function getNewURIContent(element, type) {
                 delay: 2000,
             });
         }
+        setupReq(undefined, _url)
     } catch (e) {
         responseComplete = true
         $(".container-fluid").fadeTo(2000, 1)
@@ -870,9 +912,9 @@ async function openUnpackingFiles(messageid, playThis) {
     const videoModel = document.getElementById('videoBuilderModal');
     if (fileid && fileid.length > 0) {
         const element = document.getElementById(`fileData-${fileid}`);
-        const memoryJobIndex = memorySpannedController.indexOf(fileid)
-        if (element && memoryJobIndex > -1) {
-            const previousJob = memorySpannedController[memoryJobIndex];
+        const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid)
+        if (element && memoryJobIndex.length > 0) {
+            const previousJob = memoryJobIndex[0];
             if (previousJob.play === 'audio') {
                 PlayTrack(element.href);
             } else if (previousJob.play === 'video') {
@@ -882,6 +924,19 @@ async function openUnpackingFiles(messageid, playThis) {
                     memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(element.href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
+            } else if (previousJob.play === 'kms-video') {
+                const mediaPlayer = document.getElementById('kongouMediaPlayer');
+                const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
+                const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
+                videoPreviewPlayer.pause()
+                videoFullPlayer.src = element.href;
+                await videoFullPlayer.play();
+                videoPreviewPlayer.classList.add('hidden');
+                videoFullPlayer.classList.remove('hidden');
+                if (memoryVideoPositions.has(previousJob.id))
+                    videoFullPlayer.currentTime = memoryVideoPositions.get(previousJob.id)
+                mediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
+                mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
             } else {
                 element.click();
             }
@@ -1000,8 +1055,8 @@ async function openPreviewUnpacking(messageid) {
     const fullURL = _post.getAttribute('data-msg-url-full');
 
     const element = document.getElementById(`fileData-${fileid}`);
-    const memoryJobIndex = memorySpannedController.indexOf(fileid);
-    if (element && memoryJobIndex > -1) {
+    const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid)
+    if (element && memoryJobIndex.length > 0) {
         PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, fileid);
     } else {
         const videoModel = document.getElementById('videoBuilderModal');
@@ -1069,36 +1124,44 @@ async function openKMSPlayer(messageid) {
     }
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
     if (index > 0) {
-        const prevEpisode = Array.from(allEpisodes).slice(0, index);
-        if (prevEpisode.length > 1) {
-            const prevName = prevEpisode.pop().querySelector('.episode-name > span').innerText
+        const prevEpisode = allEpisodes.slice(0,index);
+        if (prevEpisode.length > 0) {
+            const prevName = prevEpisode.slice().pop().querySelector('.episode-name > span').innerText
             prevEpisodeGroup.querySelector('span').innerText = prevName;
             prevEpisodeGroup.classList.remove('hidden')
-            mediaPlayer.setAttribute('prevPlayback', prevEpisode.pop().id.split('-').pop());
+            mediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
         } else {
             prevEpisodeGroup.querySelector('span').innerText = '';
             prevEpisodeGroup.classList.add('hidden')
             mediaPlayer.removeAttribute('prevPlayback');
         }
+    } else {
+        prevEpisodeGroup.querySelector('span').innerText = '';
+        prevEpisodeGroup.classList.add('hidden')
+        mediaPlayer.removeAttribute('prevPlayback');
     }
+
+    mediaPlayer.classList.remove('d-none');
+    mediaPlayer.querySelector('.kms-status-bar > span').innerText = 'Waiting'
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
     const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
+    videoPreviewPlayer.classList.add('hidden');
+    videoFullPlayer.classList.add('hidden');
 
     const element = document.getElementById(`fileData-${fileid}`);
-    const memoryJobIndex = memorySpannedController.indexOf(fileid);
-    
 
-    if (element && memoryJobIndex > -1) {
+    if (element) {
         videoPreviewPlayer.pause();
         videoPreviewPlayer.classList.add('hidden');
         videoFullPlayer.src = element.href;
         videoFullPlayer.play();
         videoFullPlayer.classList.remove('hidden');
     } else {
-        mediaPlayer.querySelector('.progress > .progress-bar').style.width = "0%";
-        mediaPlayer.querySelector('.progress > .progress-bar').classList.add('bg-success');
-        mediaPlayer.querySelector('.progress > .progress-bar').classList.remove('bg-danger');
+        mediaPlayer.querySelector('.kms-progress-bar').style.width = "0%";
+        mediaPlayer.querySelector('.kms-progress-bar').classList.add('bg-success');
+        mediaPlayer.querySelector('.kms-progress-bar').classList.remove('bg-danger');
+        mediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
 
         if (fullURL && fullURL.endsWith('.mp4')) {
             videoPreviewPlayer.src = fullURL;
@@ -1124,14 +1187,13 @@ async function openKMSPlayer(messageid) {
         videoFullPlayer.pause();
         videoFullPlayer.classList.add('hidden');
     }
-    mediaPlayer.classList.remove('d-none');
-    mediaPlayer.querySelector('.kms-status-bar > span').innerText = 'Please Wait...'
     openUnpackingFiles(messageid, 'kms-video');
     if (active) {
         const _activePost = document.getElementById(`message-${active}`);
         if (_activePost) {
             const activeFileid = _activePost.getAttribute('data-msg-fileid');
-            if (activeFileid) {
+            const element = document.getElementById(`fileData-${activeFileid}`);
+            if (activeFileid && !element) {
                 console.log(`Canceling Active Unpacking...`)
                 stopUnpackingFiles(activeFileid);
             }
@@ -1143,14 +1205,26 @@ async function openKMSPlayer(messageid) {
 async function kmsPlayNext() {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('nextPlayback');
+    await saveCurrentTimeKMS();
     if (messageid)
         openKMSPlayer(messageid);
 }
 async function kmsPlayPrev() {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('prevPlayback');
+    await saveCurrentTimeKMS();
     if (messageid)
         openKMSPlayer(messageid);
+}
+async function saveCurrentTimeKMS() {
+    const videoModel = document.getElementById('kongouMediaPlayer');
+    const messageid = videoModel.getAttribute('activePlayback');
+    const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
+    if (messageid && (videoFullPlayer.currentTime / videoFullPlayer.duration) < 0.8) {
+        const _post = document.getElementById(`message-${messageid}`);
+        const fileid = _post.getAttribute('data-msg-fileid');
+        memoryVideoPositions.set(fileid, videoFullPlayer.currentTime);
+    }
 }
 async function cancelPendingKMSUnpack() {
     const videoModel = document.getElementById('kongouMediaPlayer');
@@ -1164,13 +1238,14 @@ async function cancelPendingKMSUnpack() {
 async function closeKMSPlayer() {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('activePlayback');
+    const videoPreviewPlayer = videoModel.querySelector('#kongouMediaVideoPreview');
+    const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
+    await saveCurrentTimeKMS();
     if (messageid) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         stopUnpackingFiles(fileid);
     }
-    const videoPreviewPlayer = videoModel.querySelector('#kongouMediaVideoPreview');
-    const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
     videoModel.classList.add('d-none')
@@ -1229,7 +1304,7 @@ async function unpackFile() {
         const videoStatus = videoModel.querySelector('span.status-text');
         const videoProgress = videoModel.querySelector('.progress > .progress-bar');
         const kmsStatus = kmsPlayer.querySelector('.kms-status-bar > span');
-        const kmsProgress = kmsPlayer.querySelector('.progress > .progress-bar');
+        const kmsProgress = kmsPlayer.querySelector('.kms-progress-bar');
 
         videoStatus.innerText = 'Getting Parity Metadata...';
         return await new Promise(async (job) => {
@@ -1267,18 +1342,18 @@ async function unpackFile() {
                                         const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
                                         activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
                                         if (activeSpannedJob.play === 'video') {
-                                            videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Remaining`;
+                                            videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Pending`;
                                             videoProgress.style.width = activeSpannedJob.progress;
                                         } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
-                                            kmsStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Remaining`;
+                                            kmsStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length}/${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Blocks`;
                                             kmsProgress.style.width = activeSpannedJob.progress;
                                         }
                                     }
-                                    kmsPlayer.querySelector('.progress').classList.remove('hidden');
+                                    kmsPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
                                     while (Object.keys(pendingBlobs).length !== 0) {
                                         if (!activeSpannedJob.ready)
                                             break;
-                                        let downloadKeys = Object.keys(pendingBlobs).slice(0,10)
+                                        let downloadKeys = Object.keys(pendingBlobs).slice(0,8)
                                         const results = await Promise.all(downloadKeys.map(async item => {
                                             return new Promise(ok => {
                                                 axios({
@@ -1323,7 +1398,7 @@ async function unpackFile() {
                                             videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
                                         } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
                                             kmsStatus.innerText = ``;
-                                            kmsPlayer.querySelector('.progress').classList.add('hidden')
+                                            kmsPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                                         } else {
                                             $.toast({
                                                 type: 'success',
@@ -1340,7 +1415,7 @@ async function unpackFile() {
                                             videoProgress.classList.remove('bg-success');
                                             videoProgress.classList.add('bg-danger');
                                         } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
-                                            kmsStatus.innerText = `Cannot Play, Not all blocks where downloaded`;
+                                            kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
                                             kmsProgress.classList.remove('bg-success');
                                             kmsProgress.classList.add('bg-danger');
                                         } else {
@@ -1360,7 +1435,7 @@ async function unpackFile() {
                                         videoProgress.classList.remove('bg-success');
                                         videoProgress.classList.add('bg-danger');
                                     } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
-                                        kmsStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
+                                        kmsStatus.innerText = `File is damaged or is missing blocks!`;
                                         kmsProgress.classList.remove('bg-success');
                                         kmsProgress.classList.add('bg-danger');
                                     } else  {
@@ -1380,7 +1455,7 @@ async function unpackFile() {
                                     videoProgress.classList.remove('bg-success');
                                     videoProgress.classList.add('bg-danger');
                                 } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
-                                    kmsStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
+                                    kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
                                     kmsProgress.classList.remove('bg-success');
                                     kmsProgress.classList.add('bg-danger');
                                 } else {

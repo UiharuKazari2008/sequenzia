@@ -696,6 +696,10 @@ module.exports = async (req, res, next) => {
         if (req.query.group) {
             sqlquery.push(`kongou_shows.media_group = '${req.query.group}'`)
         }
+        if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+            multiChannel = true;
+            hideChannels = false;
+        }
         // Limit
         if (page_uri === '/listTheater') {
             limit = 1000;

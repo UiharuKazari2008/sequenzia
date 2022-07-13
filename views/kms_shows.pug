@@ -30,9 +30,9 @@ block content
                     div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2(id=`series-${item.id}`)
                         a(href=`#/listTheater?show_id=${item.id}`)
                             if (indexImage < 10)
-                                div#postImage.tv-poster.img.img-responsive(style=`background-image : url("${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}"); background-size: cover!important;`)
+                                div#postImage.tv-poster.img.img-responsive.no-hover(style=`background-image : url("${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}"); background-size: cover!important;`)
                             else
-                                div#postImage.tv-poster.img.img-responsive.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}` style=`background-size: cover!important;`)
+                                div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}` style=`background-size: cover!important;`)
                             div#postBackground
     else
 

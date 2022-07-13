@@ -37,7 +37,6 @@ module.exports = async (req, res, next) => {
         console.error('No Session Data')
         next();
     } else {
-        let hideChannels = true;
         let execute = '';
         let limit = 100;
         let offset = 0;
@@ -55,10 +54,6 @@ module.exports = async (req, res, next) => {
         if (req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
-        // Where Exec
-        if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
-            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ')';
-        }
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
             'kanmi_records.*',
@@ -71,7 +66,7 @@ module.exports = async (req, res, next) => {
 
         const kongouShows = `SELECT kms_ep.eid, kms_show.group_name, kms_show.description, kms_show.icon, kms_show.show_id, kms_ep.episode_num, kms_ep.episode_name AS kms_episode_name, kms_ep.season_num, kms_ep.data AS episode_data, kms_show.name AS kms_series_name, kms_show.original_name AS kms_series_original_name, kms_show.nsfw AS kms_series_nsfw, kms_show.data AS series_data, kms_show.background, kms_show.poster FROM (SELECT * FROM kongou_episodes) kms_ep LEFT OUTER JOIN (SELECT * FROM (SELECT show_id, media_group, name, original_name, nsfw, genres, data, background, poster FROM kongou_shows ${(media_group.length > 0) ? "WHERE media_group = '" + media_group + "'" : ''}) s LEFT JOIN (SELECT media_group AS group_id, type, name AS group_name, description, icon FROM kongou_media_groups) g ON (s.media_group = g.group_id)) kms_show ON (kms_ep.show_id = kms_show.show_id)`
 
-        let sqlCall = `SELECT * FROM (SELECT kms.kms_series_name, kms.series_data, kms.group_name, kms.icon, kms.background, kms.poster FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${(baseQ.length > 0) ? "(" + baseQ + ") AND " : ""}(kanmi_records.channel = ${req.session.cache.channels_view}.channelid))) main_records LEFT OUTER JOIN (${kongouShows}) kms ON (kms.eid = main_records.eid) WHERE kms_series_name IS NOT NULL GROUP BY kms.show_id) x ORDER BY x.kms_series_name`;
+        let sqlCall = `SELECT * FROM (SELECT kms.kms_series_name, kms.series_data, kms.group_name, kms.icon, kms.background, kms.poster FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (kanmi_records.channel = ${req.session.cache.channels_view}.channelid)) main_records LEFT OUTER JOIN (${kongouShows}) kms ON (kms.eid = main_records.eid) WHERE kms_series_name IS NOT NULL GROUP BY kms.show_id) x ORDER BY x.kms_series_name`;
 
         debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
