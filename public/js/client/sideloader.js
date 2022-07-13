@@ -130,7 +130,7 @@ async function writeLoadingBar(){
 }
 async function setupReq(push, url) {
     nextContext = (() => {
-        if (url && url.startsWith('/app/web/')) {
+        if (url && (url.startsWith('/app/'))) {
             return 'browser'
         } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
             return 'tv'

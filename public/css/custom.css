@@ -2494,7 +2494,7 @@ div#bootUpDisplay {
 }
 .boot-loader-bar {
     height: 1.25em;
-    width: 20em;
+    max-width: 20em;
     background: linear-gradient(90deg,#ec5822 0,#f5e4d3 50%,#ec5822 100%) 0 0/300% 100%;
     animation: animateBg 2s linear infinite;
 }
