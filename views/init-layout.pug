@@ -556,7 +556,7 @@ html
                         h5.modal-title.text-ellipsis Video Preview
                     .modal-body
                         div.row.pl-3.pr-3
-                            video(preload="true" volume="0.5" loop controls style="background: black; background-clip: content-box;").w-100.hidden
+                            video(preload="true" volume="0.5" loop controls playsinline webkit-playsinline style="background: black; background-clip: content-box;").w-100.hidden
                             img().w-100.hidden
                         div.row.pl-3.pr-3.mt-2.d-block
                             .progress.mb-1(style="height: 30px;")
@@ -924,7 +924,7 @@ html
                                     .div.text-ellipsis.d-none.d-md-block
                                         span.pr-2 Next Episode: Name Goes Here
                                     i.fas.fa-forward-fast
-                        video#kongouMediaVideoPreview.kms-media-player(preload="false" controls style="background: transparent; background-clip: content-box;")
+                        video#kongouMediaVideoPreview.kms-media-player(preload="false" controls playsinline webkit-playsinline loops style="background: transparent; background-clip: content-box;")
                         video#kongouMediaVideoFull.kms-media-player(preload="true" autoplay='false' controls style="background: transparent; background-clip: content-box;" )
 
         script(src="/static/js/sb-admin-2.min.js")
