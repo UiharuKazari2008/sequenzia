@@ -2323,7 +2323,7 @@ footer .server-grid-parent {
 }
 .show-header {
     position: relative;
-    min-height: 128px;
+    min-height: 450px;
     overflow: hidden;
     display: flex;
     flex-wrap: nowrap;
@@ -2336,7 +2336,7 @@ footer .server-grid-parent {
     line-height: 1;
 }
 .show-description {
-    max-height: 150px;
+    max-height: 400px;
     overflow: auto;
 }
 .show-og-title {
@@ -2344,7 +2344,7 @@ footer .server-grid-parent {
     opacity: 0.8;
 }
 .show-poster img {
-    height: 250px;
+    height: 420px;
 }
 .episode-description {
     text-overflow: ellipsis;
@@ -2964,7 +2964,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         font-size: 1em;
     }
     .show-description {
-        max-height: 110px;
+        max-height: 80px;
+    }
+    .show-header {
+        min-height: 230px;
     }
     .episode-preview, .episode-preview-image {
         height: 72px;
@@ -3179,6 +3182,21 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 350px) {
+    .show-poster img {
+        height: 84px;
+    }
+    .show-title {
+        font-size: 1.4em;
+    }
+    .show-og-title {
+        font-size: 0.95em;
+    }
+    .show-info-top {
+        font-size: 0.8em;
+    }
+    .show-description {
+        font-size: 0.8em;
+    }
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
