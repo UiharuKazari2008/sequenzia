@@ -51,8 +51,15 @@ block content
                         if (seasons.length > 1)
                             h2.accordion-header
                                 a.accordion-button.collapsed(href='#_' data-toggle='collapse' data-target=`#seasonBody${seasonIndex}`)
-                                    | Season #{season.number} (#{season.name})
-                        .accordion-collapse.collapse(id=`seasonBody${seasonIndex}` data-parent='#seasonsAccordion').show
+                                    i.fas.fa-rectangle-list.pr-2
+                                    if (season.number !== 0)
+                                        if (`Season ${season.number}`.toLowerCase() !== season.name.toLowerCase())
+                                            | Season #{season.number} (#{season.name})
+                                        else
+                                            | #{season.name}
+                                    else
+                                        | Special Features
+                        .accordion-collapse.collapse(id=`seasonBody${seasonIndex}` class=`${(season.number !== 0) ? 'show' : ''}`)
                             .accordion-body
                                 each item, indexImage in results.filter(e => e.media.season === season.number)
                                     - fileURL = item.entities.full

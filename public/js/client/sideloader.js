@@ -133,7 +133,7 @@ async function setupReq(push, url) {
         if (url && (url.startsWith('/app/'))) {
             return 'browser'
         } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
-            return 'tv'
+            return 'clapperboard-play'
         } else if (url) {
             return 'seq'
         }
@@ -1729,8 +1729,8 @@ async function showSearchOptions(post) {
     let advancedInfo = [];
 
     document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
-    document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', postChannel]])}`)
-    document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [])}`)
+    document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+    document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
@@ -1900,8 +1900,9 @@ async function showSearchOptions(post) {
         const text = window.getSelection().toString()
         if (text && text.length > 0 && text.trim().length > 0) {
             $('#searchModal').modal('hide');
+            let _url = `/${(pageType === 'tvTheater' || pageType === 'listTheater') ? 'gallery' :  pageType}`;
             window.getSelection().toString()
-            window.location.assign(`#${getLocation()}search=${encodeURIComponent('text:' + text.trim())}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(`#${_url}?search=${encodeURIComponent('text:' + text.trim())}${(nsfwString) ? nsfwString : ''}`);
         } else {
             alert(`You must select text above first before you can search selected text!`)
         }
@@ -1909,7 +1910,9 @@ async function showSearchOptions(post) {
     }
     modalGoToPostLocation.onclick = function() {
         $('#searchModal').modal('hide');
-        window.location.assign("#" + params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount', 'channel', 'folder', 'album', 'album_name'], [['channel', `${postChannel}`], ['nsfw', 'true']]));
+        let _url = `/${(pageType === 'tvTheater' || pageType === 'listTheater') ? 'gallery' :  pageType}`;
+        console.log(_url);
+        window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], _url));
         return false;
     }
     modalGoToHistoryDisplay.onclick = function() {
