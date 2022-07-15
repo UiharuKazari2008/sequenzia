@@ -244,9 +244,9 @@ html
                                                             a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
                                                                 i.fa-light.fa-fw.fa-books
                                                                 | Shelves
-                                                            a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#_')
+                                                            a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
                                                                 i.fa-light.fa-forward
-                                                                | Continue
+                                                                | Up Next
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
                                                                 i.fa-light.fa-star
                                                                 | Favorites
@@ -501,14 +501,14 @@ html
                                                                             i.fa-light(class=`${thisApp.icon}`)
                                                                             | #{thisApp.name}
                                         div#menuItemTheater(class="collapse" data-parent="#menuAccordion")
-                                            div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-clapperboard-play.mr-2
                                                         | Libraries
-                                                .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         if (theaters && theaters.length > 0)
                                                             each thisTheater in theaters
@@ -610,15 +610,19 @@ html
                                                     else if (path === '/listTheater' && params.has('watch_history'))
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
+                                                        else if (params.getAll('watch_history')[0] === 'none')
+                                                            i.far.fa-forward.mr-2
+                                                            span(title='Continue Watching').text-uppercase Up Next
                                                         else
                                                             i.far.fa-history.mr-2
-                                                        span(title='Watch History').text-uppercase Watch History
+                                                            span(title='Watch History').text-uppercase Watch History
                                                     else if (path === '/listTheater')
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
+                                                            span(title='Favorite Episodes').text-uppercase Favorites
                                                         else
                                                             i.far.fa-clapperboard-play.mr-2
-                                                        span(title='Media Library Shelf').text-uppercase Media Library
+                                                            span(title='Media Library Shelf').text-uppercase Media Library
                                                     else
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2

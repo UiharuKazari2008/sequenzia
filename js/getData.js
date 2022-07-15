@@ -915,7 +915,7 @@ module.exports = async (req, res, next) => {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
         if (page_uri === '/listTheater') {
-            sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT OUTER JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.1) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history IS NULL OR watch_history < 0.25' : ''}`;
+            sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.01) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
         }
         if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
@@ -1366,7 +1366,7 @@ module.exports = async (req, res, next) => {
                 next();
             }
         } else if (req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqPaginator' ) {
-            if (req.session.pageinatorEnable && req.session.pageinatorEnable === true) {
+            if (req.session.pageinatorEnable && req.session.pageinatorEnable === true && (!req.query || (req.query && !req.query.watch_history))) {
                 let sqlCountFeild = 'eid';
                 let favmatch = '';
                 if (req.query && req.query.pins && req.query.pins !== 'false') {
@@ -1463,7 +1463,7 @@ module.exports = async (req, res, next) => {
             }
         } else {
             debugTimes.sql_query = new Date();
-            console.log(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
+            console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
             const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
             const users = app.get('users').rows

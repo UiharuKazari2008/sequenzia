@@ -105,7 +105,7 @@ module.exports = (req, res, next) => {
                                 printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
                                 res.status(500).send('Database Error');
                             } else if (result.affectedRows && result.affectedRows > 0) {
-                                res.status(200).send(`History Saved`);
+                                res.status(200).send(`History Reset`);
                             } else {
                                 res.status(500).send(`Failed to save history`);
                             }

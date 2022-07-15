@@ -924,6 +924,13 @@ html
                                     .div.text-ellipsis.d-none.d-md-block
                                         span.pr-2 Next Episode: Name Goes Here
                                     i.fas.fa-forward-fast
+                        .kms-warnings.d-flex.flex-column
+                            #kmsWarningProgress.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden
+                                i.fas.fa-history.pr-2
+                                span Video will continue at your previous position once it has been full loaded!
+                            #kmsWarningQuality.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden(style='opacity: 0.5;')
+                                i.fas.fa-box-open.pr-2
+                                span Video quality will improve once it has been full loaded!
                         video#kongouMediaVideoPreview.kms-media-player(preload="false" controls playsinline webkit-playsinline loops style="background: transparent; background-clip: content-box;")
                         video#kongouMediaVideoFull.kms-media-player(preload="true" autoplay='false' controls style="background: transparent; background-clip: content-box;" )
 
