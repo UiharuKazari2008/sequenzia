@@ -1223,17 +1223,18 @@ async function saveCurrentTimeKMS(wasNext) {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('activePlayback');
     const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
-    if (messageid && (videoFullPlayer.currentTime / videoFullPlayer.duration) < 0.8) {
+    if (messageid) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
-        if (videoFullPlayer.currentTime <= 0.85) {
-            memoryVideoPositions.set(fileid, (videoFullPlayer.currentTime < 0.8));
+        const percentage = videoFullPlayer.currentTime / videoFullPlayer.duration
+        if (percentage <= 0.85) {
+            memoryVideoPositions.set(fileid, percentage);
         } else {
             memoryVideoPositions.delete(fileid);
         }
-        if (videoFullPlayer.currentTime >= 0.15 || wasNext)
-            setWatchHistory(eid, (wasNext) ? 1 : videoFullPlayer.currentTime)
+        if (percentage > 0.15 || wasNext)
+            setWatchHistory(eid, (wasNext) ? 1 : percentage)
     }
 }
 async function cancelPendingKMSUnpack() {
