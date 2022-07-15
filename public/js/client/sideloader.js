@@ -1208,7 +1208,7 @@ async function openKMSPlayer(messageid) {
 async function kmsPlayNext() {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('nextPlayback');
-    await saveCurrentTimeKMS();
+    await saveCurrentTimeKMS(true);
     if (messageid)
         openKMSPlayer(messageid);
 }
@@ -1219,14 +1219,21 @@ async function kmsPlayPrev() {
     if (messageid)
         openKMSPlayer(messageid);
 }
-async function saveCurrentTimeKMS() {
+async function saveCurrentTimeKMS(wasNext) {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('activePlayback');
     const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
     if (messageid && (videoFullPlayer.currentTime / videoFullPlayer.duration) < 0.8) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
-        memoryVideoPositions.set(fileid, videoFullPlayer.currentTime);
+        const eid = _post.getAttribute('data-msg-eid');
+        if (videoFullPlayer.currentTime <= 0.85) {
+            memoryVideoPositions.set(fileid, (videoFullPlayer.currentTime < 0.8));
+        } else {
+            memoryVideoPositions.delete(fileid);
+        }
+        if (videoFullPlayer.currentTime >= 0.15 || wasNext)
+            setWatchHistory(eid, (wasNext) ? 1 : videoFullPlayer.currentTime)
     }
 }
 async function cancelPendingKMSUnpack() {
@@ -1665,6 +1672,7 @@ let notificationControler = null;
 
 async function showSearchOptions(post) {
     pageType = $.history.url().split('?')[0].substring(1);
+    pageType = (pageType === 'tvTheater' || pageType === 'listTheater') ? 'gallery' : pageType;
     const _post = document.getElementById(`message-${post}`);
     const _model = document.getElementById('searchModal')
     const postChannel = _post.getAttribute('data-msg-channel');
@@ -1780,7 +1788,7 @@ async function showSearchOptions(post) {
             normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
         }
         normalInfo.push('</div>')
-        advancedInfo.push(`<div><i class="fa fa-font pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
+        advancedInfo.push(`<div><i class="fa fa-input-text pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
         modalFilename.innerText = postFilename.split('.')[0];
         modalFilename.classList.remove('hidden');
     } else {
@@ -1900,9 +1908,8 @@ async function showSearchOptions(post) {
         const text = window.getSelection().toString()
         if (text && text.length > 0 && text.trim().length > 0) {
             $('#searchModal').modal('hide');
-            let _url = `/${(pageType === 'tvTheater' || pageType === 'listTheater') ? 'gallery' :  pageType}`;
             window.getSelection().toString()
-            window.location.assign(`#${_url}?search=${encodeURIComponent('text:' + text.trim())}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(`#${getLocation()}search=${encodeURIComponent('text:' + text.trim())}${(nsfwString) ? nsfwString : ''}`);
         } else {
             alert(`You must select text above first before you can search selected text!`)
         }
@@ -1910,9 +1917,8 @@ async function showSearchOptions(post) {
     }
     modalGoToPostLocation.onclick = function() {
         $('#searchModal').modal('hide');
-        let _url = `/${(pageType === 'tvTheater' || pageType === 'listTheater') ? 'gallery' :  pageType}`;
         console.log(_url);
-        window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], _url));
+        window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], `/${pageType}`));
         return false;
     }
     modalGoToHistoryDisplay.onclick = function() {
@@ -2147,7 +2153,7 @@ async function showSearchOptions(post) {
     $('#searchModal').modal('show');
     return false;
 }
-function getLocation() {
+function getLocation(url) {
     const l = document.getElementById('searchLocationSelection').querySelector('.active').getAttribute('data-search-location')
     return (l.split('?').pop().length > 0) ? l + '&' : l
 }
@@ -2449,6 +2455,33 @@ function toggleFavorite(channelid, eid) {
 
     sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
 
+    return false;
+}
+async function setWatchHistory(eid, viewed) {
+    $.ajax({async: true,
+        type: "post",
+        url: "/actions/v1",
+        data: {
+            'action': 'SetWatchHistory',
+            'eid': eid,
+            'viewed': (!isNaN(viewed)) ? viewed : 0
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                console.log(res);
+            } else {
+                $.snack('error', `Failed to update watch history`, 3000)
+                console.log(res.responseText);
+            }
+        },
+        error: function (xhr) {
+            $.snack('error', `Failed to update watch history`, 3000)
+        }
+    });
     return false;
 }
 function toggleStarHistoryItem(index) {

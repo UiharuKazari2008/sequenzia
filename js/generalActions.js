@@ -6,7 +6,7 @@ const { sqlSafe } = require('../js/sqlClient');
 
 module.exports = (req, res, next) => {
     try {
-        if (req.session.user && (req.session.user.source < 900 || (req.body.action && req.body.action === "Pin" && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
+        if (req.session.user && (req.session.user.source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
                 case 'Pin':
                 case 'Unpin':
@@ -96,6 +96,32 @@ module.exports = (req, res, next) => {
                             res.status(500).send(`Failed to delete history`);
                         }
                     })
+                    break;
+                case 'SetWatchHistory':
+                    printLine("ActionParser", `Request to set watch History`, 'info', req.body)
+                    if (req.body.viewed === 0) {
+                        sqlSafe(`DELETE FROM kongou_watch_history WHERE usereid = ?`, [`${req.session.discord.user.id}-${req.body.eid}`], (err, result) => {
+                            if (err) {
+                                printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
+                                res.status(500).send('Database Error');
+                            } else if (result.affectedRows && result.affectedRows > 0) {
+                                res.status(200).send(`History Saved`);
+                            } else {
+                                res.status(500).send(`Failed to save history`);
+                            }
+                        })
+                    } else {
+                        sqlSafe(`INSERT INTO kongou_watch_history SET usereid = ?, user = ?, eid = ?, viewed  = ? ON DUPLICATE KEY UPDATE viewed = ?, date = NOW()`, [`${req.session.discord.user.id}-${req.body.eid}`, req.session.discord.user.id, req.body.eid, req.body.viewed, req.body.viewed], (err, result) => {
+                            if (err) {
+                                printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
+                                res.status(500).send('Database Error');
+                            } else if (result.affectedRows && result.affectedRows > 0) {
+                                res.status(200).send(`History Saved`);
+                            } else {
+                                res.status(500).send(`Failed to save history`);
+                            }
+                        })
+                    }
                     break;
                 case 'PinUser':
                 case 'UnpinUser':

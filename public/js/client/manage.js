@@ -138,7 +138,7 @@ function selectedActionMenu(action) {
                 oldContents = oldContents.slice(2)
             oldContents = oldContents.join('\n')
             actionModel.querySelector('#newContents').value = oldContents
-            actionModel.querySelector('#sectionIcon i').classList.add('fa-pen-line')
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-square-quote')
             actionModel.querySelector("#sectionEditPost").classList.remove("hidden")
         } else if (actionSelection === 'ArchivePost') {
             countdownTimer = 2;
@@ -157,7 +157,7 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#postID").innerText = `Rename ${(postsActions.length > 1) ? postsActions.length + ' Items': postsActions[0].messageid}`
             actionModel.querySelector("#sectionRenamePost").classList.remove("hidden")
             oldFileName = document.getElementById(`message-${postsActions[0].messageid}`).getAttribute('data-msg-filename');
-            actionModel.querySelector('#sectionIcon i').classList.add('fa-pencil-alt')
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-square-quote')
             actionModel.querySelector('#newName').value = oldFileName
         } else if (actionSelection === 'RemoveReport') {
             countdownTimer = 2;

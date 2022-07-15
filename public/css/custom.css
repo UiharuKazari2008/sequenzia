@@ -2279,6 +2279,7 @@ footer .server-grid-parent {
     font-size: 7em;
     line-height: 1;
     opacity: 0.4;
+    pointer-events: none;
 }
 .episode-name span {
     font-size: 3em;
@@ -2446,6 +2447,22 @@ img.kms-logo {
     background: #d37f00;
     left: 0;
     top: 0;
+}
+.watched-precent {
+    background: rgba(231, 105, 1, 0.93);
+    height: 0.5em;
+}
+.preview-watched {
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    pointer-events: none;
+}
+.watched-episode {
+    opacity: 0.4;
+}
+.watched-episode:hover, .watched-episode.active {
+    opacity: 1;
 }
 .kms-title-bar {
     background: linear-gradient(0deg, transparent, black);

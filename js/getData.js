@@ -322,7 +322,12 @@ module.exports = async (req, res, next) => {
             }
             enablePrelimit = false;
         } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
-            sqlorder.push('season_num ASC, episode_num ASC')
+            enablePrelimit = false;
+            if (req.query.watch_history === 'only') {
+                sqlorder.push('watched_date DESC');
+            } else {
+                sqlorder.push('season_num ASC, episode_num ASC');
+            }
         } else {
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
@@ -900,7 +905,7 @@ module.exports = async (req, res, next) => {
         }
 
         const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
-        const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = "${pinsUser}"`;
+        const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
@@ -908,6 +913,9 @@ module.exports = async (req, res, next) => {
         let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
+        }
+        if (page_uri === '/listTheater') {
+            sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT OUTER JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.1) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history IS NULL OR watch_history < 0.25' : ''}`;
         }
         if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
@@ -1590,8 +1598,13 @@ module.exports = async (req, res, next) => {
                         page_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                         full_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                     } else if (page_uri === '/listTheater') {
-                        page_title = messages[0].show_name
-                        full_title = `Library / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
+                        if (req.query && req.query.show_id) {
+                            page_title = messages[0].show_name
+                            full_title = `Library / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
+                        } else {
+                            page_title = ''
+                            full_title = ''
+                        }
                         currentClassIcon = messages[0].group_icon
                     } else {
                         page_title = ''
@@ -1958,6 +1971,8 @@ module.exports = async (req, res, next) => {
                                                 poster: item.show_poster,
                                                 meta: item.show_data
                                             },
+                                            watched: item.wathched_percent,
+                                            date_watched: item.watched_date,
                                             meta: item.episode_data
                                         },
                                         channel: {

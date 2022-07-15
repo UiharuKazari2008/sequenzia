@@ -1,6 +1,9 @@
 extends layout
 
 block content
+    if (req_uri)
+        - params = new URLSearchParams(req_uri.split('?')[1])
+        - path = '/' + req_uri.split('?')[0].split('/').pop()
     if (results && results.length > 0 )
         - showData = results[0].media.show.meta
         if (showData.background)
@@ -22,14 +25,72 @@ block content
                 z-index: -99;
                 opacity: 1;
             }
-        if (showData.seasons)
+        if (!params.has('show_id'))
+            each item, indexImage in results
+                - fileURL = item.entities.full
+                - previewURL = item.entities.preview;
+                if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                    - fileURL = item.entities.full
+                if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                    - fileURL = item.entities.download
+                    - previewURL = item.entities.download
+
+                - isVideo = false
+                if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                    - isVideo = true
+
+                div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}`)
+                    .episode-preview
+                        if (item.media.watched)
+                            .preview-watched.d-flex
+                                .watched-precent.mt-auto(style=`width: ${item.media.watched * 100}%`)
+                        .preview-controls.d-flex
+                            .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
+                                i.fas.fa-play
+                        a(href='#_' onclick=`openKMSPlayer("${item.id}"); return false;`)
+                            #postImage.episode-preview-image(style=`background-image : url(${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.full});`)
+                    .episode-body
+                        .episode-number.position-absolute
+                            if (item.media.meta.number)
+                                if (item.media.meta.season)
+                                    span #{item.media.meta.season}x
+                                span #{item.media.meta.number}
+                        .episode-name.px-2
+                            if (item.media.meta.name)
+                                span #{item.media.meta.name}
+                            else if (item.entities.filename)
+                                span #{item.entities.filename}
+                        if (item.media.show.name)
+                            .series-name.px-2
+                                span #{item.media.show.name}
+                        .episode-controls.px-2.pt-2
+                            if (user && user.source < 900)
+                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                i.btn-links.fas.fa-archive
+                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
+                                i.btn-links.fas.fa-info-circle
+                            if (item.media.show && item.media.show.id)
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.meta.id}`)
+                                    i.btn-links.fas.fa-arrow-right
+                            if (item.media.watched)
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 0); return false;`)
+                                    i.btn-links.fas.fa-eye-slash
+                            else
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
+                                    i.btn-links.fas.fa-check
+        else if (showData.seasons)
             - seasons = showData.seasons.filter(e => e.episodes.filter(f => !!f.entity).length > 0)
+            - banner = results.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < 1)) && e.media.meta.season !== 0)
+            - banner = (banner.length > 0) ? banner : results
+            - nextEpisode = results.filter(e => e.media.meta.season !== 0 && (!e.media.watched || (e.media.watched && e.media.watched <= .85)))
             .show-header.mb-3.p-3
-                .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
+                .show-preview(style=`background-image : url("${banner[0].entities.preview}");`)
                 .show-preview-overlay
                 .show-poster.mr-1
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
-                .show-info.px-2
+                .show-info.px-2.d-flex.flex-column
                     .show-title
                         span #{showData.name}
                     .show-og-title
@@ -43,8 +104,16 @@ block content
                         if (showData.date)
                             .show-date.mt-2
                                 span #{showData.date.split('-')[0]}
-                    .show-description
+                    .show-description.mb-auto
                         span #{showData.description}
+                    .show-snacks.mt-2.d-flex
+                        if (nextEpisode.length > 0)
+                            a.btn.btn-primary.ml-auto(href='#_' onclick=`openKMSPlayer("${nextEpisode[0].id}");`)
+                                i.fas.fa-play.pr-2
+                                if (nextEpisode[0].media.meta.number === 1 && nextEpisode[0].media.meta.season === 1)
+                                    | Start Watching
+                                else
+                                    | Continue Watching
             #seasonsAccordion.accordion.accordion-flush
                 each season, seasonIndex in seasons
                     .accordion-item
@@ -74,8 +143,11 @@ block content
                                     if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
                                         - isVideo = true
 
-                                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}`)
+                                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` class=`${(item.media.watched && item.media.watched > 0.8) ? 'watched-episode' : ''}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}`)
                                         .episode-preview
+                                            if (item.media.watched)
+                                                .preview-watched.d-flex
+                                                    .watched-precent.mt-auto(style=`width: ${item.media.watched * 100}%`)
                                             .preview-controls.d-flex
                                                 .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                                     i.fas.fa-play
@@ -97,6 +169,12 @@ block content
                                                     i.btn-links.fas.fa-archive
                                                 a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                     i.btn-links.fas.fa-info-circle
+                                                if (item.media.watched)
+                                                    a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 0); return false;`)
+                                                        i.btn-links.fas.fa-eye-slash
+                                                else
+                                                    a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
+                                                        i.btn-links.fas.fa-check
         else
             .show-header.mb-3.p-3
                 .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
@@ -133,8 +211,11 @@ block content
                     if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
                         - isVideo = true
 
-                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}`)
+                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` class=`${(item.media.watched && item.media.watched > 0.8) ? 'watched-episode' : ''}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}`)
                         .episode-preview
+                            if (item.media.watched)
+                                .preview-watched.d-flex
+                                    .watched-precent.mt-auto(style=`width: ${item.media.watched * 100}%`)
                             .preview-controls.d-flex
                                 .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                     i.fas.fa-play

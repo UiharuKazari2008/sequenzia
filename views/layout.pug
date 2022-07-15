@@ -13,6 +13,8 @@ if (req_uri)
 if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
     - let search_uri = `/gallery`;
     - if (req_uri) { search_uri = req_uri }
+else
+    - let search_uri = `/files`;
 
 html
     head
@@ -47,6 +49,8 @@ html
                         title= `${webconf.site_name} - Colour Search`
                     else if (params.has('displayname'))
                         title= `${webconf.site_name} - History`
+                    else if (path === '/tvTheater' || path === '/listTheater')
+                        title= `${webconf.site_name} - Media Library`
                     else
                         title= `${webconf.site_name} - Recent`
                 else
@@ -116,11 +120,11 @@ html
                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
                                 div.user-menu-buttons(style="width: 100%; height: 100%")
                                     div#menuAccordion.user-infocard-row2
-                                        div(class=`collapse ${(appData) ? '' : 'show'}` data-parent="#menuAccordion" id=`menuItemMain${(appData) ? 'Seq' : ''}`)
+                                        div(class=`collapse ${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? '' : 'show'}` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .row.w-100.ml-0.mr-0
                                                     .col-auto.p-0
-                                                        if (appData)
+                                                        if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
                                                             a(title="Return to Application Menu" class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain").mr-1
                                                                 i.far.fa-fw.fa-browser
                                                     .col.p-0
@@ -158,7 +162,7 @@ html
                                                         //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
                                                 .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
-                                                        //if (appData)
+                                                        //if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
                                                             a.user-menu-item(title="Return to Sequenzia Menu" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                                 i.fa-light.fa-fw.fa-browser
                                                                 | App Menu
@@ -225,10 +229,34 @@ html
 
                                                     .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center#appMenuRow2
                                                         .menu-grid#appMenuRow2Grid
+                                        if (path && (path === '/tvTheater' || path === '/listTheater'))
+                                            div(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`)
+                                                div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                    .d-flex.w-100#appMenuRow1
+                                                        a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
+                                                            i.fas.fa-house.fa-fw.d-none
+                                                            img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
+                                                        h4.text-primary.ml-auto
+                                                            i.fas.fa-clapperboard-play.mr-2
+                                                            | Media Library
+                                                    .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                        .menu-grid
+                                                            a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
+                                                                i.fa-light.fa-fw.fa-books
+                                                                | Shelves
+                                                            a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#_')
+                                                                i.fa-light.fa-forward
+                                                                | Continue
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                                i.fa-light.fa-star
+                                                                | Favorites
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
+                                                                i.fa-light.fa-clock-rotate-left
+                                                                | History
                                         div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData) ? 'Seq' : ''}`)
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
@@ -265,7 +293,7 @@ html
                                         div#menuItemTools(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData) ? 'Seq' : ''}`)
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-toolbox.mr-2
@@ -275,7 +303,7 @@ html
                                                         a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
-                                                        if (params && path !== '/artists' && !appData)
+                                                        if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                             a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                                 i.fa-light.fa-download
                                                                 | Download
@@ -294,7 +322,7 @@ html
                                                 .d-flex.w-100
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                         i.fas.fa-arrow-left.fa-fw
-                                                    if (!appData)
+                                                    if (!(appData))
                                                         form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST").mr-auto
                                                             .input-group(style='max-width: 160px;')
                                                                 .input-group-prepend
@@ -331,7 +359,7 @@ html
                                                         a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
                                                             i.fa-light.fa-arrow-up-arrow-down
                                                             | Menubar
-                                                        if (!appData)
+                                                        if (!appData || (path && (path === '/tvTheater' || path === '/listTheater')))
                                                             if (path !== '/gallery')
                                                                 a.user-menu-item.user-menu-small(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
                                                                     i.fa-duotone.fa-folder-image
@@ -363,7 +391,7 @@ html
                                         div#menuItemUpload(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData) ? 'Seq' : ''}`)
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-upload.mr-2
@@ -401,7 +429,7 @@ html
                                         div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData) ? 'Seq' : ''}`)
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-globe-americas
@@ -448,7 +476,7 @@ html
                                         div#menuItemApps(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData) ? 'Seq' : ''}`)
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-browsers.mr-2
@@ -573,12 +601,31 @@ html
                                                         else
                                                             i.far.mr-2.fa-history
                                                         span(title='History for ' + params.getAll('displayname')[0]).text-uppercase History
+                                                    else if (path === '/tvTheater')
+                                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                            i.far.fa-star.mr-2
+                                                        else
+                                                            i.far.fa-clapperboard-play.mr-2
+                                                        span(title='Media Library').text-uppercase Media Library
+                                                    else if (path === '/listTheater' && params.has('watch_history'))
+                                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                            i.far.fa-star.mr-2
+                                                        else
+                                                            i.far.fa-history.mr-2
+                                                        span(title='Watch History').text-uppercase Watch History
+                                                    else if (path === '/listTheater')
+                                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                            i.far.fa-star.mr-2
+                                                        else
+                                                            i.far.fa-clapperboard-play.mr-2
+                                                        span(title='Media Library Shelf').text-uppercase Media Library
                                                     else
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
                                                         else
                                                             i.far.fa-clock.mr-2
                                                         span(title='Chronologically Feed of Images').text-uppercase Recent
+
                                                 else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                     i.far.fa-star.mr-2
                                                     span.text-uppercase #{full_title_post}
@@ -813,7 +860,7 @@ html
                                                                             | Full Text
                                                                     if (params.getAll('sort')[0] !== 'name')
                                                                         a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
-                                                                            i.fas.fa-font.pr-2
+                                                                            i.fas.fa-input-text.pr-2
                                                                             | File Name
                                                                     if (params.getAll('sort')[0] !== 'file')
                                                                         a.dropdown-item(title="Sort by Real File Name for Spanned Files" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'file']]); return false;` role='button')
@@ -1811,10 +1858,10 @@ html
                                                 i.fas.fa-cut.pr-0.pr-sm-2
                                                 span.d-none.d-sm-inline Move
                                             a#infoEditText.btn.btn-danger.mx-1.mb-2(title="Edit Item Contents" href='#_').w-100.text-ellipsis
-                                                i.fas.fa-pen-line.pr-0.pr-sm-2
+                                                i.fas.fa-square-quote.pr-0.pr-sm-2
                                                 span.d-none.d-sm-inline Edit
                                             a#infoRename.btn.btn-danger.mx-1.mb-2(title="Rename Item" href='#_').w-100.text-ellipsis
-                                                i.fas.fa-font.pr-0.pr-sm-2
+                                                i.fas.fa-input-text.pr-0.pr-sm-2
                                                 span.d-none.d-sm-inline Rename
                                             a#infoRotae.btn.btn-danger.mx-1.mb-2(title="Rotate Image" href='#_').w-100.text-ellipsis
                                                 i.fas.fa-undo.pr-0.pr-sm-2
