@@ -2408,7 +2408,7 @@ footer .server-grid-parent {
     height: 100%;
     left: 0;
     outline: 0;
-    overflow: auto;
+    overflow: none;
     -webkit-overflow-scrolling: touch;
     padding: 0px;
     position: absolute;
