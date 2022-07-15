@@ -128,7 +128,7 @@ block content
                                             | #{season.name}
                                     else
                                         | Special Features
-                        .accordion-collapse.collapse(id=`seasonBody${seasonIndex}` class=`${(seasons.length === 1 || (season.number !== 0 && results.filter(e => e.media.season === season.number && !(item.media.watched && item.media.watched > 0.8)).length > 0)) ? 'show' : ''}`)
+                        .accordion-collapse.collapse(id=`seasonBody${seasonIndex}` class=`${(seasons.length === 1 || (season.number !== 0 && results.filter(e => e.media.season === season.number && !(e.media.watched && e.media.watched > 0.8)).length > 0)) ? 'show' : ''}`)
                             .accordion-body
                                 each item, indexImage in results.filter(e => e.media.season === season.number)
                                     - fileURL = item.entities.full
