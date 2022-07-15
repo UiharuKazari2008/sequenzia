@@ -1918,7 +1918,6 @@ async function showSearchOptions(post) {
     }
     modalGoToPostLocation.onclick = function() {
         $('#searchModal').modal('hide');
-        console.log(_url);
         window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], `/${pageType}`));
         return false;
     }
