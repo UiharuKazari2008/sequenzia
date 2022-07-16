@@ -1828,7 +1828,7 @@ async function updateNotficationsPanel() {
                     results.push(`</a>`);
                 }
                 results.push(`</a>`);
-                results.push(`<a title="Remove File from Offline Storage" href='#_' onclick="removeOfflineItem('${item.id}'); return false;">`);
+                results.push(`<a title="Remove File from Offline Storage" href='#_' onclick="removeCacheItem('${item.id}'); return false;">`);
                 results.push(`<i class="fas fa-trash-alt px-2"></i>`)
                 results.push(`</a>`);
                 results.push(`</div>`)
@@ -1874,27 +1874,23 @@ async function updateNotficationsPanel() {
     }
 }
 async function removeCacheItem(id, noupdate) {
+    const file = await getFileIfAvailable(id);
     memorySpannedController = memorySpannedController.filter(e => e.id !== id);
     const link = document.getElementById('fileData-' + id);
     if (link) {
         window.URL.revokeObjectURL(link.href);
         document.body.removeChild(link);
-    }
-    if (!noupdate)
-        updateNotficationsPanel();
-}
-async function removeOfflineItem(id, noupdate) {
-    const file = await getFileIfAvailable(id);
-    memorySpannedController = memorySpannedController.filter(e => e.id !== id);
-    const link = document.getElementById('fileData-' + id);
-    if (link) { document.body.removeChild(link); }
-    if (file) {
+    } else if (file) {
         window.URL.revokeObjectURL(file.href);
+    }
+    if (file) {
         const request = spannedStorage.transaction(["files"], "readwrite").objectStore("files").delete(id);
         request.onsuccess = event => {
             if (!noupdate)
                 updateNotficationsPanel();
         };
+    } else if (!noupdate) {
+        updateNotficationsPanel();
     }
 }
 let notificationControler = null;
