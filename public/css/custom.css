@@ -2382,6 +2382,7 @@ footer .server-grid-parent {
     min-height: 200px;
 }
 .kms-media-container {
+    display: none;
     -webkit-backface-visibility: hidden;
     height: 100%;
     left: 0;
@@ -2394,6 +2395,9 @@ footer .server-grid-parent {
     transform: translateZ(0);
     width: 100%;
     z-index: 100000;
+}
+.kms-play-open .kms-media-container {
+    display: initial;
 }
 .kms-media-inner, .kms-background {
     bottom: 0;
@@ -2434,6 +2438,9 @@ footer .server-grid-parent {
     box-shadow: 0 2px 24px 8px rgb(0 0 0 / 41%);
     -webkit-animation-duration: 600ms;
     animation-duration: 600ms;
+}
+body.kms-play-open {
+    overflow: hidden;
 }
 .kms-background {
     background: black;

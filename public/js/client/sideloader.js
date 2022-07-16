@@ -50,6 +50,28 @@ let responseComplete = false;
 let itemsRemoved = 0;
 let itemsRemovedIds = [];
 let initialLoad = true;
+let browserStorageAvailable = false;
+let spannedStorage;
+let offlineFiles = false;
+const request = window.indexedDB.open("sC", 1);
+request.onerror = event => {
+    console.error(request.errorCode);
+    alert(`IndexedDB Is Not Available: Offline Files will not be available!`)
+};
+request.onsuccess = event => {
+    spannedStorage = event.target.result;
+};
+request.onupgradeneeded = event => {
+    // Save the IDBDatabase interface
+    const db = event.target.result;
+    // Create an objectStore for this database
+    const objectStore = db.createObjectStore("files", { keyPath: "id" });
+    objectStore.createIndex("id", "id", { unique: true });
+    objectStore.transaction.oncomplete = event => {
+        browserStorageAvailable = true;
+    }
+};
+
 let postsActions = [];
 let apiActions = {};
 let menuBarLocation = (getCookie("menuBarLocation") !== null) ? getCookie("menuBarLocation") : '';
@@ -798,6 +820,7 @@ function feedContent(type) {
 }
 let downloadAllController = null;
 let downloadSpannedController = new Map();
+let tempURLController = new Map();
 let memorySpannedController = [];
 let memoryVideoPositions = new Map();
 let activeSpannedJob = null;
@@ -907,6 +930,56 @@ async function startDownloadingFiles() {
 }
 
 let kmsVideoWatcher = null;
+async function getFileIfAvailable(fileid) {
+    return new Promise((resolve) => {
+        try {
+            spannedStorage.transaction("files").objectStore("files").get(fileid).onsuccess = event => {
+                if (event.target.result && event.target.result.id && event.target.result.block) {
+                    let url
+                    if (!tempURLController.has(event.target.result.id)) {
+                        url = window.URL.createObjectURL(event.target.result.block)
+                        tempURLController.set(event.target.result.id, url);
+                    } else {
+                        url = tempURLController.get(event.target.result.id);
+                    }
+                    resolve({
+                        ...event.target.result,
+                        href: url
+                    })
+                } else {
+                    resolve(false)
+                }
+            };
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getAllOfflineFiles() {
+    return new Promise((resolve) => {
+        try {
+            spannedStorage.transaction("files").objectStore("files").getAll().onsuccess = event => {
+                resolve(event.target.result.map(e => {
+                    let url
+                    if (!tempURLController.has(e.id)) {
+                        url = window.URL.createObjectURL(e.block)
+                        tempURLController.set(e.id, url);
+                    } else {
+                        url = tempURLController.get(e.id);
+                    }
+                    return {
+                        ...e,
+                        href: url
+                    }
+                }))
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
 async function openUnpackingFiles(messageid, playThis) {
     const _post = document.getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
@@ -916,25 +989,28 @@ async function openUnpackingFiles(messageid, playThis) {
     const videoModel = document.getElementById('videoBuilderModal');
     if (fileid && fileid.length > 0) {
         const element = document.getElementById(`fileData-${fileid}`);
-        const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid)
-        if (element && memoryJobIndex.length > 0) {
-            const previousJob = memoryJobIndex[0];
+        const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid);
+        const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getFileIfAvailable(fileid)
+
+        if (storedFile) {
+            const previousJob = storedFile;
+            const href = (element) ? element.href : (storedFile.href) ? storedFile.href : false;
             if (previousJob.play === 'audio') {
-                PlayTrack(element.href);
+                PlayTrack(href);
             } else if (previousJob.play === 'video') {
                 $('#videoBuilderModal').modal('hide');
                 const videoPlayer = videoModel.querySelector('video')
                 if (!videoPlayer.paused)
-                    memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
+                    memoryVideoPositions.set(previousJob.id, videoPlayer.currentTime);
                 videoPlayer.pause();
-                PlayVideo(element.href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
+                PlayVideo(href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
             } else if (previousJob.play === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
                 const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
                 videoPreviewPlayer.pause()
-                videoFullPlayer.src = element.href;
+                videoFullPlayer.src = href;
                 try {
                     await videoFullPlayer.play();
                 } catch (err) { console.error(err); }
@@ -950,7 +1026,16 @@ async function openUnpackingFiles(messageid, playThis) {
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
             } else {
-                element.click();
+                if (element) {
+                    element.click();
+                } else {
+                    const link = document.createElement('a');
+                    link.id = `fileData-${previousJob.id}`
+                    link.classList = `hidden`
+                    link.href = href;
+                    link.setAttribute('download', previousJob.filename);
+                    link.click();
+                }
             }
         } else if (downloadSpannedController.size === 0 && !activeSpannedJob) {
             downloadSpannedController.set(fileid, {
@@ -1086,8 +1171,12 @@ async function openPreviewUnpacking(messageid) {
 
     const element = document.getElementById(`fileData-${fileid}`);
     const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid)
+    const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getFileIfAvailable(fileid)
+    const href = (element) ? element.href : (storedFile.href) ? storedFile.href : false;
     if (element && memoryJobIndex.length > 0) {
         PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, fileid);
+    } else if (storedFile) {
+        PlayVideo(href, `${storedFile.channel}/${storedFile.name} (${storedFile.size})`, fileid);
     } else {
         const videoModel = document.getElementById('videoBuilderModal');
         videoModel.querySelector('span.status-text').innerText = `${filename} (${filesize})`;
@@ -1144,49 +1233,51 @@ async function openKMSPlayer(messageid, seriesId) {
     const nextEpisodeGroup = document.getElementById('kongouMediaPlayerNext')
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
 
-    try {
-        const allEpisodes = Array.from(document.getElementById(`seasonsAccordion-${show}`).querySelectorAll('.episode-row'));
-        const index = allEpisodes.map(e => e.id).indexOf(`message-${messageid}`)
-        const nextEpisode = allEpisodes.slice(index + 1);
+    if (show) {
+        try {
+            const allEpisodes = Array.from(document.getElementById(`seasonsAccordion-${show}`).querySelectorAll('.episode-row'));
+            const index = allEpisodes.map(e => e.id).indexOf(`message-${messageid}`)
+            const nextEpisode = allEpisodes.slice(index + 1);
 
-        if (nextEpisode.length > 0) {
-            nextEpisodeGroup.querySelector('span').innerText = nextEpisode[0].querySelector('.episode-name > span').innerText;
-            nextEpisodeGroup.classList.remove('hidden');
-            mediaPlayer.setAttribute('nextPlayback', nextEpisode[0].id.split('-').pop());
-        } else {
-            nextEpisodeGroup.querySelector('span').innerText = '';
-            nextEpisodeGroup.classList.add('hidden')
-            mediaPlayer.removeAttribute('nextPlayback');
-        }
+            if (nextEpisode.length > 0) {
+                nextEpisodeGroup.querySelector('span').innerText = nextEpisode[0].querySelector('.episode-name > span').innerText;
+                nextEpisodeGroup.classList.remove('hidden');
+                mediaPlayer.setAttribute('nextPlayback', nextEpisode[0].id.split('-').pop());
+            } else {
+                nextEpisodeGroup.querySelector('span').innerText = '';
+                nextEpisodeGroup.classList.add('hidden')
+                mediaPlayer.removeAttribute('nextPlayback');
+            }
 
-        if (index > 0) {
-            const prevEpisode = allEpisodes.slice(0, index);
-            if (prevEpisode.length > 0) {
-                prevEpisodeGroup.querySelector('span').innerText = prevEpisode.slice().pop().querySelector('.episode-name > span').innerText;
-                prevEpisodeGroup.classList.remove('hidden')
-                mediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
+            if (index > 0) {
+                const prevEpisode = allEpisodes.slice(0, index);
+                if (prevEpisode.length > 0) {
+                    prevEpisodeGroup.querySelector('span').innerText = prevEpisode.slice().pop().querySelector('.episode-name > span').innerText;
+                    prevEpisodeGroup.classList.remove('hidden')
+                    mediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
+                } else {
+                    prevEpisodeGroup.querySelector('span').innerText = '';
+                    prevEpisodeGroup.classList.add('hidden')
+                    mediaPlayer.removeAttribute('prevPlayback');
+                }
             } else {
                 prevEpisodeGroup.querySelector('span').innerText = '';
                 prevEpisodeGroup.classList.add('hidden')
                 mediaPlayer.removeAttribute('prevPlayback');
             }
-        } else {
+        } catch (e) {
+            nextEpisodeGroup.querySelector('span').innerText = '';
+            nextEpisodeGroup.classList.add('hidden')
+            mediaPlayer.removeAttribute('nextPlayback');
             prevEpisodeGroup.querySelector('span').innerText = '';
             prevEpisodeGroup.classList.add('hidden')
             mediaPlayer.removeAttribute('prevPlayback');
+            console.error("Could not get the rest of the episode list");
+            console.error(e);
         }
-    } catch (e) {
-        nextEpisodeGroup.querySelector('span').innerText = '';
-        nextEpisodeGroup.classList.add('hidden')
-        mediaPlayer.removeAttribute('nextPlayback');
-        prevEpisodeGroup.querySelector('span').innerText = '';
-        prevEpisodeGroup.classList.add('hidden')
-        mediaPlayer.removeAttribute('prevPlayback');
-        console.error("Could not get the rest of the episode list");
-        console.error(e);
     }
 
-    mediaPlayer.classList.remove('d-none');
+    document.querySelector('body').classList.add('kms-play-open')
     mediaPlayer.querySelector('.kms-status-bar > span').innerText = 'Waiting'
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1244,9 +1335,13 @@ async function openKMSPlayer(messageid, seriesId) {
             if (_activePost) {
                 const activeFileid = _activePost.getAttribute('data-msg-fileid');
                 const element = document.getElementById(`fileData-${activeFileid}`);
-                if (activeFileid && !element) {
-                    console.log(`Canceling Active Unpacking...`)
-                    stopUnpackingFiles(activeFileid);
+                if (activeFileid) {
+                    if (!element) {
+                        console.log(`Canceling Active Unpacking...`)
+                        stopUnpackingFiles(activeFileid);
+                    } else {
+                        removeCacheItem(activeFileid);
+                    }
                 }
             }
         }
@@ -1311,7 +1406,7 @@ async function closeKMSPlayer() {
     }
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
-    videoModel.classList.add('d-none')
+    document.querySelector('body').classList.remove('kms-play-open')
 }
 async function checkKMSTimecode() {
     const mediaPlayer = document.getElementById('kongouMediaPlayer');
@@ -1446,7 +1541,30 @@ async function unpackFile() {
 
                                     if (activeSpannedJob && activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
                                         activeSpannedJob.progress = `100%`;
-                                        const downloadedFile = window.URL.createObjectURL(new Blob(activeSpannedJob.blobs));
+                                        const finalBlock = new Blob(activeSpannedJob.blobs);
+                                        const finalUrl = window.URL.createObjectURL(finalBlock)
+                                        tempURLController.set(activeSpannedJob.id, finalUrl);
+                                        if (offlineFiles) {
+                                            try {
+                                                const finalTransaction = spannedStorage.transaction([`files`], "readwrite").objectStore('files').add({
+                                                    ...activeSpannedJob,
+                                                    block: finalBlock,
+                                                    parts: undefined,
+                                                    expacted_parts: undefined,
+                                                    pending: undefined,
+                                                    ready: undefined,
+                                                    blobs: undefined,
+                                                    abort: undefined,
+                                                    progress: undefined,
+                                                    offline: undefined,
+                                                }).onsuccess = event => {
+                                                    console.log(`File Saved Offline!`)
+                                                };
+                                            } catch (e) {
+                                                console.error(`Failed to save block ${activeSpannedJob.id}`);
+                                            }
+                                        }
+                                        const downloadedFile = finalUrl;
                                         const link = document.createElement('a');
                                         link.id = `fileData-${activeSpannedJob.id}`
                                         link.classList = `hidden`
@@ -1609,7 +1727,8 @@ async function unpackFile() {
 }
 
 async function updateNotficationsPanel() {
-    if (downloadSpannedController.size !== 0 || memorySpannedController.length > 0) {
+    const offlineFiles = await getAllOfflineFiles();
+    if (downloadSpannedController.size !== 0 || memorySpannedController.length > 0 || offlineFiles.length > 0) {
         let activeProgress = [];
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
@@ -1675,6 +1794,47 @@ async function updateNotficationsPanel() {
                 return results.join('\n');
             }))
         }
+        if (offlineFiles.length > 0) {
+            if (keys.length > 0)
+                completedKeys.push(`<div class="dropdown-divider"></div>`);
+            completedKeys.push(...offlineFiles.map(item => {
+                let results = [];
+                const element = document.getElementById(`fileData-${item.id}`);
+                results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
+                if (item.play) {
+                    let clickAction = undefined;
+                    if (item.play === 'video' || item.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                        clickAction = `PlayVideo('${item.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
+                    } else if (item.play === 'audio') {
+                        clickAction = `PlayTrack('${item.href}');`
+                        clickAction = `PlayTrack('${item.href}');`
+                    }
+                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
+                } else {
+                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Save File" href="${item.href}" role='button')>`);
+                }
+                if (item.play === 'video' || item.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                    results.push(`<i class="fas fa-film mr-1"></i>`)
+                } else if (item.play === 'audio') {
+                    results.push(`<i class="fas fa-music mr-1"></i>`)
+                } else {
+                    results.push(`<i class="fas fa-file mr-1"></i>`)
+                }
+                results.push(`<span>${item.name} (${item.size})</span>`)
+                if (item.play) {
+                    results.push(`</a>`);
+                    results.push(`<a title="Save File" href='#_' onclick="document.getElementById('fileData-${item.id}').click(); return false;">`);
+                    results.push(`<i class="fas fa-download px-2"></i>`)
+                    results.push(`</a>`);
+                }
+                results.push(`</a>`);
+                results.push(`<a title="Remove File from Offline Storage" href='#_' onclick="removeOfflineItem('${item.id}'); return false;">`);
+                results.push(`<i class="fas fa-trash-alt px-2"></i>`)
+                results.push(`</a>`);
+                results.push(`</div>`)
+                return results.join('\n');
+            }))
+        }
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden');
             if (keys.length > 0 || completedKeys.length > 0) {
@@ -1698,7 +1858,7 @@ async function updateNotficationsPanel() {
             document.getElementById('statusMenuIcon').classList = 'fas fa-laptop-arrow-down fa-fade';
         } else if (downloadSpannedController.size !== 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
-        } else if (memorySpannedController.length !== 0) {
+        } else if (memorySpannedController.length !== 0 || offlineFiles.length > 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-usb-drive';
             clearInterval(notificationControler);
             notificationControler = null;
@@ -1714,12 +1874,28 @@ async function updateNotficationsPanel() {
     }
 }
 async function removeCacheItem(id, noupdate) {
-    const link = document.getElementById('fileData-' + id);
-    if (link)
-        document.body.removeChild(link);
     memorySpannedController = memorySpannedController.filter(e => e.id !== id);
+    const link = document.getElementById('fileData-' + id);
+    if (link) {
+        window.URL.revokeObjectURL(link.href);
+        document.body.removeChild(link);
+    }
     if (!noupdate)
         updateNotficationsPanel();
+}
+async function removeOfflineItem(id, noupdate) {
+    const file = await getFileIfAvailable(id);
+    memorySpannedController = memorySpannedController.filter(e => e.id !== id);
+    const link = document.getElementById('fileData-' + id);
+    if (link) { document.body.removeChild(link); }
+    if (file) {
+        window.URL.revokeObjectURL(file.href);
+        const request = spannedStorage.transaction(["files"], "readwrite").objectStore("files").delete(id);
+        request.onsuccess = event => {
+            if (!noupdate)
+                updateNotficationsPanel();
+        };
+    }
 }
 let notificationControler = null;
 
