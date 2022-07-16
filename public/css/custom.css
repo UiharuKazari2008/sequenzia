@@ -2442,6 +2442,22 @@ footer .server-grid-parent {
 body.kms-play-open {
     overflow: hidden;
 }
+.kms-stage .kms-info-bar,
+.kms-stage .kms-player-controls {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+    transition-delay: 0;
+}
+.kms-stage:hover .kms-info-bar,
+.kms-stage:hover .kms-player-controls {
+    pointer-events: auto;
+    opacity: 1;
+}
+.kms-stage:not(:hover) .kms-info-bar,
+.kms-stage:not(:hover) .kms-player-controls {
+    transition-delay: .5s;
+}
 .kms-background {
     background: black;
 }
