@@ -2509,7 +2509,7 @@ body.kms-play-open {
     overflow: hidden;
 }
 .kms-stage .kms-title-bar {
-    background: linear-gradient(0deg, transparent, rgba(255,255,255,0));
+    background: linear-gradient(0deg, transparent, rgba(0,0,0,0));
 }
 .kms-stage .kms-info-bar,
 .kms-stage .kms-player-controls {
@@ -2524,7 +2524,7 @@ body.kms-play-open {
     opacity: 1;
 }
 .kms-stage:hover .kms-title-bar {
-    background: linear-gradient(0deg, transparent, rgba(255,255,255,1));
+    background: linear-gradient(0deg, transparent, rgba(0,0,0,1));
 }
 .kms-stage:not(:hover) .kms-info-bar,
 .kms-stage:not(:hover) .kms-title-bar,
