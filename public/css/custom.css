@@ -2510,7 +2510,7 @@ body.kms-play-open {
 }
 .kms-stage .kms-title-bar {
     background: linear-gradient(0deg, transparent, rgba(0,0,0,0));
-    transition: opacity .5s ease-in-out;
+    transition: background .5s ease-in-out;
     transition-delay: 0;
 }
 .kms-stage .kms-info-bar,
