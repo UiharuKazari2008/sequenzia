@@ -897,8 +897,7 @@ async function startDownloadingFiles() {
                     responseType: 'blob'
                 })
                     .then((response) => {
-                        const url = window.URL
-                            .createObjectURL(new Blob([response.data]));
+                        const url = window.URL.createObjectURL(new Blob([response.data]));
                         const link = document.createElement('a');
                         link.href = url;
                         link.setAttribute('download', downloadAllController.urls[i].split('/').pop());
@@ -1556,7 +1555,13 @@ async function unpackFile() {
 
                                     if (activeSpannedJob && activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
                                         activeSpannedJob.progress = `100%`;
-                                        const finalBlock = new Blob(activeSpannedJob.blobs);
+                                        let blobType = {}
+                                        if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive')
+                                            blobType.type = 'video/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
+                                        if (activeSpannedJob.play === 'audio')
+                                            blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
+
+                                        const finalBlock = new Blob(activeSpannedJob.blobs, blobType);
                                         const finalUrl = window.URL.createObjectURL(finalBlock)
                                         tempURLController.set(activeSpannedJob.id, finalUrl);
                                         if (offlineFiles) {
