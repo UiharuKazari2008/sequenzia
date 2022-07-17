@@ -2524,14 +2524,27 @@ body.kms-play-open {
 .kms-stage:not(:hover) .kms-title-bar {
     transition-delay: .5s;
 }
+.show-overlay {
+    position: absolute;
+    display: flex;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
+
+.show-controls {
+
+}
 
 div#contextSwitchIndicator {
     position: fixed;
     display: flex;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 200000;
 }

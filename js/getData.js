@@ -884,6 +884,7 @@ module.exports = async (req, res, next) => {
                 'kongou_shows.name AS show_name',
                 'kongou_shows.original_name AS show_original_name',
                 'kongou_shows.data AS show_data',
+                'kongou_shows.nsfw AS show_nsfw',
                 'kongou_shows.background AS show_background',
                 'kongou_shows.poster AS show_poster',
 
@@ -1968,6 +1969,7 @@ module.exports = async (req, res, next) => {
                                                 name: item.show_name,
                                                 original_name: item.show_original_name,
                                                 background: item.show_background,
+                                                nsfw: item.show_nsfw,
                                                 poster: item.show_poster,
                                                 meta: item.show_data
                                             },
