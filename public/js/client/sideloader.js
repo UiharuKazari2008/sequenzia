@@ -1430,6 +1430,7 @@ async function checkKMSTimecode() {
 }
 
 document.getElementById('kongouMediaVideoFull').addEventListener('pause', () => {
+    console.log('KMS Player Paused')
     const videoPlayer = document.getElementById('kongouMediaVideoFull');
     if (!videoPlayer.classList.contains('hidden') &&
     (videoPlayer.currentTime / videoPlayer.duration) >= 0.98) {
