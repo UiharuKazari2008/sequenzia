@@ -1279,7 +1279,7 @@ async function openKMSPlayer(messageid, seriesId) {
     }
 
     document.querySelector('body').classList.add('kms-play-open')
-    mediaPlayer.querySelector('.kms-status-bar > span').innerText = 'Waiting'
+    mediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
     const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
@@ -1397,11 +1397,17 @@ async function cancelPendingKMSUnpack() {
 async function closeKMSPlayer() {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('activePlayback');
+    const nextMessageid = videoModel.getAttribute('nextPlayback');
     const videoPreviewPlayer = videoModel.querySelector('#kongouMediaVideoPreview');
     const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
     await saveCurrentTimeKMS();
     if (messageid) {
         const _post = document.getElementById(`message-${messageid}`);
+        const fileid = _post.getAttribute('data-msg-fileid');
+        stopUnpackingFiles(fileid);
+    }
+    if (nextMessageid) {
+        const _post = document.getElementById(`message-${nextMessageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         stopUnpackingFiles(fileid);
     }
@@ -1424,7 +1430,7 @@ async function checkKMSTimecode() {
     if (messageid && document.querySelector('body').classList.contains('kms-play-open') &&
     !videoFullPlayer.classList.contains('hidden')) {
         await saveCurrentTimeKMS();
-        if (!isReady && ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.75)) {
+        if (!isReady && ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.55)) {
             mediaPlayer.setAttribute('nextVideoReady', 'true');
             openUnpackingFiles(messageid, 'kms-video-preemptive');
         }

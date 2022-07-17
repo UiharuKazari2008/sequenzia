@@ -13,6 +13,7 @@ document.getElementById('kongouMediaVideoFull').addEventListener('playing', () =
 })
 document.getElementById('kongouMediaVideoFull').addEventListener('pause', () => {
     console.log('KMS Player Paused')
+    saveCurrentTimeKMS();
     const videoPlayer = document.getElementById('kongouMediaVideoFull');
     if (!videoPlayer.classList.contains('hidden') &&
         (videoPlayer.currentTime / videoPlayer.duration) >= 0.98) {
