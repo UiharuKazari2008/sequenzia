@@ -2484,13 +2484,16 @@ img.kms-logo {
 .watched-episode:hover, .watched-episode.active {
     opacity: 1;
 }
-.kms-title-bar {
-    background: linear-gradient(0deg, transparent, black);
+.kms-title-bar, .kms-progress {
     position: absolute;
     width: 100%;
     padding: 1.5em;
     display: flex;
     flex-direction: column;
+    z-index: 100006;
+}
+.kms-title-bar {
+    background: linear-gradient(0deg, transparent, black);
     z-index: 100005;
 }
 .kms-player-video {
@@ -2508,29 +2511,17 @@ img.kms-logo {
 body.kms-play-open {
     overflow: hidden;
 }
-.kms-stage .kms-title-bar {
-    background: linear-gradient(0deg, transparent, rgba(0,0,0,0));
-    transition: background .5s ease-in-out;
-    transition-delay: 0;
-}
-.kms-stage .kms-info-bar,
-.kms-stage .kms-player-controls {
+.kms-stage .kms-title-bar{
     pointer-events: none;
     opacity: 0;
     transition: opacity .5s ease-in-out;
     transition-delay: 0;
 }
-.kms-stage:hover .kms-info-bar,
-.kms-stage:hover .kms-player-controls {
+.kms-stage:hover .kms-title-bar {
     pointer-events: auto;
     opacity: 1;
 }
-.kms-stage:hover .kms-title-bar {
-    background: linear-gradient(0deg, transparent, rgba(0,0,0,1));
-}
-.kms-stage:not(:hover) .kms-info-bar,
-.kms-stage:not(:hover) .kms-title-bar,
-.kms-stage:not(:hover) .kms-player-controls {
+.kms-stage:not(:hover) .kms-title-bar {
     transition-delay: .5s;
 }
 
@@ -3389,7 +3380,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
-
+    #titleBarContents i.text-danger {
+        color: #ff7568!important;
+    }
     .sidebar-dark .nav-item .nav-link:active, .sidebar-dark .nav-item .nav-link:focus, .sidebar-dark .nav-item .nav-link:hover {
         color: white;
         text-shadow: 0 0 18px #0a0a0a;

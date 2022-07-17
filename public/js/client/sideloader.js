@@ -1011,9 +1011,7 @@ async function openUnpackingFiles(messageid, playThis) {
                 const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
                 videoPreviewPlayer.pause()
                 videoFullPlayer.src = href;
-                try {
-                    await videoFullPlayer.play();
-                } catch (err) { console.error(err); }
+                try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
                 videoPreviewPlayer.classList.add('hidden');
                 videoFullPlayer.classList.remove('hidden');
                 if (memoryVideoPositions.has(previousJob.id)) {
@@ -1025,6 +1023,8 @@ async function openUnpackingFiles(messageid, playThis) {
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
+            } else if (previousJob.play === 'kms-video-preemptive') {
+                console.log(`File ${filename} is ready for playback`)
             } else {
                 if (element) {
                     element.click();
@@ -1115,7 +1115,7 @@ async function openUnpackingFiles(messageid, playThis) {
                                         document.getElementById('kmsWarningQuality').classList.add('hidden');
                                     }, 500);
                                 } else if (activeSpannedJob.play === 'kms-video-preemptive') {
-                                    console.log('Next Video is now ready!')
+                                    console.log(`File ${filename} is ready for playback`)
                                 } else {
                                     console.error('No Datatype was provided')
                                 }
@@ -1140,12 +1140,12 @@ async function openUnpackingFiles(messageid, playThis) {
                 ready: true,
                 play: playThis
             })
-            if (!playThis || playThis !== 'video') {
+            if (!playThis || (playThis && playThis !== 'video' && playThis !== 'kms-video-preemptive')) {
                 $.toast({
                     type: 'success',
                     title: 'Unpack File',
                     subtitle: 'Now',
-                    content: `File is added to queued`,
+                    content: `File is added to unpack queue`,
                     delay: 5000,
                 });
             }
@@ -1406,24 +1406,36 @@ async function closeKMSPlayer() {
     }
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
+    document.querySelector('body').classList.remove('kms-play-open')
     videoPreviewPlayer.classList.add('hidden');
     videoFullPlayer.classList.add('hidden');
-    document.querySelector('body').classList.remove('kms-play-open')
+    videoModel.removeAttribute('activePlayback');
+    videoModel.removeAttribute('nextVideoReady');
+    videoModel.removeAttribute('nextPlayback');
+    videoModel.removeAttribute('prevPlayback');
 }
 async function checkKMSTimecode() {
     const mediaPlayer = document.getElementById('kongouMediaPlayer');
     const messageid = mediaPlayer.getAttribute('nextPlayback');
-    const isReady = mediaPlayer.getAttribute('nextVideoReady') === 'true';
+    const isReady = mediaPlayer.getAttribute('nextVideoReady');
     const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-
-    if (messageid && !mediaPlayer.classList.contains('d-none') &&
-        !isReady &&
-        !videoFullPlayer.classList.contains('hidden') &&
-        ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.75)) {
-        mediaPlayer.setAttribute('nextVideoReady', 'true');
-        openUnpackingFiles(messageid, 'kms-video-preemptive');
+    if (messageid && document.querySelector('body').classList.contains('kms-play-open') &&
+    !videoFullPlayer.classList.contains('hidden')) {
+        await saveCurrentTimeKMS();
+        if (!isReady && ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.75)) {
+            mediaPlayer.setAttribute('nextVideoReady', 'true');
+            openUnpackingFiles(messageid, 'kms-video-preemptive');
+        }
     }
 }
+
+document.getElementById('kongouMediaVideoFull').addEventListener('pause', () => {
+    const videoPlayer = document.getElementById('kongouMediaVideoFull');
+    if (!videoPlayer.classList.contains('hidden') &&
+    (videoPlayer.currentTime / videoPlayer.duration) >= 0.98) {
+        kmsPlayNext();
+    }
+})
 async function startPendingUnpack() {
     const videoModel = document.getElementById('videoBuilderModal');
     const messageid = videoModel.getAttribute('pendingMessage');
