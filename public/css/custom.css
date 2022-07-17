@@ -3152,6 +3152,13 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     width: 100vw;
     z-index: -1;
 }
+.dark-hide {
+    display: none;
+}
+.badge-primary {
+    color: black;
+    background-color: #f9c8a7;
+}
 @media (min-width: 1700px) {
     .hide-1700 {
         display: none!important;
@@ -3385,16 +3392,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 
-@media (prefers-color-scheme: dark) {
-    .dark-hide {
-        display: none;
-    }
-    .badge-primary {
-        color: black;
-        background-color: #f9c8a7;
-    }
-}
-
 .userDropdown, a.userDropdown, a.userDropdown:hover, a.userDropdown:active {
     color: #f9c8a7;
 }
@@ -3525,6 +3522,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }*/
     .sequenzia-logo {
         color: white;
+    }
+    .kms-menu-logo {
+        content:url("/static/img/kongoumedialogo-menu.png");
     }
     .main-logo {
         content:url("/static/img/sequenzia-logo-ambient.png");
