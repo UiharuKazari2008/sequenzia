@@ -7,6 +7,20 @@ video.addEventListener('ended', CloseVideo);
 music.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 video.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 
+document.getElementById('kongouMediaVideoFull').addEventListener('playing', () => {
+    console.log('KMS PLayer Active')
+    kmsVideoWatcher = setInterval(checkKMSTimecode, 300000);
+})
+document.getElementById('kongouMediaVideoFull').addEventListener('pause', () => {
+    console.log('KMS Player Paused')
+    const videoPlayer = document.getElementById('kongouMediaVideoFull');
+    if (!videoPlayer.classList.contains('hidden') &&
+        (videoPlayer.currentTime / videoPlayer.duration) >= 0.98) {
+        kmsPlayNext();
+    }
+    clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
+})
+
 const videobox = $().fancybox({
     hash: false,
     selector : '[data-fancybox=videos]',
