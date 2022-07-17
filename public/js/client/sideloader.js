@@ -1370,7 +1370,7 @@ async function saveCurrentTimeKMS(wasNext) {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('activePlayback');
     const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
-    if (messageid) {
+    if (messageid && !videoFullPlayer.classList.contains('hidden')) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
@@ -1406,6 +1406,8 @@ async function closeKMSPlayer() {
     }
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
+    videoPreviewPlayer.classList.add('hidden');
+    videoFullPlayer.classList.add('hidden');
     document.querySelector('body').classList.remove('kms-play-open')
 }
 async function checkKMSTimecode() {
@@ -2682,7 +2684,7 @@ function toggleFavorite(channelid, eid) {
     return false;
 }
 async function setWatchHistory(eid, viewed) {
-    const percentage = (!isNaN(viewed) && viewed > 0.05) ? viewed : 0
+    const percentage = (!isNaN(viewed) && viewed > 0.05) ? (viewed <= 0.80) ? viewed : 1 : 0
     console.log(`Set History to ${percentage}`)
     $.ajax({async: true,
         type: "post",
