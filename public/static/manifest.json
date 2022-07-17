@@ -1,7 +1,7 @@
 {
   "short_name": "Sequenzia",
   "name": "Sequenzia",
-  "description": "Image Board and Cloud Storage",
+  "description": "Media and Cloud Storage",
   "icons": [
     {
       "src": "/static/img/icons/windows10/Square71x71Logo.scale-400.png",
@@ -376,7 +376,7 @@
   "background_color": "#000",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#d07300",
+  "theme_color": "#000",
   "shortcuts": [
     {
       "name": "Media",

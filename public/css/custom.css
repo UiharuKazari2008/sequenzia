@@ -402,7 +402,7 @@ color: #b3ff85;
     background-position: bottom right;
     background-size: contain;
 }
-#topbarIcon {
+#topbarIcon, #topbarKmsIcon {
     position: absolute;
     top: 0;
     left: 0;
@@ -414,6 +414,10 @@ color: #b3ff85;
     background-repeat: no-repeat;
     background-position: top right;
     background-size: 300px;
+}
+#topbarKmsIcon {
+    background-image: url("/static/img/kongoumedialogo-bg.png");
+    background-position: bottom right;
 }
 #topbarAccent {
     position: absolute;
@@ -2491,6 +2495,9 @@ img.kms-logo {
     display: flex;
     flex-direction: column;
     z-index: 100006;
+}
+.kms-progress {
+    pointer-events: none;
 }
 .kms-title-bar {
     background: linear-gradient(0deg, transparent, black);

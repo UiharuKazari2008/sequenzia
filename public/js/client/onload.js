@@ -51,6 +51,13 @@ if ("IntersectionObserver" in window) {
 }
 
 $('#userMenu').on('show.bs.collapse', function () {
+    if (document.getElementById('menuItemMain').classList.contains('kms-main-menu')) {
+        $('#topbarKmsIcon').removeClass('d-none');
+        $('#topbarIcon').addClass('d-none');
+    } else {
+        $('#topbarIcon').removeClass('d-none');
+        $('#topbarKmsIcon').addClass('d-none');
+    }
     $('#mainMenuBar').removeClass('top-padding-safety');
     $('.show-menu-open').removeClass('hidden');
     $('#topbarBackground').fadeIn();

@@ -230,15 +230,16 @@ html
                                                     .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center#appMenuRow2
                                                         .menu-grid#appMenuRow2Grid
                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
-                                            div(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`)
+                                            div(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`).kms-main-menu
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100#appMenuRow1
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
                                                             i.fas.fa-house.fa-fw.d-none
                                                             img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
-                                                        h4.text-primary.ml-auto
-                                                            i.fas.fa-clapperboard-play.mr-2
-                                                            | Media Library
+                                                        h4.text-primary.ml-auto.mb-sm-0
+                                                            img.kms-menu-logo.d-none.d-sm-block(src='/static/img/kongoumedialogo-menu.png' style="height: 1.6em;")
+                                                            i.fas.fa-clapperboard-play.mr-2.d-sm-none
+                                                            span.d-sm-none Kongou
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
                                                             a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
@@ -1245,7 +1246,8 @@ html
 
                         //div#topbarAccent.show-menu-open.hidden
                         div#topbarUserBackground.show-menu-open.hidden
-                        div#topbarIcon.show-menu-open.hidden
+                        div#topbarIcon.show-menu-open.hidden.d-none
+                        div#topbarKmsIcon.show-menu-open.hidden.d-none
                         div#topbarBackground(style='display: none;')
 
                     .container-fluid.max-resize
