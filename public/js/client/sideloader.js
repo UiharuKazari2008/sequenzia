@@ -109,6 +109,18 @@ let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") 
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
 let downloadURLs = [];
 let undoActions = [];
+let notificationControler = null;
+let recoverable
+let contextFadeDelay = null
+let requestInprogress
+let paginatorInprogress
+let downloadAllController = null;
+let downloadSpannedController = new Map();
+let tempURLController = new Map();
+let memorySpannedController = [];
+let memoryVideoPositions = new Map();
+let activeSpannedJob = null;
+let kmsVideoWatcher = null;
 
 String.prototype.toRGB = function() {
     var hash = 0;
@@ -200,8 +212,6 @@ async function setupReq(push, url) {
     writeLoadingBar();
     return false;
 }
-let recoverable
-let contextFadeDelay = null
 async function requestCompleted (response, url, lastURL, push) {
     itemsRemoved = 0;
     const pageTitle = $(response).filter('title').text()
@@ -347,8 +357,6 @@ async function requestCompleted (response, url, lastURL, push) {
     return false;
 }
 
-let requestInprogress
-let paginatorInprogress
 function getNewContent(remove, add, url, keep) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
     let _url = (() => {
@@ -818,12 +826,6 @@ function feedContent(type) {
     });
     return false;
 }
-let downloadAllController = null;
-let downloadSpannedController = new Map();
-let tempURLController = new Map();
-let memorySpannedController = [];
-let memoryVideoPositions = new Map();
-let activeSpannedJob = null;
 function downloadSelectedItems() {
     try {
         pageType = $.history.url().split('?')[0].substring(1);
@@ -929,7 +931,6 @@ async function startDownloadingFiles() {
     disableGallerySelect();
 }
 
-let kmsVideoWatcher = null;
 async function getFileIfAvailable(fileid) {
     return new Promise((resolve) => {
         try {
@@ -1406,7 +1407,8 @@ async function closeKMSPlayer() {
     }
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
-    document.querySelector('body').classList.remove('kms-play-open')
+    document.querySelector('body').classList.remove('kms-play-open');
+    clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
     videoPreviewPlayer.classList.add('hidden');
     videoFullPlayer.classList.add('hidden');
     videoModel.removeAttribute('activePlayback');
@@ -1429,6 +1431,10 @@ async function checkKMSTimecode() {
     }
 }
 
+document.getElementById('kongouMediaVideoFull').addEventListener('playing', () => {
+    console.log('KMS PLayer Active')
+    kmsVideoWatcher = setInterval(checkKMSTimecode, 300000);
+})
 document.getElementById('kongouMediaVideoFull').addEventListener('pause', () => {
     console.log('KMS Player Paused')
     const videoPlayer = document.getElementById('kongouMediaVideoFull');
@@ -1436,6 +1442,7 @@ document.getElementById('kongouMediaVideoFull').addEventListener('pause', () => 
     (videoPlayer.currentTime / videoPlayer.duration) >= 0.98) {
         kmsPlayNext();
     }
+    clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
 })
 async function startPendingUnpack() {
     const videoModel = document.getElementById('videoBuilderModal');
@@ -1908,7 +1915,6 @@ async function removeCacheItem(id, noupdate) {
         updateNotficationsPanel();
     }
 }
-let notificationControler = null;
 
 async function showSearchOptions(post) {
     pageType = $.history.url().split('?')[0].substring(1);
