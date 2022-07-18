@@ -180,7 +180,7 @@ html
                                                             | Files
                                                         a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}`)
                                                             i.fa-light.fa-fw.fa-ticket
-                                                            | Theaters
+                                                            | Theater
                                                         a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
                                                             i.fa-light.fa-fw.fa-star
                                                             | Favorites
@@ -610,7 +610,7 @@ html
                                                             i.far.fa-star.mr-2
                                                         else
                                                             i.far.fa-ticket.mr-2
-                                                        span(title='Theaters').text-uppercase Theater
+                                                        span(title='Theater').text-uppercase Theater
                                                     else if (path === '/listTheater' && params.has('watch_history'))
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
