@@ -1007,8 +1007,8 @@ body {
 }
 
 #page-top > .background-image.overlay {
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .sidebar .sidebar-heading {
@@ -1270,8 +1270,8 @@ li.nav-item {
 }
 .bottomBtn, .bottomBtn:hover {
     background: #000000a8;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    /*backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);*/
     z-index: 49;
     color: coral;
     border: #ffffff26 1px solid;
