@@ -2413,11 +2413,10 @@ footer .server-grid-parent {
 }
 .kms-stage {
     -webkit-backface-visibility: hidden;
-    display: block;
-    height: 100%;
+    display: flex;
     left: 0;
     outline: 0;
-    overflow: none;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
     padding: 0px;
     position: absolute;
@@ -2425,8 +2424,13 @@ footer .server-grid-parent {
     top: 0;
     transition-property: transform,opacity;
     white-space: normal;
-    width: 100%;
+    width: calc(100% - (env(safe-area-inset-left) + env(safe-area-inset-right)));
+    height: calc(100% - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
     z-index: 100001;
+    margin-left: calc(env(safe-area-inset-left) + 0px);
+    margin-right: calc(env(safe-area-inset-right) + 0px);
+    margin-top: calc(env(safe-area-inset-top) + 0px);
+    margin-bottom: calc(env(safe-area-inset-bottom) + 0px);
 }
 .kms-media-player {
     background: black;
