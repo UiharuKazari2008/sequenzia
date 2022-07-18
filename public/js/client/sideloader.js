@@ -168,7 +168,7 @@ async function setupReq(push, url) {
         if (url && (url.startsWith('/app/'))) {
             return 'browser'
         } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
-            return 'clapperboard-play'
+            return 'ticket'
         } else if (url) {
             return 'seq'
         }
@@ -928,6 +928,48 @@ async function startDownloadingFiles() {
     downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`0%`);
     downloadModel.querySelector("#downloadProgText").innerText = `Ready`
     disableGallerySelect();
+}
+
+async function cacheItems(urls) {
+    caches.open('offline-content')
+        .then(c => {
+            c.addAll(urls)
+        })
+        .catch(e => {
+            console.error(e);
+        })
+    return false;
+}
+async function cacheAlbumOffline(url) {
+    if (url) {
+        $.ajax({async: true,
+            url: `${params([],[['json','true']], url)}`,
+            type: "GET",
+            data: '',
+            processData: false,
+            contentType: false,
+            json: true,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR',
+                'x-Requested-Page': 'SeqSidebar'
+            },
+            success: function (response, textStatus, xhr) {
+                if (response && response.results && response.results.length > 0) {
+
+                }
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Page Failed',
+                    subtitle: 'Now',
+                    content: `Failed to cache!: ${xhr.responseText}`,
+                    delay: 5000,
+                });
+            }
+        });
+        return false;
+    }
 }
 
 async function getFileIfAvailable(fileid) {
