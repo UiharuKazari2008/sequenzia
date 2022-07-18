@@ -1006,7 +1006,7 @@ body {
     left: 0;
 }
 
-.background-image.overlay {
+#page-top > .background-image.overlay {
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
 }
