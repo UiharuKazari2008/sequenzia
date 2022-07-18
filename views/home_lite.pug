@@ -285,20 +285,21 @@ html
                                         div
                                             //a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
                                                 i.shadow-blk.fas.fa-house
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Media', href='/gallery?numdays=60&sort=eid')
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Media', href='/gallery?numdays=60&sort=eid')
                                                 i.shadow-blk.fas.fa-photo-video
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Files', href=`/files?numdays=60&sort=eid&filesonly=true`)
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Files', href=`/files?numdays=60&sort=eid&filesonly=true`)
                                                 i.shadow-blk.fas.fa-folder
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
-                                                i.shadow-blk.fas.fa-clapperboard-play
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Your Favorites", href='/gallery?sort=fav&pins=true')
-                                                i.shadow-blk.fas.fa-star
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
-                                                i.shadow-blk.fas.fa-archive
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
-                                                i.shadow-blk.fas.fa-browsers
-                                            a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="I'm Feeling Lucky", href='/gallery?sort=random')
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="I'm Feeling Lucky", href='/gallery?sort=random')
                                                 i.shadow-blk.fas.fa-dice
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
+                                                i.shadow-blk.fas.fa-ticket
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Your Favorites", href='/gallery?sort=fav&pins=true')
+                                                i.shadow-blk.fas.fa-star
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                i.shadow-blk.fas.fa-archive
+                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                                i.shadow-blk.fas.fa-browsers
+
                             div#menuItemAlbums.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
                                 .dimmed.d-flex
                                     .flex-grow-1
@@ -367,8 +368,32 @@ html
 
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.shadow-blk.fas.fa-clapperboard-play.pr-2
-                                            span Libraries
+                                            i.shadow-blk.fas.fa-ticket.pr-2
+                                            span Theaters
+                                .dimmed.d-flex(style='max-width: 600px;').mb-3
+                                    div.menu-grid.user-menu-small
+                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                            i.shadow-blk.fas.fa-forward
+                                            | Up Next
+                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                            i.shadow-blk.fas.fa-fw.fa-books
+                                            | Shelves
+                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                            i.shadow-blk.fas.fa-star
+                                            | Favorites
+                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
+                                            i.shadow-blk.fas.fa-clock-rotate-left
+                                            | History
+                            div#menuItemMediaGroups.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
+                                .dimmed.d-flex
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.shadow-blk.fas.fa-books.pr-2
+                                            span Shelves
                                 .dimmed.d-flex(style='max-width: 600px;').mb-3
                                     div.menu-grid.user-menu-small
                                         if (theaters && theaters.length > 0)
@@ -376,6 +401,7 @@ html
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                     i.shadow-blk.fas(class=`${thisTheater.icon}`)
                                                     | #{thisTheater.name}
+
                         if (url)
                             if (url.includes('search=true'))
                                 form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')

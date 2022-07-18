@@ -267,8 +267,8 @@ html
                                                             i.fa-light.fa-fw.fa-folder
                                                             | Files
                                                         a.user-menu-item(title="Video Library" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
-                                                            i.fa-light.fa-fw.fa-clapperboard-play
-                                                            | Library
+                                                            i.fa-light.fa-fw.fa-ticket
+                                                            | Theaters
                                                         a.user-menu-item(title="Your Favorites" href='#/gallery?sort=fav&pins=true')
                                                             i.fa-light.fa-fw.fa-star
                                                             | Favorites
@@ -416,8 +416,8 @@ html
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto
-                                                        i.fas.fa-clapperboard-play.mr-2
-                                                        | Libraries
+                                                        i.fas.fa-ticket.mr-2
+                                                        | Theaters
                                                 .row.ml-0.mr-0.w-100.position-absolute(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         if (theaters && theaters.length > 0)
@@ -426,7 +426,7 @@ html
                                                                     i.fa-light(class=`${thisTheater.icon}`)
                                                                     | #{thisTheater.name}
                                                         else
-                                                            h2 No Libraries
+                                                            h2 No Theaters Available
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.no-ani.shadow
                             ul.navbar-nav.text-primary.ml-1
                                 li.nav-item.text-right.text-primary.page-title

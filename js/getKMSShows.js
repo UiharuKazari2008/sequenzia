@@ -148,7 +148,7 @@ module.exports = async (req, res, next) => {
             const messageResults = await sqlPromiseSimple(`${sqlCall} LIMIT ${sqllimit + 10} OFFSET ${offset}`);
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
             let pageTitle = 'Media Browser'
-            let pageFullTitle = 'Library'
+            let pageFullTitle = 'Theater'
             let activeIcon
 
             if (messageResults && messageResults.rows.length > 0) {
@@ -167,7 +167,7 @@ module.exports = async (req, res, next) => {
                             })
                         }
                     })
-                    pageFullTitle = 'Library'
+                    pageFullTitle = 'Theater'
 
                     if (resultsArray.length > 0) {
                         if (media_group.length > 0) {

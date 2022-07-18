@@ -1601,7 +1601,7 @@ module.exports = async (req, res, next) => {
                     } else if (page_uri === '/listTheater') {
                         if (req.query && req.query.show_id) {
                             page_title = messages[0].show_name
-                            full_title = `Library / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
+                            full_title = `Theater / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
                         } else {
                             page_title = ''
                             full_title = ''
