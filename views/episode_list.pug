@@ -87,7 +87,7 @@ block content
                                                 if (item.media.meta.name)
                                                     span #{item.media.meta.name}
                                                 else if (item.entities.filename)
-                                                    span #{item.entities.filename}
+                                                    span #{(item.entities.filename.split(" - ").length > 1) ? item.entities.filename.split(" - ")[1] : item.entities.filename}
                                             if (item.media.show.name)
                                                 .series-name.px-2
                                                     span #{item.media.show.name}
@@ -125,7 +125,7 @@ block content
                                 if (item.media.meta.name)
                                     span #{item.media.meta.name}
                                 else if (item.entities.filename)
-                                    span #{item.entities.filename}
+                                    span #{(item.entities.filename.split(" - ").length > 1) ? item.entities.filename.split(" - ")[1] : item.entities.filename}
                             if (item.media.show.name)
                                 .series-name.px-2
                                     span #{item.media.show.name}
@@ -290,7 +290,7 @@ block content
                                 span #{indexImage + 1}
                             .episode-name.px-2
                                 if (item.entities.filename)
-                                    span #{item.entities.filename}
+                                    span #{(item.entities.filename.split(" - ").length > 1) ? item.entities.filename.split(" - ")[1] : item.entities.filename}
                             .episode-description.px-2
 
                             .episode-controls.px-2.pt-2
