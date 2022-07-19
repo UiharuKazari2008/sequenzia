@@ -376,7 +376,7 @@
   "background_color": "#000",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#d07300",
+  "theme_color": "#000",
   "shortcuts": [
     {
       "name": "Latest Media",
