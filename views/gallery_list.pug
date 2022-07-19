@@ -70,8 +70,18 @@ block content
             else
                 div.row
                     each item, indexImage in results
-                        - thisImageManage = false
-                        - if (item.manage) { thisImageManage = true }
+                        if (params.has('responseType') && params.getAll('responseType')[0] === 'offline')
+                            if (item.entities.preview && item.entities.preview.includes('attachments'))
+                                - item.entities.preview = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.preview.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.full && item.entities.full.includes('attachments'))
+                                - item.entities.full = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.full.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.download && item.entities.download.includes('attachments'))
+                                - item.entities.download = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.download.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.ext_preview && item.entities.ext_preview.includes('attachments'))
+                                - item.entities.ext_preview = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.ext_preview.split('attachments').pop()}`.split('?')[0]
+                            if (item.user.avatar && item.user.avatar.includes('attachments'))
+                                - item.user.avatar = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.user.avatar.split('attachments').pop()}`.split('?')[0]
+                        - thisImageManage = (item.manage)
                         - fileURL = item.entities.full
                         - previewURL = item.entities.preview;
                         if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
@@ -287,11 +297,11 @@ block content
                                         - noHoverClass = 'no-hover'
                                     else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
                                         - noHoverClass = 'no-hover'
-                                if (indexImage < 10 && item.entities.ext_preview)
+                                if ((indexImage < 10 || (params.has('responseType') && params.getAll('responseType')[0] === 'offline')) && item.entities.ext_preview)
                                     div#postImage.square.img.img-responsive(style=`background-image : url("${item.entities.ext_preview}"); ${positionImage}`)
                                 else if (item.entities.ext_preview)
                                     div#postImage.square.img.img-responsive.lazy(data-src=`${item.entities.ext_preview}` style=`${positionImage}`)
-                                else if (indexImage < 10)
+                                else if (indexImage < 10 || (params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
                                     div#postImage.square.img.img-responsive(style=`background-image : url("${previewURL}"); ${positionImage}` class=`${noHoverClass}`)
                                 else
                                     div#postImage.square.img.img-responsive.lazy(data-src=`${previewURL}` style=`${positionImage}` class=`${noHoverClass}`)
