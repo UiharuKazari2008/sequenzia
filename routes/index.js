@@ -56,6 +56,21 @@ router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxCheck
 router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
+router.get('/offline', sessionVerification, (req, res, next) => {
+    res.render('offline-homepage', {
+        server: req.session.server_list,
+        download: req.session.discord.servers.download,
+        manage_channels: req.session.discord.channels.manage,
+        write_channels: req.session.discord.channels.write,
+        discord: req.session.discord,
+        user: req.session.user,
+        webconfig: web,
+        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+        sidebar: req.session.sidebar,
+        applications_list: req.session.applications_list,
+    })
+});
 
 router.get('/lite', sessionVerification, (req,res) => {
     res.render('layout_lite', {

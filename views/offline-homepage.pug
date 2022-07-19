@@ -1,0 +1,429 @@
+html
+    head
+        script.
+            console.log('Waiting for microJuneOS to boot...')
+        title=`${webconf.site_name}`
+
+        link(rel='preload', href="/static/img/boot-logo.png" as='image')
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        meta(content="Sequenzia" property="og:title")
+        meta(content="Image Gallery and File Manager" property="og:description")
+        meta(content="Sequenzia" property="og:site_name")
+        script(type='text/javascript' src="/static/vendor/jquery/jquery.min.js")
+        script(type='text/javascript' src="/static/js/jquery.history.min.js")
+        script(type='text/javascript' src='/static/js/moment.min.js')
+        script(type='text/javascript' src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+        script(type='text/javascript' src="/static/vendor/jquery-easing/jquery.easing.min.js")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+
+        link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel="stylesheet", href="/static/css/jquery.fancybox.min.css")
+        link(rel='stylesheet' type='text/css' href='/static/css/bootstrap-slider.min.css')
+        link(rel='stylesheet', href='/static/css/fluid-gallery.min.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
+        link(rel='stylesheet' type='text/css' href='/static/css/daterangepicker.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
+        link(rel="stylesheet", href="/css/custom.min.css")
+        //link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+
+        script(type='text/javascript' src="/static/js/toast.min.js")
+        script(type='text/javascript' src="/static/js/daterangepicker.min.js")
+        script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
+        script(type='text/javascript' src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js")
+        script(type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js")
+
+        script(type='text/javascript' src="/js/client/sideloader-layout.min.js")
+        script(type='text/javascript' src="/js/client/sideloader.min.js")
+        script(type='text/javascript' src="/js/client/displayHistory.min.js")
+        script.
+            let inReviewMode = false;
+            let initalPageLoad = true;
+            let IPHL = history.length;
+            function isFirstPage() {
+                if (history.length <= IPHL && !initalPageLoad) {
+                    document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
+                }
+            }
+            caches.open('offline-cachev1').then(async cache => {
+                console.log(await cache.keys())
+            })
+        if (user && user.banner)
+            style.
+                .user-info-bg, #topbarUserBackground {
+                    background-image: url('#{user.banner}');
+                }
+                @media (max-width: 880px) {
+                    #topbarUserBackground {
+                        background-image: url('#{user.banner}');
+                    }
+                }
+        else if (user && user.avatar)
+            style.
+                .user-info-bg {
+                    background-image: url('#{user.avatar}');
+                }
+                #topbarUserBackground {
+                    background-color: transparent;
+                }
+                @media (max-width: 880px) {
+                    #topbarUserBackground {
+                        background-image: url('#{user.avatar}');
+                    }
+                }
+    body(id="page-top").sidebar-toggled
+        div.background-image.overlay
+        div.background-image.bg-blur
+
+        div(id="wrapper")
+            div(id="content-wrapper", class="d-flex flex-column")
+                div(id="content")
+                    div#mainMenuBar.top-padding-safety
+                        div#userMenu.collapsed.collapse
+                            div.shown-user-menu.d-flex
+                                div.user-info-bg
+                                    div.user-infocard-holder.d-flex.flex-column
+                                        .row.p-0.ml-0.mr-0
+                                            if (user && user.source === 900)
+                                                div.text-center.text-ellipsis.align-middle.p-2
+                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                            if (user && user.banner)
+                                                .col-auto.p-0
+                                                    img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                            .col.p-0.position-relative.pl-2.text-ellipsis(style="min-height: 75px;")
+                                                div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
+                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                div.user-menu-buttons(style="width: 100%; height: 100%")
+                                    div#menuAccordion.user-infocard-row2
+                                        div(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
+                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .row.w-100.ml-0.mr-0
+
+                                                .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
+                                                    .menu-grid
+                                                        a.user-menu-item(title="Offline Pages" href='#_')
+                                                            i.fa-light.fa-fw.fa-window-restore
+                                                            | Pages
+                                                        //a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                            i.fa-light.fa-fw.fa-archive
+                                                            | Albums
+                                                        //a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
+                                                            i.fa-light.fa-fw.fa-ticket
+                                                            | Theater
+                                                        a.user-menu-item(title="Offline Images" href='#_')
+                                                            i.fa-light.fa-fw.fa-image
+                                                            | Images
+                                                        a.user-menu-item(title="Offline Videos" href='#_')
+                                                            i.fa-light.fa-fw.fa-film
+                                                            | Videos
+                                                        a.user-menu-item(title="Offline Music" href='#_')
+                                                            i.fa-light.fa-fw.fa-music
+                                                            | Music
+                                                        a.user-menu-item(title="Offline Files" href=`#_`)
+                                                            i.fa-light.fa-fw.fa-folder
+                                                            | Files
+                                                        a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                            i.fa-light.fa-fw.fa-cog
+                                                            | Settings
+                                        div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-cog.mr-2
+                                                        | Settings
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                    .menu-grid
+                                                        a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
+                                                            i.fa-light.fa-sliders-h
+                                                            | Display
+                                                        //a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
+                                                            i.fa-light.fa-tv
+                                                            | Photo Frame
+                                                        a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
+                                                            i.fa-light.fa-info-circle
+                                                            | About
+                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Try to go online" href='/')
+                                                            i.fa-light.fa-sync
+                                                            | Online
+                                        div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-sliders-h.mr-2
+                                                        span.d-none.d-sm-inline Display
+                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                    .menu-grid
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
+                                                            i.fa-light.fa-grid-5
+                                                            | Thumbs
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
+                                                            i.fa-light.fa-grid-4
+                                                            | Small
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
+                                                            i.fa-light.fa-grid
+                                                            | Default
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
+                                                            i.fa-light.fa-grid-2
+                                                            | Large
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`)
+                                                            i.fa-light.fa-distribute-spacing-horizontal
+                                                            | Full Width
+                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
+                                                            i.fa-light.fa-arrow-up-arrow-down
+                                                            | Menubar
+                                        div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
+                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                                .d-flex.w-100
+                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                        i.fas.fa-arrow-left.fa-fw
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                        i.fas.fa-fw.mr-md-1.fa-globe-americas
+                                                        span.d-none.d-md-inline Directory
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                        i.fas.fa-cog.fa-fw.mr-md-1
+                                                        span.d-none.d-md-inline Manage
+                                                    h4.text-primary.ml-auto
+                                                        i.fas.fa-archive.mr-2
+                                                        | Albums
+                                                .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                    if (albums && albums.length > 0)
+                                                        div.album-list(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                            each thisAlbum in albums
+                                                                div.album-item.position-relative
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                        //x.uri, x.privacy
+                                                                        div.album-icon
+                                                                            if (thisAlbum.uri === 'gallery')
+                                                                                i.far.fa-photo-video.pr-1
+                                                                            else if (thisAlbum.uri === 'files')
+                                                                                i.far.fa-folder.pr-1
+                                                                            else if (thisAlbum.uri === 'cards')
+                                                                                i.far.fa-sticky-note.pr-1
+                                                                            else
+                                                                                i.far.fa-archive.pr-1
+
+                                                                            if (thisAlbum.privacy === 0)
+                                                                                i.far.fa-globe-americas.pr-1
+                                                                            else if (thisAlbum.privacy === 1)
+                                                                                i.far.fa-lock.pr-1
+                                                                            else if (thisAlbum.privacy === 2)
+                                                                                i.far.fa-link.pr-1
+                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
+                                                                        span #{thisAlbum.name}
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                        if (thisAlbum.image)
+                                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                                        else
+                                                                            div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+
+                                                    else
+                                                        h2 No Albums!
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
+                            ul.navbar-nav.text-primary.ml-1
+                                li.nav-item.text-right.text-primary.page-title
+                                    i.far.fa-arrow-right.fa-spinner.align-middle.nav-item
+                                    span.pl-2 Initializing...
+                            ul.navbar-nav.text-primary
+                                li.nav-item.ml-2.mr-1
+                                    i.fas.fa-circle.text-danger
+                            .mr-auto
+                            ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                li.nav-item.no-arrow
+                                    i.fas.fa-spinner.fa-spin-pulse
+                            .col-auto.p-0.d-flex
+                                ul.navbar-nav.text-primary.text-ellipsis.w-100
+                                    li.nav-item.no-arrow
+                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                            i.far.fa-bars.pl-2
+                                            img.img-profile.rounded-circle(src=user.avatar)
+
+                        //div#topbarAccent.show-menu-open.hidden
+                        div#topbarUserBackground.show-menu-open.hidden
+                        div#topbarBackground(style='display: none;')
+                    .container-fluid.max-resize
+                        #contentBlock
+                            .tz-gallery
+                                div.row
+                            script.
+                                console.log('Welcome to microJuneOS for Sequenzia! Version 0.1\n' + '\n' +
+                                    '       __                 ____  _____' + '\n' +
+                                    '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
+                                    ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
+                                    '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
+                                    '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
+                                let currentContext = false;
+                                const offlinePage = true;
+                                let nextContext = 'seq';
+                                $(document).ready(function () {
+                                    //location.href = '/';
+                                    $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-plug')
+                                    $('#topbar > ul > .page-title > span')[0].innerText = 'Offline'
+                                    let options = {
+                                        hash: false,
+                                        infobar: true,
+                                        smallBtn: "auto",
+                                        toolbar: "auto",
+                                        image: {
+                                            preload: false
+                                        },
+                                        defaultType: "image",
+                                        animationEffect: "zoom",
+                                        transitionEffect: "slide",
+                                        wheel: "auto",
+                                        thumbs: {
+                                            autoStart: true
+                                        },
+                                    };
+                                    if (window.navigator.standalone === true) {
+                                        options.buttons = [
+                                            "zoom",
+                                            "slideShow",
+                                            "fullScreen",
+                                            "download",
+                                            "thumbs",
+                                            "close"
+                                        ]
+                                        console.log('This is standalone')
+                                    } else {
+                                        options.buttons = [
+                                            "zoom",
+                                            "slideShow",
+                                            "fullScreen",
+                                            "download",
+                                            "thumbs",
+                                            "close"
+                                        ]
+                                    }
+                                    offlineAllImages();
+                                })
+                            style.
+                                .background-image:not(.overlay) {
+                                    background-image: url('/static/img/loading_bg.jpg');
+                                }
+
+                                .background-image.overlay {
+                                    background-image: linear-gradient(180deg, #000000b8, #ffffff00);
+                                    z-index: -99;
+                                    opacity: 0.7;
+                                }
+                    // Music Player Enabler
+                    script(type='text/javascript' src="/js/client/media-enabler.min.js")
+                footer.sticky-footer.bg-transparent
+                    .container.my-auto
+                        .copyright.text-center.my-auto
+                            div.mb-2
+                                span.sidebar-brand-logo.sequenzia-logo(class=showlogo1 style='font-size: 2.8em;') sequenzia
+                            div
+                                strong Sequenzia™ JulyOS - The Micro JuneOS
+                            div
+                                span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
+        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='display: none;' href='#_' onclick="scrollToTop(); return false;")
+            i.fa.fa-arrow-up
+
+        div#musicplayer.fixed-bottom.music-player(role="alert" style="display: none;")
+            .row.d-flex
+                audio( controls id='audioplayerobject' preload="false" style="width: 100%").col
+                button.align-self-center.btn.btn-circle(type='button' onclick='CloseMusic(); return false;' style='background: #f1f3f4;')
+                    i.fas.fa-times
+        #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='logoutModelLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Ready to Leave?
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body Select &quot;Logout&quot; below if you are ready to end your current session.
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                        a.btn.btn-danger(title="Logout" href='/discord/destroy') Logout
+        #aboutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title About
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            img(src="/static/img/sequenzia-logo-new.png").img-fluid
+                            span Sequenzia™ II - Image and File Manager for the Kanmi Framework
+                            br
+                            span Copyright &copy; Academy City Research #{moment(Date.now()).format('YYYY')}
+                        div.row.pl-3.pr-3.pt-2
+                            span Proudly Developed in the United States of America
+                            br
+                            span Developed and Maintained by Academy City Research (acr.moe)
+                            br
+                            span JuneFS™ Storage Framework
+                            br
+                            span Kanmi™ Content Distribution and Auditing System (CDS)
+                            br
+                            span IntelliDex™ Indexing System (IDEX)
+                        div.row.pl-3.pr-3.pt-2.mb-3
+                            span Thank you to all that have helped test and report issues. Special Thanks to Emmy!
+                        each thisServer, thisIndex in discord.servers.list
+                            .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
+                                div.mr-3
+                                    img.rounded(src=thisServer.icon style='height: 8em;')
+                                div
+                                    h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                    if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
+                                        h5 #{thisServer.name}
+                                    div.d-inline.text-lg
+                                        if (thisServer.login === 1)
+                                            i.fas.fa-key.pr-2.pl-1
+                                            span Login Server
+                                        else
+                                            i.fas.fa-database.pr-2.pl-1
+                                            span Storage Server
+        #kongouMediaPlayer.kms-media-container.animated--grow-in
+            .kms-background
+                .kms-logo-center
+            .kms-media-inner
+                .kms-stage
+                    .kms-player-video.d-flex
+                        .kms-progress.d-flex
+                            .kms-progress-bar.hidden(style='width: 100%')
+                        .kms-title-bar.d-flex
+                            .kms-progress-bar.hidden(style='width: 100%')
+                            .kms-info-bar
+                                img.kms-logo(src='/static/img/kongoumedialogo-wide.png').mr-auto
+                                .kms-status-bar.pr-2.text-ellipsis
+                                    span
+                                a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
+                                    i.fas.fa-times
+                            .kms-player-controls.px-2.mt-2
+                                a#kongouMediaPlayerPrev.d-flex.w-50.align-items-baseline.justify-content-start.mr-auto(href='#_' onclick=`kmsPlayPrev(); return false;`)
+                                    i.fas.fa-backward-fast
+                                    .div.text-ellipsis.d-none.d-md-block
+                                        span.pl-2 Previous Episode: Name Goes Here
+                                a#kongouMediaPlayerNext.d-flex.w-50.align-items-baseline.justify-content-end.ml-auto(href='#_' onclick=`kmsPlayNext(); return false;`)
+                                    .div.text-ellipsis.d-none.d-md-block
+                                        span.pr-2 Next Episode: Name Goes Here
+                                    i.fas.fa-forward-fast
+                        .kms-warnings.d-flex.flex-column
+                            #kmsWarningProgress.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden
+                                i.fas.fa-history.pr-2
+                                span Video will continue at your previous position once it has been full loaded!
+                            #kmsWarningQuality.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden(style='opacity: 0.5;')
+                                i.fas.fa-box-open.pr-2
+                                span Video quality will improve once it has been full loaded!
+                        video#kongouMediaVideoPreview.kms-media-player(preload="false" controls playsinline webkit-playsinline loops style="background: transparent; background-clip: content-box;")
+                        video#kongouMediaVideoFull.kms-media-player(preload="true" autoplay='false' controls style="background: transparent; background-clip: content-box;" )
+
+        script(src="/static/js/sb-admin-2.min.js")
+        // Music Manager
+        script(type='text/javascript' src="/js/client/media.min.js")
