@@ -138,6 +138,7 @@ $(document).ready(function () {
         scrollManagerThrottleTimeout = setTimeout(function() {
             const topbar = $('#topbar')
             const menu = $('#userMenu')
+            const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
             if ($(this).scrollTop() > 50) {
                 $('.scrollBtn').fadeIn();
             } else {
@@ -148,12 +149,16 @@ $(document).ready(function () {
 
                 }
                 $('#topbarBackground').fadeIn();
+                if (mediaRule)
+                    mediaRule.content = "#d07300"
                 topbar.addClass('shadow');
             } else {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
                 $('#topbarBackground').fadeOut();
+                if (mediaRule)
+                    mediaRule.content = "#000"
                 topbar.removeClass('shadow');
             }
             if (!topbar.hasClass('no-ani')) {
