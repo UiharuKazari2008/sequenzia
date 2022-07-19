@@ -164,36 +164,38 @@ async function writeLoadingBar(){
     return false;
 }
 async function setupReq(push, url) {
-    nextContext = (() => {
-        if (url && (url.startsWith('/app/'))) {
-            return 'browser'
-        } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
-            return 'ticket'
-        } else if (url) {
-            return 'seq'
-        }
-        return 'question'
-    })()
-    if (!currentContext || (currentContext && currentContext !== nextContext)) {
-        let cxswch = document.getElementById('contextSwitchIndicator');
-        if (currentContext) {
-            if (currentContext === 'seq') {
-                cxswch.querySelector('#contextFrom').classList = 'hidden';
-                cxswch.querySelector('#contextFromSeq').classList = '';
-            } else {
-                cxswch.querySelector('#contextFrom').classList = 'fas fa-' + currentContext;
-                cxswch.querySelector('#contextFromSeq').classList = 'hidden';
+    if (!offlinePage) {
+        nextContext = (() => {
+            if (url && (url.startsWith('/app/'))) {
+                return 'browser'
+            } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
+                return 'ticket'
+            } else if (url) {
+                return 'seq'
             }
-            if (nextContext === 'seq') {
-                cxswch.querySelector('#contextTo').classList = 'hidden';
-                cxswch.querySelector('#contextToSeq').classList = '';
-            } else {
-                cxswch.querySelector('#contextTo').classList = 'fas fa-' + nextContext;
-                cxswch.querySelector('#contextToSeq').classList = 'hidden';
+            return 'question'
+        })()
+        if (!currentContext || (currentContext && currentContext !== nextContext)) {
+            let cxswch = document.getElementById('contextSwitchIndicator');
+            if (currentContext) {
+                if (currentContext === 'seq') {
+                    cxswch.querySelector('#contextFrom').classList = 'hidden';
+                    cxswch.querySelector('#contextFromSeq').classList = '';
+                } else {
+                    cxswch.querySelector('#contextFrom').classList = 'fas fa-' + currentContext;
+                    cxswch.querySelector('#contextFromSeq').classList = 'hidden';
+                }
+                if (nextContext === 'seq') {
+                    cxswch.querySelector('#contextTo').classList = 'hidden';
+                    cxswch.querySelector('#contextToSeq').classList = '';
+                } else {
+                    cxswch.querySelector('#contextTo').classList = 'fas fa-' + nextContext;
+                    cxswch.querySelector('#contextToSeq').classList = 'hidden';
+                }
             }
+            cxswch.classList.remove('hidden');
+            cxswch.style.display = null;
         }
-        cxswch.classList.remove('hidden');
-        cxswch.style.display = null;
     }
     responseComplete = false;
     $('#loadingSpinner').fadeIn();
@@ -229,6 +231,17 @@ async function requestCompleted (response, url, lastURL, push) {
         responseComplete = true
     } else {
         if (url.startsWith('/app/web/')) {
+            if (offlinePage) {
+                $.toast({
+                    type: 'error',
+                    title: 'Navigation Failure',
+                    subtitle: 'Now',
+                    content: `Applications can not be accessed offline!`,
+                    delay: 1000,
+                });
+                responseComplete = true
+                return false;
+            }
             $.when($(".container-fluid").fadeOut(250)).done(() => {
                 recoverable = response
                 let contentPage = $(response);
@@ -272,7 +285,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 responseComplete = true
             })
         } else {
-            if (push === true) {
+            if (push === true && !offlinePage) {
                 $('#LoadNextPage').remove();
                 $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
@@ -303,25 +316,33 @@ async function requestCompleted (response, url, lastURL, push) {
                         window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
                         e.preventDefault();
                     });
-                    $("#content-wrapper").html(contentPage);
+                    if (!offlinePage) {
+                        $("#content-wrapper").html(contentPage);
+                    } else {
+                        $("#contentBlock").html(contentPage.find('#contentBlock').children());
+                    }
                     setImageLayout(setImageSize);
                     setPageLayout(false);
-                    if (!pageTitle.includes(' - Item Details')) {
+                    if (!pageTitle.includes(' - Item Details') && !offlinePage) {
                         getPaginator(url);
                     }
                     scrollToTop(true);
-                    if (inReviewMode)
-                        enableReviewMode();
-                    updateActionsPanel();
-                    updateNotficationsPanel();
-                    undoActions = [];
-                    if (Object.values(apiActions).length > 0) {
-                        const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
-                        $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
-                        if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
-                            $('#hiddenItemsAlert').removeClass('hidden')
+                    if (!offlinePage) {
+                        if (inReviewMode)
+                            enableReviewMode();
+                        updateActionsPanel();
+                        updateNotficationsPanel();
+                        if (Object.values(apiActions).length > 0) {
+                            const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                            $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                            if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
+                                $('#hiddenItemsAlert').removeClass('hidden')
+                            }
                         }
+                    } else {
+                        $(".container-fluid").fadeTo(500, 1);
                     }
+                    undoActions = [];
                     responseComplete = true
                 })
             }
@@ -332,7 +353,8 @@ async function requestCompleted (response, url, lastURL, push) {
                 addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0}`]);
             }
             const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
-            $.history.push(_url, (_url.includes('offset=')));
+            if (!offlinePage)
+                $.history.push(_url, (_url.includes('offset=')));
             responseComplete = true
         }
         pageType = url.split('/')[0];
@@ -357,7 +379,7 @@ async function requestCompleted (response, url, lastURL, push) {
     return false;
 }
 
-function getNewContent(remove, add, url, keep) {
+async function getNewContent(remove, add, url, keep) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
     let _url = (() => {
             try {
@@ -373,6 +395,15 @@ function getNewContent(remove, add, url, keep) {
             }
         })()
     if (_url === null) { location.href = '/'; return false; };
+    if (offlinePage && (await caches.match(_url)) !== undefined) {
+        $.toast({
+            type: 'error',
+            title: 'Pre-Navigation Failure',
+            subtitle: 'Now',
+            content: `Not available offline, You must make the item available offline before you go offline.`,
+            delay: 2000,
+        });
+    }
     if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
         $.toast({
             type: 'error',
@@ -940,36 +971,53 @@ async function cacheItems(urls) {
         })
     return false;
 }
-async function cacheAlbumOffline(url) {
-    if (url) {
-        $.ajax({async: true,
-            url: `${params([],[['json','true']], url)}`,
-            type: "GET",
-            data: '',
-            processData: false,
-            contentType: false,
-            json: true,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR',
-                'x-Requested-Page': 'SeqSidebar'
-            },
-            success: function (response, textStatus, xhr) {
-                if (response && response.results && response.results.length > 0) {
+const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
+let contentCache = null;
+async function cachePageOffline(type, _url) {
+    if (_url) {
+        const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
+        const cache = await caches.open('offline-pages-' + type);
+        await cache.add(url);
+        const _cacheItem = await caches.match(url);
+        if (_cacheItem) {
+            const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'))
+            contentCache = content;
+            const fullImages = Array.from(content.querySelectorAll('a.lightbox')).map(e => (new URL(e.href)).pathname).filter(async e => !!e && imageFiles.indexOf(e.split('?')[0].split('.').pop().toLowerCase()) !== -1 && (await caches.match(e)) === undefined);
+            const previewImages = Array.from(content.querySelectorAll('a.lightbox > div#postImage')).map(e => ((e.style.backgroundImage) ? e.style.backgroundImage.replace("url('", '').replace("')", '').replace('url("', '').replace('")', '').replace('url(', '').replace(')', '') : e.getAttribute('data-src')).split('?')[0]).filter(async e => !!e && imageFiles.indexOf(e.split('?')[0].split('.').pop().toLowerCase()) !== -1 && fullImages.indexOf(e) !== -1 && (await caches.match(e)) === undefined);
 
-                }
-            },
-            error: function (xhr) {
-                $.toast({
-                    type: 'error',
-                    title: 'Page Failed',
-                    subtitle: 'Now',
-                    content: `Failed to cache!: ${xhr.responseText}`,
-                    delay: 5000,
-                });
+            const imagesCache = await caches.open('offline-content-images');
+            for (let e of fullImages) {
+                await imagesCache.add(e);
+                console.log(`Cached Image ${e}`)
             }
-        });
+            console.log(`Cached ${fullImages.length} Full Images`);
+
+            const previewCache = await caches.open('offline-content-previews');
+            for (let e of previewImages) {
+                await previewCache.add(e);
+                console.log(`Cached Preview ${e}`)
+            }
+            console.log(`Cached ${previewImages.length} Preview Images`);
+        } else {
+            console.error('Item did not hit cache. Please try again')
+        }
         return false;
     }
+}
+async function offlineAllImages() {
+    caches.open('offline-content-images').then(async cache => {
+        const images = await cache.keys();
+        document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + images.map(image => [
+            '<div class="col-image col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">',
+            '<div class="internal-lightbox d-block"></div>',
+            `<a class="lightbox" href="${image.url}">`,
+            `<div id="postImage" class="square img img-responsive" style="background-image: url('${image.url}');"></div>`,
+            '<div id="postBackground" style="background-color: rgb(128, 128, 128);"></div>',
+            '</a>',
+            '</div>',
+        ].join('')).join('') + '</div></div>'
+        $("a.lightbox").fancybox(options);
+    })
 }
 
 async function getFileIfAvailable(fileid) {
@@ -2665,7 +2713,7 @@ function setPageLayout(toggle) {
 }
 function setImageLayout(size, _html) {
     let html = document;
-    if (html.location.hash.startsWith('#/gallery')) {
+    if (html.location.hash.startsWith('#/gallery') || html.location.hash.startsWith('#/tvTheater')) {
         if (_html) {
             html = _html;
         }
