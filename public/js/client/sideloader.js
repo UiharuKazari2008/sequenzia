@@ -2713,7 +2713,51 @@ function setPageLayout(toggle) {
 }
 function setImageLayout(size, _html) {
     let html = document;
-    if (html.location.hash.startsWith('#/gallery') || html.location.hash.startsWith('#/tvTheater')) {
+    if (html.location.hash.startsWith('#/tvTheater')) {
+        if (_html) {
+            html = _html;
+        }
+        let classList = ''
+        switch (`${size}`) {
+            case '1':
+                classList = 'col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3 col-dynamic-large';
+                html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
+                setImageSize = '1';
+                break;
+            case '2':
+                classList = 'col-4 col-sm-4 col-md-3 col-lg-2 col-xl-1 col-dynamic-small';
+                html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
+                setImageSize = '2';
+                break;
+            case '3':
+                classList = 'col-3 col-sm-3 col-md-2 col-lg-1 col-xl-1 col-dynamic-tiny';
+                html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.add('dynamic-hide'));
+                setImageSize = '3';
+                break;
+            default:
+                classList = 'col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2';
+                html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.remove('dynamic-hide'));
+                html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
+                setImageSize = '0';
+                break;
+        }
+        try {
+            setCookie("imageSizes", setImageSize);
+        } catch (e) {
+            console.error("Failed to save cookie for imageSizes");
+            console.error(e);
+        }
+        html.querySelectorAll('.col-dynamic').forEach(c => c.classList = 'col-image col-dynamic ' + classList);
+        html.querySelectorAll('.col-button').forEach(c => c.classList = 'col-button ' + classList);
+        if (_html) {
+            return html;
+        } else {
+            return false;
+        }
+    } else if (html.location.hash.startsWith('#/gallery')) {
         if (_html) {
             html = _html;
         }

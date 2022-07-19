@@ -32,7 +32,9 @@ block content
                             .show-controls.px-2.py-1
                                 .show-banners
                                     if (item.nsfw)
-                                        .ml-auto.badge.bg-danger UNCENSORED
+                                        .ml-auto.badge.bg-danger
+                                            i.fas.fa-octagon-minus
+                                            span.pl-2.no-dynamic-small UNCENSORED
                                 .show-buttons
                         a(href=`#/listTheater?show_id=${item.id}`)
                             if (indexImage < 10)
