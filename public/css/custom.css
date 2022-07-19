@@ -3517,10 +3517,12 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     #topbarBackground {
-        background-color: #d07300a1;
+        background: linear-gradient(0deg, #d07300a1, #d07300);
+        /*background-color: #d07300a1;*/
         border-bottom: solid 1px #e3990859;
     }
     .bottom-bar #topbarBackground {
+        background-color: #d07300a1;
         border-bottom: none;
         border-top: solid 1px #e3990859;
     }
