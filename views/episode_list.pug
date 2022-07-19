@@ -5,32 +5,37 @@ block content
         - params = new URLSearchParams(req_uri.split('?')[1])
         - path = '/' + req_uri.split('?')[0].split('/').pop()
     if (results && results.length > 0 )
-        - showData = results[0].media.show.meta
-        if (showData.background)
-            - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
-        else
-            - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
-        // Page Heading
-        style.
-            .background-image:not(.overlay) {
-                background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
-            }
-            .background-image.overlay {
-                background-image: linear-gradient(180deg, #000000b8, #00000000);
-                z-index: -99;
-                opacity: 1;
-            }
         if (!params.has('show_id'))
+            - showData = results[Math.floor(Math.random() * results.length)].media.show.meta
+            if (showData.background)
+                - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
+            else
+                - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+            // Page Heading
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+                }
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+
             if (params.getAll('watch_history')[0] === 'none')
                 - shows = [...new Set(results.map(e => e.media.show.id))].map(e => results.filter(f => f.media.season !== 0 && f.media.show.id === e))
-                - shows = shows.filter(e => e.length > 0 && (!(e[0].media.season === 1 && e[0].media.episode === 1) || (e[0].media.season === 1 && e[0].media.episode === 1 && e[0].media.watched && e[0].media.watched > 0.05)))
+                - shows = shows.filter(e => e.length > 0 && (!(e[0].media.season === 1 && e[0].media.episode === 1) || (e[0].media.episode === 1 && e[0].media.watched && e[0].media.watched > 0.05)))
                 each show in shows
                     - showData = show[0].media.show.meta
                     if (showData.seasons)
                         - seasons = showData.seasons.filter(e => e.episodes.filter(f => !!f.entity).length > 0)
-                        - banner = show.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < 1)) && e.media.meta.season !== 0)
-                        - banner = (banner.length > 0) ? banner : show
-                        - nextEpisode = show.filter(e => !e.media.watched || (e.media.watched && e.media.watched <= .9))
+                        - nextEpisode = show.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < .9) ) && e.media.meta.season !== 0)
+                        - banner = (nextEpisode.length > 0) ? nextEpisode : show
                         .show-header.slim-line.mb-3.p-3
                             .show-preview(style=`background-image : url("${(show[0].media.background) ? 'https://media.discordapp.net/attachments' + show[0].media.background : showData.background.pop() }");`)
                             .show-preview-overlay
@@ -142,6 +147,27 @@ block content
                                     a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
                                         i.btn-links.fas.fa-check
         else if (showData.seasons)
+            - showData = results[0].media.show.meta
+            if (showData.background)
+                - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
+            else
+                - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+            // Page Heading
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+                }
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+
             - seasons = showData.seasons.filter(e => e.episodes.filter(f => !!f.entity).length > 0)
             - banner = results.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < 1)) && e.media.meta.season !== 0)
             - banner = (banner.length > 0) ? banner : results
@@ -244,6 +270,27 @@ block content
                                                     a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
                                                         i.btn-links.fas.fa-check
         else
+            - showData = results[0].media.show.meta
+            if (showData.background)
+                - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
+            else
+                - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+            // Page Heading
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+                }
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+
             .show-header.mb-3.p-3
                 .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
                 .show-preview-overlay

@@ -25,7 +25,7 @@ block content
                 .input-group.w-100
                     .input-group-prepend
                         i.far.fa-search.align-self-center
-                    input#seriesSearch.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Find Series' aria-label='Find Series' onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);")
+                    input#seriesSearch.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Search Shelf...' aria-label='Search Shelf...' onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);")
         div.tz-gallery
             div.row
                 each item, indexImage in results
@@ -49,8 +49,8 @@ block content
                                 div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}` style=`background-size: cover!important;`)
                             div#postBackground
         script.
-            const element_list = Array.from(document.querySelectorAll('[data-search]'))
-            const search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
+            element_list = Array.from(document.querySelectorAll('[data-search]'))
+            search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
     else
 
         style.

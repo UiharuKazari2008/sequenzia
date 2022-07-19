@@ -121,6 +121,8 @@ let memorySpannedController = [];
 let memoryVideoPositions = new Map();
 let activeSpannedJob = null;
 let kmsVideoWatcher = null;
+let search_list = [];
+let element_list = [];
 
 String.prototype.toRGB = function() {
     var hash = 0;
