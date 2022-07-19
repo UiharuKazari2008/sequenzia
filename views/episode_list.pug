@@ -146,7 +146,7 @@ block content
                                 else
                                     a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
                                         i.btn-links.fas.fa-check
-        else if (showData.seasons)
+        else if (results[0].media.show.meta.seasons)
             - showData = results[0].media.show.meta
             if (showData.background)
                 - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
