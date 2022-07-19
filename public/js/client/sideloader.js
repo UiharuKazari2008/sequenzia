@@ -1474,15 +1474,6 @@ async function saveCurrentTimeKMS(wasNext) {
         setWatchHistory(eid, (wasNext) ? 1 : percentage)
     }
 }
-async function cancelPendingKMSUnpack() {
-    const videoModel = document.getElementById('kongouMediaPlayer');
-    const messageid = videoModel.getAttribute('activePlayback');
-    if (messageid) {
-        const _post = document.getElementById(`message-${messageid}`);
-        const fileid = _post.getAttribute('data-msg-fileid');
-        stopUnpackingFiles(fileid);
-    }
-}
 async function closeKMSPlayer() {
     const videoModel = document.getElementById('kongouMediaPlayer');
     const messageid = videoModel.getAttribute('activePlayback');
@@ -1523,6 +1514,20 @@ async function checkKMSTimecode() {
             mediaPlayer.setAttribute('nextVideoReady', 'true');
             openUnpackingFiles(messageid, 'kms-video-preemptive');
         }
+    }
+}
+async function searchSeriesList(obj) {
+    const _q = obj.value.toLowerCase().trim();
+    if (_q.length > 2) {
+        search_list.forEach(e => {
+            if (e.includes(_q)) {
+                document.getElementById(e.split(' -- ')[0].trim()).classList.remove('hidden');
+            } else {
+                document.getElementById(e.split(' -- ')[0].trim()).classList.add('hidden');
+            }
+        })
+    } else {
+        element_list.forEach(e => e.classList.remove('hidden'))
     }
 }
 

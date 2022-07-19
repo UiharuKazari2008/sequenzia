@@ -15,19 +15,21 @@ block content
             }
 
             .background-image.overlay {
-                background-image: linear-gradient(0deg, #000000, #00000000);
+                background-image: linear-gradient(180deg, #000000b8, #00000000);
                 z-index: -99;
                 opacity: 1;
             }
-            .bottom-bar .background-image.overlay {
-                background-image: linear-gradient(180deg, #000000, #00000000);
-                z-index: -99;
-                opacity: 1;
-            }
+        // Search Bar
+        div.mb-2
+            form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="get" style="width: 100%;" )
+                .input-group.w-100
+                    .input-group-prepend
+                        i.far.fa-search.align-self-center
+                    input#seriesSearch.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Find Series' aria-label='Find Series' onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);")
         div.tz-gallery
             div.row
                 each item, indexImage in results
-                    div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2(id=`series-${item.id}`)
+                    div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2(id=`series-${item.id}` data-search=`${item.name}; ${item.originalName}; ${item.genres};`)
                         .show-overlay
                             .show-controls.px-2.py-1
                                 .show-banners
@@ -46,6 +48,9 @@ block content
                             else
                                 div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}` style=`background-size: cover!important;`)
                             div#postBackground
+        script.
+            const element_list = Array.from(document.querySelectorAll('[data-search]'))
+            const search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
     else
 
         style.

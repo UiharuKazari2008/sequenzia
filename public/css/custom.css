@@ -1569,7 +1569,7 @@ color: #d4c4b9;
 background-color: #3c3c3c;
 border-color: #f3d1ba;
 outline: 0;
-box-shadow: 0 0 0 0.2rem rgb(141, 90, 46);
+box-shadow: none;
 }
 
 .form-control::-webkit-input-placeholder {
@@ -1671,7 +1671,7 @@ background-color: #000000;
 }
 .form-control:focus {
     color: #ffffff;
-    background-color: #000000;
+    background-color: #000000b8;
     border-color: #f3d1ba;
 }
 
