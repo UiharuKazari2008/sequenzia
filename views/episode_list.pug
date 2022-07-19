@@ -163,6 +163,14 @@ block content
                         span #{showData.name}
                     .show-info-top.d-flex.flex-row
                         .show-tags.mr-auto
+                            if (nextEpisode[0].media.show.nsfw)
+                                .badge.bg-danger.mr-1
+                                    i.fas.fa-octagon-minus
+                                    span.pl-1 UNCENSORED
+                            if (nextEpisode[0].media.show.subtitled)
+                                .badge.badge-light.mr-1
+                                    i.fas.fa-closed-captioning
+                                    span.pl-1 Subtitled
                             if (showData.genres)
                                 each genera in showData.genres
                                     span.badge.badge-light.mr-1
@@ -253,6 +261,14 @@ block content
                         span #{showData.name}
                     .show-info-top.d-flex.flex-row
                         .show-tags.mr-auto
+                            if (results[0].media.show.nsfw)
+                                .badge.bg-danger.mr-1
+                                    i.fas.fa-octagon-minus
+                                    span.pl-1 UNCENSORED
+                            if (results[0].media.show.subtitled)
+                                .badge.badge-light.mr-1
+                                    i.fas.fa-closed-captioning
+                                    span.pl-1 Subtitled
                             if (showData.genres)
                                 each genera in showData.genres
                                     span.badge.badge-light.mr-1
