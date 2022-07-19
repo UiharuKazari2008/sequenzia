@@ -466,7 +466,7 @@ module.exports = async (req, res, next) => {
             sqlquery.push('( ' + addSearchTerm.map(e => '( ' + getType(e) + ' )').join(' AND ') + ' )')
         }
         if ( req.query.search !== undefined && req.query.search !== '' ) {
-            search_prev = decodeURIComponent(req.query.search)
+            search_prev = req.query.search
             hideChannels = false;
             if (addSearchTerm.length > 0)
                 sqlquery.push(' AND ')
@@ -1508,7 +1508,7 @@ module.exports = async (req, res, next) => {
                             folderInfo = `${messages[0].server_short_name}:/${messages[0].classification}/${messages[0].channel}`
                             android_uri.push('folder=' + folderInfo);
                         } else if (req.query.folder) {
-                            folderInfo = decodeURIComponent(req.query.folder);
+                            folderInfo = req.query.folder;
                             android_uri.push('folder=' + folderInfo);
                         }
                     } else if (messages[0].album_name && messages[0].album_name !== null) {
@@ -1518,7 +1518,7 @@ module.exports = async (req, res, next) => {
                         page_title = `${messages[0].class_name}`
                         full_title = `${messages[0].class_name}`
                         if (req.query.folder) {
-                            folderInfo = decodeURIComponent(req.query.folder);
+                            folderInfo = req.query.folder;
                             android_uri.push('folder=' + folderInfo);
                         } else {
                             folderInfo = `/${messages[0].classification}/*`
@@ -1591,7 +1591,7 @@ module.exports = async (req, res, next) => {
                             folderInfo = `${messages[0].server_short_name}:/${messages[0].classification}/${messages[0].channel_short_name}`
                             android_uri.push('folder=' + folderInfo);
                         } else if (req.query.folder) {
-                            folderInfo = decodeURIComponent(req.query.folder);
+                            folderInfo = req.query.folder;
                             android_uri.push('folder=' + folderInfo);
                         }
                     } else if (req.query && req.query.displayname && req.query.displayname !== '*' && req.query.history  && req.query.history === 'only') {
