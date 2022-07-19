@@ -163,11 +163,11 @@ block content
                         span #{showData.name}
                     .show-info-top.d-flex.flex-row
                         .show-tags.mr-auto
-                            if (nextEpisode[0].media.show.nsfw)
+                            if (results[0].media.show.nsfw)
                                 .badge.bg-danger.mr-1
                                     i.fas.fa-octagon-minus
                                     span.pl-1 UNCENSORED
-                            if (nextEpisode[0].media.show.subtitled)
+                            if (results[0].media.show.subtitled)
                                 .badge.badge-light.mr-1
                                     i.fas.fa-closed-captioning
                                     span.pl-1 Subtitled
