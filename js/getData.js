@@ -878,12 +878,10 @@ module.exports = async (req, res, next) => {
             sqlFields.push(...[
                 'kongou_episodes.season_num',
                 'kongou_episodes.episode_num',
-                'kongou_episodes.data AS episode_data',
                 'kongou_episodes.show_id',
 
                 'kongou_shows.name AS show_name',
                 'kongou_shows.original_name AS show_original_name',
-                'kongou_shows.data AS show_data',
                 'kongou_shows.nsfw AS show_nsfw',
                 'kongou_shows.subtitled AS show_subtitled',
                 'kongou_shows.background AS show_background',
@@ -917,7 +915,7 @@ module.exports = async (req, res, next) => {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
         if (page_uri === '/listTheater') {
-            sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.01) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
+            sqlCall = `SELECT res_episodes.*, kms_series_data.show_data, kms_ep_data.episode_data, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.01) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''} INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_episodes.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_episodes.eid)`;
         }
         if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
