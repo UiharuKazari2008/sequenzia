@@ -1,6 +1,6 @@
 'use strict';
 
-const cacheName = 'v2';
+const cacheName = 'v2-1';
 const currentCache = {
     offline: 'offline-cache-' + cacheName,
     stores: [
