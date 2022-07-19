@@ -2549,6 +2549,9 @@ body.kms-play-open {
 .show-controls {
 
 }
+.show-banners {
+    font-size: 1.2em;
+}
 
 div#contextSwitchIndicator {
     position: fixed;

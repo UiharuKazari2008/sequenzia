@@ -158,9 +158,9 @@ block content
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
                 .show-info.px-2.d-flex.flex-column
                     .show-title
-                        span #{showData.name}
-                    .show-og-title
                         span #{showData.originalName}
+                    .show-og-title
+                        span #{showData.name}
                     .show-info-top.d-flex.flex-row
                         .show-tags.mr-auto
                             if (showData.genres)
@@ -248,9 +248,9 @@ block content
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
                 .show-info.px-2
                     .show-title
-                        span #{showData.name}
-                    .show-og-title
                         span #{showData.originalName}
+                    .show-og-title
+                        span #{showData.name}
                     .show-info-top.d-flex.flex-row
                         .show-tags.mr-auto
                             if (showData.genres)

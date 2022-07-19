@@ -64,9 +64,9 @@ module.exports = async (req, res, next) => {
             req.session.cache.channels_view
         ].join(', ');
 
-        const kongouShows = `SELECT kms_ep.eid, kms_show.group_name, kms_show.description, kms_show.icon, kms_show.show_id, kms_ep.episode_num, kms_ep.episode_name AS kms_episode_name, kms_ep.season_num, kms_ep.data AS episode_data, kms_show.name AS kms_series_name, kms_show.original_name AS kms_series_original_name, kms_show.nsfw AS series_nsfw, kms_show.data AS series_data, kms_show.background, kms_show.poster FROM (SELECT * FROM kongou_episodes) kms_ep LEFT OUTER JOIN (SELECT * FROM (SELECT show_id, media_group, name, original_name, nsfw, genres, data, background, poster FROM kongou_shows ${(media_group.length > 0) ? "WHERE media_group = '" + media_group + "'" : ''}) s LEFT JOIN (SELECT media_group AS group_id, type, name AS group_name, description, icon FROM kongou_media_groups) g ON (s.media_group = g.group_id)) kms_show ON (kms_ep.show_id = kms_show.show_id)`
+        const kongouShows = `SELECT kms_ep.eid, kms_show.group_name, kms_show.description, kms_show.icon, kms_show.show_id, kms_ep.episode_num, kms_ep.episode_name AS kms_episode_name, kms_ep.season_num, kms_ep.data AS episode_data, kms_show.name AS kms_series_name, kms_show.original_name AS kms_series_original_name, kms_show.nsfw AS series_nsfw, kms_show.subtitled AS series_subtitled, kms_show.data AS series_data, kms_show.background, kms_show.poster FROM (SELECT * FROM kongou_episodes) kms_ep LEFT OUTER JOIN (SELECT * FROM (SELECT show_id, media_group, name, original_name, nsfw, subtitled, genres, data, background, poster FROM kongou_shows ${(media_group.length > 0) ? "WHERE media_group = '" + media_group + "'" : ''}) s LEFT JOIN (SELECT media_group AS group_id, type, name AS group_name, description, icon FROM kongou_media_groups) g ON (s.media_group = g.group_id)) kms_show ON (kms_ep.show_id = kms_show.show_id)`
 
-        let sqlCall = `SELECT * FROM (SELECT kms.kms_series_name, kms.series_data, kms.group_name, kms.icon, kms.series_nsfw, kms.background, kms.poster FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (kanmi_records.channel = ${req.session.cache.channels_view}.channelid)) main_records LEFT OUTER JOIN (${kongouShows}) kms ON (kms.eid = main_records.eid) WHERE kms_series_name IS NOT NULL GROUP BY kms.show_id) x ORDER BY x.kms_series_name`;
+        let sqlCall = `SELECT * FROM (SELECT kms.kms_series_name, kms.series_data, kms.group_name, kms.icon, kms.series_nsfw, kms.series_subtitled, kms.background, kms.poster FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (kanmi_records.channel = ${req.session.cache.channels_view}.channelid)) main_records LEFT OUTER JOIN (${kongouShows}) kms ON (kms.eid = main_records.eid) WHERE kms_series_name IS NOT NULL GROUP BY kms.show_id) x ORDER BY x.kms_series_name`;
 
         debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
@@ -163,7 +163,8 @@ module.exports = async (req, res, next) => {
                                 group_icon: item.icon,
                                 cache_background: item.background,
                                 cache_poster: item.poster,
-                                nsfw: item.series_nsfw
+                                subtitled: item.series_subtitled,
+                                nsfw: item.series_nsfw,
                             })
                         }
                     })

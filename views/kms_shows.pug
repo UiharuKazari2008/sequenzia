@@ -31,10 +31,14 @@ block content
                         .show-overlay
                             .show-controls.px-2.py-1
                                 .show-banners
+                                    if (item.subtitled)
+                                        .badge.bg-darker.mr-1
+                                            i.fas.fa-closed-captioning
                                     if (item.nsfw)
-                                        .ml-auto.badge.bg-danger
+                                        .badge.bg-danger.mr-1
                                             i.fas.fa-octagon-minus
-                                            span.pl-1.no-dynamic-small UNCENSORED
+                                            span.pl-1.no-dynamic-small.d-none.d-sm-inline UNCENSORED
+                                    .ml-auto
                                 .show-buttons
                         a(href=`#/listTheater?show_id=${item.id}`)
                             if (indexImage < 10)
