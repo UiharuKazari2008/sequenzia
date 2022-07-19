@@ -139,6 +139,7 @@ $(document).ready(function () {
             const topbar = $('#topbar')
             const menu = $('#userMenu')
             const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+            const playeropen = document.querySelector('body').classList.contains('kms-play-open')
             if ($(this).scrollTop() > 50) {
                 $('.scrollBtn').fadeIn();
             } else {
@@ -149,7 +150,7 @@ $(document).ready(function () {
 
                 }
                 $('#topbarBackground').fadeIn();
-                if (mediaRule)
+                if (mediaRule &&!playeropen)
                     mediaRule.content = "#d07300"
                 topbar.addClass('shadow');
             } else {
@@ -157,7 +158,7 @@ $(document).ready(function () {
 
                 }
                 $('#topbarBackground').fadeOut();
-                if (mediaRule)
+                if (mediaRule &&!playeropen)
                     mediaRule.content = "#000"
                 topbar.removeClass('shadow');
             }

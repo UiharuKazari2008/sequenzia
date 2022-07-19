@@ -1369,7 +1369,10 @@ async function openKMSPlayer(messageid, seriesId) {
         }
     }
 
-    document.querySelector('body').classList.add('kms-play-open')
+    document.querySelector('body').classList.add('kms-play-open');
+    const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+    if (mediaRule)
+        mediaRule.content = "#000"
     mediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1496,6 +1499,7 @@ async function closeKMSPlayer() {
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
     document.querySelector('body').classList.remove('kms-play-open');
+    scrollManager();
     clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
     videoPreviewPlayer.classList.add('hidden');
     videoFullPlayer.classList.add('hidden');
