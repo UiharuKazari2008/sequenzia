@@ -1,8 +1,14 @@
 'use strict';
 
-const cacheName = 'v1';
+const cacheName = 'v2';
 const currentCache = {
-    offline: 'offline-cache' + cacheName
+    offline: 'offline-cache-' + cacheName,
+    stores: [
+        'offline-content-images',
+        'offline-content-previews',
+        'offline-content-pages',
+        'offline-content-albums',
+    ]
 };
 const offlineUrl = './offline';
 
@@ -72,7 +78,7 @@ self.addEventListener('activate', e => {
         }
         caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.map(cache => {
+                cacheNames.filter(e => !(e === currentCache.offline || e.indexOf(currentCache.stores) !== -1)).map(cache => {
                     console.log(cache)
                     console.log('Service Worker: Clearing Old Cache');
                     return caches.delete(cache);
