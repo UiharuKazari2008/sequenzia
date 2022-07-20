@@ -1514,7 +1514,6 @@ async function closeKMSPlayer() {
     videoPreviewPlayer.pause();
     videoFullPlayer.pause();
     document.querySelector('body').classList.remove('kms-play-open');
-    scrollManager();
     clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
     videoPreviewPlayer.classList.add('hidden');
     videoFullPlayer.classList.add('hidden');
