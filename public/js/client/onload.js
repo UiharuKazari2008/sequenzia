@@ -82,8 +82,13 @@ $('#userMenu').on('hidden.bs.collapse', function () {
         }
         $('body').removeClass('menu-open');
         const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
-        if (mediaRule && $(document).scrollTop() > 50)
-            mediaRule.content = "#d07300"
+        if (mediaRule) {
+            if ($(document).scrollTop() > 50) {
+                mediaRule.content = "#d07300"
+            } else {
+                mediaRule.content = "#000"
+            }
+        }
         const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
         if (mediaRule2)
             mediaRule2.content = "#000"
