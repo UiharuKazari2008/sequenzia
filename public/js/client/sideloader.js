@@ -1312,6 +1312,7 @@ async function openPreviewUnpacking(messageid) {
     }
 }
 async function openKMSPlayer(messageid, seriesId) {
+    $('#userMenu').collapse('hide');
     const _post = document.getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
     const filename = _post.getAttribute('data-msg-filename');
@@ -1371,8 +1372,11 @@ async function openKMSPlayer(messageid, seriesId) {
 
     document.querySelector('body').classList.add('kms-play-open');
     const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+    const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
     if (mediaRule)
         mediaRule.content = "#000"
+    if (mediaRule2)
+        mediaRule2.content = "#000"
     mediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
