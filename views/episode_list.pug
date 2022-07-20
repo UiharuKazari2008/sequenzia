@@ -359,6 +359,13 @@ block content
                                     i.btn-links.fas.fa-archive
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
                                     i.btn-links.fas.fa-info-circle
+                                if (item.media.watched)
+                                    a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 0); return false;`)
+                                        i.btn-links.fas.fa-eye-slash
+                                else
+                                    a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
+                                        i.btn-links.fas.fa-check
+
     else
 
         style.
