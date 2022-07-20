@@ -66,25 +66,6 @@ self.addEventListener('install', event => {
     console.log('JuneOS and JulyOS are now available!');
 });
 
-function cleanResponse(response) {
-    const clonedResponse = response.clone();
-
-    // Not all browsers support the Response.body stream, so fall back to reading
-    // the entire body into memory as a blob.
-    const bodyPromise = 'body' in clonedResponse ?
-        Promise.resolve(clonedResponse.body) :
-        clonedResponse.blob();
-
-    return bodyPromise.then((body) => {
-        // new Response() is happy when passed either a stream or a Blob.
-        return new Response(body, {
-            headers: clonedResponse.headers,
-            status: clonedResponse.status,
-            statusText: clonedResponse.statusText,
-        });
-    });
-}
-
 // Call Activate Event
 self.addEventListener('activate', e => {
     console.log('Network Kernel [OK]');
@@ -97,7 +78,7 @@ self.addEventListener('activate', e => {
         }
         caches.keys().then(cacheNames => {
             return Promise.all(
-                cacheNames.filter(e => !(e === currentCache.offline || e.indexOf(currentCache.stores) !== -1)).map(cache => {
+                cacheNames.map(cache => {
                     console.log(cache)
                     console.log('Service Worker: Clearing Old Cache');
                     return caches.delete(cache);
