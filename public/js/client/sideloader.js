@@ -152,6 +152,13 @@ String.prototype.toHex = function() {
     }
     return color;
 }
+function findHeight(ratio = '16:9', width = 1) {
+    const [w, h] = ratio
+        .split(':')
+        .map(Number);
+    const height = (width * h) / w;
+    return Math.round(height);
+};
 
 function isTouchDevice(){
     return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
@@ -1325,6 +1332,7 @@ async function openKMSPlayer(messageid, seriesId) {
     const show = (seriesId) ? seriesId : mediaPlayer.getAttribute('showId')
     const nextEpisodeGroup = document.getElementById('kongouMediaPlayerNext')
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
+    const playerOpen = document.querySelector('body').classList.contains('kms-play-open');
 
     if (show) {
         try {
@@ -1370,13 +1378,16 @@ async function openKMSPlayer(messageid, seriesId) {
         }
     }
 
-    document.querySelector('body').classList.add('kms-play-open');
-    const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
-    const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
-    if (mediaRule)
-        mediaRule.content = "#000"
-    if (mediaRule2)
-        mediaRule2.content = "#000"
+    if (!playerOpen) {
+        window.resizeTo(window.outerWidth, (window.outerHeight - window.innerHeight) + findHeight('16:9', window.outerWidth) - 8)
+        document.querySelector('body').classList.add('kms-play-open');
+        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+        const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+        if (mediaRule)
+            mediaRule.content = "#000"
+        if (mediaRule2)
+            mediaRule2.content = "#000"
+    }
     mediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
