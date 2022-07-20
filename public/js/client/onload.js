@@ -63,6 +63,9 @@ $('#userMenu').on('show.bs.collapse', function () {
     $('#topbarBackground').fadeIn();
     $('#topbar').addClass('shadow').addClass('menu-open');
     $('body').addClass('menu-open');
+    const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+    if (mediaRule)
+        mediaRule.content = "#4e1e06"
 })
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
@@ -75,6 +78,9 @@ $('#userMenu').on('hidden.bs.collapse', function () {
             $('#topbar').removeClass('shadow');
         }
         $('body').removeClass('menu-open');
+        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+        if (mediaRule)
+            mediaRule.content = "#000"
     }
 })
 

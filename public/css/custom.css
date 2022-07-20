@@ -3460,10 +3460,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         text-shadow: 0 0 4px #cdc4ba;
     }
     .user-menu-buttons {
-        background-image: linear-gradient(180deg, #ff8e26, transparent);
+        background-image: linear-gradient(180deg, #d07300, transparent);
     }
     .bottom-bar .user-menu-buttons {
-        background-image: linear-gradient(0deg, #ff8e26, transparent);
+        background-image: linear-gradient(0deg, #d07300, transparent);
     }
     .badge-primary {
         color: black;
