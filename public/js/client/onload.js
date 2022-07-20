@@ -63,9 +63,12 @@ $('#userMenu').on('show.bs.collapse', function () {
     $('#topbarBackground').fadeIn();
     $('#topbar').addClass('shadow').addClass('menu-open');
     $('body').addClass('menu-open');
-    const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+    const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
     if (mediaRule)
-        mediaRule.content = "#4e1e06"
+        mediaRule.content = "#d07300"
+    const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+    if (mediaRule2)
+        mediaRule2.content = "#4e1e06"
 })
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
@@ -78,9 +81,12 @@ $('#userMenu').on('hidden.bs.collapse', function () {
             $('#topbar').removeClass('shadow');
         }
         $('body').removeClass('menu-open');
-        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
-        if (mediaRule)
-            mediaRule.content = "#000"
+        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+        if (mediaRule && $(document).scrollTop() > 50)
+            mediaRule.content = "#d07300"
+        const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+        if (mediaRule2)
+            mediaRule2.content = "#000"
     }
 })
 
