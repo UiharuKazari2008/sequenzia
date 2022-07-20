@@ -1379,7 +1379,7 @@ async function openKMSPlayer(messageid, seriesId) {
     }
 
     if (!playerOpen) {
-        window.resizeTo(window.outerWidth, (window.outerHeight - window.innerHeight) + findHeight('16:9', window.outerWidth) - 8)
+        //window.resizeTo(window.outerWidth, (window.outerHeight - window.innerHeight) + findHeight('16:9', window.outerWidth) - 8)
         document.querySelector('body').classList.add('kms-play-open');
         const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
         const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
