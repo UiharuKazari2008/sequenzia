@@ -626,6 +626,9 @@ html
                                                             if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                                 i.far.fa-star.mr-2
                                                                 span(title='Favorite Episodes').text-uppercase Favorites
+                                                            else if (params && params.has('show_id') && params.getAll('show_id')[0] === 'unmatched')
+                                                                i.far.fa-question.mr-2
+                                                                span(title='Unmatched Video Files').text-uppercase Unmatched Items
                                                             else
                                                                 i.far.fa-ticket.mr-2
                                                                 span(title='Theater Shelf').text-uppercase Theater Shelf

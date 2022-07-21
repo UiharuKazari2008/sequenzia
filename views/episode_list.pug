@@ -146,7 +146,7 @@ block content
                                 else
                                     a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
                                         i.btn-links.fas.fa-check
-        else if (results[0].media.show.meta.seasons)
+        else if (results[0].media.show.meta && results[0].media.show.meta.seasons)
             - showData = results[0].media.show.meta
             if (showData.background)
                 - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
@@ -288,6 +288,75 @@ block content
                                                 else
                                                     a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
                                                         i.btn-links.fas.fa-check
+        else if (params.has('show_id') && params.getAll('show_id')[0] === 'unmatched')
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url('/static/img/loading_bg.jpg');
+                }
+
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+            each item, indexImage in results
+                - fileURL = item.entities.full
+                - previewURL = item.entities.preview;
+                if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                    - fileURL = item.entities.full
+                if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                    - fileURL = item.entities.download
+                    - previewURL = item.entities.download
+
+                - isVideo = false
+                if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                    - isVideo = true
+
+                div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` data-kms-progress=`${(item.media.watched !== null) ? (item.media.watched < 0.85) ? item.media.watched : 1 : 0}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}`)
+                    .episode-preview
+                        .preview-watched.d-flex
+                            .watched-precent.mt-auto(style=`width: ${(item.media.watched !== null) ? item.media.watched * 100 : 0}%`)
+                        .preview-controls.d-flex
+                            .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
+                                i.fas.fa-play
+                        a(href='#_' onclick=`openPreviewUnpacking("${item.id}"); return false;`)
+                            #postImage.episode-preview-image(style=`background-image : url(${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.full});`)
+                    .episode-body
+                        - filenameparts = item.entities.filename.split(" - ")
+
+                        .episode-number.position-absolute
+                            if (filenameparts.length > 1 && (filenameparts[1].toLowerCase().includes("s") || filenameparts[1].toLowerCase().includes("x") || !isNaN(parseFloat(filenameparts[1].split('.')[0]))))
+                                span #{filenameparts[1].split('.')[0]}
+                        .episode-name.px-2
+                            if (filenameparts.length > 2)
+                                span #{filenameparts[2].split('.')[0]}
+                            else if (filenameparts.length > 1)
+                                span #{filenameparts[1].split('.')[0]}
+                        if (filenameparts.length > 1)
+                            .series-name.px-2
+                                span #{filenameparts[0]}
+                        .episode-controls.px-2.pt-2
+                            if (user && user.source < 900)
+                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                i.btn-links.fas.fa-archive
+                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
+                                i.btn-links.fas.fa-info-circle
+                            if (item.media.show && item.media.show.id)
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
+                                    i.btn-links.fas.fa-arrow-right
+                            if (item.media.watched)
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 0); return false;`)
+                                    i.btn-links.fas.fa-eye-slash
+                            else
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`setWatchHistory('${item.eid}', 1); return false;`)
+                                    i.btn-links.fas.fa-check
         else
             - showData = results[0].media.show.meta
             if (showData.background)

@@ -48,6 +48,10 @@ block content
                             else
                                 div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}` style=`background-size: cover!important;`)
                             div#postBackground
+            if (unmatched_found && unmatched_found > 0)
+                div.row.mt-3
+                    a.btn.btn-primary.w-100(href=`#/listTheater?show_id=unmatched&group=${media_group}`)
+                        span Show #{unmatched_found} Unmatched Videos
         script.
             element_list = Array.from(document.querySelectorAll('[data-search]'))
             search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())

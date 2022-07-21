@@ -325,6 +325,8 @@ module.exports = async (req, res, next) => {
             enablePrelimit = false;
             if (req.query.watch_history === 'only') {
                 sqlorder.push('watched_date DESC');
+            } else if (req.query.show_id === 'unmatched') {
+                sqlorder.push('real_filename ASC, attachment_name ASC');
             } else {
                 sqlorder.push('season_num ASC, episode_num ASC');
             }
@@ -699,7 +701,7 @@ module.exports = async (req, res, next) => {
             sqlquery.push(`kongou_shows.show_id = ${parseInt(req.query.show_id)}`)
         }
         if (req.query.group) {
-            sqlquery.push(`kongou_shows.media_group = '${req.query.group}'`)
+            sqlquery.push(`${req.session.cache.channels_view}.media_group = '${req.query.group}' AND ${req.session.cache.channels_view}.media_group = kongou_media_groups.media_group`)
         }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             multiChannel = true;
@@ -877,33 +879,48 @@ module.exports = async (req, res, next) => {
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
-            sqlFields.push(...[
-                'kongou_episodes.season_num',
-                'kongou_episodes.episode_num',
-                'kongou_episodes.show_id',
+            if (req.query.show_id !== 'unmatched') {
+                sqlFields.push(...[
+                    'kongou_episodes.season_num',
+                    'kongou_episodes.episode_num',
+                    'kongou_episodes.show_id',
 
-                'kongou_shows.name AS show_name',
-                'kongou_shows.original_name AS show_original_name',
-                'kongou_shows.nsfw AS show_nsfw',
-                'kongou_shows.subtitled AS show_subtitled',
-                'kongou_shows.background AS show_background',
-                'kongou_shows.poster AS show_poster',
+                    'kongou_shows.name AS show_name',
+                    'kongou_shows.original_name AS show_original_name',
+                    'kongou_shows.nsfw AS show_nsfw',
+                    'kongou_shows.subtitled AS show_subtitled',
+                    'kongou_shows.background AS show_background',
+                    'kongou_shows.poster AS show_poster',
 
-                'kongou_media_groups.type AS group_type',
-                'kongou_media_groups.name AS group_name',
-                'kongou_media_groups.description AS group_description',
-                'kongou_media_groups.icon AS group_icon',
-            ])
-            sqlTables.push(...[
-                'kongou_episodes',
-                'kongou_shows',
-                'kongou_media_groups'
-            ])
-            sqlWhere.push(...[
-                'kanmi_records.eid = kongou_episodes.eid',
-                'kongou_episodes.show_id = kongou_shows.show_id',
-                'kongou_shows.media_group = kongou_media_groups.media_group'
-            ])
+                    'kongou_media_groups.type AS group_type',
+                    'kongou_media_groups.name AS group_name',
+                    'kongou_media_groups.description AS group_description',
+                    'kongou_media_groups.icon AS group_icon',
+                ])
+                sqlTables.push(...[
+                    'kongou_episodes',
+                    'kongou_shows',
+                    'kongou_media_groups'
+                ])
+                sqlWhere.push(...[
+                    'kanmi_records.eid = kongou_episodes.eid',
+                    'kongou_episodes.show_id = kongou_shows.show_id',
+                    'kongou_shows.media_group = kongou_media_groups.media_group'
+                ])
+            } else {
+                sqlFields.push(...[
+                    'kongou_media_groups.type AS group_type',
+                    'kongou_media_groups.name AS group_name',
+                    'kongou_media_groups.description AS group_description',
+                    'kongou_media_groups.icon AS group_icon',
+                ])
+                sqlTables.push(...[
+                    'kongou_media_groups',
+                ])
+                sqlWhere.push(...[
+                    'kanmi_records.eid NOT IN (SELECT kongou_episodes.eid FROM kongou_episodes)'
+                ])
+            }
         }
 
         const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
@@ -917,7 +934,11 @@ module.exports = async (req, res, next) => {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
         if (page_uri === '/listTheater') {
-            sqlCall = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.01) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
+            if (req.query.show_id !== 'unmatched') {
+                sqlCall = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.01) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
+            } else {
+                sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.01) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
+            }
         }
         if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
@@ -1391,7 +1412,7 @@ module.exports = async (req, res, next) => {
                     sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
                     favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
-                } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+                } else if ((page_uri === '/listTheater' || req.query.show_id || req.query.group) && (req.query.show_id !== 'unmatched')) {
                     sqlCountFeild = 'kongou_episodes.eid';
                 }
                 debugTimes.sql_query_1 = new Date();
@@ -1600,7 +1621,7 @@ module.exports = async (req, res, next) => {
                         page_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                         full_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                     } else if (page_uri === '/listTheater') {
-                        if (req.query && req.query.show_id) {
+                        if (req.query && req.query.show_id && messages[0].show_name) {
                             page_title = messages[0].show_name
                             full_title = `Theater / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
                         } else {
