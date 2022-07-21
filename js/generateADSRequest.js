@@ -56,6 +56,8 @@ module.exports = async (req, res, next) => {
 
             next();
         } else {
+            if (!req.query.numdays)
+                req.query.numdays = '30';
             next();
         }
     } else {

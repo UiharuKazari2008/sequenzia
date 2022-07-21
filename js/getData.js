@@ -744,7 +744,9 @@ module.exports = async (req, res, next) => {
         }
         // Where Exec
         if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
-            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ' ) AND '
+            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ` ) AND ${req.session.cache.channels_view}.media_group IS NULL AND `
+        } else if (hideChannels) {
+            baseQ += `( ${req.session.cache.channels_view}.media_group IS NULL ) AND `
         }
         let channelFilter = `${baseQ}`
         if (req.query.album) {

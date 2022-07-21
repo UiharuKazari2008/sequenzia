@@ -284,7 +284,7 @@ function getRandomImage() {
     //try {
         $.ajax({
             async: true,
-            url: '/homeImage',
+            url: `/homeImage${(window.location.search && window.location.search.startsWith('?')) ? window.location.search : ''}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
