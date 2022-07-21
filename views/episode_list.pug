@@ -41,7 +41,7 @@ block content
                             .show-preview-overlay
                             .d-none.d-sm-block.show-poster.mr-1
                                 img(src=`${(show[0].media.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.poster : showData.poster[0]}`)
-                            .show-info.px-2.d-flex.flex-column
+                            .show-info.px-2.d-flex.flex-column.w-100
                                 .show-title
                                     if (nextEpisode[0].media.meta.name)
                                         span #{nextEpisode[0].media.meta.name}
@@ -196,7 +196,7 @@ block content
                 .show-preview-overlay
                 .d-none.d-sm-block.show-poster.mr-1
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
-                .show-info.px-2.d-flex.flex-column
+                .show-info.px-2.d-flex.flex-column.w-100
                     .show-title
                         span #{showData.originalName}
                     .show-og-title
@@ -315,7 +315,7 @@ block content
                 .show-preview-overlay
                 .d-none.d-sm-block.show-poster.mr-1
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
-                .show-info.px-2
+                .show-info.px-2.w-100
                     .show-title
                         span #{showData.originalName}
                     .show-og-title
