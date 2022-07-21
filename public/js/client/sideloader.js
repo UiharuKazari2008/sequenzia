@@ -636,7 +636,7 @@ function getSearchContent(element, url) {
                 (_currentURL.startsWith('/artists') || _params.getAll('search').length > 0)) {
                 _params.set('nsfw', 'true')
             }
-            _params.set('search', encodeURIComponent(searchText));
+            _params.set('search', encodeURIComponent(decodeURLRecursively(searchText)));
             if (_params.has('channel') && _params.getAll('channel').pop() === 'random') {
                 _params.delete('channel');
             }
