@@ -2298,7 +2298,7 @@ footer .server-grid-parent {
     pointer-events: none;
 }
 .episode-name span {
-    font-size: 3em;
+    font-size: 2em;
     line-height: 1;
 }
 .episode-preview, .episode-preview-image {
@@ -2365,10 +2365,10 @@ footer .server-grid-parent {
 .episode-description {
     text-overflow: ellipsis;
     overflow: hidden;
-    height: 60px;
+    height: 80px;
 }
 .episode-name {
-    height: 52px;
+    height: 32px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2938,6 +2938,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .max-resize {
         max-width: 1300px;
         margin-top: calc(env(safe-area-inset-top) + 5.5em);
+    }
+    .thin-width.max-resize {
+        max-width: 900px;
     }
     .bottom-bar .max-resize {;
         margin-top: calc(env(safe-area-inset-top) + 3em);

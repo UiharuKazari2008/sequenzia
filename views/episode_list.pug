@@ -44,9 +44,11 @@ block content
                             .show-info.px-2.d-flex.flex-column.w-100
                                 .show-title
                                     if (nextEpisode[0].media.meta.name)
-                                        span #{nextEpisode[0].media.meta.name}
+                                        a(href=`https://themoviedb.org/tv/${nextEpisode[0].media.show.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                                            span #{nextEpisode[0].media.meta.name}
                                     else
-                                        span #{showData.name}
+                                        a(href=`https://themoviedb.org/tv/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                                            span #{showData.name}
                                 .show-info-top.d-flex.flex-row
                                 .episode-number.position-absolute
                                     if (nextEpisode[0].media.meta.number)
@@ -198,7 +200,8 @@ block content
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
                 .show-info.px-2.d-flex.flex-column.w-100
                     .show-title
-                        span #{showData.originalName}
+                        a(href=`https://themoviedb.org/tv/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                            span #{showData.originalName}
                     .show-og-title
                         span #{showData.name}
                     .show-info-top.d-flex.flex-row
@@ -388,7 +391,8 @@ block content
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
                 .show-info.px-2.w-100
                     .show-title
-                        span #{showData.originalName}
+                        a(href=`https://themoviedb.org/movie/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                            span #{showData.originalName}
                     .show-og-title
                         span #{showData.name}
                     .show-info-top.d-flex.flex-row

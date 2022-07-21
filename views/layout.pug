@@ -1258,7 +1258,7 @@ html
                             div#topbarKmsIcon.show-menu-open.hidden.d-none
                             div#topbarBackground(style='display: none;')
 
-                    .container-fluid.max-resize
+                    .container-fluid.max-resize(class=`${(path === '/listTheater') ? 'thin-width' : ''}`)
                         #hiddenItemsAlert.alert.alert-danger-transparent.hidden(role="alert")
                             .row
                                 .col-auto.align-self-start.align-self-center
