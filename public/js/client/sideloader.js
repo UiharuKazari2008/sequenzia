@@ -2095,7 +2095,7 @@ async function showSearchOptions(post) {
     let normalInfo = [];
     let advancedInfo = [];
 
-    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
     document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
@@ -2268,7 +2268,7 @@ async function showSearchOptions(post) {
         if (text && text.length > 0 && text.trim().length > 0) {
             $('#searchModal').modal('hide');
             window.getSelection().toString()
-            window.location.assign(`#${getLocation()}search=text:${text.trim()}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(params([],[['search',text]], getLocation()));
         } else {
             alert(`You must select text above first before you can search selected text!`)
         }
