@@ -158,21 +158,33 @@ block content
                     background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
                 }
                 .background-image.overlay {
-                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    background-image: none;
                     z-index: -99;
                     opacity: 1;
                 }
 
                 .background-image.bg-blur {
-                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
-                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    -webkit-filter: none;
+                    filter: none;
                 }
+
+                @media (min-width: 576px) {
+                    #contentBlock {
+                        box-shadow: 0 0 30px 0 black;
+                    }
+                }
+                @media (max-width: 575px) {
+                    .background-image.overlay {
+                        background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    }
+                }
+
 
             - seasons = showData.seasons.filter(e => e.episodes.filter(f => !!f.entity).length > 0)
             - banner = results.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < 1)) && e.media.meta.season !== 0)
             - banner = (banner.length > 0) ? banner : results
             - nextEpisode = results.filter(e => e.media.meta.season !== 0 && (!e.media.watched || (e.media.watched && e.media.watched <= .85)))
-            .show-header.mb-3.p-3
+            .show-header.p-3
                 .show-preview(style=`background-image : url("${banner[0].entities.preview}");`)
                 .show-preview-overlay
                 .show-poster.mr-1
@@ -209,7 +221,7 @@ block content
                                     | Start Watching
                                 else
                                     | Continue Watching
-            .accordion.accordion-flush(id=`seasonsAccordion-${showData.id}`)
+            .accordion.accordion-flush.show-background.pt-4.p-sm-4(id=`seasonsAccordion-${showData.id}`)
                 each season, seasonIndex in seasons
                     .accordion-item
                         if (seasons.length > 1)
