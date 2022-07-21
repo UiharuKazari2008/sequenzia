@@ -39,7 +39,7 @@ block content
                         .show-header.slim-line.mb-3.p-3
                             .show-preview(style=`background-image : url("${(show[0].media.background) ? 'https://media.discordapp.net/attachments' + show[0].media.background : showData.background.pop() }");`)
                             .show-preview-overlay
-                            .show-poster.mr-1
+                            .d-none.d-sm-block.show-poster.mr-1
                                 img(src=`${(show[0].media.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.poster : showData.poster[0]}`)
                             .show-info.px-2.d-flex.flex-column
                                 .show-title
@@ -63,7 +63,7 @@ block content
                                         a.btn.btn-primary.ml-auto(href='#_' onclick=`openKMSPlayer("${nextEpisode[0].id}", "${nextEpisode[0].media.show.meta.id}");`)
                                             i.fas.fa-play.pr-2
                                             | Continue Watching
-                        .accordion.accordion-flush.hidden(id=`seasonsAccordion-${showData.id}`)
+                        .accordion.accordion-flush.show-background.pt-4.p-sm-4.hidden(id=`seasonsAccordion-${showData.id}`)
                             each season, seasonIndex in seasons
                                 each item, indexImage in results.filter(e => e.media.show.id === showData.id && e.media.season === season.number)
                                     - fileURL = item.entities.full
@@ -172,6 +172,13 @@ block content
                     #contentBlock {
                         box-shadow: 0 0 30px 0 black;
                     }
+                    .show-background {
+                        background: #0000005c;
+                        border: 1px solid #872b007a;
+                        border-top: none;
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                    }
                 }
                 @media (max-width: 575px) {
                     .background-image.overlay {
@@ -187,7 +194,7 @@ block content
             .show-header.p-3
                 .show-preview(style=`background-image : url("${banner[0].entities.preview}");`)
                 .show-preview-overlay
-                .show-poster.mr-1
+                .d-none.d-sm-block.show-poster.mr-1
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
                 .show-info.px-2.d-flex.flex-column
                     .show-title
@@ -306,7 +313,7 @@ block content
             .show-header.mb-3.p-3
                 .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
                 .show-preview-overlay
-                .show-poster.mr-1
+                .d-none.d-sm-block.show-poster.mr-1
                     img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
                 .show-info.px-2
                     .show-title

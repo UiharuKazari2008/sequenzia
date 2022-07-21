@@ -2553,14 +2553,6 @@ body.kms-play-open {
     font-size: 1.2em;
 }
 
-.show-background {
-    background: #0000005c;
-    border: 1px solid #872b007a;
-    border-top: none;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
-
 div#contextSwitchIndicator {
     position: fixed;
     display: flex;
