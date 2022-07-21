@@ -200,7 +200,7 @@ module.exports = async (req, res, next) => {
                             channel_url: null,
                             unmatched_found: (messages.filter(e => e.kms_series_name === null).map(e => e.ieid).pop()),
                             media_group: req.query.group,
-                            group_nsfw: messages[0].group_nsfw,
+                            group_nsfw: (messages.filter(e => e.group_nsfw && e.group_nsfw === 1).length > 0),
                             results: resultsArray,
                             prevurl: prevurl,
                             nexturl: nexturl,

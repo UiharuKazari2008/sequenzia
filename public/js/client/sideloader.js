@@ -177,7 +177,7 @@ async function setupReq(push, url) {
         nextContext = (() => {
             if (url && (url.startsWith('/app/'))) {
                 return 'browser'
-            } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
+        } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
                 return 'ticket'
             } else if (url) {
                 return 'seq'
