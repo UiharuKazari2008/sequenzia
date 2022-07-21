@@ -21,7 +21,7 @@ $(document).ready(function () {
         $('[data-tooltip="tooltip"]').tooltip('hide')
     }
     $('a[href="#_"], a[href="#"] ').click(function(e){
-        window.history.replaceState({}, null, decodeURI(`/juneOS#${_originalURL}`));
+        window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
         e.preventDefault();
     });
 })
