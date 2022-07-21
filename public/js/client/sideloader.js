@@ -290,7 +290,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 }
                 $(".container-fluid").fadeTo(2000, 1)
                 scrollToTop(true);
-                window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                window.history.replaceState({}, null, decodeURI(`/juneOS#${_originalURL}`));
                 responseComplete = true
             })
         } else {
