@@ -2031,7 +2031,7 @@ async function removeCacheItem(id, noupdate) {
 
 async function showSearchOptions(post) {
     pageType = $.history.url().split('?')[0].substring(1);
-    pageType = (pageType === 'tvTheater' || pageType === 'listTheater') ? 'gallery' : pageType;
+    pageType = (pageType === 'tvTheater' || pageType === 'listTheater') ? 'files' : pageType;
     const _post = document.getElementById(`message-${post}`);
     const _model = document.getElementById('searchModal')
     const postChannel = _post.getAttribute('data-msg-channel');

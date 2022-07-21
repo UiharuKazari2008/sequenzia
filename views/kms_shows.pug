@@ -42,7 +42,7 @@ block content
                                             span.pl-1.no-dynamic-small.d-none.d-sm-inline UNCENSORED
                                     .ml-auto
                                 .show-buttons
-                        a(href=`#/listTheater?show_id=${item.id}`)
+                        a(href=`#/listTheater?show_id=${item.id}${(item.group_nsfw) ? "&nsfw=true" : ""}`)
                             if (indexImage < 10)
                                 div#postImage.tv-poster.img.img-responsive.no-hover(style=`background-image : url("${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster : item.poster[0]}"); background-size: cover!important;`)
                             else
@@ -50,7 +50,7 @@ block content
                             div#postBackground
             if (unmatched_found && unmatched_found > 0)
                 div.row.mt-3
-                    a.btn.btn-primary.w-100(href=`#/listTheater?show_id=unmatched&group=${media_group}`)
+                    a.btn.btn-primary.w-100(href=`#/listTheater?show_id=unmatched&group=${media_group}${(group_nsfw) ? "&nsfw=true" : ""}`)
                         span Show #{unmatched_found} Unmatched Videos
         script.
             element_list = Array.from(document.querySelectorAll('[data-search]'))
