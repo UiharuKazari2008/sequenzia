@@ -696,7 +696,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     height: 100%;
     z-index: -10;
     background-clip: content-box;
-    background-color: #000000d9;
+    background-image: linear-gradient(139deg, #8f2d00, #000000);
     padding: 0.1rem;
 }
 

@@ -866,7 +866,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     height: calc(100% - .2em);
     z-index: -10;
     background-clip: content-box;
-    background-color: #000000d9;
+    background-image: linear-gradient(139deg, #8f2d00, #000000);
 }
 
 #postImage {
@@ -2548,6 +2548,13 @@ body.kms-play-open {
 
 .show-controls {
 
+}
+.show-item-icon-center {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    font-size: 4em;
 }
 .show-banners {
     font-size: 1.2em;
