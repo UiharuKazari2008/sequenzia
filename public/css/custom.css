@@ -866,6 +866,16 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     height: calc(100% - .2em);
     z-index: -10;
     background-clip: content-box;
+    background-color: #000000d9;
+}
+.episode-background {
+    position: absolute;
+    top: 0.1em;
+    left: .1em;
+    width: calc(100% - .2em);
+    height: calc(100% - .2em);
+    z-index: -10;
+    background-clip: content-box;
     background-image: linear-gradient(139deg, #8f2d00, #000000);
 }
 
@@ -2643,7 +2653,7 @@ div#bootUpDisplay {
         max-width: 490px;
     }
 }
-@media (max-width:1650px) {
+@media (max-width:1655px) {
     .user-menu-item {
         font-size: .8em;
         padding-top: 0.5em;
@@ -2998,7 +3008,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));
     }
-    .album-list {
+    .user-infocard-row2 .album-list {
         margin-right: calc(env(safe-area-inset-right, 0) + 0em);
     }
 
@@ -3273,18 +3283,18 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .user-menu-height {
         height: 250px
     }
-    .album-list {
+    .user-infocard-row2 .album-list {
         height: 200px;
     }
 
-    .album-item {
+    .user-infocard-row2 .album-item {
         min-height: 100px;
         min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.5rem);
     }
-    .album-info {
+    .user-infocard-row2 .album-info {
         font-size: 0.8em;
     }
-    .album-list {
+    .user-infocard-row2 .album-list {
         overflow-x: hidden!important;
         overflow-y: auto!important;
         display: flex;
@@ -3345,7 +3355,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .user-menu-height {
         height: 300px
     }
-    .album-list {
+    .user-infocard-row2 .album-list {
         height: 250px;
     }
 
