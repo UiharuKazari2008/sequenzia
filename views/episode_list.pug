@@ -337,6 +337,8 @@ block content
                                 span #{filenameparts[2].split('.')[0]}
                             else if (filenameparts.length > 1)
                                 span #{filenameparts[1].split('.')[0]}
+                            else
+                                span #{item.entities.filename}
                         if (filenameparts.length > 1)
                             .series-name.px-2
                                 span #{filenameparts[0]}
