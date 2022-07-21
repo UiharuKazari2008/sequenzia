@@ -756,7 +756,7 @@ module.exports = async (req, res, next) => {
             sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
             android_uri.push(`album=${req.query.album}`);
             channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true)) {
+        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true) || (page_uri === '/listTheater' || req.query.show_id || req.query.group)) {
             channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
             android_uri.push('nsfw=true');
         } else if (req.query.nsfw && req.query.nsfw === 'only') {
