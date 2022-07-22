@@ -256,6 +256,9 @@ html
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
                                                                 i.fa-light.fa-star
                                                                 | Favorites
+                                                            a.user-menu-item.user-menu-small(title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                                i.fa-light.fa-certificate
+                                                                | Newest
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
                                                                 i.fa-light.fa-clock-rotate-left
                                                                 | History
@@ -306,9 +309,12 @@ html
                                                             | Tools
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
-                                                            a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
+                                                            a.user-menu-item(title="Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
                                                                 i.fa-light.fa-fw.fa-history
-                                                                | History
+                                                                | Page History
+                                                            a.user-menu-item(title="Show Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
+                                                                i.fa-light.fa-fw.fa-rectangle-history
+                                                                | Image History
                                                             if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                                 a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                                     i.fa-light.fa-download
@@ -568,6 +574,28 @@ html
                                                         else if (params && path === '/artists')
                                                             i.far.fa-atlas.mr-2
                                                             span(title='Global Artist Search').text-uppercase Artists
+                                                        else if (path === '/listTheater' && params.has('watch_history'))
+                                                            if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                i.far.fa-star.mr-2
+                                                            else if (params.getAll('watch_history')[0] === 'none')
+                                                                i.far.fa-forward.mr-2
+                                                                span(title='Continue Watching').text-uppercase Up Next
+                                                            else
+                                                                i.far.fa-history.mr-2
+                                                                span(title='Watch History').text-uppercase Watch History
+                                                        else if (path === '/listTheater')
+                                                            if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                i.far.fa-star.mr-2
+                                                                span(title='Favorite Episodes').text-uppercase Favorites
+                                                            else if (params && params.has('sort') && params.getAll('sort')[0] === 'eid')
+                                                                i.far.fa-certificate.mr-2
+                                                                span(title='Latest Episodes').text-uppercase Latest Episodes
+                                                            else if (params && params.has('show_id') && params.getAll('show_id')[0] === 'unmatched')
+                                                                i.far.fa-shelves.mr-2
+                                                                span(title='Unmatched Video Files').text-uppercase Unmatched Items
+                                                            else
+                                                                i.far.fa-ticket.mr-2
+                                                                span(title='Theater Shelf').text-uppercase Theater Shelf
                                                         else if (params && params.getAll('sort')[0] === 'random')
                                                             if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                                 i.far.fa-star.mr-2
@@ -613,25 +641,6 @@ html
                                                             else
                                                                 i.far.fa-ticket.mr-2
                                                             span(title='Theater').text-uppercase Theater
-                                                        else if (path === '/listTheater' && params.has('watch_history'))
-                                                            if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                                i.far.fa-star.mr-2
-                                                            else if (params.getAll('watch_history')[0] === 'none')
-                                                                i.far.fa-forward.mr-2
-                                                                span(title='Continue Watching').text-uppercase Up Next
-                                                            else
-                                                                i.far.fa-history.mr-2
-                                                                span(title='Watch History').text-uppercase Watch History
-                                                        else if (path === '/listTheater')
-                                                            if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                                i.far.fa-star.mr-2
-                                                                span(title='Favorite Episodes').text-uppercase Favorites
-                                                            else if (params && params.has('show_id') && params.getAll('show_id')[0] === 'unmatched')
-                                                                i.far.fa-shelves.mr-2
-                                                                span(title='Unmatched Video Files').text-uppercase Unmatched Items
-                                                            else
-                                                                i.far.fa-ticket.mr-2
-                                                                span(title='Theater Shelf').text-uppercase Theater Shelf
                                                         else
                                                             if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                                 i.far.fa-star.mr-2
@@ -1258,7 +1267,7 @@ html
                             div#topbarKmsIcon.show-menu-open.hidden.d-none
                             div#topbarBackground(style='display: none;')
 
-                    .container-fluid.max-resize(class=`${(path === '/listTheater') ? 'thin-width' : ''}`)
+                    .container-fluid.max-resize(class=`${(path === '/listTheater' && params.has('show_id')) ? 'thin-width' : ''}`)
                         #hiddenItemsAlert.alert.alert-danger-transparent.hidden(role="alert")
                             .row
                                 .col-auto.align-self-start.align-self-center

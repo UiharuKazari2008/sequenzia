@@ -321,16 +321,8 @@ module.exports = async (req, res, next) => {
                 sqlHistorySort = 'history_date DESC'
             }
             enablePrelimit = false;
-        } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
-            enablePrelimit = false;
-            if (req.query.watch_history === 'only') {
-                sqlorder.push('watched_date DESC');
-            } else if (req.query.show_id === 'unmatched') {
-                sqlorder.push('real_filename ASC, attachment_name ASC');
-            } else {
-                sqlorder.push('season_num ASC, episode_num ASC');
-            }
         } else {
+            let sortPreset = false;
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
             } else if (req.query.sort === 'name') {
@@ -358,12 +350,22 @@ module.exports = async (req, res, next) => {
                 sqlorder.push('id')
             } else if (req.query.sort === 'eid') {
                 sqlorder.push('eid')
+            } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+                enablePrelimit = false;
+                sortPreset = true;
+                if (req.query.watch_history === 'only') {
+                    sqlorder.push('watched_date DESC');
+                } else if (req.query.show_id === 'unmatched') {
+                    sqlorder.push('real_filename ASC, attachment_name ASC');
+                } else {
+                    sqlorder.push('season_num ASC, episode_num ASC');
+                }
             } else {
                 sqlorder.push('date')
             }
-            if (req.query.reverse === 'true' && req.query.sort !== 'random') {
+            if (!sortPreset && req.query.reverse === 'true' && req.query.sort !== 'random') {
                 sqlorder.push('ASC')
-            } else if (req.query.sort !== 'random') {
+            } else if (!sortPreset && req.query.sort !== 'random') {
                 sqlorder.push('DESC')
             }
         }
@@ -708,7 +710,7 @@ module.exports = async (req, res, next) => {
             hideChannels = false;
         }
         // Limit
-        if (page_uri === '/listTheater') {
+        if (req.query.show_id || req.query.group) {
             limit = 1000;
         } else if (page_uri === '/ambient-get') {
             limit = 1;
