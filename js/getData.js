@@ -710,8 +710,8 @@ module.exports = async (req, res, next) => {
             hideChannels = false;
         }
         // Limit
-        if (req.query.show_id || req.query.group) {
-            limit = 1000;
+        if (req.query.show_id || req.query.group || req.query.watch_history === 'none') {
+            limit = 100000;
         } else if (page_uri === '/ambient-get') {
             limit = 1;
             enablePrelimit = false;
