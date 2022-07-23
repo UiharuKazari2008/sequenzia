@@ -1114,9 +1114,12 @@ async function openUnpackingFiles(messageid, playThis) {
                 videoPreviewPlayer.classList.add('hidden');
                 videoFullPlayer.classList.remove('hidden');
                 if (memoryVideoPositions.has(previousJob.id)) {
-                    videoFullPlayer.currentTime = memoryVideoPositions.get(previousJob.id)
+                    const time = memoryVideoPositions.get(previousJob.id)
+                    if (0.9 >= (videoFullPlayer.duration * (time / videoFullPlayer.duration).toFixed(1)))
+                        videoFullPlayer.currentTime = memoryVideoPositions.get(previousJob.id)
                 } else if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
-                    videoFullPlayer.currentTime = videoFullPlayer.duration * parseFloat(kmsprogress)
+                    if (0.9 >= (videoFullPlayer.duration * parseFloat(kmsprogress)))
+                        videoFullPlayer.currentTime = videoFullPlayer.duration * parseFloat(kmsprogress)
                 }
                 mediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
@@ -1199,8 +1202,9 @@ async function openUnpackingFiles(messageid, playThis) {
 
                                     if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
                                         const location = videoFullPlayer.duration * parseFloat(kmsprogress)
-                                        videoFullPlayer.currentTime = (location) ? location : videoPreviewPlayer.currentTime;
-                                    } else {
+                                        if (location && 0.9 >= location)
+                                            videoFullPlayer.currentTime = location
+                                    } else if (0.9 >= (videoFullPlayer.duration * (videoPreviewPlayer.currentTime / videoFullPlayer.duration).toFixed(1))) {
                                         videoFullPlayer.currentTime = videoPreviewPlayer.currentTime;
                                     }
                                     setTimeout(() => {
