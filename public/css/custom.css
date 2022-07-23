@@ -22,13 +22,6 @@
     src: url('/static/font/Segment7.woff2') format('woff2')
 }
 
-.font-digital {
-    font-family: "Segment7", ui-monospace;
-    padding: 0.5em 0.5em 0.3em 0.5em!important;
-    color: #24ff73!important;
-}
-
-
 .list-group-item {
     color: white;
     background-color: #212121;
