@@ -221,11 +221,11 @@ html
                                             if (appData)
                                                 div(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`)
                                                     div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                        .d-flex.w-100#appMenuRow1
+                                                        .d-flex.w-100#appMenuRow1.align-items-center
                                                             a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
                                                                 i.fas.fa-house.fa-fw.d-none
-                                                                img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
-                                                            h4.text-primary.ml-auto.text-ellipsis
+                                                                img.my-2sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
+                                                            h4.text-primary.ml-auto.text-ellipsis.mb-0
                                                                 i.fas.mr-2(class=`${appData.icon}`)
                                                                 span #{appData.name}
 
@@ -233,15 +233,15 @@ html
                                                             .menu-grid#appMenuRow2Grid
                                             div(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100#appMenuRow1
+                                                    .d-flex.w-100#appMenuRow1.align-items-center
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
                                                             a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
                                                                 i.fas.fa-house.fa-fw.d-none
-                                                                img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
+                                                                img.my-2.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
                                                         else
                                                             a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                                 i.fas.fa-arrow-left.fa-fw
-                                                        h4.text-primary.ml-auto.mb-sm-0
+                                                        h4.text-primary.ml-auto.mb-0
                                                             img.kms-menu-logo.d-none.d-sm-block(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
                                                             i.fas.fa-ticket.mr-2.d-sm-none
                                                             span.d-sm-none Kongou
@@ -264,7 +264,7 @@ html
                                                                 | History
                                             div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                             i.fas.fa-arrow-left.fa-fw
                                                         .input-group.ml-2(style='max-width: 180px;')
@@ -272,8 +272,8 @@ html
                                                             .input-group-append
                                                                 a.input-group-text.btn-primary.border-0.bg-translucent(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
                                                                     i.fa-light.fa-key.fa-sm.align-middle.nav-item.text-primary
-                                                                    span.d-none.d-md-inline.ml-md-2 Login
-                                                        h4.text-primary.ml-auto
+                                                                    span.ml-2 Login
+                                                        h4.text-primary.ml-auto.mb-0
                                                             i.fas.fa-cog.mr-sm-2
                                                             span.d-none.d-sm-inline Settings
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
@@ -307,10 +307,10 @@ html
                                                                 | Logout
                                             div#menuItemTools(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                             i.fas.fa-arrow-left.fa-fw
-                                                        h4.text-primary.ml-auto
+                                                        h4.text-primary.ml-auto.mb-0
                                                             i.fas.fa-toolbox.mr-2
                                                             | Tools
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
@@ -337,11 +337,11 @@ html
                                                                     | Set Frame
                                             div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                             i.fas.fa-arrow-left.fa-fw
                                                         if (!(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
-                                                            form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST").mr-auto
+                                                            form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST")
                                                                 .input-group(style='max-width: 180px;')
                                                                     .input-group-prepend
                                                                         span.input-group-text.bg-translucent.border-0
@@ -353,7 +353,7 @@ html
                                                                             i.fa-light.fa-sync.fa-sm.align-middle.nav-item.text-primary
                                                                         a.input-group-text.btn-primary.border-0.bg-translucent(title="Set New Limit" href='#_', onclick=`getLimitContent(true); return false;`)
                                                                             i.fa-light.fa-floppy-disk.fa-sm.align-middle.nav-item.text-primary
-                                                        h4.text-primary
+                                                        h4.text-primary.ml-auto.mb-0
                                                             if (!(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                                 i.fas.fa-sliders-h.mr-sm-2
                                                                 span.d-none.d-sm-inline Display
@@ -412,10 +412,10 @@ html
                                                                         | Only Flagged
                                             div#menuItemUpload(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                             i.fas.fa-arrow-left.fa-fw
-                                                        h4.text-primary.ml-auto
+                                                        h4.text-primary.ml-auto.mb-0
                                                             i.fas.fa-upload.mr-2
                                                             | Upload
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
@@ -450,7 +450,7 @@ html
 
                                             div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                             i.fas.fa-arrow-left.fa-fw
                                                         a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
@@ -459,7 +459,7 @@ html
                                                         a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
                                                             i.fas.fa-cog.fa-fw.mr-md-1
                                                             span.d-none.d-md-inline Manage
-                                                        h4.text-primary.ml-auto
+                                                        h4.text-primary.ml-auto.mb-0
                                                             i.fas.fa-archive.mr-2
                                                             | Albums
                                                     .w-100.position-absolute(style="justify-content: left; top: 3em;")
@@ -497,10 +497,10 @@ html
                                                             h2 No Albums!
                                             div#menuItemApps(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                             i.fas.fa-arrow-left.fa-fw
-                                                        h4.text-primary.ml-auto
+                                                        h4.text-primary.ml-auto.mb-0
                                                             i.fas.fa-browsers.mr-2
                                                             | Applications
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
@@ -524,10 +524,10 @@ html
                                                                                 | #{thisApp.name}
                                             div#menuItemMediaGroups(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100
+                                                    .d-flex.w-100.align-items-center
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}`)
                                                             i.fas.fa-arrow-left.fa-fw
-                                                        h4.text-primary.ml-auto
+                                                        h4.text-primary.ml-auto.mb-0
                                                             i.fas.fa-books.mr-2
                                                             | Shelves
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
