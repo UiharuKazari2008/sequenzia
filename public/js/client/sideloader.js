@@ -1115,11 +1115,13 @@ async function openUnpackingFiles(messageid, playThis) {
                 videoFullPlayer.classList.remove('hidden');
                 if (memoryVideoPositions.has(previousJob.id)) {
                     const time = memoryVideoPositions.get(previousJob.id)
-                    if (0.9 >= (videoFullPlayer.duration * (time / videoFullPlayer.duration).toFixed(1)))
+                    if (0.9 >= (videoFullPlayer.duration * (time / videoFullPlayer.duration).toFixed(1))) {
                         videoFullPlayer.currentTime = memoryVideoPositions.get(previousJob.id)
+                    }
                 } else if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
-                    if (0.9 >= (videoFullPlayer.duration * parseFloat(kmsprogress)))
+                    if (0.9 >= (videoFullPlayer.duration * parseFloat(kmsprogress))) {
                         videoFullPlayer.currentTime = videoFullPlayer.duration * parseFloat(kmsprogress)
+                    }
                 }
                 mediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
