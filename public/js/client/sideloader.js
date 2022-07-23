@@ -1108,7 +1108,7 @@ async function openUnpackingFiles(messageid, playThis) {
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
                 const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
                 videoPreviewPlayer.pause()
-                videoFullPlayer.src = href;
+                videoFullPlayer.src = fastAccess;
                 try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
                 videoPreviewPlayer.classList.add('hidden');
                 videoFullPlayer.classList.remove('hidden');
