@@ -1107,9 +1107,9 @@ async function openUnpackingFiles(messageid, playThis) {
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
                 const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-                videoPreviewPlayer.pause()
                 videoFullPlayer.src = fastAccess;
                 try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
+                videoPreviewPlayer.pause()
                 videoPreviewPlayer.classList.add('hidden');
                 videoFullPlayer.classList.remove('hidden');
                 if (memoryVideoPositions.has(fileid)) {
@@ -1157,9 +1157,9 @@ async function openUnpackingFiles(messageid, playThis) {
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
                 const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-                videoPreviewPlayer.pause()
                 videoFullPlayer.src = href;
                 try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
+                videoPreviewPlayer.pause()
                 videoPreviewPlayer.classList.add('hidden');
                 videoFullPlayer.classList.remove('hidden');
                 if (memoryVideoPositions.has(previousJob.id)) {
@@ -1352,7 +1352,8 @@ async function openPreviewUnpacking(messageid) {
             videoPlayer.classList.remove('hidden');
             imagePreview.classList.add('hidden');
         } else if (previewURL && previewURL.endsWith('.mp4')) {
-            videoPlayer.src = previewURL;try {
+            videoPlayer.src = previewURL;
+            try {
                 videoPlayer.play();
             } catch (err) { console.error(err); }
             videoPlayer.classList.remove('hidden');
@@ -1473,7 +1474,8 @@ async function openKMSPlayer(messageid, seriesId) {
             } catch (err) { console.error(err); }
             videoPreviewPlayer.classList.remove('hidden');
         } else if (previewURL && previewURL.endsWith('.mp4')) {
-            videoPreviewPlayer.src = previewURL;try {
+            videoPreviewPlayer.src = previewURL;
+            try {
                 videoPreviewPlayer.play();
             } catch (err) { console.error(err); }
             videoPreviewPlayer.classList.remove('hidden');
