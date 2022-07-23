@@ -47,6 +47,7 @@ html
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" as='script')
+        link(rel='preload', href="https://cdn.rangetouch.com/2.0.1/rangetouch.js" as='script')
         link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
@@ -87,6 +88,7 @@ html
         script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
         script(type='text/javascript' src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js")
         script(type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js")
+        script(type='text/javascript' src="https://cdn.rangetouch.com/2.0.1/rangetouch.js")
 
         script(type='text/javascript' src="/js/client/sideloader-layout.min.js")
         script(type='text/javascript' src="/js/client/sideloader.min.js")
@@ -100,6 +102,7 @@ html
                     document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
                 }
             }
+            const range = new RangeTouch('input[type="range"]')
         if (user && user.banner)
             style.
                 .user-info-bg, #topbarUserBackground {
@@ -297,6 +300,14 @@ html
                                                 .d-flex.w-100
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
+                                                    .input-group.ml-2(style="width: 13rem;")
+                                                        .input-group-prepend
+                                                            span.input-group-text(style="background: #ad400059!important; border: 1px solid #9c5b3e; border-right: none;")
+                                                                i.fas.fa-key.fa-sm.align-middle.text-primary
+                                                        input#expressLoginCode(type='text' placeholder='123ABC' style="background: #ad400059!important;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
+                                                        .input-group-append
+                                                            a.btn.btn-success(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
+                                                                span Login
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
                                                         | Settings
@@ -911,14 +922,15 @@ html
             .kms-background
                 .kms-logo-center
             .kms-media-inner
-                .kms-stage
-                    .kms-player-video.d-flex
+                #kongouStage.kms-stage
+                    #kongouPlayerElement.kms-player-video.d-flex
                         .kms-progress.d-flex
                             .kms-progress-bar.hidden(style='width: 100%')
                         .kms-title-bar.d-flex
                             .kms-progress-bar.hidden(style='width: 100%')
                             .kms-info-bar
-                                img.kms-logo(src='/static/img/kongoumedialogo-wide.png').mr-auto
+                                .kms-current-name.text-ellipsis.mr-auto
+                                    span#kongouMediaPlayerCurrent(style="color: #ff7300; font-size: 1.75em;")
                                 .kms-status-bar.pr-2.text-ellipsis
                                     span
                                 a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
@@ -932,6 +944,64 @@ html
                                     .div.text-ellipsis.d-none.d-md-block
                                         span.pr-2 Next Episode: Name Goes Here
                                     i.fas.fa-forward-fast
+                        .kms-bottom-bar.d-flex
+                            #kongouScreenshotContainer.kms-screenshot-contaner.hidden.mb-3.flex-row
+                                #kongouScreenShots.kms-screenshot-images
+                                .kms-screenshot-options.d-flex.flex-column
+                                    a.btn.btn-primary(href='#_' onclick=`kmsClearScreenshots(); return false;`)
+                                        i.fas.fa-trash-alt
+                                    a.btn.btn-primary(href='#_' onclick=`kmsUploadScreenshots(); return false;`).my-2
+                                        i.fas.fa-upload
+                                    a.btn.btn-primary(href='#_' onclick=`kmsSaveScreenshots(); return false;`)
+                                        i.fas.fa-download
+                            #kongouAdvancedControls.kms-player-playback-advanced.align-items-center.mb-2.flex-column.flex-md-row
+                                div.d-flex
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsScreenshot(); return false;`).mr-md-4.d-flex.align-items-center.btn.btn-primary.btn-small
+                                            i.fas.fa-camera-viewfinder.pr-1
+                                            span.d-none.d-sm-inline Capture
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsSeek(true, -1); return false;`).mr-2.d-flex.align-items-center
+                                            i.fas.fa-backward-step
+                                        a(href='#_' onclick=`kmsSeek(false, -1); return false;`).mr-3.d-flex.align-items-center
+                                            i.fas.fa-backward
+                                        a(href='#_' onclick=`return false;`).d-none.d-lg-flex.mr-2.align-items-center
+                                            i.fas.fa-brackets-square
+                                        div.kongou-frameer.d-inline.mr-3
+                                            input#kongouControlsMiniFrame(data-slider-id='kongouControlsMiniFrame' type='text' data-slider-min='-1' data-slider-max='1' data-slider-step='0.001' data-slider-value='0' data-slider-ticks='[-1, 0, 1]')
+                                        a(href='#_' onclick=`kmsSeek(false, 1); return false;`).mr-2.d-flex.align-items-center
+                                            i.fas.fa-forward.pr-2
+                                        a(href='#_' onclick=`kmsSeek(true, 1); return false;`).mr-md-4.d-flex.align-items-center
+                                            i.fas.fa-forward-step
+                                div.d-flex
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`return false;`).mr-md-2.d-flex.align-items-center
+                                            i.fas.fa-timer
+                                    div.kongou-frameer.d-flex.align-items-center.mr-md-4
+                                        input#kongouControlsJogSeek(data-slider-id='kongouControlsJogSeek' type='text' data-slider-min='-1' data-slider-max='1' data-slider-step='0.005' data-slider-value='0' data-slider-ticks='[-1, 0, 1]')
+
+                                div.d-flex
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`kongouControlsSpeedSlider.setValue(1); return false;`).mr-md-2.d-flex.align-items-center
+                                            i.fas.fa-turtle
+                                    div.kongou-frameer.d-flex.align-items-center
+                                        input#kongouControlsSpeed(data-slider-id='kongouControlsSpeed' type='text' data-slider-min='0.1' data-slider-max='2' data-slider-step='0.01' data-slider-value='1' data-slider-ticks='[0.1, 1, 2]')
+
+                            .kms-player-playback-controls.d-flex.align-items-center
+                                a#kongouControlsPlay(href='#_').pr-4
+                                    i.fas.fa-pause.pl-1
+                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3
+                                    span.digital-font 00
+                                    span :
+                                    span.digital-font 00
+                                div#seekControls.no-seeking.d-flex.w-100
+                                    input#kongouControlsSeek(data-slider-id='kongouControlsSeek' type='text' data-slider-min='0' data-slider-max='1' data-slider-step='0.0001' data-slider-value='0')
+                                    span#kongouControlsSeekUnavalible.mr-auto Seeking Not Available
+                                a#kongouControlsMute(href='#_').pr-2.pl-3
+                                    i.fas.fa-volume-high
+                                input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
+                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pl-3
+                                    i.fas.fa-expand-wide
                         .kms-warnings.d-flex.flex-column
                             #kmsWarningProgress.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden
                                 i.fas.fa-history.pr-2
@@ -939,9 +1009,13 @@ html
                             #kmsWarningQuality.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden(style='opacity: 0.5;')
                                 i.fas.fa-box-open.pr-2
                                 span Video quality will improve once it has been full loaded!
-                        video#kongouMediaVideoPreview.kms-media-player(preload="false" controls playsinline webkit-playsinline loops style="background: transparent; background-clip: content-box;")
-                        video#kongouMediaVideoFull.kms-media-player(preload="true" autoplay='false' controls style="background: transparent; background-clip: content-box;" )
-
+                        div.video-holder
+                            div#videoElements.position-relative
+                                img.video-logo-overlay(src='/static/img/sequenzia-logo-white.png')
+                                video#kongouMediaVideoPreview.kms-media-player(preload="true" playsinline webkit-playsinline style="background: transparent; background-clip: content-box;")
+                                video#kongouMediaVideoFull.kms-media-player(preload="true" playsinline webkit-playsinline style="background: transparent; background-clip: content-box;" )
+                        canvas#kongouScreenshot.hidden(width="1920" height="1080")
+                        img#kongouScreenshotImage.hidden
         script(src="/static/js/sb-admin-2.min.js")
         // Modals
         div#dataModels
@@ -957,16 +1031,6 @@ html
                             button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                 span(aria-hidden='true') &times;
                         .modal-body
-                            div.row.pl-3.pr-3
-                                span.mr-auto.align-self-center Express Login:
-                                .input-group(style="width: 13rem;")
-                                    .input-group-prepend
-                                        span.input-group-text(style="background: #ad400059!important; border: 1px solid #9c5b3e; border-right: none;")
-                                            i.fas.fa-key.fa-sm.align-middle.text-primary
-                                    input#expressLoginCode(type='text' placeholder='123ABC' style="background: #ad400059!important;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
-                                    .input-group-append
-                                        a.btn.btn-success(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
-                                            span Login
                             #authManagerMenus.accordion.pt-3
                                 .card
                                     #accountHeading.card-header.collapsed

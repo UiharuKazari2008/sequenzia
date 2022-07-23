@@ -195,7 +195,7 @@ html
                                                             a.user-menu-item(title="Index" href='#/artists?')
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
-                                                            if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards')))
+                                                            if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards' || path === '/listTheater' || path === '/tvTheater')))
                                                                 if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
                                                                     if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
                                                                         a.user-menu-item(title="Upload File" href='#_' data-ch-name=full_title data-ch-server=active_svr onclick='selectedUploadChannel("' + active_ch + '", "uploadModel", false); displayUploadModel(); return false;')

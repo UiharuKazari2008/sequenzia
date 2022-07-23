@@ -339,7 +339,7 @@ html
                         actionModel.querySelector("#postButton").classList.remove('disabled')
                     }
                 #uploadModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
-                    .modal-dialog(role='document' style='max-width: 340px;')
+                    .modal-dialog(role='document')
                         .modal-content
                             .modal-header
                                 h5.modal-title
@@ -369,7 +369,7 @@ html
 
                             #Footer.modal-footer
                                 #uploadSelection.dropdown
-                                    button#channelSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style='max-width: 12em;')
+                                    button#channelSelector.btn.btn-secondary.dropdown-toggle.d-flex(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                                         i.fas.fa-upload.pr-2.align-self-center
                                         span#selectedChannel.align-self-center.text-ellipsis Select Channel
                                     .dropdown-menu.scrollable-menu

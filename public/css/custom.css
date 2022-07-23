@@ -13,6 +13,20 @@
     font-style: normal;
     font-display: swap;
 }
+@font-face {
+    font-family: 'Digital7';
+    src: url('/static/font/Digital7-1e1Z.woff2') format('woff2')
+}
+@font-face {
+    font-family: 'Segment7';
+    src: url('/static/font/Segment7.woff2') format('woff2')
+}
+
+.font-digital {
+    font-family: "Segment7", ui-monospace;
+    padding: 0.5em 0.5em 0.3em 0.5em!important;
+    color: #24ff73!important;
+}
 
 
 .list-group-item {
@@ -1849,7 +1863,6 @@ div.collapse-divider {
     background-color: #b37140;
 }
 .slider-selection, .slider-selection.tick-slider-selection {
-    border-radius: 0;
     background-color: #ff8a36;
     background-image: unset;
 }
@@ -2409,7 +2422,7 @@ footer .server-grid-parent {
     touch-action: manipulation;
     transform: translateZ(0);
     width: 100%;
-    z-index: 100000;
+    z-index: 1040;
 }
 .kms-play-open .kms-media-container {
     display: initial;
@@ -2420,6 +2433,28 @@ footer .server-grid-parent {
     position: absolute;
     right: 0;
     top: 0;
+}
+.video-holder {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+.video-logo-overlay {
+    width: 15%;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    margin: 1.5em 2em;
+    opacity: 0.1;
+    filter: contrast(0.5);
+    mix-blend-mode: screen;
 }
 .kms-stage {
     -webkit-backface-visibility: hidden;
@@ -2436,7 +2471,7 @@ footer .server-grid-parent {
     white-space: normal;
     width: calc(100% - (env(safe-area-inset-left) + env(safe-area-inset-right)));
     height: calc(100% - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
-    z-index: 100001;
+    z-index: 1041;
     margin-left: calc(env(safe-area-inset-left) + 0px);
     margin-right: calc(env(safe-area-inset-right) + 0px);
     margin-top: calc(env(safe-area-inset-top) + 0px);
@@ -2444,19 +2479,11 @@ footer .server-grid-parent {
 }
 .kms-media-player {
     background: black;
-    display: inline-block;
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    overflow: auto;
+    width: 100vw;
+    max-height: 100vh;
     -webkit-overflow-scrolling: touch;
     padding: 0;
-    position: relative;
-    text-align: left;
     vertical-align: middle;
-    box-shadow: 0 2px 24px 8px rgb(0 0 0 / 41%);
-    -webkit-animation-duration: 600ms;
-    animation-duration: 600ms;
 }
 .kms-background {
     background: black;
@@ -2484,7 +2511,7 @@ img.kms-logo {
     position: absolute;
     width: 100vw;
     height: 100vh;
-    z-index: 100010;
+    z-index: 1049;
     pointer-events: none;
 }
 .watched-precent {
@@ -2503,20 +2530,44 @@ img.kms-logo {
 .watched-episode:hover, .watched-episode.active {
     opacity: 1;
 }
-.kms-title-bar, .kms-progress {
+.kms-title-bar, .kms-bottom-bar, .kms-progress {
     position: absolute;
     width: 100%;
     padding: 1.5em;
     display: flex;
     flex-direction: column;
-    z-index: 100006;
+    z-index: 1046;
 }
 .kms-progress {
     pointer-events: none;
 }
-.kms-title-bar {
+.kms-bottom-bar, .kms-title-bar {
     background: linear-gradient(0deg, transparent, black);
-    z-index: 100005;
+    z-index: 1045;
+}
+.kms-bottom-bar {
+    background: linear-gradient(180deg, transparent, black);
+    bottom: 0;
+}
+.kms-screenshot-images {
+    width: 100%;
+    height: 128px;
+    overflow-y: hidden;
+    overflow-x: auto;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: flex-start;
+}
+.kms-screenshot-images > img,
+.kms-screenshot-images > a > img {
+    height: 128px;
+    padding-right: 0.5em;
+}
+.kms-screenshot-container {
+    pointer-events: initial;
 }
 .kms-player-video {
     background: 0 0;
@@ -2529,23 +2580,81 @@ img.kms-logo {
     justify-content: center;
     width: 100%;
 }
+.kms-player-playback-controls {
+    font-size: 1.5em;
+}
 
+.kms-stage .slider-track {
+    background: #d0730066;
+}
+.kms-stage .slider-selection {
+    background: #ff8d00;
+}
+.kms-stage .kongou-frameer input[type=range] {
+    background: linear-gradient(45deg, #ff7300, #d0730066, #ff7300);
+    border: 1px solid #df7c4e;
+}
+.kms-player-playback-advanced {
+    font-size: 1.25em;
+}
+
+#kongouTimeCode {
+    color: #ff8d00;
+    cursor: default;
+}
+#videoElements * {
+    pointer-events: none;
+}
+.digital-font {
+    font-family: 'Segment7', monospace;
+}
+.kms-player-playback-advanced {
+    display: none;
+}
+#kongouStage.advanced-controls .kms-player-playback-advanced {
+    display: flex;
+}
+#kongouScreenshotContainer {
+    display: none;
+}
+#kongouStage.advanced-controls #kongouScreenshotContainer {
+    display: flex;
+}
+
+#kongouControlsSeek {
+    width: 100%;
+}
+
+#seekControls > #kongouControlsSeek{
+    display: inline;
+}
+#seekControls > #kongouControlsSeekUnavalible{
+    display: none;
+}
+#seekControls.no-seeking > #kongouControlsSeek{
+    display: none;
+}
+#seekControls.no-seeking > #kongouControlsSeekUnavalible{
+    display: inline;
+}
+
+.kongou-frameer .slider-track-low,
+.kongou-frameer .slider-selection,
+.kongou-frameer .slider-track-high
+{
+    background: transparent;
+}
+.kongou-frameer .slider-track {
+    background: linear-gradient(45deg, #ff7300, #d0730066, #ff7300);
+}
+
+#kongouStage a {
+    cursor: default;
+}
 body.kms-play-open {
     overflow: hidden;
 }
-.kms-stage .kms-title-bar{
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .5s ease-in-out;
-    transition-delay: 0;
-}
-.kms-stage:hover .kms-title-bar {
-    pointer-events: auto;
-    opacity: 1;
-}
-.kms-stage:not(:hover) .kms-title-bar {
-    transition-delay: .5s;
-}
+
 .show-overlay {
     position: absolute;
     display: flex;
@@ -3401,6 +3510,13 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 @supports (-webkit-touch-callout: initial) {
     .background-image {
         background-attachment: scroll!important;
+    }
+
+    #kongouControlsMute {
+        display: none;
+    }
+    #kongouControlsVolume {
+        display: none;
     }
 
     .tz-gallery .col-image .internal-lightbox {
