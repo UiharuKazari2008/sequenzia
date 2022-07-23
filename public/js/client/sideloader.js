@@ -1140,6 +1140,7 @@ async function openUnpackingFiles(messageid, playThis) {
                     }
                     videoFullPlayer.currentTime = videoFullPlayer.duration * parseFloat(kmsprogress)
                 }
+                kongouControlsSeekUnavalible.classList.remove('no-seeking');
                 mediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');

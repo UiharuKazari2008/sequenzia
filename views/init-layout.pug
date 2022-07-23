@@ -300,14 +300,13 @@ html
                                                 .d-flex.w-100
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                         i.fas.fa-arrow-left.fa-fw
+
                                                     .input-group.ml-2(style="width: 13rem;")
-                                                        .input-group-prepend
-                                                            span.input-group-text(style="background: #ad400059!important; border: 1px solid #9c5b3e; border-right: none;")
-                                                                i.fas.fa-key.fa-sm.align-middle.text-primary
-                                                        input#expressLoginCode(type='text' placeholder='123ABC' style="background: #ad400059!important;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
+                                                        input#expressLoginCode(type='text' placeholder='A1B2C3' style="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
                                                         .input-group-append
-                                                            a.btn.btn-success(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
-                                                                span Login
+                                                            a.input-group-text.btn-primary.border-0.bg-translucent(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
+                                                                i.fa-light.fa-key.fa-sm.align-middle.nav-item.text-primary
+                                                                span.d-none.d-md-inline.ml-md-2 Login
                                                     h4.text-primary.ml-auto
                                                         i.fas.fa-cog.mr-2
                                                         | Settings
@@ -996,7 +995,7 @@ html
                                     span.digital-font 00
                                 div#seekControls.no-seeking.d-flex.w-100
                                     input#kongouControlsSeek(data-slider-id='kongouControlsSeek' type='text' data-slider-min='0' data-slider-max='1' data-slider-step='0.0001' data-slider-value='0')
-                                    span#kongouControlsSeekUnavalible.mr-auto Seeking Not Available
+                                    span#kongouControlsSeekUnavalible.mr-auto Preparing Video...
                                 a#kongouControlsMute(href='#_').pr-2.pl-3
                                     i.fas.fa-volume-high
                                 input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')

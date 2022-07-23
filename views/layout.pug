@@ -267,9 +267,15 @@ html
                                                     .d-flex.w-100
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                             i.fas.fa-arrow-left.fa-fw
+                                                        .input-group.ml-2(style='max-width: 180px;')
+                                                            input#expressLoginCode(type='text' placeholder='A1B2C3' style="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
+                                                            .input-group-append
+                                                                a.input-group-text.btn-primary.border-0.bg-translucent(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
+                                                                    i.fa-light.fa-key.fa-sm.align-middle.nav-item.text-primary
+                                                                    span.d-none.d-md-inline.ml-md-2 Login
                                                         h4.text-primary.ml-auto
-                                                            i.fas.fa-cog.mr-2
-                                                            | Settings
+                                                            i.fas.fa-cog.mr-sm-2
+                                                            span.d-none.d-sm-inline Settings
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
                                                             if (params && path !== '/artists')
@@ -334,9 +340,9 @@ html
                                                     .d-flex.w-100
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                             i.fas.fa-arrow-left.fa-fw
-                                                        if (!(appData))
+                                                        if (!(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                             form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST").mr-auto
-                                                                .input-group(style='max-width: 160px;')
+                                                                .input-group(style='max-width: 180px;')
                                                                     .input-group-prepend
                                                                         span.input-group-text.bg-translucent.border-0
                                                                             i.fa-light.fa-grid.fa-sm.align-middle.text-primary
@@ -348,8 +354,12 @@ html
                                                                         a.input-group-text.btn-primary.border-0.bg-translucent(title="Set New Limit" href='#_', onclick=`getLimitContent(true); return false;`)
                                                                             i.fa-light.fa-floppy-disk.fa-sm.align-middle.nav-item.text-primary
                                                         h4.text-primary
-                                                            i.fas.fa-sliders-h.mr-2
-                                                            span.d-none.d-sm-inline Display
+                                                            if (!(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
+                                                                i.fas.fa-sliders-h.mr-sm-2
+                                                                span.d-none.d-sm-inline Display
+                                                            else
+                                                                i.fas.fa-sliders-h.mr-2
+                                                                span Display
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
                                                             if (results && (path === '/gallery' || path === '/tvTheater'))
