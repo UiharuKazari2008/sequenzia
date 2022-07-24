@@ -1606,11 +1606,9 @@ async function kmsScreenshot() {
         const idSs = 'screenshot-' + screenshotImages.childElementCount + 1
         screenshotImageItem.id = idSs;
         const timecode = parseFloat(kongouMediaVideoFull.currentTime.toString())
-        screenshotImageItem.onclick = (e) => {
-            const item = document.getElementById(`screenshot-${idSs}`);
-            window.URL.revokeObjectURL(url);
-            item.remove();
-            e.preventDefault();
+        screenshotImageItem.onclick = () => {
+            window.URL.revokeObjectURL(this.querySelector('img').src);
+            this.remove();
             return false;
         }
         const screenshotImageResult = document.createElement('img');
