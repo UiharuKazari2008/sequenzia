@@ -1232,9 +1232,9 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 });
             } else if (playThis === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
-                if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
+                if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && !downloadPreemptive) {
                     document.getElementById('kmsWarningProgress').classList.remove('hidden');
-                } else {
+                } else if (!downloadPreemptive) {
                     document.getElementById('kmsWarningQuality').classList.remove('hidden');
                 }
             }
@@ -1247,7 +1247,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     const download = await unpackFile();
                     if (download) {
                         memorySpannedController.push(activeSpannedJob);
-                        if (activeSpannedJob.play) {
+                        if (activeSpannedJob.play && !downloadPreemptive) {
                             console.log(`Launching File...`)
                             const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
                             if (element) {
@@ -1269,9 +1269,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                                     videoFullPlayer.src = element.href;
                                     videoFullPlayer.volume = 0;
                                     if (!videoPreviewPlayer.paused) {
-                                        try {
-                                            await videoFullPlayer.play();
-                                        } catch (err) { console.error(err); }
+                                        try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
                                     }
 
                                     if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
