@@ -229,8 +229,14 @@ block content
                     .show-description.mb-auto
                         span #{showData.description}
                     .show-snacks.mt-2.d-flex
+                        if (results.filter(e => !e.media.watched).length === 0)
+                            a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark show as watched` href='#_' onClick=`setShowHistory(0); return false;`)
+                                i.fas.fa-eye-slash
+                        else
+                            a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark show as watched` href='#_' onClick=`setShowHistory(1); return false;`)
+                                i.fas.fa-check-double.px-1
                         if (nextEpisode.length > 0)
-                            a.btn.btn-primary.ml-auto(href='#_' onclick=`openKMSPlayer("${nextEpisode[0].id}", "${nextEpisode[0].media.show.meta.id}");`)
+                            a.btn.btn-primary.ml-2(href='#_' onclick=`openKMSPlayer("${nextEpisode[0].id}", "${nextEpisode[0].media.show.meta.id}");`)
                                 i.fas.fa-play.pr-2
                                 if (nextEpisode[0].media.meta.number === 1 && nextEpisode[0].media.meta.season === 1)
                                     | Start Watching
@@ -240,7 +246,7 @@ block content
                 each season, seasonIndex in seasons
                     .accordion-item
                         if (seasons.length > 1)
-                            h2.accordion-header
+                            h2.accordion-header.d-flex
                                 a.accordion-button.collapsed(href='#_' data-toggle='collapse' data-target=`#seasonBody${seasonIndex}`)
                                     i.fas.fa-rectangle-list.pr-2
                                     if (season.number !== 0)
@@ -250,6 +256,12 @@ block content
                                             | #{season.name}
                                     else
                                         | Special Features
+                                if (results.filter(e => e.media.season === season.number && !e.media.watched).length === 0)
+                                    a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark season as watched` href='#_' onClick=`setSeasonHistory(${seasonIndex}, 0); return false;`)
+                                        i.fas.fa-eye-slash
+                                else
+                                    a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark season as watched` href='#_' onClick=`setSeasonHistory(${seasonIndex}, 1); return false;`)
+                                        i.fas.fa-check-double.px-1
                         .accordion-collapse.collapse(id=`seasonBody${seasonIndex}` class=`${(seasons.length === 1 || (season.number !== 0 && results.filter(e => e.media.season === season.number && !(e.media.watched && e.media.watched > 0.8)).length > 0)) ? 'show' : ''}`)
                             .accordion-body
                                 each item, indexImage in results.filter(e => e.media.season === season.number)

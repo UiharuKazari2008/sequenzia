@@ -1573,7 +1573,7 @@ async function saveCurrentTimeKMS(wasNext) {
     if (messageid && !videoFullPlayer.classList.contains('hidden')) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
-        const eid = _post.getAttribute('data-msg-eid');
+        const eid = _post`.getAttribute('data-msg-eid');`
         const percentage = (videoFullPlayer.currentTime / videoFullPlayer.duration).toFixed(3);
         console.log(percentage);
         if (percentage > 0.05 && percentage <= 0.85) {
@@ -3061,6 +3061,72 @@ function toggleFavorite(channelid, eid) {
     sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
 
     return false;
+}
+async function setSeasonHistory(index, viewed) {
+    console.log(`Set Season ${index} History to ${viewed}`)
+    Array.from(document.querySelectorAll(`#seasonBody${index} .episode-row`)).map(e => {
+        const eid = e.getAttribute('data-msg-eid');
+        if (eid) {
+            $.ajax({async: true,
+                type: "post",
+                url: "/actions/v1",
+                data: {
+                    'action': 'SetWatchHistory',
+                    'eid': eid,
+                    'viewed': viewed
+                },
+                cache: false,
+                headers: {
+                    'X-Requested-With': 'SequenziaXHR'
+                },
+                success: function (res, txt, xhr) {
+                    if (xhr.status < 400) {
+                        console.log(res);
+                    } else {
+                        $.snack('error', `Failed to update watch history`, 3000)
+                        console.log(res.responseText);
+                    }
+                },
+                error: function (xhr) {
+                    $.snack('error', `Failed to update watch history`, 3000)
+                }
+            });
+        }
+        return false;
+    })
+}
+async function setShowHistory(viewed) {
+    console.log(`Set Show History to ${viewed}`)
+    Array.from(document.querySelectorAll('.episode-row')).map(e => {
+        const eid = e.getAttribute('data-msg-eid');
+        if (eid) {
+            $.ajax({async: true,
+                type: "post",
+                url: "/actions/v1",
+                data: {
+                    'action': 'SetWatchHistory',
+                    'eid': eid,
+                    'viewed': viewed
+                },
+                cache: false,
+                headers: {
+                    'X-Requested-With': 'SequenziaXHR'
+                },
+                success: function (res, txt, xhr) {
+                    if (xhr.status < 400) {
+                        console.log(res);
+                    } else {
+                        $.snack('error', `Failed to update watch history`, 3000)
+                        console.log(res.responseText);
+                    }
+                },
+                error: function (xhr) {
+                    $.snack('error', `Failed to update watch history`, 3000)
+                }
+            });
+        }
+        return false;
+    })
 }
 async function setWatchHistory(eid, viewed) {
     const percentage = (!isNaN(viewed) && viewed > 0.05) ? (viewed <= 0.80) ? viewed : 1 : 0
