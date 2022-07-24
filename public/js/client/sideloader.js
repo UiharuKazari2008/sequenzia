@@ -1122,29 +1122,38 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 PlayVideo(fastAccess, `${channelString}/${filename} (${filesize})`, fileid);
             } else if (playThis === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
-                const mediaPlayer = document.getElementById('kongouMediaPlayer');
-                const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
-                const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-                videoFullPlayer.src = fastAccess;
-                try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
-                videoPreviewPlayer.pause()
-                videoPreviewPlayer.classList.add('hidden');
-                videoFullPlayer.classList.remove('hidden');
+                kongouMediaVideoFull.src = fastAccess;
+                try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                kongouMediaVideoPreview.pause();
+                kongouMediaVideoPreview.classList.add('hidden');
+                kongouMediaVideoFull.classList.remove('hidden');
                 if (memoryVideoPositions.has(fileid)) {
-                    const time = memoryVideoPositions.get(fileid)
-                    if (0.9 >= (time / videoFullPlayer.duration).toFixed(1)) {
-                        console.log('Video Position Is OK')
+                    const time = memoryVideoPositions.get(fileid);
+                    console.log((time / kongouMediaVideoFull.duration).toFixed(1))
+                    if ((time / kongouMediaVideoFull.duration).toFixed(1) <= 0.9) {
+                        kongouMediaVideoFull.currentTime = memoryVideoPositions.get(fileid);
+                    } else {
+                        console.log(`Video Progress was to to deep, Restarting from the beginning`);
                     }
-                    videoFullPlayer.currentTime = memoryVideoPositions.get(fileid)
                 } else if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
-                    if (0.9 >= parseFloat(kmsprogress)) {
-                        console.log('Video Position Is OK')
+                    if (parseFloat(kmsprogress) <= 0.9) {
+                        kongouMediaVideoFull.currentTime = kongouMediaVideoFull.duration * parseFloat(kmsprogress);
+                    } else {
+                        console.log(`Video Progress was to to deep, Restarting from the beginning`);
                     }
-                    videoFullPlayer.currentTime = videoFullPlayer.duration * parseFloat(kmsprogress)
+                } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
+                    if (kmsPreviewLastPostion - kongouMediaVideoPreview.currentTime < 5) {
+                        kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
+                    } else {
+                        kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                    }
                 }
+                kmsPreviewLastPostion = null;
+                clearInterval(kmsPreviewInterval)
+                kmsPreviewInterval = null;
                 kongouControlsSeekUnavalible.classList.remove('no-seeking');
-                mediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
-                mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
+                kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
+                kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
             } else {
@@ -1154,7 +1163,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     const link = document.createElement('a');
                     link.id = `fileData-${fileid}`
                     link.classList = `hidden`
-                    link.href = href;
+                    link.href = fastAccess;
                     link.setAttribute('download', filename);
                     link.click();
                 }
@@ -1175,29 +1184,37 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 PlayVideo(href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
             } else if (previousJob.play === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
-                const mediaPlayer = document.getElementById('kongouMediaPlayer');
-                const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
-                const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-                videoFullPlayer.src = href;
-                try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
-                videoPreviewPlayer.pause()
-                videoPreviewPlayer.classList.add('hidden');
-                videoFullPlayer.classList.remove('hidden');
+                kongouMediaVideoFull.src = href;
+                try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                kongouMediaVideoPreview.pause()
+                kongouMediaVideoPreview.classList.add('hidden');
+                kongouMediaVideoFull.classList.remove('hidden');
                 if (memoryVideoPositions.has(previousJob.id)) {
                     const time = memoryVideoPositions.get(previousJob.id)
-                    if (0.9 >= (time / videoFullPlayer.duration).toFixed(1)) {
-                        console.log('Video Position Is OK')
+                    if ((time / kongouMediaVideoFull.duration).toFixed(1) <= 0.9) {
+                        kongouMediaVideoFull.currentTime = memoryVideoPositions.get(previousJob.id)
+                    } else {
+                        console.log(`Video Progress was to to deep, Restarting from the beginning`);
                     }
-                    videoFullPlayer.currentTime = memoryVideoPositions.get(previousJob.id)
                 } else if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
-                    if (0.9 >= (videoFullPlayer.duration * parseFloat(kmsprogress))) {
-                        console.log('Video Position Is OK')
+                    if (parseFloat(kmsprogress) <= 0.9) {
+                        kongouMediaVideoFull.currentTime = kongouMediaVideoFull.duration * parseFloat(kmsprogress)
+                    } else {
+                        console.log(`Video Progress was to to deep, Restarting from the beginning`);
                     }
-                    videoFullPlayer.currentTime = videoFullPlayer.duration * parseFloat(kmsprogress)
+                } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
+                    if (kmsPreviewLastPostion - kongouMediaVideoPreview.currentTime < 5) {
+                        kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
+                    } else {
+                        kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                    }
                 }
+                kmsPreviewLastPostion = null;
+                clearInterval(kmsPreviewInterval)
+                kmsPreviewInterval = null;
                 kongouControlsSeekUnavalible.classList.remove('no-seeking');
-                mediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
-                mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
+                kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
+                kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
             } else {
@@ -1222,7 +1239,15 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 ready: true,
                 play: playThis
             })
-            if (!playThis || (playThis !== 'video' && playThis !== 'kms-video')) {
+            if (downloadPreemptive) {
+                console.log(`Preemptive Download for ${filename}`);
+            } else if (playThis === 'kms-video' && !downloadPreemptive) {
+                const kmsprogress = _post.getAttribute('data-kms-progress');
+                if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
+                    document.getElementById('kmsWarningProgress').classList.remove('hidden');
+                }
+                document.getElementById('kmsWarningQuality').classList.remove('hidden');
+            } else if (!playThis || playThis !== 'video') {
                 $.toast({
                     type: 'success',
                     title: 'Unpack File',
@@ -1230,13 +1255,6 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     content: `File is unpacking, check active jobs for progress`,
                     delay: 5000,
                 });
-            } else if (playThis === 'kms-video') {
-                const kmsprogress = _post.getAttribute('data-kms-progress');
-                if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && !downloadPreemptive) {
-                    document.getElementById('kmsWarningProgress').classList.remove('hidden');
-                } else if (!downloadPreemptive) {
-                    document.getElementById('kmsWarningQuality').classList.remove('hidden');
-                }
             }
             updateNotficationsPanel();
             notificationControler = setInterval(updateNotficationsPanel, 1000);
@@ -1259,42 +1277,40 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                                     videoPlayer.pause();
                                     memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
                                     PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, activeSpannedJob.id);
-                                } else if (activeSpannedJob.play === 'kms-video' && !downloadPreemptive) {
+                                } else if (activeSpannedJob.play === 'kms-video') {
                                     const kmsprogress = _post.getAttribute('data-kms-progress');
-                                    const mediaPlayer = document.getElementById('kongouMediaPlayer');
-                                    const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
-                                    const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-                                    if (videoPreviewPlayer.currentTime !== videoPreviewPlayer.duration)
-                                        memoryVideoPositions.set(activeSpannedJob.id, videoPreviewPlayer.currentTime);
-                                    videoFullPlayer.src = element.href;
-                                    videoFullPlayer.volume = 0;
-                                    if (!videoPreviewPlayer.paused) {
-                                        try { await videoFullPlayer.play(); } catch (err) { console.error(err); }
-                                    }
+                                    if (kongouMediaVideoPreview.currentTime !== kongouMediaVideoPreview.duration)
+                                        memoryVideoPositions.set(activeSpannedJob.id, kongouMediaVideoPreview.currentTime);
+                                    kongouMediaVideoFull.src = element.href;
+                                    kongouMediaVideoFull.volume = 0;
+                                    try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err) };
 
-                                    if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
-                                        const location = videoFullPlayer.duration * parseFloat(kmsprogress)
-                                        if (location && 0.9 >= location)
-                                            console.log('Video Position Is OK')
-                                        videoFullPlayer.currentTime = location
-                                    } else {
-                                        if (0.9 >= (videoPreviewPlayer.currentTime / videoFullPlayer.duration).toFixed(1))
-                                            console.log('Video Position Is OK')
-                                        videoFullPlayer.currentTime = videoPreviewPlayer.currentTime;
+                                    if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
+                                        kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
+                                    } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
+                                        if (kmsPreviewLastPostion - kongouMediaVideoPreview.currentTime < 5) {
+                                            kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
+                                        } else {
+                                            kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                                        }
                                     }
-                                    setTimeout(() => {
-                                        if (videoPreviewPlayer.paused)
-                                            videoFullPlayer.pause();
-                                        videoFullPlayer.volume = videoPreviewPlayer.volume
-                                        videoPreviewPlayer.pause()
-                                        videoPreviewPlayer.classList.add('hidden');
-                                        videoFullPlayer.classList.remove('hidden');
+                                    setTimeout(async () => {
+                                        if (kongouMediaVideoPreview.paused) {
+                                            kongouMediaVideoFull.pause();
+                                        } else if (kongouMediaVideoFull.paused) {
+                                            try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                                        }
+                                        kongouMediaVideoPreview.pause();
+                                        kongouMediaVideoPreview.classList.add('hidden');
+                                        kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
+                                        kmsPreviewLastPostion = null;
+                                        clearInterval(kmsPreviewInterval)
+                                        kmsPreviewInterval = null;
+                                        kongouMediaVideoFull.classList.remove('hidden');
                                         kongouControlsSeekUnavalible.classList.remove('no-seeking');
                                         document.getElementById('kmsWarningProgress').classList.add('hidden');
                                         document.getElementById('kmsWarningQuality').classList.add('hidden');
-                                    }, 500);
-                                } else if (activeSpannedJob.play === 'kms-video') {
-                                    console.log(`File ${filename} is ready for playback`)
+                                    }, 100);
                                 } else {
                                     console.error('No Datatype was provided')
                                 }
@@ -1410,9 +1426,8 @@ async function openKMSPlayer(messageid, seriesId) {
     const channelString = _post.getAttribute('data-msg-channel-string');
     const previewURL = _post.getAttribute('data-msg-url-preview');
     const fullURL = _post.getAttribute('data-msg-url-full');
-    const mediaPlayer = document.getElementById('kongouMediaPlayer');
-    const active = mediaPlayer.getAttribute('activePlayback');
-    const show = (seriesId) ? seriesId : mediaPlayer.getAttribute('showId')
+    const active = kongouMediaPlayer.getAttribute('activePlayback');
+    const show = (seriesId) ? seriesId : kongouMediaPlayer.getAttribute('showId')
     const nextEpisodeGroup = document.getElementById('kongouMediaPlayerNext')
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
     const currentEpisode = document.getElementById('kongouMediaPlayerCurrent')
@@ -1433,11 +1448,11 @@ async function openKMSPlayer(messageid, seriesId) {
             if (nextEpisode.length > 0) {
                 nextEpisodeGroup.querySelector('span').innerText = nextEpisode[0].querySelector('.episode-name > span').innerText;
                 nextEpisodeGroup.classList.remove('hidden');
-                mediaPlayer.setAttribute('nextPlayback', nextEpisode[0].id.split('-').pop());
+                kongouMediaPlayer.setAttribute('nextPlayback', nextEpisode[0].id.split('-').pop());
             } else {
                 nextEpisodeGroup.querySelector('span').innerText = '';
                 nextEpisodeGroup.classList.add('hidden')
-                mediaPlayer.removeAttribute('nextPlayback');
+                kongouMediaPlayer.removeAttribute('nextPlayback');
             }
 
             if (index > 0) {
@@ -1445,34 +1460,34 @@ async function openKMSPlayer(messageid, seriesId) {
                 if (prevEpisode.length > 0) {
                     prevEpisodeGroup.querySelector('span').innerText = prevEpisode.slice().pop().querySelector('.episode-name > span').innerText;
                     prevEpisodeGroup.classList.remove('hidden')
-                    mediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
+                    kongouMediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
                 } else {
                     prevEpisodeGroup.querySelector('span').innerText = '';
                     prevEpisodeGroup.classList.add('hidden')
-                    mediaPlayer.removeAttribute('prevPlayback');
+                    kongouMediaPlayer.removeAttribute('prevPlayback');
                 }
             } else {
                 prevEpisodeGroup.querySelector('span').innerText = '';
                 prevEpisodeGroup.classList.add('hidden')
-                mediaPlayer.removeAttribute('prevPlayback');
+                kongouMediaPlayer.removeAttribute('prevPlayback');
             }
         } catch (e) {
             nextEpisodeGroup.querySelector('span').innerText = '';
             nextEpisodeGroup.classList.add('hidden')
-            mediaPlayer.removeAttribute('nextPlayback');
+            kongouMediaPlayer.removeAttribute('nextPlayback');
             prevEpisodeGroup.querySelector('span').innerText = '';
             prevEpisodeGroup.classList.add('hidden')
-            mediaPlayer.removeAttribute('prevPlayback');
+            kongouMediaPlayer.removeAttribute('prevPlayback');
             console.error("Could not get the rest of the episode list");
             console.error(e);
         }
     } else {
         nextEpisodeGroup.querySelector('span').innerText = '';
         nextEpisodeGroup.classList.add('hidden')
-        mediaPlayer.removeAttribute('nextPlayback');
+        kongouMediaPlayer.removeAttribute('nextPlayback');
         prevEpisodeGroup.querySelector('span').innerText = '';
         prevEpisodeGroup.classList.add('hidden')
-        mediaPlayer.removeAttribute('prevPlayback');
+        kongouMediaPlayer.removeAttribute('prevPlayback');
         currentEpisode.innerText = filename.split('.')[0];
     }
 
@@ -1486,45 +1501,48 @@ async function openKMSPlayer(messageid, seriesId) {
         if (mediaRule2)
             mediaRule2.content = "#000"
     }
-    mediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
+    kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
-    const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
-    const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
-    videoPreviewPlayer.classList.add('hidden');
-    videoFullPlayer.classList.add('hidden');
+    kongouMediaVideoPreview.classList.add('hidden');
+    kongouMediaVideoFull.classList.add('hidden');
 
-    mediaPlayer.querySelector('.kms-progress-bar').style.width = "0%";
-    mediaPlayer.querySelector('.kms-progress-bar').classList.add('bg-success');
-    mediaPlayer.querySelector('.kms-progress-bar').classList.remove('bg-danger');
-    mediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
+    kongouMediaPlayer.querySelector('.kms-progress-bar').style.width = "0%";
+    kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('bg-success');
+    kongouMediaPlayer.querySelector('.kms-progress-bar').classList.remove('bg-danger');
+    kongouMediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
 
     if (fullURL && fullURL.endsWith('.mp4')) {
-        videoPreviewPlayer.src = fullURL;
+        kongouMediaVideoPreview.src = fullURL;
         try {
-            videoPreviewPlayer.play();
+            kongouMediaVideoPreview.play();
         } catch (err) { console.error(err); }
-        videoPreviewPlayer.classList.remove('hidden');
+        kongouMediaVideoPreview.classList.remove('hidden');
     } else if (previewURL && previewURL.endsWith('.mp4')) {
-        videoPreviewPlayer.src = previewURL;
+        kongouMediaVideoPreview.src = previewURL;
         try {
-            videoPreviewPlayer.play();
+            kongouMediaVideoPreview.play();
         } catch (err) { console.error(err); }
-        videoPreviewPlayer.classList.remove('hidden');
-    } else if (fullURL) {
+        kongouMediaVideoPreview.classList.remove('hidden');
+    }/* else if (fullURL) {
         imagePreview.src = fullURL;
-        videoPreviewPlayer.classList.add('hidden');
+        kongouMediaVideoPreview.classList.add('hidden');
         imagePreview.classList.remove('hidden');
     } else if (previewURL) {
         imagePreview.src = previewURL;
-        videoPreviewPlayer.classList.add('hidden');
+        kongouMediaVideoPreview.classList.add('hidden');
         imagePreview.classList.remove('hidden');
     } else {
         imagePreview.classList.add('hidden');
-        videoPreviewPlayer.classList.add('hidden');
+        kongouMediaVideoPreview.classList.add('hidden');
         console.log('No Preview');
+    }*/
+    if (kmsPreviewInterval !== null) {
+        clearInterval(kmsPreviewInterval);
+        kmsPreviewInterval = null;
     }
-    videoFullPlayer.pause();
-    videoFullPlayer.classList.add('hidden');
+    kmsPreviewInterval = setInterval(() => { kmsPreviewWatchdog(); }, 3000);
+    kongouMediaVideoFull.pause();
+    kongouMediaVideoFull.classList.add('hidden');
     if (!debugMode) {
         openUnpackingFiles(messageid, 'kms-video');
         if (active) {
@@ -1544,40 +1562,47 @@ async function openKMSPlayer(messageid, seriesId) {
         }
     }
     if (show) {
-        mediaPlayer.setAttribute('showId', show);
+        kongouMediaPlayer.setAttribute('showId', show);
     }
-    mediaPlayer.setAttribute('activePlayback', messageid);
-    mediaPlayer.setAttribute('activeFilename', filename);
-    mediaPlayer.setAttribute('activeFilesize', filesize);
-    mediaPlayer.removeAttribute('nextVideoReady');
+    kongouMediaPlayer.setAttribute('activePlayback', messageid);
+    kongouMediaPlayer.setAttribute('activeFilename', filename);
+    kongouMediaPlayer.setAttribute('activeFilesize', filesize);
+    kongouMediaPlayer.removeAttribute('nextVideoReady');
     kmsPopUpControls();
 }
 async function kmsPlayNext() {
-    const videoModel = document.getElementById('kongouMediaPlayer');
-    const messageid = videoModel.getAttribute('nextPlayback');
+    const messageid = kongouMediaPlayer.getAttribute('nextPlayback');
     await saveCurrentTimeKMS(true);
     if (messageid)
         openKMSPlayer(messageid);
 }
 async function kmsPlayPrev() {
-    const videoModel = document.getElementById('kongouMediaPlayer');
-    const messageid = videoModel.getAttribute('prevPlayback');
+    const messageid = kongouMediaPlayer.getAttribute('prevPlayback');
     await saveCurrentTimeKMS();
     if (messageid)
         openKMSPlayer(messageid);
 }
+let kmsPreviewInterval = null;
+let kmsPreviewLastPostion = null;
+async function kmsPreviewWatchdog() {
+    if (kmsPreviewInterval !== null && kmsPreviewLastPostion - kongouMediaVideoPreview.currentTime < 5) {
+        kmsPreviewLastPostion = kongouMediaVideoPreview.currentTime;
+    } else {
+        console.log('Preview Video timecode changed to a unexpected time! Possibly reached end of preview')
+        clearInterval(kmsPreviewInterval);
+        kmsPreviewInterval = null;
+    }
+}
 async function saveCurrentTimeKMS(wasNext) {
-    const videoModel = document.getElementById('kongouMediaPlayer');
-    const messageid = videoModel.getAttribute('activePlayback');
-    const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
-    if (messageid && !videoFullPlayer.classList.contains('hidden')) {
+    const messageid = kongouMediaPlayer.getAttribute('activePlayback');
+    if (messageid && !kongouMediaVideoFull.classList.contains('hidden')) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
-        const percentage = (videoFullPlayer.currentTime / videoFullPlayer.duration).toFixed(3);
+        const percentage = (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration).toFixed(3);
         console.log(percentage);
-        if (percentage > 0.05 && percentage <= 0.85) {
-            memoryVideoPositions.set(fileid, videoFullPlayer.currentTime);
+        if (percentage > 0.05 && percentage <= 0.9) {
+            memoryVideoPositions.set(fileid, kongouMediaVideoFull.currentTime);
         } else {
             memoryVideoPositions.delete(fileid);
         }
@@ -1588,7 +1613,7 @@ async function kmsScreenshot() {
     const videoPlayer = document.getElementById('kongouMediaVideoFull');
     const screenshotCanvas = document.getElementById('kongouScreenshot');
     const screenshotImages = document.getElementById('kongouScreenShots');
-    const filenameBase = (document.getElementById('kongouMediaPlayer').hasAttribute('activeFilename')) ? document.getElementById('kongouMediaPlayer').getAttribute('activeFilename') : 'untitled-videoframe'
+    const filenameBase = (kongouMediaPlayer.hasAttribute('activeFilename')) ? kongouMediaPlayer.getAttribute('activeFilename') : 'untitled-videoframe'
     const ratio = videoPlayer.videoWidth / videoPlayer.videoHeight;
     const currentVideoWidth = videoPlayer.videoWidth;
     const currentVideoHeight = parseInt(currentVideoWidth / ratio,10);
@@ -1675,30 +1700,26 @@ async function getFrameRate(video_elem){
 }
 let kmsStageMouseTimeout = null;
 async function kmsPopUpControls() {
-    if ($('.kms-title-bar')[0].style.opacity === '0' )
-        $('.kms-title-bar, .kms-bottom-bar').fadeTo(500, 1)
+    if (kongouTitleBar.style.opacity === '0' )
+        kongouControlsJQ.fadeTo(500, 1)
     clearTimeout(kmsStageMouseTimeout);
     kmsStageMouseTimeout = setTimeout(() => {
-        $('.kms-stage:not(.keep-active-controls) .kms-title-bar, .kms-stage:not(.keep-active-controls, .advanced-controls) .kms-bottom-bar').fadeTo(1000, 0);
+        kongouControlsToHideJQ.fadeTo(1000, 0);
     }, 5000);
     return false;
 }
 function toggleFullscreen() {
-    var element = document.getElementById('kongouMediaPlayer');
-    var isFullscreen = document.webkitIsFullScreen || document.mozFullScreen || false;
-    element.requestFullScreen = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || function () { return false; };
+    const isFullscreen = document.webkitIsFullScreen || document.mozFullScreen || false;
+    kongouMediaPlayer.requestFullScreen = kongouMediaPlayer.requestFullScreen || kongouMediaPlayer.webkitRequestFullScreen || kongouMediaPlayer.mozRequestFullScreen || function () { return false; };
     document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || function () { return false; };
-    isFullscreen ? document.cancelFullScreen() : element.requestFullScreen();
+    isFullscreen ? document.cancelFullScreen() : kongouMediaPlayer.requestFullScreen();
 }
 async function closeKMSPlayer() {
     document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || function () { return false; };
     if (document.webkitIsFullScreen || document.mozFullScreen)
         document.cancelFullScreen();
-    const videoModel = document.getElementById('kongouMediaPlayer');
-    const messageid = videoModel.getAttribute('activePlayback');
-    const nextMessageid = videoModel.getAttribute('nextPlayback');
-    const videoPreviewPlayer = videoModel.querySelector('#kongouMediaVideoPreview');
-    const videoFullPlayer = videoModel.querySelector('#kongouMediaVideoFull');
+    const messageid = kongouMediaPlayer.getAttribute('activePlayback');
+    const nextMessageid = kongouMediaPlayer.getAttribute('nextPlayback');
     await saveCurrentTimeKMS();
     if (messageid) {
         const _post = document.getElementById(`message-${messageid}`);
@@ -1710,27 +1731,25 @@ async function closeKMSPlayer() {
         const fileid = _post.getAttribute('data-msg-fileid');
         stopUnpackingFiles(fileid);
     }
-    videoPreviewPlayer.pause();
-    videoFullPlayer.pause();
+    kongouMediaVideoPreview.pause();
+    kongouMediaVideoFull.pause();
     document.querySelector('body').classList.remove('kms-play-open');
     clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
-    videoPreviewPlayer.classList.add('hidden');
-    videoFullPlayer.classList.add('hidden');
-    videoModel.removeAttribute('activePlayback');
-    videoModel.removeAttribute('nextVideoReady');
-    videoModel.removeAttribute('nextPlayback');
-    videoModel.removeAttribute('prevPlayback');
+    kongouMediaVideoPreview.classList.add('hidden');
+    kongouMediaVideoFull.classList.add('hidden');
+    kongouMediaPlayer.removeAttribute('activePlayback');
+    kongouMediaPlayer.removeAttribute('nextVideoReady');
+    kongouMediaPlayer.removeAttribute('nextPlayback');
+    kongouMediaPlayer.removeAttribute('prevPlayback');
 }
 async function checkKMSTimecode() {
-    const mediaPlayer = document.getElementById('kongouMediaPlayer');
-    const messageid = mediaPlayer.getAttribute('nextPlayback');
-    const isReady = mediaPlayer.getAttribute('nextVideoReady');
-    const videoFullPlayer = mediaPlayer.querySelector('#kongouMediaVideoFull');
+    const messageid = kongouMediaPlayer.getAttribute('nextPlayback');
+    const isReady = kongouMediaPlayer.getAttribute('nextVideoReady');
     if (messageid && document.querySelector('body').classList.contains('kms-play-open') &&
-    !videoFullPlayer.classList.contains('hidden')) {
+    !kongouMediaVideoFull.classList.contains('hidden')) {
         await saveCurrentTimeKMS();
-        if (!isReady && ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.55)) {
-            mediaPlayer.setAttribute('nextVideoReady', 'true');
+        if (!isReady && ((kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.55)) {
+            kongouMediaPlayer.setAttribute('nextVideoReady', 'true');
             openUnpackingFiles(messageid, 'kms-video', true);
         }
     }
@@ -1786,11 +1805,10 @@ async function unpackFile() {
         console.log(`Downloading File ${activeSpannedJob.id}...`)
         activeSpannedJob.pending = false;
         const videoModel = document.getElementById('videoBuilderModal');
-        const kmsPlayer = document.getElementById('kongouMediaPlayer');
         const videoStatus = videoModel.querySelector('span.status-text');
         const videoProgress = videoModel.querySelector('.progress > .progress-bar');
-        const kmsStatus = kmsPlayer.querySelector('.kms-status-bar > span');
-        const kmsProgress = kmsPlayer.querySelector('.kms-progress-bar');
+        const kmsStatus = kongouMediaPlayer.querySelector('.kms-status-bar > span');
+        const kmsProgress = kongouMediaPlayer.querySelector('.kms-progress-bar');
 
         videoStatus.innerText = 'Getting Parity Metadata...';
         return await new Promise(async (job) => {
@@ -1835,7 +1853,7 @@ async function unpackFile() {
                                             kmsProgress.style.width = activeSpannedJob.progress;
                                         }
                                     }
-                                    kmsPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
+                                    kongouMediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
                                     while (Object.keys(pendingBlobs).length !== 0) {
                                         if (!activeSpannedJob.ready)
                                             break;
@@ -1913,7 +1931,7 @@ async function unpackFile() {
                                             videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
                                         } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video') {
                                             kmsStatus.innerText = ``;
-                                            kmsPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
+                                            kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                                         } else {
                                             $.toast({
                                                 type: 'success',

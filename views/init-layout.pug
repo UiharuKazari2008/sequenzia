@@ -938,7 +938,7 @@ html
                 .kms-logo-center
             .kms-media-inner
                 #kongouStage.kms-stage
-                    #kongouPlayerElement.kms-player-video.d-flex
+                    .kms-player-video.d-flex
                         .kms-progress.d-flex
                             .kms-progress-bar.hidden(style='width: 100%')
                         .kms-title-bar.d-flex
@@ -1018,13 +1018,14 @@ html
                                 a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pl-3
                                     i.fas.fa-expand-wide
                         .kms-warnings.d-flex.flex-column
-                            #kmsWarningProgress.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden
-                                i.fas.fa-history.pr-2
-                                span Video will continue at your previous position once it has been full loaded!
-                            #kmsWarningQuality.alert.alert-warning.mt-auto.mb-auto.ml-auto.mr-auto.hidden(style='opacity: 0.5;')
-                                i.fas.fa-box-open.pr-2
-                                span Video quality will improve once it has been full loaded!
-                        div.video-holder
+                            .mt-auto.mb-auto.ml-auto.mr-auto
+                                #kmsWarningProgress.alert.alert-warning.hidden.my-2
+                                    i.fas.fa-history.pr-2
+                                    span Video will continue at your previous position once it has been full loaded!
+                                #kmsWarningQuality.alert.alert-warning.hidden.my-2(style='opacity: 0.5;')
+                                    i.fas.fa-box-open.pr-2
+                                    span Video quality will improve once it has been full loaded!
+                        div#kongouPlayerElement.video-holder
                             div#videoElements.position-relative
                                 img.video-logo-overlay(src='/static/img/sequenzia-logo-white.png')
                                 video#kongouMediaVideoPreview.kms-media-player(preload="true" playsinline webkit-playsinline style="background: transparent; background-clip: content-box;")

@@ -1,5 +1,6 @@
 var music = document.getElementById('audioplayerobject');
 var video = document.getElementById('videoplayerobject');
+const kongouMediaPlayer = document.getElementById('kongouMediaPlayer');
 const kongouMediaVideoFull = document.getElementById('kongouMediaVideoFull');
 const kongouMediaVideoPreview = document.getElementById('kongouMediaVideoPreview');
 const kongouControlsPlay = document.getElementById('kongouControlsPlay');
@@ -24,6 +25,9 @@ const kongouControlsSeekUnavalible = document.getElementById('seekControls');
 const kongouControlsVolume = new Slider("#kongouControlsVolume", {  });
 const kongouControlsMute = document.getElementById('kongouControlsMute');
 const kongouControlsVolumeIcon = kongouControlsMute.querySelector('i');
+const kongouTitleBar = kongouMediaPlayer.querySelector('.kms-title-bar')
+const kongouControlsJQ = $('.kms-title-bar, .kms-bottom-bar')
+const kongouControlsToHideJQ = $('.kms-stage:not(.keep-active-controls) .kms-title-bar, .kms-stage:not(.keep-active-controls, .advanced-controls) .kms-bottom-bar')
 
 music.addEventListener('ended', CloseMusic);
 video.addEventListener('ended', CloseVideo);
@@ -157,9 +161,7 @@ kongouControlsMute.addEventListener("click", function() {
         kongouControlsVolumeIcon.classList = ((_ap.muted) ? 'fas fa-volume-slash' : (kongouControlsVolume.value > 0.5) ? 'fas fa-volume-high' : (kongouControlsVolume.value > 0.25) ? 'fas fa-volume pr-1' : 'fas fa-volume-low pr-2').toString();
     }
 });
-document.getElementById("kongouPlayerElement").addEventListener("mouseover", kmsPopUpControls);
-document.getElementById("kongouPlayerElement").addEventListener("touchstart", kmsPopUpControls);
-videoElements.addEventListener("mouseover", kmsPopUpControls);
+videoElements.addEventListener("mousemove", kmsPopUpControls);
 videoElements.addEventListener("touchstart", kmsPopUpControls);
 kongouControlsVolume.on('change', (e) => {
     ((!kongouMediaVideoFull.classList.contains('hidden')) ? kongouMediaVideoFull : kongouMediaVideoPreview).volume = e.newValue / 100;
