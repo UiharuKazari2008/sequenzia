@@ -3082,6 +3082,17 @@ async function setSeasonHistory(index, viewed) {
                 success: function (res, txt, xhr) {
                     if (xhr.status < 400) {
                         console.log(res);
+                        e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
+                        if (viewed > 0.8)
+                            e.classList.add('watched-episode')
+                        const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
+                        if (viewed > 0) {
+                            icon.classList.add('fa-eye-slash')
+                            icon.classList.remove('fa-check')
+                        } else {
+                            icon.classList.remove('fa-eye-slash')
+                            icon.classList.add('fa-check')
+                        }
                     } else {
                         $.snack('error', `Failed to update watch history`, 3000)
                         console.log(res.responseText);
@@ -3115,6 +3126,17 @@ async function setShowHistory(viewed) {
                 success: function (res, txt, xhr) {
                     if (xhr.status < 400) {
                         console.log(res);
+                        e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
+                        if (viewed > 0.8)
+                            e.classList.add('watched-episode')
+                        const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
+                        if (viewed > 0) {
+                            icon.classList.add('fa-eye-slash')
+                            icon.classList.remove('fa-check')
+                        } else {
+                            icon.classList.remove('fa-eye-slash')
+                            icon.classList.add('fa-check')
+                        }
                     } else {
                         $.snack('error', `Failed to update watch history`, 3000)
                         console.log(res.responseText);
@@ -3127,6 +3149,9 @@ async function setShowHistory(viewed) {
         }
         return false;
     })
+}
+async function toggleWatchHistory(eid) {
+    return setWatchHistory(eid, (document.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check`)) ? 1 : 0);
 }
 async function setWatchHistory(eid, viewed) {
     const percentage = (!isNaN(viewed) && viewed > 0.05) ? (viewed <= 0.80) ? viewed : 1 : 0
@@ -3146,6 +3171,23 @@ async function setWatchHistory(eid, viewed) {
         success: function (res, txt, xhr) {
             if (xhr.status < 400) {
                 console.log(res);
+                const e = document.querySelector(`[data-msg-eid="${eid}"]`)
+                if (e) {
+                    e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
+                    if (viewed > 0.8) {
+                        e.classList.add('watched-episode')
+                    } else {
+                        e.classList.remove('watched-episode')
+                    }
+                    const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
+                    if (viewed > 0) {
+                        icon.classList.add('fa-eye-slash')
+                        icon.classList.remove('fa-check')
+                    } else {
+                        icon.classList.remove('fa-eye-slash')
+                        icon.classList.add('fa-check')
+                    }
+                }
             } else {
                 $.snack('error', `Failed to update watch history`, 3000)
                 console.log(res.responseText);
