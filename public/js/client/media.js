@@ -147,7 +147,7 @@ kongouMediaVideoFull.addEventListener("timeupdate", async () => {
 kongouMediaVideoPreview.addEventListener("timeupdate", async () => {
     if (!kongouMediaVideoPreview.classList.contains('hidden')) {
         kongouControlsSeekSlider.setValue((1 / kongouMediaVideoPreview.duration) * kongouMediaVideoPreview.currentTime)
-        kongouTimeCode.innerHTML = genreateDigitalFont(msToTime(kongouMediaVideoFull.currentTime * 1000));
+        kongouTimeCode.innerHTML = genreateDigitalFont(msToTime(kongouMediaVideoPreview.currentTime * 1000));
     }
 });
 kongouControlsMute.addEventListener("click", function() {
