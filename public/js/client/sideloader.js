@@ -1573,7 +1573,7 @@ async function saveCurrentTimeKMS(wasNext) {
     if (messageid && !videoFullPlayer.classList.contains('hidden')) {
         const _post = document.getElementById(`message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
-        const eid = _post`.getAttribute('data-msg-eid');`
+        const eid = _post.getAttribute('data-msg-eid');
         const percentage = (videoFullPlayer.currentTime / videoFullPlayer.duration).toFixed(3);
         console.log(percentage);
         if (percentage > 0.05 && percentage <= 0.85) {
