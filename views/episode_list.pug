@@ -33,7 +33,7 @@ block content
                 each show in shows
                     - showData = show[0].media.show.meta
                     if (showData.seasons)
-                        - seasons = showData.seasons.filter(e => e.episodes.filter(f => !!f.entity).length > 0)
+                        - seasons = showData.seasons
                         - nextEpisode = show.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < .9) ) && e.media.meta.season !== 0)
                         - banner = (nextEpisode.length > 0) ? nextEpisode : show
                         .show-header.slim-line.mb-3.p-3
@@ -193,7 +193,7 @@ block content
                 }
 
 
-            - seasons = showData.seasons.filter(e => e.episodes.filter(f => !!f.entity).length > 0)
+            - seasons = showData.seasons
             - banner = results.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < 1)) && e.media.meta.season !== 0)
             - banner = (banner.length > 0) ? banner : results
             - nextEpisode = results.filter(e => e.media.meta.season !== 0 && (!e.media.watched || (e.media.watched && e.media.watched <= .85)))
