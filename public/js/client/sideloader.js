@@ -1109,7 +1109,9 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
         const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getFileIfAvailable(fileid)
 
         if (fastAccess) {
-            if (playThis === 'audio') {
+            if (downloadPreemptive) {
+                console.log(`File ${filename} is ready`)
+            } else if (playThis === 'audio') {
                 PlayTrack(fastAccess);
             } else if (playThis === 'video') {
                 $('#videoBuilderModal').modal('hide');
@@ -1118,7 +1120,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     memoryVideoPositions.set(fileid, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(fastAccess, `${channelString}/${filename} (${filesize})`, fileid);
-            } else if (playThis === 'kms-video' && !downloadPreemptive) {
+            } else if (playThis === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1145,8 +1147,6 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
-            } else if (playThis === 'kms-video') {
-                console.log(`File ${filename} is ready for playback`)
             } else {
                 if (element) {
                     element.click();
@@ -1162,7 +1162,9 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
         } else if (storedFile) {
             const previousJob = storedFile;
             const href = (element) ? element.href : (storedFile.href) ? storedFile.href : false;
-            if (previousJob.play === 'audio') {
+            if (downloadPreemptive) {
+                console.log(`File ${filename} is ready`)
+            } else if (previousJob.play === 'audio') {
                 PlayTrack(href);
             } else if (previousJob.play === 'video') {
                 $('#videoBuilderModal').modal('hide');
@@ -1171,7 +1173,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     memoryVideoPositions.set(previousJob.id, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
-            } else if (previousJob.play === 'kms-video' && !downloadPreemptive) {
+            } else if (previousJob.play === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1198,8 +1200,6 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
-            } else if (previousJob.play === 'kms-video') {
-                console.log(`File ${filename} is ready for playback`)
             } else {
                 if (element) {
                     element.click();
@@ -1328,7 +1328,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     delay: 5000,
                 });
             }
-        } else {
+        } else if (!downloadPreemptive) {
             $.toast({
                 type: 'warning',
                 title: 'Unpack File',
