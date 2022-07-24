@@ -1118,7 +1118,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     memoryVideoPositions.set(fileid, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(fastAccess, `${channelString}/${filename} (${filesize})`, fileid);
-            } else if (playThis === 'kms-video' || (previousJob.play === 'kms-video-preemptive' && !downloadPreemptive)) {
+            } else if (playThis === 'kms-video' && !downloadPreemptive) {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1145,7 +1145,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
-            } else if (playThis === 'kms-video-preemptive') {
+            } else if (playThis === 'kms-video') {
                 console.log(`File ${filename} is ready for playback`)
             } else {
                 if (element) {
@@ -1171,7 +1171,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     memoryVideoPositions.set(previousJob.id, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
-            } else if (previousJob.play === 'kms-video' || (previousJob.play === 'kms-video-preemptive' && !downloadPreemptive)) {
+            } else if (previousJob.play === 'kms-video' && !downloadPreemptive) {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1198,7 +1198,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 mediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                 document.getElementById('kmsWarningProgress').classList.add('hidden');
                 document.getElementById('kmsWarningQuality').classList.add('hidden');
-            } else if (previousJob.play === 'kms-video-preemptive') {
+            } else if (previousJob.play === 'kms-video') {
                 console.log(`File ${filename} is ready for playback`)
             } else {
                 if (element) {
@@ -1222,7 +1222,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 ready: true,
                 play: playThis
             })
-            if (!playThis || (playThis !== 'video' && playThis !== 'kms-video' && playThis !== 'kms-video-preemptive')) {
+            if (!playThis || (playThis !== 'video' && playThis !== 'kms-video')) {
                 $.toast({
                     type: 'success',
                     title: 'Unpack File',
@@ -1259,7 +1259,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                                     videoPlayer.pause();
                                     memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
                                     PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, activeSpannedJob.id);
-                                } else if (activeSpannedJob.play === 'kms-video') {
+                                } else if (activeSpannedJob.play === 'kms-video' && !downloadPreemptive) {
                                     const kmsprogress = _post.getAttribute('data-kms-progress');
                                     const mediaPlayer = document.getElementById('kongouMediaPlayer');
                                     const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1295,7 +1295,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                                         document.getElementById('kmsWarningProgress').classList.add('hidden');
                                         document.getElementById('kmsWarningQuality').classList.add('hidden');
                                     }, 500);
-                                } else if (activeSpannedJob.play === 'kms-video-preemptive') {
+                                } else if (activeSpannedJob.play === 'kms-video') {
                                     console.log(`File ${filename} is ready for playback`)
                                 } else {
                                     console.error('No Datatype was provided')
@@ -1321,7 +1321,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 ready: true,
                 play: playThis
             })
-            if (!playThis || (playThis && playThis !== 'video' && playThis !== 'kms-video-preemptive')) {
+            if (!playThis || (playThis && playThis !== 'video' && !downloadPreemptive)) {
                 $.toast({
                     type: 'success',
                     title: 'Unpack File',
@@ -1734,7 +1734,7 @@ async function checkKMSTimecode() {
         await saveCurrentTimeKMS();
         if (!isReady && ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.55)) {
             mediaPlayer.setAttribute('nextVideoReady', 'true');
-            openUnpackingFiles(messageid, 'kms-video-preemptive', true);
+            openUnpackingFiles(messageid, 'kms-video', true);
         }
     }
 }
@@ -1833,7 +1833,7 @@ async function unpackFile() {
                                         if (activeSpannedJob.play === 'video') {
                                             videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Pending`;
                                             videoProgress.style.width = activeSpannedJob.progress;
-                                        } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                                        } else if (activeSpannedJob.play === 'kms-video') {
                                             kmsStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length}/${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Blocks`;
                                             kmsProgress.style.width = activeSpannedJob.progress;
                                         }
@@ -1873,7 +1873,7 @@ async function unpackFile() {
                                     if (activeSpannedJob && activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
                                         activeSpannedJob.progress = `100%`;
                                         let blobType = {}
-                                        if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive')
+                                        if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video')
                                             blobType.type = 'video/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
                                         if (activeSpannedJob.play === 'audio')
                                             blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
@@ -1914,7 +1914,7 @@ async function unpackFile() {
 
                                         if (activeSpannedJob && activeSpannedJob.play === 'video') {
                                             videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
-                                        } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                                        } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video') {
                                             kmsStatus.innerText = ``;
                                             kmsPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
                                         } else {
@@ -1932,7 +1932,7 @@ async function unpackFile() {
                                             videoStatus.innerText = `Failed, Not all blocks where downloaded`;
                                             videoProgress.classList.remove('bg-success');
                                             videoProgress.classList.add('bg-danger');
-                                        } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                                        } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video') {
                                             kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
                                             kmsProgress.classList.remove('bg-success');
                                             kmsProgress.classList.add('bg-danger');
@@ -1952,7 +1952,7 @@ async function unpackFile() {
                                         videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
                                         videoProgress.classList.remove('bg-success');
                                         videoProgress.classList.add('bg-danger');
-                                    } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                                    } else if (activeSpannedJob.play === 'kms-video') {
                                         kmsStatus.innerText = `File is damaged or is missing blocks!`;
                                         kmsProgress.classList.remove('bg-success');
                                         kmsProgress.classList.add('bg-danger');
@@ -1972,7 +1972,7 @@ async function unpackFile() {
                                     videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
                                     videoProgress.classList.remove('bg-success');
                                     videoProgress.classList.add('bg-danger');
-                                } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                                } else if (activeSpannedJob.play === 'kms-video') {
                                     kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
                                     kmsProgress.classList.remove('bg-success');
                                     kmsProgress.classList.add('bg-danger');
@@ -1993,7 +1993,7 @@ async function unpackFile() {
                                 videoStatus.innerText = `Handler Failure: ${e.message}`;
                                 videoProgress.classList.remove('bg-success');
                                 videoProgress.classList.add('bg-danger');
-                            } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                            } else if (activeSpannedJob.play === 'kms-video') {
                                 kmsStatus.innerText = `Handler Failure: ${e.message}`;
                                 kmsProgress.classList.remove('bg-success');
                                 kmsProgress.classList.add('bg-danger');
@@ -2013,7 +2013,7 @@ async function unpackFile() {
                             videoStatus.innerText = `Server Error: ${response}`;
                             videoProgress.classList.remove('bg-success');
                             videoProgress.classList.add('bg-danger');
-                        } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                        } else if (activeSpannedJob.play === 'kms-video') {
                             kmsStatus.innerText = `Server Error: ${response}`;
                             kmsProgress.classList.remove('bg-success');
                             kmsProgress.classList.add('bg-danger');
@@ -2038,7 +2038,7 @@ async function unpackFile() {
                         videoStatus.innerText = `Server Error: ${xhr.responseText}`;
                         videoProgress.classList.remove('bg-success');
                         videoProgress.classList.add('bg-danger');
-                    } else if (activeSpannedJob.play === 'kms-video' || activeSpannedJob.play === 'kms-video-preemptive') {
+                    } else if (activeSpannedJob.play === 'kms-video') {
                         kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
                         kmsProgress.classList.remove('bg-success');
                         kmsProgress.classList.add('bg-danger');
@@ -2099,7 +2099,7 @@ async function updateNotficationsPanel() {
                 results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
                 if (item.play) {
                     let clickAction = undefined;
-                    if (item.play === 'video' || item.play === 'kms-video' || (activeSpannedJob && activeSpannedJob.play === 'kms-video-preemptive')) {
+                    if (item.play === 'video' || item.play === 'kms-video') {
                         clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
                     } else if (item.play === 'audio') {
                         clickAction = `PlayTrack('${element.href}');`
@@ -2110,7 +2110,7 @@ async function updateNotficationsPanel() {
                     results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
                 }
                 if (item.play) {
-                    if (item.play === 'video' || item.play === 'kms-video' || (activeSpannedJob && activeSpannedJob.play === 'kms-video-preemptive')) {
+                    if (item.play === 'video' || item.play === 'kms-video') {
                         results.push(`<i class="fas fa-film mr-1"></i>`)
                     } else if (item.play === 'audio') {
                         results.push(`<i class="fas fa-music mr-1"></i>`)
@@ -2142,7 +2142,7 @@ async function updateNotficationsPanel() {
                 results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
                 if (item.play) {
                     let clickAction = undefined;
-                    if (item.play === 'video' || item.play === 'kms-video' || (activeSpannedJob && activeSpannedJob.play === 'kms-video-preemptive')) {
+                    if (item.play === 'video' || item.play === 'kms-video') {
                         clickAction = `PlayVideo('${item.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
                     } else if (item.play === 'audio') {
                         clickAction = `PlayTrack('${item.href}');`
@@ -2153,7 +2153,7 @@ async function updateNotficationsPanel() {
                     results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Save File" href="${item.href}" role='button')>`);
                 }
                 if (item.play) {
-                    if (item.play === 'video' || item.play === 'kms-video' || (activeSpannedJob && activeSpannedJob.play === 'kms-video-preemptive')) {
+                    if (item.play === 'video' || item.play === 'kms-video') {
                         results.push(`<i class="fas fa-film mr-1"></i>`)
                     } else if (item.play === 'audio') {
                         results.push(`<i class="fas fa-music mr-1"></i>`)
