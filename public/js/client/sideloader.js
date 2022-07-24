@@ -1095,7 +1095,7 @@ async function getAllOfflineFiles() {
         }
     })
 }
-async function openUnpackingFiles(messageid, playThis) {
+async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
     const _post = document.getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
     const filename = _post.getAttribute('data-msg-filename');
@@ -1118,7 +1118,7 @@ async function openUnpackingFiles(messageid, playThis) {
                     memoryVideoPositions.set(fileid, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(fastAccess, `${channelString}/${filename} (${filesize})`, fileid);
-            } else if (playThis === 'kms-video') {
+            } else if (playThis === 'kms-video' || (previousJob.play === 'kms-video-preemptive' && !downloadPreemptive)) {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1171,7 +1171,7 @@ async function openUnpackingFiles(messageid, playThis) {
                     memoryVideoPositions.set(previousJob.id, videoPlayer.currentTime);
                 videoPlayer.pause();
                 PlayVideo(href, `${previousJob.channel}/${previousJob.name} (${previousJob.size})`, fileid);
-            } else if (previousJob.play === 'kms-video') {
+            } else if (previousJob.play === 'kms-video' || (previousJob.play === 'kms-video-preemptive' && !downloadPreemptive)) {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 const mediaPlayer = document.getElementById('kongouMediaPlayer');
                 const videoPreviewPlayer = mediaPlayer.querySelector('#kongouMediaVideoPreview');
@@ -1603,9 +1603,13 @@ async function kmsScreenshot() {
         const url = window.URL.createObjectURL(data);
         const screenshotImageItem = document.createElement('a');
         screenshotImageItem.href = '#_';
+        const idSs = 'screenshot-' + screenshotImages.childElementCount + 1
+        screenshotImageItem.id = idSs;
         const timecode = parseFloat(kongouMediaVideoFull.currentTime.toString())
         screenshotImageItem.onclick = (e) => {
-            kongouMediaVideoFull.currentTime = timecode;
+            const item = document.getElementById(`screenshot-${idSs}`);
+            window.URL.revokeObjectURL(url);
+            item.remove();
             e.preventDefault();
             return false;
         }
@@ -1730,7 +1734,7 @@ async function checkKMSTimecode() {
         await saveCurrentTimeKMS();
         if (!isReady && ((videoFullPlayer.currentTime / videoFullPlayer.duration) >= 0.55)) {
             mediaPlayer.setAttribute('nextVideoReady', 'true');
-            openUnpackingFiles(messageid, 'kms-video-preemptive');
+            openUnpackingFiles(messageid, 'kms-video-preemptive', true);
         }
     }
 }
