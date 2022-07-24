@@ -1606,9 +1606,9 @@ async function kmsScreenshot() {
         const idSs = 'screenshot-' + screenshotImages.childElementCount + 1
         screenshotImageItem.id = idSs;
         const timecode = parseFloat(kongouMediaVideoFull.currentTime.toString())
-        screenshotImageItem.onclick = (e) => {
-            window.URL.revokeObjectURL(screenshotImages.getElementById(idSs).querySelector('img').src);
-            screenshotImages.removeChild(screenshotImages.getElementById(idSs));
+        screenshotImageItem.onclick = function (e) {
+            window.URL.revokeObjectURL(document.getElementById(idSs).querySelector('img').src);
+            document.getElementById(idSs).remove();
             e.preventDefault();
             return false;
         }
