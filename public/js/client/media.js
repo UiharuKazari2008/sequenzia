@@ -52,19 +52,17 @@ function blinkTimecode() {
     }
 }
 kongouMediaVideoFull.addEventListener('playing', async () => {
-    console.log('KMS PLayer Active')
-    kongouControlsPlayIcon.classList = 'fas fa-pause pl-1'
+    kongouControlsPlayIcon.classList = 'fas fa-pause pl-1';
     kmsVideoWatcher = setInterval(checkKMSTimecode, 300000);
     document.getElementById('kongouStage').classList.remove('keep-active-controls');
     kmsPopUpControls();
     clearInterval(blinkInterval);
     blinkInterval = null;
-    kongouTimeCode.style.opacity = '1'
+    kongouTimeCode.style.opacity = '1';
 })
 kongouMediaVideoFull.addEventListener('pause', () => {
-    console.log('KMS Player Paused')
-    videoPosition = parseFloat(kongouMediaVideoFull.currentTime.toString())
-    kongouControlsPlayIcon.classList = 'fas fa-play'
+    videoPosition = kongouMediaVideoFull.currentTime
+    kongouControlsPlayIcon.classList = 'fas fa-play';
     saveCurrentTimeKMS();
     if (!kongouMediaVideoFull.classList.contains('hidden') &&
         (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.98) {
@@ -179,26 +177,25 @@ kongouControlsSpeedSlider.on("change", function(e) {
 });
 let miniframeactive = false;
 let miniframetimer = false;
-kongouControlsMiniFrameSlider.on("change", function(e) {
-    if (!kongouMediaVideoFull.classList.contains('hidden') && miniframeactive && !miniframetimer) {
-        kongouMediaVideoFull.currentTime = videoPosition + ((((1 / 23.976) * 3) * 60) * e.newValue);
+kongouControlsMiniFrameSlider.on("slide", function(e) {
+    if (!kongouMediaVideoFull.classList.contains('hidden') && miniframetimer === null) {
+        if (!miniframeactive) {
+            kongouMediaVideoFull.pause();
+            if (!videoPosition || videoPosition > 1)
+                videoPosition = kongouMediaVideoFull.currentTime
+            miniframeactive = true;
+        }
+        kongouMediaVideoFull.currentTime = videoPosition + ((((1 / 23.976) * 3) * 60) * e);
         miniframetimer = setTimeout(() => {
             clearTimeout(miniframetimer);
             miniframetimer = null;
         }, 150)
     }
 });
-kongouControlsMiniFrameSlider.on("slideStart", function() {
-    if (!videoPosition)
-        videoPosition = parseFloat(kongouMediaVideoFull.currentTime.toString())
-    if (!kongouMediaVideoFull.classList.contains('hidden'))
-        kongouMediaVideoFull.pause();
-    miniframeactive = true;
-});
 kongouControlsMiniFrameSlider.on("slideStop", function() {
     miniframeactive = false;
     kongouControlsMiniFrameSlider.setValue(0);
-    videoPosition = parseFloat(kongouMediaVideoFull.currentTime.toString())
+    videoPosition = kongouMediaVideoFull.currentTime
     clearTimeout(miniframetimer);
     miniframetimer = null;
 });

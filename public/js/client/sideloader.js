@@ -1151,6 +1151,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 kmsPreviewLastPostion = null;
                 clearInterval(kmsPreviewInterval)
                 kmsPreviewInterval = null;
+                kmsPreviewPrematureEnding = false;
                 kongouControlsSeekUnavalible.classList.remove('no-seeking');
                 kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
                 kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
@@ -1212,6 +1213,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 kmsPreviewLastPostion = null;
                 clearInterval(kmsPreviewInterval)
                 kmsPreviewInterval = null;
+                kmsPreviewPrematureEnding = false;
                 kongouControlsSeekUnavalible.classList.remove('no-seeking');
                 kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ``;
                 kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
@@ -1288,14 +1290,14 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                                     if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
                                         kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
                                     } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
-                                        if (kmsPreviewLastPostion - kongouMediaVideoPreview.currentTime < 5) {
+                                        if (!kmsPreviewPrematureEnding && kongouMediaVideoPreview.currentTime && kmsPreviewLastPostion < 5) {
                                             kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
                                         } else {
                                             kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
                                         }
                                     }
                                     setTimeout(async () => {
-                                        if (kongouMediaVideoPreview.paused) {
+                                        if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
                                             kongouMediaVideoFull.pause();
                                         } else if (kongouMediaVideoFull.paused) {
                                             try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
@@ -1304,6 +1306,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                                         kongouMediaVideoPreview.classList.add('hidden');
                                         kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
                                         kmsPreviewLastPostion = null;
+                                        kmsPreviewPrematureEnding = false;
                                         clearInterval(kmsPreviewInterval)
                                         kmsPreviewInterval = null;
                                         kongouMediaVideoFull.classList.remove('hidden');
@@ -1584,13 +1587,17 @@ async function kmsPlayPrev() {
 }
 let kmsPreviewInterval = null;
 let kmsPreviewLastPostion = null;
+let kmsPreviewPrematureEnding = false;
 async function kmsPreviewWatchdog() {
-    if (kmsPreviewInterval !== null && kmsPreviewLastPostion - kongouMediaVideoPreview.currentTime < 5) {
+    if (kmsPreviewInterval !== null && !kongouMediaVideoPreview.paused && kongouMediaVideoPreview.currentTime - kmsPreviewLastPostion < 6) {
         kmsPreviewLastPostion = kongouMediaVideoPreview.currentTime;
+        console.log(kmsPreviewLastPostion)
+        kmsPreviewPrematureEnding = false;
     } else {
         console.log('Preview Video timecode changed to a unexpected time! Possibly reached end of preview')
         clearInterval(kmsPreviewInterval);
         kmsPreviewInterval = null;
+        kmsPreviewPrematureEnding = true;
     }
 }
 async function saveCurrentTimeKMS(wasNext) {

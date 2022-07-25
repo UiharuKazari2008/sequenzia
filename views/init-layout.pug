@@ -959,7 +959,7 @@ html
                                     .div.text-ellipsis.d-none.d-md-block
                                         span.pr-2 Next Episode: Name Goes Here
                                     i.fas.fa-forward-fast
-                        .kms-bottom-bar.d-flex
+                        .kms-bottom-bar.d-flex.px-2
                             #kongouScreenshotContainer.kms-screenshot-contaner.hidden.mb-3.flex-row
                                 #kongouScreenShots.kms-screenshot-images
                                 .kms-screenshot-options.d-flex.flex-column
@@ -969,41 +969,38 @@ html
                                         i.fas.fa-upload
                                     a.btn.btn-primary(href='#_' onclick=`kmsSaveScreenshots(); return false;`)
                                         i.fas.fa-download
-                            #kongouAdvancedControls.kms-player-playback-advanced.align-items-center.mb-2.flex-column.flex-md-row
+                            #kongouAdvancedControls.kms-player-playback-advanced.align-items-center.mb-3.flex-column.flex-md-row
                                 div.d-flex
                                     div.d-flex.align-items-center
-                                        a(href='#_' onclick=`kmsScreenshot(); return false;`).mr-md-4.d-flex.align-items-center.btn.btn-primary.btn-small
-                                            i.fas.fa-camera-viewfinder.pr-1
-                                            span.d-none.d-sm-inline Capture
+                                        a(href='#_' onclick=`kmsScreenshot(); return false;`).pl-4.pr-2.d-flex.align-items-center
+                                            i.fas.fa-camera-viewfinder
                                     div.d-flex.align-items-center
-                                        a(href='#_' onclick=`kmsSeek(true, -1); return false;`).mr-2.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsSeek(true, -1); return false;`).px-2.d-flex.align-items-center
                                             i.fas.fa-backward-step
-                                        a(href='#_' onclick=`kmsSeek(false, -1); return false;`).mr-3.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsSeek(false, -1); return false;`).px-2.d-flex.align-items-center
                                             i.fas.fa-backward
-                                        a(href='#_' onclick=`return false;`).d-none.d-lg-flex.mr-2.align-items-center
-                                            i.fas.fa-brackets-square
-                                        div.kongou-frameer.d-inline.mr-3
+                                        div.kongou-frameer.d-inline
                                             input#kongouControlsMiniFrame(data-slider-id='kongouControlsMiniFrame' type='text' data-slider-min='-1' data-slider-max='1' data-slider-step='0.001' data-slider-value='0' data-slider-ticks='[-1, 0, 1]')
-                                        a(href='#_' onclick=`kmsSeek(false, 1); return false;`).mr-2.d-flex.align-items-center
-                                            i.fas.fa-forward.pr-2
-                                        a(href='#_' onclick=`kmsSeek(true, 1); return false;`).mr-md-4.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsSeek(false, 1); return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-forward
+                                        a(href='#_' onclick=`kmsSeek(true, 1); return false;`).px-2.d-flex.align-items-center
                                             i.fas.fa-forward-step
                                 div.d-flex
                                     div.d-flex.align-items-center
-                                        a(href='#_' onclick=`return false;`).mr-md-2.d-flex.align-items-center
+                                        a(href='#_' onclick=`return false;`).px-2.d-flex.align-items-center
                                             i.fas.fa-timer
                                     div.kongou-frameer.d-flex.align-items-center.mr-md-4
                                         input#kongouControlsJogSeek(data-slider-id='kongouControlsJogSeek' type='text' data-slider-min='-1' data-slider-max='1' data-slider-step='0.005' data-slider-value='0' data-slider-ticks='[-1, 0, 1]')
 
                                 div.d-flex
                                     div.d-flex.align-items-center
-                                        a(href='#_' onclick=`kongouControlsSpeedSlider.setValue(1); return false;`).mr-md-2.d-flex.align-items-center
+                                        a(href='#_' onclick=`kongouControlsSpeedSlider.setValue(1); return false;`).px-2.d-flex.align-items-center
                                             i.fas.fa-turtle
                                     div.kongou-frameer.d-flex.align-items-center
                                         input#kongouControlsSpeed(data-slider-id='kongouControlsSpeed' type='text' data-slider-min='0.1' data-slider-max='2' data-slider-step='0.01' data-slider-value='1' data-slider-ticks='[0.1, 1, 2]')
 
                             .kms-player-playback-controls.d-flex.align-items-center
-                                a#kongouControlsPlay(href='#_').pr-4
+                                a#kongouControlsPlay(href='#_').px-4
                                     i.fas.fa-pause.pl-1
                                 div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3
                                     span.digital-font 00
@@ -1012,10 +1009,10 @@ html
                                 div#seekControls.no-seeking.d-flex.w-100
                                     input#kongouControlsSeek(data-slider-id='kongouControlsSeek' type='text' data-slider-min='0' data-slider-max='1' data-slider-step='0.0001' data-slider-value='0')
                                     span#kongouControlsSeekUnavalible.mr-auto Preparing Video...
-                                a#kongouControlsMute(href='#_').pr-2.pl-3
+                                a#kongouControlsMute(href='#_').px-2
                                     i.fas.fa-volume-high
                                 input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
-                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pl-3
+                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").px-3
                                     i.fas.fa-expand-wide
                         .kms-warnings.d-flex.flex-column
                             .mt-auto.mb-auto.ml-auto.mr-auto
