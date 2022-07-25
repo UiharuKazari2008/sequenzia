@@ -1,5 +1,6 @@
 {
   "short_name": "Sequenzia",
+  "id": "moe.sequenzia.app",
   "name": "Sequenzia",
   "description": "Media and Cloud Storage",
   "icons": [

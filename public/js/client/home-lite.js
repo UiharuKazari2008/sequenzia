@@ -280,7 +280,7 @@ function refreshLayout() {
         }, 1000);
     }
 }
-function getRandomImage() {
+function getRandomImage(refresh) {
     //try {
         $.ajax({
             async: true,

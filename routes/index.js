@@ -52,8 +52,8 @@ router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChec
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
 router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, renderResults);
-router.get(['/homeImage'], sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
-router.get(['/artists'], sessionVerification, ajaxChecker, getIndex, renderIndex);
+router.get('/homeImage', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
+router.get('/artists', sessionVerification, ajaxChecker, getIndex, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
 router.get('/offline', sessionVerification, (req, res, next) => {
