@@ -140,6 +140,7 @@ $(document).ready(function () {
             const menu = $('#userMenu')
             const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
             const playeropen = document.querySelector('body').classList.contains('kms-play-open')
+            const bottombar = document.querySelector('body').classList.contains('bottom-bar')
             if ($(this).scrollTop() > 50) {
                 $('.scrollBtn').fadeIn();
             } else {
@@ -151,7 +152,7 @@ $(document).ready(function () {
                 }
                 $('#topbarBackground').fadeIn();
                 if (mediaRule &&!playeropen)
-                    mediaRule.content = "#d07300"
+                    mediaRule.content = (bottombar) ? "#000" : "#d07300"
                 topbar.addClass('shadow');
             } else {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -159,7 +160,7 @@ $(document).ready(function () {
                 }
                 $('#topbarBackground').fadeOut();
                 if (mediaRule &&!playeropen)
-                    mediaRule.content = "#000"
+                    mediaRule.content = (bottombar) ? "#000" : "#000"
                 topbar.removeClass('shadow');
             }
             if (!topbar.hasClass('no-ani')) {

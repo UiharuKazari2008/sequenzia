@@ -63,12 +63,13 @@ $('#userMenu').on('show.bs.collapse', function () {
     $('#topbarBackground').fadeIn();
     $('#topbar').addClass('shadow').addClass('menu-open');
     $('body').addClass('menu-open');
+    const bottombar = document.querySelector('body').classList.contains('bottom-bar')
     const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
     if (mediaRule)
-        mediaRule.content = "#d07300"
+        mediaRule.content = (bottombar) ? "#000" : "#d07300"
     const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
     if (mediaRule2)
-        mediaRule2.content = "#4e1e06"
+        mediaRule2.content = (bottombar) ? "#000" : "#4e1e06"
 })
 $('#userMenu').on('hidden.bs.collapse', function () {
     if (!($('#userMenu').hasClass('show'))) {
@@ -81,10 +82,11 @@ $('#userMenu').on('hidden.bs.collapse', function () {
             $('#topbar').removeClass('shadow');
         }
         $('body').removeClass('menu-open');
+        const bottombar = document.querySelector('body').classList.contains('bottom-bar')
         const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
         if (mediaRule) {
             if ($(document).scrollTop() > 50) {
-                mediaRule.content = "#d07300"
+                mediaRule.content = (bottombar) ? "#000" : "#d07300"
             } else {
                 mediaRule.content = "#000"
             }
