@@ -27,7 +27,6 @@ const kongouControlsMute = document.getElementById('kongouControlsMute');
 const kongouControlsVolumeIcon = kongouControlsMute.querySelector('i');
 const kongouTitleBar = kongouMediaPlayer.querySelector('.kms-title-bar')
 const kongouControlsJQ = $('.kms-title-bar, .kms-bottom-bar')
-const kongouControlsToHideJQ = $('.kms-stage:not(.keep-active-controls) .kms-title-bar, .kms-stage:not(.keep-active-controls, .advanced-controls) .kms-bottom-bar')
 
 music.addEventListener('ended', CloseMusic);
 video.addEventListener('ended', CloseVideo);

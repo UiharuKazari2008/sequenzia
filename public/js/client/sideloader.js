@@ -1704,7 +1704,7 @@ async function kmsPopUpControls() {
         kongouControlsJQ.fadeTo(500, 1)
     clearTimeout(kmsStageMouseTimeout);
     kmsStageMouseTimeout = setTimeout(() => {
-        kongouControlsToHideJQ.fadeTo(1000, 0);
+        $('.kms-stage:not(.keep-active-controls) .kms-title-bar, .kms-stage:not(.keep-active-controls, .advanced-controls) .kms-bottom-bar').fadeTo(1000, 0);
     }, 5000);
     return false;
 }

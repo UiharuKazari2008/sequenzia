@@ -61,6 +61,13 @@ block content
                             i.fas.fa-shelves.show-item-icon-center
                             span.no-dynamic-small.mr-auto.ml-auto.mt-2 Unmatched
                             .episode-background
+                if (nexturl !== 'NA')
+                    #LoadNextPage.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2
+                        a(href=`#_` onclick=`getMoreContent([], [${nexturl}]); return false;` style='padding-bottom: 50%; padding-top: 50%;').w-100.h-100.d-flex.flex-column
+                            div.show-item-icon-center
+                                i.fa.fa-plus
+                                i.fa.fa-angle-right
+                            .episode-background
         script.
             element_list = Array.from(document.querySelectorAll('[data-search]'))
             search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())

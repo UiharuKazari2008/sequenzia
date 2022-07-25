@@ -314,13 +314,15 @@ block content
                                                         else
                                                             i.btn-links.fas.fa-check
                         else
-                            if (season.number !== 0)
-                                h2.accordion-header.d-flex.text-gray-500
-                                    i.fas.fa-square-question.pr-2
+                            h2.accordion-header.d-flex.text-gray-500
+                                i.fas.fa-square-question.pr-2
+                                if (season.number !== 0)
                                     if (`Season ${season.number}`.toLowerCase() !== season.name.toLowerCase())
                                         | Season #{season.number} (#{season.name})
                                     else
                                         | #{season.name}
+                                else
+                                    | Special Features
         else if (params.has('show_id') && params.getAll('show_id')[0] === 'unmatched')
             style.
                 .background-image:not(.overlay) {

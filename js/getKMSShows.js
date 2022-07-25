@@ -40,6 +40,7 @@ module.exports = async (req, res, next) => {
         let execute = '';
         let limit = 100;
         let offset = 0;
+        let realoffset = 0;
 
         debugTimes.build_query = new Date();
         // Main Query
@@ -157,6 +158,7 @@ module.exports = async (req, res, next) => {
                     debugTimes.post_proccessing = new Date();
                     messages.filter(e => e.kms_series_name !== null).forEach(function (item, index) {
                         if (index + 1 <= limit) {
+                            realoffset++;
                             resultsArray.push({
                                 ...item.series_data,
                                 group: item.group_name,
@@ -183,11 +185,11 @@ module.exports = async (req, res, next) => {
                             if (realoffset < limit) {
                                 prevurl = `['offset', "${offset - limit}"]`;
                             } else {
-                                prevurl = `['offset', "${offset - messageResults.rows.length}"]`;
+                                prevurl = `['offset', "${offset + realoffset}"]`;
                             }
                         }
                         if (resultsArray.length >= limit) {
-                            nexturl = `['offset', "${offset}"]`;
+                            nexturl = `['offset', "${offset + resultsArray.length}"]`;
                         }
 
                         let _req_uri = req.protocol + '://' + req.get('host') + req.originalUrl;
