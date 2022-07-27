@@ -1,6 +1,6 @@
 'use strict';
 
-const cacheName = 'DEV-v2-8';
+const cacheName = 'DEV-v2-9';
 const cacheCDNName = 'DEV-v2-8';
 const origin = location.origin
 const offlineUrl = './offline';
@@ -32,6 +32,7 @@ const cacheOptions = {
         '/ads-widget',
         '/ads-micro',
         '/ambient-',
+        '/app',
     ],
     cdnCache: {
         media: 'https://media.discordapp.net/attachments/',

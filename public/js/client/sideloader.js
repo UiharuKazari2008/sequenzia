@@ -54,7 +54,7 @@ let browserStorageAvailable = false;
 let offlineContent;
 let offlineStorage;
 let offlineFiles = false;
-const offlineContentDB = window.indexedDB.open("offlineContent", 1);
+const offlineContentDB = window.indexedDB.open("offlineContent", 2);
 offlineContentDB.onerror = event => {
     console.error(offlineContentDB.errorCode);
     alert(`IndexedDB Is Not Available: Offline Content will not be available!`)
