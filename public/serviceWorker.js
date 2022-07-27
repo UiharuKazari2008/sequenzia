@@ -215,12 +215,10 @@ addEventListener('fetch', event => {
                 }
             }
 
-            event.waitUntil(async () => {
-                const response = await event.preloadResponse;
-                if (response) {
-                    return handleResponse(event, response, 'Preload');
-                }
-            })
+            const response = await event.preloadResponse;
+            if (response) {
+                return handleResponse(event, response, 'Preload');
+            }
         } catch (err) {
             console.error('JulyOS Kernel: Error fetching cache or preloaded response - ' + event.request.url)
             console.error(err);
