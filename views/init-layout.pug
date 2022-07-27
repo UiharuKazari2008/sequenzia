@@ -760,6 +760,19 @@ html
                                 div.col-auto.align-self-center
                                     each line in webconfig.support_lines
                                         p #{line}
+        #offlineSwotchModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Go Offline?
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        p Opps, There was a issue communicating to Sequenzia!
+                        p If you have offline content you can switch to it now or try again.
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                        a.btn.btn-danger(href='/offline') Offline
         #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
                 .modal-dialog(role='document')
                     .modal-content
@@ -780,10 +793,14 @@ html
                                 h4 Files
                             div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
                                 span No Offline Files
-                            div.row.px-2
+                            div.row.px-2.mb-2
                                 a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
                                     i.fas.fa-trash.pr-2
                                     | Erase Offline Data
+                            div.row.px-2
+                                a.btn.btn-danger(href='#_' onclick="clearCache(['generic', 'kernel']); return false;").w-100
+                                    i.fas.fa-trash.pr-2
+                                    | Erase Kernel
         #adsModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
                 .modal-content

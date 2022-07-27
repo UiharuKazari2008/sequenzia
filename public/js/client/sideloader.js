@@ -533,9 +533,9 @@ async function getNewContent(remove, add, url, keep) {
             $.toast({
                 type: 'error',
                 title: 'Navigation Failure',
-                subtitle: 'Now',
-                content: `Failed to load page!${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}`,
-                delay: 5000,
+                subtitle: '',
+                content: `<p>Failed to load page!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                delay: 10000,
             });
         }
     });
@@ -633,10 +633,10 @@ function getMoreContent(remove, add, url, keep) {
             responseComplete = true
             $.toast({
                 type: 'error',
-                title: 'Page Failed',
-                subtitle: 'Now',
-                content: `Failed to load page, Try Again!: ${xhr.responseText}`,
-                delay: 5000,
+                title: 'Navigation Failure',
+                subtitle: '',
+                content: `<p>Failed to load results!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                delay: 10000,
             });
         }
     });
@@ -721,10 +721,10 @@ function getSearchContent(element, url) {
                 $(".container-fluid").fadeTo(2000, 1)
                 $.toast({
                     type: 'error',
-                    title: 'Page Failed',
-                    subtitle: 'Now',
-                    content: `Failed to get search response, Try Again!: ${xhr.responseText}`,
-                    delay: 5000,
+                    title: 'Navigation Failure',
+                    subtitle: '',
+                    content: `<p>Failed to load results!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                    delay: 10000,
                 });
             }
         });
@@ -757,10 +757,10 @@ function getLimitContent(perm) {
                 $(".container-fluid").fadeTo(2000, 1)
                 $.toast({
                     type: 'error',
-                    title: 'Page Failed',
-                    subtitle: 'Now',
-                    content: `Failed to load page, Try Again!: ${xhr.responseText}`,
-                    delay: 5000,
+                    title: 'Navigation Failure',
+                    subtitle: '',
+                    content: `<p>Failed to load results!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                    delay: 10000,
                 });
             }
         });

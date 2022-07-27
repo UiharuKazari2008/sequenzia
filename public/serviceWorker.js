@@ -155,6 +155,8 @@ function selectCache(event) {
         return cacheOptions.cacheCDN
     if (event.request.url.toString().startsWith(cacheOptions.cdnCache.media))
         return cacheOptions.cacheProxy
+    if (cacheOptions.preloadCache.filter(b => uri.startsWith(b) || uri === b).length > 0)
+        return cacheOptions.cacheKernel
     return cacheOptions.cacheGeneral
 }
 
