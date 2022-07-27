@@ -207,7 +207,7 @@ addEventListener('fetch', event => {
 
             if (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) {
                 const newURL = `/${event.request.url.startsWith('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}`;
-                const cachedResponse = await caches.match(newURL, { ignoreSearch: true });
+                const cachedResponse = await caches.match(newURL);
                 if (cachedResponse) {
                     if (swDebugMode)
                         console.log('JulyOS Kernel: Indirect CDN Cache - ' + event.request.url);
@@ -215,9 +215,11 @@ addEventListener('fetch', event => {
                 }
             }
 
-            const response = await event.preloadResponse;
-            if (response) {
-                return handleResponse(event, response, 'Preload');
+            if (self.registration.navigationPreload) {
+                const response = await event.preloadResponse;
+                if (response) {
+                    return handleResponse(event, response, 'Preload');
+                }
             }
         } catch (err) {
             console.error('JulyOS Kernel: Error fetching cache or preloaded response - ' + event.request.url)
