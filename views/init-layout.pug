@@ -757,6 +757,30 @@ html
                                 div.col-auto.align-self-center
                                     each line in webconfig.support_lines
                                         p #{line}
+        #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
+                .modal-dialog(role='document')
+                    .modal-content
+                        .modal-header
+                            h5.modal-title Storage Manager
+                            button.close(type='button' data-dismiss='modal' aria-label='Close')
+                                span(aria-hidden='true') &times;
+                        .modal-body
+                            div.row.px-2
+                                h4 Pages
+                            div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2
+                                span No Offline Pages
+                            div.row.px-2
+                                h4 Items
+                            div#cacheItemsManager.row.mb-2.d-flex.flex-column.px-2
+                                span No Offline Items
+                            div.row.px-2
+                                h4 Files
+                            div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
+                                span No Offline Files
+                            div.row.px-2
+                                a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
+                                    i.fas.fa-trash.pr-2
+                                    | Erase Offline Data
         #adsModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
                 .modal-content

@@ -51,24 +51,42 @@ let itemsRemoved = 0;
 let itemsRemovedIds = [];
 let initialLoad = true;
 let browserStorageAvailable = false;
-let spannedStorage;
+let offlineContent;
+let offlineStorage;
 let offlineFiles = false;
-const request = window.indexedDB.open("sC", 1);
-request.onerror = event => {
-    console.error(request.errorCode);
-    alert(`IndexedDB Is Not Available: Offline Files will not be available!`)
+const offlineContentDB = window.indexedDB.open("offlineContent", 1);
+offlineContentDB.onerror = event => {
+    console.error(offlineContentDB.errorCode);
+    alert(`IndexedDB Is Not Available: Offline Content will not be available!`)
 };
-request.onsuccess = event => {
-    spannedStorage = event.target.result;
+offlineContentDB.onsuccess = event => {
+    offlineContent = event.target.result;
+    browserStorageAvailable = true;
 };
-request.onupgradeneeded = event => {
+offlineContentDB.onupgradeneeded = event => {
     // Save the IDBDatabase interface
     const db = event.target.result;
     // Create an objectStore for this database
-    const objectStore = db.createObjectStore("files", { keyPath: "id" });
-    objectStore.createIndex("id", "id", { unique: true });
-    objectStore.transaction.oncomplete = event => {
-        browserStorageAvailable = true;
+    const spannedFilesStore = db.createObjectStore("spanned_files", { keyPath: "id" });
+    spannedFilesStore.createIndex("id", "id", { unique: true });
+    spannedFilesStore.createIndex("name", "name", { unique: false });
+    spannedFilesStore.createIndex("size", "size", { unique: false });
+    spannedFilesStore.createIndex("channel", "channel", { unique: false });
+    spannedFilesStore.transaction.oncomplete = event => {
+    }
+    const offlinePageStore = db.createObjectStore("offline_pages", { keyPath: "url" });
+    offlinePageStore.createIndex("url", "url", { unique: true });
+    offlinePageStore.createIndex("title", "title", { unique: false });
+    offlinePageStore.createIndex("files", "files", { unique: false });
+    offlinePageStore.createIndex("previews", "previews", { unique: false });
+    offlinePageStore.transaction.oncomplete = event => {
+    }
+    const offlineItemsStore = db.createObjectStore("offline_items", { keyPath: "eid" });
+    offlineItemsStore.createIndex("eid", "eid", { unique: true });
+    offlineItemsStore.createIndex("data_type", "data_type", { unique: false });
+    offlineItemsStore.createIndex("full_url", "full_url", { unique: true });
+    offlineItemsStore.createIndex("preview_url", "preview_url", { unique: false });
+    offlineItemsStore.transaction.oncomplete = event => {
     }
 };
 
@@ -116,6 +134,7 @@ let requestInprogress
 let paginatorInprogress
 let downloadAllController = null;
 let downloadSpannedController = new Map();
+let offlineDownloadController = new Map();
 let tempURLController = new Map();
 let memorySpannedController = [];
 let memoryVideoPositions = new Map();
@@ -221,6 +240,8 @@ async function setupReq(push, url) {
             cxswch.classList.remove('hidden');
             cxswch.style.display = null;
         }
+    } else {
+        document.getElementById('offlinePages').classList.add('hidden');
     }
     responseComplete = false;
     $('#loadingSpinner').fadeIn();
@@ -275,7 +296,8 @@ async function requestCompleted (response, url, lastURL, push) {
                 }
                 contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
                 contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
-                    window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                    if (_originalURL && _originalURL !== 'undefined')
+                        window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
                     e.preventDefault();
                 });
                 if (contentPage.find('#appTitleBar').length > 0) {
@@ -306,7 +328,8 @@ async function requestCompleted (response, url, lastURL, push) {
                 }
                 $(".container-fluid").fadeTo(2000, 1)
                 scrollToTop(true);
-                window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                if (_originalURL && _originalURL !== 'undefined' )
+                    window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
                 responseComplete = true
             })
         } else {
@@ -338,7 +361,8 @@ async function requestCompleted (response, url, lastURL, push) {
                     let contentPage = $(response).find('#content-wrapper').children();
                     contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
                     contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
-                        window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                        if (_originalURL && _originalURL !== 'undefined' )
+                            window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
                         e.preventDefault();
                     });
                     if (!offlinePage) {
@@ -377,9 +401,8 @@ async function requestCompleted (response, url, lastURL, push) {
                 let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
                 addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0}`]);
             }
-            const _url = params(['nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
-            if (!offlinePage)
-                $.history.push(_url, (_url.includes('offset=')));
+            const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
+            $.history.push(_url, (_url.includes('offset=')));
             responseComplete = true
         }
         pageType = url.split('/')[0];
@@ -420,7 +443,7 @@ async function getNewContent(remove, add, url, keep) {
             }
         })()
     if (_url === null) { location.href = '/'; return false; };
-    if (offlinePage && (await caches.match(_url)) !== undefined) {
+    if (offlinePage && (await caches.match(params([],[['responseType', 'offline']],_url))) === undefined) {
         $.toast({
             type: 'error',
             title: 'Pre-Navigation Failure',
@@ -469,6 +492,9 @@ async function getNewContent(remove, add, url, keep) {
                 }
             }
         }
+        if (offlinePage) {
+            _params.set('responseType', 'offline');
+        }
         if (_params.has('channel') && _params.getAll('channel').pop() === 'random') {
             _params.delete('channel');
         }
@@ -499,6 +525,9 @@ async function getNewContent(remove, add, url, keep) {
             requestCompleted(response, _url)
         },
         error: function (xhr) {
+            if (initialLoad) {
+                window.location.href = '/offline';
+            }
             responseComplete = true
             $(".container-fluid").fadeTo(2000, 1)
             $.toast({
@@ -598,6 +627,9 @@ function getMoreContent(remove, add, url, keep) {
             requestCompleted(response, _url, undefined, true)
         },
         error: function (xhr) {
+            if (initialLoad) {
+                window.location.href = '/offline';
+            }
             responseComplete = true
             $.toast({
                 type: 'error',
@@ -682,6 +714,9 @@ function getSearchContent(element, url) {
                 requestCompleted(response, _url)
             },
             error: function (xhr) {
+                if (initialLoad) {
+                    window.location.href = '/offline';
+                }
                 responseComplete = true
                 $(".container-fluid").fadeTo(2000, 1)
                 $.toast({
@@ -715,6 +750,9 @@ function getLimitContent(perm) {
                 requestCompleted(response, _url)
             },
             error: function (xhr) {
+                if (initialLoad) {
+                    window.location.href = '/offline';
+                }
                 responseComplete = true
                 $(".container-fluid").fadeTo(2000, 1)
                 $.toast({
@@ -743,7 +781,8 @@ function getSidebar(refreshSidebar, disableModels) {
         success: function (response, textStatus, xhr) {
             let _sb = $(response).find('#sidebar')
             _sb.find('a[href="#_"], a[href="#"] ').click(function(e){
-                window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                if (_originalURL && _originalURL !== 'undefined' )
+                    window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
                 e.preventDefault();
             });
             $("#accordionSidebar").html(_sb);
@@ -781,7 +820,8 @@ function getPaginator(url) {
         success: function (response, textStatus, xhr) {
             let _pn = $(response);
             _pn.find('a[href="#_"], a[href="#"] ').click(function(e){
-                window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
+                if (_originalURL && _originalURL !== 'undefined' )
+                    window.history.replaceState({}, null, `/juneOS#${_originalURL}`);
                 e.preventDefault();
             });
             $('#totalCount').replaceWith(_pn.find('#totalCount'));
@@ -997,58 +1037,471 @@ async function cacheItems(urls) {
     return false;
 }
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
+const videoFiles = ['mp4','mov','m4v'];
+const audioFiles = ['mp3','mp4a','wav', 'ogg', 'flac'];
 let contentCache = null;
+
 async function cachePageOffline(type, _url) {
-    if (_url) {
-        const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
-        const cache = await caches.open('offline-pages-' + type);
-        await cache.add(url);
-        const _cacheItem = await caches.match(url);
-        if (_cacheItem) {
-            const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'))
-            contentCache = content;
-            const fullImages = Array.from(content.querySelectorAll('a.lightbox')).map(e => (new URL(e.href)).pathname).filter(async e => !!e && imageFiles.indexOf(e.split('?')[0].split('.').pop().toLowerCase()) !== -1 && (await caches.match(e)) === undefined);
-            const previewImages = Array.from(content.querySelectorAll('a.lightbox > div#postImage')).map(e => ((e.style.backgroundImage) ? e.style.backgroundImage.replace("url('", '').replace("')", '').replace('url("', '').replace('")', '').replace('url(', '').replace(')', '') : e.getAttribute('data-src')).split('?')[0]).filter(async e => !!e && imageFiles.indexOf(e.split('?')[0].split('.').pop().toLowerCase()) !== -1 && fullImages.indexOf(e) !== -1 && (await caches.match(e)) === undefined);
+    const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
+    const cache = await caches.open(`offline-content-${(type) ? type : 'pages'}`);
+    await cache.add(url);
+    const _cacheItem = await caches.match(url);
+    if (_cacheItem) {
+        const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'))
+        contentCache = content;
+        const title = content.querySelector('title').text
+        const fullImages = Array.from(content.querySelectorAll('a.lightbox')).map(e => (new URL(e.href)).pathname).filter(async e => !!e && imageFiles.indexOf(e.split('?')[0].split('.').pop().toLowerCase()) !== -1 && (await caches.match(e)) === undefined);
+        const previewImages = Array.from(content.querySelectorAll('a.lightbox > div#postImage')).map(e => ((e.style.backgroundImage) ? e.style.backgroundImage.replace("url('", '').replace("')", '').replace('url("', '').replace('")', '').replace('url(', '').replace(')', '') : e.getAttribute('data-src'))).filter(async e => !!e && imageFiles.indexOf(e.split('.').pop().toLowerCase()) !== -1 && fullImages.indexOf(e) !== -1 && (await caches.match(e)) === undefined);
 
-            const imagesCache = await caches.open('offline-content-images');
-            for (let e of fullImages) {
-                await imagesCache.add(e);
-                console.log(`Cached Image ${e}`)
-            }
-            console.log(`Cached ${fullImages.length} Full Images`);
-
-            const previewCache = await caches.open('offline-content-previews');
-            for (let e of previewImages) {
-                await previewCache.add(e);
-                console.log(`Cached Preview ${e}`)
-            }
-            console.log(`Cached ${previewImages.length} Preview Images`);
-        } else {
-            console.error('Item did not hit cache. Please try again')
+        const totalFiles = previewImages.length + fullImages.length;
+        let downloadedFiles = 0;
+        let status = {
+            title,
+            downloaded: downloadedFiles,
+            full: fullImages.length,
+            previews: previewImages.length,
+            total: totalFiles
         }
-        return false;
+        offlineDownloadController.set(url, status);
+
+        updateNotficationsPanel();
+        notificationControler = setInterval(updateNotficationsPanel, 1000);
+
+        for (let e of fullImages) {
+            if (!offlineDownloadController.has(url))
+                break;
+            const response = await fetch(e)
+            console.log(`Cached Image ${e} - ${response.status}`)
+            downloadedFiles++;
+            status = {
+                ...status,
+                downloaded: downloadedFiles
+            }
+            offlineDownloadController.set(url, status);
+        }
+        console.log(`Cached ${fullImages.length} Full Images`);
+
+        for (let e of previewImages) {
+            if (!offlineDownloadController.has(url))
+                break;
+            const response = await fetch(e)
+            console.log(`Cached Preview ${e} - ${response.status}`);
+            downloadedFiles++;
+            status = {
+                ...status,
+                downloaded: downloadedFiles
+            }
+            offlineDownloadController.set(url, status);
+        }
+        console.log(`Cached ${previewImages.length} Preview Images`);
+        if (!offlineDownloadController.has(url)) {
+            console.error('Offline download was canceled!')
+            await caches.delete(url);
+        } else {
+            if (browserStorageAvailable) {
+                try {
+
+                    const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
+                    indexDBUpdate.onsuccess = deleteEvent => {
+                        offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').add({
+                            url,
+                            title,
+                            files: fullImages,
+                            previews: previewImages,
+                            totalItems: fullImages.length
+                        }).onsuccess = event => {
+                            console.log(event)
+                            console.log(`Page Saved Offline!`)
+                        };
+                    };
+                } catch (e) {
+                    console.error(`Failed to save record for ${url}`);
+                }
+            }
+            offlineDownloadController.delete(url);
+        }
+    } else {
+        console.error('Item did not hit cache. Please try again')
+    }
+    return false;
+}
+async function cacheFileOffline(element) {
+    if (element) {
+        const _post = document.getElementById('message-' + element);
+        const postChannelString = _post.getAttribute('data-msg-channel-string');
+        const postDownload = _post.getAttribute('data-msg-download');
+        const postFilename = _post.getAttribute('data-msg-filename');
+        const postFilID = _post.getAttribute('data-msg-fileid');
+        const postCached = _post.getAttribute('data-msg-filecached') === 'true';
+        const postEID = _post.getAttribute('data-msg-eid');
+        const postID = _post.getAttribute('data-msg-id');
+        const postPreviewImage = _post.getAttribute('data-msg-url-preview');
+        const postFullImage = _post.getAttribute('data-msg-url-full');
+        const postColor = decodeURIComponent(_post.getAttribute('data-search-color')).split(':');
+        let data_type = null;
+        const attribs = Array.from(document.getElementById('message-' + element).attributes).map(e => e.nodeName + '="' + e.value + '"');
+
+        if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+            data_type = 'image';
+        } else if (videoFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+            data_type = 'video';
+        } else if (audioFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+            data_type = 'audio';
+        }
+
+
+        if (postFilID && !postCached)
+            await openUnpackingFiles(element, undefined, true, true);
+        let fullItem = null;
+        if (postFullImage)
+            fullItem = (postFullImage.includes('.discordapp.') && postFullImage.includes('attachments')) ? `/${(postFullImage.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${postFullImage.split('attachments').pop()}`.split('?')[0] : postFullImage;
+        if ((postFilID && postCached && postDownload) || (postDownload && !postFilID))
+            fullItem = (postDownload.includes('.discordapp.') && postDownload.includes('attachments')) ? `/${(postDownload.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${postDownload.split('attachments').pop()}`.split('?')[0] : postDownload;
+        if (fullItem)
+            await fetch(fullItem);
+        if (postPreviewImage)
+            await fetch((postPreviewImage.includes('.discordapp.') && postPreviewImage.includes('attachments')) ? `/${(postPreviewImage.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${postPreviewImage.split('attachments').pop()}`.split('?')[0] : postPreviewImage);
+
+        console.log(`Cached Item!`);
+        if (browserStorageAvailable) {
+            try {
+                const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(postEID);
+                indexDBUpdate.onsuccess = deleteEvent => {
+                    offlineContent.transaction([`offline_items`], "readwrite").objectStore('offline_items').add({
+                        full_url: fullItem,
+                        preview_url: postPreviewImage,
+                        data_type,
+                        fileid: postFilID,
+                        channel: postChannelString,
+                        filename: postFilename,
+                        id: postID,
+                        color: postColor,
+                        eid: postEID,
+                        htmlAttributes: attribs,
+                    }).onsuccess = event => {
+                        console.log(event)
+                        console.log(`Item Saved Offline!`)
+                    };
+                };
+            } catch (e) {
+                console.error(`Failed to save record for ${element}`);
+                console.error(e)
+            }
+        }
+    } else {
+        console.error('Item not defined')
+    }
+    return false;
+}
+/*async function offlineAllImages() {
+    let cdnImage = {};
+    let proxyImage = {};
+    await Promise.all((await caches.keys()).filter(e => e.startsWith('offline-proxy-')).map(async e => {
+        return await new Promise((resolve) => {
+            caches.open(e).then(async cache => {
+                resolve((await cache.keys()).filter(e => imageFiles.indexOf(e.url.split('?')[0].split('.').pop().toLowerCase()) !== -1).map(f => {
+                    proxyImage[f.url.split('?')[0].split('attachments/').pop()] = f.url
+                }))
+            })
+        })
+    })).then(r => {});
+    (await Promise.all((await caches.keys()).filter(e => e.startsWith('offline-cdn-')).map(async e => {
+        return await new Promise((resolve) => {
+            caches.open(e).then(async cache => {
+                resolve((await cache.keys()).filter(e => imageFiles.indexOf(e.url.split('?')[0].split('.').pop().toLowerCase()) !== -1).map(f => f.url))
+            })
+        })
+    }))).map(e => {
+        e.map(f => {
+            cdnImage[f] = (proxyImage[f.split('attachments/').pop()]) ? proxyImage[f.split('attachments/').pop()] : f
+        })
+    });
+
+    document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + Object.keys(cdnImage).map(image => [
+        '<div class="col-image col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">',
+        '<div class="internal-lightbox d-block"></div>',
+        `<a class="lightbox" href="${image}">`,
+        `<div id="postImage" class="square img img-responsive" style="background-image: url('${cdnImage[image]}');"></div>`,
+        '<div id="postBackground" style="background-color: rgb(128, 128, 128);"></div>',
+        '</a>',
+        '</div>',
+    ].join('')).join('') + '</div></div>'
+    $("a.lightbox").fancybox(options);
+}*/
+async function getOfflinePages() {
+    if (document.getElementById('offlinePageList')) {
+        document.getElementById('offlinePages').classList.remove('hidden');
+        $("#userMenu").collapse("hide");
+        const pages = await getAllOfflinePages();
+        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
+            let icon = 'fa-page';
+            if (page.url.includes('#/gallery'))
+                icon = 'fa-image'
+            if (page.url.includes('#/files'))
+                icon = 'fa-folder'
+            if (page.url.includes('#/cards'))
+                icon = 'fa-message'
+            if (page.url.includes('album='))
+                icon = 'fa-archive'
+
+            return `<tr>
+            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
+            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
+            <td class="py-2"><span>${page.totalItems}</span></td>
+        </tr>`
+        }).join('');
     }
 }
-async function offlineAllImages() {
-    caches.open('offline-content-images').then(async cache => {
-        const images = await cache.keys();
-        document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + images.map(image => [
-            '<div class="col-image col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3">',
-            '<div class="internal-lightbox d-block"></div>',
-            `<a class="lightbox" href="${image.url}">`,
-            `<div id="postImage" class="square img img-responsive" style="background-image: url('${image.url}');"></div>`,
-            '<div id="postBackground" style="background-color: rgb(128, 128, 128);"></div>',
-            '</a>',
-            '</div>',
-        ].join('')).join('') + '</div></div>'
-        $("a.lightbox").fancybox(options);
-    })
-}
+// TODO: create file list
+async function getOfflineFile() {
+    if (document.getElementById('offlineFileList')) {
+        document.getElementById('offlinePages').classList.remove('hidden');
+        $("#userMenu").collapse("hide");
+        const pages = await getAllOfflinePages();
+        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
+            let icon = 'fa-page';
+            if (page.url.includes('#/gallery'))
+                icon = 'fa-image'
+            if (page.url.includes('#/files'))
+                icon = 'fa-folder'
+            if (page.url.includes('#/cards'))
+                icon = 'fa-message'
+            if (page.url.includes('album='))
+                icon = 'fa-archive'
 
-async function getFileIfAvailable(fileid) {
+            return `<tr>
+            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
+            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
+            <td class="py-2"><span>${page.totalItems}</span></td>
+        </tr>`
+        }).join('');
+    }
+}
+async function getPageIfAvailable(_url) {
     return new Promise((resolve) => {
         try {
-            spannedStorage.transaction("files").objectStore("files").get(fileid).onsuccess = event => {
+            const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
+            if (url) {
+                offlineContent.transaction("offline_pages").objectStore("offline_pages").get(url).onsuccess = event => {
+                    if (event.target.result && event.target.result.files) {
+                        resolve({
+                            ...event.target.result
+                        })
+                    } else {
+                        resolve(false)
+                    }
+                };
+            } else {
+                resolve(false)
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getFileIfAvailable(eid) {
+    return new Promise((resolve) => {
+        try {
+            offlineContent.transaction("offline_items").objectStore("offline_items").get(eid).onsuccess = event => {
+                if (event.target.result && event.target.result.eid) {
+                    resolve({
+                        ...event.target.result
+                    })
+                } else {
+                    resolve(false)
+                }
+            };
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getAllOfflinePages() {
+    return new Promise((resolve) => {
+        try {
+            offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
+                resolve(event.target.result.map(e => {
+                    return {
+                        ...e
+                    }
+                }))
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
+async function getAllOfflineFiles() {
+    return new Promise((resolve) => {
+        try {
+            offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
+                resolve(event.target.result.map(e => {
+                    return {
+                        ...e
+                    }
+                }))
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
+async function deleteOfflinePage(_url, noupdate) {
+    const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
+    if (url) {
+        const page = await getPageIfAvailable(url);
+        if (page) {
+            page.files.map(f => caches.delete(f));
+            page.previews.map(f => caches.delete(f));
+            const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
+            indexDBUpdate.onsuccess = event => {
+                caches.delete(url);
+                if (!noupdate)
+                    updateNotficationsPanel();
+            };
+        } else {
+            caches.delete(url);
+        }
+    }
+}
+async function deleteOfflineFile(eid, noupdate) {
+    const file = await getFileIfAvailable(eid);
+    if (file) {
+        caches.delete(file.full_url);
+        caches.delete(file.preview_url);
+        const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(eid);
+        indexDBUpdate.onsuccess = event => {
+            if (!noupdate)
+                updateNotficationsPanel();
+        };
+    }
+}
+async function clearCache(list) {
+    await caches.keys().then(cacheNames => {
+        console.log(`Local Caches Stores:`);
+        return Promise.all(
+            cacheNames.filter(e => !list || (list && list.filter(f => e.includes(f)).length > 0)).map(cache => {
+                console.log(cache)
+                console.log('JulyOS Kernel: Deleteing Old Cache - ' + cache);
+                return caches.delete(cache);
+            })
+        );
+    })
+}
+async function clearAllOfflineData() {
+    $('#cacheModal').modal('hide');
+    (await getAllOfflinePages()).map(async e => await deleteOfflinePage(e.url, true));
+    (await getAllOfflineFiles()).map(async e => await deleteOfflineFile(e.eid, true));
+}
+async function displayOfflineData() {
+    const pages = await getAllOfflinePages();
+    const pageRows = pages.map((e,i) => {
+        let icon = 'fa-page';
+        if (e.url.includes('#/gallery'))
+            icon = 'fa-image'
+        if (e.url.includes('#/files'))
+            icon = 'fa-folder'
+        if (e.url.includes('#/cards'))
+            icon = 'fa-message'
+        if (e.url.includes('album='))
+            icon = 'fa-archive'
+
+        return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
+            <div class="px-2"><i class="fas ${icon}"></i></div>
+            <div class="w-100"><span>${e.title}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="cachePageOffline(undefined, '${e.url}'); return false">
+                    <i class="fas fa-cloud-download"></i>
+                </a>
+                <a class="p-2" href="#_" onclick="deleteOfflinePage('${e.url}'); document.getElementById('cachePageItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (pageRows.length > 0) {
+        document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
+    } else {
+        document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
+    }
+
+    const files = await getAllOfflineFiles();
+    const fileRows = files.map((e,i) => {
+        let icon = 'fa-file';
+        if (e.data_type === 'image')
+            icon = 'fa-image'
+        if (e.data_type === 'video')
+            icon = 'fa-film'
+        if (e.data_type === 'audio')
+            icon = 'fa-music'
+
+        return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
+            <div class="px-2"><i class="fas ${icon}"></i></div>
+            <div class="w-100"><span>${e.filename}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="deleteOfflineFile('${e.eid}'); document.getElementById('cacheItemItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (fileRows.length > 0) {
+        document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
+    } else {
+        document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
+    }
+
+    $('#cacheModal').modal('show');
+}
+async function generateGalleryHTML(type) {
+    $("#userMenu").collapse("hide");
+    setupReq(undefined, '/image?');
+    $.when($(".container-fluid").fadeOut(250)).done(async () => {
+        let resultRows = [];
+        if (type === 'image') {
+            const files = await getAllOfflineFiles();
+            resultRows = files.filter(e => e.data_type === 'image').map(e => {
+                return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="internal-lightbox d-block"></div><a class="lightbox" href="${e.full_url}"><div id="postImage" class="square img img-responsive" style="background-image: url('${e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0,3).join(', ') : '128, 128, 128'});"></div></a></div>`
+            })
+        }
+        if (resultRows.length > 0) {
+            document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + resultRows.join(' ') + '</div></div><script type="text/javascript" src="/js/client/onload.min.js"/>'
+            window.history.replaceState({}, null, `/offline#/images?`);
+            _originalURL = `/images?`;
+            $("[data-fancybox=gallery]").fancybox(options);
+            $('a[href="#_"], a[href="#"] ').click(function(e){
+                window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
+                e.preventDefault();
+            });
+            setImageLayout(setImageSize);
+            $(".container-fluid").fadeTo(2000, 1);
+        } else {
+            $(".container-fluid").fadeTo(2000, 1)
+            $.toast({
+                type: 'error',
+                title: 'No Results Found',
+                subtitle: 'Error',
+                content: `Nothing was found, Please try another option or search term`,
+                delay: 10000,
+            })
+        }
+        responseComplete = true;
+    })
+}
+async function generateFilesHTML() {
+
+}
+
+async function getSpannedFileIfAvailable(fileid) {
+    return new Promise((resolve) => {
+        try {
+            offlineContent.transaction("spanned_files").objectStore("spanned_files").get(fileid).onsuccess = event => {
                 if (event.target.result && event.target.result.id && event.target.result.block) {
                     let url
                     if (!tempURLController.has(event.target.result.id)) {
@@ -1071,10 +1524,10 @@ async function getFileIfAvailable(fileid) {
         }
     })
 }
-async function getAllOfflineFiles() {
+async function getAllOfflineSpannedFiles() {
     return new Promise((resolve) => {
         try {
-            spannedStorage.transaction("files").objectStore("files").getAll().onsuccess = event => {
+            offlineContent.transaction("spanned_files").objectStore("spanned_files").getAll().onsuccess = event => {
                 resolve(event.target.result.map(e => {
                     let url
                     if (!tempURLController.has(e.id)) {
@@ -1095,7 +1548,7 @@ async function getAllOfflineFiles() {
         }
     })
 }
-async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
+async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile) {
     const _post = document.getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
     const filename = _post.getAttribute('data-msg-filename');
@@ -1106,7 +1559,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
     if (fileid && fileid.length > 0) {
         const element = document.getElementById(`fileData-${fileid}`);
         const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid);
-        const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getFileIfAvailable(fileid)
+        const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getSpannedFileIfAvailable(fileid)
 
         if (fastAccess) {
             if (downloadPreemptive) {
@@ -1237,6 +1690,8 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 name: filename,
                 size: filesize,
                 channel: channelString,
+                preemptive: downloadPreemptive,
+                offline: offlineFile,
                 pending: true,
                 ready: true,
                 play: playThis
@@ -1267,59 +1722,61 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                     const download = await unpackFile();
                     if (download) {
                         memorySpannedController.push(activeSpannedJob);
-                        if (activeSpannedJob.play && !downloadPreemptive) {
-                            console.log(`Launching File...`)
-                            const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
-                            if (element) {
+                        const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
+                        if (element && !downloadPreemptive) {
+                            if (activeSpannedJob.play) {
+                                console.log(`Launching File...`)
                                 if (activeSpannedJob.play === 'audio') {
-                                    PlayTrack(element.href);
-                                } else if (activeSpannedJob.play === 'video') {
-                                    $('#videoBuilderModal').modal('hide');
-                                    const videoPlayer = videoModel.querySelector('video')
-                                    videoPlayer.pause();
-                                    memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
-                                    PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, activeSpannedJob.id);
-                                } else if (activeSpannedJob.play === 'kms-video') {
-                                    const kmsprogress = _post.getAttribute('data-kms-progress');
-                                    if (kongouMediaVideoPreview.currentTime !== kongouMediaVideoPreview.duration)
-                                        memoryVideoPositions.set(activeSpannedJob.id, kongouMediaVideoPreview.currentTime);
-                                    kongouMediaVideoFull.src = element.href;
-                                    kongouMediaVideoFull.volume = 0;
-                                    try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err) };
+                                        PlayTrack(element.href);
+                                    } else if (activeSpannedJob.play === 'video') {
+                                        $('#videoBuilderModal').modal('hide');
+                                        const videoPlayer = videoModel.querySelector('video')
+                                        videoPlayer.pause();
+                                        memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
+                                        PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, activeSpannedJob.id);
+                                    } else if (activeSpannedJob.play === 'kms-video') {
+                                        const kmsprogress = _post.getAttribute('data-kms-progress');
+                                        if (kongouMediaVideoPreview.currentTime !== kongouMediaVideoPreview.duration)
+                                            memoryVideoPositions.set(activeSpannedJob.id, kongouMediaVideoPreview.currentTime);
+                                        kongouMediaVideoFull.src = element.href;
+                                        kongouMediaVideoFull.volume = 0;
+                                        try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err) };
 
-                                    if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
-                                        kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
-                                    } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
-                                        if (!kmsPreviewPrematureEnding && kongouMediaVideoPreview.currentTime && kmsPreviewLastPostion < 5) {
-                                            kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
-                                        } else {
-                                            kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                                        if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
+                                            kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
+                                        } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
+                                            if (!kmsPreviewPrematureEnding && kongouMediaVideoPreview.currentTime && kmsPreviewLastPostion < 5) {
+                                                kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
+                                            } else {
+                                                kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                                            }
                                         }
+                                        setTimeout(async () => {
+                                            if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
+                                                kongouMediaVideoFull.pause();
+                                            } else if (kongouMediaVideoFull.paused) {
+                                                try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                                            }
+                                            kongouMediaVideoPreview.pause();
+                                            kongouMediaVideoPreview.classList.add('hidden');
+                                            kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
+                                            kmsPreviewLastPostion = null;
+                                            kmsPreviewPrematureEnding = false;
+                                            clearInterval(kmsPreviewInterval)
+                                            kmsPreviewInterval = null;
+                                            kongouMediaVideoFull.classList.remove('hidden');
+                                            kongouControlsSeekUnavalible.classList.remove('no-seeking');
+                                            document.getElementById('kmsWarningProgress').classList.add('hidden');
+                                            document.getElementById('kmsWarningQuality').classList.add('hidden');
+                                        }, 100);
+                                    } else {
+                                        console.error('No Datatype was provided')
                                     }
-                                    setTimeout(async () => {
-                                        if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
-                                            kongouMediaVideoFull.pause();
-                                        } else if (kongouMediaVideoFull.paused) {
-                                            try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
-                                        }
-                                        kongouMediaVideoPreview.pause();
-                                        kongouMediaVideoPreview.classList.add('hidden');
-                                        kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
-                                        kmsPreviewLastPostion = null;
-                                        kmsPreviewPrematureEnding = false;
-                                        clearInterval(kmsPreviewInterval)
-                                        kmsPreviewInterval = null;
-                                        kongouMediaVideoFull.classList.remove('hidden');
-                                        kongouControlsSeekUnavalible.classList.remove('no-seeking');
-                                        document.getElementById('kmsWarningProgress').classList.add('hidden');
-                                        document.getElementById('kmsWarningQuality').classList.add('hidden');
-                                    }, 100);
-                                } else {
-                                    console.error('No Datatype was provided')
-                                }
                             } else {
-                                console.error('Data lost!')
+                                element.click();
                             }
+                        } else {
+                            console.error('Data lost!')
                         }
                     }
                 }
@@ -1334,6 +1791,8 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive) {
                 name: filename,
                 size: filesize,
                 channel: channelString,
+                preemptive: downloadPreemptive,
+                offline: offlineFile,
                 pending: true,
                 ready: true,
                 play: playThis
@@ -1369,7 +1828,7 @@ async function openPreviewUnpacking(messageid) {
 
     const element = document.getElementById(`fileData-${fileid}`);
     const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid)
-    const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getFileIfAvailable(fileid)
+    const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getSpannedFileIfAvailable(fileid)
     const href = (element) ? element.href : (storedFile.href) ? storedFile.href : false;
     if (element && memoryJobIndex.length > 0) {
         PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, fileid);
@@ -1903,13 +2362,13 @@ async function unpackFile() {
                                         const finalBlock = new Blob(activeSpannedJob.blobs, blobType);
                                         const finalUrl = window.URL.createObjectURL(finalBlock)
                                         tempURLController.set(activeSpannedJob.id, finalUrl);
-                                        if (offlineFiles) {
+                                        if (browserStorageAvailable && activeSpannedJob.offline) {
                                             try {
-                                                const finalTransaction = spannedStorage.transaction([`files`], "readwrite").objectStore('files').add({
+                                                offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').add({
                                                     ...activeSpannedJob,
                                                     block: finalBlock,
                                                     parts: undefined,
-                                                    expacted_parts: undefined,
+                                                    expected_parts: undefined,
                                                     pending: undefined,
                                                     ready: undefined,
                                                     blobs: undefined,
@@ -1917,10 +2376,12 @@ async function unpackFile() {
                                                     progress: undefined,
                                                     offline: undefined,
                                                 }).onsuccess = event => {
+                                                    console.log(event)
                                                     console.log(`File Saved Offline!`)
                                                 };
                                             } catch (e) {
                                                 console.error(`Failed to save block ${activeSpannedJob.id}`);
+                                                console.error(e);
                                             }
                                         }
                                         const downloadedFile = finalUrl;
@@ -1930,16 +2391,13 @@ async function unpackFile() {
                                         link.href = downloadedFile;
                                         link.setAttribute('download', activeSpannedJob.filename);
                                         document.body.appendChild(link);
-                                        if (activeSpannedJob && !activeSpannedJob.play) {
-                                            link.click();
-                                        }
 
                                         if (activeSpannedJob && activeSpannedJob.play === 'video') {
                                             videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
                                         } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video') {
                                             kmsStatus.innerText = ``;
                                             kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
-                                        } else {
+                                        } else if (!activeSpannedJob.preemptive) {
                                             $.toast({
                                                 type: 'success',
                                                 title: 'Unpack File',
@@ -2086,9 +2544,8 @@ async function unpackFile() {
 }
 
 async function updateNotficationsPanel() {
-    const offlineFiles = await getAllOfflineFiles();
-    if (downloadSpannedController.size !== 0 || memorySpannedController.length > 0 || offlineFiles.length > 0) {
-        let activeProgress = [];
+    const offlineFiles = await getAllOfflineSpannedFiles();
+    if (downloadSpannedController.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0 || offlineFiles.length > 0) {
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
             if (item.ready) {
@@ -2098,9 +2555,6 @@ async function updateNotficationsPanel() {
                     results.push(`<span>${item.name} (${item.size})</span>`);
                     if (activeSpannedJob && activeSpannedJob.progress) {
                         results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`);
-                        /*activeProgress.push(`<div class="progress pl-2" style="height: 30px;">`);
-                            activeProgress.push(`<div class="progress-bar progress-bar-striped bg-success" role="progressbar" style='width: ${activeSpannedJob.progress}%' aria-valuenow='${activeSpannedJob.progress}' aria-valuemin='0' aria-valuemax='100'></div>`);
-                        activeProgress.push('</div>');*/
                     }
                 } else {
                     results.push(`<span>${item.name} (${item.size})</span>`)
@@ -2110,6 +2564,15 @@ async function updateNotficationsPanel() {
             } else {
                 return `<span>${item.name} (${item.size})</span>`
             }
+        })
+        const offlineKeys = Array.from(offlineDownloadController.keys()).map(e => {
+            const item = offlineDownloadController.get(e);
+            let results = [`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="offlineDownloadController.delete('${e}'); return false;")>`]
+            results.push(`<i class="fas fa-cloud-download text-success pr-2"></i>`);
+            results.push(`<span>${(item.title) ? item.title : e} (${(item.full) ? item.full : item.total})</span>`);
+            results.push(`<span class="pl-2 text-success">${((item.downloaded / item.total) * 100).toFixed(0)}%</span>`);
+            results.push(`</a>`);
+            return results.join('\n');
         })
         let completedKeys = [];
         if (memorySpannedController.length > 0) {
@@ -2200,12 +2663,16 @@ async function updateNotficationsPanel() {
         }
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden');
-            if (keys.length > 0 || completedKeys.length > 0) {
-                $('#statusPanel > .dropdown > .dropdown-menu').html($([...keys, ...completedKeys].join('\n')));
-                $('#statusMenuProgress').html($(activeProgress.join('\n')));
+            if (keys.length > 0 || offlineKeys.length > 0 || completedKeys.length > 0) {
+                $('#statusPanel > .dropdown > .dropdown-menu').html($([...keys, ...offlineKeys, ...completedKeys].join('\n')));
+                //$('#statusMenuProgress').html($(activeProgress.join('\n')));
                 if (keys.length <= 9 && keys.length > 0) {
                     document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-' + keys.length;
                 } else if (keys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-ellipsis';
+                } else if (offlineKeys.length <= 9 && offlineKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-' + offlineKeys.length;
+                } else if (offlineKeys.length > 0) {
                     document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-ellipsis';
                 } else if (completedKeys.length <= 9 && completedKeys.length > 0) {
                     document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-' + completedKeys.length;
@@ -2221,8 +2688,10 @@ async function updateNotficationsPanel() {
             document.getElementById('statusMenuIcon').classList = 'fas fa-laptop-arrow-down fa-fade';
         } else if (downloadSpannedController.size !== 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
+        } else if (offlineKeys.length > 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-cloud-download fa-fade';
         } else if (memorySpannedController.length !== 0 || offlineFiles.length > 0) {
-            document.getElementById('statusMenuIcon').classList = 'fas fa-usb-drive';
+            document.getElementById('statusMenuIcon').classList = 'fas fa-sd-card';
             clearInterval(notificationControler);
             notificationControler = null;
         }
@@ -2237,7 +2706,7 @@ async function updateNotficationsPanel() {
     }
 }
 async function removeCacheItem(id, noupdate) {
-    const file = await getFileIfAvailable(id);
+    const file = await getSpannedFileIfAvailable(id);
     memorySpannedController = memorySpannedController.filter(e => e.id !== id);
     const link = document.getElementById('fileData-' + id);
     if (link) {
@@ -2247,8 +2716,8 @@ async function removeCacheItem(id, noupdate) {
         window.URL.revokeObjectURL(file.href);
     }
     if (file) {
-        const request = spannedStorage.transaction(["files"], "readwrite").objectStore("files").delete(id);
-        request.onsuccess = event => {
+        const indexDBUpdate = offlineContent.transaction(["spanned_files"], "readwrite").objectStore("files").delete(id);
+        indexDBUpdate.onsuccess = event => {
             if (!noupdate)
                 updateNotficationsPanel();
         };
@@ -3010,7 +3479,7 @@ function setImageLayout(size, _html) {
         } else {
             return false;
         }
-    } else if (html.location.hash.startsWith('#/gallery')) {
+    } else if (html.location.hash.startsWith('#/images') || html.location.hash.startsWith('#/gallery')) {
         if (_html) {
             html = _html;
         }

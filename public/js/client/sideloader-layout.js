@@ -91,9 +91,9 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker
             .register('/serviceWorker.js')
             .then(reg => {
-                console.log('Service Worker: Registered')
+                console.log('JulyOS Kernel Registered Successfully')
             })
-            .catch(err => console.log(`Service Worker: Error: ${err}`));
+            .catch(err => console.log(`JulyOS Kernel Registation Error: ${err}`));
     });
 }
 

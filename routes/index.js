@@ -650,7 +650,7 @@ router.use('/content', downloadValidation, async function (req, res) {
         });
     }
 });
-router.use('/attachments', async function (req, res) {
+router.use(['/attachments', '/full_attachments'], async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length === 3) {
@@ -686,6 +686,51 @@ router.use('/attachments', async function (req, res) {
         } else {
             res.status(400).send('Missing Parameters');
             printLine('ProxyFile', `Invalid Request to proxy, missing a message ID`, 'error');
+        }
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+    }
+});
+router.use('/media_attachments', async function (req, res) {
+    try {
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
+        if (params.length === 3) {
+            const request = https.get('https://media.discordapp.net/attachments/' + params.join('/') + '?' + query, {
+                headers: {
+                    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                    'accept-language': 'en-US,en;q=0.9',
+                    'cache-control': 'max-age=0',
+                    'sec-ch-ua': '"Chromium";v="92", " Not A;Brand";v="99", "Microsoft Edge";v="92"',
+                    'sec-ch-ua-mobile': '?0',
+                    'sec-fetch-dest': 'document',
+                    'sec-fetch-mode': 'navigate',
+                    'sec-fetch-site': 'none',
+                    'sec-fetch-user': '?1',
+                    'upgrade-insecure-requests': '1',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
+                }
+            }, async function (response) {
+                const contentType = response.headers['content-type'];
+                if (contentType) {
+                    res.setHeader('Content-Type', contentType);
+                    response.pipe(res);
+                } else {
+                    res.status(500).end();
+                    printLine('ProxyMedia', `Failed to stream file request - No Data`, 'error');
+                    console.log(response.rawHeaders)
+                }
+            });
+            request.on('error', function (e) {
+                res.status(500).send('Error during proxying request');
+                printLine('ProxyMedia', `Failed to stream file request - ${e.message}`, 'error');
+            });
+        } else {
+            res.status(400).send('Missing Parameters');
+            printLine('ProxyMedia', `Invalid Request to proxy, missing a message ID`, 'error');
         }
     } catch (err) {
         res.status(500).json({

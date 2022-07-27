@@ -1,16 +1,17 @@
 'use strict';
 
-const cacheName = 'DEV-v2-4';
+const cacheName = 'DEV-v2-8';
+const cacheCDNName = 'DEV-v2-8';
 const origin = location.origin
 const offlineUrl = './offline';
 const cacheOptions = {
     cacheKernel: 'offline-kernel-' + cacheName,
     cacheConfig: 'offline-config-' + cacheName,
     cacheGeneral: 'offline-generic-' + cacheName,
-    cacheCDN: 'offline-cdn-' + cacheName,
+    cacheCDN: 'offline-cdn-' + cacheCDNName,
+    cacheProxy: 'offline-proxy-' + cacheCDNName,
     cacheUserData: [
-        'offline-content-images',
-        'offline-content-previews',
+        'offline-content-data',
         'offline-content-pages',
         'offline-content-albums',
     ],
@@ -30,12 +31,13 @@ const cacheOptions = {
         '/ping',
         '/ads-widget',
         '/ads-micro',
-        '/ambient-'
+        '/ambient-',
     ],
-    cdnCache: [
-        'https://media.discordapp.net/attachments/',
-        'https://cdn.discordapp.com/attachments/'
-    ],
+    cdnCache: {
+        media: 'https://media.discordapp.net/attachments/',
+        cdn: 'https://cdn.discordapp.com/attachments/',
+        local: '/attachments/'
+    },
     configCache: [
         '/juneOS',
         '/sidebar'
@@ -102,6 +104,8 @@ const cacheOptions = {
         offlineUrl
     ]
 };
+let swDebugMode = true;
+let swCacheCDN = false;
 
 
 self.addEventListener('install', event => {
@@ -109,9 +113,11 @@ self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(cacheOptions.cacheKernel).then(function(cache) {
-            return cacheOptions.preloadCache.map(async u => {
+            const results = cacheOptions.preloadCache.map(async u => {
                 return await cache.add(u);
-            }).filter(f => (!f)).length > 1
+            }).filter(f => !(f && f.ok)).length > 1
+            console.log(results)
+            return results
         })
     );
     console.log('JulyOS is now installed!');
@@ -124,10 +130,8 @@ self.addEventListener('activate', e => {
             await self.registration.navigationPreload.enable();
         }
         caches.keys().then(cacheNames => {
-            console.log(`Local Caches Stores:`);
             return Promise.all(
                 cacheNames.map(cache => {
-                    console.log(cache)
                     if ((cache.startsWith('offline-kernel-') && cache !== cacheOptions.cacheKernel || cache.startsWith('offline-generic-') && cache !== cacheOptions.cacheGeneral || cache.startsWith('offline-config-') && cache !== cacheOptions.cacheConfig)) {
                         console.log('JulyOS Kernel: Clearing Old Cache - ' + cache);
                         return caches.delete(cache);
@@ -139,32 +143,46 @@ self.addEventListener('activate', e => {
 });
 
 function selectCache(event) {
-    if (cacheOptions.configCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0)
+    const uri = event.request.url.split(origin).pop().toString()
+    if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0)
         return cacheOptions.cacheConfig
-    if (cacheOptions.cdnCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0)
+    if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !event.request.url.includes('.discordapp.'))
         return cacheOptions.cacheCDN
+    if (uri.startsWith('/media_attachments/') && !event.request.url.includes('.discordapp.'))
+        return cacheOptions.cacheProxy
+    if (event.request.url.toString().startsWith(cacheOptions.cdnCache.cdn))
+        return cacheOptions.cacheCDN
+    if (event.request.url.toString().startsWith(cacheOptions.cdnCache.media))
+        return cacheOptions.cacheProxy
     return cacheOptions.cacheGeneral
 }
 
 function handleResponse(event, response, reqType) {
     const uri = event.request.url.split(origin).pop().toString()
-    if (cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 && uri !== '/' && !(uri.includes('/attachments/') && (uri.includes('JFS_') || uri.includes('PARITY_')))) {
+    if (response.status < 400 &&
+        cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 && uri !== '/' &&
+        !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
+        !(event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/') && !swCacheCDN)) {
         const selectedCache = selectCache(event);
-        console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${event.request.url}`);
+        if (swDebugMode)
+            console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${event.request.url}`);
         const copy = response.clone();
+        const cacheURL = (event.request.url.includes('/full_attachments/')) ? '/full_attachments/' + event.request.url.split('/full_attachments/').pop() : (event.request.url.includes('/media_attachments/')) ? '/media_attachments/' + event.request.url.split('/media_attachments/').pop() : event.request;
         event.waitUntil(
-            caches.open(selectedCache).then(cache => cache.put(event.request, copy))
+            caches.open(selectedCache).then(cache => cache.put(cacheURL, copy))
         );
     } else {
-        console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${event.request.url}`);
+        if (swDebugMode)
+            console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${event.request.url}`);
     }
     return response;
 }
-async function reCache(event) {
+async function reCache(event, cacheName) {
     return fetch(event.request)
         .then(response => {
-            const selectedCache = selectCache(event);
-            console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`);
+            const selectedCache = cacheName || selectCache(event);
+            if (swDebugMode)
+                console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`);
             caches.open(selectedCache).then(cache => cache.put(event.request, response))
         })
         .catch(error => {
@@ -177,17 +195,29 @@ addEventListener('fetch', event => {
         try {
             const cachedResponse = await caches.match(event.request);
             if (cachedResponse) {
-                console.log('JulyOS Kernel: Cache - ' + event.request.url);
-                if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0)
+                if (swDebugMode)
+                    console.log('JulyOS Kernel: Cache - ' + event.request.url);
+                if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.includes('responseType=offline'))
                     reCache(event)
                 return cachedResponse;
             }
 
-            // Else, use the preloaded response, if it's there
-            const response = await event.preloadResponse;
-            if (response) {
-                return handleResponse(event, response, 'Preload');
+            if (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) {
+                const newURL = `/${event.request.url.startsWith('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}`;
+                const cachedResponse = await caches.match(newURL, { ignoreSearch: true });
+                if (cachedResponse) {
+                    if (swDebugMode)
+                        console.log('JulyOS Kernel: Indirect CDN Cache - ' + event.request.url);
+                    return cachedResponse;
+                }
             }
+
+            event.waitUntil(async () => {
+                const response = await event.preloadResponse;
+                if (response) {
+                    return handleResponse(event, response, 'Preload');
+                }
+            })
         } catch (err) {
             console.error('JulyOS Kernel: Error fetching cache or preloaded response - ' + event.request.url)
             console.error(err);
@@ -205,4 +235,25 @@ addEventListener('fetch', event => {
                 console.error(error);
             })
     }());
+});
+
+self.addEventListener('sync', event => {
+    console.log(event.tag);
+    if (event.tag === 'refresh' || event.tag === 'test-tag-from-devtools') {
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(async cache => {
+                    if (cache.startsWith('offline-content-')) {
+                        const cacheItem = await caches.open(cache);
+                        const keys = await cacheItem.keys();
+                        await Promise.all(keys.map(page => {
+                            reCache(page.url, cache)
+                            console.log(`Refreshed page: ${page.url}`);
+                        }))
+                        //caches.delete(cache);
+                    }
+                })
+            );
+        })
+    }
 });

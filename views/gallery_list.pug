@@ -66,16 +66,16 @@ block content
                 div.row
                     each item, indexImage in results
                         if (params.has('responseType') && params.getAll('responseType')[0] === 'offline')
-                            if (item.entities.preview && item.entities.preview.includes('attachments'))
-                                - item.entities.preview = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.preview.split('attachments').pop()}`.split('?')[0]
-                            if (item.entities.full && item.entities.full.includes('attachments'))
-                                - item.entities.full = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.full.split('attachments').pop()}`.split('?')[0]
-                            if (item.entities.download && item.entities.download.includes('attachments'))
-                                - item.entities.download = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.download.split('attachments').pop()}`.split('?')[0]
-                            if (item.entities.ext_preview && item.entities.ext_preview.includes('attachments'))
-                                - item.entities.ext_preview = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.entities.ext_preview.split('attachments').pop()}`.split('?')[0]
-                            if (item.user.avatar && item.user.avatar.includes('attachments'))
-                                - item.user.avatar = `${(global.proxy_host) ? global.proxy_host : ''}/attachments${item.user.avatar.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.preview && item.entities.preview.includes('.discordapp.') && item.entities.preview.includes('attachments'))
+                                - item.entities.preview = `${(global.proxy_host) ? global.proxy_host : ''}/${(item.entities.preview.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${item.entities.preview.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.full && item.entities.full.includes('.discordapp.') && item.entities.full.includes('attachments'))
+                                - item.entities.full = `${(global.proxy_host) ? global.proxy_host : ''}/${(item.entities.full.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${item.entities.full.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.download && item.entities.download.includes('.discordapp.') && item.entities.download.includes('attachments'))
+                                - item.entities.download = `${(global.proxy_host) ? global.proxy_host : ''}/${(item.entities.download.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${item.entities.download.split('attachments').pop()}`.split('?')[0]
+                            if (item.entities.ext_preview && item.entities.ext_preview.includes('.discordapp.') && item.entities.ext_preview.includes('attachments'))
+                                - item.entities.ext_preview = `${(global.proxy_host) ? global.proxy_host : ''}/${(item.entities.ext_preview.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${item.entities.ext_preview.split('attachments').pop()}`.split('?')[0]
+                            if (item.user.avatar && item.user.avatar.includes('.discordapp.') && item.user.avatar.includes('attachments'))
+                                - item.user.avatar = `${(global.proxy_host) ? global.proxy_host : ''}/${(item.user.avatar.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${item.user.avatar.split('attachments').pop()}`.split('?')[0]
                         - thisImageManage = (item.manage)
                         - fileURL = item.entities.full
                         - previewURL = item.entities.preview;
@@ -159,11 +159,12 @@ block content
                                 div.links-container.text-primary
                                     div.links
                                         div.left-links.row-1
-                                            if (user && user.source < 900)
-                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
-                                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
-                                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
-                                                i.btn-links.fas.fa-archive
+                                            if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
+                                                if (user && user.source < 900)
+                                                    a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                        i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                    i.btn-links.fas.fa-archive
                                             a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                 i.btn-links.fas.fa-info-circle
                                         div.right-links.row-1

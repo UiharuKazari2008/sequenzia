@@ -1,5 +1,4 @@
 var music = document.getElementById('audioplayerobject');
-var video = document.getElementById('videoplayerobject');
 const kongouMediaPlayer = document.getElementById('kongouMediaPlayer');
 const kongouMediaVideoFull = document.getElementById('kongouMediaVideoFull');
 const kongouMediaVideoPreview = document.getElementById('kongouMediaVideoPreview');
@@ -29,10 +28,7 @@ const kongouTitleBar = kongouMediaPlayer.querySelector('.kms-title-bar')
 const kongouControlsJQ = $('.kms-title-bar, .kms-bottom-bar')
 
 music.addEventListener('ended', CloseMusic);
-video.addEventListener('ended', CloseVideo);
-
 music.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
-video.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 
 let videoPosition = 0;
 let frameRate = 24;
