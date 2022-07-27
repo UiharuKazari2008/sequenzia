@@ -104,7 +104,7 @@ const cacheOptions = {
         offlineUrl
     ]
 };
-let swDebugMode = true;
+let swDebugMode = false;
 let swCacheCDN = false;
 
 
