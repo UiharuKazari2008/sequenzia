@@ -1212,7 +1212,7 @@ async function cachePageOffline(type, _url) {
 
         let downloadedFiles = 0;
         let status = {
-            url: params(['offset', '_h', 'responseType'], [], url),
+            url: params(['offset', '_h', 'responseType', 'num'], [], url),
             title,
             downloaded: downloadedFiles,
             items: itemsToCache.map(e => e.eid),
