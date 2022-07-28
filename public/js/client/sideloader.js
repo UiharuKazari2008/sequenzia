@@ -1784,7 +1784,7 @@ async function generateGalleryHTML(url, eids) {
             const files = await getAllOfflineFiles();
             const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
                 if (eids)
-                    return eids.indexOf(b.eid) - eids.indexOf(a.eid);
+                    return eids.indexOf(a.eid) - eids.indexOf(b.eid);
                 return parseFloat(b.eid) - parseFloat(a.eid);
             });
             let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
@@ -1872,7 +1872,11 @@ async function generateFilesHTML(url, eids) {
         $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const files = await getAllOfflineFiles();
-            const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item)))
+            const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
+                if (eids)
+                    return eids.indexOf(a.eid) - eids.indexOf(b.eid);
+                return parseFloat(b.eid) - parseFloat(a.eid);
+            });
             let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
             if (allResults.length < offset)
                 offset = 0;
@@ -3033,10 +3037,10 @@ async function updateNotficationsPanel() {
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
             if (item.ready) {
-                let results = [`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
+                let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
                 if (!item.pending) {
-                    results.push(`<i class="fas fa-spinner text-success pr-2"></i>`);
-                    results.push(`<span>${item.name} (${item.size})</span>`);
+                    results.push(`<i class="fas fa-spinner fa-spin-pulse pr-2"></i>`);
+                    results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`);
                     if (activeSpannedJob && activeSpannedJob.progress) {
                         results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`);
                     }
@@ -3050,17 +3054,19 @@ async function updateNotficationsPanel() {
             }
         })
         const offlineKeys = Array.from(offlineDownloadController.keys()).map(e => {
+            if (keys.length > 0)
+                completedKeys.push(`<div class="dropdown-divider"></div>`);
             const item = offlineDownloadController.get(e);
-            let results = [`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="offlineDownloadController.delete('${e}'); return false;")>`]
-            results.push(`<i class="fas fa-cloud-download text-success pr-2"></i>`);
-            results.push(`<span>${(item.title) ? item.title : e} (${item.totalItems})</span>`);
+            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="offlineDownloadSignals.delete('${e}'); return false;")>`]
+            results.push(`<i class="fas fa-cloud-download pr-2"></i>`);
+            results.push(`<span class="text-ellipsis">${(item.title) ? item.title : e} (${item.totalItems})</span>`);
             results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
             results.push(`</a>`);
             return results.join('\n');
         })
         let completedKeys = [];
         if (memorySpannedController.length > 0) {
-            if (keys.length > 0)
+            if (keys.length > 0 || offlineKeys.length > 0)
                 completedKeys.push(`<div class="dropdown-divider"></div>`);
             completedKeys.push(...memorySpannedController.map(item => {
                 let results = [];
@@ -3074,10 +3080,11 @@ async function updateNotficationsPanel() {
                         clickAction = `PlayTrack('${element.href}');`
                         clickAction = `PlayTrack('${element.href}');`
                     }
-                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
+                    results.push(`<a class="text-ellipsis mr-auto d-flex align-items-baseline" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
                 } else {
-                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
+                    results.push(`<a class="text-ellipsis mr-auto d-flex align-items-baseline" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
                 }
+                results.push(`<i class="fas fa-memory mr-1"></i>`)
                 if (item.play) {
                     if (item.play === 'video' || item.play === 'kms-video') {
                         results.push(`<i class="fas fa-film mr-1"></i>`)
@@ -3087,7 +3094,7 @@ async function updateNotficationsPanel() {
                         results.push(`<i class="fas fa-file mr-1"></i>`)
                     }
                 }
-                results.push(`<span>${item.name} (${item.size})</span>`)
+                results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`)
                 if (item.play) {
                     results.push(`</a>`);
                     results.push(`<a title="Save File" href='#_' onclick="document.getElementById('fileData-${item.id}').click(); return false;">`);
