@@ -710,7 +710,12 @@ module.exports = async (req, res, next) => {
             hideChannels = false;
         }
         // Limit
-        if (req.query.show_id || req.query.group || req.query.watch_history === 'none') {
+        if (req.query.num) {
+            const _limit = parseInt(req.query.num);
+            if (!isNaN(limit)) {
+                limit = _limit;
+            }
+        } else if (req.query.show_id || req.query.group || req.query.watch_history === 'none') {
             limit = 100000;
         } else if (page_uri === '/ambient-get') {
             limit = 1;
@@ -718,11 +723,6 @@ module.exports = async (req, res, next) => {
         } else if (req.query.responseType) {
             limit = 1000;
             enablePrelimit = false;
-        } else if (req.query.num) {
-            const _limit = parseInt(req.query.num);
-            if (!isNaN(limit)) {
-                limit = _limit;
-            }
         } else if (req.query.limit && !isNaN(parseInt(req.query.limit))) {
             limit = parseInt(req.query.limit.toString().substring(0,4))
             if (!isNaN(limit)) {

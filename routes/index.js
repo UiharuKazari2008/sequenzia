@@ -698,8 +698,9 @@ router.use('/media_attachments', async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
+        const url = 'https://media.discordapp.net/attachments/' + params.join('/') + '?' + query
         if (params.length === 3) {
-            const request = https.get('https://media.discordapp.net/attachments/' + params.join('/') + '?' + query, {
+            const request = https.get(url, {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                     'accept-language': 'en-US,en;q=0.9',

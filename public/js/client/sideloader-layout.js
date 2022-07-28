@@ -1,5 +1,6 @@
 let options = {
     hash: false,
+    selector : '[data-fancybox=gallery]',
     infobar: true,
     smallBtn: "auto",
     toolbar: "auto",

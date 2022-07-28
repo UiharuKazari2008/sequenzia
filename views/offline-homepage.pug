@@ -106,8 +106,7 @@ html
                                                 .row.w-100.ml-0.mr-0
                                                     .d-flex.w-100.align-items-center
                                                         h4.text-primary.ml-auto.mb-0
-                                                            i.fas.fa-cloud-exclamation.mr-2
-                                                            | No Connection
+                                                            span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
                                                 .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
                                                     .menu-grid
                                                         a.user-menu-item(title="Offline Pages" href='#_' onclick="getOfflinePages();")
@@ -119,21 +118,18 @@ html
                                                         //a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
                                                             i.fa-light.fa-fw.fa-ticket
                                                             | Theater
-                                                        a.user-menu-item(title="Offline Images" href='#_' onclick="generateGalleryHTML('image'); return false;")
-                                                            i.fa-light.fa-fw.fa-image
-                                                            | Images
-                                                        a.user-menu-item(title="Offline Videos" href='#_')
-                                                            i.fa-light.fa-fw.fa-film
-                                                            | Videos
-                                                        a.user-menu-item(title="Offline Music" href='#_')
-                                                            i.fa-light.fa-fw.fa-music
-                                                            | Music
-                                                        a.user-menu-item(title="Offline Files" href=`#_`)
+                                                        a.user-menu-item(title="Offline Media" href='#/gallery?')
+                                                            i.fa-light.fa-fw.fa-photo-video
+                                                            | Gallery
+                                                        a.user-menu-item(title="Offline Files" href=`#/files?`)
                                                             i.fa-light.fa-fw.fa-folder
                                                             | Files
                                                         a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                             i.fa-light.fa-fw.fa-cog
                                                             | Settings
+                                                        a.user-menu-item(title="Try to go online" href='/')
+                                                            i.fa-light.fa-plug
+                                                            | Connect
                                         div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
@@ -156,9 +152,6 @@ html
                                                         a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                             i.fa-light.fa-info-circle
                                                             | About
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Try to go online" href='/')
-                                                            i.fa-light.fa-sync
-                                                            | Online
                                         div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
@@ -237,12 +230,13 @@ html
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             ul.navbar-nav.text-primary.ml-1
                                 li.nav-item.text-right.text-primary.page-title.d-flex.align-items-center
-                                    i.far.fa-arrow-right.fa-cloud-slash.align-middle.nav-item.pr-2
-                                    span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
                             .mr-auto
                             ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
                                 li.nav-item.no-arrow
                                     i.fas.fa-spinner.fa-spin-pulse
+                            ul.navbar-nav.text-primary.text-ellipsis.ml-2.mr-1
+                                li.nav-item.no-arrow
+                                    i.fas.fa-cloud-exclamation
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow
@@ -255,7 +249,7 @@ html
                         div#topbarBackground(style="display: none;")
                     style.
                         .background-image:not(.overlay) {
-                            background-image: url('/static/img/loading_bg.jpg');
+                            background-image: url('/static/img/loading_bg.jpeg');
                         }
 
                         .background-image.overlay {
@@ -286,17 +280,12 @@ html
                                     ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
                                     '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
                                     '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
-                                let currentContext = false;
                                 const offlinePage = true;
-                                let nextContext = 'seq';
+                                nextContext = false;
+                                currentContext = 'seq'
                                 $(document).ready(function () {
-                                    //getOfflinePages();
                                     if (window.location.hash.substring(1).length < 2) {
-                                        //location.href = '/';
                                         console.log(`No Navigation, Ready when you are`);
-                                        //$('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
-                                        //$('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
-                                        //hideAddressInput();
                                         //$('#bootUpDisplay').fadeOut(500);
                                         getOfflinePages();
                                     } else {
@@ -305,10 +294,12 @@ html
                                         getNewContent([], []);
                                     }
                                 })
+                            script(type='text/javascript' src="/js/client/onload.min.js")
 
                     // Music Player Enabler
                     script(type='text/javascript' src="/js/client/media-enabler.min.js")
-                    script(type='text/javascript' src="/js/client/onload.min.js")
+                #finalLoad
+                    #pageNav.btn-group.d-block.page-navigator
                 footer.sticky-footer.bg-transparent
                     .container.my-auto
                         .copyright.text-center.my-auto
@@ -336,6 +327,35 @@ html
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(title="Logout" href='/discord/destroy') Logout
+        #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Storage Manager
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.px-2
+                            h4 Pages
+                        div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2
+                            span No Offline Pages
+                        div.row.px-2
+                            h4 Items
+                        div#cacheItemsManager.row.mb-2.d-flex.flex-column.px-2
+                            span No Offline Items
+                        div.row.px-2
+                            h4 Files
+                        div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
+                            span No Offline Files
+                        div.row.px-2.mb-2
+                            a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
+                                i.fas.fa-trash.pr-2
+                                | Erase Offline Data
+                        div.row.px-2
+                            a.btn.btn-danger(href='#_' onclick="clearKernelCache(); return false;").w-100
+                                i.fas.fa-microchip.pr-2
+                                | Reinstall Kernel
+
         #aboutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
@@ -403,6 +423,8 @@ html
                                 i.fas.fa-play.shadow-text
                             a#goToDownload.btn.text-white(href='#_' role='button' target="_blank" rel="noopener noreferrer")
                                 i.fas.fa-download.shadow-text
+                            a#makeOffline.btn.text-white.d-none(href='#_' role='button')
+                                i.fas.fa-cloud-download.shadow-text
                         div.row.px-3
                             span#infoFilename.text-center.w-100.font-italic.text-lg.shadow-text
                         div.row.px-3
@@ -583,4 +605,4 @@ html
         // Music Manager
         script(type='text/javascript' src="/js/client/media.min.js")
         script.
-            _originalURL = '/offline';
+            _originalURL = '';

@@ -7,7 +7,7 @@ block content
             - if (item.manage) { thisImageManage = true }
         style.
             .background-image.bg-blur {
-                background-image: url("/static/img/bg.webp");
+                background-image: url("/static/img/loading_bg.jpeg");
             }
         - imageFiles = results.filter(e => e.meta.message_type.startsWith('image')).map(e => e.entities.preview)
         if ( imageFiles.length > 0)
@@ -123,7 +123,7 @@ block content
 
         style.
             .background-image:not(.overlay) {
-                background-image: url('/static/img/loading_bg.jpg');
+                background-image: url('/static/img/loading_bg.jpeg');
             }
         .alert.alert-danger(role='alert')
             h4.alert-heading No Results

@@ -289,9 +289,6 @@ html
                                                                 a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
                                                                     i.fa-light.fa-key
                                                                     | Security
-                                                            a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
-                                                                i.fa-light.fa-sd-card
-                                                                | Storage
                                                             a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
                                                                 i.fa-light.fa-compass-slash
                                                                 | Hide Channels
@@ -318,19 +315,13 @@ html
                                                             | Tools
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
-                                                            a.user-menu-item(title="Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
-                                                                i.fa-light.fa-fw.fa-history
-                                                                | Page History
-                                                            a.user-menu-item(title="Show Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
-                                                                i.fa-light.fa-fw.fa-rectangle-history
-                                                                | Image History
                                                             if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
+                                                                a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
+                                                                    i.fa-light.fa-sd-card
+                                                                    | Storage
                                                                 a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                                     i.fa-light.fa-download
                                                                     | Download
-                                                                a.user-menu-item.user-menu-small(title="Save Offline" href='#_' onclick="$('#userMenu').collapse('hide'); cachePageOffline(); return false;" role='button')
-                                                                    i.fa-light.fa-cloud-check
-                                                                    | Offline
                                                                 a.user-menu-item.user-menu-small.hide-review(title="View RSS Feed URL's" href='#_' onclick="$('#userMenu').collapse('hide'); $('#feedModel').modal('show'); return false;" role='button')
                                                                     i.fa-light.fa-square-rss
                                                                     | RSS Feed
@@ -341,6 +332,12 @@ html
                                                                 a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display or Photo Frame" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); loadADSDisplays(); return false;")
                                                                     i.fa-light.fa-image-landscape
                                                                     | Set Frame
+                                                            a.user-menu-item(title="Show Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
+                                                                i.fa-light.fa-fw.fa-rectangle-history
+                                                                | Image History
+                                                            a.user-menu-item(title="Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
+                                                                i.fa-light.fa-fw.fa-history
+                                                                | Page History
                                             div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
                                                 div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100.align-items-center
@@ -1270,6 +1267,8 @@ html
                                                         if (enableManageTools)
                                                             a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
                                                                 i.far.fa-paste.align-middle
+                                                        a.navbar-item.btn.btn-admin(title="Offline Messages" href='#_' onclick='offlineSelectedItems(); return false;')
+                                                            i.far.fa-cloud-download.align-middle
                                                         a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                             i.far.fa-download.align-middle
                                 .col-auto.p-0.d-flex
@@ -1634,11 +1633,6 @@ html
                         #contentBlock
                             block content
                             script(type='text/javascript' src="/js/client/onload.min.js")
-                            // Enable Gallery
-                            if (path === '/gallery')
-                                script.
-                                    toggleLightbox = false;
-                                    $("[data-fancybox=gallery]").fancybox(options);
                         #pageinator
                 if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
                     #finalLoad
@@ -1674,11 +1668,6 @@ html
                                     i.fa.fa-sync
                             // On Load Scripts
                         script(type='text/javascript' src="/js/client/onload.min.js")
-                        // Enable Gallery
-                        if (path === '/gallery')
-                            script.
-                                toggleLightbox = false;
-                                $("[data-fancybox=gallery]").fancybox(options);
                         // Gallery Custom Buttons
                         //script.
                             $.fancybox.defaults.btnTpl.downloadios = '<button data-fancybox-downloadios class="fancybox-button fancybox-button-downloadios" title="Download Image">' +
@@ -1893,6 +1882,8 @@ html
                                                 i.fas.fa-play.shadow-text
                                             a#goToDownload.btn.text-white(href='#_' role='button' target="_blank" rel="noopener noreferrer")
                                                 i.fas.fa-download.shadow-text
+                                            a#makeOffline.btn.text-white(href='#_' role='button')
+                                                i.fas.fa-cloud-download.shadow-text
                                         div.row.px-3
                                             span#infoFilename.text-center.w-100.font-italic.text-lg.shadow-text
                                         div.row.px-3

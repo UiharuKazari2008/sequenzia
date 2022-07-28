@@ -50,7 +50,7 @@ html
         script(src="/js/client/ambient.min.js")
     body
         .background-image.overlay
-        - loginImage = (webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpg"
+        - loginImage = (webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpeg"
         #bg1.background-image(style=`opacity: 1; z-index: -101!important; background-image: url('!{loginImage}');`)
 
         #content-wrapper.container.p-4

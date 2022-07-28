@@ -86,7 +86,7 @@ const cacheOptions = {
         "/static/css/bootstrap-slider.min.css",
         "/static/vendor/fontawesome/css/all.min.css",
         "/css/custom.min.css",
-        "/static/img/loading_bg.jpg",
+        "/static/img/loading_bg.jpeg",
         "/static/font/london2012.woff2",
         "/static/font/Digital7-1e1Z.woff2",
         "/static/font/Segment7.woff2",
@@ -159,8 +159,7 @@ function selectCache(event) {
         return cacheOptions.cacheKernel
     return cacheOptions.cacheGeneral
 }
-
-function handleResponse(event, response, reqType) {
+async function handleResponse(event, response, reqType) {
     const uri = event.request.url.split(origin).pop().toString()
     if (response.status < 400 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 && uri !== '/' &&
@@ -171,14 +170,16 @@ function handleResponse(event, response, reqType) {
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${event.request.url}`);
         const copy = response.clone();
         const cacheURL = (event.request.url.includes('/full_attachments/')) ? '/full_attachments/' + event.request.url.split('/full_attachments/').pop() : (event.request.url.includes('/media_attachments/')) ? '/media_attachments/' + event.request.url.split('/media_attachments/').pop() : event.request;
-        event.waitUntil(
-            caches.open(selectedCache).then(cache => cache.put(cacheURL, copy))
-        );
+        caches.open(selectedCache).then(cache => cache.put(cacheURL, copy))
     } else {
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${event.request.url}`);
     }
     return response;
+}
+async function shouldRecache(event) {
+    if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.includes('responseType=offline'))
+        reCache(event)
 }
 async function reCache(event, cacheName) {
     return fetch(event.request)
@@ -193,6 +194,7 @@ async function reCache(event, cacheName) {
             console.error(error);
         })
 }
+
 addEventListener('fetch', event => {
     event.respondWith(async function() {
         try {
@@ -200,25 +202,26 @@ addEventListener('fetch', event => {
             if (cachedResponse) {
                 if (swDebugMode)
                     console.log('JulyOS Kernel: Cache - ' + event.request.url);
-                if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.includes('responseType=offline'))
-                    reCache(event)
+                shouldRecache(event);
                 return cachedResponse;
             }
 
             if (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) {
-                const newURL = `/${event.request.url.startsWith('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}`;
+                const newURL = `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}`;
                 const cachedResponse = await caches.match(newURL);
                 if (cachedResponse) {
                     if (swDebugMode)
                         console.log('JulyOS Kernel: Indirect CDN Cache - ' + event.request.url);
                     return cachedResponse;
                 }
-            }
-
-            if (self.registration.navigationPreload) {
-                const response = await event.preloadResponse;
-                if (response) {
-                    return handleResponse(event, response, 'Preload');
+                if (event.request.url.includes('https://media.discordapp.net/')) {
+                    const proxyCache = await caches.open(cacheOptions.cacheProxy);
+                    const cachedNoQueryResponse = await proxyCache.match(newURL.split('?')[0]);
+                    if (cachedNoQueryResponse) {
+                        if (swDebugMode)
+                            console.log('JulyOS Kernel: Indirect CDN Cache (Resolution Bypass) - ' + event.request.url);
+                        return cachedNoQueryResponse;
+                    }
                 }
             }
         } catch (err) {
@@ -227,16 +230,22 @@ addEventListener('fetch', event => {
         }
 
         // Else try the network.
-        return fetch(event.request)
-            .then(response => {
-                return handleResponse(event, response, "Network");
-            })
-            .catch(error => {
+        try {
+            const response = (await event.preloadResponse || await fetch(event.request))
+            if (response) {
+                handleResponse(event, response, "Network");
+                return response;
+            } else {
                 console.log('JulyOS Kernel: Offline - ' + event.request.url);
                 if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html')))
                     return caches.match(offlineUrl);
-                console.error(error);
-            })
+            }
+        } catch (err) {
+            console.log('JulyOS Kernel: Offline - ' + event.request.url);
+            if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html')))
+                return caches.match(offlineUrl);
+            console.error(err);
+        }
     }());
 });
 
@@ -258,5 +267,15 @@ self.addEventListener('sync', event => {
                 })
             );
         })
+    }
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    } else {
+        console.log(event.ports);
+        console.log(event.data);
+        console.log('Unknown Message');
     }
 });

@@ -4,7 +4,6 @@ function setCookie(cname, cvalue, exdays) {
     let expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
-
 function getCookie(cname) {
     let name = cname + "=";
     let ca = document.cookie.split(';');
@@ -41,6 +40,11 @@ $(function() {
             console.log(`Navigating to Path JOS:/${url} ...`);
         }
     }).listen('hash');
+    try {
+        fetch('/offline').then(r => {})
+    } catch (e) {
+        console.error('Failed to ensure offline kernel is loaded')
+    }
 });
 
 let debugMode = false;
@@ -49,12 +53,13 @@ let last = undefined;
 let responseComplete = false;
 let itemsRemoved = 0;
 let itemsRemovedIds = [];
+let cachedID = [];
 let initialLoad = true;
 let browserStorageAvailable = false;
 let offlineContent;
-let offlineStorage;
-let offlineFiles = false;
-const offlineContentDB = window.indexedDB.open("offlineContent", 2);
+let spannedFilesFIFOOffline = true;
+let spannedFilesAlwaysOffline = false;
+const offlineContentDB = window.indexedDB.open("offlineContent", 1);
 offlineContentDB.onerror = event => {
     console.error(offlineContentDB.errorCode);
     alert(`IndexedDB Is Not Available: Offline Content will not be available!`)
@@ -142,6 +147,7 @@ let activeSpannedJob = null;
 let kmsVideoWatcher = null;
 let search_list = [];
 let element_list = [];
+let lazyloadImages;
 
 String.prototype.toRGB = function() {
     var hash = 0;
@@ -195,9 +201,6 @@ function msToTime(s,f) {
     return ((hrs > 0 || f) ? pad(hrs) + ':' : '') + pad(mins) + ':' + pad(secs) + ((f) ? '.' + pad(ms, 2) : '')
 }
 
-function isTouchDevice(){
-    return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
-}
 async function writeLoadingBar(){
     if (responseComplete === false) {
         setTimeout(writeLoadingBar, 250)
@@ -368,7 +371,25 @@ async function requestCompleted (response, url, lastURL, push) {
                     if (!offlinePage) {
                         $("#content-wrapper").html(contentPage);
                     } else {
+                        const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
                         $("#contentBlock").html(contentPage.find('#contentBlock').children());
+                        const imageRows = $('#contentBlock').find('.tz-gallery > .row').children();
+                        const resultsTotal = Array.from(imageRows).length;
+                        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+                        if (resultsTotal < offset)
+                            offset = 0;
+                        const shift = offset + 100;
+                        $("#contentBlock > .tz-gallery > .row").html(imageRows.slice(offset, shift));
+                        let pageButtons = [];
+                        if (resultsTotal > 100) {
+                            if (offset > 0) {
+                                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                            }
+                            if (shift <= resultsTotal) {
+                                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                            }
+                        }
+                        $("#pageNav").html(pageButtons.join(''));
                     }
                     setImageLayout(setImageSize);
                     setPageLayout(false);
@@ -443,15 +464,6 @@ async function getNewContent(remove, add, url, keep) {
             }
         })()
     if (_url === null) { location.href = '/'; return false; };
-    if (offlinePage && (await caches.match(params([],[['responseType', 'offline']],_url))) === undefined) {
-        $.toast({
-            type: 'error',
-            title: 'Pre-Navigation Failure',
-            subtitle: 'Now',
-            content: `Not available offline, You must make the item available offline before you go offline.`,
-            delay: 2000,
-        });
-    }
     if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
         $.toast({
             type: 'error',
@@ -464,8 +476,9 @@ async function getNewContent(remove, add, url, keep) {
         return false;
     }
     setupReq(undefined, _url)
+    let _params = undefined;
     try {
-        let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
+        _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
         const _pathname = _url.split('?')[0];
         const _currentURL = window.location.hash.substring(1)
 
@@ -492,9 +505,6 @@ async function getNewContent(remove, add, url, keep) {
                 }
             }
         }
-        if (offlinePage) {
-            _params.set('responseType', 'offline');
-        }
         if (_params.has('channel') && _params.getAll('channel').pop() === 'random') {
             _params.delete('channel');
         }
@@ -512,8 +522,43 @@ async function getNewContent(remove, add, url, keep) {
     }
 
     console.log(_url);
+    if (offlinePage) {
+        if ((_url.startsWith('/gallery') || _url.startsWith('/files'))) {
+            const eids = await (async () => {
+                const revisedUrl = params(['offset', '_h'], [], _url)
+                if (revisedUrl.split('?').pop().length === 0)
+                    return false;
+                const isFoundPage = await getPageItemsIfAvailable(revisedUrl);
+                if (isFoundPage)
+                    return isFoundPage.items
+            })()
+            if (_url.startsWith('/gallery')) {
+                await generateGalleryHTML(_url, eids);
+            } else if (_url.startsWith('/files')) {
+                await generateFilesHTML(_url, eids);
+            } else {
+                $.toast({
+                    type: 'error',
+                    title: 'Pre-Navigation Failure',
+                    subtitle: 'Now',
+                    content: `Not available offline, You must make the item available offline before you go offline.`,
+                    delay: 2000,
+                });
+            }
+        } else {
+            $.toast({
+                type: 'error',
+                title: 'Pre-Navigation Failure',
+                subtitle: 'Now',
+                content: `Not available offline, You must make the item available offline before you go offline.`,
+                delay: 2000,
+            });
+        }
+        responseComplete = true;
+        return true;
+    }
     requestInprogress = $.ajax({async: true,
-        url: _url,
+        url: ((offlinePage) ? params(['offset', '_h'], [], _url) : _url),
         type: "GET", data: '',
         processData: false,
         contentType: false,
@@ -529,12 +574,12 @@ async function getNewContent(remove, add, url, keep) {
                 window.location.href = '/offline';
             }
             responseComplete = true
-            $(".container-fluid").fadeTo(2000, 1)
+            $(".container-fluid").fadeTo(2000, 1);
             $.toast({
                 type: 'error',
-                title: 'Navigation Failure',
+                title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                 subtitle: '',
-                content: `<p>Failed to load page!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                 delay: 10000,
             });
         }
@@ -633,9 +678,9 @@ function getMoreContent(remove, add, url, keep) {
             responseComplete = true
             $.toast({
                 type: 'error',
-                title: 'Navigation Failure',
+                title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                 subtitle: '',
-                content: `<p>Failed to load results!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                 delay: 10000,
             });
         }
@@ -721,9 +766,9 @@ function getSearchContent(element, url) {
                 $(".container-fluid").fadeTo(2000, 1)
                 $.toast({
                     type: 'error',
-                    title: 'Navigation Failure',
+                    title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to load results!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -757,9 +802,9 @@ function getLimitContent(perm) {
                 $(".container-fluid").fadeTo(2000, 1)
                 $.toast({
                     type: 'error',
-                    title: 'Navigation Failure',
+                    title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to load results!</p><a class="mr-auto ml-auto btn btn-danger" href="/offline">Offline Mode</a><div>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</div>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -1037,41 +1082,160 @@ async function cacheItems(urls) {
     return false;
 }
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
-const videoFiles = ['mp4','mov','m4v'];
-const audioFiles = ['mp3','mp4a','wav', 'ogg', 'flac'];
+const videoFiles = ['mp4','mov','m4v', 'webm'];
+const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 let contentCache = null;
 
+function replaceDiscordCDN(url) {
+    return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
+}
+function extractMetaFromElement(e) {
+    const postChannelString = e.getAttribute('data-msg-channel-string');
+    const postChannelIcon = e.getAttribute('data-msg-channel-icon');
+    const postDownload = e.getAttribute('data-msg-download');
+    const postFilename = e.getAttribute('data-msg-filename');
+    const postFilID = e.getAttribute('data-msg-fileid');
+    const postCached = e.getAttribute('data-msg-filecached') === 'true';
+    const postEID = e.getAttribute('data-msg-eid');
+    const postID = e.getAttribute('data-msg-id');
+    const fileSize = e.getAttribute('data-msg-filesize');
+    const postDate = e.getAttribute('data-msg-date');
+    const postPreviewImage = e.getAttribute('data-msg-url-preview');
+    const postExtraPreviewImage = e.getAttribute('data-msg-url-extpreview');
+    const postFullImage = e.getAttribute('data-msg-url-full');
+    const postColor = decodeURIComponent(e.getAttribute('data-search-color')).split(':');
+    const attribs = Array.from(e.attributes).map(f => f.nodeName + '="' + f.value.split('"').join('&quot;') + '"');
+
+    let required_build = (postFilID && !postCached);
+    let data_type = null;
+    let fullItem = null;
+    let previewItem = null;
+    let extpreviewItem = null;
+
+    if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+        data_type = 'image';
+    } else if (videoFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+        data_type = 'video';
+    } else if (audioFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+        data_type = 'audio';
+    }
+    if (postPreviewImage)
+        previewItem = replaceDiscordCDN(postPreviewImage);
+    if (postExtraPreviewImage)
+        extpreviewItem = replaceDiscordCDN(postExtraPreviewImage);
+    if (postFullImage)
+        fullItem = replaceDiscordCDN(postFullImage);
+    if (postDownload && !(postFilID && !postCached) && !required_build)
+        fullItem = replaceDiscordCDN(postDownload);
+
+    return {
+        full_url: fullItem,
+        preview_url: previewItem,
+        extpreview_url: extpreviewItem,
+        data_type,
+        fileid: postFilID,
+        channel: postChannelString,
+        channel_icon: postChannelIcon,
+        filename: postFilename,
+        id: postID,
+        date: postDate,
+        file_size: fileSize,
+        color: postColor,
+        eid: postEID,
+        required_build: required_build,
+        htmlAttributes: attribs,
+    }
+}
+async function cacheFileURL(object, page_item, doc) {
+    return new Promise(async (resolve) => {
+        let fetchResults = {}
+        if (object.full_url)
+            fetchResults["full_url"] = (await fetch(object.full_url)).status
+        if (object.preview_url)
+            fetchResults["preview_url"] = (await fetch(object.preview_url)).status
+        if (object.extpreview_url)
+            fetchResults["extpreview_url"] = (await fetch(object.extpreview_url)).status
+        if (object.required_build)
+            openUnpackingFiles(object.id, undefined, true, true, doc);
+        if (browserStorageAvailable) {
+            try {
+                const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(object.eid);
+                indexDBUpdate.onsuccess = deleteEvent => {
+                    offlineContent.transaction([`offline_items`], "readwrite").objectStore('offline_items').add({
+                        ...object,
+                        page_item: (!!page_item),
+                        fetchResults: fetchResults
+                    }).onsuccess = event => {
+                        resolve(fetchResults);
+                    };
+                };
+            } catch (e) {
+                console.error(`Failed to save record for ${object.eid}`);
+                console.error(e)
+                resolve(fetchResults)
+            }
+        } else {
+            resolve(fetchResults)
+        }
+    })
+}
 async function cachePageOffline(type, _url) {
-    const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
+    const limit = (document.getElementById("maxCountOfflinePage")) ? document.getElementById("maxCountOfflinePage").value : undefined;
+    let requestOpts = [['responseType', 'offline']];
+    if (limit && limit.length > 0 && !isNaN(parseInt(limit))) {
+        requestOpts.push(['num', limit]);
+    }
+    const url = params(['offset'], requestOpts, _url);
     const cache = await caches.open(`offline-content-${(type) ? type : 'pages'}`);
+    await cache.delete(url);
     await cache.add(url);
-    const _cacheItem = await caches.match(url);
+    const _cacheItem = await cache.match(url);
     if (_cacheItem) {
+        $('#cacheModal').modal('hide');
         const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'))
         contentCache = content;
         const title = content.querySelector('title').text
-        const fullImages = Array.from(content.querySelectorAll('a.lightbox')).map(e => (new URL(e.href)).pathname).filter(async e => !!e && imageFiles.indexOf(e.split('?')[0].split('.').pop().toLowerCase()) !== -1 && (await caches.match(e)) === undefined);
-        const previewImages = Array.from(content.querySelectorAll('a.lightbox > div#postImage')).map(e => ((e.style.backgroundImage) ? e.style.backgroundImage.replace("url('", '').replace("')", '').replace('url("', '').replace('")', '').replace('url(', '').replace(')', '') : e.getAttribute('data-src'))).filter(async e => !!e && imageFiles.indexOf(e.split('.').pop().toLowerCase()) !== -1 && fullImages.indexOf(e) !== -1 && (await caches.match(e)) === undefined);
 
-        const totalFiles = previewImages.length + fullImages.length;
+        const itemsToCache = Array.from(content.querySelectorAll('[data-msg-url-full]')).map(e => extractMetaFromElement(e)).filter(e => e.data_type);
+
+        const totalFiles = itemsToCache.length;
+        if (totalFiles === 0) {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>No Items',
+                subtitle: '',
+                content: `<p>There are no media files on this page that can be made offline!</p>`,
+                delay: 10000,
+            });
+            return false;
+        }
+
         let downloadedFiles = 0;
         let status = {
+            url: params(['offset', '_h', 'responseType'], [], url),
             title,
             downloaded: downloadedFiles,
-            full: fullImages.length,
-            previews: previewImages.length,
-            total: totalFiles
+            items: itemsToCache.map(e => e.eid),
+            totalItems: totalFiles
         }
         offlineDownloadController.set(url, status);
-
         updateNotficationsPanel();
         notificationControler = setInterval(updateNotficationsPanel, 1000);
 
-        for (let e of fullImages) {
+        for (let e of itemsToCache) {
             if (!offlineDownloadController.has(url))
                 break;
-            const response = await fetch(e)
-            console.log(`Cached Image ${e} - ${response.status}`)
+            try {
+                const fetchResult = await cacheFileURL(e, true, content)
+                if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
+                    offlineDownloadController.delete(url);
+                    break;
+                }
+            } catch (err) {
+                console.error(err);
+                offlineDownloadController.delete(url);
+                break;
+            }
             downloadedFiles++;
             status = {
                 ...status,
@@ -1079,117 +1243,128 @@ async function cachePageOffline(type, _url) {
             }
             offlineDownloadController.set(url, status);
         }
-        console.log(`Cached ${fullImages.length} Full Images`);
+        console.log(`Cached ${downloadedFiles} Items`);
 
-        for (let e of previewImages) {
-            if (!offlineDownloadController.has(url))
-                break;
-            const response = await fetch(e)
-            console.log(`Cached Preview ${e} - ${response.status}`);
-            downloadedFiles++;
-            status = {
-                ...status,
-                downloaded: downloadedFiles
-            }
-            offlineDownloadController.set(url, status);
-        }
-        console.log(`Cached ${previewImages.length} Preview Images`);
         if (!offlineDownloadController.has(url)) {
             console.error('Offline download was canceled!')
-            await caches.delete(url);
+            await cache.delete(url);
+            const cachesList = await caches.keys();
+            const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
+            const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
+            const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
+            const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
+            if (cdnCache) {
+                for (let e of itemsToCache) {
+                    if (e.full_url)
+                        cdnCache.remove(e.full_url);
+                    if (e.preview_url)
+                        cdnCache.remove(e.preview_url);
+                    if (e.extpreview_url)
+                        cdnCache.remove(e.extpreview_url);
+                }
+            }
+            if (proxyCache) {
+                for (let e of itemsToCache) {
+                    if (e.full_url)
+                        cdnCache.remove(e.full_url);
+                    if (e.preview_url)
+                        cdnCache.remove(e.preview_url);
+                    if (e.extpreview_url)
+                        cdnCache.remove(e.extpreview_url);
+                }
+            }
+            $.snack('error', `<i class="fas fa-sd-card pr-2"></i>Page Download Canceled or Failed`, 5000);
         } else {
             if (browserStorageAvailable) {
                 try {
-
                     const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
                     indexDBUpdate.onsuccess = deleteEvent => {
-                        offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').add({
-                            url,
-                            title,
-                            files: fullImages,
-                            previews: previewImages,
-                            totalItems: fullImages.length
-                        }).onsuccess = event => {
-                            console.log(event)
+                        offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').add(status).onsuccess = event => {
+                            $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Page with ${totalFiles} files are available offline`, 5000);
                             console.log(`Page Saved Offline!`)
                         };
                     };
                 } catch (e) {
+                    $.toast({
+                        type: 'error',
+                        title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                        subtitle: '',
+                        content: `<p>Failed to save offline storage record "${title}"!</p><p>${e.message}</p>`,
+                        delay: 10000,
+                    });
                     console.error(`Failed to save record for ${url}`);
                 }
+            } else {
+                $.toast({
+                    type: 'error',
+                    title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                    subtitle: '',
+                    content: `<p>Failed access offline storage databsae!</p>`,
+                    delay: 10000,
+                });
             }
             offlineDownloadController.delete(url);
         }
     } else {
+        $.toast({
+            type: 'error',
+            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            subtitle: '',
+            content: `<p>Failed to get offline page results, Try again later</p>`,
+            delay: 10000,
+        });
         console.error('Item did not hit cache. Please try again')
     }
     return false;
 }
-async function cacheFileOffline(element) {
+async function offlineSelectedItems() {
+    try {
+        disableGallerySelect();
+        let downloadedFiles = 0;
+        const _url = params(['offset', '_h', 'responseType'], [])
+        let status = {
+            url: _url,
+            title: 'Selected Items',
+            downloaded: downloadedFiles,
+            totalItems: postsActions.length,
+        }
+        offlineDownloadController.set(_url, status);
+        updateNotficationsPanel();
+        notificationControler = setInterval(updateNotficationsPanel, 1000);
+        await Promise.all(postsActions.map(async (e,i) => {
+            await cacheFileOffline(e.messageid, !(i === postsActions.length - 1));
+            downloadedFiles++;
+            status = {
+                ...status,
+                downloaded: downloadedFiles
+            }
+            offlineDownloadController.set(_url, status);
+        }))
+        postsActions = [];
+        offlineDownloadController.delete(_url);
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
+}
+async function cacheFileOffline(element, noConfirm) {
     if (element) {
         const _post = document.getElementById('message-' + element);
-        const postChannelString = _post.getAttribute('data-msg-channel-string');
-        const postDownload = _post.getAttribute('data-msg-download');
-        const postFilename = _post.getAttribute('data-msg-filename');
-        const postFilID = _post.getAttribute('data-msg-fileid');
-        const postCached = _post.getAttribute('data-msg-filecached') === 'true';
-        const postEID = _post.getAttribute('data-msg-eid');
-        const postID = _post.getAttribute('data-msg-id');
-        const postPreviewImage = _post.getAttribute('data-msg-url-preview');
-        const postFullImage = _post.getAttribute('data-msg-url-full');
-        const postColor = decodeURIComponent(_post.getAttribute('data-search-color')).split(':');
-        let data_type = null;
-        const attribs = Array.from(document.getElementById('message-' + element).attributes).map(e => e.nodeName + '="' + e.value + '"');
-
-        if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
-            data_type = 'image';
-        } else if (videoFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
-            data_type = 'video';
-        } else if (audioFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
-            data_type = 'audio';
+        const metdata = extractMetaFromElement(_post);
+        const fetchResult = await cacheFileURL(metdata);
+        if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Failed to save offline storage record "${element}"!</p><p>${e.message}</p>`,
+                delay: 10000,
+            });
+            console.error(`Failed to save record for ${element}`);
+            console.error(e)
+        } else {
+            if (!noConfirm)
+                $.snack('success', `<i class="fas fa-sd-card pr-2"></i>File available offline`, 5000);
         }
-
-
-        if (postFilID && !postCached)
-            await openUnpackingFiles(element, undefined, true, true);
-        let fullItem = null;
-        if (postFullImage)
-            fullItem = (postFullImage.includes('.discordapp.') && postFullImage.includes('attachments')) ? `/${(postFullImage.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${postFullImage.split('attachments').pop()}`.split('?')[0] : postFullImage;
-        if ((postFilID && postCached && postDownload) || (postDownload && !postFilID))
-            fullItem = (postDownload.includes('.discordapp.') && postDownload.includes('attachments')) ? `/${(postDownload.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${postDownload.split('attachments').pop()}`.split('?')[0] : postDownload;
-        if (fullItem)
-            await fetch(fullItem);
-        if (postPreviewImage)
-            await fetch((postPreviewImage.includes('.discordapp.') && postPreviewImage.includes('attachments')) ? `/${(postPreviewImage.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${postPreviewImage.split('attachments').pop()}`.split('?')[0] : postPreviewImage);
-
-        console.log(`Cached Item!`);
-        if (browserStorageAvailable) {
-            try {
-                const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(postEID);
-                indexDBUpdate.onsuccess = deleteEvent => {
-                    offlineContent.transaction([`offline_items`], "readwrite").objectStore('offline_items').add({
-                        full_url: fullItem,
-                        preview_url: postPreviewImage,
-                        data_type,
-                        fileid: postFilID,
-                        channel: postChannelString,
-                        filename: postFilename,
-                        id: postID,
-                        color: postColor,
-                        eid: postEID,
-                        htmlAttributes: attribs,
-                    }).onsuccess = event => {
-                        console.log(event)
-                        console.log(`Item Saved Offline!`)
-                    };
-                };
-            } catch (e) {
-                console.error(`Failed to save record for ${element}`);
-                console.error(e)
-            }
-        }
-    } else {
-        console.error('Item not defined')
     }
     return false;
 }
@@ -1252,38 +1427,35 @@ async function getOfflinePages() {
         }).join('');
     }
 }
-// TODO: create file list
-async function getOfflineFile() {
-    if (document.getElementById('offlineFileList')) {
-        document.getElementById('offlinePages').classList.remove('hidden');
-        $("#userMenu").collapse("hide");
-        const pages = await getAllOfflinePages();
-        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
-            let icon = 'fa-page';
-            if (page.url.includes('#/gallery'))
-                icon = 'fa-image'
-            if (page.url.includes('#/files'))
-                icon = 'fa-folder'
-            if (page.url.includes('#/cards'))
-                icon = 'fa-message'
-            if (page.url.includes('album='))
-                icon = 'fa-archive'
-
-            return `<tr>
-            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
-            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
-            <td class="py-2"><span>${page.totalItems}</span></td>
-        </tr>`
-        }).join('');
-    }
-}
 async function getPageIfAvailable(_url) {
     return new Promise((resolve) => {
         try {
             const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
-            if (url) {
+            if (url && browserStorageAvailable) {
                 offlineContent.transaction("offline_pages").objectStore("offline_pages").get(url).onsuccess = event => {
                     if (event.target.result && event.target.result.files) {
+                        resolve({
+                            ...event.target.result
+                        })
+                    } else {
+                        resolve(false)
+                    }
+                };
+            } else {
+                resolve(false)
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getPageItemsIfAvailable(_url) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_pages").objectStore("offline_pages").get(_url).onsuccess = event => {
+                    if (event.target.result && event.target.result.url) {
                         resolve({
                             ...event.target.result
                         })
@@ -1303,15 +1475,19 @@ async function getPageIfAvailable(_url) {
 async function getFileIfAvailable(eid) {
     return new Promise((resolve) => {
         try {
-            offlineContent.transaction("offline_items").objectStore("offline_items").get(eid).onsuccess = event => {
-                if (event.target.result && event.target.result.eid) {
-                    resolve({
-                        ...event.target.result
-                    })
-                } else {
-                    resolve(false)
-                }
-            };
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_items").objectStore("offline_items").get(eid).onsuccess = event => {
+                    if (event.target.result && event.target.result.eid) {
+                        resolve({
+                            ...event.target.result
+                        })
+                    } else {
+                        resolve(false)
+                    }
+                };
+            } else {
+                resolve(false)
+            }
         } catch (e) {
             console.log(e);
             resolve(false)
@@ -1321,12 +1497,16 @@ async function getFileIfAvailable(eid) {
 async function getAllOfflinePages() {
     return new Promise((resolve) => {
         try {
-            offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
-                resolve(event.target.result.map(e => {
-                    return {
-                        ...e
-                    }
-                }))
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
+                    resolve(event.target.result.map(e => {
+                        return {
+                            ...e
+                        }
+                    }))
+                }
+            } else {
+                resolve([])
             }
         } catch (e) {
             console.log(e);
@@ -1337,12 +1517,16 @@ async function getAllOfflinePages() {
 async function getAllOfflineFiles() {
     return new Promise((resolve) => {
         try {
-            offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
-                resolve(event.target.result.map(e => {
-                    return {
-                        ...e
-                    }
-                }))
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
+                    resolve(event.target.result.map(e => {
+                        return {
+                            ...e
+                        }
+                    }))
+                }
+            } else {
+                resolve([]);
             }
         } catch (e) {
             console.log(e);
@@ -1353,31 +1537,60 @@ async function getAllOfflineFiles() {
 async function deleteOfflinePage(_url, noupdate) {
     const url = params(['limit', 'offset'], [['responseType', 'offline']], _url);
     if (url) {
+        const cachesList = await caches.keys();
+        const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
+        const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
+        const pagesCache = await caches.open('offline-content-pages');
+        const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
+        const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
         const page = await getPageIfAvailable(url);
         if (page) {
-            page.files.map(f => caches.delete(f));
-            page.previews.map(f => caches.delete(f));
-            const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
-            indexDBUpdate.onsuccess = event => {
-                caches.delete(url);
+            if (cdnCache)
+                page.files.map(f => cdnCache.delete(f))
+
+            if (proxyCache)
+                page.previews.map(f => proxyCache.delete(f))
+
+            if (browserStorageAvailable) {
+                const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
+                indexDBUpdate.onsuccess = event => {
+                    pagesCache.delete(url);
+                    if (!noupdate)
+                        updateNotficationsPanel();
+                };
+            } else {
+                pagesCache.delete(url);
                 if (!noupdate)
                     updateNotficationsPanel();
-            };
+            }
         } else {
-            caches.delete(url);
+            pagesCache.delete(url);
         }
     }
 }
 async function deleteOfflineFile(eid, noupdate) {
     const file = await getFileIfAvailable(eid);
     if (file) {
-        caches.delete(file.full_url);
-        caches.delete(file.preview_url);
-        const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(eid);
-        indexDBUpdate.onsuccess = event => {
+        const cachesList = await caches.keys();
+        const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
+        const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
+        const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
+        const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
+
+        if (cdnCache)
+            cdnCache.delete(file.full_url);
+        if (proxyCache)
+            proxyCache.delete(file.preview_url);
+        if (browserStorageAvailable) {
+            const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(eid);
+            indexDBUpdate.onsuccess = event => {
+                if (!noupdate)
+                    updateNotficationsPanel();
+            };
+        } else {
             if (!noupdate)
                 updateNotficationsPanel();
-        };
+        }
     }
 }
 async function clearCache(list) {
@@ -1392,12 +1605,18 @@ async function clearCache(list) {
         );
     })
 }
+async function clearKernelCache() {
+    await clearCache(['generic', 'kernel', 'config']);
+    window.location.reload();
+}
 async function clearAllOfflineData() {
     $('#cacheModal').modal('hide');
     (await getAllOfflinePages()).map(async e => await deleteOfflinePage(e.url, true));
     (await getAllOfflineFiles()).map(async e => await deleteOfflineFile(e.eid, true));
 }
 async function displayOfflineData() {
+    let linkedEids = [];
+    let linkedFileids = [];
     const pages = await getAllOfflinePages();
     const pageRows = pages.map((e,i) => {
         let icon = 'fa-page';
@@ -1409,13 +1628,15 @@ async function displayOfflineData() {
             icon = 'fa-message'
         if (e.url.includes('album='))
             icon = 'fa-archive'
+        if (e.items)
+            linkedEids.push(...e.items);
 
         return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
             <div class="px-2"><i class="fas ${icon}"></i></div>
             <div class="w-100"><span>${e.title}</span></div>
             <div class="d-flex">
                 <a class="p-2" href="#_" onclick="cachePageOffline(undefined, '${e.url}'); return false">
-                    <i class="fas fa-cloud-download"></i>
+                    <i class="fas fa-arrows-rotate"></i>
                 </a>
                 <a class="p-2" href="#_" onclick="deleteOfflinePage('${e.url}'); document.getElementById('cachePageItem-${i}').remove(); return false">
                     <i class="fas fa-trash"></i>
@@ -1431,7 +1652,8 @@ async function displayOfflineData() {
     }
 
     const files = await getAllOfflineFiles();
-    const fileRows = files.map((e,i) => {
+    linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
+    const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
         let icon = 'fa-file';
         if (e.data_type === 'image')
             icon = 'fa-image'
@@ -1457,29 +1679,85 @@ async function displayOfflineData() {
         document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
     }
 
+    const offlineSpannedFiles = await getAllOfflineSpannedFiles();
+    const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
+        return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
+            <div class="px-2"><i class="fas fa-box-open"></i></div>
+            <div class="w-100"><span>${e.filename}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="removeCacheItem('${e.id}'); document.getElementById('cacheSpanItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (spannedRows.length > 0) {
+        document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
+    } else {
+        document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
+    }
+
     $('#cacheModal').modal('show');
 }
-async function generateGalleryHTML(type) {
+async function generateGalleryHTML(url, eids) {
     $("#userMenu").collapse("hide");
-    setupReq(undefined, '/image?');
+    _originalURL = url;
+    setupReq(undefined, _originalURL);
+    const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
     $.when($(".container-fluid").fadeOut(250)).done(async () => {
         let resultRows = [];
-        if (type === 'image') {
-            const files = await getAllOfflineFiles();
-            resultRows = files.filter(e => e.data_type === 'image').map(e => {
-                return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="internal-lightbox d-block"></div><a class="lightbox" href="${e.full_url}"><div id="postImage" class="square img img-responsive" style="background-image: url('${e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0,3).join(', ') : '128, 128, 128'});"></div></a></div>`
-            })
+        const files = await getAllOfflineFiles();
+        const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item)))
+        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+        if (allResults.length < offset)
+            offset = 0;
+        const shift = offset + 100;
+        let pageButtons = [];
+        if (allResults.length > 100) {
+            if (offset > 0) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+            }
+            if (shift <= allResults.length) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+            }
         }
+
+        resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+            const url = await (async () => {
+                if (e.fileid) {
+                    const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
+                    if (possibleFileSaved && possibleFileSaved.href)
+                        return possibleFileSaved.href;
+                }
+                return e.full_url
+            })()
+            return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="overlay-icons">
+    <div class="icon-container no-dynamic-tiny">
+        <div class="status-icons left-links d-flex w-100">
+            <div class="d-inline-flex size-indictor shadow-text"></div>
+            <div class="d-inline-flex ratio-indictor shadow-text"></div>
+            <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-cloud-check text-success"></i></div>
+            <div class="d-inline-flex ml-auto shadow-text"><i class="fas ${(e.channel_icon) ? e.channel_icon : 'fa-question'} pr-1"></i></div>
+        </div>
+        ${(e.data_type === 'video') ? '<div class="status-icons left-links d-flex w-100 no-dynamic-tiny" style="padding-top: 1.4em;"><div class="d-flex shadow-text text-ellipsis"><span class="text-ellipsis" style="line-height: 1.1; text-weight: bold;">' + e.filename + '</span></div></div>' : ''}
+    </div>
+    <div class="links-container text-primary">
+        <div class="links">
+            <div class="left-links row-1"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
+            <div class="right-links row-1"></div>
+        </div>
+    </div>
+</div><div class="internal-lightbox d-block"></div><a class="lightbox" ${(e.data_type === 'video') ? 'data-fancybox="video" href="#_" onclick="PlayVideo(\'' + url + '\'); return false;"' : 'data-fancybox="gallery" href="' + url + '"'}><div id="postImage" class="square img img-responsive" style="background-image: url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0,3).join(', ') : '128, 128, 128'});"></div></a></div>`
+        }))
+
         if (resultRows.length > 0) {
-            document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + resultRows.join(' ') + '</div></div><script type="text/javascript" src="/js/client/onload.min.js"/>'
-            window.history.replaceState({}, null, `/offline#/images?`);
-            _originalURL = `/images?`;
-            $("[data-fancybox=gallery]").fancybox(options);
-            $('a[href="#_"], a[href="#"] ').click(function(e){
-                window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                e.preventDefault();
-            });
+            document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + resultRows.join(' ') + '</div></div>'
+            window.history.replaceState({}, null, `/offline#${_originalURL}`);
+            registerLazyLoader();
+            registerURLHandlers();
             setImageLayout(setImageSize);
+            $("#pageNav").html(pageButtons.join(''));
             $(".container-fluid").fadeTo(2000, 1);
         } else {
             $(".container-fluid").fadeTo(2000, 1)
@@ -1494,30 +1772,111 @@ async function generateGalleryHTML(type) {
         responseComplete = true;
     })
 }
-async function generateFilesHTML() {
+async function generateFilesHTML(url, eids) {
+    _originalURL = url;
+    setupReq(undefined, _originalURL);
+    const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
+    $.when($(".container-fluid").fadeOut(250)).done(async () => {
+        let resultRows = [];
+        const files = await getAllOfflineFiles();
+        const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item)))
+        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+        if (allResults.length < offset)
+            offset = 0;
+        const shift = offset + 100;
+        let pageButtons = [];
+        if (allResults.length > 100) {
+            if (offset > 0) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+            }
+            if (shift <= allResults.length) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+            }
+        }
 
+        resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+            const url = await (async () => {
+                if (e.fileid) {
+                    const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
+                    if (possibleFileSaved && possibleFileSaved.href)
+                        return possibleFileSaved.href;
+                }
+                return e.full_url
+            })()
+            return `<tr class="dense-table" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : ''}>
+                <!--<td class="preview-holder">
+                    <div class="preview-image align-content-start"><i class="fas fa-image fa-2x"></i></div>
+                </td>-->
+                <td class="preview-icon"><div class="table-icon"><i class="fas fa-music fa-2x"></i></div></td>
+                <td><span class="align-middle">${e.filename}</span>
+                    <div class="text-primary">
+                        <div class="btn-group d-inline-block">
+                        ${(audioFiles.indexOf(e.filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) ? "<a class=\"btn btn-switchmode\" title=\"Play Audio\" href=\"#_\" onclick=\"PlayTrack('" + url + "'); return false;\"><i class=\"fas fa-play\"></i></a>" : ""}
+                        <a class="btn btn-switchmode" title="Download" download="${e.filename}" href="${url}" target="_blank" rel="noopener noreferrer"><i class="fas fa-download"></i></a></div>
+                        <div class="btn-group file-tools d-inline-block"><a class="btn btn-fav" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="fas fa-info-circle"></i></a></div>
+                    </div>
+                </td>
+                <td class="d-none d-sm-table-cell">${e.date}</td>
+                <td class="d-none d-sm-table-cell">${e.file_size}</td>
+            </tr>`
+        }))
+        if (resultRows.length > 0) {
+            document.getElementById('contentBlock').innerHTML = `<div class="table-responsive p-lg-3 rounded bg-translucent-lg">
+    <table class="table table-borderless" id="dataTable" width="100%" cellspacing="0">
+        <thead class="table-header">
+            <tr>
+                <th style="width: 5%"></th>
+                <th style="width: 70%">Filename</th>
+                <th style="width: 15%">Date</th>
+                <th style="width: 10%">Size</th>
+            </tr>
+        <tbody>` + resultRows.join(' ') + `</tbody>
+        </thead>
+    </table>
+</div>`
+            window.history.replaceState({}, null, `/offline#${_originalURL}`);
+            registerLazyLoader();
+            registerURLHandlers();
+            $("#pageNav").html(pageButtons.join(''));
+            $(".container-fluid").fadeTo(2000, 1);
+        } else {
+            $(".container-fluid").fadeTo(2000, 1)
+            $.toast({
+                type: 'error',
+                title: 'No Results Found',
+                subtitle: 'Error',
+                content: `Nothing was found, Please try another option or search term`,
+                delay: 10000,
+            })
+        }
+        responseComplete = true;
+    })
 }
 
 async function getSpannedFileIfAvailable(fileid) {
     return new Promise((resolve) => {
         try {
-            offlineContent.transaction("spanned_files").objectStore("spanned_files").get(fileid).onsuccess = event => {
-                if (event.target.result && event.target.result.id && event.target.result.block) {
-                    let url
-                    if (!tempURLController.has(event.target.result.id)) {
-                        url = window.URL.createObjectURL(event.target.result.block)
-                        tempURLController.set(event.target.result.id, url);
+            if (browserStorageAvailable) {
+                offlineContent.transaction("spanned_files").objectStore("spanned_files").get(fileid).onsuccess = event => {
+                    if (event.target.result && event.target.result.id && event.target.result.block) {
+                        let url
+                        if (!tempURLController.has(event.target.result.id)) {
+                            url = window.URL.createObjectURL(event.target.result.block)
+                            tempURLController.set(event.target.result.id, url);
+                        } else {
+                            url = tempURLController.get(event.target.result.id);
+                        }
+                        resolve({
+                            ...event.target.result,
+                            href: url
+                        })
                     } else {
-                        url = tempURLController.get(event.target.result.id);
+                        resolve(false)
                     }
-                    resolve({
-                        ...event.target.result,
-                        href: url
-                    })
-                } else {
-                    resolve(false)
-                }
-            };
+                };
+            } else {
+                resolve(false)
+            }
         } catch (e) {
             console.log(e);
             resolve(false)
@@ -1527,20 +1886,24 @@ async function getSpannedFileIfAvailable(fileid) {
 async function getAllOfflineSpannedFiles() {
     return new Promise((resolve) => {
         try {
-            offlineContent.transaction("spanned_files").objectStore("spanned_files").getAll().onsuccess = event => {
-                resolve(event.target.result.map(e => {
-                    let url
-                    if (!tempURLController.has(e.id)) {
-                        url = window.URL.createObjectURL(e.block)
-                        tempURLController.set(e.id, url);
-                    } else {
-                        url = tempURLController.get(e.id);
-                    }
-                    return {
-                        ...e,
-                        href: url
-                    }
-                }))
+            if (browserStorageAvailable) {
+                offlineContent.transaction("spanned_files").objectStore("spanned_files").getAll().onsuccess = event => {
+                    resolve(event.target.result.map(e => {
+                        let url
+                        if (!tempURLController.has(e.id)) {
+                            url = window.URL.createObjectURL(e.block)
+                            tempURLController.set(e.id, url);
+                        } else {
+                            url = tempURLController.get(e.id);
+                        }
+                        return {
+                            ...e,
+                            href: url
+                        }
+                    }))
+                }
+            } else {
+                resolve([]);
             }
         } catch (e) {
             console.log(e);
@@ -1548,8 +1911,8 @@ async function getAllOfflineSpannedFiles() {
         }
     })
 }
-async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile) {
-    const _post = document.getElementById(`message-${messageid}`);
+async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile, doc) {
+    const _post = (doc || document).getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
     const filename = _post.getAttribute('data-msg-filename');
     const filesize = _post.getAttribute('data-msg-filesize');
@@ -1563,7 +1926,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
 
         if (fastAccess) {
             if (downloadPreemptive) {
-                console.log(`File ${filename} is ready`)
+                console.log(`File ${filename} is already available`)
             } else if (playThis === 'audio') {
                 PlayTrack(fastAccess);
             } else if (playThis === 'video') {
@@ -1721,12 +2084,15 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                 if (activeSpannedJob.ready && activeSpannedJob.pending) {
                     const download = await unpackFile();
                     if (download) {
-                        memorySpannedController.push(activeSpannedJob);
-                        const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
-                        if (element && !downloadPreemptive) {
-                            if (activeSpannedJob.play) {
-                                console.log(`Launching File...`)
-                                if (activeSpannedJob.play === 'audio') {
+                        if (downloadPreemptive && offlineFile) {
+                            console.log(`File ${filename} is ready`)
+                        } else {
+                            memorySpannedController.push(activeSpannedJob);
+                            const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
+                            if (element && !downloadPreemptive) {
+                                if (activeSpannedJob.play) {
+                                    console.log(`Launching File...`)
+                                    if (activeSpannedJob.play === 'audio') {
                                         PlayTrack(element.href);
                                     } else if (activeSpannedJob.play === 'video') {
                                         $('#videoBuilderModal').modal('hide');
@@ -1740,7 +2106,12 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                                             memoryVideoPositions.set(activeSpannedJob.id, kongouMediaVideoPreview.currentTime);
                                         kongouMediaVideoFull.src = element.href;
                                         kongouMediaVideoFull.volume = 0;
-                                        try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err) };
+                                        try {
+                                            await kongouMediaVideoFull.play();
+                                        } catch (err) {
+                                            console.error(err)
+                                        }
+                                        ;
 
                                         if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
                                             kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
@@ -1755,7 +2126,11 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                                             if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
                                                 kongouMediaVideoFull.pause();
                                             } else if (kongouMediaVideoFull.paused) {
-                                                try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                                                try {
+                                                    await kongouMediaVideoFull.play();
+                                                } catch (err) {
+                                                    console.error(err);
+                                                }
                                             }
                                             kongouMediaVideoPreview.pause();
                                             kongouMediaVideoPreview.classList.add('hidden');
@@ -1772,11 +2147,12 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                                     } else {
                                         console.error('No Datatype was provided')
                                     }
+                                } else {
+                                    element.click();
+                                }
                             } else {
-                                element.click();
+                                console.error('Data lost!')
                             }
-                        } else {
-                            console.error('Data lost!')
                         }
                     }
                 }
@@ -2354,14 +2730,12 @@ async function unpackFile() {
                                     if (activeSpannedJob && activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
                                         activeSpannedJob.progress = `100%`;
                                         let blobType = {}
-                                        if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video')
+                                        if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
                                             blobType.type = 'video/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
-                                        if (activeSpannedJob.play === 'audio')
+                                        if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
                                             blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
 
                                         const finalBlock = new Blob(activeSpannedJob.blobs, blobType);
-                                        const finalUrl = window.URL.createObjectURL(finalBlock)
-                                        tempURLController.set(activeSpannedJob.id, finalUrl);
                                         if (browserStorageAvailable && activeSpannedJob.offline) {
                                             try {
                                                 offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').add({
@@ -2376,21 +2750,25 @@ async function unpackFile() {
                                                     progress: undefined,
                                                     offline: undefined,
                                                 }).onsuccess = event => {
-                                                    console.log(event)
-                                                    console.log(`File Saved Offline!`)
+                                                    console.log(event);
+                                                    console.log(`File Saved Offline!`);
                                                 };
                                             } catch (e) {
                                                 console.error(`Failed to save block ${activeSpannedJob.id}`);
                                                 console.error(e);
                                             }
                                         }
-                                        const downloadedFile = finalUrl;
-                                        const link = document.createElement('a');
-                                        link.id = `fileData-${activeSpannedJob.id}`
-                                        link.classList = `hidden`
-                                        link.href = downloadedFile;
-                                        link.setAttribute('download', activeSpannedJob.filename);
-                                        document.body.appendChild(link);
+                                        if (!(activeSpannedJob.offline && activeSpannedJob.preemptive)) {
+                                            const finalUrl = window.URL.createObjectURL(finalBlock)
+                                            tempURLController.set(activeSpannedJob.id, finalUrl);
+                                            const downloadedFile = finalUrl;
+                                            const link = document.createElement('a');
+                                            link.id = `fileData-${activeSpannedJob.id}`
+                                            link.classList = `hidden`
+                                            link.href = downloadedFile;
+                                            link.setAttribute('download', activeSpannedJob.filename);
+                                            document.body.appendChild(link);
+                                        }
 
                                         if (activeSpannedJob && activeSpannedJob.play === 'video') {
                                             videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
@@ -2544,8 +2922,7 @@ async function unpackFile() {
 }
 
 async function updateNotficationsPanel() {
-    const offlineFiles = await getAllOfflineSpannedFiles();
-    if (downloadSpannedController.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0 || offlineFiles.length > 0) {
+    if (downloadSpannedController.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0) {
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
             if (item.ready) {
@@ -2569,8 +2946,8 @@ async function updateNotficationsPanel() {
             const item = offlineDownloadController.get(e);
             let results = [`<a class="dropdown-item text-ellipsis" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="offlineDownloadController.delete('${e}'); return false;")>`]
             results.push(`<i class="fas fa-cloud-download text-success pr-2"></i>`);
-            results.push(`<span>${(item.title) ? item.title : e} (${(item.full) ? item.full : item.total})</span>`);
-            results.push(`<span class="pl-2 text-success">${((item.downloaded / item.total) * 100).toFixed(0)}%</span>`);
+            results.push(`<span>${(item.title) ? item.title : e} (${item.totalItems})</span>`);
+            results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
             results.push(`</a>`);
             return results.join('\n');
         })
@@ -2618,7 +2995,7 @@ async function updateNotficationsPanel() {
                 return results.join('\n');
             }))
         }
-        if (offlineFiles.length > 0) {
+        /*if (offlineFiles.length > 0) {
             if (keys.length > 0)
                 completedKeys.push(`<div class="dropdown-divider"></div>`);
             completedKeys.push(...offlineFiles.map(item => {
@@ -2660,7 +3037,7 @@ async function updateNotficationsPanel() {
                 results.push(`</div>`)
                 return results.join('\n');
             }))
-        }
+        }*/
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden');
             if (keys.length > 0 || offlineKeys.length > 0 || completedKeys.length > 0) {
@@ -2690,8 +3067,8 @@ async function updateNotficationsPanel() {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
         } else if (offlineKeys.length > 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cloud-download fa-fade';
-        } else if (memorySpannedController.length !== 0 || offlineFiles.length > 0) {
-            document.getElementById('statusMenuIcon').classList = 'fas fa-sd-card';
+        } else if (memorySpannedController.length !== 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-memory';
             clearInterval(notificationControler);
             notificationControler = null;
         }
@@ -2716,11 +3093,21 @@ async function removeCacheItem(id, noupdate) {
         window.URL.revokeObjectURL(file.href);
     }
     if (file) {
-        const indexDBUpdate = offlineContent.transaction(["spanned_files"], "readwrite").objectStore("files").delete(id);
-        indexDBUpdate.onsuccess = event => {
-            if (!noupdate)
-                updateNotficationsPanel();
-        };
+        if (browserStorageAvailable) {
+            const indexDBUpdate = offlineContent.transaction(["spanned_files"], "readwrite").objectStore("spanned_files").delete(id);
+            indexDBUpdate.onsuccess = event => {
+                if (!noupdate)
+                    updateNotficationsPanel();
+            };
+        } else {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Failed access offline storage databsae!</p>`,
+                delay: 10000,
+            });
+        }
     } else if (!noupdate) {
         updateNotficationsPanel();
     }
@@ -2765,6 +3152,7 @@ async function showSearchOptions(post) {
     const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
     const modalGoToHistoryDisplay = document.getElementById(`goToHistoryDisplay`);
     const modalDownloadButton = document.getElementById(`goToDownload`);
+    const modalOfflineThisButton = document.getElementById(`makeOffline`);
     const modalPlayButton = document.getElementById(`goToPlay`);
     const modalGoToPostSource = document.getElementById(`goToPostSource`);
     const modalSearchByUser = document.getElementById(`searchByUser`);
@@ -2847,9 +3235,17 @@ async function showSearchOptions(post) {
         advancedInfo.push(`<div><i class="fa fa-input-text pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
         modalFilename.innerText = postFilename.split('.')[0];
         modalFilename.classList.remove('hidden');
+        modalOfflineThisButton.onclick = function() {
+            cacheFileOffline(postID, false);
+            $('#searchModal').modal('hide');
+            return false;
+        }
+        modalOfflineThisButton.classList.remove('hidden');
     } else {
         modalFilename.innerText = "Unknown";
         modalFilename.classList.add('hidden');
+        modalOfflineThisButton.onclick = null;
+        modalOfflineThisButton.classList.add('hidden');
     }
     if (postDate && postDate.length > 0) {
         normalInfo.push('<div class="badge badge-light mx-1 ">')
@@ -3001,12 +3397,14 @@ async function showSearchOptions(post) {
     if (manageAllowed && !($('.select-panel').hasClass('show'))) {
         modalReport.classList.remove('hidden');
         modalReport.onclick = function() {
+            $('#searchModal').modal('hide');
             postsActions = [];
             selectPostToMode(postID, false);
             selectedActionMenu("RemoveReport");
         }
         modalRepair.classList.remove('hidden');
         modalRepair.onclick = function() {
+            $('#searchModal').modal('hide');
             postsActions = [];
             selectPostToMode(postID, false);
             selectedActionMenu((postIsVideo) ? "VideoThumbnail" : "Thumbnail");
@@ -3014,6 +3412,7 @@ async function showSearchOptions(post) {
 
         modalMove.classList.remove('hidden');
         modalMove.onclick = function() {
+            $('#searchModal').modal('hide');
             postsActions = [];
             updateRecentPostDestinations();
             selectPostToMode(postID, false);
@@ -3022,6 +3421,7 @@ async function showSearchOptions(post) {
 
         modalDelete.classList.remove('hidden');
         modalDelete.onclick = function() {
+            $('#searchModal').modal('hide');
             postsActions = [];
             selectPostToMode(postID, false);
             selectedActionMenu("ArchivePost");
@@ -3029,6 +3429,7 @@ async function showSearchOptions(post) {
 
         modalEditText.classList.remove('hidden');
         modalEditText.onclick = function() {
+            $('#searchModal').modal('hide');
             postsActions = [];
             selectPostToMode(postID, false);
             selectedActionMenu("EditTextPost");
@@ -3037,6 +3438,7 @@ async function showSearchOptions(post) {
         if (pageType.includes('gallery') && !postIsAudio && !postIsVideo) {
             modalRotate.classList.remove('hidden');
             modalRotate.onclick = function() {
+                $('#searchModal').modal('hide');
                 postsActions = [];
                 selectPostToMode(postID, false);
                 selectedActionMenu("RotatePost");
@@ -3048,6 +3450,7 @@ async function showSearchOptions(post) {
         if (postFilID && postFilID.length > 0) {
             modalRename.classList.remove('hidden');
             modalRename.onclick = function() {
+                $('#searchModal').modal('hide');
                 postsActions = [];
                 selectPostToMode(postID, false);
                 selectedActionMenu("RenamePost");
@@ -3056,6 +3459,7 @@ async function showSearchOptions(post) {
                 modalCompile.classList.add('hidden');
                 modalDecompile.classList.remove('hidden');
                 modalDecompile.onclick = function () {
+                    $('#searchModal').modal('hide');
                     postsActions = [];
                     selectPostToMode(postID, false);
                     selectedActionMenu("DecompileSF");
@@ -3064,6 +3468,7 @@ async function showSearchOptions(post) {
                 modalDecompile.classList.add('hidden');
                 modalCompile.classList.remove('hidden');
                 modalCompile.onclick = function () {
+                    $('#searchModal').modal('hide');
                     postsActions = [];
                     selectPostToMode(postID, false);
                     selectedActionMenu("CompileSF");
@@ -3479,7 +3884,7 @@ function setImageLayout(size, _html) {
         } else {
             return false;
         }
-    } else if (html.location.hash.startsWith('#/images') || html.location.hash.startsWith('#/gallery')) {
+    } else if (html.location.hash.startsWith('#/allImages') || html.location.hash.startsWith('#/gallery')) {
         if (_html) {
             html = _html;
         }
@@ -4057,4 +4462,156 @@ function afterAction(action, data, id, confirm) {
         }
     }
     return false;
+}
+
+function isTouchDevice(){
+    return true == ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
+}
+function registerLazyLoader() {
+    if ("IntersectionObserver" in window) {
+        lazyloadImages = document.querySelectorAll("div.lazy");
+        let imageObserver = new IntersectionObserver(function (entries, observer) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.style.backgroundImage = `url(${entry.target.dataset.src})`;
+                    entry.target.classList.remove("lazy");
+                    imageObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            root: document.querySelector("#container"),
+            rootMargin: "0px 0px 500px 0px"
+        });
+
+        lazyloadImages.forEach(function (image) {
+            imageObserver.observe(image);
+        });
+    }
+}
+function registerURLHandlers(){
+    toggleLightbox = false;
+    $('.popover').popover('dispose');
+    $('[data-toggle="popover"]').popover()
+    if(isTouchDevice()===false) {
+        $('[data-tooltip="tooltip"]').tooltip()
+        $('[data-tooltip="tooltip"]').tooltip('hide')
+    }
+    $('a[href="#_"], a[href="#"] ').click(function(e){
+        window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
+        e.preventDefault();
+    });
+    $('a[data-fancybox="video"]').click(function(e){
+        e.preventDefault();
+    });
+    $("[data-fancybox=gallery]").fancybox(options);
+    $('.tz-gallery .col-image[data-msg-url-extpreview], .episode-row[data-msg-url-extpreview]')
+        .mouseover(function() {
+            const el = this.querySelector('div#postImage');
+            el.style.backgroundImage = 'url("' + this.getAttribute('data-msg-url-preview') + '")';
+        })
+        .mouseout(function() {
+            const el = this.querySelector('div#postImage');
+            el.style.backgroundImage = 'url("' + this.getAttribute('data-msg-url-extpreview') + '")';
+        });
+}
+function registerUserMenuHandlers() {
+    $('#userMenu').on('show.bs.collapse', function () {
+        if (document.getElementById('menuItemMain').classList.contains('kms-main-menu')) {
+            $('#topbarKmsIcon').removeClass('d-none');
+            $('#topbarIcon').addClass('d-none');
+        } else {
+            $('#topbarIcon').removeClass('d-none');
+            $('#topbarKmsIcon').addClass('d-none');
+        }
+        $('#mainMenuBar').removeClass('top-padding-safety');
+        $('.show-menu-open').removeClass('hidden');
+        $('#topbarBackground').fadeIn();
+        $('#topbar').addClass('shadow').addClass('menu-open');
+        $('body').addClass('menu-open');
+        const bottombar = document.querySelector('body').classList.contains('bottom-bar')
+        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+        if (mediaRule)
+            mediaRule.content = (bottombar) ? "#000" : "#d07300"
+        const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+        if (mediaRule2)
+            mediaRule2.content = (bottombar) ? "#000" : "#4e1e06"
+    })
+    $('#userMenu').on('hidden.bs.collapse', function () {
+        if (!($('#userMenu').hasClass('show'))) {
+            $('.show-menu-open').addClass('hidden');
+            $('#menuItemMain').collapse('show');
+            $('#mainMenuBar').addClass('top-padding-safety');
+            $('#topbar').removeClass('menu-open')
+            if ($('html').scrollTop() <= 50) {
+                $('#topbarBackground').fadeOut();
+                $('#topbar').removeClass('shadow');
+            }
+            $('body').removeClass('menu-open');
+            const bottombar = document.querySelector('body').classList.contains('bottom-bar')
+            const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+            if (mediaRule) {
+                if ($(document).scrollTop() > 50) {
+                    mediaRule.content = (bottombar) ? "#000" : "#d07300"
+                } else {
+                    mediaRule.content = "#000"
+                }
+            }
+            const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+            if (mediaRule2)
+                mediaRule2.content = "#000"
+        }
+    })
+}
+function registerDateHandlers() {
+    let start = undefined;
+    let end = undefined;
+    if (window.location.hash.substring(1).includes('datestart=') && window.location.hash.substring(1).includes('dateend=')) {
+        start = moment(/datestart=([^&]+)/.exec(window.location.hash.substring(1))[1], "YYYY-MM-DD");
+        end = moment(/dateend=([^&]+)/.exec(window.location.hash.substring(1))[1], "YYYY-MM-DD");
+        if (start === moment().add(1, 'days') && end === moment().add(1, 'days')) {
+            $('#dateText').html('Select Range');
+        } else {
+            $('#dateText').html(start.format('MMMM D, YYYY') + '<br>' + end.format('MMMM D, YYYY'));
+        }
+    } else if (window.location.hash.substring(1).includes('numdays=')) {
+        const days = parseInt(/numdays=([^&]+)/.exec(window.location.hash.substring(1))[1]) - 1;
+        start = moment().subtract(days, 'days').endOf('day');
+        end = moment();
+        $('#dateText').html(`${days} Days`);
+    } else {
+        start = moment().add(1, 'days').startOf('day');
+        end = moment().add(1, 'days').endOf('day');
+        $('#dateText').html('Select Range');
+    }
+
+
+
+    function applyDate(start, end) {
+        if (start && end) {
+            const startDate = start.format('YYYY-MM-DD');
+            const endDate = end.format('YYYY-MM-DD');
+            if (startDate === moment().add(1, 'days').format('YYYY-MM-DD') && endDate === moment().add(1, 'days').format('YYYY-MM-DD') ) {
+                getNewContent(['datestart', 'dateend', 'numdays', 'offset'], []);
+            } else {
+                getNewContent(['datestart', 'dateend', 'numdays', 'offset'], [['datestart', startDate], ['dateend', endDate]]);
+            }
+        } else {
+            getNewContent([], []);
+        }
+    }
+
+    $('#postRange').daterangepicker({
+        startDate: start,
+        endDate: end,
+        minDate: "04/01/1995",
+        maxDate: moment().add(1, 'year').endOf('year'),
+        opens: 'left',
+        showDropdowns: true
+    }, applyDate);
+}
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.onmessage = function (e) {
+        console.log('e.data', e.data);
+    };
 }

@@ -258,8 +258,7 @@ function PlayVideo(file, caption, fileid) {
             type : "video",
             opts: {
                 caption : caption,
-                autoStart: true,
-                volume: video.volume
+                autoStart: true
             }
         }
     ], {

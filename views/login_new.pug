@@ -33,7 +33,7 @@ html
                 });
             }
     body
-        - loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
+        - loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpeg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
         style.
             #container, .acceptContainer:before {
                 background: url("!{loginImage}") center fixed

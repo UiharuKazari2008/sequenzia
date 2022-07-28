@@ -57,7 +57,7 @@ html
         link(rel='preload', href="/css/custom.min.css" as='style')
 
         link(rel='preload', href="/static/img/sequenzia-logo-mini.png" as='image')
-        link(rel='preload', href="/static/img/loading_bg.jpg" as='image')
+        link(rel='preload', href="/static/img/loading_bg.jpeg" as='image')
         link(rel='preload', href="/static/img/aak.png" as='image')
         link(rel='preload', href="/static/img/kongoumedialogo-menu-dark.png" as='image')
         link(rel='preload', href="/static/img/kongoumedialogo-menu-dark.png" as='image')
@@ -515,7 +515,7 @@ html
                             else
                                 style.
                                     .background-image:not(.overlay) {
-                                        background-image: url('/static/img/loading_bg.jpg');
+                                        background-image: url('/static/img/loading_bg.jpeg');
                                     }
 
                                     .background-image.overlay {
@@ -774,33 +774,43 @@ html
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(href='/offline') Offline
         #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
-                .modal-dialog(role='document')
-                    .modal-content
-                        .modal-header
-                            h5.modal-title Storage Manager
-                            button.close(type='button' data-dismiss='modal' aria-label='Close')
-                                span(aria-hidden='true') &times;
-                        .modal-body
-                            div.row.px-2
-                                h4 Pages
-                            div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2
-                                span No Offline Pages
-                            div.row.px-2
-                                h4 Items
-                            div#cacheItemsManager.row.mb-2.d-flex.flex-column.px-2
-                                span No Offline Items
-                            div.row.px-2
-                                h4 Files
-                            div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
-                                span No Offline Files
-                            div.row.px-2.mb-2
-                                a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
-                                    i.fas.fa-trash.pr-2
-                                    | Erase Offline Data
-                            div.row.px-2
-                                a.btn.btn-danger(href='#_' onclick="clearCache(['generic', 'kernel']); return false;").w-100
-                                    i.fas.fa-trash.pr-2
-                                    | Erase Kernel
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Storage Manager
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.px-2.pb-2
+                            a.btn.btn-lucky(href='#_' type="button" data-toggle="collapse" data-target="#downloadNowCollapse")
+                                i.pr-2.fas.fa-cloud-download
+                                | Save Page Offline
+                            #downloadNowCollapse.collapse.w-100
+                                .d-flex.mt-1
+                                    input#maxCountOfflinePage.form-control(type="text" placeholder="Max Items").w-50
+                                    a.btn.btn-success.ml-auto.mr-1(href='#_' onclick='cachePageOffline(); return false;' ).d-flex
+                                        i.pr-2.fas.fa-cloud-download
+                                        | Download
+                        div.row.px-2
+                            h4 Pages
+                        div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2
+                            span No Offline Pages
+                        div.row.px-2
+                            h4 Items
+                        div#cacheItemsManager.row.mb-2.d-flex.flex-column.px-2
+                            span No Offline Items
+                        div.row.px-2
+                            h4 Files
+                        div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
+                            span No Offline Files
+                        div.row.px-2.mb-2
+                            a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
+                                i.fas.fa-trash.pr-2
+                                | Erase Offline Data
+                        div.row.px-2
+                            a.btn.btn-danger(href='#_' onclick="clearKernelCache(); return false;").w-100
+                                i.fas.fa-microchip.pr-2
+                                | Reinstall Kernel
         #adsModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
                 .modal-content
