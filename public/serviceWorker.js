@@ -161,7 +161,7 @@ function selectCache(event) {
 }
 async function handleResponse(event, response, reqType) {
     const uri = event.request.url.split(origin).pop().toString()
-    if (response.status < 400 &&
+    if (response.status < 300 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 && uri !== '/' &&
         !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
         !(event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/') && !swCacheCDN)) {
