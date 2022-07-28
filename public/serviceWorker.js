@@ -1,7 +1,7 @@
 'use strict';
 
-const cacheName = 'DEV-v2-9';
-const cacheCDNName = 'DEV-v2-8';
+const cacheName = 'DEV-v2-10';
+const cacheCDNName = 'DEV-v2-10';
 const origin = location.origin
 const offlineUrl = './offline';
 const cacheOptions = {
