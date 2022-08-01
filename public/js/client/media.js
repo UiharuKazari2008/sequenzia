@@ -4,6 +4,10 @@ const kongouMediaVideoFull = document.getElementById('kongouMediaVideoFull');
 const kongouMediaVideoPreview = document.getElementById('kongouMediaVideoPreview');
 const kongouControlsPlay = document.getElementById('kongouControlsPlay');
 const kongouControlsPlayIcon = kongouControlsPlay.querySelector('i');
+/*const kongouControlsCenterPlay = document.getElementById('kongouControlsCenterPlay'); // TODO: Create Center Mobile PLay/Pause
+const kongouControlsCenterPlayIcon = kongouControlsCenterPlay.querySelector('i');
+const kongouControlsCenterAdv30 = document.getElementById('kongouControlsCenterAdv'); // TODO: Create Center Mobile Forward 30s
+const kongouControlsCenterRev30 = document.getElementById('kongouControlsCenterRev'); // TODO: Create Center Mobile Reverse 30s*/
 const kongouControlsMiniFrame = document.getElementById('kongouControlsMiniFrame');
 const kongouControlsMiniFrameSlider = new Slider("#kongouControlsMiniFrame", { tooltip: 'show', precision: 2, formatter: function(value) {
         return ((value * (3 * 60)) * 23.976).toFixed(0) + " frames";

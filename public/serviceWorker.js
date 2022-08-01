@@ -107,17 +107,6 @@ const cacheOptions = {
 };
 let swDebugMode = false;
 let swCacheCDN = false;
-let browserStorageAvailable = false;
-let offlineContent = null;
-const offlineContentDB = self.indexedDB.open("offlineContent", 1);
-offlineContentDB.onerror = event => {
-    console.error(offlineContentDB.errorCode);
-    alert(`IndexedDB Is Not Available: Offline Content will not be available!`)
-};
-offlineContentDB.onsuccess = event => {
-    offlineContent = event.target.result;
-    browserStorageAvailable = true;
-};
 
 self.addEventListener('install', event => {
     console.log('Waiting for kernel to install...');
@@ -289,46 +278,3 @@ self.addEventListener('message', (event) => {
         console.log('Unknown Message');
     }
 });
-
-
-
-async function getAllOfflinePages() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
-            } else {
-                resolve([])
-            }
-        } catch (e) {
-            console.log(e);
-            resolve([])
-        }
-    })
-}
-async function getAllOfflineFiles() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
-            } else {
-                resolve([]);
-            }
-        } catch (e) {
-            console.log(e);
-            resolve([])
-        }
-    })
-}
