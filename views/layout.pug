@@ -315,10 +315,10 @@ html
                                                             | Tools
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
+                                                            a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
+                                                                i.fa-light.fa-sd-card
+                                                                | Storage
                                                             if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
-                                                                a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
-                                                                    i.fa-light.fa-sd-card
-                                                                    | Storage
                                                                 a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                                     i.fa-light.fa-download
                                                                     | Download

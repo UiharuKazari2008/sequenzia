@@ -79,6 +79,13 @@ kongouControlsPlay.addEventListener('click', () => {
         if (_ap.paused) {
             _ap.play();
             kongouControlsPlayIcon.classList = 'fas fa-pause pl-1'
+            if (!kongouMediaVideoPreview.classList.contains('hidden')) {
+                clearInterval(kmsPreviewInterval);
+                kmsPreviewInterval = null;
+                kmsPreviewPrematureEnding = false;
+                kmsPreviewLastPostion = kongouMediaVideoPreview.currentTime;
+                kmsPreviewInterval = setInterval(() => { kmsPreviewWatchdog(); }, 3000);
+            }
         } else {
             _ap.pause();
             kongouControlsPlayIcon.classList = 'fas fa-play'
@@ -146,10 +153,8 @@ kongouMediaVideoFull.addEventListener("timeupdate", async () => {
     }
 });
 kongouMediaVideoPreview.addEventListener("timeupdate", async () => {
-    if (!kongouMediaVideoPreview.classList.contains('hidden')) {
-        kongouControlsSeekSlider.setValue((1 / kongouMediaVideoPreview.duration) * kongouMediaVideoPreview.currentTime)
+    if (!kongouMediaVideoPreview.classList.contains('hidden'))
         kongouTimeCode.innerHTML = genreateDigitalFont(msToTime(kongouMediaVideoPreview.currentTime * 1000));
-    }
 });
 kongouControlsMute.addEventListener("click", function() {
     if (!kongouMediaVideoPreview.classList.contains('hidden') || !kongouMediaVideoFull.classList.contains('hidden')) {
