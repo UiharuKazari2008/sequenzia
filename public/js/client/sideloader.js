@@ -57,6 +57,7 @@ let cachedID = [];
 let initialLoad = true;
 let browserStorageAvailable = false;
 let offlineContent;
+let offlineEntities = [];
 let spannedFilesFIFOOffline = true;
 let spannedFilesAlwaysOffline = false;
 const offlineContentDB = window.indexedDB.open("offlineContent", 1);
@@ -370,6 +371,9 @@ async function requestCompleted (response, url, lastURL, push) {
                         e.preventDefault();
                     });
                     if (!offlinePage) {
+                        Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                            contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
+                        });
                         $("#content-wrapper").html(contentPage);
                     } else {
                         const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
@@ -1544,6 +1548,23 @@ async function getAllOfflineFiles() {
         } catch (e) {
             console.log(e);
             resolve([])
+        }
+    })
+}
+async function getAllOfflineEIDs() {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
+                    offlineEntities = [...event.target.result.map(e => e.eid)];
+                    resolve(true);
+                }
+            } else {
+                resolve(false);
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
         }
     })
 }
@@ -3074,6 +3095,7 @@ async function searchSeriesList(obj) {
 }
 
 async function updateNotficationsPanel() {
+    getAllOfflineEIDs();
     if (downloadSpannedController.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0) {
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
