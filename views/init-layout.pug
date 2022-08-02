@@ -488,7 +488,11 @@ html
                                 const offlinePage = false;
                                 let nextContext = 'seq';
                                 $(document).ready(async function () {
-                                    await getAllOfflineEIDs();
+                                    try {
+                                        await getAllOfflineEIDs();
+                                    } catch (err) {
+                                        console.log(err);
+                                    }
                                     if (window.location.hash.substring(1).length < 2) {
                                         //location.href = '/';
                                         console.log(`No Navigation, Ready when you are`);
