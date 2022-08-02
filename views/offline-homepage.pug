@@ -239,7 +239,15 @@ html
                                     i.fas.fa-cloud-exclamation
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
-                                    li.nav-item.no-arrow
+                                    li.nav-item.no-arrow.kms-pip-icons.align-items-center
+                                        .badge.d-none.d-flex.align-items-center.ml-1.my-1
+                                            a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kongouPIPVideo(); return false;")
+                                                i.fas.fa-ticket
+                                            a.navbar-item.btn.btn-ice.px-1.py-0.d-none.d-sm-block(data-toggle='collapse' href='#_' role='button' onclick="getNewContent([],[], kongouMediaActiveURL); return false;")
+                                                i.fas.fa-list
+                                            a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kmsPlayNext(); return false;")
+                                                i.fas.fa-forward-fast
+                                    li.nav-item.no-arrow.d-flex.align-items-center
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
                                             img.img-profile.rounded-circle(src=user.avatar)
@@ -586,7 +594,7 @@ html
                             .kms-player-playback-controls.d-flex.align-items-center
                                 a#kongouControlsPlay(href='#_').px-4
                                     i.fas.fa-pause.pl-1
-                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3
+                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3.d-flex.align-items-center
                                     span.digital-font 00
                                     span :
                                     span.digital-font 00
@@ -596,7 +604,9 @@ html
                                 a#kongouControlsMute(href='#_').px-2
                                     i.fas.fa-volume-high
                                 input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
-                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").px-3
+                                a#kongouPIPButton(href='#_' onclick="kongouPIPVideo(); return false;").px-3
+                                    i.fas.fa-square-arrow-up-right
+                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pr-3
                                     i.fas.fa-expand-wide
                         .kms-warnings.d-flex.flex-column
                             .mt-auto.mb-auto.ml-auto.mr-auto
@@ -609,7 +619,7 @@ html
                         div#kongouPlayerElement.video-holder
                             div#videoElements.position-relative
                                 img.video-logo-overlay(src='/static/img/sequenzia-logo-white.png')
-                                video#kongouMediaVideoPreview.kms-media-player(preload="true" playsinline webkit-playsinline style="background: transparent; background-clip: content-box;")
+                                video#kongouMediaVideoPreview.kms-media-player(preload="true" playsinline webkit-playsinline disablePictureInPicture style="background: transparent; background-clip: content-box;")
                                 video#kongouMediaVideoFull.kms-media-player(preload="true" playsinline webkit-playsinline style="background: transparent; background-clip: content-box;" )
                         canvas#kongouScreenshot.hidden(width="1920" height="1080")
                         img#kongouScreenshotImage.hidden

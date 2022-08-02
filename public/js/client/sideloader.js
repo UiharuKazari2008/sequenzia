@@ -551,7 +551,7 @@ async function getNewContent(remove, add, url, keep) {
 
     console.log(_url);
     if (offlinePage) {
-        if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater'))) {
+        if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater') || _url.startsWith('/listTheater'))) {
             const eids = await (async () => {
                 const revisedUrl = params(['offset', '_h'], [], _url)
                 if (revisedUrl.split('?').pop().length === 0)
@@ -566,6 +566,8 @@ async function getNewContent(remove, add, url, keep) {
                 await generateFilesHTML(_url, eids);
             } else if (_url.startsWith('/tvTheater')) {
                 await generateShowsHTML(_url);
+            } else if (_url.startsWith('/listTheater')) {
+                await generateEpisodeHTML(_url);
             } else {
                 $.toast({
                     type: 'error',
@@ -1645,13 +1647,59 @@ async function getShowIfAvailable(showId) {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").get(showId).onsuccess = event => {
                     if (event.target.result && event.target.result.meta) {
-                        resolve({
-                            ...event.target.result
-                        })
+                        resolve({ ...event.target.result })
                     } else {
                         resolve(false)
                     }
                 };
+            } else {
+                resolve(false)
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getEpisodesIfAvailable(showId) {
+    return new Promise(async (resolve) => {
+        try {
+            if (browserStorageAvailable && !isNaN(parseInt(showId.toString()))) {
+                const transaction = offlineContent.transaction(["offline_kongou_shows", "offline_kongou_episodes"])
+                const showData = await new Promise((data) => {
+                    transaction.objectStore("offline_kongou_shows").get(parseInt(showId.toString())).onsuccess = event => {
+                        if (event.target.result && event.target.result.meta) {
+                            data({ ...event.target.result })
+                        } else {
+                            data(false)
+                        }
+                    };
+                })
+                if (showData) {
+                    const episodeData = await new Promise((data) => {
+                        transaction.objectStore("offline_kongou_episodes").index('showId').getAll(parseInt(showId.toString())).onsuccess = async (event) => {
+                            if (event.target.result && event.target.result.length > 0) {
+                                const episodes = await Promise.all(event.target.result.map(async episode => {
+                                    const ep_item = await getFileIfAvailable(episode.eid.toString())
+                                    if (ep_item) {
+                                        return {
+                                            ...ep_item,
+                                            media: episode
+                                        }
+                                    } else {
+                                        return false;
+                                    }
+                                }))
+                                data({ show: showData, episodes })
+                            } else {
+                                data(false)
+                            }
+                        };
+                    })
+                    resolve(episodeData);
+                } else {
+                    resolve(false)
+                }
             } else {
                 resolve(false)
             }
@@ -2032,7 +2080,18 @@ async function generateGalleryHTML(url, eids) {
             }))
 
             if (resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = '<div class="tz-gallery"><div class="row">' + resultRows.join(' ') + '</div></div>'
+                const randomImage = allResults[Math.floor(Math.random() * allResults.length)]
+                document.getElementById('contentBlock').innerHTML = `<style>
+    .background-image:not(.overlay) {
+        background-image: url("${(randomImage.extpreview_url) ? randomImage.extpreview_url : randomImage.preview_url}");
+    }
+
+    .background-image.overlay {
+        background-image: linear-gradient(180deg, #000000b8, #00000000);
+        z-index: -99;
+        opacity: 1;
+    }
+</style><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
                 window.history.replaceState({}, null, `/offline#${_originalURL}`);
                 registerLazyLoader();
                 registerURLHandlers();
@@ -2258,50 +2317,91 @@ async function generateEpisodeHTML(url) {
         $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const showId = _params.getAll('show_id')[0];
-            const show = await getShowIfAvailable(showId);
-            if (show) {
-                const episodes = await getEpisodesIfAvailable(showId);
-                const allResults = episodes.sort(function(a, b){
-                    return b.name - a.name;
-                });
+            const episodes = await getEpisodesIfAvailable(showId);
+
+            if (episodes && episodes.episodes && episodes.show) {
+                const allResults = episodes.episodes.sort(function(a, b){
+                    return (((a.season || 0) + 1) * (a.episode || 0)) - (((b.season || 0) + 1) * (b.episode || 0));
+                }).reverse();
                 resultRows = await Promise.all(allResults.map(async e => {
-                    return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
-    <div class="show-overlay-items position-absolute">
-        <div class="show-controls px-2 py-1">
-            <div class="show-banners">
-                ${(e.subtitled) ? '<div class="badge bg-darker mr-1"><i class="fas fa-closed-captioning"></i></div>' : ''}
-                ${(e.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
-                <div class="ml-auto"></div>
+                    return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="row m-0 flex-nowrap flex-row py-2 episode-row" id="message-' + e.id+ '"'}>
+        <div class="episode-preview">
+            <div class="preview-watched d-flex">
+                <div class="watched-precent mt-auto" style="width: 0%"></div>
             </div>
-            <div class="show-buttons"></div>
+            <div class="preview-controls d-flex">
+                <div class="d-flex position-absolute">
+                    <div class="badge bg-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
+                </div>
+                <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
+            </div><a href="#_" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;">
+                <div class="episode-preview-image" id="postImage" style="background-image : url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}')"></div>
+            </a>
         </div>
-    </div><a href="#/listTheater?show_id=${e.showId}">
-        <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}'); background-size: cover!important;"></div>
-        <div class="episode-background"></div>
-    </a>
-</div>`
+        <div class="episode-body">
+            <div class="episode-number position-absolute"><span>${(e.media && e.media.season) ? e.media.season + 'x' :''}${(e.media && e.media.episode) ? e.media.episode :''}</span></div>
+            <div class="episode-name px-2"><span>${(e.media && e.media.meta.name) ? e.media.meta.name : e.filename}</span></div>
+            <div class="episode-description px-2"><span>${(e.media && e.media.meta.description) ? e.media.meta.description : ''}</span></div>
+            <div class="episode-controls px-2 pt-2"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
+        </div>
+    </div>`
                 }))
             }
 
-            if (show && resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<div class="show-header mb-3 p-3">
-    <div class="show-preview" style="background-image : url();"></div>
+            if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
+                document.getElementById('contentBlock').innerHTML = `<style>
+    .background-image:not(.overlay) {
+        background-image: url("https://media.discordapp.net/attachments${episodes.show.background}");
+    }
+
+    .background-image.overlay {
+        background-image: none;
+        z-index: -99;
+        opacity: 1;
+    }
+
+    .background-image.bg-blur {
+        -webkit-filter: none;
+        filter: none;
+    }
+
+    @media (min-width: 576px) {
+        #contentBlock {
+            box-shadow: 0 0 30px 0 black;
+        }
+
+        .show-background {
+            background: #0000005c;
+            border: 1px solid #872b007a;
+            border-top: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+    }
+
+    @media (max-width: 575px) {
+        .background-image.overlay {
+            background-image: linear-gradient(180deg, #000000b8, #00000000);
+        }
+    }
+</style><div class="show-header p-3">
+    <div class="show-preview" style="background-image : url('${episodes.episodes[0].preview_url}');"></div>
     <div class="show-preview-overlay"></div>
-    <div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${show.poster}" /></div>
+    <div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${episodes.show.poster}" /></div>
     <div class="show-info px-2 w-100">
-        <div class="show-title"><a class="text-white" href="https://themoviedb.org/movie/ID" target="_blank" rel="noopener noreferrer"><span>${show.original_name}</span></a></div>
-        <div class="show-og-title"><span>${show.name}</span></div>
+        <div class="show-title"><a class="text-white" href="https://themoviedb.org/movie/${episodes.show.id}" target="_blank" rel="noopener noreferrer"><span>${episodes.show.original_name}</span></a></div>
+        <div class="show-og-title"><span>${episodes.show.name}</span></div>
         <div class="show-info-top d-flex flex-row">
             <div class="show-tags mr-auto">
-                ${(show.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
-                ${(show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
-                ${show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>')}
+                ${(episodes.show.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
+                ${(episodes.show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
+                ${episodes.show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>').join('')}
             </div>
-            <div class="show-date mt-2"><span>${show.meta.date.split('-')[0]}</span></div>
+            <div class="show-date mt-2"><span>${episodes.show.meta.date.split('-')[0]}</span></div>
         </div>
-        <div class="show-description"><span>${show.meta.description}</span></div>
+        <div class="show-description"><span>${episodes.show.meta.description}</span></div>
     </div>
-</div>${resultRows.join(' ')}`
+</div><div class="show accordion accordion-flush show-background pt-4 p-sm-4" id="seasonsAccordion-${episodes.show.id}">${resultRows.join(' ')}</div>`
                 window.history.replaceState({}, null, `/offline#${_originalURL}`);
                 registerLazyLoader();
                 registerURLHandlers();
@@ -3251,13 +3351,13 @@ async function saveCurrentTimeKMS(wasNext) {
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
         const percentage = (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration).toFixed(3);
-        console.log(percentage);
         if (percentage > 0.05 && percentage <= 0.9) {
             memoryVideoPositions.set(fileid, kongouMediaVideoFull.currentTime);
         } else {
             memoryVideoPositions.delete(fileid);
         }
-        setWatchHistory(eid, (wasNext) ? 1 : percentage)
+        if (!offlinePage)
+            setWatchHistory(eid, (wasNext) ? 1 : percentage)
     }
 }
 async function kmsScreenshot() {
@@ -3322,6 +3422,10 @@ async function kmsSaveScreenshots() {
     })
 }
 async function kmsUploadScreenshots() {
+    if (offlinePage) {
+        $.snack('error', `Not possible Offline, Save screenshots localy`, 1500);
+        return false;
+    }
     let container = new DataTransfer();
     await Promise.all(Array.from(document.getElementById("kongouScreenShots").querySelectorAll('img')).map(async e => {
         let file = await fetch(e.src)
