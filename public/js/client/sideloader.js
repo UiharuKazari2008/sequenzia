@@ -2320,10 +2320,9 @@ async function generateEpisodeHTML(url) {
             const episodes = await getEpisodesIfAvailable(showId);
 
             if (episodes && episodes.episodes && episodes.show) {
-                const allResults = episodes.episodes.sort(function(a, b){
+                resultRows = await Promise.all(episodes.episodes.sort(function(a, b){
                     return (((a.season || 0) + 1) * (a.episode || 0)) - (((b.season || 0) + 1) * (b.episode || 0));
-                }).reverse();
-                resultRows = await Promise.all(allResults.map(async e => {
+                }).map(async e => {
                     return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="row m-0 flex-nowrap flex-row py-2 episode-row" id="message-' + e.id+ '"'}>
         <div class="episode-preview">
             <div class="preview-watched d-flex">
