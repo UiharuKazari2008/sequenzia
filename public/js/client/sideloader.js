@@ -58,6 +58,9 @@ let initialLoad = true;
 let browserStorageAvailable = false;
 let offlineContent;
 let offlineEntities = [];
+let offlineMessages = [];
+let kongouMediaCache = null;
+let kongouMediaActiveURL = null;
 let spannedFilesFIFOOffline = true;
 let spannedFilesAlwaysOffline = false;
 const offlineContentDB = window.indexedDB.open("offlineContent", 1);
@@ -340,7 +343,12 @@ async function requestCompleted (response, url, lastURL, push) {
         } else {
             if (push === true && !offlinePage) {
                 $('#LoadNextPage').remove();
-                $("#contentBlock > .tz-gallery > .row").append($(response).find('#contentBlock > .tz-gallery > .row').contents());
+                let contentPage = $(response).find('#content-wrapper').children();
+                Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                    contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
+                    contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
+                });
+                $("#contentBlock > .tz-gallery > .row").append(contentPage.find('.tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
                 setPageLayout(false);
                 if (Object.values(apiActions).length > 0) {
@@ -372,6 +380,7 @@ async function requestCompleted (response, url, lastURL, push) {
                     });
                     if (!offlinePage) {
                         Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                            contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
                             contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
                         });
                         $("#content-wrapper").html(contentPage);
@@ -1094,7 +1103,7 @@ let contentCache = null;
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
 }
-function extractMetaFromElement(e) {
+function extractMetaFromElement(e, preemptive) {
     const postChannelString = e.getAttribute('data-msg-channel-string');
     const postChannelIcon = e.getAttribute('data-msg-channel-icon');
     const postDownload = e.getAttribute('data-msg-download');
@@ -1148,6 +1157,7 @@ function extractMetaFromElement(e) {
         color: postColor,
         eid: postEID,
         required_build: required_build,
+        preemptive_download: (!!preemptive),
         htmlAttributes: attribs,
     }
 }
@@ -1155,30 +1165,34 @@ async function cacheFileURL(object, page_item, doc) {
     return new Promise(async (resolve) => {
         try {
             let fetchResults = {}
-            if (object.full_url)
-                fetchResults["full_url"] = (await fetch(object.full_url)).status
-            if (object.preview_url)
-                fetchResults["preview_url"] = (await fetch(object.preview_url)).status
-            if (object.extpreview_url)
-                fetchResults["extpreview_url"] = (await fetch(object.extpreview_url)).status
-            if (object.required_build)
-                openUnpackingFiles(object.id, undefined, true, true, doc);
+            if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
+                if (object.full_url)
+                    fetchResults["full_url"] = (await fetch(object.full_url)).status
+                if (object.preview_url)
+                    fetchResults["preview_url"] = (await fetch(object.preview_url)).status
+                if (object.extpreview_url)
+                    fetchResults["extpreview_url"] = (await fetch(object.extpreview_url)).status
+                if (object.required_build)
+                    openUnpackingFiles(object.id, undefined, true, true, doc);
+            } else {
+                if (object.full_url)
+                    fetchResults["full_url"] = 0
+                if (object.preview_url)
+                    fetchResults["preview_url"] = 0
+                if (object.extpreview_url)
+                    fetchResults["extpreview_url"] = 0
+            }
             if (browserStorageAvailable) {
                 try {
-                    const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(object.eid);
-                    indexDBUpdate.onsuccess = deleteEvent => {
-                        offlineContent.transaction([`offline_items`], "readwrite").objectStore('offline_items').add({
-                            ...object,
-                            page_item: (!!page_item),
-                            fetchResults: fetchResults
-                        }).onsuccess = event => {
-                            console.log(event)
-                            console.log(event.target)
-                            resolve({
-                                ...fetchResults,
-                                dbWriteOK: true,
-                            });
-                        };
+                    offlineContent.transaction([`offline_items`], "readwrite").objectStore('offline_items').put({
+                        ...object,
+                        page_item: (!!page_item),
+                        fetchResults: fetchResults
+                    }).onsuccess = event => {
+                        resolve({
+                            ...fetchResults,
+                            dbWriteOK: (!event.target.error),
+                        });
                     };
                 } catch (e) {
                     console.error(`Failed to save record for ${object.eid}`);
@@ -1296,12 +1310,9 @@ async function cachePageOffline(type, _url) {
             } else {
                 if (browserStorageAvailable) {
                     try {
-                        const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
-                        indexDBUpdate.onsuccess = deleteEvent => {
-                            offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').add(status).onsuccess = event => {
-                                $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Page with ${totalFiles} files are available offline`, 5000);
-                                console.log(`Page Saved Offline!`);
-                            };
+                        offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').put(status).onsuccess = event => {
+                            $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Page with ${totalFiles} files are available offline`, 5000);
+                            console.log(`Page Saved Offline!`);
                         };
                     } catch (e) {
                         $.toast({
@@ -1383,12 +1394,14 @@ async function offlineSelectedItems() {
         alert(`Error starting downloader: ${e.message}`)
     }
 }
-async function cacheFileOffline(element, noConfirm) {
+async function cacheFileOffline(element, noConfirm, preemptive, doc) {
     try {
         if (element) {
-            const _post = document.getElementById('message-' + element);
+            const _post = (doc) ? doc.querySelector('#message-' + element) : document.getElementById('message-' + element);
             if (_post) {
-                const fetchResult = await cacheFileURL(extractMetaFromElement(_post));
+                const eid = _post.getAttribute('data-msg-eid');
+                const fileExists = (eid) ? await getFileIfAvailable(eid) : false;
+                const fetchResult = await cacheFileURL(extractMetaFromElement(_post, (preemptive && !fileExists)), false, doc);
                 if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
                     $.toast({
                         type: 'error',
@@ -1402,6 +1415,14 @@ async function cacheFileOffline(element, noConfirm) {
                 } else {
                     if (!noConfirm)
                         $.snack('success', `<i class="fas fa-sd-card pr-2"></i>File available offline`, 5000);
+                    await getAllOfflineEIDs();
+                    try {
+                        $(`#message-${element} .hide-offline`).addClass('hidden');
+                        $(`#message-${element} #offlineReady`).removeClass('hidden');
+                    } catch (err) {
+                        console.error('Failed to set offline icons');
+                        console.error(err);
+                    }
                 }
             } else {
                 console.error(`Element does not exist on page!`);
@@ -1557,6 +1578,7 @@ async function getAllOfflineEIDs() {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
                     offlineEntities = [...event.target.result.map(e => e.eid)];
+                    offlineMessages = [...event.target.result.map(e => e.id)];
                     resolve(true);
                 }
             } else {
@@ -1611,6 +1633,7 @@ async function deleteOfflinePage(_url, noupdate) {
                         if (!noupdate)
                             $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Removed Page and ${pageItems.length} files`, 5000);
                         updateNotficationsPanel();
+                        getAllOfflineEIDs();
                     };
                 } else {
                     updateNotficationsPanel();
@@ -1633,18 +1656,19 @@ async function deleteOfflinePage(_url, noupdate) {
         });
     }
 }
-async function deleteOfflineFile(eid, noupdate) {
+async function deleteOfflineFile(eid, noupdate, preemptive) {
     try {
         let blockedItems = [];
         const linkedItems = (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
         const file = await getFileIfAvailable(eid);
-        if (file && blockedItems.indexOf(file.eid) === -1) {
+        if (file && (!preemptive || (preemptive && file.preemptive_download)) && blockedItems.indexOf(file.eid) === -1) {
             const cachesList = await caches.keys();
             const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
             const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
             const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
             const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
-
+            if (file.fileid)
+                await removeCacheItem(file.fileid, true)
 
             if (cdnCache) {
                 if (file.full_url)
@@ -1668,6 +1692,14 @@ async function deleteOfflineFile(eid, noupdate) {
                     if (!noupdate) {
                         $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Removed Offline File`, 5000);
                         updateNotficationsPanel();
+                    }
+                    getAllOfflineEIDs();
+                    try {
+                        $(`#message-${file.id} .hide-offline`).removeClass('hidden');
+                        $(`#message-${file.id} #offlineReady`).addClass('hidden');
+                    } catch (err) {
+                        console.error('Failed to set offline icons');
+                        console.error(err);
                     }
                 };
             } else {
@@ -2043,7 +2075,7 @@ async function getAllOfflineSpannedFiles() {
     })
 }
 async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile, doc) {
-    const _post = (doc || document).getElementById(`message-${messageid}`);
+    const _post = (doc) ? doc.querySelector(`#message-${messageid}`) : document.getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
     const filename = _post.getAttribute('data-msg-filename');
     const filesize = _post.getAttribute('data-msg-filesize');
@@ -2519,7 +2551,7 @@ async function unpackFile() {
                                         const finalBlock = new Blob(activeSpannedJob.blobs, blobType);
                                         if (browserStorageAvailable && activeSpannedJob.offline) {
                                             try {
-                                                offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').add({
+                                                offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').put({
                                                     ...activeSpannedJob,
                                                     block: finalBlock,
                                                     parts: undefined,
@@ -2721,6 +2753,7 @@ async function removeCacheItem(id, noupdate) {
             indexDBUpdate.onsuccess = event => {
                 if (!noupdate)
                     updateNotficationsPanel();
+                getAllOfflineEIDs();
             };
         } else {
             $.toast({
@@ -2740,10 +2773,11 @@ let kmsPreviewInterval = null;
 let kmsPreviewLastPostion = null;
 let kmsPreviewPrematureEnding = false;
 async function openKMSPlayer(messageid, seriesId) {
+    const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
     $('#userMenu').collapse('hide');
     kongouControlsSeek.classList.add('hidden');
     kongouControlsSeekUnavalible.classList.add('no-seeking');
-    const _post = document.getElementById(`message-${messageid}`);
+    const _post = activeDoc.querySelector(`#message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
     const filename = _post.getAttribute('data-msg-filename');
     const filesize = _post.getAttribute('data-msg-filesize');
@@ -2757,9 +2791,9 @@ async function openKMSPlayer(messageid, seriesId) {
     const currentEpisode = document.getElementById('kongouMediaPlayerCurrent')
     const playerOpen = document.querySelector('body').classList.contains('kms-play-open');
 
-    if (show && document.getElementById(`seasonsAccordion-${show}`)) {
+    if (show && activeDoc.querySelector(`#seasonsAccordion-${show}`)) {
         try {
-            const allEpisodes = Array.from(document.getElementById(`seasonsAccordion-${show}`).querySelectorAll('.episode-row'));
+            const allEpisodes = Array.from(activeDoc.querySelector(`#seasonsAccordion-${show}`).querySelectorAll('.episode-row'));
             const index = allEpisodes.map(e => e.id).indexOf(`message-${messageid}`)
             const nextEpisode = allEpisodes.slice(index + 1);
 
@@ -2818,12 +2852,15 @@ async function openKMSPlayer(messageid, seriesId) {
     if (!playerOpen) {
         //window.resizeTo(window.outerWidth, (window.outerHeight - window.innerHeight) + findHeight('16:9', window.outerWidth) - 8)
         document.querySelector('body').classList.add('kms-play-open');
+        document.querySelector('body').classList.remove('kms-play-pip');
         const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
         const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
         if (mediaRule)
             mediaRule.content = "#000"
         if (mediaRule2)
             mediaRule2.content = "#000"
+        kongouMediaCache = document.querySelector('#contentBlock')
+        kongouMediaActiveURL = _originalURL + '';
     }
     kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
@@ -2868,19 +2905,17 @@ async function openKMSPlayer(messageid, seriesId) {
     kongouMediaVideoFull.pause();
     kongouMediaVideoFull.classList.add('hidden');
     if (!debugMode) {
-        openUnpackingFiles(messageid, 'kms-video');
+        openUnpackingFiles(messageid, 'kms-video', undefined, undefined, activeDoc);
         if (active) {
-            const _activePost = document.getElementById(`message-${active}`);
+            const _activePost = activeDoc.querySelector(`#message-${active}`);
             if (_activePost) {
                 const activeFileid = _activePost.getAttribute('data-msg-fileid');
-                const element = document.getElementById(`fileData-${activeFileid}`);
+                const activeEid = _activePost.getAttribute('data-msg-eid');
+                if (activeEid)
+                    deleteOfflineFile(activeEid, true, true);
                 if (activeFileid) {
-                    if (!element) {
-                        console.log(`Canceling Active Unpacking...`)
-                        stopUnpackingFiles(activeFileid);
-                    } else {
-                        removeCacheItem(activeFileid);
-                    }
+                    stopUnpackingFiles(activeFileid);
+                    removeCacheItem(activeFileid);
                 }
             }
         }
@@ -2919,9 +2954,10 @@ async function kmsPreviewWatchdog() {
     }
 }
 async function saveCurrentTimeKMS(wasNext) {
+    const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
     const messageid = kongouMediaPlayer.getAttribute('activePlayback');
     if (messageid && !kongouMediaVideoFull.classList.contains('hidden')) {
-        const _post = document.getElementById(`message-${messageid}`);
+        const _post = activeDoc.querySelector(`#message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
         const percentage = (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration).toFixed(3);
@@ -3005,6 +3041,8 @@ async function kmsUploadScreenshots() {
     }))
     document.getElementById('customFile').files = container.files;
     document.getElementById('customFile').dispatchEvent(new Event('change', { 'preset': true }))
+    if (document.webkitIsFullScreen || document.mozFullScreen)
+        document.cancelFullScreen();
     displayUploadModel();
 }
 async function getFrameRate(video_elem){
@@ -3040,6 +3078,7 @@ function toggleFullscreen() {
     isFullscreen ? document.cancelFullScreen() : kongouMediaPlayer.requestFullScreen();
 }
 async function closeKMSPlayer() {
+    const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
     document.cancelFullScreen = document.cancelFullScreen || document.webkitCancelFullScreen || document.mozCancelFullScreen || function () { return false; };
     if (document.webkitIsFullScreen || document.mozFullScreen)
         document.cancelFullScreen();
@@ -3047,18 +3086,25 @@ async function closeKMSPlayer() {
     const nextMessageid = kongouMediaPlayer.getAttribute('nextPlayback');
     await saveCurrentTimeKMS();
     if (messageid) {
-        const _post = document.getElementById(`message-${messageid}`);
+        const _post = activeDoc.querySelector(`#message-${messageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
+        const eid = _post.getAttribute('data-msg-eid');
+        if (eid && (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration).toFixed(3) >= 0.9) {
+            deleteOfflineFile(eid, true, true);
+        }
         stopUnpackingFiles(fileid);
     }
     if (nextMessageid) {
-        const _post = document.getElementById(`message-${nextMessageid}`);
+        const _post = activeDoc.querySelector(`#message-${nextMessageid}`);
         const fileid = _post.getAttribute('data-msg-fileid');
         stopUnpackingFiles(fileid);
     }
     kongouMediaVideoPreview.pause();
     kongouMediaVideoFull.pause();
     document.querySelector('body').classList.remove('kms-play-open');
+    document.querySelector('body').classList.remove('kms-play-pip');
+    kongouMediaCache = null;
+    kongouMediaActiveURL = null;
     clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
     kongouMediaVideoPreview.classList.add('hidden');
     kongouMediaVideoFull.classList.add('hidden');
@@ -3068,6 +3114,7 @@ async function closeKMSPlayer() {
     kongouMediaPlayer.removeAttribute('prevPlayback');
 }
 async function checkKMSTimecode() {
+    const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
     const messageid = kongouMediaPlayer.getAttribute('nextPlayback');
     const isReady = kongouMediaPlayer.getAttribute('nextVideoReady');
     if (messageid && document.querySelector('body').classList.contains('kms-play-open') &&
@@ -3075,7 +3122,7 @@ async function checkKMSTimecode() {
         await saveCurrentTimeKMS();
         if (!isReady && ((kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.55)) {
             kongouMediaPlayer.setAttribute('nextVideoReady', 'true');
-            openUnpackingFiles(messageid, 'kms-video', true, true);
+            cacheFileOffline(messageid, true, true, activeDoc);
         }
     }
 }
@@ -3095,7 +3142,6 @@ async function searchSeriesList(obj) {
 }
 
 async function updateNotficationsPanel() {
-    getAllOfflineEIDs();
     if (downloadSpannedController.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0) {
         const keys = Array.from(downloadSpannedController.keys()).map(e => {
             const item = downloadSpannedController.get(e);
@@ -3275,6 +3321,7 @@ async function showSearchOptions(post) {
     const postCached = _post.getAttribute('data-msg-filecached') === 'true';
     const postEID = _post.getAttribute('data-msg-eid');
     const postID = _post.getAttribute('data-msg-id');
+    const postOffline = (postID && offlineMessages.indexOf(postID) !== -1);
     const postDate = _post.getAttribute('data-msg-date');
     const postAuthorName = _post.getAttribute('data-msg-author');
     const postPreviewImage = _post.getAttribute('data-msg-url-preview');
@@ -3381,10 +3428,22 @@ async function showSearchOptions(post) {
         advancedInfo.push(`<div><i class="fa fa-input-text pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
         modalFilename.innerText = postFilename.split('.')[0];
         modalFilename.classList.remove('hidden');
-        modalOfflineThisButton.onclick = function() {
-            cacheFileOffline(postID, false);
-            $('#searchModal').modal('hide');
-            return false;
+        if (postOffline) {
+            modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-download')
+            modalOfflineThisButton.querySelector('i').classList.add('fa-cloud-xmark')
+            modalOfflineThisButton.onclick = function () {
+                deleteOfflineFile(postEID, false);
+                $('#searchModal').modal('hide');
+                return false;
+            }
+        } else {
+            modalOfflineThisButton.querySelector('i').classList.add('fa-cloud-download')
+            modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-xmark')
+            modalOfflineThisButton.onclick = function () {
+                cacheFileOffline(postID, false);
+                $('#searchModal').modal('hide');
+                return false;
+            }
         }
         modalOfflineThisButton.classList.remove('hidden');
     } else {
@@ -3436,35 +3495,54 @@ async function showSearchOptions(post) {
         modalPlayButton.classList.add('hidden')
     }
     if (postFilID && postFilID.length > 0) {
-        normalInfo.push('<div class="badge badge-warning text-dark mx-1 ">')
-        normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
-        normalInfo.push('</div>')
-        if (postCached) {
+        if (postOffline) {
             normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
-            normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Fast Access</span>`)
+            normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Offline</span>`)
             normalInfo.push('</div>')
-            modalDownloadButton.title = `Fast Access Download`
-            modalDownloadButton.href = postDownload
-            if (postFilename && postFilename.length > 0) {
-                modalDownloadButton.download = postFilename
-            } else {
-                modalDownloadButton.download = undefined
-            }
-            modalDownloadButton.onclick = null;
-        } else {
-            modalDownloadButton.title = `Unpack Download`
+            modalDownloadButton.title = 'Local Download'
             modalDownloadButton.href = '#_'
             modalDownloadButton.download = undefined
             modalDownloadButton.onclick = function () {
-                openUnpackingFiles(postID, 'video');
+                openUnpackingFiles(postID);
                 $('#searchModal').modal('hide');
                 return false;
+            }
+        } else {
+            normalInfo.push('<div class="badge badge-warning text-dark mx-1 ">')
+            normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
+            normalInfo.push('</div>')
+            if (postCached) {
+                normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
+                normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Fast Access</span>`)
+                normalInfo.push('</div>')
+                modalDownloadButton.title = `Fast Access Download`
+                modalDownloadButton.href = postDownload
+                if (postFilename && postFilename.length > 0) {
+                    modalDownloadButton.download = postFilename
+                } else {
+                    modalDownloadButton.download = undefined
+                }
+                modalDownloadButton.onclick = null;
+            } else {
+                modalDownloadButton.title = `Unpack Download`
+                modalDownloadButton.href = '#_'
+                modalDownloadButton.download = undefined
+                modalDownloadButton.onclick = function () {
+                    openUnpackingFiles(postID);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
             }
         }
 
         modalDownloadButton.classList.remove('hidden')
         advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
     } else if (postDownload && postDownload.length > 0) {
+        if (postOffline) {
+            normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
+            normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Offline</span>`)
+            normalInfo.push('</div>')
+        }
         modalDownloadButton.title = `Direct Download`
         modalDownloadButton.href = postDownload
         modalDownloadButton.onclick = null;
@@ -4199,7 +4277,7 @@ async function toggleWatchHistory(eid) {
     return setWatchHistory(eid, (document.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check`)) ? 1 : 0);
 }
 async function setWatchHistory(eid, viewed) {
-    const percentage = (!isNaN(viewed) && viewed > 0.05) ? (viewed <= 0.80) ? viewed : 1 : 0
+    const percentage = (!isNaN(viewed) && viewed > 0.05) ? (viewed <= 0.9) ? viewed : 1 : 0
     console.log(`Set History to ${percentage}`)
     $.ajax({async: true,
         type: "post",

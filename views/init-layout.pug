@@ -487,7 +487,8 @@ html
                                 let currentContext = false;
                                 const offlinePage = false;
                                 let nextContext = 'seq';
-                                $(document).ready(function () {
+                                $(document).ready(async function () {
+                                    await getAllOfflineEIDs();
                                     if (window.location.hash.substring(1).length < 2) {
                                         //location.href = '/';
                                         console.log(`No Navigation, Ready when you are`);
@@ -1053,7 +1054,7 @@ html
                             .kms-player-playback-controls.d-flex.align-items-center
                                 a#kongouControlsPlay(href='#_').px-4
                                     i.fas.fa-pause.pl-1
-                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3
+                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3.d-flex.align-items-center
                                     span.digital-font 00
                                     span :
                                     span.digital-font 00
@@ -1063,7 +1064,9 @@ html
                                 a#kongouControlsMute(href='#_').px-2
                                     i.fas.fa-volume-high
                                 input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
-                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").px-3
+                                a#kongouPIPButton(href='#_' onclick="kongouPIPVideo(); return false;").px-3
+                                    i.fas.fa-square-arrow-up-right
+                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pr-3
                                     i.fas.fa-expand-wide
                         .kms-warnings.d-flex.flex-column
                             .mt-auto.mb-auto.ml-auto.mr-auto

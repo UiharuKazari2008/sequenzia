@@ -703,7 +703,7 @@ html
                                                             i.far.fa-ticket.mr-2
                                                     if (full_title && full_title_post.includes(' / '))
                                                         #titleExtraStyleAdjustment.d-inline-flex
-                                                        div#titleExtra.d-inline-flex(style='min-width: fit-content;')
+                                                        div#titleExtra.d-none.d-md-inline-flex(style='min-width: fit-content;')
                                                             if (servericon)
                                                                 img.pr-1.align-self-center.rounded-circle(src=servericon style='height: 1.8rem;')
                                                                 //i.far.fa-chevron-right.pr-1.align-self-baseline
@@ -715,7 +715,7 @@ html
                                                         script#setTitleExtraStyleAdjustment.
                                                             extratitlewidth = 0
                                                             function calculateTitleWidthPage() {
-                                                                if (document.getElementById('titleExtra')) {
+                                                                if (document.getElementById('titleExtra') && $(window).width() >= 768) {
                                                                     document.getElementById('titleExtra').style['min-width'] = `fit-content`
                                                                     setTimeout(() => {
                                                                         extratitlewidth = $('#titleExtra').width() + 10
@@ -1273,7 +1273,15 @@ html
                                                             i.far.fa-download.align-middle
                                 .col-auto.p-0.d-flex
                                     ul.navbar-nav.text-primary.text-ellipsis.w-100
-                                        li.nav-item.no-arrow
+                                        li.nav-item.no-arrow.kms-pip-icons.align-items-center
+                                            .badge.d-none.d-flex.align-items-center.ml-1.my-1
+                                                a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kongouPIPVideo(); return false;")
+                                                    i.fas.fa-ticket
+                                                a.navbar-item.btn.btn-ice.px-1.py-0.d-none.d-sm-block(data-toggle='collapse' href='#_' role='button' onclick="getNewContent([],[], kongouMediaActiveURL); return false;")
+                                                    i.fas.fa-list
+                                                a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kmsPlayNext(); return false;")
+                                                    i.fas.fa-forward-fast
+                                        li.nav-item.no-arrow.d-flex.align-items-center
                                             a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                                 i.far.fa-bars.pl-2
                                                 img.img-profile.rounded-circle(src=user.avatar)

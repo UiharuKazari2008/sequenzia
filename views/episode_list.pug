@@ -115,12 +115,12 @@ block content
                             .preview-controls.d-flex
                                 .d-flex.position-absolute
                                     if (item.meta.cached)
-                                        .badge.bg-success(title='No unpacking required, Will instantly play the video from the server cache')
-                                            i.fas.fa-cloud-check
-                                            span.d-none.d-md-inline.pl-2 Instant Play
+                                        .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                            i.fas.fa-play
+                                            span.d-none.d-md-inline.pl-1 Instant Play
                                     #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                         i.fas.fa-cloud-check
-                                        span.d-none.d-md-inline.pl-2 Offline
+                                        span.d-none.d-md-inline.pl-1 Offline
                                 .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                     i.fas.fa-play
                             a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)
@@ -288,12 +288,12 @@ block content
                                                 .preview-controls.d-flex
                                                     .d-flex.position-absolute
                                                         if (item.meta.cached)
-                                                            .badge.bg-success(title='No unpacking required, Will instantly play the video from the server cache')
-                                                                i.fas.fa-cloud-check
-                                                                span.d-none.d-md-inline.pl-2 Instant Play
+                                                            .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                                                i.fas.fa-play
+                                                                span.d-none.d-md-inline.pl-1 Instant Play
                                                         #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                                             i.fas.fa-cloud-check
-                                                            span.d-none.d-md-inline.pl-2 Offline
+                                                            span.d-none.d-md-inline.pl-1 Offline
                                                     .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                                         i.fas.fa-play
                                                 a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)
@@ -365,12 +365,12 @@ block content
                         .preview-controls.d-flex
                             .d-flex.position-absolute
                                 if (item.meta.cached)
-                                    .badge.bg-success(title='No unpacking required, Will instantly play the video from the server cache')
-                                        i.fas.fa-cloud-check
-                                        span.d-none.d-md-inline.pl-2 Instant Play
+                                    .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                        i.fas.fa-play
+                                        span.d-none.d-md-inline.pl-1 Instant Play
                                 #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                     i.fas.fa-cloud-check
-                                    span.d-none.d-md-inline.pl-2 Offline
+                                    span.d-none.d-md-inline.pl-1 Offline
                             .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                 i.fas.fa-play
                         a(href='#_' onclick=`openPreviewUnpacking("${item.id}"); return false;`)
@@ -480,12 +480,12 @@ block content
                             .preview-controls.d-flex
                                 .d-flex.position-absolute
                                     if (item.meta.cached)
-                                        .badge.bg-success(title='No unpacking required, Will instantly play the video from the server cache')
-                                            i.fas.fa-cloud-check
-                                            span.d-none.d-md-inline.pl-2 Instant Play
+                                        .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                            i.fas.fa-play
+                                            span.d-none.d-md-inline.pl-1 Instant Play
                                     #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                         i.fas.fa-cloud-check
-                                        span.d-none.d-md-inline.pl-2 Offline
+                                        span.d-none.d-md-inline.pl-1 Offline
                                 .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                     i.fas.fa-play
                             a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)

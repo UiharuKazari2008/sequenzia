@@ -22,6 +22,7 @@ const kongouControlsSpeedSlider = new Slider("#kongouControlsSpeed", { tooltip: 
     } });
 const kongouControlsSeek = document.getElementById('kongouControlsSeek');
 const kongouControlsSeekSlider = new Slider("#kongouControlsSeek", { tooltip: 'hide', precision: 5 });
+const kongouPIP = document.getElementById('kongouPIPButton');
 const kongouTimeCode = document.getElementById('kongouTimeCode');
 const videoElements = document.getElementById('videoElements');
 const kongouControlsSeekUnavalible = document.getElementById('seekControls');
@@ -53,6 +54,7 @@ function blinkTimecode() {
 }
 kongouMediaVideoFull.addEventListener('playing', async () => {
     kongouControlsPlayIcon.classList = 'fas fa-pause pl-1';
+    clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
     kmsVideoWatcher = setInterval(checkKMSTimecode, 300000);
     document.getElementById('kongouStage').classList.remove('keep-active-controls');
     kmsPopUpControls();
@@ -95,27 +97,41 @@ kongouControlsPlay.addEventListener('click', () => {
 let kongouPlayTimer = null;
 videoElements.addEventListener('click', () => {
     if ((!kongouMediaVideoPreview.classList.contains('hidden') || !kongouMediaVideoFull.classList.contains('hidden')) && !kongouPlayTimer) {
-        kongouPlayTimer = setTimeout( () => { clearTimeout(kongouPlayTimer); kongouPlayTimer = null; }, 500)
-        const _ap = ((!kongouMediaVideoFull.classList.contains('hidden')) ? kongouMediaVideoFull : kongouMediaVideoPreview)
-        if (_ap.paused) {
-            _ap.play();
-            kongouControlsPlayIcon.classList = 'fas fa-pause pl-1'
+        if (kongouTitleBar.style.opacity !== '1' ) {
+            kmsPopUpControls();
         } else {
-            _ap.pause();
-            kongouControlsPlayIcon.classList = 'fas fa-play'
+            kongouPlayTimer = setTimeout(() => {
+                clearTimeout(kongouPlayTimer);
+                kongouPlayTimer = null;
+            }, 500)
+            const _ap = ((!kongouMediaVideoFull.classList.contains('hidden')) ? kongouMediaVideoFull : kongouMediaVideoPreview)
+            if (_ap.paused) {
+                _ap.play();
+                kongouControlsPlayIcon.classList = 'fas fa-pause pl-1'
+            } else {
+                _ap.pause();
+                kongouControlsPlayIcon.classList = 'fas fa-play'
+            }
         }
     }
 })
 videoElements.addEventListener('touchstart', () => {
     if ((!kongouMediaVideoPreview.classList.contains('hidden') || !kongouMediaVideoFull.classList.contains('hidden')) && !kongouPlayTimer) {
-        kongouPlayTimer = setTimeout( () => { clearTimeout(kongouPlayTimer); kongouPlayTimer = null; }, 500)
-        const _ap = ((!kongouMediaVideoFull.classList.contains('hidden')) ? kongouMediaVideoFull : kongouMediaVideoPreview)
-        if (_ap.paused) {
-            _ap.play();
-            kongouControlsPlayIcon.classList = 'fas fa-pause pl-1'
+        if (kongouTitleBar.style.opacity !== '1' ) {
+            kmsPopUpControls();
         } else {
-            _ap.pause();
-            kongouControlsPlayIcon.classList = 'fas fa-play'
+            kongouPlayTimer = setTimeout(() => {
+                clearTimeout(kongouPlayTimer);
+                kongouPlayTimer = null;
+            }, 500)
+            const _ap = ((!kongouMediaVideoFull.classList.contains('hidden')) ? kongouMediaVideoFull : kongouMediaVideoPreview)
+            if (_ap.paused) {
+                _ap.play();
+                kongouControlsPlayIcon.classList = 'fas fa-pause pl-1'
+            } else {
+                _ap.pause();
+                kongouControlsPlayIcon.classList = 'fas fa-play'
+            }
         }
     }
 })
@@ -152,6 +168,12 @@ kongouMediaVideoFull.addEventListener("timeupdate", async () => {
         kongouTimeCode.innerHTML = genreateDigitalFont(msToTime(kongouMediaVideoFull.currentTime * 1000, (document.getElementById('kongouStage').classList.contains('advanced-controls'))))
     }
 });
+kongouMediaVideoFull.addEventListener('enterpictureinpicture', (event) => {
+    document.querySelector('body').classList.add('kms-play-pip');
+});
+kongouMediaVideoFull.addEventListener('leavepictureinpicture', (event) => {
+    document.querySelector('body').classList.remove('kms-play-pip');
+});
 kongouMediaVideoPreview.addEventListener("timeupdate", async () => {
     if (!kongouMediaVideoPreview.classList.contains('hidden'))
         kongouTimeCode.innerHTML = genreateDigitalFont(msToTime(kongouMediaVideoPreview.currentTime * 1000));
@@ -163,6 +185,17 @@ kongouControlsMute.addEventListener("click", function() {
         kongouControlsVolumeIcon.classList = ((_ap.muted) ? 'fas fa-volume-slash' : (kongouControlsVolume.value > 0.5) ? 'fas fa-volume-high' : (kongouControlsVolume.value > 0.25) ? 'fas fa-volume pr-1' : 'fas fa-volume-low pr-2').toString();
     }
 });
+function kongouPIPVideo() {
+    if (!kongouMediaVideoFull.classList.contains('hidden')) {
+        if (document.pictureInPictureElement) {
+            document.exitPictureInPicture();
+        } else {
+            if (document.webkitIsFullScreen || document.mozFullScreen)
+                document.cancelFullScreen();
+            kongouMediaVideoFull.requestPictureInPicture()
+        }
+    }
+}
 videoElements.addEventListener("mousemove", kmsPopUpControls);
 videoElements.addEventListener("touchstart", kmsPopUpControls);
 kongouControlsVolume.on('change', (e) => {

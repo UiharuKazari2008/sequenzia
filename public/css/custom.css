@@ -2420,6 +2420,26 @@ footer .server-grid-parent {
 .kms-play-open .kms-media-container {
     display: initial;
 }
+.kms-play-pip .kms-media-container {
+    display: none!important;
+}
+.kms-pip-icons {
+    display: none;
+}
+.kms-play-open.kms-play-pip .kms-pip-icons {
+    display: flex;
+}
+.kms-pip-icons .badge {
+    background: #000000b3!important;
+    border: solid 1px #e3990840;
+}
+.shadow .kms-pip-icons .badge {
+    background: rgba(249,200,167,.8)!important;
+    border: solid 1px #ffc41d66;
+}
+.shadow .kms-pip-icons .badge i {
+    color: black;
+}
 .kms-media-inner, .kms-background {
     bottom: 0;
     left: 0;
@@ -2644,7 +2664,7 @@ img.kms-logo {
 #kongouStage a {
     cursor: default;
 }
-body.kms-play-open {
+body.kms-play-open:not(.kms-play-pip) {
     overflow: hidden;
 }
 
@@ -3539,6 +3559,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+    .kms-pip-icons .badge {
+        background: #ad4c00b3!important;
+        border: solid 1px #e3990840;
+    }
+    .shadow .kms-pip-icons .badge {
+        background: rgba(0, 0, 0, 0.5)!important;
+        border: solid 1px #e39908d4;
+    }
     #titleBarContents i.text-danger {
         color: #ff7568!important;
     }
