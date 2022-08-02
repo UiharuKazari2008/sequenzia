@@ -1856,6 +1856,23 @@ module.exports = async (req, res, next) => {
                                                     search: user_search,
                                                     parent_search: parent_search,
                                                 },
+                                                media: {
+                                                    season: item.season_num,
+                                                    episode: item.episode_num,
+                                                    show: {
+                                                        id: item.show_id,
+                                                        name: item.show_name,
+                                                        original_name: item.show_original_name,
+                                                        background: item.show_background,
+                                                        nsfw: item.show_nsfw,
+                                                        subtitled: item.show_subtitled,
+                                                        poster: item.show_poster,
+                                                        meta: item.show_data
+                                                    },
+                                                    watched: item.wathched_percent,
+                                                    date_watched: item.watched_date,
+                                                    meta: item.episode_data
+                                                },
                                                 channel: {
                                                     id: item.channel,
                                                     eid: item.channel_eid,
@@ -2250,6 +2267,23 @@ module.exports = async (req, res, next) => {
                                                 message_extra: _message_extra,
                                                 message_header: _message_header,
                                             },
+                                            media: {
+                                                season: item.season_num,
+                                                episode: item.episode_num,
+                                                show: {
+                                                    id: item.show_id,
+                                                    name: item.show_name,
+                                                    original_name: item.show_original_name,
+                                                    background: item.show_background,
+                                                    nsfw: item.show_nsfw,
+                                                    subtitled: item.show_subtitled,
+                                                    poster: item.show_poster,
+                                                    meta: item.show_data
+                                                },
+                                                watched: item.wathched_percent,
+                                                date_watched: item.watched_date,
+                                                meta: item.episode_data
+                                            },
                                             channel: {
                                                 id: item.channel,
                                                 eid: item.channel_eid,
@@ -2357,6 +2391,23 @@ module.exports = async (req, res, next) => {
                                             message_extra: _message_extra,
                                             message_header: _message_header,
                                         },
+                                        media: {
+                                            season: item.season_num,
+                                            episode: item.episode_num,
+                                            show: {
+                                                id: item.show_id,
+                                                name: item.show_name,
+                                                original_name: item.show_original_name,
+                                                background: item.show_background,
+                                                nsfw: item.show_nsfw,
+                                                subtitled: item.show_subtitled,
+                                                poster: item.show_poster,
+                                                meta: item.show_data
+                                            },
+                                            watched: item.wathched_percent,
+                                            date_watched: item.watched_date,
+                                            meta: item.episode_data
+                                        },
                                         channel: {
                                             id: item.channel,
                                             eid: item.channel_eid,
@@ -2431,6 +2482,23 @@ module.exports = async (req, res, next) => {
                                             message_type: _message_type,
                                             message_extra: _message_extra,
                                             message_header: _message_header,
+                                        },
+                                        media: {
+                                            season: item.season_num,
+                                            episode: item.episode_num,
+                                            show: {
+                                                id: item.show_id,
+                                                name: item.show_name,
+                                                original_name: item.show_original_name,
+                                                background: item.show_background,
+                                                nsfw: item.show_nsfw,
+                                                subtitled: item.show_subtitled,
+                                                poster: item.show_poster,
+                                                meta: item.show_data
+                                            },
+                                            watched: item.wathched_percent,
+                                            date_watched: item.watched_date,
+                                            meta: item.episode_data
                                         },
                                         channel: {
                                             id: item.channel,

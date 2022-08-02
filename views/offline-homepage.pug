@@ -115,7 +115,7 @@ html
                                                         //a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
                                                             i.fa-light.fa-fw.fa-archive
                                                             | Albums
-                                                        //a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemTheater")
+                                                        a.user-menu-item(title="Theater Media" href='#/tvTheater?')
                                                             i.fa-light.fa-fw.fa-ticket
                                                             | Theater
                                                         a.user-menu-item(title="Offline Media" href='#/gallery?')
@@ -425,6 +425,18 @@ html
                                 i.fas.fa-download.shadow-text
                             a#makeOffline.btn.text-white.d-none(href='#_' role='button')
                                 i.fas.fa-cloud-download.shadow-text
+                        div.row.px-3
+                            div#kmsContent.mb-2.text-center.w-100
+                                div.d-flex
+                                    div.mr-2
+                                        img#kmsInfoPoster
+                                    div.d-flex.flex-column.text-ellipsis.w-100
+                                        div
+                                            span.episode-number#kmsInfoNumber
+                                        span#kmsInfoShowName.font-weight-bold.text-ellipsis.text-left
+                                        span#kmsInfoEpisodeName.text-ellipsis.text-left
+                                div.mt-2
+                                    span#kmsInfoEpisodeDescription
                         div.row.px-3
                             span#infoFilename.text-center.w-100.font-italic.text-lg.shadow-text
                         div.row.px-3

@@ -63,39 +63,53 @@ let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
 let spannedFilesFIFOOffline = true;
 let spannedFilesAlwaysOffline = false;
-const offlineContentDB = window.indexedDB.open("offlineContent", 1);
+const offlineContentDB = window.indexedDB.open("offlineContent", 2);
 offlineContentDB.onerror = event => {
-    console.error(offlineContentDB.errorCode);
+    console.error(event.errorCode);
     alert(`IndexedDB Is Not Available: Offline Content will not be available!`)
 };
 offlineContentDB.onsuccess = event => {
     offlineContent = event.target.result;
+    console.log('Offline Database is available');
     browserStorageAvailable = true;
 };
 offlineContentDB.onupgradeneeded = event => {
     // Save the IDBDatabase interface
     const db = event.target.result;
     // Create an objectStore for this database
-    const spannedFilesStore = db.createObjectStore("spanned_files", { keyPath: "id" });
-    spannedFilesStore.createIndex("id", "id", { unique: true });
-    spannedFilesStore.createIndex("name", "name", { unique: false });
-    spannedFilesStore.createIndex("size", "size", { unique: false });
-    spannedFilesStore.createIndex("channel", "channel", { unique: false });
-    spannedFilesStore.transaction.oncomplete = event => {
+    if (event.oldVersion < 1) {
+        const spannedFilesStore = db.createObjectStore("spanned_files", {keyPath: "id"});
+        spannedFilesStore.createIndex("id", "id", {unique: true});
+        spannedFilesStore.createIndex("name", "name", {unique: false});
+        spannedFilesStore.createIndex("size", "size", {unique: false});
+        spannedFilesStore.createIndex("channel", "channel", {unique: false});
+        spannedFilesStore.transaction.oncomplete = event => {
+        }
+        const offlinePageStore = db.createObjectStore("offline_pages", {keyPath: "url"});
+        offlinePageStore.createIndex("url", "url", {unique: true});
+        offlinePageStore.createIndex("title", "title", {unique: false});
+        offlinePageStore.createIndex("files", "files", {unique: false});
+        offlinePageStore.createIndex("previews", "previews", {unique: false});
+        offlinePageStore.transaction.oncomplete = event => {
+        }
+        const offlineItemsStore = db.createObjectStore("offline_items", {keyPath: "eid"});
+        offlineItemsStore.createIndex("eid", "eid", {unique: true});
+        offlineItemsStore.createIndex("data_type", "data_type", {unique: false});
+        offlineItemsStore.createIndex("full_url", "full_url", {unique: true});
+        offlineItemsStore.createIndex("preview_url", "preview_url", {unique: false});
+        offlineItemsStore.transaction.oncomplete = event => {
+        }
     }
-    const offlinePageStore = db.createObjectStore("offline_pages", { keyPath: "url" });
-    offlinePageStore.createIndex("url", "url", { unique: true });
-    offlinePageStore.createIndex("title", "title", { unique: false });
-    offlinePageStore.createIndex("files", "files", { unique: false });
-    offlinePageStore.createIndex("previews", "previews", { unique: false });
-    offlinePageStore.transaction.oncomplete = event => {
-    }
-    const offlineItemsStore = db.createObjectStore("offline_items", { keyPath: "eid" });
-    offlineItemsStore.createIndex("eid", "eid", { unique: true });
-    offlineItemsStore.createIndex("data_type", "data_type", { unique: false });
-    offlineItemsStore.createIndex("full_url", "full_url", { unique: true });
-    offlineItemsStore.createIndex("preview_url", "preview_url", { unique: false });
-    offlineItemsStore.transaction.oncomplete = event => {
+    if (event.oldVersion < 2) {
+        const offlineKongouShows = db.createObjectStore("offline_kongou_shows", {keyPath: "showId"});
+        offlineKongouShows.createIndex("showId", "showId", {unique: true});
+        offlineKongouShows.transaction.oncomplete = event => {
+        }
+        const offlineKongouEpisode = db.createObjectStore("offline_kongou_episodes", {keyPath: "eid"});
+        offlineKongouEpisode.createIndex("eid", "eid", {unique: true});
+        offlineKongouEpisode.createIndex("showId", "showId", {unique: false});
+        offlineKongouEpisode.transaction.oncomplete = event => {
+        }
     }
 };
 
@@ -537,7 +551,7 @@ async function getNewContent(remove, add, url, keep) {
 
     console.log(_url);
     if (offlinePage) {
-        if ((_url.startsWith('/gallery') || _url.startsWith('/files'))) {
+        if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater'))) {
             const eids = await (async () => {
                 const revisedUrl = params(['offset', '_h'], [], _url)
                 if (revisedUrl.split('?').pop().length === 0)
@@ -550,6 +564,8 @@ async function getNewContent(remove, add, url, keep) {
                 await generateGalleryHTML(_url, eids);
             } else if (_url.startsWith('/files')) {
                 await generateFilesHTML(_url, eids);
+            } else if (_url.startsWith('/tvTheater')) {
+                await generateShowsHTML(_url);
             } else {
                 $.toast({
                     type: 'error',
@@ -1118,6 +1134,18 @@ function extractMetaFromElement(e, preemptive) {
     const postExtraPreviewImage = e.getAttribute('data-msg-url-extpreview');
     const postFullImage = e.getAttribute('data-msg-url-full');
     const postColor = decodeURIComponent(e.getAttribute('data-search-color')).split(':');
+    const postKMSJSON = ((_data) => {
+        if (_data && _data.length > 2) {
+            try {
+                return JSON.parse(_data);
+            } catch (err) {
+                console.error(`Failed to parse Kongou Media Data`);
+                console.error(err);
+                return false
+            }
+        }
+        return false
+    })(e.getAttribute('data-kms-json'));
     const attribs = Array.from(e.attributes).map(f => f.nodeName + '="' + f.value.split('"').join('&quot;') + '"');
 
     let required_build = (postFilID && !postCached);
@@ -1125,6 +1153,8 @@ function extractMetaFromElement(e, preemptive) {
     let fullItem = null;
     let previewItem = null;
     let extpreviewItem = null;
+    let kongouPoster = null;
+    let kongouBackdrop = null;
 
     if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
         data_type = 'image';
@@ -1141,10 +1171,16 @@ function extractMetaFromElement(e, preemptive) {
         fullItem = replaceDiscordCDN(postFullImage);
     if (postDownload && !(postFilID && !postCached) && !required_build)
         fullItem = replaceDiscordCDN(postDownload);
+    if (postKMSJSON && postKMSJSON.show.poster)
+        kongouPoster = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.poster}`)
+    if (postKMSJSON && postKMSJSON.show.background)
+        kongouBackdrop = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.background}`)
 
     return {
         full_url: fullItem,
         preview_url: previewItem,
+        kongou_poster_url: kongouPoster,
+        kongou_backdrop_url: kongouBackdrop,
         extpreview_url: extpreviewItem,
         data_type,
         fileid: postFilID,
@@ -1159,12 +1195,14 @@ function extractMetaFromElement(e, preemptive) {
         required_build: required_build,
         preemptive_download: (!!preemptive),
         htmlAttributes: attribs,
+        kongou_meta: (postKMSJSON && postKMSJSON.show.id) ? postKMSJSON : null,
     }
 }
 async function cacheFileURL(object, page_item, doc) {
     return new Promise(async (resolve) => {
         try {
             let fetchResults = {}
+            let fetchKMSResults = {}
             if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
                 if (object.full_url)
                     fetchResults["full_url"] = (await fetch(object.full_url)).status
@@ -1172,6 +1210,10 @@ async function cacheFileURL(object, page_item, doc) {
                     fetchResults["preview_url"] = (await fetch(object.preview_url)).status
                 if (object.extpreview_url)
                     fetchResults["extpreview_url"] = (await fetch(object.extpreview_url)).status
+                if (object.kongou_poster_url)
+                    fetchKMSResults["kongou_poster_url"] = (await fetch(object.kongou_poster_url)).status
+                if (object.kongou_backdrop_url)
+                    fetchKMSResults["kongou_backdrop_url"] = (await fetch(object.kongou_backdrop_url)).status
                 if (object.required_build)
                     openUnpackingFiles(object.id, undefined, true, true, doc);
             } else {
@@ -1184,13 +1226,32 @@ async function cacheFileURL(object, page_item, doc) {
             }
             if (browserStorageAvailable) {
                 try {
-                    offlineContent.transaction([`offline_items`], "readwrite").objectStore('offline_items').put({
+                    const transaction = offlineContent.transaction(['offline_items', 'offline_kongou_shows', 'offline_kongou_episodes'], "readwrite")
+                    if (object.kongou_meta && object.kongou_meta.show) {
+                        transaction.objectStore('offline_kongou_shows').put({
+                            showId: object.kongou_meta.show.id,
+                            ...object.kongou_meta.show,
+                            fetchResults: fetchKMSResults
+                        })
+                    }
+                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.meta) {
+                        transaction.objectStore('offline_kongou_episodes').put({
+                            showId: object.kongou_meta.show.id,
+                            eid: object.kongou_meta.meta.entity,
+                            episode: object.kongou_meta.episode,
+                            season: object.kongou_meta.season,
+                            meta: object.kongou_meta.meta,
+                            fetchResults: fetchKMSResults
+                        })
+                    }
+                    transaction.objectStore('offline_items').put({
                         ...object,
                         page_item: (!!page_item),
                         fetchResults: fetchResults
                     }).onsuccess = event => {
                         resolve({
                             ...fetchResults,
+                            ...fetchKMSResults,
                             dbWriteOK: (!event.target.error),
                         });
                     };
@@ -1199,6 +1260,7 @@ async function cacheFileURL(object, page_item, doc) {
                     console.error(e)
                     resolve({
                         ...fetchResults,
+                        ...fetchKMSResults,
                         dbWriteOK: false,
                     })
                 }
@@ -1407,11 +1469,56 @@ async function cacheFileOffline(element, noConfirm, preemptive, doc) {
                         type: 'error',
                         title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
                         subtitle: '',
-                        content: `<p>Failed to save offline storage record "${element}"!</p><p>${e.message}</p>`,
+                        content: `<p>Failed to save offline storage record "${element}"!</p>`,
                         delay: 10000,
                     });
                     console.error(`Failed to save record for ${element}`);
-                    console.error(e)
+                } else {
+                    if (!noConfirm)
+                        $.snack('success', `<i class="fas fa-sd-card pr-2"></i>File available offline`, 5000);
+                    await getAllOfflineEIDs();
+                    try {
+                        $(`#message-${element} .hide-offline`).addClass('hidden');
+                        $(`#message-${element} #offlineReady`).removeClass('hidden');
+                    } catch (err) {
+                        console.error('Failed to set offline icons');
+                        console.error(err);
+                    }
+                }
+            } else {
+                console.error(`Element does not exist on page!`);
+            }
+        }
+    } catch (err) {
+        console.error(`Uncaught Item Download Error`);
+        console.error(err)
+        $.toast({
+            type: 'error',
+            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            subtitle: '',
+            content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
+            delay: 10000,
+        });
+    }
+    return false;
+}
+async function cacheEpisodeOffline(element, noConfirm, preemptive, doc) {
+    try {
+        if (element) {
+            const _post = (doc) ? doc.querySelector('#message-' + element) : document.getElementById('message-' + element);
+            if (_post) {
+                const eid = _post.getAttribute('data-msg-eid');
+                const fileExists = (eid) ? await getFileIfAvailable(eid) : false;
+                const fetchResult = await cacheFileURL(extractMetaFromElement(_post, (preemptive && !fileExists)), true, doc);
+                if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
+                    $.toast({
+                        type: 'error',
+                        title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                        subtitle: '',
+                        content: `<p>Failed to save offline storage record "${element}"!`,
+                        delay: 10000,
+                    });
+                    console.error(`Failed to save record for ${element}`);
                 } else {
                     if (!noConfirm)
                         $.snack('success', `<i class="fas fa-sd-card pr-2"></i>File available offline`, 5000);
@@ -1532,11 +1639,53 @@ async function getFileIfAvailable(eid) {
         }
     })
 }
+async function getShowIfAvailable(showId) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").get(showId).onsuccess = event => {
+                    if (event.target.result && event.target.result.meta) {
+                        resolve({
+                            ...event.target.result
+                        })
+                    } else {
+                        resolve(false)
+                    }
+                };
+            } else {
+                resolve(false)
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
 async function getAllOfflinePages() {
     return new Promise((resolve) => {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
+                    resolve(event.target.result.map(e => {
+                        return {
+                            ...e
+                        }
+                    }))
+                }
+            } else {
+                resolve([])
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
+async function getAllOfflineSeries() {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").getAll().onsuccess = event => {
                     resolve(event.target.result.map(e => {
                         return {
                             ...e
@@ -1988,6 +2137,176 @@ async function generateFilesHTML(url, eids) {
                 registerLazyLoader();
                 registerURLHandlers();
                 $("#pageNav").html(pageButtons.join(''));
+                $(".container-fluid").fadeTo(2000, 1);
+            } else {
+                $(".container-fluid").fadeTo(2000, 1)
+                $.toast({
+                    type: 'error',
+                    title: 'No Results Found',
+                    subtitle: 'Error',
+                    content: `Nothing was found, Please try another option or search term`,
+                    delay: 10000,
+                })
+            }
+            responseComplete = true;
+        })
+    } catch (err) {
+        responseComplete = true;
+        $(".container-fluid").fadeTo(2000, 1);
+        console.error(`Uncaught Item HTML Generator Error`);
+        console.error(err)
+        $.toast({
+            type: 'error',
+            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            subtitle: '',
+            content: `<p>Could not render page!</p><p>Internal Application Error: ${err.message}</p>`,
+            delay: 10000,
+        });
+    }
+}
+async function generateShowsHTML(url) {
+    $("#userMenu").collapse("hide");
+    try {
+        _originalURL = url;
+        setupReq(undefined, _originalURL);
+        const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
+        $.when($(".container-fluid").fadeOut(250)).done(async () => {
+            let resultRows = [];
+            const shows = await getAllOfflineSeries();
+            const allResults = shows.sort(function(a, b){
+                return b.name - a.name;
+            });
+            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+            if (allResults.length < offset)
+                offset = 0;
+            const shift = offset + 100;
+            let pageButtons = [];
+            if (allResults.length > 100) {
+                if (offset > 0) {
+                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                }
+                if (shift <= allResults.length) {
+                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                }
+            }
+
+            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+                return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
+    <div class="show-overlay-items position-absolute">
+        <div class="show-controls px-2 py-1">
+            <div class="show-banners">
+                ${(e.subtitled) ? '<div class="badge bg-darker mr-1"><i class="fas fa-closed-captioning"></i></div>' : ''}
+                ${(e.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
+                <div class="ml-auto"></div>
+            </div>
+            <div class="show-buttons"></div>
+        </div>
+    </div><a href="#/listTheater?show_id=${e.showId}">
+        <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}'); background-size: cover!important;"></div>
+        <div class="episode-background"></div>
+    </a>
+</div>`
+            }))
+            if (resultRows.length > 0) {
+                document.getElementById('contentBlock').innerHTML = `<div class="mb-2">
+    <form class="col form-inline navbar-search top-menu-search-bar" onsubmit="return false;" method="get" style="width: 100%;">
+        <div class="input-group w-100">
+            <div class="input-group-prepend"><i class="far fa-search align-self-center"></i></div><input class="text-white form-control top-menu-search-bar border-0" id="seriesSearch" type="text" placeholder="Search Shelf..." aria-label="Search Shelf..." onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);" />
+        </div>
+    </form>
+</div><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
+                window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                registerLazyLoader();
+                registerURLHandlers();
+                setImageLayout(setImageSize);
+                $("#pageNav").html(pageButtons.join(''));
+                $(".container-fluid").fadeTo(2000, 1);
+                element_list = Array.from(document.querySelectorAll('[data-search]'))
+                search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
+            } else {
+                $(".container-fluid").fadeTo(2000, 1)
+                $.toast({
+                    type: 'error',
+                    title: 'No Results Found',
+                    subtitle: 'Error',
+                    content: `Nothing was found, Please try another option or search term`,
+                    delay: 10000,
+                })
+            }
+            responseComplete = true;
+        })
+    } catch (err) {
+        responseComplete = true;
+        $(".container-fluid").fadeTo(2000, 1);
+        console.error(`Uncaught Item HTML Generator Error`);
+        console.error(err)
+        $.toast({
+            type: 'error',
+            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            subtitle: '',
+            content: `<p>Could not render page!</p><p>Internal Application Error: ${err.message}</p>`,
+            delay: 10000,
+        });
+    }
+}
+async function generateEpisodeHTML(url) {
+    $("#userMenu").collapse("hide");
+    try {
+        _originalURL = url;
+        setupReq(undefined, _originalURL);
+        const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
+        $.when($(".container-fluid").fadeOut(250)).done(async () => {
+            let resultRows = [];
+            const showId = _params.getAll('show_id')[0];
+            const show = await getShowIfAvailable(showId);
+            if (show) {
+                const episodes = await getEpisodesIfAvailable(showId);
+                const allResults = episodes.sort(function(a, b){
+                    return b.name - a.name;
+                });
+                resultRows = await Promise.all(allResults.map(async e => {
+                    return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
+    <div class="show-overlay-items position-absolute">
+        <div class="show-controls px-2 py-1">
+            <div class="show-banners">
+                ${(e.subtitled) ? '<div class="badge bg-darker mr-1"><i class="fas fa-closed-captioning"></i></div>' : ''}
+                ${(e.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
+                <div class="ml-auto"></div>
+            </div>
+            <div class="show-buttons"></div>
+        </div>
+    </div><a href="#/listTheater?show_id=${e.showId}">
+        <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}'); background-size: cover!important;"></div>
+        <div class="episode-background"></div>
+    </a>
+</div>`
+                }))
+            }
+
+            if (show && resultRows.length > 0) {
+                document.getElementById('contentBlock').innerHTML = `<div class="show-header mb-3 p-3">
+    <div class="show-preview" style="background-image : url();"></div>
+    <div class="show-preview-overlay"></div>
+    <div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${show.poster}" /></div>
+    <div class="show-info px-2 w-100">
+        <div class="show-title"><a class="text-white" href="https://themoviedb.org/movie/ID" target="_blank" rel="noopener noreferrer"><span>${show.original_name}</span></a></div>
+        <div class="show-og-title"><span>${show.name}</span></div>
+        <div class="show-info-top d-flex flex-row">
+            <div class="show-tags mr-auto">
+                ${(show.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
+                ${(show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
+                ${show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>')}
+            </div>
+            <div class="show-date mt-2"><span>${show.meta.date.split('-')[0]}</span></div>
+        </div>
+        <div class="show-description"><span>${show.meta.description}</span></div>
+    </div>
+</div>${resultRows.join(' ')}`
+                window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                registerLazyLoader();
+                registerURLHandlers();
+                setImageLayout(setImageSize);
+                $("#pageNav").html('');
                 $(".container-fluid").fadeTo(2000, 1);
             } else {
                 $(".container-fluid").fadeTo(2000, 1)
@@ -3093,7 +3412,7 @@ async function checkKMSTimecode() {
         await saveCurrentTimeKMS();
         if (!isReady && ((kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.55)) {
             kongouMediaPlayer.setAttribute('nextVideoReady', 'true');
-            cacheFileOffline(messageid, true, true, activeDoc);
+            cacheEpisodeOffline(messageid, true, true, activeDoc);
         }
     }
 }
@@ -3298,6 +3617,20 @@ async function showSearchOptions(post) {
     const postPreviewImage = _post.getAttribute('data-msg-url-preview');
     const postFullImage = _post.getAttribute('data-msg-url-full');
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
+    const postKMSJSON = (() => {
+        const _data = _post.getAttribute('data-kms-json');
+        if (_data && _data.length > 2) {
+            try {
+                return JSON.parse(_data);
+            } catch (e) {
+                console.error(`Failed to parse Kongou Media Data`);
+                console.error(e);
+                return false
+            }
+        }
+        return false
+    })();
+    console.log(postKMSJSON)
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
     const postFlagged = _post.getAttribute('data-msg-flagged') + '' === 'true';
     const postIsVideo = _post.getAttribute('data-msg-isvideo') + '' === 'true';
@@ -3340,6 +3673,13 @@ async function showSearchOptions(post) {
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
     const modalRepair = document.getElementById(`infoRepair`);
+
+    const modelKMSRow = document.getElementById(`kmsContent`);
+    const modelKMSPoster = document.getElementById(`kmsInfoPoster`);
+    const modelKMSBaseName = document.getElementById(`kmsInfoShowName`);
+    const modelKMSEpisodeName = document.getElementById(`kmsInfoEpisodeName`);
+    const modelKMSEpisodeNumber = document.getElementById(`kmsInfoNumber`);
+    const modelKMSEpisodeDescription = document.getElementById(`kmsInfoEpisodeDescription`);
 
     let normalInfo = [];
     let advancedInfo = [];
@@ -3410,10 +3750,18 @@ async function showSearchOptions(post) {
         } else {
             modalOfflineThisButton.querySelector('i').classList.add('fa-cloud-download')
             modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-xmark')
-            modalOfflineThisButton.onclick = function () {
-                cacheFileOffline(postID, false);
-                $('#searchModal').modal('hide');
-                return false;
+            if (postKMSJSON) {
+                modalOfflineThisButton.onclick = function () {
+                    cacheEpisodeOffline(postID, false);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+            } else {
+                modalOfflineThisButton.onclick = function () {
+                    cacheFileOffline(postID, false);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
             }
         }
         modalOfflineThisButton.classList.remove('hidden');
@@ -3464,6 +3812,17 @@ async function showSearchOptions(post) {
         modalPlayButton.title = `Play`
         modalDownloadButton.onclick = null;
         modalPlayButton.classList.add('hidden')
+    }
+    if (postKMSJSON) {
+        modelKMSRow.classList.remove('hidden');
+        modelKMSPoster.src = (postKMSJSON.show.poster) ? `https://media.discordapp.net/attachments${postKMSJSON.show.poster}` : ''
+        modelKMSBaseName.innerText = postKMSJSON.show.name || 'Unknown Series'
+        modelKMSEpisodeName.innerText = postKMSJSON.meta.name || 'Unknown Episode'
+        modelKMSEpisodeNumber.innerText = (postKMSJSON.season && postKMSJSON.episode) ? postKMSJSON.season + 'x' + postKMSJSON.episode : ''
+        modelKMSEpisodeDescription.innerText = postKMSJSON.meta.description || 'No Episode Description'
+        normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas fa-tv pr-1"></i><span>Kongou Media Meta</span></div>`);
+    } else {
+        modelKMSRow.classList.add('hidden');
     }
     if (postFilID && postFilID.length > 0) {
         if (postOffline) {

@@ -2692,6 +2692,20 @@ body.kms-play-open:not(.kms-play-pip) {
     font-size: 1.2em;
 }
 
+img#kmsInfoPoster {
+    height: 128px;
+}
+span#kmsInfoShowName {
+    font-size: 2em;
+}
+span#kmsInfoEpisodeName {
+    font-size: 1.25em;
+}
+span#kmsInfoNumber {
+    right: 0;
+    padding-right: 0.125em;
+}
+
 div#contextSwitchIndicator {
     position: fixed;
     display: flex;
