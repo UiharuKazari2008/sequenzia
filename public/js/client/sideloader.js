@@ -2494,13 +2494,10 @@ async function unpackFile() {
                                     function calculatePercent() {
                                         const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
                                         activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
-                                        if (activeSpannedJob.play === 'video') {
-                                            videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Pending`;
-                                            videoProgress.style.width = activeSpannedJob.progress;
-                                        } else if (activeSpannedJob.play === 'kms-video') {
-                                            kmsStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length}/${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Blocks`;
-                                            kmsProgress.style.width = activeSpannedJob.progress;
-                                        }
+                                        videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Pending`;
+                                        videoProgress.style.width = activeSpannedJob.progress;
+                                        kmsStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length}/${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Blocks`;
+                                        kmsProgress.style.width = activeSpannedJob.progress;
                                     }
                                     kongouMediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
                                     console.log(Object.keys(pendingBlobs))
@@ -2583,12 +2580,10 @@ async function unpackFile() {
                                             document.body.appendChild(link);
                                         }
 
-                                        if (activeSpannedJob && activeSpannedJob.play === 'video') {
-                                            videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
-                                        } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video') {
-                                            kmsStatus.innerText = ``;
-                                            kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
-                                        } else if (!activeSpannedJob.preemptive) {
+                                        videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
+                                        kmsStatus.innerText = ``;
+                                        kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
+                                        if (!activeSpannedJob.preemptive) {
                                             $.toast({
                                                 type: 'success',
                                                 title: 'Unpack File',
@@ -2599,104 +2594,84 @@ async function unpackFile() {
                                         }
                                         job(true);
                                     } else {
-                                        if (activeSpannedJob && activeSpannedJob.play === 'video') {
-                                            videoStatus.innerText = `Failed, Not all blocks where downloaded`;
-                                            videoProgress.classList.remove('bg-success');
-                                            videoProgress.classList.add('bg-danger');
-                                        } else if (activeSpannedJob && activeSpannedJob.play === 'kms-video') {
-                                            kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
-                                            kmsProgress.classList.remove('bg-success');
-                                            kmsProgress.classList.add('bg-danger');
-                                        } else {
-                                            $.toast({
-                                                type: 'error',
-                                                title: 'Unpack File',
-                                                subtitle: 'Now',
-                                                content: `Missing a downloaded parity file, Retry to download!`,
-                                                delay: 15000,
-                                            });
-                                        }
-                                        job(false);
-                                    }
-                                } else {
-                                    if (activeSpannedJob.play === 'video') {
-                                        videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
+                                        videoStatus.innerText = `Failed, Not all blocks where downloaded`;
                                         videoProgress.classList.remove('bg-success');
                                         videoProgress.classList.add('bg-danger');
-                                    } else if (activeSpannedJob.play === 'kms-video') {
-                                        kmsStatus.innerText = `File is damaged or is missing blocks!`;
+                                        kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
                                         kmsProgress.classList.remove('bg-success');
                                         kmsProgress.classList.add('bg-danger');
-                                    } else  {
                                         $.toast({
                                             type: 'error',
                                             title: 'Unpack File',
                                             subtitle: 'Now',
-                                            content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                            content: `Missing a downloaded parity file, Retry to download!`,
                                             delay: 15000,
                                         });
+                                        job(false);
                                     }
-                                    job(false);
-                                }
-                            } else {
-                                if (activeSpannedJob.play === 'video') {
-                                    videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
+                                } else {
+                                    videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
                                     videoProgress.classList.remove('bg-success');
                                     videoProgress.classList.add('bg-danger');
-                                } else if (activeSpannedJob.play === 'kms-video') {
-                                    kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
+                                    kmsStatus.innerText = `File is damaged or is missing blocks!`;
                                     kmsProgress.classList.remove('bg-success');
                                     kmsProgress.classList.add('bg-danger');
-                                } else {
                                     $.toast({
                                         type: 'error',
                                         title: 'Unpack File',
                                         subtitle: 'Now',
-                                        content: `Failed to read the parity metadata response!`,
+                                        content: `File is damaged or is missing parts, please report to the site administrator!`,
                                         delay: 15000,
                                     });
+                                    job(false);
                                 }
-                                job(false);
-                            }
-                        } catch (e) {
-                            console.error(e);
-                            if (activeSpannedJob.play === 'video') {
-                                videoStatus.innerText = `Handler Failure: ${e.message}`;
+                            } else {
+                                videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
                                 videoProgress.classList.remove('bg-success');
                                 videoProgress.classList.add('bg-danger');
-                            } else if (activeSpannedJob.play === 'kms-video') {
-                                kmsStatus.innerText = `Handler Failure: ${e.message}`;
+                                kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
                                 kmsProgress.classList.remove('bg-success');
                                 kmsProgress.classList.add('bg-danger');
-                            } else  {
                                 $.toast({
                                     type: 'error',
                                     title: 'Unpack File',
                                     subtitle: 'Now',
-                                    content: `File Handeler Fault!<br/>${e.message}`,
+                                    content: `Failed to read the parity metadata response!`,
                                     delay: 15000,
                                 });
+                                job(false);
                             }
-                            job(false);
-                        }
-                    } else {
-                        if (activeSpannedJob.play === 'video') {
-                            videoStatus.innerText = `Server Error: ${response}`;
+                        } catch (e) {
+                            console.error(e);
+                            videoStatus.innerText = `Handler Failure: ${e.message}`;
                             videoProgress.classList.remove('bg-success');
                             videoProgress.classList.add('bg-danger');
-                        } else if (activeSpannedJob.play === 'kms-video') {
-                            kmsStatus.innerText = `Server Error: ${response}`;
+                            kmsStatus.innerText = `Handler Failure: ${e.message}`;
                             kmsProgress.classList.remove('bg-success');
                             kmsProgress.classList.add('bg-danger');
-                        } else  {
                             $.toast({
                                 type: 'error',
                                 title: 'Unpack File',
                                 subtitle: 'Now',
-                                content: `File failed to unpack!<br/>${response}`,
+                                content: `File Handeler Fault!<br/>${e.message}`,
                                 delay: 15000,
                             });
+                            job(false);
                         }
+                    } else {
+                        videoStatus.innerText = `Server Error: ${response}`;
+                        videoProgress.classList.remove('bg-success');
+                        videoProgress.classList.add('bg-danger');
+                        kmsStatus.innerText = `Server Error: ${response}`;
+                        kmsProgress.classList.remove('bg-success');
+                        kmsProgress.classList.add('bg-danger');
+                        $.toast({
+                            type: 'error',
+                            title: 'Unpack File',
+                            subtitle: 'Now',
+                            content: `File failed to unpack!<br/>${response}`,
+                            delay: 15000,
+                        });
                         job(false);
                     }
                     if (activeSpannedJob) {
@@ -2707,23 +2682,19 @@ async function unpackFile() {
                     }
                 },
                 error: function (xhr) {
-                    if (activeSpannedJob.play === 'video') {
-                        videoStatus.innerText = `Server Error: ${xhr.responseText}`;
-                        videoProgress.classList.remove('bg-success');
-                        videoProgress.classList.add('bg-danger');
-                    } else if (activeSpannedJob.play === 'kms-video') {
-                        kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
-                        kmsProgress.classList.remove('bg-success');
-                        kmsProgress.classList.add('bg-danger');
-                    } else  {
-                        $.toast({
-                            type: 'error',
-                            title: 'Unpack File',
-                            subtitle: 'Now',
-                            content: `File failed to unpack!<br/>${xhr.responseText}`,
-                            delay: 15000,
-                        });
-                    }
+                    videoStatus.innerText = `Server Error: ${xhr.responseText}`;
+                    videoProgress.classList.remove('bg-success');
+                    videoProgress.classList.add('bg-danger');
+                    kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
+                    kmsProgress.classList.remove('bg-success');
+                    kmsProgress.classList.add('bg-danger');
+                    $.toast({
+                        type: 'error',
+                        title: 'Unpack File',
+                        subtitle: 'Now',
+                        content: `File failed to unpack!<br/>${xhr.responseText}`,
+                        delay: 15000,
+                    });
                     activeSpannedJob.blobs = null;
                     activeSpannedJob.parts = null;
                     delete activeSpannedJob.blobs;
