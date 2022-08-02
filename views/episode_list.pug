@@ -7,8 +7,8 @@ block content
     if (results && results.length > 0 )
         if (!params.has('show_id'))
             - showData = results[Math.floor(Math.random() * results.length)].media.show.meta
-            if (showData.background)
-                - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
+            if (results[0].media.show.background)
+                - backgroundImg = { preview: (results[0].media.show.background) ? 'https://media.discordapp.net/attachments' + results[0].media.show.background : showData.background.pop() }
             else
                 - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
             // Page Heading
@@ -37,10 +37,10 @@ block content
                         - nextEpisode = show.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < .9) ) && e.media.meta.season !== 0)
                         - banner = (nextEpisode.length > 0) ? nextEpisode : show
                         .show-header.slim-line.mb-3.p-3
-                            .show-preview(style=`background-image : url("${(show[0].media.background) ? 'https://media.discordapp.net/attachments' + show[0].media.background : showData.background.pop() }");`)
+                            .show-preview(style=`background-image : url("${(show[0].media.show.background) ? 'https://media.discordapp.net/attachments' + show[0].media.show.background : showData.background.pop() }");`)
                             .show-preview-overlay
                             .d-none.d-sm-block.show-poster.mr-1
-                                img(src=`${(show[0].media.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.poster : showData.poster[0]}`)
+                                img(src=`${(show[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.show.poster : showData.poster[0]}`)
                             .show-info.px-2.d-flex.flex-column.w-100
                                 .show-title
                                     if (nextEpisode[0].media.meta.name)
@@ -162,8 +162,8 @@ block content
                                         i.btn-links.fas.fa-check
         else if (results[0].media.show.meta && results[0].media.show.meta.seasons)
             - showData = results[0].media.show.meta
-            if (showData.background)
-                - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
+            if (results[0].media.show.background)
+                - backgroundImg = { preview: (results[0].media.show.background) ? 'https://media.discordapp.net/attachments' + results[0].media.show.background : showData.background.pop() }
             else
                 - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
             // Page Heading
@@ -209,7 +209,7 @@ block content
                 .show-preview(style=`background-image : url("${banner[0].entities.preview}");`)
                 .show-preview-overlay
                 .d-none.d-sm-block.show-poster.mr-1
-                    img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
+                    img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
                 .show-info.px-2.d-flex.flex-column.w-100
                     .show-title
                         a(href=`https://themoviedb.org/tv/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
@@ -418,8 +418,8 @@ block content
                                     i.btn-links.fas.fa-check
         else
             - showData = results[0].media.show.meta
-            if (showData.background)
-                - backgroundImg = { preview: (results[0].media.background) ? 'https://media.discordapp.net/attachments' + results[0].media.background : showData.background.pop() }
+            if (results[0].media.show.background)
+                - backgroundImg = { preview: (results[0].media.show.background) ? 'https://media.discordapp.net/attachments' + results[0].media.show.background : showData.background.pop() }
             else
                 - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
             // Page Heading
@@ -442,7 +442,7 @@ block content
                 .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
                 .show-preview-overlay
                 .d-none.d-sm-block.show-poster.mr-1
-                    img(src=`${(results[0].media.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.poster : showData.poster[0]}`)
+                    img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
                 .show-info.px-2.w-100
                     .show-title
                         a(href=`https://themoviedb.org/movie/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
