@@ -4077,7 +4077,7 @@ function setImageLayout(size, _html) {
                 setImageSize = '1';
                 break;
             case '2':
-                classList = 'col-4 col-sm-4 col-md-3 col-lg-2 col-xl-1 col-dynamic-small';
+                classList = 'col-4 col-sm-4 col-md-3 col-lg-2 col-xl-2 col-dynamic-small';
                 html.querySelectorAll('.no-dynamic-small').forEach(c => c.classList.add('dynamic-hide'));
                 html.querySelectorAll('.no-dynamic-tiny').forEach(c => c.classList.remove('dynamic-hide'));
                 setImageSize = '2';
