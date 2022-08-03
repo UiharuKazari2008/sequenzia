@@ -32,6 +32,12 @@ const kongouControlsVolumeIcon = kongouControlsMute.querySelector('i');
 const kongouTitleBar = kongouMediaPlayer.querySelector('.kms-title-bar')
 const kongouControlsJQ = $('.kms-title-bar, .kms-bottom-bar')
 
+const videoModel = document.getElementById('videoBuilderModal');
+const videoStatus = videoModel.querySelector('span.status-text');
+const videoProgress = videoModel.querySelector('.progress > .progress-bar');
+const kmsStatus = kongouMediaPlayer.querySelector('.kms-status-bar > span');
+const kmsProgress = kongouMediaPlayer.querySelector('.kms-progress-bar');
+
 music.addEventListener('ended', CloseMusic);
 music.volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 

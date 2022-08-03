@@ -52,66 +52,13 @@ let pageType = ''
 let last = undefined;
 let responseComplete = false;
 let itemsRemoved = 0;
-let itemsRemovedIds = [];
-let cachedID = [];
 let initialLoad = true;
-let browserStorageAvailable = false;
-let offlineContent;
+let serviceWorkerReady = false;
 let offlineEntities = [];
 let offlineMessages = [];
 let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
 let spannedFilesFIFOOffline = true;
-let spannedFilesAlwaysOffline = false;
-const offlineContentDB = window.indexedDB.open("offlineContent", 2);
-offlineContentDB.onerror = event => {
-    console.error(event.errorCode);
-    alert(`IndexedDB Is Not Available: Offline Content will not be available!`)
-};
-offlineContentDB.onsuccess = event => {
-    offlineContent = event.target.result;
-    console.log('Offline Database is available');
-    browserStorageAvailable = true;
-};
-offlineContentDB.onupgradeneeded = event => {
-    // Save the IDBDatabase interface
-    const db = event.target.result;
-    // Create an objectStore for this database
-    if (event.oldVersion < 1) {
-        const spannedFilesStore = db.createObjectStore("spanned_files", {keyPath: "id"});
-        spannedFilesStore.createIndex("id", "id", {unique: true});
-        spannedFilesStore.createIndex("name", "name", {unique: false});
-        spannedFilesStore.createIndex("size", "size", {unique: false});
-        spannedFilesStore.createIndex("channel", "channel", {unique: false});
-        spannedFilesStore.transaction.oncomplete = event => {
-        }
-        const offlinePageStore = db.createObjectStore("offline_pages", {keyPath: "url"});
-        offlinePageStore.createIndex("url", "url", {unique: true});
-        offlinePageStore.createIndex("title", "title", {unique: false});
-        offlinePageStore.createIndex("files", "files", {unique: false});
-        offlinePageStore.createIndex("previews", "previews", {unique: false});
-        offlinePageStore.transaction.oncomplete = event => {
-        }
-        const offlineItemsStore = db.createObjectStore("offline_items", {keyPath: "eid"});
-        offlineItemsStore.createIndex("eid", "eid", {unique: true});
-        offlineItemsStore.createIndex("data_type", "data_type", {unique: false});
-        offlineItemsStore.createIndex("full_url", "full_url", {unique: true});
-        offlineItemsStore.createIndex("preview_url", "preview_url", {unique: false});
-        offlineItemsStore.transaction.oncomplete = event => {
-        }
-    }
-    if (event.oldVersion < 2) {
-        const offlineKongouShows = db.createObjectStore("offline_kongou_shows", {keyPath: "showId"});
-        offlineKongouShows.createIndex("showId", "showId", {unique: true});
-        offlineKongouShows.transaction.oncomplete = event => {
-        }
-        const offlineKongouEpisode = db.createObjectStore("offline_kongou_episodes", {keyPath: "eid"});
-        offlineKongouEpisode.createIndex("eid", "eid", {unique: true});
-        offlineKongouEpisode.createIndex("showId", "showId", {unique: false});
-        offlineKongouEpisode.transaction.oncomplete = event => {
-        }
-    }
-};
 
 let postsActions = [];
 let apiActions = {};
@@ -148,7 +95,6 @@ let _lastUploadChannelSelection = '';
 let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
-let downloadURLs = [];
 let undoActions = [];
 let notificationControler = null;
 let recoverable
@@ -157,12 +103,13 @@ let requestInprogress
 let paginatorInprogress
 let downloadAllController = null;
 let downloadSpannedController = new Map();
+let unpackingJobs = new Map();
+const networkKernelChannel = new MessageChannel();
 let offlineDownloadSignals = new Map();
 let offlineDownloadController = new Map();
 let tempURLController = new Map();
 let memorySpannedController = [];
 let memoryVideoPositions = new Map();
-let activeSpannedJob = null;
 let kmsVideoWatcher = null;
 let search_list = [];
 let element_list = [];
@@ -553,10 +500,10 @@ async function getNewContent(remove, add, url, keep) {
     if (offlinePage) {
         if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater') || _url.startsWith('/listTheater'))) {
             const eids = await (async () => {
-                const revisedUrl = params(['offset', '_h'], [], _url)
+                const revisedUrl = params(['limit', 'num', 'offset', '_h'], [], _url)
                 if (revisedUrl.split('?').pop().length === 0)
                     return false;
-                const isFoundPage = await getPageItemsIfAvailable(revisedUrl);
+                const isFoundPage = await kernelRequestData({type: 'GET_STORAGE_PAGE_ITEMS', url: revisedUrl})
                 if (isFoundPage)
                     return isFoundPage.items
             })()
@@ -1116,7 +1063,222 @@ async function cacheItems(urls) {
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
-let contentCache = null;
+
+async function offlineSelectedItems() {
+    try {
+        disableGallerySelect();
+        let downloadedFiles = 0;
+        const _url = params(['offset', '_h', 'responseType'], [])
+        let status = {
+            url: _url,
+            title: 'Selected Items',
+            downloaded: downloadedFiles,
+            totalItems: postsActions.length,
+        }
+        offlineDownloadController.set(_url, status);
+        offlineDownloadSignals.set(_url, true);
+        updateNotficationsPanel();
+        notificationControler = setInterval(updateNotficationsPanel, 1000);
+
+        for (let i in postsActions) {
+            if (!offlineDownloadSignals.has(url))
+                break;
+            const element = document.getElementById('message-' + postsActions[i].messageid);
+            if (element) {
+                cacheFileOffline(element, !(i === postsActions.length - 1))
+                downloadedFiles++;
+            }
+            status = {
+                ...status,
+                downloaded: downloadedFiles
+            }
+            offlineDownloadController.set(_url, status);
+        }
+        postsActions = [];
+        offlineDownloadController.delete(_url);
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
+}
+async function getOfflinePages() {
+    if (document.getElementById('offlinePageList')) {
+        document.getElementById('offlinePages').classList.remove('hidden');
+        $("#userMenu").collapse("hide")
+        const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
+        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
+            let icon = 'fa-page';
+            if (page.url.includes('/gallery'))
+                icon = 'fa-image'
+            if (page.url.includes('/files'))
+                icon = 'fa-folder'
+            if (page.url.includes('/cards'))
+                icon = 'fa-message'
+            if (page.url.includes('album='))
+                icon = 'fa-archive'
+
+            return `<tr>
+            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
+            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
+            <td class="py-2"><span>${page.totalItems}</span></td>
+        </tr>`
+        }).join('');
+    }
+}
+async function deleteOfflinePage(_url, noupdate) {
+    const url = params(['limit', 'offset', 'num', '_h'], [], _url);
+    if (url) {
+        return await kernelRequestData({type: 'REMOVE_STORAGE_PAGE', url: url, noupdate: noupdate})
+    } else {
+        console.log('URL not validated')
+    }
+}
+async function deleteOfflineFile(eid, noupdate, preemptive) {
+    return await kernelRequestData({type: 'REMOVE_STORAGE_FILE', eid, noupdate, preemptive})
+}
+async function clearCache(list) {
+    await caches.keys().then(cacheNames => {
+        console.log(`Local Caches Stores:`);
+        return Promise.all(
+            cacheNames.filter(e => !list || (list && list.filter(f => e.includes(f)).length > 0)).map(cache => {
+                console.log(cache)
+                console.log('JulyOS Kernel: Deleteing Old Cache - ' + cache);
+                return caches.delete(cache);
+            })
+        );
+    })
+}
+async function clearKernelCache() {
+    await clearCache(['generic', 'kernel', 'config']);
+    window.location.reload();
+}
+async function clearAllOfflineData() {
+    $('#cacheModal').modal('hide');
+    serviceWorkerMessageAsync({type: 'CLEAR_ALL_STORAGE'})
+}
+async function displayOfflineData() {
+    let linkedEids = [];
+    let linkedFileids = [];
+    const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
+    const pageRows = pages.map((e,i) => {
+        let icon = 'fa-page';
+        if (e.url.includes('/gallery'))
+            icon = 'fa-image'
+        if (e.url.includes('/files'))
+            icon = 'fa-folder'
+        if (e.url.includes('/cards'))
+            icon = 'fa-message'
+        if (e.url.includes('album='))
+            icon = 'fa-archive'
+        if (e.items)
+            linkedEids.push(...e.items);
+
+        return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
+            <div class="px-2"><i class="fas ${icon}"></i></div>
+            <div class="w-100"><span>${e.title}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="kernelRequestData({ type: 'SAVE_STORAGE_PAGE', url: '${e.url}' }); return false">
+                    <i class="fas fa-arrows-rotate"></i>
+                </a>
+                <a class="p-2" href="#_" onclick="deleteOfflinePage('${e.url}'); document.getElementById('cachePageItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (pageRows.length > 0) {
+        document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
+    } else {
+        document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
+    }
+
+    const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+    linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
+    const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
+        let icon = 'fa-file';
+        if (e.data_type === 'image')
+            icon = 'fa-image'
+        if (e.data_type === 'video')
+            icon = 'fa-film'
+        if (e.data_type === 'audio')
+            icon = 'fa-music'
+
+        return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
+            <div class="px-2"><i class="fas ${icon}"></i></div>
+            <div class="w-100"><span>${e.filename}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="deleteOfflineFile('${e.eid}'); document.getElementById('cacheItemItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (fileRows.length > 0) {
+        document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
+    } else {
+        document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
+    }
+
+    const offlineSpannedFiles = await getAllOfflineSpannedFiles();
+    const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
+        return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
+            <div class="px-2"><i class="fas fa-box-open"></i></div>
+            <div class="w-100"><span>${e.filename}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="removeCacheItem('${e.id}'); document.getElementById('cacheSpanItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (spannedRows.length > 0) {
+        document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
+    } else {
+        document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
+    }
+
+    $('#cacheModal').modal('show');
+}
+async function getSpannedFileIfAvailable(fileid) {
+    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_SPANNED_FILE', fileid});
+    if (offlineSpannedFiles) {
+        let url
+        if (!tempURLController.has(fileid)) {
+            url = window.URL.createObjectURL(offlineSpannedFiles.block)
+            tempURLController.set(fileid, url);
+        } else {
+            url = tempURLController.get(fileid);
+        }
+        return {
+            ...offlineSpannedFiles,
+            href: url
+        }
+    } else {
+        return false;
+    }
+}
+async function getAllOfflineSpannedFiles() {
+    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
+    if (offlineSpannedFiles) {
+        return offlineSpannedFiles.map(e => {
+            let url
+            if (!tempURLController.has(e.id)) {
+                url = window.URL.createObjectURL(e.block)
+                tempURLController.set(e.id, url);
+            } else {
+                url = tempURLController.get(e.id);
+            }
+            return {
+                ...e,
+                href: url
+            }
+        })
+    } else {
+        return false;
+    }
+}
 
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
@@ -1200,829 +1362,31 @@ function extractMetaFromElement(e, preemptive) {
         kongou_meta: (postKMSJSON && postKMSJSON.show.id) ? postKMSJSON : null,
     }
 }
-async function cacheFileURL(object, page_item, doc) {
-    return new Promise(async (resolve) => {
-        try {
-            let fetchResults = {}
-            let fetchKMSResults = {}
-            if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
-                if (object.full_url)
-                    fetchResults["full_url"] = (await fetch(object.full_url)).status
-                if (object.preview_url)
-                    fetchResults["preview_url"] = (await fetch(object.preview_url)).status
-                if (object.extpreview_url)
-                    fetchResults["extpreview_url"] = (await fetch(object.extpreview_url)).status
-                if (object.kongou_poster_url)
-                    fetchKMSResults["kongou_poster_url"] = (await fetch(object.kongou_poster_url)).status
-                if (object.kongou_backdrop_url)
-                    fetchKMSResults["kongou_backdrop_url"] = (await fetch(object.kongou_backdrop_url)).status
-                if (object.required_build)
-                    openUnpackingFiles(object.id, undefined, true, true, doc);
-            } else {
-                if (object.full_url)
-                    fetchResults["full_url"] = 0
-                if (object.preview_url)
-                    fetchResults["preview_url"] = 0
-                if (object.extpreview_url)
-                    fetchResults["extpreview_url"] = 0
-            }
-            if (browserStorageAvailable) {
-                try {
-                    const transaction = offlineContent.transaction(['offline_items', 'offline_kongou_shows', 'offline_kongou_episodes'], "readwrite")
-                    if (object.kongou_meta && object.kongou_meta.show) {
-                        transaction.objectStore('offline_kongou_shows').put({
-                            showId: object.kongou_meta.show.id,
-                            ...object.kongou_meta.show,
-                            fetchResults: fetchKMSResults
-                        })
-                    }
-                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.meta) {
-                        transaction.objectStore('offline_kongou_episodes').put({
-                            showId: object.kongou_meta.show.id,
-                            eid: object.kongou_meta.meta.entity,
-                            episode: object.kongou_meta.episode,
-                            season: object.kongou_meta.season,
-                            meta: object.kongou_meta.meta,
-                            fetchResults: fetchKMSResults
-                        })
-                    }
-                    transaction.objectStore('offline_items').put({
-                        ...object,
-                        page_item: (!!page_item),
-                        fetchResults: fetchResults
-                    }).onsuccess = event => {
-                        resolve({
-                            ...fetchResults,
-                            ...fetchKMSResults,
-                            dbWriteOK: (!event.target.error),
-                        });
-                    };
-                } catch (e) {
-                    console.error(`Failed to save record for ${object.eid}`);
-                    console.error(e)
-                    resolve({
-                        ...fetchResults,
-                        ...fetchKMSResults,
-                        dbWriteOK: false,
-                    })
-                }
-            } else {
-                resolve({
-                    ...fetchResults,
-                    dbWriteOK: false,
-                })
-            }
-        } catch (err) {
-            console.error(`Uncaught Downloader Error for${object.eid}`);
-            console.error(err)
-            resolve(false);
-        }
-    })
-}
-async function cachePageOffline(type, _url) {
-    try {
-        const limit = (document.getElementById("maxCountOfflinePage")) ? document.getElementById("maxCountOfflinePage").value : undefined;
-        let requestOpts = [['responseType', 'offline']];
-        if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
-            requestOpts.push(['num', limit]);
-        const url = params(['offset', 'limit', '_h'], requestOpts, _url);
-        $('#cacheModal').modal('hide');
-        const _cacheItem = await fetch(url);
-        if (_cacheItem) {
-            const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
-            contentCache = content;
-            const title = content.querySelector('title').text;
-
-            const itemsToCache = Array.from(content.querySelectorAll('[data-msg-url-full]')).map(e => extractMetaFromElement(e)).filter(e => e.data_type);
-            const totalFiles = itemsToCache.length;
-
-            if (totalFiles === 0) {
-                $.toast({
-                    type: 'error',
-                    title: '<i class="fas fa-sd-card pr-2"></i>No Items',
-                    subtitle: '',
-                    content: `<p>There are no media files on this page that can be made offline!</p>`,
-                    delay: 10000,
-                });
-                return false;
-            }
-
-            let downloadedFiles = 0;
-            let status = {
-                url: params(['offset', '_h', 'responseType', 'num'], [], url),
-                title,
-                downloaded: downloadedFiles,
-                items: itemsToCache.map(e => e.eid),
-                totalItems: totalFiles
-            }
-            offlineDownloadController.set(url, status);
-            offlineDownloadSignals.set(url, true);
-            updateNotficationsPanel();
-            notificationControler = setInterval(updateNotficationsPanel, 1000);
-
-            for (let e of itemsToCache) {
-                if (!offlineDownloadSignals.has(url))
-                    break;
-                try {
-                    const fetchResult = await cacheFileURL(e, true, content)
-                    if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
-                        offlineDownloadSignals.delete(url);
-                        break;
-                    }
-                } catch (err) {
-                    console.error(err);
-                    offlineDownloadSignals.delete(url);
-                    break;
-                }
-                downloadedFiles++;
-                status = {
-                    ...status,
-                    downloaded: downloadedFiles
-                }
-                offlineDownloadController.set(url, status);
-            }
-            console.log(`Cached ${downloadedFiles} Items`);
-
-            if (!offlineDownloadSignals.has(url)) {
-                console.error('Offline download was canceled!')
-                const cachesList = await caches.keys();
-                const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
-                const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
-                const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
-                const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
-                if (cdnCache) {
-                    for (let e of itemsToCache) {
-                        if (e.full_url)
-                            cdnCache.delete(e.full_url);
-                        if (e.preview_url)
-                            cdnCache.delete(e.preview_url);
-                        if (e.extpreview_url)
-                            cdnCache.delete(e.extpreview_url);
-                    }
-                }
-                if (proxyCache) {
-                    for (let e of itemsToCache) {
-                        if (e.full_url)
-                            cdnCache.delete(e.full_url);
-                        if (e.preview_url)
-                            cdnCache.delete(e.preview_url);
-                        if (e.extpreview_url)
-                            cdnCache.delete(e.extpreview_url);
-                    }
-                }
-                $.snack('error', `<i class="fas fa-sd-card pr-2"></i>Offline Download Canceled or Failed`, 5000);
-            } else {
-                if (browserStorageAvailable) {
-                    try {
-                        offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').put(status).onsuccess = event => {
-                            $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Page with ${totalFiles} files are available offline`, 5000);
-                            console.log(`Page Saved Offline!`);
-                        };
-                    } catch (e) {
-                        $.toast({
-                            type: 'error',
-                            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                            subtitle: '',
-                            content: `<p>Failed to save offline storage record "${title}"!</p><p>${e.message}</p>`,
-                            delay: 10000,
-                        });
-                        console.error(`Failed to save record for ${url}`);
-                    }
-                } else {
-                    $.toast({
-                        type: 'error',
-                        title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                        subtitle: '',
-                        content: `<p>Failed access offline storage databsae!</p>`,
-                        delay: 10000,
-                    });
-                }
-                offlineDownloadController.delete(url);
-                offlineDownloadSignals.delete(url);
-            }
-        } else {
-            $.toast({
-                type: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                subtitle: '',
-                content: `<p>Failed to get offline page results, Try again later</p>`,
-                delay: 10000,
-            });
-            console.error('Item did not hit cache. Please try again')
-        }
-    } catch (err) {
-        console.error(`Uncaught Page Download Error`);
-        console.error(err)
-        offlineDownloadController.delete(url);
-        offlineDownloadSignals.delete(url);
-        $.toast({
-            type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-            subtitle: '',
-            content: `<p>Could not download offline page results</p><p>Internal Application Error: ${err.message}</p>`,
-            delay: 10000,
-        });
-    }
-    return false;
-}
-async function offlineSelectedItems() {
-    try {
-        disableGallerySelect();
-        let downloadedFiles = 0;
-        const _url = params(['offset', '_h', 'responseType'], [])
-        let status = {
-            url: _url,
-            title: 'Selected Items',
-            downloaded: downloadedFiles,
-            totalItems: postsActions.length,
-        }
-        offlineDownloadController.set(_url, status);
-        offlineDownloadSignals.set(_url, true);
-        updateNotficationsPanel();
-        notificationControler = setInterval(updateNotficationsPanel, 1000);
-
-        for (let i in postsActions) {
-            if (!offlineDownloadSignals.has(url))
-                break;
-            await cacheFileOffline(postsActions[i].messageid, !(i === postsActions.length - 1));
-            downloadedFiles++;
-            status = {
-                ...status,
-                downloaded: downloadedFiles
-            }
-            offlineDownloadController.set(_url, status);
-        }
-        postsActions = [];
-        offlineDownloadController.delete(_url);
-    } catch (e) {
-        alert(`Error starting downloader: ${e.message}`)
+async function cacheFileOffline(element, noConfirm, preemptive) {
+    if (element) {
+        const eid = element.getAttribute('data-msg-eid');
+        const fileExists = (eid) ? await kernelRequestData({type: 'GET_STORAGE_FILE', eid}) : false;
+        const meta = extractMetaFromElement(element, (preemptive && !fileExists));
+        kernelRequestData({
+            type: 'SAVE_STORAGE_FILE',
+            meta,
+            noconfirm: noConfirm
+        })
     }
 }
-async function cacheFileOffline(element, noConfirm, preemptive, doc) {
-    try {
-        if (element) {
-            const _post = (doc) ? doc.querySelector('#message-' + element) : document.getElementById('message-' + element);
-            if (_post) {
-                const eid = _post.getAttribute('data-msg-eid');
-                const fileExists = (eid) ? await getFileIfAvailable(eid) : false;
-                const fetchResult = await cacheFileURL(extractMetaFromElement(_post, (preemptive && !fileExists)), false, doc);
-                if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
-                    $.toast({
-                        type: 'error',
-                        title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                        subtitle: '',
-                        content: `<p>Failed to save offline storage record "${element}"!</p>`,
-                        delay: 10000,
-                    });
-                    console.error(`Failed to save record for ${element}`);
-                } else {
-                    if (!noConfirm)
-                        $.snack('success', `<i class="fas fa-sd-card pr-2"></i>File available offline`, 5000);
-                    await getAllOfflineEIDs();
-                    try {
-                        $(`#message-${element} .hide-offline`).addClass('hidden');
-                        $(`#message-${element} #offlineReady`).removeClass('hidden');
-                    } catch (err) {
-                        console.error('Failed to set offline icons');
-                        console.error(err);
-                    }
-                }
-            } else {
-                console.error(`Element does not exist on page!`);
-            }
-        }
-    } catch (err) {
-        console.error(`Uncaught Item Download Error`);
-        console.error(err)
-        $.toast({
-            type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-            subtitle: '',
-            content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
-            delay: 10000,
-        });
-    }
-    return false;
-}
-async function cacheEpisodeOffline(element, noConfirm, preemptive, doc) {
-    try {
-        if (element) {
-            const _post = (doc) ? doc.querySelector('#message-' + element) : document.getElementById('message-' + element);
-            if (_post) {
-                const eid = _post.getAttribute('data-msg-eid');
-                const fileExists = (eid) ? await getFileIfAvailable(eid) : false;
-                const fetchResult = await cacheFileURL(extractMetaFromElement(_post, (preemptive && !fileExists)), true, doc);
-                if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
-                    $.toast({
-                        type: 'error',
-                        title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                        subtitle: '',
-                        content: `<p>Failed to save offline storage record "${element}"!`,
-                        delay: 10000,
-                    });
-                    console.error(`Failed to save record for ${element}`);
-                } else {
-                    if (!noConfirm)
-                        $.snack('success', `<i class="fas fa-sd-card pr-2"></i>File available offline`, 5000);
-                    await getAllOfflineEIDs();
-                    try {
-                        $(`#message-${element} .hide-offline`).addClass('hidden');
-                        $(`#message-${element} #offlineReady`).removeClass('hidden');
-                    } catch (err) {
-                        console.error('Failed to set offline icons');
-                        console.error(err);
-                    }
-                }
-            } else {
-                console.error(`Element does not exist on page!`);
-            }
-        }
-    } catch (err) {
-        console.error(`Uncaught Item Download Error`);
-        console.error(err)
-        $.toast({
-            type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-            subtitle: '',
-            content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
-            delay: 10000,
-        });
-    }
-    return false;
-}
-async function getOfflinePages() {
-    if (document.getElementById('offlinePageList')) {
-        document.getElementById('offlinePages').classList.remove('hidden');
-        $("#userMenu").collapse("hide");
-        const pages = await getAllOfflinePages();
-        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
-            let icon = 'fa-page';
-            if (page.url.includes('/gallery'))
-                icon = 'fa-image'
-            if (page.url.includes('/files'))
-                icon = 'fa-folder'
-            if (page.url.includes('/cards'))
-                icon = 'fa-message'
-            if (page.url.includes('album='))
-                icon = 'fa-archive'
-
-            return `<tr>
-            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
-            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
-            <td class="py-2"><span>${page.totalItems}</span></td>
-        </tr>`
-        }).join('');
+async function cacheEpisodeOffline(element, noConfirm, preemptive) {
+    if (element) {
+        const eid = element.getAttribute('data-msg-eid');
+        const fileExists = (eid) ? await kernelRequestData({type: 'GET_STORAGE_FILE', eid}) : false;
+        const meta = extractMetaFromElement(element, (preemptive && !fileExists));
+        kernelRequestData({
+            type: 'SAVE_STORAGE_KMS_EPISODE',
+            meta,
+            noconfirm: noConfirm
+        })
     }
 }
-async function getPageIfAvailable(_url) {
-    return new Promise((resolve) => {
-        try {
-            const url = params(['limit', 'offset', 'num', '_h'], [], _url);
-            if (url && browserStorageAvailable) {
-                offlineContent.transaction("offline_pages").objectStore("offline_pages").get(url).onsuccess = event => {
-                    if (event.target.result && event.target.result.items) {
-                        resolve({
-                            ...event.target.result
-                        })
-                    } else {
-                        resolve(false)
-                    }
-                };
-            } else {
-                resolve(false)
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function getPageItemsIfAvailable(_url) {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_pages").objectStore("offline_pages").get(_url).onsuccess = event => {
-                    if (event.target.result && event.target.result.url) {
-                        resolve({
-                            ...event.target.result
-                        })
-                    } else {
-                        resolve(false)
-                    }
-                };
-            } else {
-                resolve(false)
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function getFileIfAvailable(eid) {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_items").objectStore("offline_items").get(eid).onsuccess = event => {
-                    if (event.target.result && event.target.result.eid) {
-                        resolve({
-                            ...event.target.result
-                        })
-                    } else {
-                        resolve(false)
-                    }
-                };
-            } else {
-                resolve(false)
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function getShowIfAvailable(showId) {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").get(showId).onsuccess = event => {
-                    if (event.target.result && event.target.result.meta) {
-                        resolve({ ...event.target.result })
-                    } else {
-                        resolve(false)
-                    }
-                };
-            } else {
-                resolve(false)
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function getEpisodesIfAvailable(showId) {
-    return new Promise(async (resolve) => {
-        try {
-            if (browserStorageAvailable && !isNaN(parseInt(showId.toString()))) {
-                const transaction = offlineContent.transaction(["offline_kongou_shows", "offline_kongou_episodes"])
-                const showData = await new Promise((data) => {
-                    transaction.objectStore("offline_kongou_shows").get(parseInt(showId.toString())).onsuccess = event => {
-                        if (event.target.result && event.target.result.meta) {
-                            data({ ...event.target.result })
-                        } else {
-                            data(false)
-                        }
-                    };
-                })
-                if (showData) {
-                    const episodeData = await new Promise((data) => {
-                        transaction.objectStore("offline_kongou_episodes").index('showId').getAll(parseInt(showId.toString())).onsuccess = async (event) => {
-                            if (event.target.result && event.target.result.length > 0) {
-                                const episodes = await Promise.all(event.target.result.map(async episode => {
-                                    const ep_item = await getFileIfAvailable(episode.eid.toString())
-                                    if (ep_item) {
-                                        return {
-                                            ...ep_item,
-                                            media: episode
-                                        }
-                                    } else {
-                                        return false;
-                                    }
-                                }))
-                                data({ show: showData, episodes })
-                            } else {
-                                data(false)
-                            }
-                        };
-                    })
-                    resolve(episodeData);
-                } else {
-                    resolve(false)
-                }
-            } else {
-                resolve(false)
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function getAllOfflinePages() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
-            } else {
-                resolve([])
-            }
-        } catch (e) {
-            console.log(e);
-            resolve([])
-        }
-    })
-}
-async function getAllOfflineSeries() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
-            } else {
-                resolve([])
-            }
-        } catch (e) {
-            console.log(e);
-            resolve([])
-        }
-    })
-}
-async function getAllOfflineFiles() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
-            } else {
-                resolve([]);
-            }
-        } catch (e) {
-            console.log(e);
-            resolve([])
-        }
-    })
-}
-async function getAllOfflineEIDs() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
-                    offlineEntities = [...event.target.result.map(e => e.eid)];
-                    offlineMessages = [...event.target.result.map(e => e.id)];
-                    resolve(true);
-                }
-            } else {
-                resolve(false);
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function deleteOfflinePage(_url, noupdate) {
-    try {
-        const url = params(['limit', 'offset', 'num', '_h'], [], _url);
-        if (url) {
-            const page = await getPageIfAvailable(url);
-            if (page) {
-                let blockedItems = [];
-                const linkedItems = (await getAllOfflinePages()).filter(e => e.url !== url).map(page => blockedItems.push(...page.items))
-                const cachesList = await caches.keys();
-                const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
-                const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
-                const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
-                const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
-                const files = await getAllOfflineFiles();
-                const pageItems = files.filter(e => blockedItems.indexOf(e.eid) === -1 && page.items.indexOf(e.eid) !== -1);
 
-                for (let e of pageItems) {
-                    const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(e.eid);
-                    indexDBUpdate.onsuccess = event => {
-                            if (cdnCache) {
-                                if (e.full_url)
-                                    cdnCache.delete(e.full_url);
-                                if (e.preview_url)
-                                    cdnCache.delete(e.preview_url);
-                                if (e.extpreview_url)
-                                    cdnCache.delete(e.extpreview_url);
-                            }
-                            if (proxyCache) {
-                                if (e.full_url)
-                                    cdnCache.delete(e.full_url);
-                                if (e.preview_url)
-                                    cdnCache.delete(e.preview_url);
-                                if (e.extpreview_url)
-                                    cdnCache.delete(e.extpreview_url);
-                            }
-                        }
-                }
-                if (browserStorageAvailable) {
-                    const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
-                    indexDBUpdate.onsuccess = event => {
-                        if (!noupdate)
-                            $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Removed Page and ${pageItems.length} files`, 5000);
-                        updateNotficationsPanel();
-                        getAllOfflineEIDs();
-                    };
-                } else {
-                    updateNotficationsPanel();
-                }
-            } else {
-                console.error('Could not find the offline content')
-            }
-        } else {
-            console.log('URL not validated')
-        }
-    } catch (err) {
-        console.error(`Uncaught Item Download Error`);
-        console.error(err)
-        $.toast({
-            type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-            subtitle: '',
-            content: `<p>Could not delete offline page</p><p>Internal Application Error: ${err.message}</p>`,
-            delay: 10000,
-        });
-    }
-}
-async function deleteOfflineFile(eid, noupdate, preemptive) {
-    try {
-        let blockedItems = [];
-        const linkedItems = (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
-        const file = await getFileIfAvailable(eid);
-        if (file && (!preemptive || (preemptive && file.preemptive_download)) && blockedItems.indexOf(file.eid) === -1) {
-            const cachesList = await caches.keys();
-            const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
-            const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
-            const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
-            const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
-            if (file.fileid)
-                await removeCacheItem(file.fileid, true)
-
-            if (cdnCache) {
-                if (file.full_url)
-                    cdnCache.delete(file.full_url);
-                if (file.preview_url)
-                    cdnCache.delete(file.preview_url);
-                if (file.extpreview_url)
-                    cdnCache.delete(file.extpreview_url);
-            }
-            if (proxyCache) {
-                if (file.full_url)
-                    cdnCache.delete(file.full_url);
-                if (file.preview_url)
-                    cdnCache.delete(file.preview_url);
-                if (file.extpreview_url)
-                    cdnCache.delete(file.extpreview_url);
-            }
-            if (browserStorageAvailable) {
-                const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(eid);
-                indexDBUpdate.onsuccess = event => {
-                    if (!noupdate) {
-                        $.snack('success', `<i class="fas fa-sd-card pr-2"></i>Removed Offline File`, 5000);
-                        updateNotficationsPanel();
-                    }
-                    getAllOfflineEIDs();
-                    try {
-                        $(`#message-${file.id} .hide-offline`).removeClass('hidden');
-                        $(`#message-${file.id} #offlineReady`).addClass('hidden');
-                    } catch (err) {
-                        console.error('Failed to set offline icons');
-                        console.error(err);
-                    }
-                };
-            } else {
-                if (!noupdate)
-                    updateNotficationsPanel();
-            }
-        }
-    } catch (err) {
-        console.error(`Uncaught Item Download Error`);
-        console.error(err)
-        $.toast({
-            type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-            subtitle: '',
-            content: `<p>Could not delete offline item</p><p>Internal Application Error: ${err.message}</p>`,
-            delay: 10000,
-        });
-    }
-}
-async function clearCache(list) {
-    await caches.keys().then(cacheNames => {
-        console.log(`Local Caches Stores:`);
-        return Promise.all(
-            cacheNames.filter(e => !list || (list && list.filter(f => e.includes(f)).length > 0)).map(cache => {
-                console.log(cache)
-                console.log('JulyOS Kernel: Deleteing Old Cache - ' + cache);
-                return caches.delete(cache);
-            })
-        );
-    })
-}
-async function clearKernelCache() {
-    await clearCache(['generic', 'kernel', 'config']);
-    window.location.reload();
-}
-async function clearAllOfflineData() {
-    $('#cacheModal').modal('hide');
-    (await getAllOfflinePages()).map(async e => await deleteOfflinePage(e.url, true));
-    (await getAllOfflineFiles()).map(async e => await deleteOfflineFile(e.eid, true));
-}
-async function displayOfflineData() {
-    let linkedEids = [];
-    let linkedFileids = [];
-    const pages = await getAllOfflinePages();
-    const pageRows = pages.map((e,i) => {
-        let icon = 'fa-page';
-        if (e.url.includes('/gallery'))
-            icon = 'fa-image'
-        if (e.url.includes('/files'))
-            icon = 'fa-folder'
-        if (e.url.includes('/cards'))
-            icon = 'fa-message'
-        if (e.url.includes('album='))
-            icon = 'fa-archive'
-        if (e.items)
-            linkedEids.push(...e.items);
-
-        return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
-            <div class="px-2"><i class="fas ${icon}"></i></div>
-            <div class="w-100"><span>${e.title}</span></div>
-            <div class="d-flex">
-                <a class="p-2" href="#_" onclick="cachePageOffline(undefined, '${e.url}'); return false">
-                    <i class="fas fa-arrows-rotate"></i>
-                </a>
-                <a class="p-2" href="#_" onclick="deleteOfflinePage('${e.url}'); document.getElementById('cachePageItem-${i}').remove(); return false">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-        </div>`
-    });
-
-    if (pageRows.length > 0) {
-        document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
-    } else {
-        document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
-    }
-
-    const files = await getAllOfflineFiles();
-    linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
-    const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
-        let icon = 'fa-file';
-        if (e.data_type === 'image')
-            icon = 'fa-image'
-        if (e.data_type === 'video')
-            icon = 'fa-film'
-        if (e.data_type === 'audio')
-            icon = 'fa-music'
-
-        return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
-            <div class="px-2"><i class="fas ${icon}"></i></div>
-            <div class="w-100"><span>${e.filename}</span></div>
-            <div class="d-flex">
-                <a class="p-2" href="#_" onclick="deleteOfflineFile('${e.eid}'); document.getElementById('cacheItemItem-${i}').remove(); return false">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-        </div>`
-    });
-
-    if (fileRows.length > 0) {
-        document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
-    } else {
-        document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
-    }
-
-    const offlineSpannedFiles = await getAllOfflineSpannedFiles();
-    const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
-        return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
-            <div class="px-2"><i class="fas fa-box-open"></i></div>
-            <div class="w-100"><span>${e.filename}</span></div>
-            <div class="d-flex">
-                <a class="p-2" href="#_" onclick="removeCacheItem('${e.id}'); document.getElementById('cacheSpanItem-${i}').remove(); return false">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-        </div>`
-    });
-
-    if (spannedRows.length > 0) {
-        document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
-    } else {
-        document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
-    }
-
-    $('#cacheModal').modal('show');
-}
 async function generateGalleryHTML(url, eids) {
     $("#userMenu").collapse("hide");
     try {
@@ -2031,7 +1395,7 @@ async function generateGalleryHTML(url, eids) {
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
-            const files = await getAllOfflineFiles();
+            const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
             const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
                 if (eids)
                     return eids.indexOf(a.eid) - eids.indexOf(b.eid);
@@ -2132,7 +1496,7 @@ async function generateFilesHTML(url, eids) {
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
-            const files = await getAllOfflineFiles();
+            const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
             const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
                 if (eids)
                     return eids.indexOf(a.eid) - eids.indexOf(b.eid);
@@ -2231,7 +1595,7 @@ async function generateShowsHTML(url) {
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
-            const shows = await getAllOfflineSeries();
+            const shows = await kernelRequestData({type: 'GET_STORAGE_ALL_KMS_SHOW'})
             const allResults = shows.sort(function(a, b){
                 return b.name - a.name;
             });
@@ -2317,7 +1681,7 @@ async function generateEpisodeHTML(url) {
         $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const showId = _params.getAll('show_id')[0];
-            const episodes = await getEpisodesIfAvailable(showId);
+            const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
 
             if (episodes && episodes.episodes && episodes.show) {
                 resultRows = await Promise.all(episodes.episodes.sort(function(a, b){
@@ -2434,64 +1798,6 @@ async function generateEpisodeHTML(url) {
     }
 }
 
-async function getSpannedFileIfAvailable(fileid) {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("spanned_files").objectStore("spanned_files").get(fileid).onsuccess = event => {
-                    if (event.target.result && event.target.result.id && event.target.result.block) {
-                        let url
-                        if (!tempURLController.has(event.target.result.id)) {
-                            url = window.URL.createObjectURL(event.target.result.block)
-                            tempURLController.set(event.target.result.id, url);
-                        } else {
-                            url = tempURLController.get(event.target.result.id);
-                        }
-                        resolve({
-                            ...event.target.result,
-                            href: url
-                        })
-                    } else {
-                        resolve(false)
-                    }
-                };
-            } else {
-                resolve(false)
-            }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
-        }
-    })
-}
-async function getAllOfflineSpannedFiles() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("spanned_files").objectStore("spanned_files").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
-                        let url
-                        if (!tempURLController.has(e.id)) {
-                            url = window.URL.createObjectURL(e.block)
-                            tempURLController.set(e.id, url);
-                        } else {
-                            url = tempURLController.get(e.id);
-                        }
-                        return {
-                            ...e,
-                            href: url
-                        }
-                    }))
-                }
-            } else {
-                resolve([]);
-            }
-        } catch (e) {
-            console.log(e);
-            resolve([])
-        }
-    })
-}
 async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile, doc) {
     const _post = (doc) ? doc.querySelector(`#message-${messageid}`) : document.getElementById(`message-${messageid}`);
     const fileid = _post.getAttribute('data-msg-fileid');
@@ -2503,7 +1809,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
     if (fileid && fileid.length > 0) {
         const element = document.getElementById(`fileData-${fileid}`);
         const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid);
-        const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getSpannedFileIfAvailable(fileid)
+        const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getSpannedFileIfAvailable(fileid);
 
         if (fastAccess) {
             if (downloadPreemptive) {
@@ -2628,149 +1934,77 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                     link.click();
                 }
             }
-        } else if (downloadSpannedController.size === 0 && !activeSpannedJob) {
-            downloadSpannedController.set(fileid, {
+        } else {
+            unpackingJobs.set(fileid, {
                 id: fileid,
+                messageid,
                 name: filename,
                 size: filesize,
                 channel: channelString,
                 preemptive: downloadPreemptive,
-                offline: offlineFile,
-                pending: true,
-                ready: true,
+                offline: true,
+                expires: (!offlineFile) ? (new Date().getTime()) + 3600000: false,
                 play: playThis
             })
-            if (downloadPreemptive) {
-                console.log(`Preemptive Download for ${filename}`);
-            } else if (playThis === 'kms-video' && !downloadPreemptive) {
-                const kmsprogress = _post.getAttribute('data-kms-progress');
-                if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
-                    document.getElementById('kmsWarningProgress').classList.remove('hidden');
-                }
-                document.getElementById('kmsWarningQuality').classList.remove('hidden');
-            } else if (!playThis || playThis !== 'video') {
-                $.toast({
-                    type: 'success',
-                    title: 'Unpack File',
-                    subtitle: 'Now',
-                    content: `File is unpacking, check active jobs for progress`,
-                    delay: 5000,
-                });
-            }
-            updateNotficationsPanel();
-            notificationControler = setInterval(updateNotficationsPanel, 1000);
-            while (downloadSpannedController.size !== 0) {
-                const itemToGet = Array.from(downloadSpannedController.keys())[0]
-                activeSpannedJob = downloadSpannedController.get(itemToGet)
-                if (activeSpannedJob.ready && activeSpannedJob.pending) {
-                    const download = await unpackFile();
-                    if (download) {
-                        if (downloadPreemptive && offlineFile) {
-                            console.log(`File ${filename} is ready`)
-                        } else {
-                            memorySpannedController.push(activeSpannedJob);
-                            const element = document.getElementById(`fileData-${activeSpannedJob.id}`);
-                            if (element && !downloadPreemptive) {
-                                if (activeSpannedJob.play) {
-                                    console.log(`Launching File...`)
-                                    if (activeSpannedJob.play === 'audio') {
-                                        PlayTrack(element.href);
-                                    } else if (activeSpannedJob.play === 'video') {
-                                        $('#videoBuilderModal').modal('hide');
-                                        const videoPlayer = videoModel.querySelector('video')
-                                        videoPlayer.pause();
-                                        memoryVideoPositions.set(activeSpannedJob.id, videoPlayer.currentTime);
-                                        PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, activeSpannedJob.id);
-                                    } else if (activeSpannedJob.play === 'kms-video') {
-                                        const kmsprogress = _post.getAttribute('data-kms-progress');
-                                        if (kongouMediaVideoPreview.currentTime !== kongouMediaVideoPreview.duration)
-                                            memoryVideoPositions.set(activeSpannedJob.id, kongouMediaVideoPreview.currentTime);
-                                        kongouMediaVideoFull.src = element.href;
-                                        kongouMediaVideoFull.volume = 0;
-                                        try {
-                                            await kongouMediaVideoFull.play();
-                                        } catch (err) {
-                                            console.error(err)
-                                        }
-                                        ;
-
-                                        if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
-                                            kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
-                                        } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
-                                            if (!kmsPreviewPrematureEnding && kongouMediaVideoPreview.currentTime && kmsPreviewLastPostion < 5) {
-                                                kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
-                                            } else {
-                                                kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
-                                            }
-                                        }
-                                        setTimeout(async () => {
-                                            if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
-                                                kongouMediaVideoFull.pause();
-                                            } else if (kongouMediaVideoFull.paused) {
-                                                try {
-                                                    await kongouMediaVideoFull.play();
-                                                } catch (err) {
-                                                    console.error(err);
-                                                }
-                                            }
-                                            kongouMediaVideoPreview.pause();
-                                            kongouMediaVideoPreview.classList.add('hidden');
-                                            kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
-                                            kmsPreviewLastPostion = null;
-                                            kmsPreviewPrematureEnding = false;
-                                            clearInterval(kmsPreviewInterval)
-                                            kmsPreviewInterval = null;
-                                            kongouMediaVideoFull.classList.remove('hidden');
-                                            kongouControlsSeekUnavalible.classList.remove('no-seeking');
-                                            document.getElementById('kmsWarningProgress').classList.add('hidden');
-                                            document.getElementById('kmsWarningQuality').classList.add('hidden');
-                                        }, 100);
-                                    } else {
-                                        console.error('No Datatype was provided')
-                                    }
-                                } else {
-                                    element.click();
-                                }
-                            } else {
-                                console.error('Data lost!')
+            const responseMessage = await kernelRequestData({type: 'UNPACK_FILE', options: {
+                    id: fileid,
+                    messageid,
+                    name: filename,
+                    size: filesize,
+                    channel: channelString,
+                    preemptive: downloadPreemptive,
+                    offline: true,
+                    expires: (!offlineFile) ? (new Date().getTime()) + 3600000: false,
+                    play: playThis
+                }})
+            if (responseMessage && responseMessage.type && responseMessage.fileid) {
+                switch (responseMessage.type) {
+                    case 'STATUS_UNPACK_STARTED':
+                        if (downloadPreemptive) {
+                            console.log(`Preemptive Download for ${filename}`);
+                        } else if (playThis === 'kms-video' && !downloadPreemptive) {
+                            // TODO: Check if unpacking applys to active video
+                            const kmsprogress = _post.getAttribute('data-kms-progress');
+                            if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05) {
+                                document.getElementById('kmsWarningProgress').classList.remove('hidden');
                             }
+                            document.getElementById('kmsWarningQuality').classList.remove('hidden');
+                        } else if (!playThis || playThis !== 'video') {
+                            $.toast({
+                                type: 'success',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File is unpacking, check active jobs for progress`,
+                                delay: 5000,
+                            });
                         }
-                    }
+                        break;
+                    case 'STATUS_UNPACK_QUEUED':
+                        if (!playThis || (playThis && playThis !== 'video' && !downloadPreemptive)) {
+                            $.toast({
+                                type: 'success',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File is added to unpack queue`,
+                                delay: 5000,
+                            });
+                        }
+                        break;
+                    case 'STATUS_UNPACK_DUPLICATE':
+                        break;
+                    case 'STATUS_UNPACK_FAILED':
+                        $.toast({
+                            type: 'error',
+                            title: 'Unpack Failed',
+                            subtitle: 'Now',
+                            content: `File failed to start unpacking`,
+                            delay: 5000,
+                        });
+                        break;
+                    default:
+                        break;
                 }
-                downloadSpannedController.delete(itemToGet);
-
-                console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
             }
-            activeSpannedJob = false;
-        } else if (!downloadSpannedController.has(fileid)) {
-            downloadSpannedController.set(fileid, {
-                id: fileid,
-                name: filename,
-                size: filesize,
-                channel: channelString,
-                preemptive: downloadPreemptive,
-                offline: offlineFile,
-                pending: true,
-                ready: true,
-                play: playThis
-            })
-            if (!playThis || (playThis && playThis !== 'video' && !downloadPreemptive)) {
-                $.toast({
-                    type: 'success',
-                    title: 'Unpack File',
-                    subtitle: 'Now',
-                    content: `File is added to unpack queue`,
-                    delay: 5000,
-                });
-            }
-        } else if (!downloadPreemptive) {
-            $.toast({
-                type: 'warning',
-                title: 'Unpack File',
-                subtitle: 'Now',
-                content: `File is already added to queued`,
-                delay: 5000,
-            });
         }
     }
 }
@@ -2783,13 +2017,9 @@ async function openPreviewUnpacking(messageid) {
     const previewURL = _post.getAttribute('data-msg-url-preview');
     const fullURL = _post.getAttribute('data-msg-url-full');
 
-    const element = document.getElementById(`fileData-${fileid}`);
-    const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid)
-    const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getSpannedFileIfAvailable(fileid)
-    const href = (element) ? element.href : (storedFile.href) ? storedFile.href : false;
-    if (element && memoryJobIndex.length > 0) {
-        PlayVideo(element.href, `${activeSpannedJob.channel}/${activeSpannedJob.name} (${activeSpannedJob.size})`, fileid);
-    } else if (storedFile) {
+    const storedFile = await getSpannedFileIfAvailable(fileid);
+    const href = (storedFile.href) ? storedFile.href : false;
+    if (storedFile) {
         PlayVideo(href, `${storedFile.channel}/${storedFile.name} (${storedFile.size})`, fileid);
     } else {
         const videoModel = document.getElementById('videoBuilderModal');
@@ -2852,283 +2082,11 @@ async function cancelPendingUnpack() {
     $('#videoBuilderModal').modal('hide');
 }
 async function stopUnpackingFiles(fileid) {
-    if (downloadSpannedController.has(fileid)) {
-        const _controller = downloadSpannedController.get(fileid)
-        if (_controller.pending === true) {
-            _controller.pending = false;
-            _controller.ready = false;
-            downloadSpannedController.delete(fileid)
-        } else {
-            activeSpannedJob.abort.abort();
-            activeSpannedJob = null;
-            downloadSpannedController.delete(fileid);
-        }
-    }
+    unpackingJobs.delete(fileid)
+    kernelRequestData({type: 'CANCEL_UNPACK_FILE', fileid})
 }
-async function unpackFile() {
-    if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
-        console.log(`Downloading File ${activeSpannedJob.id}...`)
-        activeSpannedJob.pending = false;
-        const videoModel = document.getElementById('videoBuilderModal');
-        const videoStatus = videoModel.querySelector('span.status-text');
-        const videoProgress = videoModel.querySelector('.progress > .progress-bar');
-        const kmsStatus = kongouMediaPlayer.querySelector('.kms-status-bar > span');
-        const kmsProgress = kongouMediaPlayer.querySelector('.kms-progress-bar');
-
-        videoStatus.innerText = 'Getting Parity Metadata...';
-        return await new Promise(async (job) => {
-            $.ajax({
-                async: true,
-                url: `/parity/${activeSpannedJob.id}`,
-                type: "GET",
-                data: '',
-                processData: false,
-                contentType: false,
-                headers: {
-                    'X-Requested-With': 'SequenziaXHR',
-                    'x-Requested-Page': 'SeqClientUnpacker'
-                },
-                success: async function (response, textStatus, xhr) {
-                    if (xhr.status < 400) {
-                        try {
-                            activeSpannedJob = {
-                                ...response,
-                                ...activeSpannedJob,
-                                progress: '0%',
-                                abort: new AbortController(),
-                                blobs: []
-                            };
-
-                            console.log(activeSpannedJob)
-                            if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
-                                if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
-                                    videoStatus.innerText = `Expecting ${activeSpannedJob.expected_parts} Parts`;
-                                    let pendingBlobs = {}
-                                    let retryBlobs = {}
-                                    activeSpannedJob.parts.map((e,i) => {
-                                        pendingBlobs[i] = e;
-                                        retryBlobs[i] = 0;
-                                    })
-                                    function calculatePercent() {
-                                        const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
-                                        activeSpannedJob.progress = `${percentage.toFixed(0)}%`;
-                                        videoStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length} Blocks, ${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Pending`;
-                                        videoProgress.style.width = activeSpannedJob.progress;
-                                        kmsStatus.innerText = `Downloaded ${activeSpannedJob.blobs.length}/${activeSpannedJob.parts.length - activeSpannedJob.blobs.length} Blocks`;
-                                        kmsProgress.style.width = activeSpannedJob.progress;
-                                    }
-                                    kongouMediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
-                                    console.log(Object.keys(pendingBlobs))
-                                    while (Object.keys(pendingBlobs).length !== 0) {
-                                        if (!activeSpannedJob.ready)
-                                            break;
-                                        let downloadKeys = Object.keys(pendingBlobs).slice(0,8)
-                                        const results = await Promise.all(downloadKeys.map(async item => {
-                                            return new Promise(ok => {
-                                                axios({
-                                                    url: pendingBlobs[item],
-                                                    method: 'GET',
-                                                    signal: activeSpannedJob.abort.signal,
-                                                    responseType: 'blob'
-                                                })
-                                                    .then((block) => {
-                                                        console.log(`Downloaded Parity ${item}`)
-                                                        activeSpannedJob.blobs[item] = block.data;
-                                                        calculatePercent();
-                                                        delete pendingBlobs[item];
-                                                        ok(true);
-                                                    })
-                                                    .catch(e => {
-                                                        console.error(`Failed Parity ${item} (Retry attempt #${retryBlobs[item]}) - ${e.message}`)
-                                                        retryBlobs[item] = retryBlobs[item] + 1
-                                                        if (retryBlobs[item] > 3) {
-                                                            if (activeSpannedJob)
-                                                                activeSpannedJob.ready = false;
-                                                            ok(false);
-                                                        } else {
-                                                            ok(null);
-                                                        }
-                                                    })
-                                            })
-                                        }))
-                                        if (results.filter(e => e === false).length > 0)
-                                            break;
-                                    }
-
-                                    if (activeSpannedJob && activeSpannedJob.blobs.length === activeSpannedJob.expected_parts) {
-                                        activeSpannedJob.progress = `100%`;
-                                        let blobType = {}
-                                        if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                            blobType.type = 'video/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
-                                        if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                            blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
-
-                                        const finalBlock = new Blob(activeSpannedJob.blobs, blobType);
-                                        if (browserStorageAvailable && activeSpannedJob.offline) {
-                                            try {
-                                                offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').put({
-                                                    ...activeSpannedJob,
-                                                    block: finalBlock,
-                                                    parts: undefined,
-                                                    expected_parts: undefined,
-                                                    pending: undefined,
-                                                    ready: undefined,
-                                                    blobs: undefined,
-                                                    abort: undefined,
-                                                    progress: undefined,
-                                                    offline: undefined,
-                                                }).onsuccess = event => {
-                                                    console.log(event);
-                                                    console.log(`File Saved Offline!`);
-                                                };
-                                            } catch (e) {
-                                                console.error(`Failed to save block ${activeSpannedJob.id}`);
-                                                console.error(e);
-                                            }
-                                        }
-                                        if (!(activeSpannedJob.offline && activeSpannedJob.preemptive)) {
-                                            const finalUrl = window.URL.createObjectURL(finalBlock)
-                                            tempURLController.set(activeSpannedJob.id, finalUrl);
-                                            const downloadedFile = finalUrl;
-                                            const link = document.createElement('a');
-                                            link.id = `fileData-${activeSpannedJob.id}`
-                                            link.classList = `hidden`
-                                            link.href = downloadedFile;
-                                            link.setAttribute('download', activeSpannedJob.filename);
-                                            document.body.appendChild(link);
-                                        }
-
-                                        videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
-                                        kmsStatus.innerText = ``;
-                                        kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden')
-                                        if (!activeSpannedJob.preemptive) {
-                                            $.toast({
-                                                type: 'success',
-                                                title: 'Unpack File',
-                                                subtitle: 'Now',
-                                                content: `File was unpacked successfully<br/>${activeSpannedJob.filename}`,
-                                                delay: 15000,
-                                            });
-                                        }
-                                        job(true);
-                                    } else {
-                                        videoStatus.innerText = `Failed, Not all blocks where downloaded`;
-                                        videoProgress.classList.remove('bg-success');
-                                        videoProgress.classList.add('bg-danger');
-                                        kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
-                                        kmsProgress.classList.remove('bg-success');
-                                        kmsProgress.classList.add('bg-danger');
-                                        $.toast({
-                                            type: 'error',
-                                            title: 'Unpack File',
-                                            subtitle: 'Now',
-                                            content: `Missing a downloaded parity file, Retry to download!`,
-                                            delay: 15000,
-                                        });
-                                        job(false);
-                                    }
-                                } else {
-                                    videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
-                                    videoProgress.classList.remove('bg-success');
-                                    videoProgress.classList.add('bg-danger');
-                                    kmsStatus.innerText = `File is damaged or is missing blocks!`;
-                                    kmsProgress.classList.remove('bg-success');
-                                    kmsProgress.classList.add('bg-danger');
-                                    $.toast({
-                                        type: 'error',
-                                        title: 'Unpack File',
-                                        subtitle: 'Now',
-                                        content: `File is damaged or is missing parts, please report to the site administrator!`,
-                                        delay: 15000,
-                                    });
-                                    job(false);
-                                }
-                            } else {
-                                videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
-                                videoProgress.classList.remove('bg-success');
-                                videoProgress.classList.add('bg-danger');
-                                kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
-                                kmsProgress.classList.remove('bg-success');
-                                kmsProgress.classList.add('bg-danger');
-                                $.toast({
-                                    type: 'error',
-                                    title: 'Unpack File',
-                                    subtitle: 'Now',
-                                    content: `Failed to read the parity metadata response!`,
-                                    delay: 15000,
-                                });
-                                job(false);
-                            }
-                        } catch (e) {
-                            console.error(e);
-                            videoStatus.innerText = `Handler Failure: ${e.message}`;
-                            videoProgress.classList.remove('bg-success');
-                            videoProgress.classList.add('bg-danger');
-                            kmsStatus.innerText = `Handler Failure: ${e.message}`;
-                            kmsProgress.classList.remove('bg-success');
-                            kmsProgress.classList.add('bg-danger');
-                            $.toast({
-                                type: 'error',
-                                title: 'Unpack File',
-                                subtitle: 'Now',
-                                content: `File Handeler Fault!<br/>${e.message}`,
-                                delay: 15000,
-                            });
-                            job(false);
-                        }
-                    } else {
-                        videoStatus.innerText = `Server Error: ${response}`;
-                        videoProgress.classList.remove('bg-success');
-                        videoProgress.classList.add('bg-danger');
-                        kmsStatus.innerText = `Server Error: ${response}`;
-                        kmsProgress.classList.remove('bg-success');
-                        kmsProgress.classList.add('bg-danger');
-                        $.toast({
-                            type: 'error',
-                            title: 'Unpack File',
-                            subtitle: 'Now',
-                            content: `File failed to unpack!<br/>${response}`,
-                            delay: 15000,
-                        });
-                        job(false);
-                    }
-                    if (activeSpannedJob) {
-                        activeSpannedJob.blobs = null;
-                        activeSpannedJob.parts = null;
-                        delete activeSpannedJob.blobs;
-                        delete activeSpannedJob.parts;
-                    }
-                },
-                error: function (xhr) {
-                    videoStatus.innerText = `Server Error: ${xhr.responseText}`;
-                    videoProgress.classList.remove('bg-success');
-                    videoProgress.classList.add('bg-danger');
-                    kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
-                    kmsProgress.classList.remove('bg-success');
-                    kmsProgress.classList.add('bg-danger');
-                    $.toast({
-                        type: 'error',
-                        title: 'Unpack File',
-                        subtitle: 'Now',
-                        content: `File failed to unpack!<br/>${xhr.responseText}`,
-                        delay: 15000,
-                    });
-                    activeSpannedJob.blobs = null;
-                    activeSpannedJob.parts = null;
-                    delete activeSpannedJob.blobs;
-                    delete activeSpannedJob.parts;
-                    console.error(xhr.responseText);
-                    job(false);
-                }
-            });
-        })
-    } else {
-        return false
-    }
-}
-async function removeCacheItem(id, noupdate) {
+async function removeCacheItem(id) {
     const file = await getSpannedFileIfAvailable(id);
-    memorySpannedController = memorySpannedController.filter(e => e.id !== id);
     const link = document.getElementById('fileData-' + id);
     if (link) {
         window.URL.revokeObjectURL(link.href);
@@ -3137,24 +2095,7 @@ async function removeCacheItem(id, noupdate) {
         window.URL.revokeObjectURL(file.href);
     }
     if (file) {
-        if (browserStorageAvailable) {
-            const indexDBUpdate = offlineContent.transaction(["spanned_files"], "readwrite").objectStore("spanned_files").delete(id);
-            indexDBUpdate.onsuccess = event => {
-                if (!noupdate)
-                    updateNotficationsPanel();
-                getAllOfflineEIDs();
-            };
-        } else {
-            $.toast({
-                type: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                subtitle: '',
-                content: `<p>Failed access offline storage databsae!</p>`,
-                delay: 10000,
-            });
-        }
-    } else if (!noupdate) {
-        updateNotficationsPanel();
+        await kernelRequestData({type: 'REMOVE_STORAGE_SPANNED_FILE', fileid: id});
     }
 }
 
@@ -3515,7 +2456,10 @@ async function checkKMSTimecode() {
         await saveCurrentTimeKMS();
         if (!isReady && ((kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.55)) {
             kongouMediaPlayer.setAttribute('nextVideoReady', 'true');
-            cacheEpisodeOffline(messageid, true, true, activeDoc);
+            const element = activeDoc.querySelector('#message-' + messageid);
+            if (element) {
+                cacheEpisodeOffline(element, true, true)
+            }
         }
     }
 }
@@ -3535,19 +2479,17 @@ async function searchSeriesList(obj) {
 }
 
 async function updateNotficationsPanel() {
-    if (downloadSpannedController.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0) {
-        const keys = Array.from(downloadSpannedController.keys()).map(e => {
-            const item = downloadSpannedController.get(e);
-            if (item.ready) {
+    if (unpackingJobs.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0) {
+        let activeSpannedJob = false;
+        const keys = Array.from(unpackingJobs.keys()).map(e => {
+            const item = unpackingJobs.get(e);
+            if (item.active) {
                 let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
-                if (!item.pending) {
-                    results.push(`<i class="fas fa-spinner fa-spin-pulse"></i>`);
-                    results.push(`<span class="text-ellipsis pl-2">${item.name} (${item.size})</span>`);
-                    if (activeSpannedJob && activeSpannedJob.progress) {
-                        results.push(`<span class="pl-2 text-success">${activeSpannedJob.progress}</span>`);
-                    }
-                } else {
-                    results.push(`<span>${item.name} (${item.size})</span>`)
+                results.push(`<i class="fas fa-spinner fa-spin-pulse"></i>`);
+                results.push(`<span class="text-ellipsis pl-2">${item.name} (${item.size})</span>`);
+                if (item.progress) {
+                    activeSpannedJob = true;
+                    results.push(`<span class="pl-2 text-success">${item.progress}%</span>`);
                 }
                 results.push(`</a>`);
                 return results.join('\n');
@@ -3611,49 +2553,6 @@ async function updateNotficationsPanel() {
                 return results.join('\n');
             }))
         }
-        /*if (offlineFiles.length > 0) {
-            if (keys.length > 0)
-                completedKeys.push(`<div class="dropdown-divider"></div>`);
-            completedKeys.push(...offlineFiles.map(item => {
-                let results = [];
-                const element = document.getElementById(`fileData-${item.id}`);
-                results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
-                if (item.play) {
-                    let clickAction = undefined;
-                    if (item.play === 'video' || item.play === 'kms-video') {
-                        clickAction = `PlayVideo('${item.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
-                    } else if (item.play === 'audio') {
-                        clickAction = `PlayTrack('${item.href}');`
-                        clickAction = `PlayTrack('${item.href}');`
-                    }
-                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
-                } else {
-                    results.push(`<a class="text-ellipsis mr-auto" style="max-width: 80vw;"  title="Save File" href="${item.href}" role='button')>`);
-                }
-                if (item.play) {
-                    if (item.play === 'video' || item.play === 'kms-video') {
-                        results.push(`<i class="fas fa-film mr-1"></i>`)
-                    } else if (item.play === 'audio') {
-                        results.push(`<i class="fas fa-music mr-1"></i>`)
-                    } else {
-                        results.push(`<i class="fas fa-file mr-1"></i>`)
-                    }
-                }
-                results.push(`<span>${item.name} (${item.size})</span>`)
-                if (item.play) {
-                    results.push(`</a>`);
-                    results.push(`<a title="Save File" href='#_' onclick="document.getElementById('fileData-${item.id}').click(); return false;">`);
-                    results.push(`<i class="fas fa-download px-2"></i>`)
-                    results.push(`</a>`);
-                }
-                results.push(`</a>`);
-                results.push(`<a title="Remove File from Offline Storage" href='#_' onclick="removeCacheItem('${item.id}'); return false;">`);
-                results.push(`<i class="fas fa-trash-alt px-2"></i>`)
-                results.push(`</a>`);
-                results.push(`</div>`)
-                return results.join('\n');
-            }))
-        }*/
         if (document.getElementById('statusPanel')) {
             $('#statusPanel').removeClass('hidden');
             if (keys.length > 0 || offlineKeys.length > 0 || completedKeys.length > 0) {
@@ -3677,9 +2576,9 @@ async function updateNotficationsPanel() {
                 document.getElementById('statusMenuIndicator').classList = 'fas pl-1 fa-square-0';
             }
         }
-        if (activeSpannedJob && activeSpannedJob.progress) {
+        if (activeSpannedJob) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-laptop-arrow-down fa-fade';
-        } else if (downloadSpannedController.size !== 0) {
+        } else if (unpackingJobs.size !== 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
         } else if (offlineKeys.length > 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cloud-download fa-fade';
@@ -3846,7 +2745,7 @@ async function showSearchOptions(post) {
             modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-download')
             modalOfflineThisButton.querySelector('i').classList.add('fa-cloud-xmark')
             modalOfflineThisButton.onclick = function () {
-                deleteOfflineFile(postEID, false);
+                deleteOfflineFile(postEID)
                 $('#searchModal').modal('hide');
                 return false;
             }
@@ -3855,13 +2754,19 @@ async function showSearchOptions(post) {
             modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-xmark')
             if (postKMSJSON) {
                 modalOfflineThisButton.onclick = function () {
-                    cacheEpisodeOffline(postID, false);
+                    const element = document.querySelector('#message-' + postID);
+                    if (element) {
+                        cacheEpisodeOffline(element)
+                    }
                     $('#searchModal').modal('hide');
                     return false;
                 }
             } else {
                 modalOfflineThisButton.onclick = function () {
-                    cacheFileOffline(postID, false);
+                    const element = document.querySelector('#message-' + postID);
+                    if (element) {
+                        cacheFileOffline(element);
+                    }
                     $('#searchModal').modal('hide');
                     return false;
                 }
@@ -5090,7 +3995,6 @@ function afterAction(action, data, id, confirm) {
                 }
             });
         } else if (action === 'MovePost' || action === 'RemovePost' || action === 'ArchivePost') {
-            itemsRemoved++;
             try {
                 message.remove();
             } catch (e) {
@@ -5267,8 +4171,356 @@ function registerDateHandlers() {
     }, applyDate);
 }
 
+function serviceWorkerMessageAsync(message) {
+    return navigator.serviceWorker.controller.postMessage(message, [networkKernelChannel.port2]);
+}
+function kernelRequestData(message) {
+    return new Promise(function(resolve, reject) {
+        const messageChannel = new MessageChannel();
+        messageChannel.port1.onmessage = function(event) {
+            if (event.data && event.data.error) {
+                console.error(event.data.error);
+                reject(false);
+            } else {
+                resolve(event.data);
+            }
+        };
+        navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+    });
+}
+
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.onmessage = function (e) {
-        console.log('e.data', e.data);
+    navigator.serviceWorker.ready.then((registration) => {
+        console.log(`Service Worker is ready!`);
+        serviceWorkerReady = true;
+        serviceWorkerMessageAsync({
+            type: 'PING',
+        })
+    });
+    // Global Channel
+    navigator.serviceWorker.onmessage = async function (event) {
+        switch (event.data.type) {
+            case 'STATUS_STORAGE_CACHE_LIST':
+                console.log('Status Storage Cache Update Got')
+                offlineEntities = event.data.entities;
+                offlineMessages = event.data.messages;
+                break;
+            case 'STATUS_UNPACK_PROGRESS':
+                break;
+            case 'STATUS_STORAGE_CACHE_UNMARK':
+                $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
+                $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
+                break;
+            case 'STATUS_STORAGE_CACHE_MARK':
+                $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
+                $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
+                break;
+            case 'STATUS_UNPACK_COMPLETED':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    setTimeout(() => {
+                        unpackingJobs.delete(event.data.fileid);
+                        updateNotficationsPanel();
+                    }, 1000);
+                }
+                break;
+            case 'STATUS_UNPACK_FAILED':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    console.error(`Failed to unpack file ${event.data.fileid}`)
+                    setTimeout(() => {
+                        unpackingJobs.delete(event.data.fileid);
+                        updateNotficationsPanel();
+                    }, 1000);
+                }
+                break;
+            case 'STATUS_UNPACKER_ACTIVE':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    const dataJob = unpackingJobs.get(event.data.fileid);
+                    switch (event.data.action) {
+                        case 'GET_METADATA':
+                            console.log(`Downloading File ${event.data.fileid}...`);
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                kmsStatus.innerText = 'Getting Parity Metadata...';
+                            }
+                            if (!dataJob.active) {
+                                unpackingJobs.set(event.data.fileid, {
+                                    ...dataJob,
+                                    active: true
+                                })
+                            }
+                            break;
+                        case 'EXPECTED_PARTS':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                videoStatus.innerText = `Expecting ${event.data.expected_parts} Parts`;
+                            }
+                            if (!dataJob.active) {
+                                unpackingJobs.set(event.data.fileid, {
+                                    ...dataJob,
+                                    active: true
+                                })
+                            }
+                            break;
+                        case 'FETCH_PARTS_PROGRESS':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                videoStatus.innerText = `Downloaded ${event.data.fetchedBlocks} Blocks, ${event.data.pendingBlocks} Pending`;
+                                videoProgress.style.width = event.data.percentage + '%';
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === dataJob.messageid) {
+                                kmsStatus.innerText = `Downloaded ${event.data.fetchedBlocks}/${event.data.pendingBlocks} Blocks`;
+                                kmsProgress.style.width = event.data.percentage + '%';
+                            }
+                            unpackingJobs.set(event.data.fileid, {
+                                ...dataJob,
+                                active: true,
+                                progress: event.data.percentage
+                            })
+                            break;
+                        case 'BLOCKS_ACQUIRED':
+                            console.log(dataJob)
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === dataJob.messageid) {
+                                kmsStatus.innerText = ``;
+                                kmsProgress.style.width = '0%';
+                                kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden');
+                            }
+                            if (!dataJob.preemptive) {
+                                $.toast({
+                                    type: 'success',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File was unpacked successfully<br/>${dataJob.name}`,
+                                    delay: 15000,
+                                });
+                            }
+                            if (!(dataJob.offline && dataJob.preemptive)) {
+                                const fileData = await getSpannedFileIfAvailable(event.data.fileid);
+                                if (fileData) {
+                                    const element = document.createElement('a');
+                                    element.id = `fileData-${event.data.fileid}`
+                                    element.classList = `hidden`
+                                    element.href = fileData.href;
+                                    element.setAttribute('download', dataJob.name);
+                                    document.body.appendChild(element);
+
+                                    if (element && !dataJob.preemptive) {
+                                        if (dataJob.play) {
+                                            console.log(`Launching File...`)
+                                            if (dataJob.play === 'audio') {
+                                                PlayTrack(element.href);
+                                            } else if (dataJob.play === 'video') {
+                                                $('#videoBuilderModal').modal('hide');
+                                                const videoPlayer = videoModel.querySelector('video')
+                                                videoPlayer.pause();
+                                                memoryVideoPositions.set(dataJob.id, videoPlayer.currentTime);
+                                                PlayVideo(element.href, `${dataJob.channel}/${dataJob.name} (${dataJob.size})`, event.data.id);
+                                            } else if (dataJob.play === 'kms-video') {
+                                                const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
+                                                const _post = (activeDoc) ? activeDoc.querySelector(`#message-${dataJob.messageid}`) : document.getElementById(`message-${dataJob.messageid}`);
+                                                const kmsprogress = _post.getAttribute('data-kms-progress');
+
+                                                if (kongouMediaVideoPreview.currentTime !== kongouMediaVideoPreview.duration)
+                                                    memoryVideoPositions.set(event.data.id, kongouMediaVideoPreview.currentTime);
+                                                kongouMediaVideoFull.src = element.href;
+                                                kongouMediaVideoFull.volume = 0;
+                                                try {
+                                                    await kongouMediaVideoFull.play();
+                                                } catch (err) {
+                                                    console.error(err)
+                                                }
+
+                                                if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
+                                                    kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
+                                                } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
+                                                    if (!kmsPreviewPrematureEnding && kongouMediaVideoPreview.currentTime && kmsPreviewLastPostion < 5) {
+                                                        kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
+                                                    } else {
+                                                        kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                                                    }
+                                                }
+                                                setTimeout(async () => {
+                                                    if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
+                                                        kongouMediaVideoFull.pause();
+                                                    } else if (kongouMediaVideoFull.paused) {
+                                                        try {
+                                                            await kongouMediaVideoFull.play();
+                                                        } catch (err) {
+                                                            console.error(err);
+                                                        }
+                                                    }
+                                                    kongouMediaVideoPreview.pause();
+                                                    kongouMediaVideoPreview.classList.add('hidden');
+                                                    kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
+                                                    kmsPreviewLastPostion = null;
+                                                    kmsPreviewPrematureEnding = false;
+                                                    clearInterval(kmsPreviewInterval)
+                                                    kmsPreviewInterval = null;
+                                                    kongouMediaVideoFull.classList.remove('hidden');
+                                                    kongouControlsSeekUnavalible.classList.remove('no-seeking');
+                                                    document.getElementById('kmsWarningProgress').classList.add('hidden');
+                                                    document.getElementById('kmsWarningQuality').classList.add('hidden');
+                                                }, 100);
+                                            } else {
+                                                console.error('No Datatype was provided')
+                                            }
+                                        } else {
+                                            element.click();
+                                        }
+                                    }
+                                } else {
+                                    console.error('File data was not found')
+                                }
+                            } else {
+                                console.log(`File ${dataJob.name} is ready`)
+                            }
+                            break;
+                        default:
+                            console.error('Unknown Unpacker Status');
+                            console.error(event.data);
+                            break;
+                    }
+                    updateNotficationsPanel();
+                }
+                break;
+            case 'STATUS_UNPACKER_FAILED':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    switch (event.data.action) {
+                        case 'GET_METADATA':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                videoStatus.innerText = `Server Error: ${xhr.responseText}`;
+                                videoProgress.classList.remove('bg-success');
+                                videoProgress.classList.add('bg-danger');
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
+                                kmsProgress.classList.remove('bg-success');
+                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.style.width = '100%';
+                            }
+                            console.error(event.data.message);
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File failed to unpack!<br/>${event.data.message}`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'READ_METADATA':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
+                                videoProgress.classList.remove('bg-success');
+                                videoProgress.classList.add('bg-danger');
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
+                                kmsProgress.classList.remove('bg-success');
+                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.style.width = '100%';
+                            }
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `Failed to read the parity metadata response!`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'EXPECTED_PARTS':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
+                                videoProgress.classList.remove('bg-success');
+                                videoProgress.classList.add('bg-danger');
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                kmsStatus.innerText = `File is damaged or is missing blocks!`;
+                                kmsProgress.classList.remove('bg-success');
+                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.style.width = '100%';
+                            }
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'EXPECTED_FETCH_PARTS':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                videoStatus.innerText = `Failed, Not all blocks where downloaded`;
+                                videoProgress.classList.remove('bg-success');
+                                videoProgress.classList.add('bg-danger');
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
+                                kmsProgress.classList.remove('bg-success');
+                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.style.width = '100%';
+                            }
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `Missing a downloaded parity file, Retry to download!`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'UNCAUGHT_ERROR':
+                            if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                videoStatus.innerText = `Handler Failure: ${e.message}`;
+                                videoProgress.classList.remove('bg-success');
+                                videoProgress.classList.add('bg-danger');
+                            } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                kmsStatus.innerText = `Handler Failure: ${e.message}`;
+                                kmsProgress.classList.remove('bg-success');
+                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.style.width = '100%';
+                            }
+                            console.error(event.data.message);
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File Handeler Fault!<br/>${event.data.message}`,
+                                delay: 15000,
+                            });
+                            break;
+                        default:
+                            console.error('Unknown Unpacker Error');
+                            console.error(event.data);
+                            break;
+                    }
+                }
+                break;
+            case 'MAKE_SNACK':
+                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || 5000))
+                break;
+            case 'MAKE_TOAST':
+                $.toast({
+                    type: (event.data.level || 'info'),
+                    title: (event.data.title || ''),
+                    subtitle: (event.data.subtitle || ''),
+                    content: (event.data.content || 'No Data'),
+                    delay: (event.data.timeout || 5000),
+                });
+                break;
+            case 'NOTIFY_OFFLINE_READY':
+                console.log('Service Worker Ready');
+                break;
+            case 'PONG':
+                console.log('Service Worker Comms are OK');
+                break;
+            default:
+                console.error('Service Worker Message Unknown', event.data.type);
+                break;
+        }
     };
+    // Page Channel
+    networkKernelChannel.onmessage = function (event) {
+        switch (event.data.type) {
+            case 'STATUS_UNPACK_PROGRESS':
+                break;
+            case 'PONG':
+                console.log('Service Worker Comms are OK');
+                break;
+            default:
+                console.error('Service Worker Message Unknown', event.data.type);
+                break;
+        }
+    }
 }

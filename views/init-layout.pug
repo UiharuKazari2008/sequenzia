@@ -488,11 +488,6 @@ html
                                 const offlinePage = false;
                                 let nextContext = 'seq';
                                 $(document).ready(async function () {
-                                    try {
-                                        await getAllOfflineEIDs();
-                                    } catch (err) {
-                                        console.log(err);
-                                    }
                                     if (window.location.hash.substring(1).length < 2) {
                                         //location.href = '/';
                                         console.log(`No Navigation, Ready when you are`);
@@ -816,6 +811,13 @@ html
                             a.btn.btn-danger(href='#_' onclick="clearKernelCache(); return false;").w-100
                                 i.fas.fa-microchip.pr-2
                                 | Reinstall Kernel
+                        div.row.px-2.mt-3
+                            span#serviceWorkerStatus.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Ready") Net Kernel
+                            span#serviceWorkerComms.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Communications") Net Comms
+                            span#storageStatus.badge.badge-danger.mx-1(data-placement="top" title="JulyOS App Storage") Storage
+                            span#webWorkerStatus.badge.badge-danger.mx-1(data-placement="top" title="JuneOS Task Worker") JuneTWS
+                            span#xrStatus.badge.badge-danger.mx-1(data-placement="top" title="JuneOS XR Framework") JuneXR
+
         #adsModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
                 .modal-content
