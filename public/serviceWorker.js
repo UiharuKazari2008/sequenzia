@@ -1,6 +1,8 @@
 'use strict';
+importScripts('/static/vendor/domparser_bundle.js');
+const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v2-17';
+const cacheName = 'DEV-v2-18';
 const cacheCDNName = 'DEV-v2-10';
 const origin = location.origin
 const offlineUrl = './offline';
@@ -52,6 +54,7 @@ const cacheOptions = {
         '/sidebar'
     ],
     preloadCache: [
+        "/static/vendor/domparser_bundle.js",
         "/static/vendor/jquery/jquery.min.js",
         "/static/js/jquery.history.min.js",
         "/static/css/fluid-gallery.min.css",
@@ -113,7 +116,6 @@ let swCacheCDN = false;
 let browserStorageAvailable = false;
 let offlineContent;
 let downloadSpannedController = new Map();
-let offlineDownloadController = new Map();
 let offlineDownloadSignals = new Map();
 let activeSpannedJob = false;
 let tempURLController = new Map();
@@ -354,24 +356,16 @@ self.addEventListener('fetch', event => {
         }
     }());
 });
-self.addEventListener('sync', event => {
+self.addEventListener('sync', async (event) => {
     console.log(event.tag);
-    if (event.tag === 'refresh' || event.tag === 'test-tag-from-devtools') {
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(async cache => {
-                    if (cache.startsWith('offline-content-')) {
-                        const cacheItem = await caches.open(cache);
-                        const keys = await cacheItem.keys();
-                        await Promise.all(keys.map(page => {
-                            reCache(page.url, cache)
-                            console.log(`Refreshed page: ${page.url}`);
-                        }))
-                        //caches.delete(cache);
-                    }
-                })
-            );
-        })
+    if (event.tag === 'refreshPages' || event.tag === 'test-tag-from-devtools') {
+        const pages = await getAllOfflinePages()
+        if (pages && pages.length > 0) {
+            pages.map(async page => {
+                await cachePageOffline(undefined, page.url);
+            })
+            self.registration.showNotification("Pages have been synced");
+        }
     }
 });
 self.addEventListener('message', async (event) => {
@@ -926,7 +920,7 @@ async function cacheFileURL(object, page_item) {
                 if (object.kongou_backdrop_url)
                     fetchKMSResults["kongou_backdrop_url"] = (await fetch(object.kongou_backdrop_url)).status
                 if (object.required_build) {
-                    openUnpackingFiles({
+                    const unpackerJob = {
                         id: object.fileid,
                         name: object.filename,
                         size: object.file_size,
@@ -934,7 +928,13 @@ async function cacheFileURL(object, page_item) {
                         preemptive: true,
                         expires: false,
                         offline: true,
-                    });
+                    }
+                    broadcastAllMessage({
+                        type: 'STATUS_UNPACKER_NOTIFY',
+                        fileid: object.fileid,
+                        object: unpackerJob,
+                    })
+                    openUnpackingFiles(unpackerJob);
                     fetchResults['spanned_file'] = await new Promise((resolve) => {
                         function setTimer() {
                             setTimeout(() => {
@@ -1010,12 +1010,12 @@ async function cacheFileURL(object, page_item) {
     })
 }
 async function cachePageOffline(type, _url, limit) {
+    let requestOpts = [['responseType', 'offline']];
+    if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
+        requestOpts.push(['num', limit]);
+    const url = params(['offset', 'limit', '_h'], requestOpts, _url);
     try {
-        let requestOpts = [['responseType', 'offline']];
-        if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
-            requestOpts.push(['num', limit]);
-        const url = params(['offset', 'limit', '_h'], requestOpts, _url);
-        $('#cacheModal').modal('hide');
+        console.log(url);
         const _cacheItem = await fetch(url);
         if (_cacheItem) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
@@ -1044,7 +1044,11 @@ async function cachePageOffline(type, _url, limit) {
                 items: itemsToCache.map(e => e.eid),
                 totalItems: totalFiles
             }
-            offlineDownloadController.set(url, status);
+            broadcastAllMessage({
+                type: 'STATUS_STORAGE_CACHE_PAGE_ACTIVE',
+                url,
+                status
+            })
             offlineDownloadSignals.set(url, true);
 
             for (let e of itemsToCache) {
@@ -1066,7 +1070,11 @@ async function cachePageOffline(type, _url, limit) {
                     ...status,
                     downloaded: downloadedFiles
                 }
-                offlineDownloadController.set(url, status);
+                broadcastAllMessage({
+                    type: 'STATUS_STORAGE_CACHE_PAGE_ACTIVE',
+                    url,
+                    status
+                })
             }
             console.log(`Cached ${downloadedFiles} Items`);
 
@@ -1136,7 +1144,10 @@ async function cachePageOffline(type, _url, limit) {
                         timeout: 10000
                     });
                 }
-                offlineDownloadController.delete(url);
+                broadcastAllMessage({
+                    type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
+                    url
+                })
                 offlineDownloadSignals.delete(url);
             }
         } else {
@@ -1148,12 +1159,19 @@ async function cachePageOffline(type, _url, limit) {
                 content: `<p>Failed to get offline page results, Try again later</p>`,
                 timeout: 10000
             });
+            broadcastAllMessage({
+                type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
+                url
+            })
             console.error('Item did not hit cache. Please try again')
         }
     } catch (err) {
         console.error(`Uncaught Page Download Error`);
         console.error(err)
-        offlineDownloadController.delete(url);
+        broadcastAllMessage({
+            type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
+            url
+        })
         offlineDownloadSignals.delete(url);
         broadcastAllMessage({
             type: 'MAKE_TOAST',

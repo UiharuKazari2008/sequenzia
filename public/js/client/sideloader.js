@@ -102,13 +102,11 @@ let contextFadeDelay = null
 let requestInprogress
 let paginatorInprogress
 let downloadAllController = null;
-let downloadSpannedController = new Map();
 let unpackingJobs = new Map();
 const networkKernelChannel = new MessageChannel();
 let offlineDownloadSignals = new Map();
 let offlineDownloadController = new Map();
 let tempURLController = new Map();
-let memorySpannedController = [];
 let memoryVideoPositions = new Map();
 let kmsVideoWatcher = null;
 let search_list = [];
@@ -1279,6 +1277,26 @@ async function getAllOfflineSpannedFiles() {
         return false;
     }
 }
+async function getAllExpirableSpannedFiles() {
+    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
+    if (offlineSpannedFiles) {
+        return offlineSpannedFiles.filter(e => e.expires).map(e => {
+            let url
+            if (!tempURLController.has(e.id)) {
+                url = window.URL.createObjectURL(e.block)
+                tempURLController.set(e.id, url);
+            } else {
+                url = tempURLController.get(e.id);
+            }
+            return {
+                ...e,
+                href: url
+            }
+        })
+    } else {
+        return false;
+    }
+}
 
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
@@ -1808,8 +1826,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
     const videoModel = document.getElementById('videoBuilderModal');
     if (fileid && fileid.length > 0) {
         const element = document.getElementById(`fileData-${fileid}`);
-        const memoryJobIndex = memorySpannedController.filter(e => e.id === fileid);
-        const storedFile = (element && memoryJobIndex.length > 0) ? memoryJobIndex[0] : await getSpannedFileIfAvailable(fileid);
+        const storedFile = await getSpannedFileIfAvailable(fileid);
 
         if (fastAccess) {
             if (downloadPreemptive) {
@@ -2479,7 +2496,8 @@ async function searchSeriesList(obj) {
 }
 
 async function updateNotficationsPanel() {
-    if (unpackingJobs.size !== 0 || offlineDownloadController.size !== 0 || memorySpannedController.length > 0) {
+    const tempSpannedFiles = await getAllExpirableSpannedFiles();
+    if (unpackingJobs.size !== 0 || offlineDownloadController.size !== 0 || tempSpannedFiles.length > 0) {
         let activeSpannedJob = false;
         const keys = Array.from(unpackingJobs.keys()).map(e => {
             const item = unpackingJobs.get(e);
@@ -2509,26 +2527,24 @@ async function updateNotficationsPanel() {
             return results.join('\n');
         });
         let completedKeys = [];
-        if (memorySpannedController.length > 0) {
+        if (tempSpannedFiles.length > 0) {
             if (keys.length > 0 || offlineKeys.length > 0)
                 completedKeys.push(`<div class="dropdown-divider"></div>`);
-            completedKeys.push(...memorySpannedController.map(item => {
+            completedKeys.push(...tempSpannedFiles.map(item => {
                 let results = [];
-                const element = document.getElementById(`fileData-${item.id}`);
                 results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
-                if (item.play) {
-                    let clickAction = undefined;
-                    if (item.play === 'video' || item.play === 'kms-video') {
-                        clickAction = `PlayVideo('${element.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
-                    } else if (item.play === 'audio') {
-                        clickAction = `PlayTrack('${element.href}');`
-                        clickAction = `PlayTrack('${element.href}');`
-                    }
+                let clickAction = undefined;
+                if (videoFiles.indexOf(item.name.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+                    clickAction = `PlayVideo('${item.href}', '${item.channel}/${item.name} (${item.size})', '${item.id}');`
+                } else if (audioFiles.indexOf(item.name.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
+                    clickAction = `PlayTrack('${item.href}');`
+                }
+                if (clickAction) {
                     results.push(`<a class="text-ellipsis mr-auto d-flex align-items-baseline" style="max-width: 80vw;"  title="Play File" href='#_' onclick="${clickAction} return false;" role='button')>`);
                 } else {
-                    results.push(`<a class="text-ellipsis mr-auto d-flex align-items-baseline" style="max-width: 80vw;"  title="Save File" href="${element.href}" role='button')>`);
+                    results.push(`<a class="text-ellipsis mr-auto d-flex align-items-baseline" style="max-width: 80vw;"  title="Save File" href="${item.href}" role='button')>`);
                 }
-                results.push(`<i class="fas fa-memory mr-1"></i>`)
+                results.push(`<i class="fas fa-clock mr-1"></i>`)
                 if (item.play) {
                     if (item.play === 'video' || item.play === 'kms-video') {
                         results.push(`<i class="fas fa-film mr-1"></i>`)
@@ -2539,9 +2555,9 @@ async function updateNotficationsPanel() {
                     }
                 }
                 results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`)
-                if (item.play) {
+                if (clickAction) {
                     results.push(`</a>`);
-                    results.push(`<a title="Save File" href='#_' onclick="document.getElementById('fileData-${item.id}').click(); return false;">`);
+                    results.push(`<a title="Save File" href='#_' onclick="openUnpackingFiles('${item.id}'); return false;">`);
                     results.push(`<i class="fas fa-download px-2"></i>`)
                     results.push(`</a>`);
                 }
@@ -2582,8 +2598,8 @@ async function updateNotficationsPanel() {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
         } else if (offlineKeys.length > 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cloud-download fa-fade';
-        } else if (memorySpannedController.length !== 0) {
-            document.getElementById('statusMenuIcon').classList = 'fas fa-memory';
+        } else if (tempSpannedFiles.length !== 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-sd-card';
             clearInterval(notificationControler);
             notificationControler = null;
         }
@@ -2623,7 +2639,9 @@ async function showSearchOptions(post) {
         const _data = _post.getAttribute('data-kms-json');
         if (_data && _data.length > 2) {
             try {
-                return JSON.parse(_data);
+                const data = JSON.parse(_data);
+                if (data && data.meta)
+                    return data
             } catch (e) {
                 console.error(`Failed to parse Kongou Media Data`);
                 console.error(e);
@@ -4190,7 +4208,11 @@ function kernelRequestData(message) {
 }
 
 if ('serviceWorker' in navigator) {
+    let swRegistation
     navigator.serviceWorker.ready.then((registration) => {
+        Notification.requestPermission().then(r => {
+            swRegistation = registration
+        });
         console.log(`Service Worker is ready!`);
         serviceWorkerReady = true;
         serviceWorkerMessageAsync({
@@ -4200,20 +4222,7 @@ if ('serviceWorker' in navigator) {
     // Global Channel
     navigator.serviceWorker.onmessage = async function (event) {
         switch (event.data.type) {
-            case 'STATUS_STORAGE_CACHE_LIST':
-                console.log('Status Storage Cache Update Got')
-                offlineEntities = event.data.entities;
-                offlineMessages = event.data.messages;
-                break;
             case 'STATUS_UNPACK_PROGRESS':
-                break;
-            case 'STATUS_STORAGE_CACHE_UNMARK':
-                $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
-                $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
-                break;
-            case 'STATUS_STORAGE_CACHE_MARK':
-                $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
-                $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
                 break;
             case 'STATUS_UNPACK_COMPLETED':
                 if (unpackingJobs.has(event.data.fileid)) {
@@ -4487,6 +4496,31 @@ if ('serviceWorker' in navigator) {
                     }
                 }
                 break;
+            case 'STATUS_STORAGE_CACHE_LIST':
+                console.log('Status Storage Cache Update Got')
+                offlineEntities = event.data.entities;
+                offlineMessages = event.data.messages;
+                break;
+            case 'STATUS_STORAGE_CACHE_UNMARK':
+                $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
+                $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
+                break;
+            case 'STATUS_STORAGE_CACHE_MARK':
+                $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
+                $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
+                break;
+            case 'STATUS_UNPACKER_NOTIFY':
+                unpackingJobs.set(event.data.fileid, event.data.object);
+                updateNotficationsPanel();
+                break;
+            case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
+                offlineDownloadController.set(event.data.url, event.data.status);
+                updateNotficationsPanel();
+                break;
+            case 'STATUS_STORAGE_CACHE_PAGE_COMPLETE':
+                offlineDownloadController.delete(event.data.url);
+                updateNotficationsPanel();
+                break;
             case 'MAKE_SNACK':
                 $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || 5000))
                 break;
@@ -4504,6 +4538,8 @@ if ('serviceWorker' in navigator) {
                 break;
             case 'PONG':
                 console.log('Service Worker Comms are OK');
+                //if (swRegistation)
+                    //swRegistation.sync.register('refreshPages');
                 break;
             default:
                 console.error('Service Worker Message Unknown', event.data.type);
