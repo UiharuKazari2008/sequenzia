@@ -1404,7 +1404,15 @@ async function cacheEpisodeOffline(element, noConfirm, preemptive) {
         })
     }
 }
-
+async function cachePageOffline(_url) {
+    const limit = (document.getElementById("maxCountOfflinePage")) ? document.getElementById("maxCountOfflinePage").value : undefined;
+    let requestOpts = [['responseType', 'offline']];
+    if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
+        requestOpts.push(['num', limit]);
+    const url = params(['offset', 'limit', '_h'], requestOpts, _url);
+    $('#cacheModal').modal('hide');
+    await kernelRequestData({type: 'SAVE_STORAGE_PAGE', url, limit});
+}
 async function generateGalleryHTML(url, eids) {
     $("#userMenu").collapse("hide");
     try {
