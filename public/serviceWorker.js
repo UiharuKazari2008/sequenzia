@@ -359,13 +359,13 @@ self.addEventListener('fetch', event => {
 self.addEventListener('sync', async (event) => {
     console.log(event.tag);
     if (event.tag === 'refreshPages' || event.tag === 'test-tag-from-devtools') {
-        const pages = await getAllOfflinePages()
+        /*const pages = await getAllOfflinePages()
         if (pages && pages.length > 0) {
             pages.map(async page => {
                 await cachePageOffline(undefined, page.url);
             })
             self.registration.showNotification("Pages have been synced");
-        }
+        }*/
     }
 });
 self.addEventListener('message', async (event) => {
