@@ -421,7 +421,7 @@ html
                                 i.fas.fa-archive.shadow-text
                             a#addFlagPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-flag.shadow-text
-                            a#goToPostLocation.btn.text-white(href='#_' role='button')
+                            a#goToPostLocation.btn.text-white.d-none(href='#_' role='button')
                                 i.fas.fa-directions.shadow-text
                             a#goToPostSource.btn.text-white(href='#_' role='button').hidden
                                 i.fas.fa-globe-americas.shadow-text
@@ -431,7 +431,7 @@ html
                                 i.fas.fa-play.shadow-text
                             a#goToDownload.btn.text-white(href='#_' role='button' target="_blank" rel="noopener noreferrer")
                                 i.fas.fa-download.shadow-text
-                            a#makeOffline.btn.text-white.d-none(href='#_' role='button')
+                            a#makeOffline.btn.text-white(href='#_' role='button')
                                 i.fas.fa-cloud-download.shadow-text
                         div.row.px-3
                             div#kmsContent.mb-2.text-center.w-100

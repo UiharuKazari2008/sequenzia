@@ -358,14 +358,47 @@ self.addEventListener('fetch', event => {
 });
 self.addEventListener('sync', async (event) => {
     console.log(event.tag);
-    if (event.tag === 'refreshPages' || event.tag === 'test-tag-from-devtools') {
-        /*const pages = await getAllOfflinePages()
-        if (pages && pages.length > 0) {
-            pages.map(async page => {
-                await cachePageOffline(undefined, page.url);
-            })
-            self.registration.showNotification("Pages have been synced");
-        }*/
+    switch (event.tag) {
+        case 'test-tag-from-devtools':
+        case 'SYNC_PAGES_NEW_ONLY':
+        case 'SYNC_PAGES':
+            const pages = await getAllOfflinePages()
+            if (pages && pages.length > 0) {
+                for (let page of pages) {
+                    await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                }
+                self.registration.showNotification("Pages have been synced");
+            }
+            break;
+        case 'SYNC_SERIES':
+
+            break;
+        default:
+            console.error('Sync Tag not recognized - ' + event.tag);
+            break;
+    }
+});
+self.addEventListener('periodicsync', async (event) => {
+    console.log(event.tag);
+    switch (event.tag) {
+        case 'test-tag-from-devtools':
+        case 'SYNC_PAGES_NEW_ONLY':
+            const pages = await getAllOfflinePages()
+            if (pages && pages.length > 0) {
+                event.waitUntil(async () => {
+                    for (let page of pages) {
+                        await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                    }
+                    return true;
+                })
+            }
+            break;
+        case 'SYNC_SERIES':
+
+            break;
+        default:
+            console.error('Periodic Sync Tag not recognized - ' + event.tag);
+            break;
     }
 });
 self.addEventListener('message', async (event) => {
@@ -642,7 +675,11 @@ async function getEpisodesIfAvailable(showId) {
                                         return false;
                                     }
                                 }))
-                                data({ show: showData, episodes })
+                                if (episodes.length > 0) {
+                                    data({show: showData, episodes})
+                                } else {
+                                    data(false)
+                                }
                             } else {
                                 data(false)
                             }
@@ -849,8 +886,21 @@ async function deleteOfflineFile(eid, noupdate, preemptive) {
                     await proxyCache.delete(file.extpreview_url);
             }
             if (browserStorageAvailable) {
-                const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(eid);
-                indexDBUpdate.onsuccess = event => {
+                const indexDBUpdate = offlineContent.transaction(["offline_items", "offline_kongou_shows", "offline_kongou_episodes"], "readwrite");
+                indexDBUpdate.objectStore("offline_kongou_episodes").delete(parseInt(eid.toString()))
+                const allEpisodes = await new Promise(resolve => {
+                    indexDBUpdate.objectStore("offline_kongou_episodes").getAll().onsuccess = event => {
+                        resolve(event.target.result.map(e => e.showId))
+                    }
+                })
+                indexDBUpdate.objectStore("offline_kongou_shows").getAll().onsuccess = event => {
+                    if (event.target.result && event.target.result.length > 0) {
+                        event.target.result.filter(e => allEpisodes.indexOf(e.showId) === -1).map(e => {
+                            indexDBUpdate.objectStore("offline_kongou_shows").delete(e.showId);
+                        })
+                    }
+                }
+                indexDBUpdate.objectStore("offline_items").delete(eid).onsuccess = event => {
                     if (!noupdate) {
                         broadcastAllMessage({
                             type: 'MAKE_SNACK',
@@ -903,6 +953,20 @@ async function removeCacheItem(id) {
     }
 }
 
+async function fetchBackground(name, url) {
+    if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
+        return self.registration.backgroundFetch.fetch(name, url);
+    } else {
+        return fetch(url);
+    }
+}
+async function fetchBackgroundRequest(name, request, options) {
+    if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
+        return self.registration.backgroundFetch.fetch(name, request, options);
+    } else {
+        return fetch(request, options);
+    }
+}
 async function cacheFileURL(object, page_item) {
     return new Promise(async (resolve) => {
         try {
@@ -910,15 +974,15 @@ async function cacheFileURL(object, page_item) {
             let fetchKMSResults = {}
             if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
                 if (object.full_url)
-                    fetchResults["full_url"] = (await fetch(object.full_url)).status
+                    fetchResults["full_url"] = (await fetchBackground(`${object.id}-full_url`, object.full_url)).status
                 if (object.preview_url)
-                    fetchResults["preview_url"] = (await fetch(object.preview_url)).status
+                    fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, object.preview_url)).status
                 if (object.extpreview_url)
-                    fetchResults["extpreview_url"] = (await fetch(object.extpreview_url)).status
+                    fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, object.extpreview_url)).status
                 if (object.kongou_poster_url)
-                    fetchKMSResults["kongou_poster_url"] = (await fetch(object.kongou_poster_url)).status
+                    fetchKMSResults["kongou_poster_url"] = (await fetchBackground(`${object.id}-kongou_poster_url`, object.kongou_poster_url)).status
                 if (object.kongou_backdrop_url)
-                    fetchKMSResults["kongou_backdrop_url"] = (await fetch(object.kongou_backdrop_url)).status
+                    fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, object.kongou_backdrop_url)).status
                 if (object.required_build) {
                     const unpackerJob = {
                         id: object.fileid,
@@ -1009,36 +1073,42 @@ async function cacheFileURL(object, page_item) {
         }
     })
 }
-async function cachePageOffline(type, _url, limit) {
+async function cachePageOffline(type, _url, limit, newOnly) {
     let requestOpts = [['responseType', 'offline']];
     if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
         requestOpts.push(['num', limit]);
     const url = params(['offset', 'limit', '_h'], requestOpts, _url);
+    if (offlineDownloadSignals.has(url)) {
+        console.error(`Will not be starting a new task!`)
+        return false;
+    }
     try {
         console.log(url);
-        const _cacheItem = await fetch(url);
+        const _cacheItem = await fetchBackground(`${url}-results`, url);
         if (_cacheItem) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
             const title = content.querySelector('title').text;
 
-            const itemsToCache = Array.from(content.querySelectorAll('[data-msg-url-full]')).map(e => extractMetaFromElement(e)).filter(e => e.data_type);
+            const itemsToCache = Array.from(content.querySelectorAll('[data-msg-url-full]')).map(e => extractMetaFromElement(e)).filter(e => e.data_type && (!newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1)));
             const totalFiles = itemsToCache.length;
 
             if (totalFiles === 0) {
-                broadcastAllMessage({
-                    type: 'MAKE_TOAST',
-                    level: 'error',
-                    title: '<i class="fas fa-sd-card pr-2"></i>No Items',
-                    subtitle: '',
-                    content: `<p>There are no media files on this page that can be made offline!</p>`,
-                    timeout: 10000
-                });
+                if (!newOnly) {
+                    broadcastAllMessage({
+                        type: 'MAKE_TOAST',
+                        level: 'error',
+                        title: '<i class="fas fa-sd-card pr-2"></i>No Items',
+                        subtitle: '',
+                        content: `<p>There are no media files on this page that can be made offline!</p>`,
+                        timeout: 10000
+                    });
+                }
                 return false;
             }
 
             let downloadedFiles = 0;
             let status = {
-                url: params(['offset', '_h', 'responseType', 'num'], [], url),
+                url: params(['offset', '_h', 'responseType'], [], url),
                 title,
                 downloaded: downloadedFiles,
                 items: itemsToCache.map(e => e.eid),
@@ -1382,7 +1452,7 @@ async function unpackFile() {
         broadcastAllMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'GET_METADATA', fileid: activeID});
         return await new Promise(async (job) => {
             try {
-                const response = await fetch(new Request(`/parity/${activeID}?${(new Date()).getTime()}`, {
+                const response = await fetchBackgroundRequest(`parity-${activeID}`, new Request(`/parity/${activeID}?${(new Date()).getTime()}`, {
                     type: 'GET',
                     redirect: "follow",
                     headers: {
@@ -1428,7 +1498,7 @@ async function unpackFile() {
                                     const results = await Promise.all(downloadKeys.map(async item => {
                                         return new Promise(async ok => {
                                             try {
-                                                const block = await fetch(new Request(pendingBlobs[item], {
+                                                const block = await fetchBackgroundRequest(`parity-block-${activeID}-${item}`, new Request(pendingBlobs[item], {
                                                     method: 'GET',
                                                     signal: activeSpannedJob.abort.signal
                                                 }))

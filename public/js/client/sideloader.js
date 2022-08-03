@@ -113,6 +113,10 @@ let search_list = [];
 let element_list = [];
 let lazyloadImages;
 
+const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
+const videoFiles = ['mp4','mov','m4v', 'webm'];
+const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
+
 String.prototype.toRGB = function() {
     var hash = 0;
     if (this.length === 0) return hash;
@@ -498,7 +502,7 @@ async function getNewContent(remove, add, url, keep) {
     if (offlinePage) {
         if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater') || _url.startsWith('/listTheater'))) {
             const eids = await (async () => {
-                const revisedUrl = params(['limit', 'num', 'offset', '_h'], [], _url)
+                const revisedUrl = params(['limit', 'offset', '_h'], [], _url)
                 if (revisedUrl.split('?').pop().length === 0)
                     return false;
                 const isFoundPage = await kernelRequestData({type: 'GET_STORAGE_PAGE_ITEMS', url: revisedUrl})
@@ -962,6 +966,42 @@ function downloadSelectedItems() {
         alert(`Error starting downloader: ${e.message}`)
     }
 }
+async function offlineSelectedItems() {
+    try {
+        disableGallerySelect();
+        let downloadedFiles = 0;
+        const _url = params(['offset', '_h', 'responseType'], [])
+        let status = {
+            url: _url,
+            title: 'Selected Items',
+            downloaded: downloadedFiles,
+            totalItems: postsActions.length,
+        }
+        offlineDownloadController.set(_url, status);
+        offlineDownloadSignals.set(_url, true);
+        updateNotficationsPanel();
+        notificationControler = setInterval(updateNotficationsPanel, 1000);
+
+        for (let i in postsActions) {
+            if (!offlineDownloadSignals.has(url))
+                break;
+            const element = document.getElementById('message-' + postsActions[i].messageid);
+            if (element) {
+                cacheFileOffline(element, !(i === postsActions.length - 1))
+                downloadedFiles++;
+            }
+            status = {
+                ...status,
+                downloaded: downloadedFiles
+            }
+            offlineDownloadController.set(_url, status);
+        }
+        postsActions = [];
+        offlineDownloadController.delete(_url);
+    } catch (e) {
+        alert(`Error starting downloader: ${e.message}`)
+    }
+}
 function downloadAllItems() {
     try {
         pageType = $.history.url().split('?')[0].substring(1);
@@ -1046,256 +1086,6 @@ async function startDownloadingFiles() {
     downloadModel.querySelector("#downloadProgressBar").setAttribute( 'aria-valuenow',`0%`);
     downloadModel.querySelector("#downloadProgText").innerText = `Ready`
     disableGallerySelect();
-}
-
-async function cacheItems(urls) {
-    caches.open('offline-content')
-        .then(c => {
-            c.addAll(urls)
-        })
-        .catch(e => {
-            console.error(e);
-        })
-    return false;
-}
-const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
-const videoFiles = ['mp4','mov','m4v', 'webm'];
-const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
-
-async function offlineSelectedItems() {
-    try {
-        disableGallerySelect();
-        let downloadedFiles = 0;
-        const _url = params(['offset', '_h', 'responseType'], [])
-        let status = {
-            url: _url,
-            title: 'Selected Items',
-            downloaded: downloadedFiles,
-            totalItems: postsActions.length,
-        }
-        offlineDownloadController.set(_url, status);
-        offlineDownloadSignals.set(_url, true);
-        updateNotficationsPanel();
-        notificationControler = setInterval(updateNotficationsPanel, 1000);
-
-        for (let i in postsActions) {
-            if (!offlineDownloadSignals.has(url))
-                break;
-            const element = document.getElementById('message-' + postsActions[i].messageid);
-            if (element) {
-                cacheFileOffline(element, !(i === postsActions.length - 1))
-                downloadedFiles++;
-            }
-            status = {
-                ...status,
-                downloaded: downloadedFiles
-            }
-            offlineDownloadController.set(_url, status);
-        }
-        postsActions = [];
-        offlineDownloadController.delete(_url);
-    } catch (e) {
-        alert(`Error starting downloader: ${e.message}`)
-    }
-}
-async function getOfflinePages() {
-    if (document.getElementById('offlinePageList')) {
-        document.getElementById('offlinePages').classList.remove('hidden');
-        $("#userMenu").collapse("hide")
-        const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
-        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
-            let icon = 'fa-page';
-            if (page.url.includes('/gallery'))
-                icon = 'fa-image'
-            if (page.url.includes('/files'))
-                icon = 'fa-folder'
-            if (page.url.includes('/cards'))
-                icon = 'fa-message'
-            if (page.url.includes('album='))
-                icon = 'fa-archive'
-
-            return `<tr>
-            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
-            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
-            <td class="py-2"><span>${page.totalItems}</span></td>
-        </tr>`
-        }).join('');
-    }
-}
-async function deleteOfflinePage(_url, noupdate) {
-    const url = params(['limit', 'offset', 'num', '_h'], [], _url);
-    if (url) {
-        return await kernelRequestData({type: 'REMOVE_STORAGE_PAGE', url: url, noupdate: noupdate})
-    } else {
-        console.log('URL not validated')
-    }
-}
-async function deleteOfflineFile(eid, noupdate, preemptive) {
-    return await kernelRequestData({type: 'REMOVE_STORAGE_FILE', eid, noupdate, preemptive})
-}
-async function clearCache(list) {
-    await caches.keys().then(cacheNames => {
-        console.log(`Local Caches Stores:`);
-        return Promise.all(
-            cacheNames.filter(e => !list || (list && list.filter(f => e.includes(f)).length > 0)).map(cache => {
-                console.log(cache)
-                console.log('JulyOS Kernel: Deleteing Old Cache - ' + cache);
-                return caches.delete(cache);
-            })
-        );
-    })
-}
-async function clearKernelCache() {
-    await clearCache(['generic', 'kernel', 'config']);
-    window.location.reload();
-}
-async function clearAllOfflineData() {
-    $('#cacheModal').modal('hide');
-    serviceWorkerMessageAsync({type: 'CLEAR_ALL_STORAGE'})
-}
-async function displayOfflineData() {
-    let linkedEids = [];
-    let linkedFileids = [];
-    const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
-    const pageRows = pages.map((e,i) => {
-        let icon = 'fa-page';
-        if (e.url.includes('/gallery'))
-            icon = 'fa-image'
-        if (e.url.includes('/files'))
-            icon = 'fa-folder'
-        if (e.url.includes('/cards'))
-            icon = 'fa-message'
-        if (e.url.includes('album='))
-            icon = 'fa-archive'
-        if (e.items)
-            linkedEids.push(...e.items);
-
-        return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
-            <div class="px-2"><i class="fas ${icon}"></i></div>
-            <div class="w-100"><span>${e.title}</span></div>
-            <div class="d-flex">
-                <a class="p-2" href="#_" onclick="kernelRequestData({ type: 'SAVE_STORAGE_PAGE', url: '${e.url}' }); return false">
-                    <i class="fas fa-arrows-rotate"></i>
-                </a>
-                <a class="p-2" href="#_" onclick="deleteOfflinePage('${e.url}'); document.getElementById('cachePageItem-${i}').remove(); return false">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-        </div>`
-    });
-
-    if (pageRows.length > 0) {
-        document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
-    } else {
-        document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
-    }
-
-    const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-    linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
-    const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
-        let icon = 'fa-file';
-        if (e.data_type === 'image')
-            icon = 'fa-image'
-        if (e.data_type === 'video')
-            icon = 'fa-film'
-        if (e.data_type === 'audio')
-            icon = 'fa-music'
-
-        return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
-            <div class="px-2"><i class="fas ${icon}"></i></div>
-            <div class="w-100"><span>${e.filename}</span></div>
-            <div class="d-flex">
-                <a class="p-2" href="#_" onclick="deleteOfflineFile('${e.eid}'); document.getElementById('cacheItemItem-${i}').remove(); return false">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-        </div>`
-    });
-
-    if (fileRows.length > 0) {
-        document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
-    } else {
-        document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
-    }
-
-    const offlineSpannedFiles = await getAllOfflineSpannedFiles();
-    const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
-        return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
-            <div class="px-2"><i class="fas fa-box-open"></i></div>
-            <div class="w-100"><span>${e.filename}</span></div>
-            <div class="d-flex">
-                <a class="p-2" href="#_" onclick="removeCacheItem('${e.id}'); document.getElementById('cacheSpanItem-${i}').remove(); return false">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-        </div>`
-    });
-
-    if (spannedRows.length > 0) {
-        document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
-    } else {
-        document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
-    }
-
-    $('#cacheModal').modal('show');
-}
-async function getSpannedFileIfAvailable(fileid) {
-    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_SPANNED_FILE', fileid});
-    if (offlineSpannedFiles) {
-        let url
-        if (!tempURLController.has(fileid)) {
-            url = window.URL.createObjectURL(offlineSpannedFiles.block)
-            tempURLController.set(fileid, url);
-        } else {
-            url = tempURLController.get(fileid);
-        }
-        return {
-            ...offlineSpannedFiles,
-            href: url
-        }
-    } else {
-        return false;
-    }
-}
-async function getAllOfflineSpannedFiles() {
-    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
-    if (offlineSpannedFiles) {
-        return offlineSpannedFiles.map(e => {
-            let url
-            if (!tempURLController.has(e.id)) {
-                url = window.URL.createObjectURL(e.block)
-                tempURLController.set(e.id, url);
-            } else {
-                url = tempURLController.get(e.id);
-            }
-            return {
-                ...e,
-                href: url
-            }
-        })
-    } else {
-        return false;
-    }
-}
-async function getAllExpirableSpannedFiles() {
-    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
-    if (offlineSpannedFiles) {
-        return offlineSpannedFiles.filter(e => e.expires).map(e => {
-            let url
-            if (!tempURLController.has(e.id)) {
-                url = window.URL.createObjectURL(e.block)
-                tempURLController.set(e.id, url);
-            } else {
-                url = tempURLController.get(e.id);
-            }
-            return {
-                ...e,
-                href: url
-            }
-        })
-    } else {
-        return false;
-    }
 }
 
 function replaceDiscordCDN(url) {
@@ -1413,6 +1203,96 @@ async function cachePageOffline(_url) {
     $('#cacheModal').modal('hide');
     await kernelRequestData({type: 'SAVE_STORAGE_PAGE', url, limit});
 }
+async function getSpannedFileIfAvailable(fileid) {
+    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_SPANNED_FILE', fileid});
+    if (offlineSpannedFiles) {
+        let url
+        if (!tempURLController.has(fileid)) {
+            url = window.URL.createObjectURL(offlineSpannedFiles.block)
+            tempURLController.set(fileid, url);
+        } else {
+            url = tempURLController.get(fileid);
+        }
+        return {
+            ...offlineSpannedFiles,
+            href: url
+        }
+    } else {
+        return false;
+    }
+}
+async function getAllOfflineSpannedFiles() {
+    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
+    if (offlineSpannedFiles) {
+        return offlineSpannedFiles.map(e => {
+            let url
+            if (!tempURLController.has(e.id)) {
+                url = window.URL.createObjectURL(e.block)
+                tempURLController.set(e.id, url);
+            } else {
+                url = tempURLController.get(e.id);
+            }
+            return {
+                ...e,
+                href: url
+            }
+        })
+    } else {
+        return false;
+    }
+}
+async function getAllExpirableSpannedFiles() {
+    const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
+    if (offlineSpannedFiles) {
+        return offlineSpannedFiles.filter(e => e.expires).map(e => {
+            let url
+            if (!tempURLController.has(e.id)) {
+                url = window.URL.createObjectURL(e.block)
+                tempURLController.set(e.id, url);
+            } else {
+                url = tempURLController.get(e.id);
+            }
+            return {
+                ...e,
+                href: url
+            }
+        })
+    } else {
+        return false;
+    }
+}
+async function deleteOfflinePage(_url, noupdate) {
+    const url = params(['limit', 'offset', 'num', '_h'], [], _url);
+    if (url) {
+        return await kernelRequestData({type: 'REMOVE_STORAGE_PAGE', url: url, noupdate: noupdate})
+    } else {
+        console.log('URL not validated')
+    }
+}
+async function deleteOfflineFile(eid, noupdate, preemptive) {
+    return await kernelRequestData({type: 'REMOVE_STORAGE_FILE', eid, noupdate, preemptive})
+}
+async function clearCache(list) {
+    await caches.keys().then(cacheNames => {
+        console.log(`Local Caches Stores:`);
+        return Promise.all(
+            cacheNames.filter(e => !list || (list && list.filter(f => e.includes(f)).length > 0)).map(cache => {
+                console.log(cache)
+                console.log('JulyOS Kernel: Deleteing Old Cache - ' + cache);
+                return caches.delete(cache);
+            })
+        );
+    })
+}
+async function clearKernelCache() {
+    await clearCache(['generic', 'kernel', 'config']);
+    window.location.reload();
+}
+async function clearAllOfflineData() {
+    $('#cacheModal').modal('hide');
+    serviceWorkerMessageAsync({type: 'CLEAR_ALL_STORAGE'})
+}
+
 async function generateGalleryHTML(url, eids) {
     $("#userMenu").collapse("hide");
     try {
@@ -1822,6 +1702,116 @@ async function generateEpisodeHTML(url) {
             delay: 10000,
         });
     }
+}
+async function getOfflinePages() {
+    if (document.getElementById('offlinePageList')) {
+        document.getElementById('offlinePages').classList.remove('hidden');
+        $("#userMenu").collapse("hide")
+        const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
+        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
+            let icon = 'fa-page';
+            if (page.url.includes('/gallery'))
+                icon = 'fa-image'
+            if (page.url.includes('/files'))
+                icon = 'fa-folder'
+            if (page.url.includes('/cards'))
+                icon = 'fa-message'
+            if (page.url.includes('album='))
+                icon = 'fa-archive'
+
+            return `<tr>
+            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
+            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
+            <td class="py-2"><span>${page.totalItems}</span></td>
+        </tr>`
+        }).join('');
+    }
+}
+async function displayOfflineData() {
+    let linkedEids = [];
+    let linkedFileids = [];
+    const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
+    const pageRows = pages.map((e,i) => {
+        let icon = 'fa-page';
+        if (e.url.includes('/gallery'))
+            icon = 'fa-image'
+        if (e.url.includes('/files'))
+            icon = 'fa-folder'
+        if (e.url.includes('/cards'))
+            icon = 'fa-message'
+        if (e.url.includes('album='))
+            icon = 'fa-archive'
+        if (e.items)
+            linkedEids.push(...e.items);
+
+        return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
+            <div class="px-2"><i class="fas ${icon}"></i></div>
+            <div class="w-100"><span>${e.title}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="kernelRequestData({ type: 'SAVE_STORAGE_PAGE', url: '${e.url}' }); return false">
+                    <i class="fas fa-arrows-rotate"></i>
+                </a>
+                <a class="p-2" href="#_" onclick="deleteOfflinePage('${e.url}'); document.getElementById('cachePageItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (pageRows.length > 0) {
+        document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
+    } else {
+        document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
+    }
+
+    const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+    linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
+    const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
+        let icon = 'fa-file';
+        if (e.data_type === 'image')
+            icon = 'fa-image'
+        if (e.data_type === 'video')
+            icon = 'fa-film'
+        if (e.data_type === 'audio')
+            icon = 'fa-music'
+
+        return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
+            <div class="px-2"><i class="fas ${icon}"></i></div>
+            <div class="w-100"><span>${e.filename}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="deleteOfflineFile('${e.eid}'); document.getElementById('cacheItemItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (fileRows.length > 0) {
+        document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
+    } else {
+        document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
+    }
+
+    const offlineSpannedFiles = await getAllOfflineSpannedFiles();
+    const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
+        return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
+            <div class="px-2"><i class="fas fa-box-open"></i></div>
+            <div class="w-100"><span>${e.filename}</span></div>
+            <div class="d-flex">
+                <a class="p-2" href="#_" onclick="removeCacheItem('${e.id}'); document.getElementById('cacheSpanItem-${i}').remove(); return false">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>`
+    });
+
+    if (spannedRows.length > 0) {
+        document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
+    } else {
+        document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
+    }
+
+    $('#cacheModal').modal('show');
 }
 
 async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile, doc) {
@@ -3539,7 +3529,7 @@ function setMenuBarLocation() {
 }
 
 // Send Action
-function toggleFavorite(channelid, eid) {
+async function toggleFavorite(channelid, eid) {
     const star = document.querySelector(`#fav-${eid} > i.fas.fa-star`)
     let isFavorite = false;
     if (star)
@@ -3686,7 +3676,7 @@ async function setWatchHistory(eid, viewed) {
     });
     return false;
 }
-function toggleStarHistoryItem(index) {
+async function toggleStarHistoryItem(index) {
     const star = document.querySelector(`#favHistory-${index} > i.fas.fa-star`)
     let isFavorite = false;
     if (star)
@@ -3706,7 +3696,7 @@ function removeAllHistory() {
 
     return false;
 }
-function queueAction(serverid, channelid, messageid, action, data, isReviewAction, noUndo) {
+async function queueAction(serverid, channelid, messageid, action, data, isReviewAction, noUndo) {
     let preview = undefined
 /*    const _post = document.getElementById(`message-${messageid}`)
     if (pageType.includes('gallery')) {
@@ -3725,7 +3715,7 @@ function queueAction(serverid, channelid, messageid, action, data, isReviewActio
         undoActions.push(messageid);
     updateActionsPanel();
 }
-function commitPendingActions() {
+async function commitPendingActions() {
     $.ajax({async: true,
         type: "post",
         url: "/actions/v2",
@@ -3803,7 +3793,7 @@ function commitPendingActions() {
     });
     return false;
 }
-function cancelPendingAction(messageid) {
+async function cancelPendingAction(messageid) {
     if (messageid === -1) {
         Object.values(apiActions).map((request) => {
             const message = document.getElementById(`message-${request.messageid}`)
@@ -3821,7 +3811,7 @@ function cancelPendingAction(messageid) {
     }
     updateActionsPanel();
 }
-function undoPendingAction() {
+async function undoPendingAction() {
     if (undoActions.length > 0) {
         const lastAction = undoActions.pop();
         if (typeof lastAction === 'string') {
@@ -3840,7 +3830,7 @@ function undoPendingAction() {
     }
     updateActionsPanel();
 }
-function updateActionsPanel() {
+async function updateActionsPanel() {
     if (document.getElementById('actionPanel')) {
         if (Object.keys(apiActions).length > 0) {
             $('#actionPanel').removeClass('hidden')
@@ -3921,54 +3911,7 @@ function updateActionsPanel() {
         }
     }*/
 }
-function sendAction(serverid, channelid, messageid, action, data, confirm) {
-    if (inReviewMode) {
-        queueAction(serverid, channelid, messageid, action, data);
-        document.getElementById(`message-${messageid}`).classList.add('hidden');
-    } else {
-        $.ajax({
-            async: true,
-            type: "post",
-            url: "/actions/v2",
-            data: {
-                'serverid': serverid,
-                'channelid': channelid,
-                'messageid': messageid,
-                'action': action,
-                'data': data
-            },
-            cache: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR'
-            },
-            success: function (res, txt, xhr) {
-                if (xhr.status < 400) {
-                    console.log(res);
-                    if (confirm) {
-                        $.snack('success', `${res}`, 5000)
-                    }
-                    ;
-                    afterAction(action, data, messageid, confirm);
-                } else {
-                    console.log(res.responseText);
-                    document.getElementById(`message-${messageid}`).classList.remove('hidden')
-                }
-            },
-            error: function (xhr) {
-                $.toast({
-                    type: 'error',
-                    title: 'Failed to complete action',
-                    subtitle: 'Now',
-                    content: `${xhr.responseText}`,
-                    delay: 5000,
-                });
-                document.getElementById(`message-${messageid}`).classList.remove('hidden')
-            }
-        });
-    }
-    return false;
-}
-function sendBasic(channelid, messageid, action, confirm) {
+async function sendBasic(channelid, messageid, action, confirm) {
     $.ajax({async: true,
         type: "post",
         url: "/actions/v1",
@@ -4000,7 +3943,7 @@ function sendBasic(channelid, messageid, action, confirm) {
     });
     return false;
 }
-function afterAction(action, data, id, confirm) {
+async function afterAction(action, data, id, confirm) {
     const message = document.getElementById(`message-${id}`);
     if (message || (action === 'Pin' || action === 'Unpin' || action === 'PinUser' || action === 'UnpinUser')) {
         console.log('Message Request Sent!')
@@ -4215,11 +4158,26 @@ function kernelRequestData(message) {
     });
 }
 
+
 if ('serviceWorker' in navigator) {
     let swRegistation
     navigator.serviceWorker.ready.then((registration) => {
         Notification.requestPermission().then(r => {
             swRegistation = registration
+        });
+        navigator.serviceWorker.ready.then(async (registration) => {
+            if (registration.periodicSync) {
+                const status = await navigator.permissions.query({name: 'periodic-background-sync'});
+                if (status.state === 'granted') {
+                    await registration.periodicSync.register('SYNC_PAGES_NEW_ONLY', {
+                        minInterval: 8 * 60 * 60 * 1000
+                    });
+                } else {
+                    // Periodic background sync cannot be used.
+                }
+            } else {
+                // Periodic Background Sync isn't supported.
+            }
         });
         console.log(`Service Worker is ready!`);
         serviceWorkerReady = true;

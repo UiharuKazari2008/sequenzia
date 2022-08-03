@@ -137,8 +137,8 @@ $(document).ready(function () {
     function scrollManager () {
         if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); }
         scrollManagerThrottleTimeout = setTimeout(function() {
-            const topbar = $('#topbar')
-            const menu = $('#userMenu')
+            const topbar = document.getElementById('topbar');
+            const menu = document.getElementById('userMenu')
             const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
             const playeropen = document.querySelector('body').classList.contains('kms-play-open')
             const bottombar = document.querySelector('body').classList.contains('bottom-bar')
@@ -147,14 +147,14 @@ $(document).ready(function () {
             } else {
                 $('.scrollBtn').fadeOut();
             }
-            if ($(this).scrollTop() > 50 || menu.hasClass('show')) {
+            if ($(this).scrollTop() > 50 || menu.classList.contains('show')) {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
                 $('#topbarBackground').fadeIn();
                 if (mediaRule &&!playeropen)
                     mediaRule.content = (bottombar) ? "#000" : "#d07300"
-                topbar.addClass('shadow');
+                topbar.classList.add('shadow');
             } else {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
@@ -162,10 +162,10 @@ $(document).ready(function () {
                 $('#topbarBackground').fadeOut();
                 if (mediaRule &&!playeropen)
                     mediaRule.content = (bottombar) ? "#000" : "#000"
-                topbar.removeClass('shadow');
+                topbar.classList.remove('shadow');
             }
-            if (!topbar.hasClass('no-ani')) {
-                topbar.removeClass('ready-to-scroll');
+            if (!topbar.classList.contains('no-ani')) {
+                topbar.classList.remove('ready-to-scroll');
             };
             if (sidebar.hasClass("open")) {
                 const sidebarTop = $("#accordionSidebar").offset().top; //gets offset of header

@@ -324,7 +324,7 @@ color: #b3ff85;
     width: 100%;
     z-index: -2;
     backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    --webkit-backdrop-filter: blur(5px);
     background-color: #000000a1;
     border-bottom: solid 1px #ff844e21;
 }
@@ -367,7 +367,7 @@ color: #b3ff85;
 }
 
 #mainMenuBar {
-    box-shadow: 0px 0 20px 0 #00000000;
+    box-shadow: none;
     -prefix-animation: mainMenuBar-close 0.5s ease 0s forwards;
     -webkit-animation: mainMenuBar-close 0.5s ease 0s forwards;
     animation: mainMenuBar-close 0.5s ease 0s forwards;
@@ -569,7 +569,8 @@ border-color: rgba(0, 217, 234, 0.2);
 }
 
 .tz-gallery .lightbox .square {
-box-shadow: 0 2px 10px 0px rgba(0,0,0,0.3);
+    /*box-shadow: 0 2px 10px 0px rgba(0,0,0,0.3);*/
+    box-shadow: none;
 }
 .internal-lightbox, .overlay-icons {
     color: white;

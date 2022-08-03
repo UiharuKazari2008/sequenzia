@@ -378,6 +378,13 @@
   "display": "standalone",
   "scope": "/",
   "theme_color": "#000",
+  "display_override": ["window-controls-overlay"],
+  "protocol_handlers": [
+    {
+      "protocol": "web+JFS",
+      "url": "/juneOS#/files?channel=%s"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Latest Media",

@@ -30,7 +30,7 @@ function updateTextContents(obj) {
 }
 
 // Post Mangement
-function proccessPost(alt) {
+async function proccessPost(alt) {
     if (!inReviewMode)
         disableGallerySelect();
     $('#actionModel').modal('hide');
@@ -66,7 +66,7 @@ function proccessPost(alt) {
     };
     shiftRecentPostDestinations();
 }
-function openActionMenu(mode) {
+async function openActionMenu(mode) {
     if (postsActions.length > 0) {
         pageType = $.history.url().split('?')[0].substring(1)
         modeSelection = (mode) ? 'multi' : 'single';
@@ -207,7 +207,7 @@ function selectedActionMenu(action) {
     return false;
 }
 // Multiple Post
-function enableGallerySelect() {
+async function enableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
     if (pageType.includes('gallery')) {
         $('.select-panel').collapse('show');
@@ -237,7 +237,7 @@ function enableGallerySelect() {
         console.log('Failed to set button groups')
     }
 }
-function disableGallerySelect() {
+async function disableGallerySelect() {
     pageType = $.history.url().split('?')[0].substring(1)
     modeSelection = 'none';
     if (pageType.includes('gallery')) {
@@ -276,7 +276,7 @@ function disableGallerySelect() {
         console.log('Failed to reset button groups')
     }
 }
-function selectPostToMode(messageid, modeType) {
+async function selectPostToMode(messageid, modeType) {
     const _post = document.getElementById(`message-${messageid}`);
     const channelid = _post.getAttribute('data-msg-channel');
     const serverid = _post.getAttribute('data-msg-server');
@@ -341,7 +341,7 @@ function selectPostToMode(messageid, modeType) {
     }
     return false;
 }
-function deselectPostToMode(messageid) {
+async function deselectPostToMode(messageid) {
     if (postsActions.length === 0) {
         clearactionModel();
     }
@@ -353,13 +353,13 @@ function deselectPostToMode(messageid) {
     return false;
 }
 // Select and Deselect All Posts
-function selectAllPoststoMode() {
+async function selectAllPoststoMode() {
     const selectButtons = document.querySelectorAll('.selectPostToMode:not(.hidden)');
     selectButtons.forEach(div => { div.click(); });
     $('#selectAll1')[0].classList.add('hidden');
     $('#deSelectAll1')[0].classList.remove('hidden');
 }
-function deselectAllPoststoMode() {
+async function deselectAllPoststoMode() {
     const selectButtons = document.querySelectorAll('.deselectPostToMode:not(.hidden)');
     selectButtons.forEach(div => { div.click(); });
     $('#selectAll1')[0].classList.remove('hidden');
@@ -367,7 +367,7 @@ function deselectAllPoststoMode() {
 }
 
 // Fast Review
-function setupReviewMode(bypass) {
+async function setupReviewMode(bypass) {
     if (reviewDestination !== '') {
         setupReviewModel.querySelector("#destination-" + reviewDestination).classList.add('active')
         setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
@@ -394,7 +394,7 @@ function setupReviewMode(bypass) {
     }
     return false;
 }
-function enableReviewMode(setFromDialog) {
+async function enableReviewMode(setFromDialog) {
     const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
         setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
@@ -447,7 +447,7 @@ function enableReviewMode(setFromDialog) {
     }
     return false;
 }
-function disableReviewMode() {
+async function disableReviewMode() {
     inReviewMode = false;
     pageType = $.history.url().split('?')[0].substring(1)
     modeSelection = 'none';
@@ -481,7 +481,7 @@ function disableReviewMode() {
         console.log('Failed to reset button groups')
     }
 }
-function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
+async function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     if (reviewDestination && reviewDestination.length > 1) {
         pageType = $.history.url().split('?')[0].substring(1)
         if (direct) {
@@ -530,7 +530,7 @@ function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     }
     return false;
 }
-function exitPanel(messageid) {
+async function exitPanel(messageid) {
     if (inReviewMode) {
         $(`#imageFastReview-${messageid}`).collapse('show');
     } else {
@@ -538,7 +538,7 @@ function exitPanel(messageid) {
     }
     return false;
 }
-function acceptMenu(serverid, channelid, messageid, fileStatus) {
+async function acceptMenu(serverid, channelid, messageid, fileStatus) {
     if (recentPostDestination && recentPostDestination.length > 0) {
         const destinationMenu = document.getElementById(`imageMove-${messageid}`).querySelector('.move-content')
         let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map(e => {
@@ -561,12 +561,12 @@ function acceptMenu(serverid, channelid, messageid, fileStatus) {
     }
     return false;
 }
-function rejectItem(serverid, channelid, messageid) {
+async function rejectItem(serverid, channelid, messageid) {
     document.getElementById(`message-${messageid}`).classList.add('hidden');
     queueAction(serverid, channelid, messageid, 'RemovePost', null, true);
     return false;
 }
-function rejectAllItems(direction, id) {
+async function rejectAllItems(direction, id) {
     let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image:not(.hidden)'))
     switch (direction) {
         case 1:
@@ -605,7 +605,7 @@ function rejectAllItems(direction, id) {
     }
     return false;
 }
-function acceptAllItems(direction, id) {
+async function acceptAllItems(direction, id) {
     let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image:not(.hidden)'))
     switch (direction) {
         case 1:
@@ -644,7 +644,7 @@ function acceptAllItems(direction, id) {
     }
     return false;
 }
-function moveAllItems() {
+async function moveAllItems() {
     if (postsDestination !== '') {
         actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
         actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
@@ -698,7 +698,7 @@ function moveAllItems() {
     }
     return false;
 }
-function setReviewChannel(chid, noSave) {
+async function setReviewChannel(chid, noSave) {
     const chname = setupReviewModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
     setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
@@ -733,7 +733,7 @@ function setReviewChannel(chid, noSave) {
 }
 
 // Move Model Management
-function updateRecentPostDestinations() {
+async function updateRecentPostDestinations() {
     let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map(e => {
         const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
         if (n) {
@@ -744,7 +744,7 @@ function updateRecentPostDestinations() {
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
 }
-function shiftRecentPostDestinations() {
+async function shiftRecentPostDestinations() {
     try {
         if (recentPostDestination.indexOf(postsDestination) !== -1) {
             recentPostDestination.sort(function (x, y) {
@@ -760,7 +760,7 @@ function shiftRecentPostDestinations() {
         console.error(e)
     }
 }
-function selectedChannel(chid) {
+async function selectedChannel(chid) {
     const chname = actionModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')
     actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
     actionModel.querySelector("#channelSelector").style.backgroundColor = chname.toRGB();
@@ -783,7 +783,7 @@ function selectedChannel(chid) {
     }
     return false;
 }
-function selectedRotate(rotate) {
+async function selectedRotate(rotate) {
     actionModel.querySelector("#rotateSelector").classList.remove('btn-secondary')
     actionModel.querySelector("#rotateSelector").classList.add('btn-success')
     actionModel.querySelector("#selectedRotate").innerText = rotate;
@@ -799,7 +799,7 @@ function selectedRotate(rotate) {
     imageRotate = rotate;
     return false;
 }
-function clearactionModel() {
+async function clearactionModel() {
     countdownTimer = -1;
     if (!inReviewMode)
         disableGallerySelect();
@@ -836,7 +836,7 @@ function clearactionModel() {
     modeSelection = 'none'
     return false;
 }
-function buttonCountdown () {
+async function buttonCountdown () {
     if ($('#actionModel').is(':visible')) {
         timerText.innerText = ` (${countdownTimer})`;
         if (countdownTimer <= 0) {
@@ -1053,7 +1053,7 @@ function deleteAlbum(aid) {
         });
     }
 }
-function toggleAlbumItem(aid, eid) {
+async function toggleAlbumItem(aid, eid) {
     $.ajax({async: true,
         url: `/actions/v1`,
         type: "post",
