@@ -1186,7 +1186,7 @@ async function cacheFileOffline(element, noConfirm, preemptive) {
 async function cacheEpisodeOffline(element, noConfirm, preemptive) {
     if (element) {
         const eid = element.getAttribute('data-msg-eid');
-        const fileExists = (eid) ? await kernelRequestData({type: 'GET_STORAGE_FILE', eid}) : false;
+        const fileExists = await kernelRequestData({type: 'GET_STORAGE_FILE', eid: eid});
         const meta = extractMetaFromElement(element, (preemptive && !fileExists));
         kernelRequestData({
             type: 'SAVE_STORAGE_KMS_EPISODE',
