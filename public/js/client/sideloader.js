@@ -1815,11 +1815,12 @@ async function displayOfflineData() {
         document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
     }
 
+    const usedDBStorage = document.getElementById('storageDBUsed');
+    const usedCacheStorage = document.getElementById('storageCacheUsed');
+    const usedOtherStorage = document.getElementById('storageOtherUsed');
+    const freeStorage = document.getElementById('storageFreeText');
+
     try {
-        const usedDBStorage = document.getElementById('storageDBUsed');
-        const usedCacheStorage = document.getElementById('storageCacheUsed');
-        const usedOtherStorage = document.getElementById('storageOtherUsed');
-        const freeStorage = document.getElementById('storageFreeText');
         const usedSpace = await navigator.storage.estimate();
         const freeSpace = (usedSpace.quota - usedSpace.usage);
         const freeSpaceText = (() => {
@@ -1840,6 +1841,7 @@ async function displayOfflineData() {
         usedOtherStorage.style.width = `${(usedSpace.usage / (usedSpace.quota - usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations))) * 100}%`;
         freeStorage.innerText = `${freeSpaceText} Free`;
     } catch (e) {
+        freeStorage.innerText = `Not Available`;
         console.error(e);
         console.error(`Failed to get usage information`);
     }
