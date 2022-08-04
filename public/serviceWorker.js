@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v2-20';
+const cacheName = 'DEV-v2-21';
 const cacheCDNName = 'DEV-v2-10';
 const origin = location.origin
 const offlineUrl = './offline';
@@ -136,36 +136,36 @@ async function broadcastAllMessage(message) {
         type: "window"
     }).then(all => all.map(client => client.postMessage(message)));
 }
-function selectCache(event) {
-    const uri = event.request.url.split(origin).pop().toString()
+function selectCache(url, internalRequest) {
+    const uri = url.split(origin).pop().toString()
     if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0 || uri === '/' || uri === '/home')
         return cacheOptions.cacheConfig
-    if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !event.request.url.includes('.discordapp.'))
+    if (internalRequest && (uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !url.includes('.discordapp.'))
         return cacheOptions.cacheCDN
-    if (uri.startsWith('/media_attachments/') && !event.request.url.includes('.discordapp.'))
+    if (internalRequest && uri.startsWith('/media_attachments/') && !url.includes('.discordapp.'))
         return cacheOptions.cacheProxy
-    if (event.request.url.toString().startsWith(cacheOptions.cdnCache.cdn))
+    if (url.toString().startsWith(cacheOptions.cdnCache.cdn))
         return cacheOptions.tempCacheCDN
-    if (event.request.url.toString().startsWith(cacheOptions.cdnCache.media))
+    if (url.toString().startsWith(cacheOptions.cdnCache.media))
         return cacheOptions.tempCacheProxy
     if (cacheOptions.preloadCache.filter(b => uri.startsWith(b) || uri === b).length > 0)
         return cacheOptions.cacheKernel
     return cacheOptions.cacheGeneral
 }
-async function handleResponse(event, response, reqType) {
-    const uri = event.request.url.split(origin).pop().toString()
+async function handleResponse(url, response, reqType) {
+    const uri = url.split(origin).pop().toString()
     if (response.status < 300 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_')))) {
-        const selectedCache = selectCache(event);
+        const selectedCache = selectCache(url);
         if (swDebugMode)
-            console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${event.request.url}`);
+            console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
         const copy = response.clone();
-        const cacheURL = (event.request.url.includes('/full_attachments/')) ? '/full_attachments/' + event.request.url.split('/full_attachments/').pop() : (event.request.url.includes('/media_attachments/')) ? '/media_attachments/' + event.request.url.split('/media_attachments/').pop() : event.request;
+        const cacheURL = (url.includes('/full_attachments/')) ? '/full_attachments/' + url.split('/full_attachments/').pop() : (url.includes('/media_attachments/')) ? '/media_attachments/' + url.split('/media_attachments/').pop() : url;
         caches.open(selectedCache).then(cache => cache.put(cacheURL, copy))
     } else {
         if (swDebugMode)
-            console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${event.request.url}`);
+            console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${url}`);
     }
     return response;
 }
@@ -176,7 +176,7 @@ async function shouldRecache(event) {
 async function reCache(event, cacheName) {
     return fetch(event.request)
         .then(response => {
-            const selectedCache = cacheName || selectCache(event);
+            const selectedCache = cacheName || selectCache(event.request.url);
             if (swDebugMode)
                 console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`);
             caches.open(selectedCache).then(cache => cache.put(event.request, response))
@@ -293,6 +293,7 @@ self.addEventListener('activate', e => {
         if (self.registration.navigationPreload) {
             await self.registration.navigationPreload.enable();
         }
+        await expireTempCache();
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cache => {
@@ -305,8 +306,6 @@ self.addEventListener('activate', e => {
         })
     }());
 });
-
-
 
 self.addEventListener('fetch', event => {
     event.respondWith(async function() {
@@ -346,7 +345,7 @@ self.addEventListener('fetch', event => {
         try {
             const response = (await event.preloadResponse || await fetch(event.request))
             if (response) {
-                handleResponse(event, response, "Network");
+                handleResponse(event.request.url, response, "Network");
                 return response;
             } else {
                 console.log('JulyOS Kernel: Offline - ' + event.request.url);
@@ -377,6 +376,9 @@ self.addEventListener('sync', async (event) => {
             break;
         case 'SYNC_SERIES':
 
+            break;
+        case 'CLEAN_TEMP_CACHE':
+            expireTempCache();
             break;
         default:
             console.error('Sync Tag not recognized - ' + event.tag);
@@ -482,6 +484,11 @@ self.addEventListener('message', async (event) => {
     }
 });
 
+function expireTempCache() {
+    Promise.all([cacheOptions.tempCacheCDN, cacheOptions.tempCacheProxy].map(async cacheName => {
+        await caches.delete(cacheName);
+    }))
+}
 
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
@@ -958,18 +965,67 @@ async function removeCacheItem(id) {
     }
 }
 
-async function fetchBackground(name, url) {
+async function fetchBackground(name, url, request, options) {
     if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
-        return self.registration.backgroundFetch.fetch(name, url);
+        return self.registration.backgroundFetch.fetch(name, (request || url), options);
     } else {
-        return fetch(url);
-    }
-}
-async function fetchBackgroundRequest(name, request, options) {
-    if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
-        return self.registration.backgroundFetch.fetch(name, request, options);
-    } else {
-        return fetch(request, options);
+        return new Promise(async resolve => {
+            try {
+                const cachedResponse = await caches.match((request || url));
+                if (cachedResponse) {
+                    if (swDebugMode)
+                        console.log('JulyOS Internal Kernel: Cache - ' + url);
+                    const response = await fetch((request || url), options)
+                    const selectedCache = selectCache(url, true);
+                    if (swDebugMode)
+                        console.log(`JulyOS Internal Kernel: Update Cache (${selectedCache}) - ${url}`);
+                    caches.open(selectedCache).then(cache => cache.put((request || url), response))
+                    resolve(response);
+                }
+
+                if (url.includes('.discordapp.') && url.includes('/attachments/')) {
+                    const newURL = `/${url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${url.split('/attachments/').pop()}`;
+                    const cdnCache = (await caches.open(cacheOptions.cacheCDN) || await caches.open(cacheOptions.tempCacheCDN));
+                    const cachedResponse = await cdnCache.match(newURL);
+                    if (cachedResponse) {
+                        if (swDebugMode)
+                            console.log('JulyOS Internal Kernel: Indirect CDN Cache - ' + url);
+                        resolve(cachedResponse);
+                    }
+                    if (url.includes('https://media.discordapp.net/')) {
+                        const proxyCache = (await caches.open(cacheOptions.cacheProxy) || await caches.open(cacheOptions.tempCacheProxy));
+                        const cachedNoQueryResponse = await proxyCache.match(newURL.split('?')[0]);
+                        if (cachedNoQueryResponse) {
+                            if (swDebugMode)
+                                console.log('JulyOS Internal Kernel: Indirect CDN Cache (Resolution Bypass) - ' + url);
+                            resolve(cachedNoQueryResponse);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('JulyOS Internal Kernel: Error fetching cache or preloaded response - ' + url)
+                console.error(err);
+            }
+
+            // Else try the network.
+            try {
+                const response = await fetch((request || url), options)
+                if (response) {
+                    handleResponse(url, response, "Network");
+                    resolve(response);
+                } else {
+                    console.log('JulyOS Internal Kernel: Offline - ' + url);
+                    resolve(new Response(null, {
+                        status: 501
+                    }))
+                }
+            } catch (err) {
+                console.log('JulyOS Internal Kernel: Offline - ' + url);
+                resolve(new Response(null, {
+                    status: 501
+                }))
+            }
+        })
     }
 }
 async function cacheFileURL(object, page_item) {
@@ -1457,7 +1513,7 @@ async function unpackFile() {
         broadcastAllMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'GET_METADATA', fileid: activeID});
         return await new Promise(async (job) => {
             try {
-                const response = await fetchBackgroundRequest(`parity-${activeID}`, new Request(`/parity/${activeID}?${(new Date()).getTime()}`, {
+                const response = await fetchBackground(`parity-${activeID}`, `/parity/${activeID}`, new Request(`/parity/${activeID}`, {
                     type: 'GET',
                     redirect: "follow",
                     headers: {
@@ -1503,7 +1559,7 @@ async function unpackFile() {
                                     const results = await Promise.all(downloadKeys.map(async item => {
                                         return new Promise(async ok => {
                                             try {
-                                                const block = await fetchBackgroundRequest(`parity-block-${activeID}-${item}`, new Request(pendingBlobs[item], {
+                                                const block = await fetchBackground(`parity-block-${activeID}-${item}`, pendingBlobs[item], new Request(pendingBlobs[item], {
                                                     method: 'GET',
                                                     signal: activeSpannedJob.abort.signal
                                                 }))

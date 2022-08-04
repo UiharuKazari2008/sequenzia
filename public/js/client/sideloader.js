@@ -2497,6 +2497,7 @@ async function updateNotficationsPanel() {
     const tempSpannedFiles = await getAllExpirableSpannedFiles();
     if (unpackingJobs.size !== 0 || offlineDownloadController.size !== 0 || tempSpannedFiles.length > 0) {
         let activeSpannedJob = false;
+        let completedKeys = [];
         const keys = Array.from(unpackingJobs.keys()).map(e => {
             const item = unpackingJobs.get(e);
             if (item.active) {
@@ -2524,7 +2525,6 @@ async function updateNotficationsPanel() {
             results.push(`</a>`);
             return results.join('\n');
         });
-        let completedKeys = [];
         if (tempSpannedFiles.length > 0) {
             if (keys.length > 0 || offlineKeys.length > 0)
                 completedKeys.push(`<div class="dropdown-divider"></div>`);
