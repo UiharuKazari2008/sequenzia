@@ -293,7 +293,6 @@ self.addEventListener('activate', e => {
         if (self.registration.navigationPreload) {
             await self.registration.navigationPreload.enable();
         }
-        await expireTempCache();
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cache => {
@@ -412,16 +411,23 @@ self.addEventListener('message', async (event) => {
     switch (event.data.type) {
         case 'SKIP_WAITING':
             self.skipWaiting();
+            event.ports[0].postMessage(true);
             break;
         case 'UNPACK_FILE':
             openUnpackingFiles(event.data.options, event.ports[0]);
+            event.ports[0].postMessage(true);
             break;
         case 'CANCEL_UNPACK_FILE':
             stopUnpackingFiles(event.data.fileid);
             event.ports[0].postMessage(true);
             break;
+        case 'CANCEL_STORAGE_PAGE':
+            offlineDownloadSignals.delete(event.data.url);
+            event.ports[0].postMessage(true);
+            break;
         case 'CLEAR_ALL_STORAGE':
             clearAllOfflineData();
+            event.ports[0].postMessage(true);
             break;
         case 'SAVE_STORAGE_PAGE':
             cachePageOffline(undefined, event.data.url, event.data.limit)
@@ -947,8 +953,12 @@ async function deleteOfflineFile(eid, noupdate, preemptive) {
     }
 }
 async function clearAllOfflineData() {
-    (await getAllOfflinePages()).map(async e => await deleteOfflinePage(e.url, true));
-    (await getAllOfflineFiles()).map(async e => await deleteOfflineFile(e.eid, true));
+    const pages = await getAllOfflinePages();
+    await Promise.all(pages.map(async e => await deleteOfflinePage(e.url, true)));
+    const files = await getAllOfflineFiles();
+    await Promise.all(files.map(async e => await deleteOfflineFile(e.eid, true)));
+    const spanned = await getAllOfflineSpannedFiles();
+    await Promise.all(spanned.map(async e => await removeCacheItem(e.id)));
     broadcastAllMessage({
         type: 'MAKE_SNACK',
         level: 'success',
@@ -1242,6 +1252,10 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                     text: `<i class="fas fa-sd-card pr-2"></i>Offline Download Canceled or Failed`,
                     timeout: 5000
                 });
+                broadcastAllMessage({
+                    type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
+                    url
+                })
             } else {
                 if (browserStorageAvailable) {
                     try {

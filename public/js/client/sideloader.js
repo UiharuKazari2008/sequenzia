@@ -976,6 +976,7 @@ async function offlineSelectedItems() {
             title: 'Selected Items',
             downloaded: downloadedFiles,
             totalItems: postsActions.length,
+            local: true
         }
         offlineDownloadController.set(_url, status);
         offlineDownloadSignals.set(_url, true);
@@ -1285,12 +1286,15 @@ async function clearCache(list) {
     })
 }
 async function clearKernelCache() {
-    await clearCache(['generic', 'kernel', 'config']);
+    await clearCache(['generic', 'kernel', 'config', 'temp-']);
     window.location.reload();
 }
 async function clearAllOfflineData() {
     $('#cacheModal').modal('hide');
-    serviceWorkerMessageAsync({type: 'CLEAR_ALL_STORAGE'})
+    return await kernelRequestData({type: 'CLEAR_ALL_STORAGE'})
+}
+async function clearCDNCache() {
+    return await kernelRequestData({type: 'CLEAN_TEMP_CACHE'})
 }
 
 async function generateGalleryHTML(url, eids) {
@@ -2518,7 +2522,7 @@ async function updateNotficationsPanel() {
             if (keys.length > 0)
                 completedKeys.push(`<div class="dropdown-divider"></div>`);
             const item = offlineDownloadController.get(e);
-            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="offlineDownloadSignals.delete('${e}'); return false;")>`]
+            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="cancelPendingCache('${e}'); return false;")>`]
             results.push(`<i class="fas fa-cloud-download pr-2"></i>`);
             results.push(`<span class="text-ellipsis">${(item.title) ? item.title : e} (${item.totalItems})</span>`);
             results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
@@ -3810,6 +3814,10 @@ async function cancelPendingAction(messageid) {
         delete apiActions[messageid]
     }
     updateActionsPanel();
+}
+async function cancelPendingCache(url) {
+    await kernelRequestData({type: 'CANCEL_STORAGE_PAGE', url});
+    offlineDownloadSignals.delete(url);
 }
 async function undoPendingAction() {
     if (undoActions.length > 0) {
