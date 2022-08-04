@@ -6,7 +6,7 @@ body {
     font-family: "Montserrat";
     background: black;
     background: black;
-    height: --webkit-fill-available;
+    height: -webkit-fill-available;
     height: 100vh;
 }
 

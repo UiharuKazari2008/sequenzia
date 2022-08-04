@@ -324,7 +324,7 @@ color: #b3ff85;
     width: 100%;
     z-index: -2;
     backdrop-filter: blur(5px);
-    --webkit-backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     background-color: #000000a1;
     border-bottom: solid 1px #ff844e21;
 }
