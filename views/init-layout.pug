@@ -126,7 +126,7 @@ html
     body(id="page-top").sidebar-toggled
         #bootUpDisplay
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-5
-                .boot-logo.animated--fade-in
+                .boot-logo
                     img(src='/static/img/boot-logo.png' style='max-width: 40em; width: 100%; max-height: 45vh;')
                 .boot-text.mt-5.mb-5
                     .boot-loader-bar.ml-auto.mr-auto.rounded
@@ -776,6 +776,21 @@ html
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(href='/offline') Offline
+        #cachePageModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title Keep Offline
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.px-2.pb-2
+                            b All media from the current results will be available offline
+                        div.pb-2.d-flex
+                            input#maxCountOfflinePage.form-control(type="text" placeholder="Max Items" style="max-width: 150px;").mr-3
+                            a.btn.btn-success.ml-auto.mr-1(href='#_' onclick='cachePageOffline(); return false;' )
+                                i.pr-2.fas.fa-cloud-download
+                                | Download
         #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
@@ -784,16 +799,6 @@ html
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
-                        div.row.px-2.pb-2
-                            a.btn.btn-lucky(href='#_' type="button" data-toggle="collapse" data-target="#downloadNowCollapse")
-                                i.pr-2.fas.fa-cloud-download
-                                | Save Page Offline
-                            #downloadNowCollapse.collapse.w-100
-                                .d-flex.mt-1
-                                    input#maxCountOfflinePage.form-control(type="text" placeholder="Max Items").w-50
-                                    a.btn.btn-success.ml-auto.mr-1(href='#_' onclick='cachePageOffline(); return false;' ).d-flex
-                                        i.pr-2.fas.fa-cloud-download
-                                        | Download
                         div.row.px-2
                             h4 Pages
                         div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2

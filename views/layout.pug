@@ -168,7 +168,7 @@ html
                                                                 a.user-menu-item(title="Return to Sequenzia Menu" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                                     i.fa-light.fa-fw.fa-browser
                                                                     | App Menu
-                                                            a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="scrollToTop(); toggleMenu(); return false;")
+                                                            a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                                 i.fa-light.fa-sidebar.fa-fw
                                                                 | Navigator
                                                             //a.user-menu-item(title="Homepage" href='/')
@@ -285,6 +285,9 @@ html
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
                                                                 i.fa-light.fa-tv
                                                                 | Photo Frame
+                                                            a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
+                                                                i.fa-light.fa-sd-card
+                                                                | Storage
                                                             if (user && user.source < 900)
                                                                 a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
                                                                     i.fa-light.fa-key
@@ -315,9 +318,9 @@ html
                                                             | Tools
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid
-                                                            a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
-                                                                i.fa-light.fa-sd-card
-                                                                | Storage
+                                                            a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`$('#cachePageModal').modal('show'); return false;`)
+                                                                i.fa-light.fa-cloud-check
+                                                                | Offline
                                                             if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                                 a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                                     i.fa-light.fa-download

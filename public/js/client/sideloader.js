@@ -1201,7 +1201,7 @@ async function cachePageOffline(_url) {
     if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
         requestOpts.push(['num', limit]);
     const url = params(['offset', 'limit', '_h'], requestOpts, _url);
-    $('#cacheModal').modal('hide');
+    $('#cachePageModal').modal('hide');
     await kernelRequestData({type: 'SAVE_STORAGE_PAGE', url, limit});
 }
 async function getSpannedFileIfAvailable(fileid) {
