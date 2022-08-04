@@ -118,7 +118,6 @@ const cacheOptions = {
     ]
 };
 let swDebugMode = false;
-let swCacheCDN = false;
 let browserStorageAvailable = false;
 let offlineContent;
 let downloadSpannedController = new Map();
@@ -144,6 +143,10 @@ function selectCache(url, internalRequest) {
         return cacheOptions.cacheCDN
     if (internalRequest && uri.startsWith('/media_attachments/') && !url.includes('.discordapp.'))
         return cacheOptions.cacheProxy
+    if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !url.includes('.discordapp.'))
+        return cacheOptions.tempCacheCDN
+    if (uri.startsWith('/media_attachments/') && !url.includes('.discordapp.'))
+        return cacheOptions.tempCacheProxy
     if (url.toString().startsWith(cacheOptions.cdnCache.cdn))
         return cacheOptions.tempCacheCDN
     if (url.toString().startsWith(cacheOptions.cdnCache.media))
@@ -152,12 +155,12 @@ function selectCache(url, internalRequest) {
         return cacheOptions.cacheKernel
     return cacheOptions.cacheGeneral
 }
-async function handleResponse(url, response, reqType) {
+async function handleResponse(url, response, reqType, internalRequest) {
     const uri = url.split(origin).pop().toString()
     if (response.status < 300 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_')))) {
-        const selectedCache = selectCache(url);
+        const selectedCache = selectCache(url, internalRequest);
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
         const copy = response.clone();
@@ -498,6 +501,9 @@ function expireTempCache() {
 
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
+}
+function returnDiscordCDN(url) {
+    return (url.includes('_attachments')) ? `https://${(url.startsWith('/media_') ? 'media.discordapp.net' : 'cdn.discordapp.com')}/attachments${url.split('attachments').pop()}` : url;
 }
 function extractMetaFromElement(e, preemptive) {
     const postChannelString = e.getAttribute('data-msg-channel-string');
@@ -990,7 +996,12 @@ async function fetchBackground(name, url, request, options) {
                     if (swDebugMode)
                         console.log(`JulyOS Internal Kernel: Update Cache (${selectedCache}) - ${url}`);
                     caches.open(selectedCache).then(cache => cache.put((request || url), response))
-                    resolve(response);
+                    resolve(cachedResponse);
+                    caches.open(cacheOptions.tempCacheProxy).then(cache => cache.delete((request || url)))
+                    caches.open(cacheOptions.tempCacheCDN).then(cache => cache.delete((request || url)))
+                    caches.open(cacheOptions.tempCacheProxy).then(cache => cache.delete(returnDiscordCDN(request || url)))
+                    caches.open(cacheOptions.tempCacheCDN).then(cache => cache.delete(returnDiscordCDN(request || url)))
+                    return true;
                 }
 
                 if (url.includes('.discordapp.') && url.includes('/attachments/')) {
@@ -1001,6 +1012,7 @@ async function fetchBackground(name, url, request, options) {
                         if (swDebugMode)
                             console.log('JulyOS Internal Kernel: Indirect CDN Cache - ' + url);
                         resolve(cachedResponse);
+                        return true;
                     }
                     if (url.includes('https://media.discordapp.net/')) {
                         const proxyCache = (await caches.open(cacheOptions.cacheProxy) || await caches.open(cacheOptions.tempCacheProxy));
@@ -1009,6 +1021,7 @@ async function fetchBackground(name, url, request, options) {
                             if (swDebugMode)
                                 console.log('JulyOS Internal Kernel: Indirect CDN Cache (Resolution Bypass) - ' + url);
                             resolve(cachedNoQueryResponse);
+                            return true;
                         }
                     }
                 }
@@ -1021,7 +1034,7 @@ async function fetchBackground(name, url, request, options) {
             try {
                 const response = await fetch((request || url), options)
                 if (response) {
-                    handleResponse(url, response, "Network");
+                    handleResponse(url, response, "Network", true);
                     resolve(response);
                 } else {
                     console.log('JulyOS Internal Kernel: Offline - ' + url);
@@ -1029,11 +1042,13 @@ async function fetchBackground(name, url, request, options) {
                         status: 501
                     }))
                 }
+                return true;
             } catch (err) {
                 console.log('JulyOS Internal Kernel: Offline - ' + url);
                 resolve(new Response(null, {
                     status: 501
                 }))
+                return true;
             }
         })
     }
