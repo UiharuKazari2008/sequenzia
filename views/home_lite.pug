@@ -70,180 +70,17 @@ html
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
         else
             #homeBg.background-image.overlay.animated--fade-in
-            #fullBG.background-image(style=`z-index: -101!important; display: none;`)
+            #fullBG.background-image.full-image-holder(style=`z-index: -101!important; display: none;`)
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
             script.
                 function preventDefault(e) {
                     e.preventDefault();
                 }
                 document.body.addEventListener('touchmove', preventDefault, {passive: false});
-                const images = [
-                    "https://cdn.discordapp.com/attachments/731362512288743474/794177778727387146/himanemuitoma-EqkKCaRVoAE-ye_.jpg",
-                    "https://cdn.discordapp.com/attachments/716529641808199690/781596429759152128/niku_kueyo-Emts0IsVQAIhjEF.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/731655888401727590/02123_IMG_0426.JPG",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/731655902360240209/00053_IMG_0242.JPG",
-                    "https://cdn.discordapp.com/attachments/731357998693220393/731362671760506941/00198_illu_kamo-957204765783474177-20180127_055254-img1.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/784619426099626004/xroom8x-D4RWoYYUcAAzMfS.jpg", ,
-                    "https://cdn.discordapp.com/attachments/716529641808199690/794738820821942282/77959814_p0.png",
-                    "https://cdn.discordapp.com/attachments/716529641808199690/791378394393739294/luto_gray000-Epod4rhU0AAri0d.jpg",
-                    "https://cdn.discordapp.com/attachments/716529641808199690/793449761742913546/soji_____0o0-EqZpYG7VEAApe6R.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/785291479505043486/lm7__-En-y68ZUcAAmxPj.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/731655894408101928/00011_IMG_0731.JPG"
-                ];
-                document.getElementById('homeBg').style.backgroundImage = 'url(' + images[Math.floor(Math.random() * images.length)] + ')';
+                document.getElementById('homeBg').style.backgroundImage = 'url("/static/img/loading_bg.jpeg")';
                 document.getElementById('cover').classList.add('fadeOut');
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
             #sidebar
-                if (!(sidebar && sidebar.length > 0))
-                    script.
-                        getSidebar();
-                else
-                    // Sidebar was preloaded from session data! FAST BOI
-                    .overlay-sidebarbg(onclick="toggleMenu(); return false;")
-                        span.sidebar-brand-logo.sequenzia-logo sequenzia
-                    if (sidebar && sidebar.length > 0)
-                        each thisSuperClass, superIndex in sidebar
-                            // Heading
-                            .sidebar-heading
-                                span #{thisSuperClass.name}
-                            // Generated Item - #{classificationType}
-                            each thisClass in thisSuperClass.entities
-                                li.nav-item(id=`${thisClass.id}`)
-                                    a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisClass.name}` href='#_' data-toggle='collapse' data-target=`#${thisClass.id}Menu` id=thisClass.id)
-                                        i.fas(class=thisClass.icon)
-                                        span.text-capitalize #{thisClass.name}
-                                    div.collapse(aria-labelledby=thisClass.id + 'Menu' data-parent='#accordionSidebar' id=`${thisClass.id}Menu` class=isVisible)
-                                        .bg-white.py-2.collapse-inner.rounded
-                                            if (thisClass.entities.length > 1)
-                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*&nsfw=true`) Everything
-                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                        if (thisClass.uri === 'gallery')
-                                                            i.fas.fa-photo-video.ml-1
-                                                        else if (thisClass.uri === 'files')
-                                                            i.fas.fa-folder.ml-1
-                                                        else if (thisClass.uri === 'cards')
-                                                            i.fas.fa-sticky-note.ml-1
-                                                        else if (thisSuperClass.uri === 'gallery')
-                                                            i.fas.fa-photo-video.ml-1
-                                                        else if (thisSuperClass.uri === 'files')
-                                                            i.fas.fa-folder.ml-1
-                                                        else if (thisSuperClass.uri === 'cards')
-                                                            i.fas.fa-sticky-note.ml-1
-                                            - let nsfwIndex = ''
-                                            - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
-                                            if (_mergedChannels.length > 0)
-                                                .collapse-header
-                                                    i.fas.fa-folder-tree.pr-1
-                                                    | Virtual Channels
-                                                each thisVirtualChannel, indexChannel in _mergedChannels
-                                                    - let nsfwSearch = ''
-                                                    if (thisVirtualChannel.nsfw)
-                                                        - nsfwSearch = "&nsfw=true"
-                                                        - nsfwIndex = "&nsfw=true"
-                                                    div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id="vc_" + thisVirtualChannel.id).pr-0
-                                                        a.text-capitalize(href=`#/${thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
-                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                                if (thisVirtualChannel.nsfw)
-                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                        a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#vc_c_' + thisVirtualChannel.id).px-3
-                                                            i.fas.fa-chevron-right.align-self-center
-                                                    .collapse.m-0(id='vc_c_' + thisVirtualChannel.id style="position: unset;")
-                                                        each thisChannel, indexChannel in thisVirtualChannel.entities
-                                                            - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
-                                                            - let nsfwSearch = ''
-                                                            if (thisChannel.nsfw)
-                                                                - nsfwSearch = "&nsfw=true"
-                                                                - nsfwIndex = "&nsfw=true"
-                                                            a.collapse-item.text-capitalize.icon-padding.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=thisChannel.id href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
-                                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                                    if (thisChannel.nsfw)
-                                                                        i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
-                                                                    i.fas.fa-clone
-
-                                            each thisServer, indexServer in server.sort()
-                                                - _channels = thisClass.entities.filter((e) => { return e.server === thisServer.id && e.type === 0})
-                                                if (_channels.length > 0)
-                                                    .collapse-header
-                                                        i.fas.fa-database.pr-1
-                                                        span #{thisServer.name}
-                                                    if (_channels.length > 2)
-                                                        a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
-                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                                if (thisClass.uri === 'gallery')
-                                                                    i.fas.fa-photo-video.ml-1
-                                                                else if (thisClass.uri === 'files')
-                                                                    i.fas.fa-folder.ml-1
-                                                                else if (thisClass.uri === 'cards')
-                                                                    i.fas.fa-sticky-note.ml-1
-                                                                else if (thisSuperClass.uri === 'gallery')
-                                                                    i.fas.fa-photo-video.ml-1
-                                                                else if (thisSuperClass.uri === 'files')
-                                                                    i.fas.fa-folder.ml-1
-                                                                else if (thisSuperClass.uri === 'cards')
-                                                                    i.fas.fa-sticky-note.ml-1
-                                                each thisChannel, indexChannel in _channels
-                                                    - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
-                                                    - let nsfwSearch = ''
-                                                    if (thisChannel.nsfw)
-                                                        - nsfwSearch = "&nsfw=true"
-                                                        - nsfwIndex = "&nsfw=true"
-                                                    a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=thisChannel.id href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
-                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                            if (thisChannel.nsfw)
-                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                            if (thisChannel.uri || thisClass.uri)
-                                                                if (thisChannel.uri && thisSuperClass.uri !== thisChannel.uri)
-                                                                    if (thisChannel.uri === 'gallery')
-                                                                        i.fas.fa-photo-video.ml-1
-                                                                    else if (thisChannel.uri === 'files')
-                                                                        i.fas.fa-folder.ml-1
-                                                                    else if (thisChannel.uri === 'cards')
-                                                                        i.fas.fa-sticky-note.ml-1
-                                                                else if (!thisChannel.uri && thisClass.uri && thisSuperClass.uri !== thisClass.uri)
-                                                                    if (thisClass.uri === 'gallery')
-                                                                        i.fas.fa-photo-video.ml-1
-                                                                    else if (thisClass.uri === 'files')
-                                                                        i.fas.fa-folder.ml-1
-                                                                    else if (thisClass.uri === 'cards')
-                                                                        i.fas.fa-sticky-note.ml-1
-                                            .collapse-header
-                                                i.fas.fa-atlas.pr-1
-                                                | Indexes
-                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
-                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                    i.fas.fa-atlas.ml-1
-                                            - _custom_channels = thisClass.entities.filter((e) => { return e.type === 1})
-                                            if (_custom_channels.length > 0)
-                                                .collapse-header
-                                                    i.fas.fa-tags.pr-1
-                                                    | Quick Access
-                                                each thisCustomChannel in _custom_channels
-                                                    a.collapse-item.text-capitalize.icon-padding(title=thisCustomChannel.name id=thisCustomChannel.id href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
-                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                            if (thisCustomChannel.nsfw)
-                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                            i.fas.fa-tag.ml-1
-                        hr#seqLogoDivider.sidebar-divider.d-none.d-md-block
-                        //li#seqLogoIcon
-                            img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 2.1em; opacity: 0.78;')
-                        //li#seqLogoWide
-                            span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
-                        li.server-grid-container.text-center.mt-3
-                            .server-grid.d-inline-block
-                                .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0, 4).length}, minmax(45px, 40px));`)
-                                    for thisServer, thisServerIndex in discord.servers.list.slice(0,4)
-                                        .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
-                                            img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                        div#sidebarbottompadding
-                    else
-                        .sidebar-card.text-primary.text-center
-                            img.img-profile.rounded-circle(src=user.avatar style="width: 176px;")
-                            .sidebar-divider.mb-3
-                            strong Access Denied
-                            strong
-                                a.dropdown-item(title="Leave Now" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                    i.fas.fa-exclamation-triangle.fa-sm.fa-fw.mr-2.text-danger
-                                    | Logout
         .container.p-4
             .fixed-top.m-sm-5.m-3.d-flex.d-md-none.dimmed(style='z-index: 1; padding-top: env(safe-area-inset-top)!important;')
                 a(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Go to Sequenzia', href='/')
@@ -350,6 +187,9 @@ html
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                             i.shadow-blk.fas.fa-tv
                                             | Photo Frame
+                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Offline Files" href='/offline')
+                                            i.shadow-blk.fas.fa-folder-bookmark
+                                            | Local Files
                                         if (applications_list && applications_list.length > 0)
                                             each thisApp in applications_list
                                                 if (thisApp.type == 0)
@@ -471,9 +311,15 @@ html
             else if (pageError)
                 #midSearch.mid-center-block
                     .animated--grow-in.shadow-blk-wide
-                        .dimmed.d-flex
-                            .flex-grow-1
-                                span.sidebar-brand-logo.sequenzia-logo.d-none.d-md-inline-block( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
+                        div#menuAccordion(style='display: contents')
+                            div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
+                                .dimmed.d-flex
+                                    .flex-grow-1
+                                        a.d-none.d-md-inline-block.d-sm-none(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
+                                            span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+
                         form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
                             .input-group
                                 input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
@@ -488,9 +334,15 @@ html
             else
                 #midSearch.mid-center-block
                     .animated--grow-in.shadow-blk-wide
-                        .dimmed.d-flex
-                            .flex-grow-1
-                                span.sidebar-brand-logo.sequenzia-logo.d-none.d-md-inline-block( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
+                        div#menuAccordion(style='display: contents')
+                            div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
+                                .dimmed.d-flex
+                                    .flex-grow-1
+                                        a.d-none.d-md-inline-block.d-sm-none(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
+                                            span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+
                         form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
                             .input-group
                                 input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
@@ -501,11 +353,11 @@ html
                     .animated--grow-in.shadow-blk-wide
                         .d-flex
                             .flex-grow-1(style='font-size: 1.3rem; font-weight: 100;')
-                                a(title="Login to Sequenzia" href='/discord/login')
+                                a(title="Login to Sequenzia" href='/')
                                     span.text-capitalize.shadow-text Login Required
                             .d-flex.flex-column.justify-content-center.bottom-icon
                                 div(style='font-size: 1.3rem; font-weight: 100;')
-                                    a.d-inline.hover-color(title="Login to Sequenzia" style='text-decoration: none;' href='/discord/login')
+                                    a.d-inline.hover-color(title="Login to Sequenzia" style='text-decoration: none;' href='/')
                                         i.fas.fa-sign-in-alt.fa-sm.shadow-blk
         // Logout Modal
         #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
@@ -534,7 +386,7 @@ html
                 div
                 div
         script(src="/static/js/sb-admin-2.min.js")
-        if (url.includes('search=true'))
+        if (url && url.includes('search=true'))
             script.
                 document.getElementById("btnSearch").addEventListener("click", () => { $("#srchfrm").submit(); });
                 document.getElementById("btnSearchGallery").addEventListener("click", () => {

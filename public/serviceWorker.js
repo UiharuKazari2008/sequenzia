@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v2-19';
+const cacheName = 'DEV-v2-20';
 const cacheCDNName = 'DEV-v2-10';
 const origin = location.origin
 const offlineUrl = './offline';
@@ -30,6 +30,7 @@ const cacheOptions = {
         '/tvTheater',
         '/albums',
         '/login',
+        '/device-login',
         '/actions/',
         '/status',
         '/parity',
@@ -65,6 +66,7 @@ const cacheOptions = {
         "/static/js/bootstrap-slider.min.js",
         "/js/client/sideloader-layout.min.js",
         "/js/client/sideloader.min.js",
+        "/js/client/home-lite.min.js",
         "/js/client/onload.min.js",
         "/js/client/displayHistory.min.js",
         "/static/img/sequenzia-logo-mini.png",
@@ -92,6 +94,8 @@ const cacheOptions = {
         "/static/css/bootstrap-slider.min.css",
         "/static/vendor/fontawesome/css/all.min.css",
         "/css/custom.min.css",
+        "/css/custom-lite.min.css",
+        "/css/home-lite.min.css",
         "/static/img/loading_bg.jpeg",
         "/static/font/london2012.woff2",
         "/static/font/Digital7-1e1Z.woff2",
@@ -108,6 +112,8 @@ const cacheOptions = {
         'https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js',
         'https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i',
         'https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap',
+        'https://fonts.gstatic.com/s/comfortaa/v40/1Pt_g8LJRfWJmhDAuUsSQamb1W0lwk4S4WjMDrMfJh1Zyc61YA.woff',
+        'https://fonts.gstatic.com/s/nunito/v25/XRXV3I6Li01BKofINeaBTMnFcQ.woff2',
         offlineUrl
     ]
 };
@@ -132,16 +138,16 @@ async function broadcastAllMessage(message) {
 }
 function selectCache(event) {
     const uri = event.request.url.split(origin).pop().toString()
-    if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0)
+    if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0 || uri === '/' || uri === '/home')
         return cacheOptions.cacheConfig
     if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !event.request.url.includes('.discordapp.'))
         return cacheOptions.cacheCDN
     if (uri.startsWith('/media_attachments/') && !event.request.url.includes('.discordapp.'))
         return cacheOptions.cacheProxy
     if (event.request.url.toString().startsWith(cacheOptions.cdnCache.cdn))
-        return cacheOptions.cacheCDN
+        return cacheOptions.tempCacheCDN
     if (event.request.url.toString().startsWith(cacheOptions.cdnCache.media))
-        return cacheOptions.cacheProxy
+        return cacheOptions.tempCacheProxy
     if (cacheOptions.preloadCache.filter(b => uri.startsWith(b) || uri === b).length > 0)
         return cacheOptions.cacheKernel
     return cacheOptions.cacheGeneral
@@ -149,9 +155,8 @@ function selectCache(event) {
 async function handleResponse(event, response, reqType) {
     const uri = event.request.url.split(origin).pop().toString()
     if (response.status < 300 &&
-        cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 && uri !== '/' &&
-        !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
-        !(event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/') && !swCacheCDN)) {
+        cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
+        !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_')))) {
         const selectedCache = selectCache(event);
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${event.request.url}`);
@@ -165,7 +170,7 @@ async function handleResponse(event, response, reqType) {
     return response;
 }
 async function shouldRecache(event) {
-    if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.includes('responseType=offline'))
+    if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.split(origin).pop().toString() === '/' || event.request.url.split(origin).pop().toString() === '/home')
         reCache(event)
 }
 async function reCache(event, cacheName) {

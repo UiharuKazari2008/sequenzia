@@ -511,6 +511,9 @@ html
                                                             a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                                                 i.fa-light.fa-tv
                                                                 | Photo Frame
+                                                            a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='/offline')
+                                                                i.fa-light.fa-folder-bookmark
+                                                                | Local Files
                                                             if (applications_list && applications_list.length > 0)
                                                                     each thisApp in applications_list
                                                                         if (thisApp.type == 0)

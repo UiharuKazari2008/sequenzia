@@ -94,13 +94,15 @@ function toggleLightboxOverlay() {
       e.preventDefault();
     }
   });
-  switch (menuBarLocation) {
-    case 'bottom':
-      $('body').addClass('bottom-bar');
-      break;
-    default:
-      $('body').removeClass('bottom-bar');
-      break;
+  if (menuBarLocation) {
+    switch (menuBarLocation) {
+      case 'bottom':
+        $('body').addClass('bottom-bar');
+        break;
+      default:
+        $('body').removeClass('bottom-bar');
+        break;
+    }
   }
 
 })(jQuery); // End of use strict

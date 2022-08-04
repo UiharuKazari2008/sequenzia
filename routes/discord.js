@@ -684,7 +684,7 @@ async function loginPage(req, res, obj) {
         if (obj && obj.keepSession) {
             req.session.loggedin = false;
         }
-        res.status(((obj && obj.status) ? obj.status : 200)).render('login_new', _obj);
+        res.status(((obj && obj.status) ? obj.status : 403)).render('login_new', _obj);
     } else {
         try {
             async function tryToGenerateCode() {
@@ -748,7 +748,7 @@ async function loginPage(req, res, obj) {
                     if (req.session.login_code) {
                         _obj.login_code = req.session.login_code;
                     }
-                    res.status(((obj && obj.status) ? obj.status : 200)).render('login_new', _obj);
+                    res.status(((obj && obj.status) ? obj.status : 403)).render('login_new', _obj);
                 });
         }
     }

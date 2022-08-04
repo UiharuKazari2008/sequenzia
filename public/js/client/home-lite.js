@@ -122,13 +122,15 @@ function getSidebar(refreshSidebar, disableModels) {
             }
         },
         error: function (xhr) {
-            $.toast({
-                type: 'error',
-                title: 'Page Failed',
-                subtitle: 'Now',
-                content: `Failed to load sidebar, Try Again!: ${xhr.responseText}`,
-                delay: 5000,
-            });
+            if (xhr.status !== 403 && xhr.status !== 401) {
+                $.toast({
+                    type: 'error',
+                    title: 'Page Failed',
+                    subtitle: 'Now',
+                    content: `Failed to load sidebar, Try Again!: ${xhr.responseText}`,
+                    delay: 5000,
+                });
+            }
         }
     });
 }
@@ -314,7 +316,7 @@ function getRandomImage(refresh) {
                     }
                     pageReady = true;
                     refreshLayout();
-                } else {
+                } else if (xhr.status !== 403 && xhr.status !== 401) {
                     $.toast({
                         type: 'error',
                         title: 'Random Image Error',
@@ -325,13 +327,15 @@ function getRandomImage(refresh) {
                 }
             },
             error: function (xhr) {
-                $.toast({
-                    type: 'error',
-                    title: 'Random Image Error',
-                    subtitle: 'Now',
-                    content: `${xhr.responseText}`,
-                    delay: 5000,
-                });
+                if (xhr.status !== 403 && xhr.status !== 401) {
+                    $.toast({
+                        type: 'error',
+                        title: 'Random Image Error',
+                        subtitle: 'Now',
+                        content: `${xhr.responseText}`,
+                        delay: 5000,
+                    });
+                }
             }
         });
     // } catch (e) {
@@ -343,6 +347,47 @@ function getRandomImage(refresh) {
     //         delay: 5000,
     //     });
     // }
+}
+function verifyNetworkAccess() {
+    $.ajax({async: true,
+        url: '/ping?json=true',
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        json: true,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        timeout: 5000,
+        success: function (res, txt, xhr) {
+            if (xhr.status === 200 && !res.loggedin) {
+                $.toast({
+                    type: 'error',
+                    title: 'Login Required',
+                    subtitle: '',
+                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
+                });
+            } else if (xhr.status !== 200) {
+                $.toast({
+                    type: 'error',
+                    title: 'Network Error',
+                    subtitle: '',
+                    content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                    delay: 30000,
+                });
+            }
+        },
+        error: function (error) {
+            console.log(error);
+            $.toast({
+                type: 'error',
+                title: 'Network Error',
+                subtitle: '',
+                content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                delay: 30000,
+            });
+        }
+    });
 }
 
 let lastMessageAlbum
@@ -521,7 +566,7 @@ function deleteAlbum(aid) {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
-            .register('/serviceWorker.js')
+            .register('/serviceWorker.min.js')
             .then(reg => {
                 console.log('Service Worker: Registered')
             })
@@ -530,13 +575,15 @@ if ('serviceWorker' in navigator) {
 }
 
 $(document).ready(function () {
+    verifyNetworkAccess();
+    getRandomImage();
+    getSidebar();
     $('.popover').popover('hide');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice()===false) {
         $('[data-tooltip="tooltip"]').tooltip()
         $('[data-tooltip="tooltip"]').tooltip('hide')
     }
-    getRandomImage();
     document.addEventListener("scroll", refreshLayout);
     window.addEventListener("resize", refreshLayout);
     window.addEventListener("orientationChange", refreshLayout);

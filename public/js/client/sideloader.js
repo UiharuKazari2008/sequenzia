@@ -560,7 +560,7 @@ async function getNewContent(remove, add, url, keep) {
                 type: 'error',
                 title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                 subtitle: '',
-                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                 delay: 10000,
             });
         }
@@ -661,7 +661,7 @@ function getMoreContent(remove, add, url, keep) {
                 type: 'error',
                 title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                 subtitle: '',
-                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                 delay: 10000,
             });
         }
@@ -749,7 +749,7 @@ function getSearchContent(element, url) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -785,7 +785,7 @@ function getLimitContent(perm) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-cloud-slash pr-2"></i>Offline Mode</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -4170,7 +4170,7 @@ if ('serviceWorker' in navigator) {
                 const status = await navigator.permissions.query({name: 'periodic-background-sync'});
                 if (status.state === 'granted') {
                     await registration.periodicSync.register('SYNC_PAGES_NEW_ONLY', {
-                        minInterval: 8 * 60 * 60 * 1000
+                        minInterval: 1 * 60 * 60 * 1000
                     });
                 } else {
                     // Periodic background sync cannot be used.
