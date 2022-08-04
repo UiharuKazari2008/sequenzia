@@ -117,7 +117,7 @@ const cacheOptions = {
         offlineUrl
     ]
 };
-let swDebugMode = false;
+let swDebugMode = (origin && origin.includes('localhost:3000'));
 let browserStorageAvailable = false;
 let offlineContent;
 let downloadSpannedController = new Map();
@@ -985,72 +985,70 @@ async function fetchBackground(name, url, request, options) {
     if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
         return self.registration.backgroundFetch.fetch(name, (request || url), options);
     } else {
-        return new Promise(async resolve => {
-            try {
-                const cachedResponse = await caches.match((request || url));
-                if (cachedResponse) {
-                    if (swDebugMode)
-                        console.log('JulyOS Internal Kernel: Cache - ' + url);
+        try {
+            const cachedResponse = await caches.match((request || url));
+            if (cachedResponse) {
+                if (swDebugMode)
+                    console.log('JulyOS Internal Kernel: Cache - ' + url);
+                const tempCDN = await caches.open(cacheOptions.tempCacheProxy);
+                const tempProxy = await caches.open(cacheOptions.tempCacheProxy);
+
+                if ((await tempCDN.match((request || url))) || (await tempCDN.match(returnDiscordCDN(request || url))) || (await tempProxy.match((request || url))) || (await tempProxy.match(returnDiscordCDN(request || url)))) {
                     const response = await fetch((request || url), options)
                     const selectedCache = selectCache(url, true);
                     if (swDebugMode)
-                        console.log(`JulyOS Internal Kernel: Update Cache (${selectedCache}) - ${url}`);
+                        console.log(`JulyOS Internal Kernel: Move Cache (${selectedCache}) - ${url}`);
                     caches.open(selectedCache).then(cache => cache.put((request || url), response))
-                    resolve(cachedResponse);
                     caches.open(cacheOptions.tempCacheProxy).then(cache => cache.delete((request || url)))
                     caches.open(cacheOptions.tempCacheCDN).then(cache => cache.delete((request || url)))
                     caches.open(cacheOptions.tempCacheProxy).then(cache => cache.delete(returnDiscordCDN(request || url)))
                     caches.open(cacheOptions.tempCacheCDN).then(cache => cache.delete(returnDiscordCDN(request || url)))
-                    return true;
                 }
+                return cachedResponse;
+            }
 
-                if (url.includes('.discordapp.') && url.includes('/attachments/')) {
-                    const newURL = `/${url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${url.split('/attachments/').pop()}`;
-                    const cdnCache = (await caches.open(cacheOptions.cacheCDN) || await caches.open(cacheOptions.tempCacheCDN));
-                    const cachedResponse = await cdnCache.match(newURL);
-                    if (cachedResponse) {
+            if (url.includes('.discordapp.') && url.includes('/attachments/')) {
+                const newURL = `/${url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${url.split('/attachments/').pop()}`;
+                const cdnCache = (await caches.open(cacheOptions.cacheCDN) || await caches.open(cacheOptions.tempCacheCDN));
+                const cachedResponse = await cdnCache.match(newURL);
+                if (cachedResponse) {
+                    if (swDebugMode)
+                        console.log('JulyOS Internal Kernel: Indirect CDN Cache - ' + url);
+                    return cachedResponse;
+                }
+                if (url.includes('https://media.discordapp.net/')) {
+                    const proxyCache = (await caches.open(cacheOptions.cacheProxy) || await caches.open(cacheOptions.tempCacheProxy));
+                    const cachedNoQueryResponse = await proxyCache.match(newURL.split('?')[0]);
+                    if (cachedNoQueryResponse) {
                         if (swDebugMode)
-                            console.log('JulyOS Internal Kernel: Indirect CDN Cache - ' + url);
-                        resolve(cachedResponse);
-                        return true;
-                    }
-                    if (url.includes('https://media.discordapp.net/')) {
-                        const proxyCache = (await caches.open(cacheOptions.cacheProxy) || await caches.open(cacheOptions.tempCacheProxy));
-                        const cachedNoQueryResponse = await proxyCache.match(newURL.split('?')[0]);
-                        if (cachedNoQueryResponse) {
-                            if (swDebugMode)
-                                console.log('JulyOS Internal Kernel: Indirect CDN Cache (Resolution Bypass) - ' + url);
-                            resolve(cachedNoQueryResponse);
-                            return true;
-                        }
+                            console.log('JulyOS Internal Kernel: Indirect CDN Cache (Resolution Bypass) - ' + url);
+                        return cachedNoQueryResponse;
                     }
                 }
-            } catch (err) {
-                console.error('JulyOS Internal Kernel: Error fetching cache or preloaded response - ' + url)
-                console.error(err);
             }
+        } catch (err) {
+            console.error('JulyOS Internal Kernel: Error fetching cache or preloaded response - ' + url)
+            console.error(err);
+        }
 
-            // Else try the network.
-            try {
-                const response = await fetch((request || url), options)
-                if (response) {
-                    handleResponse(url, response, "Network", true);
-                    resolve(response);
-                } else {
-                    console.log('JulyOS Internal Kernel: Offline - ' + url);
-                    resolve(new Response(null, {
-                        status: 501
-                    }))
-                }
-                return true;
-            } catch (err) {
+        // Else try the network.
+        try {
+            const response = await fetch((request || url), options)
+            if (response) {
+                handleResponse(url, response, "Network", true);
+                return response
+            } else {
                 console.log('JulyOS Internal Kernel: Offline - ' + url);
-                resolve(new Response(null, {
+                return new Response(null, {
                     status: 501
-                }))
-                return true;
+                })
             }
-        })
+        } catch (err) {
+            console.log('JulyOS Internal Kernel: Offline - ' + url);
+            return new Response(null, {
+                status: 501
+            })
+        }
     }
 }
 async function cacheFileURL(object, page_item) {
@@ -1236,31 +1234,6 @@ async function cachePageOffline(type, _url, limit, newOnly) {
 
             if (!offlineDownloadSignals.has(url)) {
                 console.error('Offline download was canceled!')
-                const cachesList = await caches.keys();
-                const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
-                const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
-                const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
-                const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
-                if (cdnCache) {
-                    for (let e of itemsToCache) {
-                        if (e.full_url)
-                            cdnCache.delete(e.full_url);
-                        if (e.preview_url)
-                            cdnCache.delete(e.preview_url);
-                        if (e.extpreview_url)
-                            cdnCache.delete(e.extpreview_url);
-                    }
-                }
-                if (proxyCache) {
-                    for (let e of itemsToCache) {
-                        if (e.full_url)
-                            proxyCache.delete(e.full_url);
-                        if (e.preview_url)
-                            proxyCache.delete(e.preview_url);
-                        if (e.extpreview_url)
-                            proxyCache.delete(e.extpreview_url);
-                    }
-                }
                 broadcastAllMessage({
                     type: 'MAKE_SNACK',
                     level: 'error',
