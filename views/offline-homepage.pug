@@ -355,6 +355,14 @@ html
                             h4 Files
                         div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
                             span No Offline Files
+                        div.row.px-2
+                            h4 Storage
+                        div.row.mb-2.d-flex.flex-column.px-2
+                            h5#storageFreeText Usage NaN%
+                            .storage-usage-holder.d-flex
+                                #storageDBUsed.storage-usage-db-used
+                                #storageCacheUsed.storage-usage-cache-used
+                                #storageOtherUsed.storage-usage-other-used
                         div.row.px-2.mb-2
                             a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
                                 i.fas.fa-trash.pr-2

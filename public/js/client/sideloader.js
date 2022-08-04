@@ -1817,6 +1817,7 @@ async function displayOfflineData() {
 
     const usedDBStorage = document.getElementById('storageDBUsed');
     const usedCacheStorage = document.getElementById('storageCacheUsed');
+    const usedOtherStorage = document.getElementById('storageOtherUsed');
     const freeStorage = document.getElementById('storageFreeText');
 
     try {
@@ -1835,8 +1836,9 @@ async function displayOfflineData() {
         })();
 
 
-        usedDBStorage.style.width = `${(usedSpace.usage / (usedSpace.quota - usedSpace.usageDetails.indexedDB)) * 100}%`;
-        usedCacheStorage.style.width = `${(usedSpace.usage / (usedSpace.quota - (usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations))) * 100}%`;
+        usedDBStorage.style.width = `${(usedSpace.usageDetails.indexedDB / usedSpace.quota) * 100}%`;
+        usedCacheStorage.style.width = `${((usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations) / usedSpace.quota) * 100}%`;
+        usedOtherStorage.style.width = `${((usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations)) / usedSpace.quota) * 100}%`;
         freeStorage.innerText = `${freeSpaceText} Free`;
     } catch (e) {
         freeStorage.innerText = `Not Available`;
