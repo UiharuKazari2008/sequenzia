@@ -3,15 +3,13 @@ importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
 const cacheName = 'DEV-v2-28';
-const cacheCDNName = 'DEV-v2-10';
+const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = './offline';
 const cacheOptions = {
     cacheKernel: 'offline-kernel-' + cacheName,
     cacheConfig: 'offline-config-' + cacheName,
     cacheGeneral: 'offline-generic-' + cacheName,
-    cacheCDN: 'offline-cdn-' + cacheCDNName,
-    cacheProxy: 'offline-proxy-' + cacheCDNName,
     tempCacheCDN: 'temp-cdn-' + cacheCDNName,
     tempCacheProxy: 'temp-proxy-' + cacheCDNName,
     builtFiles: 'spanned-files-' + cacheCDNName,
