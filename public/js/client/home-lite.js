@@ -588,3 +588,23 @@ $(document).ready(function () {
     window.addEventListener("resize", refreshLayout);
     window.addEventListener("orientationChange", refreshLayout);
 })
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.onmessage = async function (event) {
+        switch (event.data.type) {
+            case 'MAKE_SNACK':
+                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
+                break;
+            case 'MAKE_TOAST':
+                $.toast({
+                    type: (event.data.level || 'info'),
+                    title: (event.data.title || ''),
+                    subtitle: (event.data.subtitle || ''),
+                    content: (event.data.content || 'No Data'),
+                    delay: (event.data.timeout || undefined),
+                });
+                break;
+            default:
+                break;
+        }
+    };
+}

@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-8-PATCH80';
+const cacheName = 'DEV-v20-8-PATCH85';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -375,7 +375,7 @@ self.addEventListener('activate', e => {
                     subtitle: '',
                     content: `<p class="text-center">The application and kernel was updated to "${cacheName}"!</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
                 });
-            }, 15000)
+            }, 3000)
         }
     }());
 });
