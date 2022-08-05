@@ -156,7 +156,7 @@ async function handleResponse(url, response, reqType) {
     const uri = url.split(origin).pop().toString()
     if (response.status < 300 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
-        !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_')))
+        !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
         !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
         const selectedCache = selectCache(url);
         if (swDebugMode)
