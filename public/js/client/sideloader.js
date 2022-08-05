@@ -103,8 +103,6 @@ let requestInprogress
 let paginatorInprogress
 let downloadAllController = null;
 let unpackingJobs = new Map();
-const networkKernelChannel = new MessageChannel();
-const unpackerWorker = new SharedWorker('/js/client/worker.unpacker.js');
 let offlineDownloadSignals = new Map();
 let offlineDownloadController = new Map();
 let downloadSpannedController = new Map();
@@ -114,6 +112,8 @@ let kmsVideoWatcher = null;
 let search_list = [];
 let element_list = [];
 let lazyloadImages;
+const networkKernelChannel = new MessageChannel();
+const unpackerWorker = new SharedWorker('/js/client/worker.unpacker.js');
 
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
