@@ -113,7 +113,7 @@ let search_list = [];
 let element_list = [];
 let lazyloadImages;
 const networkKernelChannel = new MessageChannel();
-const unpackerWorker = new SharedWorker('/js/client/worker.unpacker.js');
+const unpackerWorker = new Worker('/js/client/worker.unpacker.js');
 
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
@@ -2125,7 +2125,7 @@ async function cancelPendingUnpack() {
 }
 async function stopUnpackingFiles(fileid) {
     unpackingJobs.delete(fileid)
-    unpackerWorker.port.postMessage({ type: 'CANCEL_UNPACK_FILE', fileid });
+    unpackerWorker.postMessage({ type: 'CANCEL_UNPACK_FILE', fileid });
     kernelRequestData({type: 'CANCEL_UNPACK_FILE', fileid});
 }
 async function removeCacheItem(id) {
@@ -4192,7 +4192,7 @@ function kernelRequestData(message) {
 function unpackRequestData(message) {
     return new Promise(resolve => {
         unpackingJobs.set(message.object.id, message.object);
-        unpackerWorker.port.postMessage(message);
+        unpackerWorker.postMessage(message);
         function setTimer() {
             setTimeout(() => {
                 if (!unpackingJobs.has(message.fileid)) {
@@ -4299,7 +4299,7 @@ if ('serviceWorker' in navigator) {
             case 'UNPACK_FILE':
                 unpackingJobs.set(event.data.object.id, event.data.object);
                 updateNotficationsPanel();
-                unpackerWorker.port.postMessage(event.data);
+                unpackerWorker.postMessage(event.data);
                 break;
             default:
                 console.error('Service Worker Message Unknown', event.data.type);
@@ -4319,8 +4319,7 @@ if ('serviceWorker' in navigator) {
     }
 }
 try {
-    unpackerWorker.port.start();
-    unpackerWorker.port.onmessage = async function(event) {
+    unpackerWorker.onmessage = async function(event) {
         switch (event.data.type) {
             case 'STATUS_UNPACK_STARTED':
             case 'STATUS_UNPACK_QUEUED':
@@ -4618,7 +4617,7 @@ try {
         document.getElementById('webWorkerStatus').classList.add('bg-success');
         document.getElementById('webWorkerStatus').classList.remove('bg-danger');
     }, 5000)
-    unpackerWorker.port.postMessage({type: 'PING'});
+    unpackerWorker.postMessage({type: 'PING'});
 } catch (err) {
     console.error(err);
 }

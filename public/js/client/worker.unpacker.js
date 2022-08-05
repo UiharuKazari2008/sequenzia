@@ -17,7 +17,7 @@ offlineContentDB.onsuccess = event => {
 
 let downloadSpannedController = new Map();
 let activeSpannedJob = false;
-async function openUnpackingFiles(object, channel) {
+async function openUnpackingFiles(object) {
     /*{
         id: ,
         name: ,
@@ -34,16 +34,16 @@ async function openUnpackingFiles(object, channel) {
                 pending: true,
                 ready: true
             })
-            channel.postMessage({type: 'STATUS_UNPACK_STARTED', fileid: object.id});
+            postMessage({type: 'STATUS_UNPACK_STARTED', fileid: object.id});
             while (downloadSpannedController.size !== 0) {
                 const itemToGet = Array.from(downloadSpannedController.keys())[0]
                 activeSpannedJob = downloadSpannedController.get(itemToGet)
                 if (activeSpannedJob.ready && activeSpannedJob.pending) {
-                    const download = await unpackFile(channel);
+                    const download = await unpackFile();
                     if (download) {
-                        channel.postMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: object.id})
+                        postMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: object.id})
                     } else {
-                        channel.postMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
+                        postMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
                     }
                 }
                 downloadSpannedController.delete(itemToGet);
@@ -56,21 +56,21 @@ async function openUnpackingFiles(object, channel) {
                 pending: true,
                 ready: true
             })
-            channel.postMessage({type: 'STATUS_UNPACK_QUEUED', fileid: object.id})
+            postMessage({type: 'STATUS_UNPACK_QUEUED', fileid: object.id})
         } else {
-            channel.postMessage({type: 'STATUS_UNPACK_DUPLICATE', fileid: object.id})
+            postMessage({type: 'STATUS_UNPACK_DUPLICATE', fileid: object.id})
         }
     } else  {
-        channel.postMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
+        postMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
     }
 }
-async function unpackFile(channel) {
+async function unpackFile() {
     if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
         console.log(`Downloading File ${activeSpannedJob.id}...`)
         const activeID = activeSpannedJob.id + '';
         activeSpannedJob.pending = false;
         let blobs = []
-        channel.postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'GET_METADATA', fileid: activeID});
+        postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'GET_METADATA', fileid: activeID});
         return await new Promise(async (job) => {
             try {
                 const response = await fetch( new Request(`/parity/${activeID}`, {
@@ -93,7 +93,7 @@ async function unpackFile(channel) {
 
                         if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
                             if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
-                                channel.postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'EXPECTED_PARTS', expected_parts: activeSpannedJob.expected_parts, fileid: activeID});
+                                postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'EXPECTED_PARTS', expected_parts: activeSpannedJob.expected_parts, fileid: activeID});
                                 let pendingBlobs = {}
                                 let retryBlobs = {}
                                 activeSpannedJob.parts.map((e,i) => {
@@ -103,7 +103,7 @@ async function unpackFile(channel) {
                                 function calculatePercent() {
                                     const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
                                     activeSpannedJob.progress = percentage.toFixed(0);
-                                    channel.postMessage({
+                                    postMessage({
                                         type: 'STATUS_UNPACKER_ACTIVE',
                                         action: 'FETCH_PARTS_PROGRESS',
                                         percentage: activeSpannedJob.progress,
@@ -198,27 +198,27 @@ async function unpackFile(channel) {
                                     }
 
 
-                                    channel.postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'BLOCKS_ACQUIRED', fileid: activeID});
+                                    postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'BLOCKS_ACQUIRED', fileid: activeID});
                                     job(true);
                                 } else {
-                                    channel.postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'EXPECTED_FETCH_PARTS', fileid: activeID});
+                                    postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'EXPECTED_FETCH_PARTS', fileid: activeID});
                                     job(false);
                                 }
                             } else {
-                                channel.postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'EXPECTED_PARTS', fileid: activeID});
+                                postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'EXPECTED_PARTS', fileid: activeID});
                                 job(false);
                             }
                         } else {
-                            channel.postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'READ_METADATA', fileid: activeID});
+                            postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'READ_METADATA', fileid: activeID});
                             job(false);
                         }
                     } catch (e) {
                         console.error(e);
-                        channel.postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'UNCAUGHT_ERROR', message: e.message, fileid: activeID});
+                        postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'UNCAUGHT_ERROR', message: e.message, fileid: activeID});
                         job(false);
                     }
                 } else {
-                    channel.postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', message: (await response.text()), fileid: activeID})
+                    postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', message: (await response.text()), fileid: activeID})
                     job(false);
                 }
                 if (activeSpannedJob) {
@@ -227,7 +227,7 @@ async function unpackFile(channel) {
                     delete activeSpannedJob.parts;
                 }
             } catch (err) {
-                channel.postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', fileid: activeID})
+                postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', fileid: activeID})
                 blobs = null;
                 activeSpannedJob.parts = null;
                 delete activeSpannedJob.parts;
@@ -254,25 +254,21 @@ async function stopUnpackingFiles(fileid) {
     }
 }
 
-onconnect = function(e) {
-    const port = e.ports[0];
-    port.addEventListener('message', function(event) {
-        switch (event.data.type) {
-            case 'UNPACK_FILE':
-                openUnpackingFiles(event.data.object, port);
-                break;
-            case 'CANCEL_UNPACK_FILE':
-                stopUnpackingFiles(event.data.fileid);
-                break;
-            case 'PING':
-                port.postMessage({type: 'PONG'});
-                break;
-            default:
-                console.log(event);
-                console.log(event.data);
-                console.log('Unknown Message');
-                break;
-        }
-    });
-    port.start();
+onmessage = function(event) {
+    switch (event.data.type) {
+        case 'UNPACK_FILE':
+            openUnpackingFiles(event.data.object);
+            break;
+        case 'CANCEL_UNPACK_FILE':
+            stopUnpackingFiles(event.data.fileid);
+            break;
+        case 'PING':
+            postMessage({type: 'PONG'});
+            break;
+        default:
+            console.log(event);
+            console.log(event.data);
+            console.log('Unknown Message');
+            break;
+    }
 }
