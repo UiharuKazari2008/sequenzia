@@ -367,13 +367,15 @@ self.addEventListener('activate', e => {
                 return caches.delete(cache);
         })
         if (oldCaches.length > 0) {
-            broadcastAllMessage({
-                type: 'MAKE_TOAST',
-                level: 'success',
-                title: '<i class="fas fa-sync pr-2"></i>Update Successful',
-                subtitle: '',
-                content: `<p class="text-center">The application and kernel was updated to "${cacheName}"!</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
-            });
+            setTimeout(() => {
+                broadcastAllMessage({
+                    type: 'MAKE_TOAST',
+                    level: 'success',
+                    title: '<i class="fas fa-sync pr-2"></i>Update Successful',
+                    subtitle: '',
+                    content: `<p class="text-center">The application and kernel was updated to "${cacheName}"!</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
+                });
+            }, 15000)
         }
     }());
 });
