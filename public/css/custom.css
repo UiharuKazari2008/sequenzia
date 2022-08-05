@@ -2767,7 +2767,7 @@ div#bootUpDisplay {
     background-color: #303030;
     height: 450px;
     width: 800px;
-    background-image: url(https://cdn.discordapp.com/attachments/726637721371541504/726660781403537428/IMG_0003.JPG);
+    background-image: url(/static/img/bootlogo-inner.jpeg);
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

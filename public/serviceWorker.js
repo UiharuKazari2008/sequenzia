@@ -80,6 +80,7 @@ const cacheOptions = {
         "/static/js/sb-admin-2.min.js",
         "/js/client/media.min.js",
         "/static/img/boot-logo.png",
+        "/static/img/bootlogo-inner.png",
         "/static/img/aak.png",
         "/static/img/about-bg.jpeg",
         "/static/img/kongoumedialogo-wide.png",
@@ -166,9 +167,10 @@ async function handleResponse(url, response, reqType) {
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
         const copy = response.clone();
         const cacheURL = (url.includes('/full_attachments/')) ? '/full_attachments/' + url.split('/full_attachments/').pop() : (url.includes('/media_attachments/')) ? '/media_attachments/' + url.split('/media_attachments/').pop() : url;
-        caches.open(selectedCache).then(cache => cache.put(cacheURL, copy))
+        const cache = await caches.open(selectedCache)
+        await cache.put(cacheURL, copy)
         if (url.includes('/homeImage'))
-            await handleHomeImageCachesEvent(uri, selectedCache, response);
+            await handleHomeImageCachesEvent(uri, selectedCache);
     } else {
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${url}`);
@@ -182,13 +184,12 @@ async function shouldRecache(event, response) {
     if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.split(origin).pop().toString() === '/' || event.request.url.split(origin).pop().toString() === '/home')
         reCache(event, response)
 }
-async function handleHomeImageCachesEvent(url, selectedCache, response) {
+async function handleHomeImageCachesEvent(url, selectedCache, lastResponse) {
     try {
-        const lastResponse = await caches.match(url);
         if (lastResponse) {
             const lastJson = await lastResponse.json();
             if (lastJson.randomImagev2 && lastJson.randomImagev2.length > 0) {
-                const lastFullImage = await caches.match(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage));
+                const lastFullImage = await caches.match(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage)) || await fetch(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage));
                 if (lastFullImage)
                     caches.open(selectedCache).then(cache => cache.put('/internal/last_full.jpg', lastFullImage))
                 if (swDebugMode)
@@ -200,8 +201,8 @@ async function handleHomeImageCachesEvent(url, selectedCache, response) {
         }
         if (swDebugMode)
             console.log('Fetching next home image')
-        const copy = await response.clone();
-        const json = await copy.json();
+        const response = await caches.match(url);
+        const json = await response.json();
         if (json.randomImagev2 && json.randomImagev2.length > 0) {
             const previewImage = replaceDiscordCDN(json.randomImagev2[0].previewImage);
             const fullImage = replaceDiscordCDN(json.randomImagev2[0].fullImage);
@@ -227,11 +228,13 @@ async function reCache(event, cacheName) {
         .then(async response => {
             const selectedCache = cacheName || selectCache(event.request.url);
             if (swDebugMode)
-                console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`);
+                console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`)
+            const lastResponse = await caches.match(event.request.url);
+            const cache = await caches.open(selectedCache)
+            await cache.put(event.request, response)
             if (event.request.url.includes('/homeImage')) {
-                await handleHomeImageCachesEvent(event.request.url, selectedCache, response);
+                await handleHomeImageCachesEvent(event.request.url, selectedCache, lastResponse);
             }
-            caches.open(selectedCache).then(cache => cache.put(event.request, response))
         })
         .catch(error => {
             console.error('JulyOS Kernel: Update Failed - ' + event.request.url);

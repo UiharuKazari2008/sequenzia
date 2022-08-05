@@ -7,12 +7,6 @@ $(window).on('hashchange', () => {
     }
 });
 
-$(document).ready(function () {
-    $(document).find('a[href="#_"], a[href="#"] ').click(function (e) {
-        e.preventDefault();
-    });
-})
-
 function decodeURLRecursively(uri) {
     while (uri !== decodeURIComponent(uri || '')){
         uri = decodeURIComponent(uri);
