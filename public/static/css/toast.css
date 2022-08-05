@@ -9,6 +9,7 @@
     margin-top: calc(env(safe-area-inset-top) + 4.5rem);
     margin-left: calc(env(safe-area-inset-left) + 1.5rem);
     margin-right: calc(env(safe-area-inset-right) + 1.5rem);
+    margin-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
 }
 .menu-open:not(.bottom-bar) .toast-container {
     margin-top: calc(env(safe-area-inset-top) + 17rem);
