@@ -2928,6 +2928,9 @@ div#bootUpDisplay {
     .user-info-bg, .bottom-bar .user-info-bg {
         min-width: 375px;
     }
+
+}
+@media (max-width:900px) {
     .about-left-panel {
         width: 100%;
     }
