@@ -3903,3 +3903,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 footer .sequenzia-logo {
     color: #ff9b59;
 }
+@media (horizontal-viewport-segments: 2) {
+
+}
+
+@media (vertical-viewport-segments: 2) {
+
+}

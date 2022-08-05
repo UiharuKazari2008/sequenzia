@@ -122,7 +122,7 @@ function getSidebar(refreshSidebar, disableModels) {
             }
         },
         error: function (xhr) {
-            if (xhr.status !== 403 && xhr.status !== 401) {
+            if (xhr.status >= 403) {
                 $.toast({
                     type: 'error',
                     title: 'Page Failed',
@@ -316,7 +316,7 @@ function getRandomImage(refresh) {
                     }
                     pageReady = true;
                     refreshLayout();
-                } else if (xhr.status !== 403 && xhr.status !== 401) {
+                } else if (xhr.status >= 403) {
                     $.toast({
                         type: 'error',
                         title: 'Random Image Error',
@@ -327,7 +327,7 @@ function getRandomImage(refresh) {
                 }
             },
             error: function (xhr) {
-                if (xhr.status !== 403 && xhr.status !== 401) {
+                if (xhr.status  >= 403) {
                     $.toast({
                         type: 'error',
                         title: 'Random Image Error',

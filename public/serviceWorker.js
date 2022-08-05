@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-8-PATCH88';
+const cacheName = 'DEV-v20-8-PATCH89';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -158,7 +158,7 @@ function selectCache(url) {
 }
 async function handleResponse(url, response, reqType) {
     const uri = url.split(origin).pop().toString()
-    if (response.status < 300 &&
+    if (response.status < 204 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
         !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
@@ -1088,7 +1088,7 @@ async function fetchBackground(name, save, url, request, options) {
     } else {
         try {
             const response = await fetch((request || url), options)
-            if (response && response.status < 300) {
+            if (response && response.status < 204) {
                 if (save) {
                     const copy = await response.clone();
                     const blob = await copy.blob();
@@ -1613,7 +1613,7 @@ async function unpackFile() {
                         'x-Requested-Page': 'SeqClientUnpacker'
                     }
                 }))
-                if (response.status < 300) {
+                if (response.status < 204) {
                     try {
                         const object = JSON.parse((await response.text()).toString());
                         activeSpannedJob = {
