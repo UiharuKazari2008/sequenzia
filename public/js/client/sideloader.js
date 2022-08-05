@@ -4500,6 +4500,9 @@ try {
                     updateNotficationsPanel();
                 }
                 break;
+            case 'STATUS_UNPACKER_UPDATE':
+                updateNotficationsPanel();
+                break;
             case 'STATUS_UNPACKER_FAILED':
                 if (unpackingJobs.has(event.data.fileid)) {
                     switch (event.data.action) {

@@ -48,6 +48,7 @@ async function openUnpackingFiles(object) {
                 }
                 downloadSpannedController.delete(itemToGet);
                 console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
+                postMessage({type: 'STATUS_UNPACKER_UPDATE'});
             }
             activeSpannedJob = false;
         } else if (!downloadSpannedController.has(object.id)) {
