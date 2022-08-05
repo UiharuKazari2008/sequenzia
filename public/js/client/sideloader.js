@@ -4214,26 +4214,32 @@ if ('serviceWorker' in navigator) {
             document.getElementById('serviceWorkerStatus').classList.add('bg-success');
             document.getElementById('serviceWorkerStatus').classList.remove('bg-danger');
         }, 5000)
-        Notification.requestPermission().then(r => {
-            swRegistation = registration
-        }).catch(err => {
+        try {
+            Notification.requestPermission().then(r => {
+                swRegistation = registration
+            })
+        } catch (err) {
             console.error(err);
-        })
-        if (registration.periodicSync) {
-            const status = await navigator.permissions.query({name: 'periodic-background-sync'});
-            if (status.state === 'granted') {
-                await registration.periodicSync.register('SYNC_PAGES_NEW_ONLY', {
-                    minInterval: 1 * 60 * 60 * 1000
-                });
-                setTimeout(() => {
-                    document.getElementById('serviceWorkerSync').classList.add('bg-success');
-                    document.getElementById('serviceWorkerSync').classList.remove('bg-danger');
-                }, 5000)
+        }
+        try {
+            if (registration.periodicSync) {
+                const status = await navigator.permissions.query({name: 'periodic-background-sync'});
+                if (status.state === 'granted') {
+                    await registration.periodicSync.register('SYNC_PAGES_NEW_ONLY', {
+                        minInterval: 1 * 60 * 60 * 1000
+                    });
+                    setTimeout(() => {
+                        document.getElementById('serviceWorkerSync').classList.add('bg-success');
+                        document.getElementById('serviceWorkerSync').classList.remove('bg-danger');
+                    }, 5000)
+                } else {
+                    // Periodic background sync cannot be used.
+                }
             } else {
-                // Periodic background sync cannot be used.
+                // Periodic Background Sync isn't supported.
             }
-        } else {
-            // Periodic Background Sync isn't supported.
+        } catch (err) {
+            console.error(err);
         }
         console.log(`Service Worker is ready!`);
         serviceWorkerReady = true;
