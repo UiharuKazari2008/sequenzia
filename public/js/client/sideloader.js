@@ -2246,13 +2246,13 @@ async function openKMSPlayer(messageid, seriesId) {
     kongouMediaPlayer.querySelector('.kms-progress-bar').classList.remove('hidden');
 
     if (fullURL && fullURL.endsWith('.mp4')) {
-        kongouMediaVideoPreview.src = fullURL.replace('cdn.discordapp.com', 'media.discordapp.net');
+        kongouMediaVideoPreview.src = fullURL.replace('https://cdn.discordapp.com/attachments/', '/media_attachments/').replace('https://media.discordapp.net/attachments/', '/media_attachments/');
         try {
             kongouMediaVideoPreview.play();
         } catch (err) { console.error(err); }
         kongouMediaVideoPreview.classList.remove('hidden');
     } else if (previewURL && previewURL.endsWith('.mp4')) {
-        kongouMediaVideoPreview.src = previewURL.replace('cdn.discordapp.com', 'media.discordapp.net');
+        kongouMediaVideoPreview.src = previewURL.replace('https://cdn.discordapp.com/attachments/', '/media_attachments/').replace('https://media.discordapp.net/attachments/', '/media_attachments/');
         try {
             kongouMediaVideoPreview.play();
         } catch (err) { console.error(err); }
