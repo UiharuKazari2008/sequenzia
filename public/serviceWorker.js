@@ -2,10 +2,10 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v2-28';
+const cacheName = 'DEV-v2-29';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
-const offlineUrl = './offline';
+const offlineUrl = '/offline';
 const cacheOptions = {
     cacheKernel: 'offline-kernel-' + cacheName,
     cacheConfig: 'offline-config-' + cacheName,
@@ -165,6 +165,9 @@ async function handleResponse(url, response, reqType) {
     } else {
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${url}`);
+    }
+    if (uri.includes('/discord/login') || uri.includes('/discord/destroy') || uri.includes('/discord/refresh')) {
+        await caches.delete(cacheOptions.cacheConfig)
     }
     return response;
 }
