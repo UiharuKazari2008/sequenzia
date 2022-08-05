@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v2-30';
+const cacheName = 'DEV-v20-8-PATCH78';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -80,7 +80,7 @@ const cacheOptions = {
         "/static/js/sb-admin-2.min.js",
         "/js/client/media.min.js",
         "/static/img/boot-logo.png",
-        "/static/img/bootlogo-inner.png",
+        "/static/img/bootlogo-inner.jpeg",
         "/static/img/aak.png",
         "/static/img/about-bg.jpeg",
         "/static/img/kongoumedialogo-wide.png",
@@ -350,22 +350,31 @@ self.addEventListener('install', event => {
     console.log('JulyOS is now installed!');
 });
 self.addEventListener('activate', e => {
-    console.log('JulyOS Kernel [OK]');
+    console.log('JulyOS Kernel Started');
     // Remove unwanted caches
     e.waitUntil(async function() {
         if (self.registration.navigationPreload) {
             await self.registration.navigationPreload.enable();
         }
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cache => {
-                    if ((cache.startsWith('offline-kernel-') && cache !== cacheOptions.cacheKernel || cache.startsWith('offline-proxy-') || cache.startsWith('offline-cdn-') || cache.startsWith('offline-generic-') && cache !== cacheOptions.cacheGeneral || cache.startsWith('offline-config-') && cache !== cacheOptions.cacheConfig)) {
-                        console.log('JulyOS Kernel: Clearing Old Cache - ' + cache);
-                        return caches.delete(cache);
-                    }
-                })
-            );
+        const cacheNames = await caches.keys();
+        const oldCaches = cacheNames.filter(cache => (cache.startsWith('offline-kernel-') && cache !== cacheOptions.cacheKernel ||
+            cache.startsWith('offline-generic-') && cache !== cacheOptions.cacheGeneral ||
+            cache.startsWith('offline-config-') && cache !== cacheOptions.cacheConfig ||
+            cache.startsWith('offline-proxy-') ||
+            cache.startsWith('offline-cdn-')))
+        oldCaches.map(cache => {
+                console.log('JulyOS Kernel: Clearing Old Cache - ' + cache);
+                return caches.delete(cache);
         })
+        if (oldCaches.length > 0) {
+            broadcastAllMessage({
+                type: 'MAKE_TOAST',
+                level: 'success',
+                title: '<i class="fas fa-sync pr-2"></i>Update Successful',
+                subtitle: '',
+                content: `<p class="text-center">The application and kernel was updated to "${cacheName}"!</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
+            });
+        }
     }());
 });
 

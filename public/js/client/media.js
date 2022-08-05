@@ -193,7 +193,9 @@ kongouControlsMute.addEventListener("click", function() {
 });
 function kongouPIPVideo() {
     if (!kongouMediaVideoFull.classList.contains('hidden')) {
-        if (document.pictureInPictureElement) {
+        if (kongouMediaVideoFull.webkitSupportsPresentationMode && typeof kongouMediaVideoFull.webkitSetPresentationMode === "function") {
+            kongouMediaVideoFull.webkitSetPresentationMode(kongouMediaVideoFull.webkitPresentationMode === "picture-in-picture" ? "inline" : "picture-in-picture");
+        } else if (document.pictureInPictureElement) {
             document.exitPictureInPicture();
         } else {
             if (document.webkitIsFullScreen || document.mozFullScreen)

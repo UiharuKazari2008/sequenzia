@@ -185,7 +185,7 @@ $(document).ready(function () {
     //window.history.replaceState(null, "Sequenzia", '/juneOS');
 
     $.toastDefaults = {
-        position: 'top-center', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
+        position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
         dismissible: true,
         stackable: true,
         pauseDelayOnHover: true,

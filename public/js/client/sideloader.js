@@ -4330,7 +4330,7 @@ if ('serviceWorker' in navigator) {
                 updateNotficationsPanel();
                 break;
             case 'MAKE_SNACK':
-                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || 5000))
+                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
                 break;
             case 'MAKE_TOAST':
                 $.toast({
@@ -4338,7 +4338,7 @@ if ('serviceWorker' in navigator) {
                     title: (event.data.title || ''),
                     subtitle: (event.data.subtitle || ''),
                     content: (event.data.content || 'No Data'),
-                    delay: (event.data.timeout || 5000),
+                    delay: (event.data.timeout || undefined),
                 });
                 break;
             case 'NOTIFY_OFFLINE_READY':
