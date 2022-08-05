@@ -418,13 +418,28 @@ html
 
                         div.row.pl-3.pr-3.pt-3
                             h3 Application Status
-                            span#serviceWorkerStatus.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Ready") NetKernel OK
-                            span#serviceWorkerComms.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Communications") NetKernel I/O
-                            span#serviceWorkerSync.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Background Sync") NetKernel Sync
-                            span#webWorkerStatus.badge.badge-danger.mx-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications") TLHWP OK
-                            span#webWorkerComms.badge.badge-danger.mx-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications") TLHWP I/O
-                            span#storageStatus.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Storage Backend") Storage
-                            span#xrStatus.badge.badge-danger.mx-1(data-placement="top" title="JuneOS XR Framework") XR/VR
+                        div.row.pl-3.pr-3.pt-1.mb-3
+                            span#serviceWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                i.fas.fa-block-brick-fire.pr-1
+                                | NetKernel OK
+                            span#serviceWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Communications")
+                                i.fas.fa-right-left.pr-1
+                                | NetKernel I/O
+                            span#serviceWorkerSync.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Background Sync")
+                                i.fas.fa-arrows-rotate.pr-1
+                                | NetKernel Sync
+                            span#webWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
+                                i.fas.fa-microchip.pr-1
+                                | TLHWP OK
+                            span#webWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
+                                i.fas.fa-right-left.pr-1
+                                | TLHWP I/O
+                            span#storageStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Storage Backend")
+                                i.fas.fa-sd-card.pr-1
+                                | Storage
+                            //span#xrStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS XR Framework")
+                                i.fas.fa-vr-cardboard.pr-1
+                                | XR
                         div.row.pl-3.pr-3.pt-3
                             h3 Storage Servers
                         each thisServer, thisIndex in discord.servers.list
