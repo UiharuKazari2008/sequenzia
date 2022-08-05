@@ -169,8 +169,10 @@ async function handleResponse(url, response, reqType) {
         const cacheURL = (url.includes('/full_attachments/')) ? '/full_attachments/' + url.split('/full_attachments/').pop() : (url.includes('/media_attachments/')) ? '/media_attachments/' + url.split('/media_attachments/').pop() : url;
         const cache = await caches.open(selectedCache)
         await cache.put(cacheURL, copy)
-        if (url.includes('/homeImage'))
-            await handleHomeImageCachesEvent(uri, selectedCache);
+        if (url.includes('/homeImage')) {
+            const lastResponse = await caches.match(cacheURL);
+            await handleHomeImageCachesEvent(uri, selectedCache, lastResponse);
+        }
     } else {
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${url}`);
