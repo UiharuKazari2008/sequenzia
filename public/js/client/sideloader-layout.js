@@ -133,9 +133,9 @@ $(document).ready(function () {
     }
 
     $('#videoBuilderModal').on('hidden.bs.modal', cancelPendingUnpack);
-    var scrollManagerThrottleTimeout;
+    let scrollManagerThrottleTimeout;
     function scrollManager () {
-        if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); }
+        if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); scrollManagerThrottleTimeout = null; }
         scrollManagerThrottleTimeout = setTimeout(function() {
             const topbar = document.getElementById('topbar');
             const menu = document.getElementById('userMenu')
@@ -174,7 +174,7 @@ $(document).ready(function () {
                     toggleMenu();
                 }
             }
-        }, 20);
+        }, 250);
     }
 
     document.addEventListener("scroll", scrollManager);
