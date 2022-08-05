@@ -113,8 +113,6 @@ const cacheOptions = {
         'https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js',
         'https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i',
         'https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap',
-        'https://fonts.gstatic.com/s/comfortaa/v40/1Pt_g8LJRfWJmhDAuUsSQamb1W0lwk4S4WjMDrMfJh1Zyc61YA.woff',
-        'https://fonts.gstatic.com/s/nunito/v25/XRXV3I6Li01BKofINeaBTMnFcQ.woff2',
         offlineUrl
     ]
 };
