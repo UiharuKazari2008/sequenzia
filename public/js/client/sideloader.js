@@ -104,8 +104,10 @@ let paginatorInprogress
 let downloadAllController = null;
 let unpackingJobs = new Map();
 const networkKernelChannel = new MessageChannel();
+const unpackerWorker = new SharedWorker('/js/client/worker.unpacker.js');
 let offlineDownloadSignals = new Map();
 let offlineDownloadController = new Map();
+let downloadSpannedController = new Map();
 let tempURLController = new Map();
 let memoryVideoPositions = new Map();
 let kmsVideoWatcher = null;
@@ -1986,18 +1988,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                 }
             }
         } else {
-            unpackingJobs.set(fileid, {
-                id: fileid,
-                messageid,
-                name: filename,
-                size: filesize,
-                channel: channelString,
-                preemptive: downloadPreemptive,
-                offline: true,
-                expires: (!offlineFile) ? (new Date().getTime()) + 3600000: false,
-                play: playThis
-            })
-            const responseMessage = await kernelRequestData({type: 'UNPACK_FILE', options: {
+            const responseMessage = await unpackRequestData({type: 'UNPACK_FILE', object: {
                     id: fileid,
                     messageid,
                     name: filename,
@@ -2134,7 +2125,8 @@ async function cancelPendingUnpack() {
 }
 async function stopUnpackingFiles(fileid) {
     unpackingJobs.delete(fileid)
-    kernelRequestData({type: 'CANCEL_UNPACK_FILE', fileid})
+    unpackerWorker.port.postMessage({ type: 'CANCEL_UNPACK_FILE', fileid });
+    kernelRequestData({type: 'CANCEL_UNPACK_FILE', fileid});
 }
 async function removeCacheItem(id) {
     const file = await getSpannedFileIfAvailable(id);
@@ -4197,46 +4189,152 @@ function kernelRequestData(message) {
         navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
     });
 }
-
+function unpackRequestData(message) {
+    return new Promise(resolve => {
+        unpackingJobs.set(message.object.id, message.object);
+        unpackerWorker.port.postMessage(message);
+        function setTimer() {
+            setTimeout(() => {
+                if (!unpackingJobs.has(message.fileid)) {
+                    resolve((downloadSpannedController.has(message.fileid)) ? downloadSpannedController.get(message.fileid) : false);
+                    downloadSpannedController.delete(message.fileid);
+                } else {
+                    setTimer();
+                }
+            }, 1000)
+        }
+        setTimer();
+    })
+}
 
 if ('serviceWorker' in navigator) {
     let swRegistation
-    navigator.serviceWorker.ready.then((registration) => {
+    navigator.serviceWorker.ready.then(async (registration) => {
+        setTimeout(() => {
+            document.getElementById('serviceWorkerStatus').classList.add('bg-success');
+            document.getElementById('serviceWorkerStatus').classList.remove('bg-danger');
+        }, 5000)
         Notification.requestPermission().then(r => {
             swRegistation = registration
-        });
-        navigator.serviceWorker.ready.then(async (registration) => {
-            if (registration.periodicSync) {
-                const status = await navigator.permissions.query({name: 'periodic-background-sync'});
-                if (status.state === 'granted') {
-                    await registration.periodicSync.register('SYNC_PAGES_NEW_ONLY', {
-                        minInterval: 1 * 60 * 60 * 1000
-                    });
-                } else {
-                    // Periodic background sync cannot be used.
-                }
+        }).catch(err => {
+            console.error(err);
+        })
+        if (registration.periodicSync) {
+            const status = await navigator.permissions.query({name: 'periodic-background-sync'});
+            if (status.state === 'granted') {
+                await registration.periodicSync.register('SYNC_PAGES_NEW_ONLY', {
+                    minInterval: 1 * 60 * 60 * 1000
+                });
+                setTimeout(() => {
+                    document.getElementById('serviceWorkerSync').classList.add('bg-success');
+                    document.getElementById('serviceWorkerSync').classList.remove('bg-danger');
+                }, 5000)
             } else {
-                // Periodic Background Sync isn't supported.
+                // Periodic background sync cannot be used.
             }
-        });
+        } else {
+            // Periodic Background Sync isn't supported.
+        }
         console.log(`Service Worker is ready!`);
         serviceWorkerReady = true;
-        serviceWorkerMessageAsync({
-            type: 'PING',
-        })
+        if (await kernelRequestData({ type: 'PING' })) {
+            console.log('Service Worker Comms are OK');
+            setTimeout(() => {
+                document.getElementById('serviceWorkerComms').classList.add('bg-success');
+                document.getElementById('serviceWorkerComms').classList.remove('bg-danger');
+            }, 5000)
+        }
+        if (await kernelRequestData({ type: 'PING_STORAGE' })) {
+            setTimeout(() => {
+                document.getElementById('storageStatus').classList.add('bg-success');
+                document.getElementById('storageStatus').classList.remove('bg-danger');
+            }, 5000)
+        }
     });
     // Global Channel
     navigator.serviceWorker.onmessage = async function (event) {
         switch (event.data.type) {
-            case 'STATUS_UNPACK_PROGRESS':
+            case 'STATUS_STORAGE_CACHE_LIST':
+                console.log('Status Storage Cache Update Got')
+                offlineEntities = event.data.entities;
+                offlineMessages = event.data.messages;
+                updateNotficationsPanel();
+                break;
+            case 'STATUS_STORAGE_CACHE_UNMARK':
+                $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
+                $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
+                break;
+            case 'STATUS_STORAGE_CACHE_MARK':
+                $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
+                $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
+                break;
+            case 'STATUS_UNPACKER_NOTIFY':
+                break;
+            case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
+                offlineDownloadController.set(event.data.url, event.data.status);
+                updateNotficationsPanel();
+                break;
+            case 'STATUS_STORAGE_CACHE_PAGE_COMPLETE':
+                offlineDownloadController.delete(event.data.url);
+                updateNotficationsPanel();
+                break;
+            case 'MAKE_SNACK':
+                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || 5000))
+                break;
+            case 'MAKE_TOAST':
+                $.toast({
+                    type: (event.data.level || 'info'),
+                    title: (event.data.title || ''),
+                    subtitle: (event.data.subtitle || ''),
+                    content: (event.data.content || 'No Data'),
+                    delay: (event.data.timeout || 5000),
+                });
+                break;
+            case 'NOTIFY_OFFLINE_READY':
+            case 'PING_STORAGE':
+                console.log('Service Worker Storage Ready');
+                break;
+            case 'PONG':
+                break;
+            case 'UNPACK_FILE':
+                unpackingJobs.set(event.data.object.id, event.data.object);
+                updateNotficationsPanel();
+                unpackerWorker.port.postMessage(event.data);
+                break;
+            default:
+                console.error('Service Worker Message Unknown', event.data.type);
+                break;
+        }
+    };
+    // Page Channel
+    networkKernelChannel.onmessage = function (event) {
+        switch (event.data.type) {
+            case 'PONG':
+                console.log('Service Worker Comms are OK');
+                break;
+            default:
+                console.error('Service Worker Message Unknown', event.data.type);
+                break;
+        }
+    }
+}
+try {
+    unpackerWorker.port.start();
+    unpackerWorker.port.onmessage = async function(event) {
+        switch (event.data.type) {
+            case 'STATUS_UNPACK_STARTED':
+            case 'STATUS_UNPACK_QUEUED':
+            case 'STATUS_UNPACK_DUPLICATE':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    downloadSpannedController.set(event.data.fileid, event.data);
+                    updateNotficationsPanel();
+                }
                 break;
             case 'STATUS_UNPACK_COMPLETED':
-                if (unpackingJobs.has(event.data.fileid)) {
-                    setTimeout(() => {
-                        unpackingJobs.delete(event.data.fileid);
-                        updateNotficationsPanel();
-                    }, 1000);
-                }
+                setTimeout(() => {
+                    unpackingJobs.delete(event.data.fileid);
+                    updateNotficationsPanel();
+                }, 1000);
                 break;
             case 'STATUS_UNPACK_FAILED':
                 if (unpackingJobs.has(event.data.fileid)) {
@@ -4245,6 +4343,8 @@ if ('serviceWorker' in navigator) {
                         unpackingJobs.delete(event.data.fileid);
                         updateNotficationsPanel();
                     }, 1000);
+                    downloadSpannedController.set(event.data.fileid, event.data);
+                    updateNotficationsPanel();
                 }
                 break;
             case 'STATUS_UNPACKER_ACTIVE':
@@ -4500,69 +4600,26 @@ if ('serviceWorker' in navigator) {
                             console.error(event.data);
                             break;
                     }
+                    updateNotficationsPanel();
                 }
                 break;
-            case 'STATUS_STORAGE_CACHE_LIST':
-                console.log('Status Storage Cache Update Got')
-                offlineEntities = event.data.entities;
-                offlineMessages = event.data.messages;
-                break;
-            case 'STATUS_STORAGE_CACHE_UNMARK':
-                $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
-                $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
-                break;
-            case 'STATUS_STORAGE_CACHE_MARK':
-                $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
-                $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
-                break;
-            case 'STATUS_UNPACKER_NOTIFY':
-                unpackingJobs.set(event.data.fileid, event.data.object);
-                updateNotficationsPanel();
-                break;
-            case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
-                offlineDownloadController.set(event.data.url, event.data.status);
-                updateNotficationsPanel();
-                break;
-            case 'STATUS_STORAGE_CACHE_PAGE_COMPLETE':
-                offlineDownloadController.delete(event.data.url);
-                updateNotficationsPanel();
-                break;
-            case 'MAKE_SNACK':
-                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || 5000))
-                break;
-            case 'MAKE_TOAST':
-                $.toast({
-                    type: (event.data.level || 'info'),
-                    title: (event.data.title || ''),
-                    subtitle: (event.data.subtitle || ''),
-                    content: (event.data.content || 'No Data'),
-                    delay: (event.data.timeout || 5000),
-                });
-                break;
-            case 'NOTIFY_OFFLINE_READY':
-                console.log('Service Worker Ready');
-                break;
             case 'PONG':
-                console.log('Service Worker Comms are OK');
-                //if (swRegistation)
-                    //swRegistation.sync.register('refreshPages');
+                setTimeout(() => {
+                    document.getElementById('webWorkerComms').classList.add('bg-success');
+                    document.getElementById('webWorkerComms').classList.remove('bg-danger');
+                }, 5000)
                 break;
             default:
-                console.error('Service Worker Message Unknown', event.data.type);
                 break;
         }
-    };
-    // Page Channel
-    networkKernelChannel.onmessage = function (event) {
-        switch (event.data.type) {
-            case 'STATUS_UNPACK_PROGRESS':
-                break;
-            case 'PONG':
-                console.log('Service Worker Comms are OK');
-                break;
-            default:
-                console.error('Service Worker Message Unknown', event.data.type);
-                break;
-        }
+        await kernelRequestData(event.data)
     }
+    setTimeout(() => {
+        document.getElementById('webWorkerStatus').classList.add('bg-success');
+        document.getElementById('webWorkerStatus').classList.remove('bg-danger');
+    }, 5000)
+    unpackerWorker.port.postMessage({type: 'PING'});
+} catch (err) {
+    console.error(err);
 }
+

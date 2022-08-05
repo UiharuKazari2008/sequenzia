@@ -55,6 +55,7 @@ const cacheOptions = {
         '/sidebar'
     ],
     preloadCache: [
+        "/js/client/worker.unpacker.js",
         "/static/vendor/domparser_bundle.js",
         "/static/vendor/jquery/jquery.min.js",
         "/static/js/jquery.history.min.js",
@@ -121,7 +122,9 @@ let swDebugMode = (origin && origin.includes('localhost:3000'));
 let browserStorageAvailable = false;
 let offlineContent;
 let downloadSpannedController = new Map();
+let downloadSpannedResponse = new Map();
 let offlineDownloadSignals = new Map();
+let downloadSpannedSignals = new Map();
 let activeSpannedJob = false;
 let tempURLController = new Map();
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
@@ -135,14 +138,10 @@ async function broadcastAllMessage(message) {
         type: "window"
     }).then(all => all.map(client => client.postMessage(message)));
 }
-function selectCache(url, internalRequest) {
+function selectCache(url) {
     const uri = url.split(origin).pop().toString()
     if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0 || uri === '/' || uri === '/home')
         return cacheOptions.cacheConfig
-    if (internalRequest && (uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !url.includes('.discordapp.'))
-        return cacheOptions.cacheCDN
-    if (internalRequest && uri.startsWith('/media_attachments/') && !url.includes('.discordapp.'))
-        return cacheOptions.cacheProxy
     if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !url.includes('.discordapp.'))
         return cacheOptions.tempCacheCDN
     if (uri.startsWith('/media_attachments/') && !url.includes('.discordapp.'))
@@ -155,12 +154,12 @@ function selectCache(url, internalRequest) {
         return cacheOptions.cacheKernel
     return cacheOptions.cacheGeneral
 }
-async function handleResponse(url, response, reqType, internalRequest) {
+async function handleResponse(url, response, reqType) {
     const uri = url.split(origin).pop().toString()
     if (response.status < 300 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_')))) {
-        const selectedCache = selectCache(url, internalRequest);
+        const selectedCache = selectCache(url);
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
         const copy = response.clone();
@@ -223,7 +222,7 @@ function params(_removeParams, _addParams, _url, keep) {
     return `${_URL.pathname}?${_params.toString()}`
 }
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 2);
+const offlineContentDB = self.indexedDB.open("offlineContent", 3);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     broadcastAllMessage({type: 'NOTIFY_ERROR', message: `IndexedDB Is Not Available: Offline Content will not be available!`});
@@ -273,6 +272,12 @@ offlineContentDB.onupgradeneeded = event => {
         offlineKongouEpisode.transaction.oncomplete = event => {
         }
     }
+    if (event.oldVersion < 3) {
+        const offlineStorageData = db.createObjectStore("offline_filedata", {keyPath: "url"});
+        offlineStorageData.createIndex("url", "url", {unique: true});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
 };
 
 self.addEventListener('install', event => {
@@ -299,7 +304,7 @@ self.addEventListener('activate', e => {
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cache => {
-                    if ((cache.startsWith('offline-kernel-') && cache !== cacheOptions.cacheKernel || cache.startsWith('offline-generic-') && cache !== cacheOptions.cacheGeneral || cache.startsWith('offline-config-') && cache !== cacheOptions.cacheConfig)) {
+                    if ((cache.startsWith('offline-kernel-') && cache !== cacheOptions.cacheKernel || cache.startsWith('offline-proxy-') || cache.startsWith('offline-cdn-') || cache.startsWith('offline-generic-') && cache !== cacheOptions.cacheGeneral || cache.startsWith('offline-config-') && cache !== cacheOptions.cacheConfig)) {
                         console.log('JulyOS Kernel: Clearing Old Cache - ' + cache);
                         return caches.delete(cache);
                     }
@@ -320,21 +325,20 @@ self.addEventListener('fetch', event => {
                 return cachedResponse;
             }
 
-            if (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) {
-                const newURL = `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}`;
-                const cachedResponse = await caches.match(newURL);
-                if (cachedResponse) {
+            if (event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
+                const newURL = (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop();
+                const offlineFile = await getDataIfAvailable(newURL)
+                if (offlineFile) {
                     if (swDebugMode)
-                        console.log('JulyOS Kernel: Indirect CDN Cache - ' + event.request.url);
-                    return cachedResponse;
+                        console.log('JulyOS Kernel: Offline Storage - ' + event.request.url);
+                    return new Response(offlineFile, { status: 200 });
                 }
                 if (event.request.url.includes('https://media.discordapp.net/')) {
-                    const proxyCache = await caches.open(cacheOptions.cacheProxy);
-                    const cachedNoQueryResponse = await proxyCache.match(newURL.split('?')[0]);
-                    if (cachedNoQueryResponse) {
+                    const offlineFile = await getDataIfAvailable(newURL.split('?')[0])
+                    if (offlineFile) {
                         if (swDebugMode)
-                            console.log('JulyOS Kernel: Indirect CDN Cache (Resolution Bypass) - ' + event.request.url);
-                        return cachedNoQueryResponse;
+                            console.log('JulyOS Kernel: Offline Storage (Resolution Bypass) - ' + event.request.url);
+                        return offlineFile;
                     }
                 }
             }
@@ -364,6 +368,7 @@ self.addEventListener('fetch', event => {
 });
 self.addEventListener('sync', async (event) => {
     console.log(event.tag);
+    await getAllOfflineEIDs();
     switch (event.tag) {
         case 'test-tag-from-devtools':
         case 'SYNC_PAGES_NEW_ONLY':
@@ -389,6 +394,7 @@ self.addEventListener('sync', async (event) => {
 });
 self.addEventListener('periodicsync', async (event) => {
     console.log(event.tag);
+    await getAllOfflineEIDs();
     switch (event.tag) {
         case 'test-tag-from-devtools':
         case 'SYNC_PAGES_NEW_ONLY':
@@ -414,10 +420,6 @@ self.addEventListener('message', async (event) => {
     switch (event.data.type) {
         case 'SKIP_WAITING':
             self.skipWaiting();
-            event.ports[0].postMessage(true);
-            break;
-        case 'UNPACK_FILE':
-            openUnpackingFiles(event.data.options, event.ports[0]);
             event.ports[0].postMessage(true);
             break;
         case 'CANCEL_UNPACK_FILE':
@@ -481,15 +483,36 @@ self.addEventListener('message', async (event) => {
             event.ports[0].postMessage(await removeCacheItem(event.data.fileid));
             break;
         case 'PING':
-            broadcastAllMessage({type: 'PONG'})
-            await getAllOfflineEIDs();
-            event.ports[0].postMessage({type: 'PONG'});
+            event.ports[0].postMessage(true);
+            break;
+        case 'PING_STORAGE':
+            event.ports[0].postMessage(browserStorageAvailable);
+            break;
+        case 'STATUS_UNPACK_STARTED':
+        case 'STATUS_UNPACK_QUEUED':
+        case 'STATUS_UNPACK_DUPLICATE':
+            downloadSpannedSignals.set(event.data.fileid, true);
+            event.ports[0].postMessage(true);
+            break;
+        case 'STATUS_UNPACK_FAILED':
+        case 'STATUS_UNPACKER_FAILED':
+            downloadSpannedResponse.set(event.data.fileid, false);
+            downloadSpannedSignals.delete(event.data.fileid);
+            event.ports[0].postMessage(true);
+            break;
+        case 'STATUS_UNPACK_COMPLETED':
+            downloadSpannedResponse.set(event.data.fileid, true);
+            downloadSpannedSignals.delete(event.data.fileid);
+            event.ports[0].postMessage(true);
+            break;
+        case 'STATUS_UNPACKER_ACTIVE':
+            event.ports[0].postMessage(true);
             break;
         default:
             console.log(event);
             console.log(event.data);
             console.log('Unknown Message');
-            break;
+    break;
     }
 });
 
@@ -505,7 +528,7 @@ function replaceDiscordCDN(url) {
 function returnDiscordCDN(url) {
     return (url.includes('_attachments')) ? `https://${(url.startsWith('/media_') ? 'media.discordapp.net' : 'cdn.discordapp.com')}/attachments${url.split('attachments').pop()}` : url;
 }
-function extractMetaFromElement(e, preemptive) {
+async function extractMetaFromElement(e, preemptive) {
     const postChannelString = e.getAttribute('data-msg-channel-string');
     const postChannelIcon = e.getAttribute('data-msg-channel-icon');
     const postDownload = e.getAttribute('data-msg-download');
@@ -534,7 +557,7 @@ function extractMetaFromElement(e, preemptive) {
     })(e.getAttribute('data-kms-json'));
     const attribs = Array.from(e.attributes).map(f => f.nodeName + '="' + f.value.split('"').join('&quot;') + '"');
 
-    let required_build = (postFilID && !postCached);
+    let required_build = (postFilID && !postCached && !(await getSpannedFileIfAvailable(postFilID)));
     let data_type = null;
     let fullItem = null;
     let previewItem = null;
@@ -650,22 +673,29 @@ async function getFileIfAvailable(eid) {
         }
     })
 }
-async function getShowIfAvailable(showId) {
+async function getDataIfAvailable(url) {
     return new Promise((resolve) => {
+        let timeout = setTimeout(() => { resolve(false); }, 2500);
         try {
             if (browserStorageAvailable) {
-                offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").get(showId).onsuccess = event => {
-                    if (event.target.result && event.target.result.meta) {
-                        resolve({ ...event.target.result })
+                offlineContent.transaction("offline_filedata").objectStore("offline_filedata").get(url).onsuccess = event => {
+                    if (event.target.result && event.target.result.data) {
+                        resolve(event.target.result.data)
                     } else {
                         resolve(false)
                     }
+                    clearTimeout(timeout);
+                    timeout = null;
                 };
             } else {
-                resolve(false)
+                resolve(false);
+                clearTimeout(timeout);
+                timeout = null;
             }
         } catch (e) {
             console.log(e);
+            clearTimeout(timeout);
+            timeout = null;
             resolve(false)
         }
     })
@@ -813,34 +843,23 @@ async function deleteOfflinePage(url, noupdate) {
             const page = await getPageIfAvailable(url);
             if (page) {
                 let blockedItems = [];
-                const linkedItems = (await getAllOfflinePages()).filter(e => e.url !== url).map(page => blockedItems.push(...page.items))
-                const cachesList = await caches.keys();
-                const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
-                const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
-                const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
-                const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
+                (await getAllOfflinePages()).filter(e => e.url !== url).map(page => blockedItems.push(...page.items))
                 const files = await getAllOfflineFiles();
                 const pageItems = files.filter(e => blockedItems.indexOf(e.eid) === -1 && page.items.indexOf(e.eid) !== -1);
 
                 for (let e of pageItems) {
                     const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(e.eid);
-                    indexDBUpdate.onsuccess = event => {
-                        if (cdnCache) {
-                            if (e.full_url)
-                                cdnCache.delete(e.full_url);
-                            if (e.preview_url)
-                                cdnCache.delete(e.preview_url);
-                            if (e.extpreview_url)
-                                cdnCache.delete(e.extpreview_url);
-                        }
-                        if (proxyCache) {
-                            if (e.full_url)
-                                proxyCache.delete(e.full_url);
-                            if (e.preview_url)
-                                proxyCache.delete(e.preview_url);
-                            if (e.extpreview_url)
-                                proxyCache.delete(e.extpreview_url);
-                        }
+                    indexDBUpdate.onsuccess = async event => {
+                        if (e.full_url)
+                            await removeOfflineData(e.full_url);
+                        if (e.preview_url)
+                            await removeOfflineData(e.preview_url);
+                        if (e.extpreview_url)
+                            await removeOfflineData(e.extpreview_url);
+                        if (e.kongou_poster_url)
+                            await removeOfflineData(e.kongou_poster_url);
+                        if (e.kongou_poster_url)
+                            await removeOfflineData(e.kongou_poster_url);
                     }
                 }
                 if (browserStorageAvailable) {
@@ -892,23 +911,16 @@ async function deleteOfflineFile(eid, noupdate, preemptive) {
             const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
             if (file.fileid)
                 await removeCacheItem(file.fileid)
-
-            if (cdnCache) {
-                if (file.full_url)
-                    await cdnCache.delete(file.full_url);
-                if (file.preview_url)
-                    await cdnCache.delete(file.preview_url);
-                if (file.extpreview_url)
-                    await cdnCache.delete(file.extpreview_url);
-            }
-            if (proxyCache) {
-                if (file.full_url)
-                    await proxyCache.delete(file.full_url);
-                if (file.preview_url)
-                    await proxyCache.delete(file.preview_url);
-                if (file.extpreview_url)
-                    await proxyCache.delete(file.extpreview_url);
-            }
+            if (file.full_url)
+                await removeOfflineData(file.full_url);
+            if (file.preview_url)
+                await removeOfflineData(file.preview_url);
+            if (file.extpreview_url)
+                await removeOfflineData(file.extpreview_url);
+            if (file.kongou_poster_url)
+                await removeOfflineData(file.kongou_poster_url);
+            if (file.kongou_poster_url)
+                await removeOfflineData(file.kongou_poster_url);
             if (browserStorageAvailable) {
                 const indexDBUpdate = offlineContent.transaction(["offline_items", "offline_kongou_shows", "offline_kongou_episodes"], "readwrite");
                 indexDBUpdate.objectStore("offline_kongou_episodes").delete(parseInt(eid.toString()))
@@ -980,62 +992,34 @@ async function removeCacheItem(id) {
         };
     }
 }
+async function removeOfflineData(url) {
+    if (browserStorageAvailable) {
+        return new Promise((resolve) => {
+            const indexDBUpdate = offlineContent.transaction(["offline_filedata"], "readwrite").objectStore("offline_filedata").delete(url);
+            indexDBUpdate.onsuccess = event => {
+                resolve(event.target.result);
+            };
+        })
+    }
+}
 
-async function fetchBackground(name, url, request, options) {
+async function fetchBackground(name, save, url, request, options) {
     if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
         return self.registration.backgroundFetch.fetch(name, (request || url), options);
     } else {
         try {
-            const cachedResponse = await caches.match((request || url));
-            if (cachedResponse) {
-                if (swDebugMode)
-                    console.log('JulyOS Internal Kernel: Cache - ' + url);
-                const tempCDN = await caches.open(cacheOptions.tempCacheProxy);
-                const tempProxy = await caches.open(cacheOptions.tempCacheProxy);
-
-                if ((await tempCDN.match((request || url))) || (await tempCDN.match(returnDiscordCDN(request || url))) || (await tempProxy.match((request || url))) || (await tempProxy.match(returnDiscordCDN(request || url)))) {
-                    const response = await fetch((request || url), options)
-                    const selectedCache = selectCache(url, true);
-                    if (swDebugMode)
-                        console.log(`JulyOS Internal Kernel: Move Cache (${selectedCache}) - ${url}`);
-                    caches.open(selectedCache).then(cache => cache.put((request || url), response))
-                    caches.open(cacheOptions.tempCacheProxy).then(cache => cache.delete((request || url)))
-                    caches.open(cacheOptions.tempCacheCDN).then(cache => cache.delete((request || url)))
-                    caches.open(cacheOptions.tempCacheProxy).then(cache => cache.delete(returnDiscordCDN(request || url)))
-                    caches.open(cacheOptions.tempCacheCDN).then(cache => cache.delete(returnDiscordCDN(request || url)))
-                }
-                return cachedResponse;
-            }
-
-            if (url.includes('.discordapp.') && url.includes('/attachments/')) {
-                const newURL = `/${url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${url.split('/attachments/').pop()}`;
-                const cdnCache = (await caches.open(cacheOptions.cacheCDN) || await caches.open(cacheOptions.tempCacheCDN));
-                const cachedResponse = await cdnCache.match(newURL);
-                if (cachedResponse) {
-                    if (swDebugMode)
-                        console.log('JulyOS Internal Kernel: Indirect CDN Cache - ' + url);
-                    return cachedResponse;
-                }
-                if (url.includes('https://media.discordapp.net/')) {
-                    const proxyCache = (await caches.open(cacheOptions.cacheProxy) || await caches.open(cacheOptions.tempCacheProxy));
-                    const cachedNoQueryResponse = await proxyCache.match(newURL.split('?')[0]);
-                    if (cachedNoQueryResponse) {
-                        if (swDebugMode)
-                            console.log('JulyOS Internal Kernel: Indirect CDN Cache (Resolution Bypass) - ' + url);
-                        return cachedNoQueryResponse;
-                    }
-                }
-            }
-        } catch (err) {
-            console.error('JulyOS Internal Kernel: Error fetching cache or preloaded response - ' + url)
-            console.error(err);
-        }
-
-        // Else try the network.
-        try {
             const response = await fetch((request || url), options)
-            if (response) {
-                handleResponse(url, response, "Network", true);
+            if (response && response.status < 300) {
+                if (save) {
+                    const copy = await response.clone();
+                    const blob = await copy.blob();
+                    offlineContent.transaction(['offline_filedata'], "readwrite").objectStore('offline_filedata').put({
+                        url: url.split(origin).pop(),
+                        data: blob
+                    }).onsuccess = event => { console.log('JulyOS Internal Kernel: Network + Storage - ' + url); }
+                } else {
+                    console.log('JulyOS Internal Kernel: Network Only - ' + url);
+                }
                 return response
             } else {
                 console.log('JulyOS Internal Kernel: Offline - ' + url);
@@ -1044,6 +1028,7 @@ async function fetchBackground(name, url, request, options) {
                 })
             }
         } catch (err) {
+            console.error(err);
             console.log('JulyOS Internal Kernel: Offline - ' + url);
             return new Response(null, {
                 status: 501
@@ -1057,16 +1042,16 @@ async function cacheFileURL(object, page_item) {
             let fetchResults = {}
             let fetchKMSResults = {}
             if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
-                if (object.full_url)
-                    fetchResults["full_url"] = (await fetchBackground(`${object.id}-full_url`, object.full_url)).status
-                if (object.preview_url)
-                    fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, object.preview_url)).status
-                if (object.extpreview_url)
-                    fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, object.extpreview_url)).status
+                if (object.full_url && !object.full_url.includes('/stream'))
+                    fetchResults["full_url"] = (await fetchBackground(`${object.id}-full_url`, true, object.full_url)).status
+                if (object.preview_url && !object.full_url.includes('/stream'))
+                    fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, true, object.preview_url)).status
+                if (object.extpreview_url && !object.full_url.includes('/stream'))
+                    fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, true, object.extpreview_url)).status
                 if (object.kongou_poster_url)
-                    fetchKMSResults["kongou_poster_url"] = (await fetchBackground(`${object.id}-kongou_poster_url`, object.kongou_poster_url)).status
+                    fetchKMSResults["kongou_poster_url"] = (await fetchBackground(`${object.id}-kongou_poster_url`, true, object.kongou_poster_url)).status
                 if (object.kongou_backdrop_url)
-                    fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, object.kongou_backdrop_url)).status
+                    fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, true, object.kongou_backdrop_url)).status
                 if (object.required_build) {
                     const unpackerJob = {
                         id: object.fileid,
@@ -1077,23 +1062,49 @@ async function cacheFileURL(object, page_item) {
                         expires: false,
                         offline: true,
                     }
-                    broadcastAllMessage({
-                        type: 'STATUS_UNPACKER_NOTIFY',
-                        fileid: object.fileid,
-                        object: unpackerJob,
-                    })
-                    openUnpackingFiles(unpackerJob);
-                    fetchResults['spanned_file'] = await new Promise((resolve) => {
-                        function setTimer() {
-                            setTimeout(() => {
-                                if (!downloadSpannedController.has(object.fileid)) {
-                                    resolve((!!getSpannedFileIfAvailable(object.fileid)));
-                                } else {
-                                    setTimer();
+                    fetchResults['spanned_file'] = await new Promise(async resolve => {
+                        const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
+                        if (windows.length > 0) {
+                            self.clients.matchAll({
+                                includeUncontrolled: true,
+                                type: "window"
+                            }).then(clients => clients[0].postMessage({type: 'UNPACK_FILE', object: unpackerJob}));
+                            let i = 0;
+                            function setTimer() {
+                                setTimeout(() => {
+                                    if (!downloadSpannedSignals.has(object.fileid) && i > 30) {
+                                        console.error(`Spanned file ${object.fileid} could not be downloaded, No worker response received`)
+                                        resolve(false);
+                                    } else if (!downloadSpannedSignals.has(object.fileid) && downloadSpannedResponse.has(object.fileid)) {
+                                        resolve(downloadSpannedResponse.get(object.fileid) || false);
+                                        downloadSpannedResponse.delete(object.fileid);
+                                    } else {
+                                        setTimer();
+                                    }
+                                }, 1000)
+                            }
+                            setTimer();
+                        } else {
+                            console.log('No windows available')
+                            broadcastAllMessage({
+                                type: 'STATUS_UNPACKER_NOTIFY',
+                                fileid: object.fileid,
+                                object: unpackerJob,
+                            })
+                            openUnpackingFiles(unpackerJob);
+                            fetchResults['spanned_file'] = await new Promise((resolve) => {
+                                function setTimer() {
+                                    setTimeout(() => {
+                                        if (!downloadSpannedController.has(object.fileid)) {
+                                            resolve((!!getSpannedFileIfAvailable(object.fileid)));
+                                        } else {
+                                            setTimer();
+                                        }
+                                    }, 1000)
                                 }
-                            }, 1000)
+                                setTimer();
+                            })
                         }
-                        setTimer();
                     })
                 }
             } else {
@@ -1168,12 +1179,12 @@ async function cachePageOffline(type, _url, limit, newOnly) {
     }
     try {
         console.log(url);
-        const _cacheItem = await fetchBackground(`${url}-results`, url);
+        const _cacheItem = await fetchBackground(`${url}-results`, false, url);
         if (_cacheItem) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
             const title = content.querySelector('title').text;
 
-            const itemsToCache = Array.from(content.querySelectorAll('[data-msg-url-full]')).map(e => extractMetaFromElement(e)).filter(e => e.data_type && (!newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1)));
+            const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type && (!newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1)));
             const totalFiles = itemsToCache.length;
 
             if (totalFiles === 0) {
@@ -1515,7 +1526,7 @@ async function unpackFile() {
         broadcastAllMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'GET_METADATA', fileid: activeID});
         return await new Promise(async (job) => {
             try {
-                const response = await fetchBackground(`parity-${activeID}`, `/parity/${activeID}`, new Request(`/parity/${activeID}`, {
+                const response = await fetchBackground(`parity-${activeID}`, false, `/parity/${activeID}`, new Request(`/parity/${activeID}`, {
                     type: 'GET',
                     redirect: "follow",
                     headers: {
@@ -1561,7 +1572,7 @@ async function unpackFile() {
                                     const results = await Promise.all(downloadKeys.map(async item => {
                                         return new Promise(async ok => {
                                             try {
-                                                const block = await fetchBackground(`parity-block-${activeID}-${item}`, pendingBlobs[item], new Request(pendingBlobs[item], {
+                                                const block = await fetchBackground(`parity-block-${activeID}-${item}`, false, pendingBlobs[item], new Request(pendingBlobs[item], {
                                                     method: 'GET',
                                                     signal: activeSpannedJob.abort.signal
                                                 }))

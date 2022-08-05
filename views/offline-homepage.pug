@@ -394,13 +394,39 @@ html
                             br
                             span Developed and Maintained by Academy City Research (acr.moe)
                             br
-                            span JuneFS™ Storage Framework
+                            span Sequenzia v20 PRERELEASE
                             br
-                            span Kanmi™ Content Distribution and Auditing System (CDS)
+                            span JuneFS™ v1.7 (Storage Framework)
                             br
-                            span IntelliDex™ Indexing System (IDEX)
+                            span JuneOS™ v2.2 (Web Platform)
+                            br
+                            span JulyOS™ v0.2 (Offline Kernel)
+                        div.row.pl-3.pr-3.pt-3
+                            h3 Extensions
                         div.row.pl-3.pr-3.pt-2.mb-3
-                            span Thank you to all that have helped test and report issues. Special Thanks to Emmy!
+                            img(src="/static/img/kongoumedialogo-wide.png").img-fluid
+                            br
+                            span Kongou Media Project (Kongou Media System v9)
+                            br
+                            img(src="/static/img/awatsukidps.png").img-fluid
+                            br
+                            span IntelliDex™ Deep Indexing System (IDEX) + Awatsuki uDPS
+                            br
+                            span Sequenzia Content Distribution and Auditing System (CDS)
+                        div.row.pl-3.pr-3.pt-2.mb-3
+                            span.font-weight-bold Thank you to all that have helped test and report issues. Special Thanks to Emmy!
+
+                        div.row.pl-3.pr-3.pt-3
+                            h3 Application Status
+                            span#serviceWorkerStatus.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Ready") NetKernel OK
+                            span#serviceWorkerComms.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Communications") NetKernel I/O
+                            span#serviceWorkerSync.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Network Kernel Background Sync") NetKernel Sync
+                            span#webWorkerStatus.badge.badge-danger.mx-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications") TLHWP OK
+                            span#webWorkerComms.badge.badge-danger.mx-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications") TLHWP I/O
+                            span#storageStatus.badge.badge-danger.mx-1(data-placement="top" title="JulyOS Storage Backend") Storage
+                            span#xrStatus.badge.badge-danger.mx-1(data-placement="top" title="JuneOS XR Framework") XR/VR
+                        div.row.pl-3.pr-3.pt-3
+                            h3 Storage Servers
                         each thisServer, thisIndex in discord.servers.list
                             .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
                                 div.mr-3
@@ -416,6 +442,7 @@ html
                                         else
                                             i.fas.fa-database.pr-2.pl-1
                                             span Storage Server
+
         #searchModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
