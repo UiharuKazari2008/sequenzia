@@ -2745,15 +2745,58 @@ div#bootUpDisplay {
     pointer-events: all;
     z-index: 500000;
     background: black;
+    /*backdrop-filter: blur(10px);*/
+    background-image: url("/internal/last_full.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
+
 .boot-text {
     margin-bottom: 10em;
 }
 .boot-loader-bar {
     height: 1.25em;
     max-width: 20em;
-    background: linear-gradient(90deg,#ec5822 0,#f5e4d3 50%,#ec5822 100%) 0 0/300% 100%;
-    animation: animateBg 2s linear infinite;
+    background: linear-gradient(90deg, #e42e23 0, #ff57d1 50%, #e42e23 100%) 0 0/300% 100%;
+    animation: animateBg 3s linear infinite;
+    width: 10em;
+    border: 1px solid #ffffff47;
+}
+.boot-dialog {
+    background-color: #303030;
+    height: 450px;
+    width: 800px;
+    background-image: url(https://cdn.discordapp.com/attachments/726637721371541504/726660781403537428/IMG_0003.JPG);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-origin: border-box;
+    border: 1px solid #ffffff5c;
+    /*border-top: 10px solid #ff7400;*/
+    box-shadow: 0 0 30px black;
+    max-width: calc(100vw - 3rem);
+    max-height: calc(100vh - 3rem);
+}
+.boot-logo-holder {
+    padding-top: 32px;
+}
+.boot-author-loog {
+    left: 0;
+    bottom: 0;
+}
+@media (max-width:575px) {
+    .boot-author-loog {
+        left: 0;
+        bottom: unset;
+        top: 0;
+    }
+}
+.about-left-panel {
+    width: 40%;
+}
+.about-dialog {
+    max-width: 1000px;
 }
 
 #wrapper #content-wrapper {
@@ -2877,6 +2920,13 @@ div#bootUpDisplay {
     .user-info-bg, .bottom-bar .user-info-bg {
         min-width: 375px;
     }
+    .about-left-panel {
+        width: 100%;
+    }
+    .about-dialog {
+        max-width: 500px;
+    }
+
 }
 
 @media (min-width:576px) {

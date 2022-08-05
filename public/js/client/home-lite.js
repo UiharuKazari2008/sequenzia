@@ -7,6 +7,12 @@ $(window).on('hashchange', () => {
     }
 });
 
+$(document).ready(function () {
+    $(document).find('a[href="#_"], a[href="#"] ').click(function (e) {
+        e.preventDefault();
+    });
+})
+
 function decodeURLRecursively(uri) {
     while (uri !== decodeURIComponent(uri || '')){
         uri = decodeURIComponent(uri);
@@ -88,7 +94,7 @@ function getNewContent(remove, add, url) {
         return false;
     }
     console.log(_url);
-    setTimeout(() => {window.location.href = `/juneOS#${_url}`;}, 400)
+    setTimeout(() => {window.location.href = `/juneOS#${_url}`;}, 1000)
 }
 $.toastDefaults = {
     position: 'top-center', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/

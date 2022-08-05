@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v2-29';
+const cacheName = 'DEV-v2-30';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -45,7 +45,9 @@ const cacheOptions = {
     },
     configCache: [
         '/juneOS',
-        '/sidebar'
+        '/sidebar',
+        '/homeImage',
+        '/internal'
     ],
     updateCache: [
         '/homeImage',
@@ -53,6 +55,8 @@ const cacheOptions = {
         '/sidebar'
     ],
     preloadCache: [
+        "/static/img/acr-logo.png",
+        "/static/img/sequenzia-logo-nav.png",
         "/js/client/worker.unpacker.js",
         "/static/vendor/domparser_bundle.js",
         "/static/vendor/jquery/jquery.min.js",
@@ -77,6 +81,7 @@ const cacheOptions = {
         "/js/client/media.min.js",
         "/static/img/boot-logo.png",
         "/static/img/aak.png",
+        "/static/img/about-bg.jpeg",
         "/static/img/kongoumedialogo-wide.png",
         "/static/img/kongoumedialogo-menu-dark.png",
         "/static/img/kongoumedialogo-menu.png",
@@ -162,6 +167,8 @@ async function handleResponse(url, response, reqType) {
         const copy = response.clone();
         const cacheURL = (url.includes('/full_attachments/')) ? '/full_attachments/' + url.split('/full_attachments/').pop() : (url.includes('/media_attachments/')) ? '/media_attachments/' + url.split('/media_attachments/').pop() : url;
         caches.open(selectedCache).then(cache => cache.put(cacheURL, copy))
+        if (url.includes('/homeImage'))
+            await handleHomeImageCachesEvent(uri, selectedCache, response);
     } else {
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${url}`);
@@ -171,16 +178,59 @@ async function handleResponse(url, response, reqType) {
     }
     return response;
 }
-async function shouldRecache(event) {
+async function shouldRecache(event, response) {
     if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.split(origin).pop().toString() === '/' || event.request.url.split(origin).pop().toString() === '/home')
-        reCache(event)
+        reCache(event, response)
+}
+async function handleHomeImageCachesEvent(url, selectedCache, response) {
+    try {
+        const lastResponse = await caches.match(url);
+        if (lastResponse) {
+            const lastJson = await lastResponse.json();
+            if (lastJson.randomImagev2 && lastJson.randomImagev2.length > 0) {
+                const lastFullImage = await caches.match(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage));
+                if (lastFullImage)
+                    caches.open(selectedCache).then(cache => cache.put('/internal/last_full.jpg', lastFullImage))
+                if (swDebugMode)
+                    console.log('Cached last image for transition')
+            }
+        } else {
+            if (swDebugMode)
+                console.log('JSON not valid!')
+        }
+        if (swDebugMode)
+            console.log('Fetching next home image')
+        const copy = await response.clone();
+        const json = await copy.json();
+        if (json.randomImagev2 && json.randomImagev2.length > 0) {
+            const previewImage = replaceDiscordCDN(json.randomImagev2[0].previewImage);
+            const fullImage = replaceDiscordCDN(json.randomImagev2[0].fullImage);
+            const previewImageResults = await fetch(previewImage)
+            if (previewImageResults)
+                caches.open(selectedCache).then(cache => cache.put(previewImage, previewImageResults));
+            const fullImageResults = await fetch(fullImage)
+            if (fullImageResults)
+                caches.open(selectedCache).then(cache => cache.put(fullImage, fullImageResults));
+            if (swDebugMode)
+                console.log('Got new images for cache!')
+        } else {
+            if (swDebugMode)
+                console.log('JSON not valid!')
+        }
+    } catch (e) {
+        console.error('Error cacheing next image request for home page');
+        console.error(e.message);
+    }
 }
 async function reCache(event, cacheName) {
     return fetch(event.request)
-        .then(response => {
+        .then(async response => {
             const selectedCache = cacheName || selectCache(event.request.url);
             if (swDebugMode)
                 console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`);
+            if (event.request.url.includes('/homeImage')) {
+                await handleHomeImageCachesEvent(event.request.url, selectedCache, response);
+            }
             caches.open(selectedCache).then(cache => cache.put(event.request, response))
         })
         .catch(error => {
@@ -327,6 +377,12 @@ self.addEventListener('fetch', event => {
 
             if (event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
                 const newURL = (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop();
+                const cachedFile = await caches.match(newURL)
+                if (cachedFile) {
+                    if (swDebugMode)
+                        console.log('JulyOS Kernel: Indirect Cache - ' + event.request.url);
+                    return cachedFile
+                }
                 const offlineFile = await getDataIfAvailable(newURL)
                 if (offlineFile) {
                     if (swDebugMode)
@@ -334,6 +390,12 @@ self.addEventListener('fetch', event => {
                     return new Response(offlineFile, { status: 200 });
                 }
                 if (event.request.url.includes('https://media.discordapp.net/')) {
+                    const cachedFile = await caches.match(newURL.split('?')[0])
+                    if (cachedFile) {
+                        if (swDebugMode)
+                            console.log('JulyOS Kernel: Indirect Cache (Resolution Bypass) - ' + event.request.url);
+                        return cachedFile
+                    }
                     const offlineFile = await getDataIfAvailable(newURL.split('?')[0])
                     if (offlineFile) {
                         if (swDebugMode)
@@ -346,7 +408,8 @@ self.addEventListener('fetch', event => {
             console.error('JulyOS Kernel: Error fetching cache or preloaded response - ' + event.request.url)
             console.error(err);
         }
-
+        if (event.request.url.includes('/internal/'))
+            return new Response(null, { status: 405 });
         // Else try the network.
         try {
             const response = (await event.preloadResponse || await fetch(event.request))

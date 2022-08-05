@@ -125,10 +125,26 @@ html
                 }
     body(id="page-top").sidebar-toggled
         #bootUpDisplay
-            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-5
-                .boot-logo
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.boot-logo-holder.d-flex
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: fit-content; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-status.p-3.position-absolute.bottom-right.text-right
+                        span#bootLoaderStatus Waiting for core...
+                        .boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: fit-content; filter: drop-shadow(0px 0px 7px black);")
+                //.boot-logo
                     img(src='/static/img/boot-logo.png' style='max-width: 40em; width: 100%; max-height: 45vh;')
-                .boot-text.mt-5.mb-5
+                //.boot-text.mt-5.mb-5
                     .boot-loader-bar.ml-auto.mr-auto.rounded
                     .boot-span.mt-3.text-center
                         span Starting JuneOS...
@@ -493,6 +509,7 @@ html
                                 $(document).ready(async function () {
                                     if (window.location.hash.substring(1).length < 2) {
                                         //location.href = '/';
+                                        document.getElementById('bootLoaderStatus').innerText = 'No Navigation';
                                         console.log(`No Navigation, Ready when you are`);
                                         $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
                                         $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
@@ -500,32 +517,21 @@ html
                                         $('#bootUpDisplay').fadeOut(500);
                                     } else {
                                         $('#loadingLogo').fadeIn();
+                                        document.getElementById('bootLoaderStatus').innerText = 'Navigating to page...';
                                         console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
                                         getNewContent([], []);
                                     }
                                 })
-                            if (user && user.banner)
-                                style.
-                                    .background-image:not(.overlay) {
-                                        background-image: url('#{user.banner}');
-                                    }
+                            style.
+                                .background-image:not(.overlay) {
+                                    background-image: url('/static/img/loading_bg.jpeg');
+                                }
 
-                                    .background-image.overlay {
-                                        background-image: linear-gradient(180deg, #000000b8, #ffffff00);
-                                        z-index: -99;
-                                        opacity: 0.7;
-                                    }
-                            else
-                                style.
-                                    .background-image:not(.overlay) {
-                                        background-image: url('/static/img/loading_bg.jpeg');
-                                    }
-
-                                    .background-image.overlay {
-                                        background-image: linear-gradient(180deg, #000000b8, #ffffff00);
-                                        z-index: -99;
-                                        opacity: 0.7;
-                                    }
+                                .background-image.overlay {
+                                    background-image: linear-gradient(180deg, #000000b8, #ffffff00);
+                                    z-index: -99;
+                                    opacity: 0.7;
+                                }
                         #pageinator
                 #finalLoad
                     // Music Player Enabler
@@ -599,86 +605,97 @@ html
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(title="Logout" href='/discord/destroy') Logout
         #aboutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
-            .modal-dialog(role='document')
+            .modal-dialog(role='document').about-dialog
                 .modal-content
                     .modal-header
                         h5.modal-title About
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
-                    .modal-body
-                        div.row.pl-3.pr-3
-                            img(src="/static/img/sequenzia-logo-new.png").img-fluid
-                            span Sequenzia™ II - Image and File Manager for the Kanmi Framework
-                            br
-                            span Copyright &copy; Academy City Research #{moment(Date.now()).format('YYYY')}
-                        div.row.pl-3.pr-3.pt-2
-                            span Proudly Developed in the United States of America
-                            br
-                            span Developed and Maintained by Academy City Research (acr.moe)
-                            br
-                            span Sequenzia v20 PRERELEASE
-                            br
-                            span JuneFS™ v1.7 (Storage Framework)
-                            br
-                            span JuneOS™ v2.2 (Web Platform)
-                            br
-                            span JulyOS™ v0.2 (Offline Kernel)
-                        div.row.pl-3.pr-3.pt-3
-                            h3 Extensions
-                        div.row.pl-3.pr-3.pt-2.mb-3
-                            img(src="/static/img/kongoumedialogo-wide.png").img-fluid
-                            br
-                            span Kongou Media Project (Kongou Media System v9)
-                            br
-                            img(src="/static/img/awatsukidps.png").img-fluid
-                            br
-                            span IntelliDex™ Deep Indexing System (IDEX) + Awatsuki uDPS
-                            br
-                            span Sequenzia Content Distribution and Auditing System (CDS)
-                        div.row.pl-3.pr-3.pt-2.mb-3
-                            span.font-weight-bold Thank you to all that have helped test and report issues. Special Thanks to Emmy!
+                    .modal-body.d-flex.p-0.flex-column.flex-lg-row(style="max-height: 75vh;height: 650px;")
+                        div.d-flex.flex-column.about-left-panel(style="background-color: #d07300;background-image: url('/static/img/about-bg.jpeg');background-position: center;background-size: cover;background-repeat: no-repeat;border-top: #ff8d00 10px solid;")
+                            div.d-flex.mt-auto.mb-auto.flex-column
+                                div.ml-auto.mr-auto.mt-4.mb-1.d-none.d-lg-block(style="max-width: 50%;")
+                                    img(src="/static/img/sequenzia-logo-mini-2.png" style="filter: drop-shadow(0px 0px 20px black);").img-fluid
+                                div.ml-auto.mr-auto.mt-4.mb-4(style="text-shadow: 0 0 20px black; max-width: 75%;").d-flex.justify-content-center
+                                    img(src="/static/img/sequenzia-logo-nav.png" style="filter: drop-shadow(0px 0px 20px black); width: 280px; height: fit-content;").d-lg-none.img-fluid
+                                    i.px-2.fas.fa-2x.fa-photo-film.d-none.d-lg-inline
+                                    i.px-2.fas.fa-2x.fa-folder.d-none.d-lg-inline
+                                    i.px-2.fas.fa-2x.fa-ticket.d-none.d-lg-inline
+                                    i.px-2.fas.fa-2x.fa-archive.d-none.d-lg-inline
+                                    i.px-2.fas.fa-2x.fa-tv.d-none.d-lg-inline
 
-                        div.row.pl-3.pr-3.pt-3
-                            h3 Application Status
-                        div.row.pl-3.pr-3.pt-1.mb-3
-                            span#serviceWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
-                                i.fas.fa-block-brick-fire.pr-1
-                                | NetKernel OK
-                            span#serviceWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Communications")
-                                i.fas.fa-right-left.pr-1
-                                | NetKernel I/O
-                            span#serviceWorkerSync.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Background Sync")
-                                i.fas.fa-arrows-rotate.pr-1
-                                | NetKernel Sync
-                            span#webWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
-                                i.fas.fa-microchip.pr-1
-                                | TLHWP OK
-                            span#webWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
-                                i.fas.fa-right-left.pr-1
-                                | TLHWP I/O
-                            span#storageStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Storage Backend")
-                                i.fas.fa-sd-card.pr-1
-                                | Storage
-                            //span#xrStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS XR Framework")
-                                i.fas.fa-vr-cardboard.pr-1
-                                | XR
-                        div.row.pl-3.pr-3.pt-3
-                            h3 Storage Servers
-                        each thisServer, thisIndex in discord.servers.list
-                            .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
-                                div.mr-3
-                                    img.rounded(src=thisServer.icon style='height: 8em;')
-                                div
-                                    h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
-                                    if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
-                                        h5 #{thisServer.name}
-                                    div.d-inline.text-lg
-                                        if (thisServer.login === 1)
-                                            i.fas.fa-key.pr-2.pl-1
-                                            span Login Server
-                                        else
-                                            i.fas.fa-database.pr-2.pl-1
-                                            span Storage Server
+                        div.col.overflow-auto
+                            div.row.pl-3.pr-3.pt-2.justify-content-center
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | Sequenzia v20
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | JuneFS™ v1.7
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | JuneOS™ v2.5
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | JulyOS™ v0.5
+
+                            div.row.pl-3.pr-3.pt-2.justify-content-center
+                                p.mb-1 Sequenzia™ II - Image and Data Manager
+                                p Copyright &copy; Academy City Research #{moment(Date.now()).format('YYYY')}
+                                p.mb-1 Developed and Maintained by Academy City Research (acr.moe)
+                                p.mb-1 Proudly Developed in the United States of America 🇺🇸
+                            div.row.pl-3.pr-3.pt-2
+                                h3 Application Status
+                            div.row.pl-3.pr-3.mb-3.justify-content-center
+                                span#serviceWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-block-brick-fire.pr-1
+                                    | NetKernel OK
+                                span#serviceWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Communications")
+                                    i.fas.fa-right-left.pr-1
+                                    | NetKernel I/O
+                                span#serviceWorkerSync.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Background Sync")
+                                    i.fas.fa-arrows-rotate.pr-1
+                                    | NetKernel Sync
+                                span#webWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
+                                    i.fas.fa-microchip.pr-1
+                                    | TLHWP OK
+                                span#webWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
+                                    i.fas.fa-right-left.pr-1
+                                    | TLHWP I/O
+                                span#storageStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Storage Backend")
+                                    i.fas.fa-sd-card.pr-1
+                                    | Storage
+                                //span#xrStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS XR Framework")
+                                    i.fas.fa-vr-cardboard.pr-1
+                                    | XR
+                            div.row.pl-3.pr-3.pt-2
+                                h3 Extensions
+                            div.row.pl-3.pr-3.pt-2.mb-2
+                                p.mb-1
+                                    img(src="/static/img/kongoumedialogo-wide.png" style="width: 400px; height: fit-content;").img-fluid
+                                p.mb-1
+                                    img(src="/static/img/awatsukidps.png" style="width: 280px; height: fit-content;").img-fluid
+                                p.mb-1 Sequenzia Content Distribution and Auditing System (CDS)
+
+                            div.row.pl-3.pr-3.pt-2
+                                h3 Storage Servers
+                            each thisServer, thisIndex in discord.servers.list
+                                .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
+                                    div.mr-3
+                                        img.rounded(src=thisServer.icon style='height: 8em;')
+                                    div
+                                        h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                        if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
+                                            h5 #{thisServer.name}
+                                        div.d-inline.text-lg
+                                            if (thisServer.login === 1)
+                                                i.fas.fa-key.pr-2.pl-1
+                                                span Login
+                                            else
+                                                i.fas.fa-database.pr-2.pl-1
+                                                span Storage
+                            div.row.pl-3.pr-3.pt-2.mb-3
+                                span.font-weight-bold Thank you to all that have helped test and report issues. Special Thanks to Emmy!
         #searchHelpModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content

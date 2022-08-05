@@ -216,6 +216,8 @@ async function setupReq(push, url) {
     } else {
         document.getElementById('offlinePages').classList.add('hidden');
     }
+    if (initialLoad)
+        document.getElementById('bootLoaderStatus').innerText = 'Starting Handler...';
     responseComplete = false;
     $('#loadingSpinner').fadeIn();
     if (push !== true)
@@ -250,6 +252,8 @@ async function requestCompleted (response, url, lastURL, push) {
         responseComplete = true
     } else {
         if (url.startsWith('/app/web/')) {
+            if (initialLoad)
+                document.getElementById('bootLoaderStatus').innerText = 'Rendering Application...';
             if (offlinePage) {
                 $.toast({
                     type: 'error',
@@ -264,6 +268,8 @@ async function requestCompleted (response, url, lastURL, push) {
             $.when($(".container-fluid").fadeOut(250)).done(() => {
                 recoverable = response
                 let contentPage = $(response);
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Static...';
                 if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
                     $("#appStatic").html(contentPage.find('#appStatic').children());
                 }
@@ -273,6 +279,8 @@ async function requestCompleted (response, url, lastURL, push) {
                         window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
                     e.preventDefault();
                 });
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Navigator...';
                 if (contentPage.find('#appTitleBar').length > 0) {
                     $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
                 }
@@ -295,10 +303,14 @@ async function requestCompleted (response, url, lastURL, push) {
                 } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
                     $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
                 }
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Content...';
                 $("#appContainer").html(contentPage.find('#appContent').children());
                 if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
                     $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
                 }
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Welcome';
                 $(".container-fluid").fadeTo(2000, 1)
                 scrollToTop(true);
                 if (_originalURL && _originalURL !== 'undefined' )
@@ -335,6 +347,8 @@ async function requestCompleted (response, url, lastURL, push) {
                 undoActions = [];
                 responseComplete = true
             } else {
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Rendering Page...';
                 $.when($(".container-fluid").fadeOut(250)).done(() => {
                     let contentPage = $(response).find('#content-wrapper').children();
                     contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
@@ -348,6 +362,8 @@ async function requestCompleted (response, url, lastURL, push) {
                             contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
                             contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
                         });
+                        if (initialLoad)
+                            document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
                         $("#content-wrapper").html(contentPage);
                     } else {
                         const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
@@ -370,13 +386,19 @@ async function requestCompleted (response, url, lastURL, push) {
                         }
                         $("#pageNav").html(pageButtons.join(''));
                     }
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Setting Layout...';
                     setImageLayout(setImageSize);
                     setPageLayout(false);
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Requesting Paginator...';
                     if (!pageTitle.includes(' - Item Details') && !offlinePage) {
                         getPaginator(url);
                     }
                     scrollToTop(true);
                     if (!offlinePage) {
+                        if (initialLoad)
+                            document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
                         if (inReviewMode)
                             enableReviewMode();
                         updateActionsPanel();
@@ -391,6 +413,7 @@ async function requestCompleted (response, url, lastURL, push) {
                     } else {
                         $(".container-fluid").fadeTo(500, 1);
                     }
+
                     undoActions = [];
                     responseComplete = true
                 })
@@ -406,10 +429,12 @@ async function requestCompleted (response, url, lastURL, push) {
             responseComplete = true
         }
         pageType = url.split('/')[0];
+        if (initialLoad)
+            document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
         if (initialLoad) {
             setTimeout(() => {
                 $('#bootUpDisplay').fadeOut(500);
-            }, 1000)
+            }, 2000)
         }
         initialLoad = false
         if(!isTouchDevice()) {
@@ -429,6 +454,8 @@ async function requestCompleted (response, url, lastURL, push) {
 
 async function getNewContent(remove, add, url, keep) {
     if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
+    if (initialLoad)
+        document.getElementById('bootLoaderStatus').innerText = 'Checking Path...';
     let _url = (() => {
             try {
                 if (url) { return url.split('://' + window.location.host).pop() }
@@ -437,6 +464,8 @@ async function getNewContent(remove, add, url, keep) {
                 return null
             } catch (e) {
                 console.error("Failed to access URL data, falling back")
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Path Data Invalid!';
                 console.error(e)
                 if (window.location.hash.substring(1).length > 2) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
                 return null
@@ -499,6 +528,8 @@ async function getNewContent(remove, add, url, keep) {
         responseComplete = true
         return false;
     }
+    if (initialLoad)
+        document.getElementById('bootLoaderStatus').innerText = 'Sanitizing Path...';
 
     console.log(_url);
     if (offlinePage) {
@@ -540,6 +571,8 @@ async function getNewContent(remove, add, url, keep) {
         responseComplete = true;
         return true;
     }
+    if (initialLoad)
+        document.getElementById('bootLoaderStatus').innerText = 'Connecting...';
     requestInprogress = $.ajax({async: true,
         url: ((offlinePage) ? params(['offset', '_h'], [], _url) : _url),
         type: "GET", data: '',
@@ -550,6 +583,8 @@ async function getNewContent(remove, add, url, keep) {
             'x-Requested-Page': 'SeqContent'
         },
         success: function (response, textStatus, xhr) {
+            if (initialLoad)
+                document.getElementById('bootLoaderStatus').innerText = 'Processing Data...';
             requestCompleted(response, _url)
         },
         error: function (xhr) {
@@ -1531,7 +1566,7 @@ async function generateShowsHTML(url) {
         <div class="show-controls px-2 py-1">
             <div class="show-banners">
                 ${(e.subtitled) ? '<div class="badge bg-darker mr-1"><i class="fas fa-closed-captioning"></i></div>' : ''}
-                ${(e.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
+                ${(e.nsfw) ? '<div class="badge badge-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
                 <div class="ml-auto"></div>
             </div>
             <div class="show-buttons"></div>
@@ -1606,7 +1641,7 @@ async function generateEpisodeHTML(url) {
             </div>
             <div class="preview-controls d-flex">
                 <div class="d-flex position-absolute">
-                    <div class="badge bg-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
+                    <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
                 </div>
                 <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
             </div><a href="#_" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;">
@@ -1668,7 +1703,7 @@ async function generateEpisodeHTML(url) {
         <div class="show-og-title"><span>${episodes.show.name}</span></div>
         <div class="show-info-top d-flex flex-row">
             <div class="show-tags mr-auto">
-                ${(episodes.show.nsfw) ? '<div class="badge bg-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
+                ${(episodes.show.nsfw) ? '<div class="badge badge-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
                 ${(episodes.show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
                 ${episodes.show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>').join('')}
             </div>
@@ -1734,23 +1769,24 @@ async function getOfflinePages() {
     }
 }
 async function displayOfflineData() {
-    let linkedEids = [];
-    let linkedFileids = [];
-    const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
-    const pageRows = pages.map((e,i) => {
-        let icon = 'fa-page';
-        if (e.url.includes('/gallery'))
-            icon = 'fa-image'
-        if (e.url.includes('/files'))
-            icon = 'fa-folder'
-        if (e.url.includes('/cards'))
-            icon = 'fa-message'
-        if (e.url.includes('album='))
-            icon = 'fa-archive'
-        if (e.items)
-            linkedEids.push(...e.items);
+    try {
+        let linkedEids = [];
+        let linkedFileids = [];
+        const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
+        const pageRows = pages.map((e,i) => {
+            let icon = 'fa-page';
+            if (e.url.includes('/gallery'))
+                icon = 'fa-image'
+            if (e.url.includes('/files'))
+                icon = 'fa-folder'
+            if (e.url.includes('/cards'))
+                icon = 'fa-message'
+            if (e.url.includes('album='))
+                icon = 'fa-archive'
+            if (e.items)
+                linkedEids.push(...e.items);
 
-        return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
+            return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
             <div class="px-2"><i class="fas ${icon}"></i></div>
             <div class="w-100"><span>${e.title}</span></div>
             <div class="d-flex">
@@ -1762,26 +1798,26 @@ async function displayOfflineData() {
                 </a>
             </div>
         </div>`
-    });
+        });
 
-    if (pageRows.length > 0) {
-        document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
-    } else {
-        document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
-    }
+        if (pageRows.length > 0) {
+            document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
+        } else {
+            document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
+        }
 
-    const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-    linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
-    const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
-        let icon = 'fa-file';
-        if (e.data_type === 'image')
-            icon = 'fa-image'
-        if (e.data_type === 'video')
-            icon = 'fa-film'
-        if (e.data_type === 'audio')
-            icon = 'fa-music'
+        const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+        linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
+        const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
+            let icon = 'fa-file';
+            if (e.data_type === 'image')
+                icon = 'fa-image'
+            if (e.data_type === 'video')
+                icon = 'fa-film'
+            if (e.data_type === 'audio')
+                icon = 'fa-music'
 
-        return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
+            return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
             <div class="px-2"><i class="fas ${icon}"></i></div>
             <div class="w-100"><span>${e.filename}</span></div>
             <div class="d-flex">
@@ -1790,17 +1826,17 @@ async function displayOfflineData() {
                 </a>
             </div>
         </div>`
-    });
+        });
 
-    if (fileRows.length > 0) {
-        document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
-    } else {
-        document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
-    }
+        if (fileRows.length > 0) {
+            document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
+        } else {
+            document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
+        }
 
-    const offlineSpannedFiles = await getAllOfflineSpannedFiles();
-    const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
-        return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
+        const offlineSpannedFiles = await getAllOfflineSpannedFiles();
+        const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
+            return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
             <div class="px-2"><i class="fas fa-box-open"></i></div>
             <div class="w-100"><span>${e.filename}</span></div>
             <div class="d-flex">
@@ -1809,47 +1845,56 @@ async function displayOfflineData() {
                 </a>
             </div>
         </div>`
-    });
+        });
 
-    if (spannedRows.length > 0) {
-        document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
-    } else {
-        document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
-    }
+        if (spannedRows.length > 0) {
+            document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
+        } else {
+            document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
+        }
 
-    const usedDBStorage = document.getElementById('storageDBUsed');
-    const usedCacheStorage = document.getElementById('storageCacheUsed');
-    const usedOtherStorage = document.getElementById('storageOtherUsed');
-    const freeStorage = document.getElementById('storageFreeText');
+        const usedDBStorage = document.getElementById('storageDBUsed');
+        const usedCacheStorage = document.getElementById('storageCacheUsed');
+        const usedOtherStorage = document.getElementById('storageOtherUsed');
+        const freeStorage = document.getElementById('storageFreeText');
 
-    try {
-        const usedSpace = await navigator.storage.estimate();
-        const freeSpace = (usedSpace.quota - usedSpace.usage);
-        const freeSpaceText = (() => {
-            if (freeSpace > 1000000000000) {
-                return (freeSpace / 1000000000000).toFixed(2) + ' TB'
-            } else if (freeSpace > 1000000000) {
-                return (freeSpace / 1000000000).toFixed(2) + ' GB'
-            } else if (freeSpace > 1000000) {
-                return (freeSpace / 1000000).toFixed(2) + ' MB'
-            } else {
-                return (freeSpace / 1000).toFixed(2) + ' KB'
-            }
-        })();
+        try {
+            const usedSpace = await navigator.storage.estimate();
+            const freeSpace = (usedSpace.quota - usedSpace.usage);
+            const freeSpaceText = (() => {
+                if (freeSpace > 1000000000000) {
+                    return (freeSpace / 1000000000000).toFixed(2) + ' TB'
+                } else if (freeSpace > 1000000000) {
+                    return (freeSpace / 1000000000).toFixed(2) + ' GB'
+                } else if (freeSpace > 1000000) {
+                    return (freeSpace / 1000000).toFixed(2) + ' MB'
+                } else {
+                    return (freeSpace / 1000).toFixed(2) + ' KB'
+                }
+            })();
 
 
-        usedDBStorage.style.width = `${(usedSpace.usageDetails.indexedDB / usedSpace.quota) * 100}%`;
-        usedCacheStorage.style.width = `${((usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations) / usedSpace.quota) * 100}%`;
-        usedOtherStorage.style.width = `${((usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations)) / usedSpace.quota) * 100}%`;
-        freeStorage.innerText = `${freeSpaceText} Free`;
+            usedDBStorage.style.width = `${(usedSpace.usageDetails.indexedDB / usedSpace.quota) * 100}%`;
+            usedCacheStorage.style.width = `${((usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations) / usedSpace.quota) * 100}%`;
+            usedOtherStorage.style.width = `${((usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations)) / usedSpace.quota) * 100}%`;
+            freeStorage.innerText = `${freeSpaceText} Free`;
+        } catch (e) {
+            freeStorage.innerText = `Not Available`;
+            console.error(e);
+            console.error(`Failed to get usage information`);
+        }
+
+
+        $('#cacheModal').modal('show');
     } catch (e) {
-        freeStorage.innerText = `Not Available`;
-        console.error(e);
-        console.error(`Failed to get usage information`);
+        $.toast({
+            type: 'error',
+            title: '<i class="fas fa-server pr-2"></i>Kernel Failure',
+            subtitle: '',
+            content: `<p>Unable to communicate with the application kernel</p><a class="btn btn-danger w-100" href="#_" onclick="clearKernelCache(); return false;"><i class="fas fa-microchip pr-2"></i>Reinstall Kernel</a>`,
+            delay: 10000,
+        });
     }
-
-
-    $('#cacheModal').modal('show');
 }
 
 async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offlineFile, doc) {
@@ -2623,7 +2668,7 @@ async function updateNotficationsPanel() {
         } else if (unpackingJobs.size !== 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
         } else if (offlineKeys.length > 0) {
-            document.getElementById('statusMenuIcon').classList = 'fas fa-cloud-download fa-fade';
+            document.getElementById('statusMenuIcon').classList = 'fas fa-sync fa-spin';
         } else if (tempSpannedFiles.length !== 0) {
             document.getElementById('statusMenuIcon').classList = 'fas fa-sd-card';
             clearInterval(notificationControler);
@@ -4211,8 +4256,8 @@ if ('serviceWorker' in navigator) {
     let swRegistation
     navigator.serviceWorker.ready.then(async (registration) => {
         setTimeout(() => {
-            document.getElementById('serviceWorkerStatus').classList.add('bg-success');
-            document.getElementById('serviceWorkerStatus').classList.remove('bg-danger');
+            document.getElementById('serviceWorkerStatus').classList.add('badge-success');
+            document.getElementById('serviceWorkerStatus').classList.remove('badge-danger');
         }, 5000)
         try {
             Notification.requestPermission().then(r => {
@@ -4229,8 +4274,8 @@ if ('serviceWorker' in navigator) {
                         minInterval: 1 * 60 * 60 * 1000
                     });
                     setTimeout(() => {
-                        document.getElementById('serviceWorkerSync').classList.add('bg-success');
-                        document.getElementById('serviceWorkerSync').classList.remove('bg-danger');
+                        document.getElementById('serviceWorkerSync').classList.add('badge-success');
+                        document.getElementById('serviceWorkerSync').classList.remove('badge-danger');
                     }, 5000)
                 } else {
                     // Periodic background sync cannot be used.
@@ -4246,14 +4291,14 @@ if ('serviceWorker' in navigator) {
         if (await kernelRequestData({ type: 'PING' })) {
             console.log('Service Worker Comms are OK');
             setTimeout(() => {
-                document.getElementById('serviceWorkerComms').classList.add('bg-success');
-                document.getElementById('serviceWorkerComms').classList.remove('bg-danger');
+                document.getElementById('serviceWorkerComms').classList.add('badge-success');
+                document.getElementById('serviceWorkerComms').classList.remove('badge-danger');
             }, 5000)
         }
         if (await kernelRequestData({ type: 'PING_STORAGE' })) {
             setTimeout(() => {
-                document.getElementById('storageStatus').classList.add('bg-success');
-                document.getElementById('storageStatus').classList.remove('bg-danger');
+                document.getElementById('storageStatus').classList.add('badge-success');
+                document.getElementById('storageStatus').classList.remove('badge-danger');
             }, 5000)
         }
     });
@@ -4509,12 +4554,12 @@ try {
                         case 'GET_METADATA':
                             if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
                                 videoStatus.innerText = `Server Error: ${xhr.responseText}`;
-                                videoProgress.classList.remove('bg-success');
-                                videoProgress.classList.add('bg-danger');
+                                videoProgress.classList.remove('badge-success');
+                                videoProgress.classList.add('badge-danger');
                             } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
                                 kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
-                                kmsProgress.classList.remove('bg-success');
-                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.classList.remove('badge-success');
+                                kmsProgress.classList.add('badge-danger');
                                 kmsProgress.style.width = '100%';
                             }
                             console.error(event.data.message);
@@ -4529,12 +4574,12 @@ try {
                         case 'READ_METADATA':
                             if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
                                 videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
-                                videoProgress.classList.remove('bg-success');
-                                videoProgress.classList.add('bg-danger');
+                                videoProgress.classList.remove('badge-success');
+                                videoProgress.classList.add('badge-danger');
                             } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
                                 kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
-                                kmsProgress.classList.remove('bg-success');
-                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.classList.remove('badge-success');
+                                kmsProgress.classList.add('badge-danger');
                                 kmsProgress.style.width = '100%';
                             }
                             $.toast({
@@ -4548,12 +4593,12 @@ try {
                         case 'EXPECTED_PARTS':
                             if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
                                 videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
-                                videoProgress.classList.remove('bg-success');
-                                videoProgress.classList.add('bg-danger');
+                                videoProgress.classList.remove('badge-success');
+                                videoProgress.classList.add('badge-danger');
                             } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
                                 kmsStatus.innerText = `File is damaged or is missing blocks!`;
-                                kmsProgress.classList.remove('bg-success');
-                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.classList.remove('badge-success');
+                                kmsProgress.classList.add('badge-danger');
                                 kmsProgress.style.width = '100%';
                             }
                             $.toast({
@@ -4567,12 +4612,12 @@ try {
                         case 'EXPECTED_FETCH_PARTS':
                             if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
                                 videoStatus.innerText = `Failed, Not all blocks where downloaded`;
-                                videoProgress.classList.remove('bg-success');
-                                videoProgress.classList.add('bg-danger');
+                                videoProgress.classList.remove('badge-success');
+                                videoProgress.classList.add('badge-danger');
                             } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
                                 kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
-                                kmsProgress.classList.remove('bg-success');
-                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.classList.remove('badge-success');
+                                kmsProgress.classList.add('badge-danger');
                                 kmsProgress.style.width = '100%';
                             }
                             $.toast({
@@ -4586,12 +4631,12 @@ try {
                         case 'UNCAUGHT_ERROR':
                             if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
                                 videoStatus.innerText = `Handler Failure: ${e.message}`;
-                                videoProgress.classList.remove('bg-success');
-                                videoProgress.classList.add('bg-danger');
+                                videoProgress.classList.remove('badge-success');
+                                videoProgress.classList.add('badge-danger');
                             } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
                                 kmsStatus.innerText = `Handler Failure: ${e.message}`;
-                                kmsProgress.classList.remove('bg-success');
-                                kmsProgress.classList.add('bg-danger');
+                                kmsProgress.classList.remove('badge-success');
+                                kmsProgress.classList.add('badge-danger');
                                 kmsProgress.style.width = '100%';
                             }
                             console.error(event.data.message);
@@ -4613,8 +4658,8 @@ try {
                 break;
             case 'PONG':
                 setTimeout(() => {
-                    document.getElementById('webWorkerComms').classList.add('bg-success');
-                    document.getElementById('webWorkerComms').classList.remove('bg-danger');
+                    document.getElementById('webWorkerComms').classList.add('badge-success');
+                    document.getElementById('webWorkerComms').classList.remove('badge-danger');
                 }, 5000)
                 break;
             default:
@@ -4623,8 +4668,8 @@ try {
         await kernelRequestData(event.data)
     }
     setTimeout(() => {
-        document.getElementById('webWorkerStatus').classList.add('bg-success');
-        document.getElementById('webWorkerStatus').classList.remove('bg-danger');
+        document.getElementById('webWorkerStatus').classList.add('badge-success');
+        document.getElementById('webWorkerStatus').classList.remove('badge-danger');
     }, 5000)
     unpackerWorker.postMessage({type: 'PING'});
 } catch (err) {
