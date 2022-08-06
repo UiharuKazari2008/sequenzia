@@ -59,6 +59,7 @@ let offlineMessages = [];
 let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
 let spannedFilesFIFOOffline = true;
+let currentMediaMetadata = {};
 
 let postsActions = [];
 let apiActions = {};
@@ -2238,6 +2239,58 @@ async function openKMSPlayer(messageid, seriesId) {
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
     const currentEpisode = document.getElementById('kongouMediaPlayerCurrent')
     const playerOpen = document.querySelector('body').classList.contains('kms-play-open');
+    const postKMSJSON = (() => {
+        const _data = _post.getAttribute('data-kms-json');
+        if (_data && _data.length > 2) {
+            try {
+                const data = JSON.parse(_data);
+                if (data && data.meta)
+                    return data
+            } catch (e) {
+                console.error(`Failed to parse Kongou Media Data`);
+                console.error(e);
+                return false
+            }
+        }
+        return false
+    })();
+    let actionHandlers = [
+        ['play', () => {
+            if (document.querySelector('body').classList.contains('kms-play-open')) {
+                kmsTogglePlay();
+            } else {
+                openKMSPlayer(messageid, show);
+            }
+        }],
+        ['pause', kmsTogglePlay],
+        ['stop', closeKMSPlayer],
+        ['seekbackward', (time) => { kmsSeek(false, ((time.seekOffset || 10) * -1)) }],
+        ['seekforward', (time) => { kmsSeek(false, (time.seekOffset || 10)) }],
+        ['seekto',        (time) => { if (!kongouMediaVideoFull.classList.contains('hidden')) {
+            if ('fastSeek' in kongouMediaVideoFull) {
+                kongouMediaVideoFull.fastSeek(time.seekTime);
+            } else {
+                kongouMediaVideoFull.currentTime = time.seekTime
+            }
+        } }]
+    ]
+    if (postKMSJSON) {
+        // = (postKMSJSON.show.poster) ? `https://media.discordapp.net/attachments${postKMSJSON.show.poster}` : '';
+        currentMediaMetadata.artist = postKMSJSON.show.name || 'Unknown Series';
+        currentMediaMetadata.title = (postKMSJSON.meta.name || 'No Title') + ((postKMSJSON.season && postKMSJSON.episode) ? ' (' + postKMSJSON.season + 'x' + postKMSJSON.episode + ')' : '');
+        currentMediaMetadata.album = "Sequenzia x Kongou";
+        if (postKMSJSON.show.poster) {
+            currentMediaMetadata.artwork = [ { src: `https://media.discordapp.net/attachments${postKMSJSON.show.poster}?height=580&width=384`, type: 'image/jpeg' } ];
+        } else {
+            currentMediaMetadata.artwork = [];
+        }
+        // = postKMSJSON.meta.description || 'No Episode Description';
+    } else {
+        currentMediaMetadata.artist = 'Unknown Series';
+        currentMediaMetadata.title = filename.split('.')[0];
+        currentMediaMetadata.album = "Sequenzia x Kongou";
+        currentMediaMetadata.artwork = [];
+    }
 
     if (show && activeDoc.querySelector(`#seasonsAccordion-${show}`)) {
         try {
@@ -2254,9 +2307,11 @@ async function openKMSPlayer(messageid, seriesId) {
             if (nextEpisode.length > 0) {
                 nextEpisodeGroup.classList.remove('hidden');
                 kongouMediaPlayer.setAttribute('nextPlayback', nextEpisode[0].id.split('-').pop());
+                actionHandlers.push(['nexttrack', kmsPlayNext])
             } else {
                 nextEpisodeGroup.classList.add('hidden')
                 kongouMediaPlayer.removeAttribute('nextPlayback');
+                actionHandlers.push(['nexttrack', null])
             }
 
             if (index > 0) {
@@ -2264,30 +2319,48 @@ async function openKMSPlayer(messageid, seriesId) {
                 if (prevEpisode.length > 0) {
                     prevEpisodeGroup.classList.remove('hidden')
                     kongouMediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
+                    actionHandlers.push(['previoustrack', kmsPlayPrev])
                 } else {
                     prevEpisodeGroup.classList.add('hidden')
                     kongouMediaPlayer.removeAttribute('prevPlayback');
+                    actionHandlers.push(['previoustrack', null])
                 }
             } else {
                 prevEpisodeGroup.classList.add('hidden')
                 kongouMediaPlayer.removeAttribute('prevPlayback');
+                actionHandlers.push(['previoustrack', null])
             }
         } catch (e) {
             nextEpisodeGroup.classList.add('hidden')
             kongouMediaPlayer.removeAttribute('nextPlayback');
+            actionHandlers.push(['nexttrack', null])
             prevEpisodeGroup.classList.add('hidden')
             kongouMediaPlayer.removeAttribute('prevPlayback');
+            actionHandlers.push(['previoustrack', null])
             console.error("Could not get the rest of the episode list");
             console.error(e);
         }
     } else {
         nextEpisodeGroup.querySelector('span').innerText = '';
         nextEpisodeGroup.classList.add('hidden')
+        actionHandlers.push(['nexttrack', null])
         kongouMediaPlayer.removeAttribute('nextPlayback');
         prevEpisodeGroup.querySelector('span').innerText = '';
         prevEpisodeGroup.classList.add('hidden')
         kongouMediaPlayer.removeAttribute('prevPlayback');
+        actionHandlers.push(['previoustrack', null])
         currentEpisode.innerText = filename.split('.')[0];
+    }
+
+    if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata(currentMediaMetadata);
+        for (const [action, handler] of actionHandlers) {
+            try {
+                navigator.mediaSession.setActionHandler(action, handler);
+            } catch (error) {
+                console.log(`The media session action "${action}" is not supported yet.`);
+            }
+        }
     }
 
     if (!playerOpen) {
@@ -2448,9 +2521,19 @@ async function kmsScreenshot() {
 }
 async function kmsSeek(frameMode, seekTime) {
     if (frameMode) {
-        kongouMediaVideoFull.currentTime = kongouMediaVideoFull.currentTime + (((1 / 23.976) * 3) * seekTime)
+        if ('fastSeek' in kongouMediaVideoFull) {
+            // Only use fast seek if supported.
+            kongouMediaVideoFull.fastSeek(kongouMediaVideoFull.currentTime + (((1 / 23.976) * 3) * seekTime));
+        } else {
+            kongouMediaVideoFull.currentTime = kongouMediaVideoFull.currentTime + (((1 / 23.976) * 3) * seekTime)
+        }
     } else {
-        kongouMediaVideoFull.currentTime = kongouMediaVideoFull.currentTime + seekTime
+        if ('fastSeek' in kongouMediaVideoFull) {
+            // Only use fast seek if supported.
+            kongouMediaVideoFull.fastSeek(kongouMediaVideoFull.currentTime + seekTime);
+        } else {
+            kongouMediaVideoFull.currentTime = kongouMediaVideoFull.currentTime + seekTime
+        }
     }
 }
 async function kmsClearScreenshots() {
@@ -2506,6 +2589,21 @@ async function getFrameRate(video_elem){
         getframerat();
     })
 }
+function checkTabFocused() {
+    if (document.querySelector('body').classList.contains('kms-play-open')) {
+        if (document.visibilityState === 'visible') {
+            if (document.querySelector('body').classList.contains('kms-play-pip') && !manualOpenPIP) {
+                if (document.pictureInPictureElement)
+                    document.exitPictureInPicture();
+            }
+        } else {
+            if (!(document.webkitIsFullScreen || document.mozFullScreen))
+                kongouMediaVideoFull.requestPictureInPicture()
+        }
+    }
+}
+document.addEventListener('visibilitychange', checkTabFocused);
+
 let kmsStageMouseTimeout = null;
 async function kmsPopUpControls() {
     if (kongouTitleBar.style.opacity === '0' )
@@ -2548,7 +2646,6 @@ async function closeKMSPlayer() {
     kongouMediaVideoFull.pause();
     document.querySelector('body').classList.remove('kms-play-open');
     document.querySelector('body').classList.remove('kms-play-pip');
-    kongouMediaCache = null;
     kongouMediaActiveURL = null;
     clearInterval(kmsVideoWatcher); kmsVideoWatcher = null;
     kongouMediaVideoPreview.classList.add('hidden');
@@ -2557,6 +2654,18 @@ async function closeKMSPlayer() {
     kongouMediaPlayer.removeAttribute('nextVideoReady');
     kongouMediaPlayer.removeAttribute('nextPlayback');
     kongouMediaPlayer.removeAttribute('prevPlayback');
+    /*const actionHandlers = [ 'play', 'pause', 'stop', 'seekbackward', 'seekforward','seekto', 'nexttrack', 'previoustrack' ]
+    if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.setPositionState(null)
+        for (const action of actionHandlers) {
+            try {
+                navigator.mediaSession.setActionHandler(action, null);
+            } catch (error) {
+                console.log(`The media session action "${action}" is not supported yet.`);
+            }
+        }
+    }*/
 }
 async function checkKMSTimecode() {
     const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;

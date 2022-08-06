@@ -2442,7 +2442,7 @@ footer .server-grid-parent {
     background: rgba(249,200,167,.8)!important;
     border: solid 1px #ffc41d66;
 }
-.shadow .kms-pip-icons .badge i {
+body:not(.bottom-bar) .shadow .kms-pip-icons .badge i {
     color: black;
 }
 .kms-media-inner, .kms-background {
@@ -3683,10 +3683,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
-    .kms-pip-icons .badge {
+    body:not(.bottom-bar) .kms-pip-icons .badge {
         background: #ad4c00b3!important;
         border: solid 1px #e3990840;
     }
+    .bottom-bar .kms-pip-icons .badge,
     .shadow .kms-pip-icons .badge {
         background: rgba(0, 0, 0, 0.5)!important;
         border: solid 1px #e39908d4;
