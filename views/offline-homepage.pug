@@ -4,7 +4,12 @@ html
             console.log('Waiting for microJuneOS to boot...')
         title=`${webconf.site_name}`
 
-        link(rel='preload', href="/static/img/boot-logo.png" as='image')
+        link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
+        link(rel='preload', href="/static/img/bootlogo-inner.jpeg" as='image')
+        link(rel='preload', href="/static/img/kongoumedialogo-menu.png" as='image')
+        link(rel='preload', href="/static/img/acr-logo.png" as='image')
+        link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
+        link(rel='preload', href="/internal/last_full.jpg" as='image')
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
@@ -77,6 +82,54 @@ html
                     }
                 }
     body(id="page-top").sidebar-toggled
+        #kmsBootDisplay.boot-logo-overlay(style="display: none;")
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        //div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.w-100.d-none
+                        img(src="/static/img/kongoumedialogo-bg.png" style="width: 450px;height: auto;filter: drop-shadow(0px 0px 10px #ffffff75);max-height: 100%;max-width: 100%;margin-bottom: -5px;margin-right: -5px;")
+                    div.boot-status.p-3.position-absolute.bottom-right.text-right
+                        span Kongou Media Project v9
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                //.boot-logo
+                    img(src='/static/img/boot-logo.png' style='max-width: 40em; width: 100%; max-height: 45vh;')
+                //.boot-text.mt-5.mb-5
+                    .boot-loader-bar.ml-auto.mr-auto.rounded
+                    .boot-span.mt-3.text-center
+                        span Starting JuneOS...
+        #bootUpDisplay.boot-logo-overlay
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.boot-logo-holder.d-flex
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-status.p-3.position-absolute.bottom-right.text-right
+                        span#bootLoaderStatus Waiting for core...
+                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        script.
+            if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
+                document.getElementById('kmsBootDisplay').style.display = '';
+                document.getElementById('bootUpDisplay').style.display = 'none';
+            }
         div.background-image.overlay
         div.background-image.bg-blur
 
@@ -289,13 +342,14 @@ html
                                     '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
                                     '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
                                 const offlinePage = true;
-                                nextContext = false;
-                                currentContext = 'seq'
+                                let currentContext = false;
+                                let nextContext = 'seq';
                                 $(document).ready(function () {
                                     if (window.location.hash.substring(1).length < 2) {
                                         console.log(`No Navigation, Ready when you are`);
                                         //$('#bootUpDisplay').fadeOut(500);
                                         getOfflinePages();
+                                        $('#bootUpDisplay').fadeOut(500);
                                     } else {
                                         $('#loadingLogo').fadeIn();
                                         console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);

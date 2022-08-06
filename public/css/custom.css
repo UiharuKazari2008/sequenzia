@@ -2743,7 +2743,7 @@ div#contextSwitchIndicator {
     pointer-events: none;
     z-index: 200000;
 }
-div#bootUpDisplay {
+.boot-logo-overlay {
     position: fixed;
     display: flex;
     top: 0;
@@ -2752,13 +2752,19 @@ div#bootUpDisplay {
     height: 100vh;
     pointer-events: all;
     z-index: 500000;
+    background: transparent;
+    pointer-events: all;
+}
+/*div#bootUpDisplay {
     background: rgba(0, 0, 0, 25%);
     backdrop-filter: blur(10px);
-    /*background-image: url("/internal/last_full.jpg");*/
+    -webkit-backdrop-filter: blur(10px);
+    !*background-image: url("/internal/last_full.jpg");*!
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-}
+    z-index: 499999;
+}*/
 
 .boot-text {
     margin-bottom: 10em;

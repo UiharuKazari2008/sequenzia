@@ -335,7 +335,8 @@ code {
 }
 
 
-div#bootUpDisplay {
+
+.boot-logo-overlay {
     position: fixed;
     display: flex;
     top: 0;
@@ -345,6 +346,7 @@ div#bootUpDisplay {
     pointer-events: all;
     z-index: 500000;
     background: transparent;
+    pointer-events: all;
 }
 .boot-text {
     margin-bottom: 10em;

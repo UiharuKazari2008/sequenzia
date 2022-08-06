@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-8-PATCH89';
+const cacheName = 'DEV-v20-8-PATCH90';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -77,6 +77,7 @@ const cacheOptions = {
         "/static/img/sequenzia-logo-white.png",
         "/js/client/media-enabler.min.js",
         "/static/img/kongoumedialogo-wide.png",
+        "/static/img/kms-background.jpeg",
         "/static/js/sb-admin-2.min.js",
         "/js/client/media.min.js",
         "/static/img/boot-logo.png",

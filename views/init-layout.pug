@@ -11,7 +11,11 @@ html
             console.log('Waiting for JuneOS to boot...')
         title=`${webconf.site_name}`
 
+        link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
         link(rel='preload', href="/static/img/bootlogo-inner.jpeg" as='image')
+        link(rel='preload', href="/static/img/kongoumedialogo-menu.png" as='image')
+        link(rel='preload', href="/static/img/acr-logo.png" as='image')
+        link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
         link(rel='preload', href="/internal/last_full.jpg" as='image')
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
@@ -125,7 +129,32 @@ html
                     }
                 }
     body(id="page-top").sidebar-toggled
-        #bootUpDisplay
+        #kmsBootDisplay.boot-logo-overlay(style="display: none;")
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        //div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.w-100.d-none
+                        img(src="/static/img/kongoumedialogo-bg.png" style="width: 450px;height: auto;filter: drop-shadow(0px 0px 10px #ffffff75);max-height: 100%;max-width: 100%;margin-bottom: -5px;margin-right: -5px;")
+                    div.boot-status.p-3.position-absolute.bottom-right.text-right
+                        span Kongou Media Project v9
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                //.boot-logo
+                    img(src='/static/img/boot-logo.png' style='max-width: 40em; width: 100%; max-height: 45vh;')
+                //.boot-text.mt-5.mb-5
+                    .boot-loader-bar.ml-auto.mr-auto.rounded
+                    .boot-span.mt-3.text-center
+                        span Starting JuneOS...
+        #bootUpDisplay.boot-logo-overlay
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
@@ -140,7 +169,7 @@ html
                             i.px-2.fas.fa-archive
                     div.boot-status.p-3.position-absolute.bottom-right.text-right
                         span#bootLoaderStatus Waiting for core...
-                        .boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
                 //.boot-logo
@@ -149,7 +178,12 @@ html
                     .boot-loader-bar.ml-auto.mr-auto.rounded
                     .boot-span.mt-3.text-center
                         span Starting JuneOS...
-        #contextSwitchIndicator.animated--fade-in
+        script.
+            if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
+                document.getElementById('kmsBootDisplay').style.display = '';
+                document.getElementById('bootUpDisplay').style.display = 'none';
+            }
+        #contextSwitchIndicator.animated--fade-in(style="display: none;")
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
                 .context-switch-items.fa-2x
                     i#contextFrom.fas.fa-house
@@ -198,7 +232,7 @@ html
                         span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
             div(id="content-wrapper", class="d-flex flex-column")
                 div(id="content")
-                    div#mainMenuBar
+                    div#mainMenuBar.d-none
                         div#userMenu.collapsed.collapse.show
                             div.shown-user-menu.d-flex
                                 div.user-info-bg
@@ -516,6 +550,7 @@ html
                                         $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
                                         hideAddressInput();
                                         $('#bootUpDisplay').fadeOut(500);
+                                        document.getElementById('mainMenuBar').classList.remove('d-none');
                                     } else {
                                         $('#loadingLogo').fadeIn();
                                         document.getElementById('bootLoaderStatus').innerText = 'Navigating to page...';

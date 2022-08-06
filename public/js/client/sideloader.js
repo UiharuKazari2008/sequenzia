@@ -181,39 +181,29 @@ async function writeLoadingBar(){
     return false;
 }
 async function setupReq(push, url) {
-    if (!offlinePage) {
-        nextContext = (() => {
-            if (url && (url.startsWith('/app/'))) {
-                return 'browser'
+    nextContext = (() => {
+        if (url && (url.startsWith('/app/'))) {
+            return 'browser'
         } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
-                return 'ticket'
-            } else if (url) {
-                return 'seq'
-            }
-            return 'question'
-        })()
-        if (!currentContext || (currentContext && currentContext !== nextContext)) {
-            let cxswch = document.getElementById('contextSwitchIndicator');
-            if (currentContext) {
-                if (currentContext === 'seq') {
-                    cxswch.querySelector('#contextFrom').classList = 'hidden';
-                    cxswch.querySelector('#contextFromSeq').classList = '';
-                } else {
-                    cxswch.querySelector('#contextFrom').classList = 'fas fa-' + currentContext;
-                    cxswch.querySelector('#contextFromSeq').classList = 'hidden';
-                }
-                if (nextContext === 'seq') {
-                    cxswch.querySelector('#contextTo').classList = 'hidden';
-                    cxswch.querySelector('#contextToSeq').classList = '';
-                } else {
-                    cxswch.querySelector('#contextTo').classList = 'fas fa-' + nextContext;
-                    cxswch.querySelector('#contextToSeq').classList = 'hidden';
-                }
-            }
-            cxswch.classList.remove('hidden');
-            cxswch.style.display = null;
+            return 'ticket'
+        } else if (url) {
+            return 'seq'
         }
-    } else {
+        return 'question'
+    })()
+    if (!currentContext || (currentContext && currentContext !== nextContext)) {
+        if (currentContext) {
+            if (nextContext === 'seq') {
+                if (!initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'JuneOS Framework v20';
+                $('#bootUpDisplay').fadeIn(1000);
+            } else if (nextContext === 'ticket') {
+                $('#kmsBootDisplay').fadeIn(1000);
+            }
+        }
+    }
+
+    if (offlinePage) {
         document.getElementById('offlinePages').classList.add('hidden');
     }
     if (initialLoad)
@@ -433,7 +423,8 @@ async function requestCompleted (response, url, lastURL, push) {
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
         if (initialLoad) {
             setTimeout(() => {
-                $('#bootUpDisplay').fadeOut(500);
+                if (document.getElementById('bootUpDisplay').style.display !== 'none')
+                    $('#bootUpDisplay').fadeOut(500);
             }, 2000)
         }
         initialLoad = false
@@ -447,6 +438,14 @@ async function requestCompleted (response, url, lastURL, push) {
     contextFadeDelay = setTimeout(() => {
         $('#contextSwitchIndicator').fadeOut(500);
     }, 4000)
+    if (nextContext !== currentContext) {
+        setTimeout(() => {
+            if (document.getElementById('kmsBootDisplay').style.display !== 'none')
+                $('#kmsBootDisplay').fadeOut(500);
+            if (document.getElementById('bootUpDisplay').style.display !== 'none')
+                $('#bootUpDisplay').fadeOut(500);
+        }, 2000);
+    }
     currentContext = nextContext;
 
     return false;
@@ -568,7 +567,19 @@ async function getNewContent(remove, add, url, keep) {
                 delay: 2000,
             });
         }
+        if (initialLoad)
+            document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
+        if (nextContext !== currentContext) {
+            setTimeout(() => {
+                if (document.getElementById('kmsBootDisplay').style.display !== 'none')
+                    $('#kmsBootDisplay').fadeOut(500);
+                if (document.getElementById('bootUpDisplay').style.display !== 'none')
+                    $('#bootUpDisplay').fadeOut(500);
+            }, 2000);
+        }
+        currentContext = nextContext;
         responseComplete = true;
+        initialLoad = false;
         return true;
     }
     if (initialLoad)
@@ -590,16 +601,17 @@ async function getNewContent(remove, add, url, keep) {
         error: function (xhr) {
             if (initialLoad) {
                 window.location.href = '/offline';
+            } else {
+                responseComplete = true
+                $(".container-fluid").fadeTo(2000, 1);
+                $.toast({
+                    type: 'error',
+                    title: '<i class="fas fa-server pr-2"></i>Navigation Error',
+                    subtitle: '',
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    delay: 10000,
+                });
             }
-            responseComplete = true
-            $(".container-fluid").fadeTo(2000, 1);
-            $.toast({
-                type: 'error',
-                title: '<i class="fas fa-server pr-2"></i>Navigation Error',
-                subtitle: '',
-                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
-                delay: 10000,
-            });
         }
     });
     return false;
@@ -4222,16 +4234,26 @@ function serviceWorkerMessageAsync(message) {
 }
 function kernelRequestData(message) {
     return new Promise(function(resolve, reject) {
-        const messageChannel = new MessageChannel();
-        messageChannel.port1.onmessage = function(event) {
-            if (event.data && event.data.error) {
-                console.error(event.data.error);
-                reject(false);
-            } else {
-                resolve(event.data);
-            }
-        };
-        navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+        try {
+            const messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = function(event) {
+                if (event.data && event.data.error) {
+                    console.error(event.data.error);
+                    reject(false);
+                } else {
+                    resolve(event.data);
+                }
+            };
+            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+        } catch (err) {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Could not communication with the network kernel!</p><p>${err.message}</p>`,
+                delay: 5000,
+            });
+        }
     });
 }
 function unpackRequestData(message) {

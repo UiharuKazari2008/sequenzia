@@ -37,7 +37,11 @@ function params(_removeParams, _addParams, _url) {
 }
 
 function getNewContent(remove, add, url) {
-    document.getElementById('bootUpDisplay').classList.remove('d-none');
+    if (url.startsWith('/tvTheater') || url.startsWith('/listTheater')) {
+        document.getElementById('kmsBootDisplay').classList.remove('d-none');
+    } else {
+        document.getElementById('bootUpDisplay').classList.remove('d-none');
+    }
     let _url = (() => {
         try {
             if (url) { return url.split('://' + window.location.host).pop() }
