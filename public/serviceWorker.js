@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-9-PATCH1';
+const cacheName = 'DEV-v20-9-PATCH2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -88,6 +88,7 @@ const cacheOptions = {
         "/static/img/kongoumedialogo-menu-dark.png",
         "/static/img/kongoumedialogo-menu.png",
         "/static/img/kongoumedialogo-bg.png",
+        "/static/img/kongou-group.png",
         "/static/img/awatsukidps.png",
         "/static/js/moment.min.js",
         "/static/vendor/bootstrap/js/bootstrap.bundle.min.js",
