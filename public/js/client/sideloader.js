@@ -256,7 +256,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 responseComplete = true
                 return false;
             }
-            $($(".container-fluid").fadeOut(250)).done(async () => {
+            $.when($(".container-fluid").fadeOut(250)).done(async () => {
                 recoverable = response
                 let contentPage = $(response);
                 if (initialLoad)
@@ -340,7 +340,7 @@ async function requestCompleted (response, url, lastURL, push) {
             } else {
                 if (initialLoad)
                     document.getElementById('bootLoaderStatus').innerText = 'Rendering Page...';
-                $($(".container-fluid").fadeOut(250)).done(async () => {
+                $.when($(".container-fluid").fadeOut(250)).done(async () => {
                     let contentPage = $(response).find('#content-wrapper').children();
                     contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
                     contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
@@ -1341,7 +1341,7 @@ async function generateGalleryHTML(url, eids) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $($(".container-fluid").fadeOut(250)).done(async () => {
+        $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
             const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
@@ -1442,7 +1442,7 @@ async function generateFilesHTML(url, eids) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $($(".container-fluid").fadeOut(250)).done(async () => {
+        $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
             const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
@@ -1541,7 +1541,7 @@ async function generateShowsHTML(url) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $($(".container-fluid").fadeOut(250)).done(async () => {
+        $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const shows = await kernelRequestData({type: 'GET_STORAGE_ALL_KMS_SHOW'})
             const allResults = shows.sort(function (a, b) {
@@ -1626,7 +1626,7 @@ async function generateEpisodeHTML(url) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $($(".container-fluid").fadeOut(250)).done(async () => {
+        $.when($(".container-fluid").fadeOut(250)).done(async () => {
             let resultRows = [];
             const showId = _params.getAll('show_id')[0];
             const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
