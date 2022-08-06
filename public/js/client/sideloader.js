@@ -98,7 +98,6 @@ let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("wideP
 let undoActions = [];
 let notificationControler = null;
 let recoverable
-let contextFadeDelay = null
 let requestInprogress
 let paginatorInprogress
 let downloadAllController = null;
@@ -196,9 +195,11 @@ async function setupReq(push, url) {
             if (nextContext === 'seq') {
                 if (!initialLoad)
                     document.getElementById('bootLoaderStatus').innerText = 'JuneOS Framework v20';
-                $('#bootUpDisplay').fadeIn(1000);
+                document.getElementById('bootUpDisplay').classList.add('animated--grow-in');
+                document.getElementById('bootUpDisplay').classList.remove('d-none');
             } else if (nextContext === 'ticket') {
-                $('#kmsBootDisplay').fadeIn(1000);
+                document.getElementById('kmsBootDisplay').classList.add('animated--grow-in');
+                document.getElementById('kmsBootDisplay').classList.remove('d-none');
             }
         }
     }
@@ -255,58 +256,57 @@ async function requestCompleted (response, url, lastURL, push) {
                 responseComplete = true
                 return false;
             }
-            $.when($(".container-fluid").fadeOut(250)).done(() => {
-                recoverable = response
-                let contentPage = $(response);
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Static...';
-                if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
-                    $("#appStatic").html(contentPage.find('#appStatic').children());
-                }
-                contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
-                contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
-                    if (_originalURL && _originalURL !== 'undefined')
-                        window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                    e.preventDefault();
-                });
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Navigator...';
-                if (contentPage.find('#appTitleBar').length > 0) {
-                    $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
-                }
-                if (contentPage.find('#appPanels').length > 0) {
-                    $("#appPanels").html(contentPage.find('#appPanels').children());
-                }
-                if (contentPage.find('#appNavigation').length > 0) {
-                    $("#pageNav").html(contentPage.find('#appNavigation').children());
-                }
-                if (contentPage.find('#appTitleMenu').length > 0) {
-                    $("#appTitleMenu").html(contentPage.find('#appTitleMenu').children());
-                } else {
-                    $("#appTitleMenu").html('');
-                }
-                if (contentPage.find('#appMenuRow1').length > 0) {
-                    $("#appMenuRow1").html(contentPage.find('#appMenuRow1').children());
-                }
-                if (contentPage.find('#appMenuRow2').length > 0) {
-                    $("#appMenuRow2").append(contentPage.html('#appMenuRow2').children());
-                } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
-                    $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
-                }
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Content...';
-                $("#appContainer").html(contentPage.find('#appContent').children());
-                if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
-                    $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
-                }
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Welcome';
-                $(".container-fluid").fadeTo(2000, 1)
-                scrollToTop(true);
-                if (_originalURL && _originalURL !== 'undefined' )
+            $(".container-fluid").fadeOut(250)
+            recoverable = response
+            let contentPage = $(response);
+            if (initialLoad)
+                document.getElementById('bootLoaderStatus').innerText = 'Injecting Static...';
+            if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
+                $("#appStatic").html(contentPage.find('#appStatic').children());
+            }
+            contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
+            contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
+                if (_originalURL && _originalURL !== 'undefined')
                     window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                responseComplete = true
-            })
+                e.preventDefault();
+            });
+            if (initialLoad)
+                document.getElementById('bootLoaderStatus').innerText = 'Injecting Navigator...';
+            if (contentPage.find('#appTitleBar').length > 0) {
+                $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
+            }
+            if (contentPage.find('#appPanels').length > 0) {
+                $("#appPanels").html(contentPage.find('#appPanels').children());
+            }
+            if (contentPage.find('#appNavigation').length > 0) {
+                $("#pageNav").html(contentPage.find('#appNavigation').children());
+            }
+            if (contentPage.find('#appTitleMenu').length > 0) {
+                $("#appTitleMenu").html(contentPage.find('#appTitleMenu').children());
+            } else {
+                $("#appTitleMenu").html('');
+            }
+            if (contentPage.find('#appMenuRow1').length > 0) {
+                $("#appMenuRow1").html(contentPage.find('#appMenuRow1').children());
+            }
+            if (contentPage.find('#appMenuRow2').length > 0) {
+                $("#appMenuRow2").append(contentPage.html('#appMenuRow2').children());
+            } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
+                $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
+            }
+            if (initialLoad)
+                document.getElementById('bootLoaderStatus').innerText = 'Injecting Content...';
+            $("#appContainer").html(contentPage.find('#appContent').children());
+            if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
+                $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
+            }
+            if (initialLoad)
+                document.getElementById('bootLoaderStatus').innerText = 'Welcome';
+            $(".container-fluid").fadeTo(2000, 1)
+            scrollToTop(true);
+            if (_originalURL && _originalURL !== 'undefined' )
+                window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
+            responseComplete = true
         } else {
             if (push === true && !offlinePage) {
                 $('#LoadNextPage').remove();
@@ -339,74 +339,73 @@ async function requestCompleted (response, url, lastURL, push) {
             } else {
                 if (initialLoad)
                     document.getElementById('bootLoaderStatus').innerText = 'Rendering Page...';
-                $.when($(".container-fluid").fadeOut(250)).done(() => {
-                    let contentPage = $(response).find('#content-wrapper').children();
-                    contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
-                    contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
-                        if (_originalURL && _originalURL !== 'undefined' )
-                            window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                        e.preventDefault();
+                $(".container-fluid").fadeOut(250)
+                let contentPage = $(response).find('#content-wrapper').children();
+                contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
+                contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
+                    if (_originalURL && _originalURL !== 'undefined' )
+                        window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
+                    e.preventDefault();
+                });
+                if (!offlinePage) {
+                    Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                        contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
+                        contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
                     });
-                    if (!offlinePage) {
-                        Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
-                            contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
-                            contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
-                        });
-                        if (initialLoad)
-                            document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
-                        $("#content-wrapper").html(contentPage);
-                    } else {
-                        const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
-                        $("#contentBlock").html(contentPage.find('#contentBlock').children());
-                        const imageRows = $('#contentBlock').find('.tz-gallery > .row').children();
-                        const resultsTotal = Array.from(imageRows).length;
-                        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-                        if (resultsTotal < offset)
-                            offset = 0;
-                        const shift = offset + 100;
-                        $("#contentBlock > .tz-gallery > .row").html(imageRows.slice(offset, shift));
-                        let pageButtons = [];
-                        if (resultsTotal > 100) {
-                            if (offset > 0) {
-                                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
-                            }
-                            if (shift <= resultsTotal) {
-                                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                            }
-                        }
-                        $("#pageNav").html(pageButtons.join(''));
-                    }
                     if (initialLoad)
-                        document.getElementById('bootLoaderStatus').innerText = 'Setting Layout...';
-                    setImageLayout(setImageSize);
-                    setPageLayout(false);
-                    if (initialLoad)
-                        document.getElementById('bootLoaderStatus').innerText = 'Requesting Paginator...';
-                    if (!pageTitle.includes(' - Item Details') && !offlinePage) {
-                        getPaginator(url);
-                    }
-                    scrollToTop(true);
-                    if (!offlinePage) {
-                        if (initialLoad)
-                            document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
-                        if (inReviewMode)
-                            enableReviewMode();
-                        updateActionsPanel();
-                        updateNotficationsPanel();
-                        if (Object.values(apiActions).length > 0) {
-                            const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
-                            $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
-                            if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
-                                $('#hiddenItemsAlert').removeClass('hidden')
-                            }
+                        document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
+                    $("#content-wrapper").html(contentPage);
+                } else {
+                    const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
+                    $("#contentBlock").html(contentPage.find('#contentBlock').children());
+                    const imageRows = $('#contentBlock').find('.tz-gallery > .row').children();
+                    const resultsTotal = Array.from(imageRows).length;
+                    let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+                    if (resultsTotal < offset)
+                        offset = 0;
+                    const shift = offset + 100;
+                    $("#contentBlock > .tz-gallery > .row").html(imageRows.slice(offset, shift));
+                    let pageButtons = [];
+                    if (resultsTotal > 100) {
+                        if (offset > 0) {
+                            pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
                         }
-                    } else {
-                        $(".container-fluid").fadeTo(500, 1);
+                        if (shift <= resultsTotal) {
+                            pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                        }
                     }
+                    $("#pageNav").html(pageButtons.join(''));
+                }
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Setting Layout...';
+                setImageLayout(setImageSize);
+                setPageLayout(false);
+                if (initialLoad)
+                    document.getElementById('bootLoaderStatus').innerText = 'Requesting Paginator...';
+                if (!pageTitle.includes(' - Item Details') && !offlinePage) {
+                    getPaginator(url);
+                }
+                scrollToTop(true);
+                if (!offlinePage) {
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
+                    if (inReviewMode)
+                        enableReviewMode();
+                    updateActionsPanel();
+                    updateNotficationsPanel();
+                    if (Object.values(apiActions).length > 0) {
+                        const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                        $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                        if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
+                            $('#hiddenItemsAlert').removeClass('hidden')
+                        }
+                    }
+                } else {
+                    $(".container-fluid").fadeTo(500, 1);
+                }
 
-                    undoActions = [];
-                    responseComplete = true
-                })
+                undoActions = [];
+                responseComplete = true
             }
             $("title").text(pageTitle);
             let addOptions = [];
@@ -421,29 +420,19 @@ async function requestCompleted (response, url, lastURL, push) {
         pageType = url.split('/')[0];
         if (initialLoad)
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
-        if (initialLoad) {
-            setTimeout(() => {
-                if (document.getElementById('bootUpDisplay').style.display !== 'none')
-                    $('#bootUpDisplay').fadeOut(500);
-            }, 2000)
-        }
+        setTimeout(() => {
+            document.getElementById('bootUpDisplay').classList.add('d-none');
+        }, 2000)
         initialLoad = false
         if(!isTouchDevice()) {
             $('[data-tooltip="tooltip"]').tooltip()
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
     }
-    if (contextFadeDelay)
-        clearTimeout(contextFadeDelay);
-    contextFadeDelay = setTimeout(() => {
-        $('#contextSwitchIndicator').fadeOut(500);
-    }, 4000)
     if (nextContext !== currentContext) {
         setTimeout(() => {
-            if (document.getElementById('kmsBootDisplay').style.display !== 'none')
-                $('#kmsBootDisplay').fadeOut(500);
-            if (document.getElementById('bootUpDisplay').style.display !== 'none')
-                $('#bootUpDisplay').fadeOut(500);
+            document.getElementById('bootUpDisplay').classList.add('d-none');
+            document.getElementById('kmsBootDisplay').classList.add('d-none');
         }, 2000);
     }
     currentContext = nextContext;
@@ -571,10 +560,8 @@ async function getNewContent(remove, add, url, keep) {
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
         if (nextContext !== currentContext) {
             setTimeout(() => {
-                if (document.getElementById('kmsBootDisplay').style.display !== 'none')
-                    $('#kmsBootDisplay').fadeOut(500);
-                if (document.getElementById('bootUpDisplay').style.display !== 'none')
-                    $('#bootUpDisplay').fadeOut(500);
+                document.getElementById('bootUpDisplay').classList.add('d-none');
+                document.getElementById('kmsBootDisplay').classList.add('d-none');
             }, 2000);
         }
         currentContext = nextContext;
@@ -1352,87 +1339,86 @@ async function generateGalleryHTML(url, eids) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-            const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
-                if (eids)
-                    return eids.indexOf(a.eid) - eids.indexOf(b.eid);
-                return parseFloat(b.eid) - parseFloat(a.eid);
-            });
-            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-            if (allResults.length < offset)
-                offset = 0;
-            const shift = offset + 100;
-            let pageButtons = [];
-            if (allResults.length > 100) {
-                if (offset > 0) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
-                }
-                if (shift <= allResults.length) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                }
+        $(".container-fluid").fadeOut(250)
+        let resultRows = [];
+        const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+        const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
+            if (eids)
+                return eids.indexOf(a.eid) - eids.indexOf(b.eid);
+            return parseFloat(b.eid) - parseFloat(a.eid);
+        });
+        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+        if (allResults.length < offset)
+            offset = 0;
+        const shift = offset + 100;
+        let pageButtons = [];
+        if (allResults.length > 100) {
+            if (offset > 0) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
             }
+            if (shift <= allResults.length) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+            }
+        }
 
-            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
-                const url = await (async () => {
-                    if (e.fileid) {
-                        const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
-                        if (possibleFileSaved && possibleFileSaved.href)
-                            return possibleFileSaved.href;
-                    }
-                    return e.full_url
-                })()
-                return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="overlay-icons">
-    <div class="icon-container no-dynamic-tiny">
-        <div class="status-icons left-links d-flex w-100">
-            <div class="d-inline-flex size-indictor shadow-text"></div>
-            <div class="d-inline-flex ratio-indictor shadow-text"></div>
-            <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-cloud-check text-success"></i></div>
-            <div class="d-inline-flex ml-auto shadow-text"><i class="fas ${(e.channel_icon) ? e.channel_icon : 'fa-question'} pr-1"></i></div>
-        </div>
-        ${(e.data_type === 'video') ? '<div class="status-icons left-links d-flex w-100 no-dynamic-tiny" style="padding-top: 1.4em;"><div class="d-flex shadow-text text-ellipsis"><span class="text-ellipsis" style="line-height: 1.1; text-weight: bold;">' + e.filename + '</span></div></div>' : ''}
+        resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+            const url = await (async () => {
+                if (e.fileid) {
+                    const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
+                    if (possibleFileSaved && possibleFileSaved.href)
+                        return possibleFileSaved.href;
+                }
+                return e.full_url
+            })()
+            return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="overlay-icons">
+<div class="icon-container no-dynamic-tiny">
+    <div class="status-icons left-links d-flex w-100">
+        <div class="d-inline-flex size-indictor shadow-text"></div>
+        <div class="d-inline-flex ratio-indictor shadow-text"></div>
+        <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-cloud-check text-success"></i></div>
+        <div class="d-inline-flex ml-auto shadow-text"><i class="fas ${(e.channel_icon) ? e.channel_icon : 'fa-question'} pr-1"></i></div>
     </div>
-    <div class="links-container text-primary">
-        <div class="links">
-            <div class="left-links row-1"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
-            <div class="right-links row-1"></div>
-        </div>
+    ${(e.data_type === 'video') ? '<div class="status-icons left-links d-flex w-100 no-dynamic-tiny" style="padding-top: 1.4em;"><div class="d-flex shadow-text text-ellipsis"><span class="text-ellipsis" style="line-height: 1.1; text-weight: bold;">' + e.filename + '</span></div></div>' : ''}
+</div>
+<div class="links-container text-primary">
+    <div class="links">
+        <div class="left-links row-1"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
+        <div class="right-links row-1"></div>
     </div>
+</div>
 </div><div class="internal-lightbox d-block"></div><a class="lightbox" ${(e.data_type === 'video') ? 'data-fancybox="video" href="#_" onclick="PlayVideo(\'' + url + '\'); return false;"' : 'data-fancybox="gallery" href="' + url + '"'}><div id="postImage" class="square img img-responsive" style="background-image: url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0,3).join(', ') : '128, 128, 128'});"></div></a></div>`
-            }))
+        }))
 
-            if (resultRows.length > 0) {
-                const randomImage = allResults[Math.floor(Math.random() * allResults.length)]
-                document.getElementById('contentBlock').innerHTML = `<style>
-    .background-image:not(.overlay) {
-        background-image: url("${(randomImage.extpreview_url) ? randomImage.extpreview_url : randomImage.preview_url}");
-    }
+        if (resultRows.length > 0) {
+            const randomImage = allResults[Math.floor(Math.random() * allResults.length)]
+            document.getElementById('contentBlock').innerHTML = `<style>
+.background-image:not(.overlay) {
+    background-image: url("${(randomImage.extpreview_url) ? randomImage.extpreview_url : randomImage.preview_url}");
+}
 
-    .background-image.overlay {
-        background-image: linear-gradient(180deg, #000000b8, #00000000);
-        z-index: -99;
-        opacity: 1;
-    }
+.background-image.overlay {
+    background-image: linear-gradient(180deg, #000000b8, #00000000);
+    z-index: -99;
+    opacity: 1;
+}
 </style><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                setImageLayout(setImageSize);
-                $("#pageNav").html(pageButtons.join(''));
-                $(".container-fluid").fadeTo(2000, 1);
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
-        })
+            window.history.replaceState({}, null, `/offline#${_originalURL}`);
+            registerLazyLoader();
+            registerURLHandlers();
+            setImageLayout(setImageSize);
+            $("#pageNav").html(pageButtons.join(''));
+            $(".container-fluid").fadeTo(2000, 1);
+        } else {
+            $(".container-fluid").fadeTo(2000, 1)
+            $.toast({
+                type: 'error',
+                title: 'No Results Found',
+                subtitle: 'Error',
+                content: `Nothing was found, Please try another option or search term`,
+                delay: 10000,
+            })
+        }
+        responseComplete = true;
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
@@ -1453,85 +1439,84 @@ async function generateFilesHTML(url, eids) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-            const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
-                if (eids)
-                    return eids.indexOf(a.eid) - eids.indexOf(b.eid);
-                return parseFloat(b.eid) - parseFloat(a.eid);
-            });
-            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-            if (allResults.length < offset)
-                offset = 0;
-            const shift = offset + 100;
-            let pageButtons = [];
-            if (allResults.length > 100) {
-                if (offset > 0) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
-                }
-                if (shift <= allResults.length) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                }
+        $(".container-fluid").fadeOut(250)
+        let resultRows = [];
+        const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+        const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function(a, b){
+            if (eids)
+                return eids.indexOf(a.eid) - eids.indexOf(b.eid);
+            return parseFloat(b.eid) - parseFloat(a.eid);
+        });
+        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+        if (allResults.length < offset)
+            offset = 0;
+        const shift = offset + 100;
+        let pageButtons = [];
+        if (allResults.length > 100) {
+            if (offset > 0) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
             }
+            if (shift <= allResults.length) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+            }
+        }
 
-            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
-                const url = await (async () => {
-                    if (e.fileid) {
-                        const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
-                        if (possibleFileSaved && possibleFileSaved.href)
-                            return possibleFileSaved.href;
-                    }
-                    return e.full_url
-                })()
-                return `<tr class="dense-table" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : ''}>
-                    <!--<td class="preview-holder">
-                        <div class="preview-image align-content-start"><i class="fas fa-image fa-2x"></i></div>
-                    </td>-->
-                    <td class="preview-icon"><div class="table-icon"><i class="fas fa-music fa-2x"></i></div></td>
-                    <td><span class="align-middle">${e.filename}</span>
-                        <div class="text-primary">
-                            <div class="btn-group d-inline-block">
-                            ${(audioFiles.indexOf(e.filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) ? "<a class=\"btn btn-switchmode\" title=\"Play Audio\" href=\"#_\" onclick=\"PlayTrack('" + url + "'); return false;\"><i class=\"fas fa-play\"></i></a>" : ""}
-                            <a class="btn btn-switchmode" title="Download" download="${e.filename}" href="${url}" target="_blank" rel="noopener noreferrer"><i class="fas fa-download"></i></a></div>
-                            <div class="btn-group file-tools d-inline-block"><a class="btn btn-fav" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="fas fa-info-circle"></i></a></div>
-                        </div>
-                    </td>
-                    <td class="d-none d-sm-table-cell">${e.date}</td>
-                    <td class="d-none d-sm-table-cell">${e.file_size}</td>
-                </tr>`
-            }))
-            if (resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<div class="table-responsive p-lg-3 rounded bg-translucent-lg">
-        <table class="table table-borderless" id="dataTable" width="100%" cellspacing="0">
-            <thead class="table-header">
-                <tr>
-                    <th style="width: 5%"></th>
-                    <th style="width: 70%">Filename</th>
-                    <th style="width: 15%">Date</th>
-                    <th style="width: 10%">Size</th>
-                </tr>
-            <tbody>` + resultRows.join(' ') + `</tbody>
-            </thead>
-        </table>
-    </div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                $("#pageNav").html(pageButtons.join(''));
-                $(".container-fluid").fadeTo(2000, 1);
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
-        })
+        resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+            const url = await (async () => {
+                if (e.fileid) {
+                    const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
+                    if (possibleFileSaved && possibleFileSaved.href)
+                        return possibleFileSaved.href;
+                }
+                return e.full_url
+            })()
+            return `<tr class="dense-table" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : ''}>
+                <!--<td class="preview-holder">
+                    <div class="preview-image align-content-start"><i class="fas fa-image fa-2x"></i></div>
+                </td>-->
+                <td class="preview-icon"><div class="table-icon"><i class="fas fa-music fa-2x"></i></div></td>
+                <td><span class="align-middle">${e.filename}</span>
+                    <div class="text-primary">
+                        <div class="btn-group d-inline-block">
+                        ${(audioFiles.indexOf(e.filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) ? "<a class=\"btn btn-switchmode\" title=\"Play Audio\" href=\"#_\" onclick=\"PlayTrack('" + url + "'); return false;\"><i class=\"fas fa-play\"></i></a>" : ""}
+                        <a class="btn btn-switchmode" title="Download" download="${e.filename}" href="${url}" target="_blank" rel="noopener noreferrer"><i class="fas fa-download"></i></a></div>
+                        <div class="btn-group file-tools d-inline-block"><a class="btn btn-fav" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="fas fa-info-circle"></i></a></div>
+                    </div>
+                </td>
+                <td class="d-none d-sm-table-cell">${e.date}</td>
+                <td class="d-none d-sm-table-cell">${e.file_size}</td>
+            </tr>`
+        }))
+        if (resultRows.length > 0) {
+            document.getElementById('contentBlock').innerHTML = `<div class="table-responsive p-lg-3 rounded bg-translucent-lg">
+    <table class="table table-borderless" id="dataTable" width="100%" cellspacing="0">
+        <thead class="table-header">
+            <tr>
+                <th style="width: 5%"></th>
+                <th style="width: 70%">Filename</th>
+                <th style="width: 15%">Date</th>
+                <th style="width: 10%">Size</th>
+            </tr>
+        <tbody>` + resultRows.join(' ') + `</tbody>
+        </thead>
+    </table>
+</div>`
+            window.history.replaceState({}, null, `/offline#${_originalURL}`);
+            registerLazyLoader();
+            registerURLHandlers();
+            $("#pageNav").html(pageButtons.join(''));
+            $(".container-fluid").fadeTo(2000, 1);
+        } else {
+            $(".container-fluid").fadeTo(2000, 1)
+            $.toast({
+                type: 'error',
+                title: 'No Results Found',
+                subtitle: 'Error',
+                content: `Nothing was found, Please try another option or search term`,
+                delay: 10000,
+            })
+        }
+        responseComplete = true;
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
@@ -1552,71 +1537,70 @@ async function generateShowsHTML(url) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const shows = await kernelRequestData({type: 'GET_STORAGE_ALL_KMS_SHOW'})
-            const allResults = shows.sort(function(a, b){
-                return b.name - a.name;
-            });
-            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-            if (allResults.length < offset)
-                offset = 0;
-            const shift = offset + 100;
-            let pageButtons = [];
-            if (allResults.length > 100) {
-                if (offset > 0) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
-                }
-                if (shift <= allResults.length) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                }
+        $(".container-fluid").fadeOut(250)
+        let resultRows = [];
+        const shows = await kernelRequestData({type: 'GET_STORAGE_ALL_KMS_SHOW'})
+        const allResults = shows.sort(function(a, b){
+            return b.name - a.name;
+        });
+        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+        if (allResults.length < offset)
+            offset = 0;
+        const shift = offset + 100;
+        let pageButtons = [];
+        if (allResults.length > 100) {
+            if (offset > 0) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
             }
+            if (shift <= allResults.length) {
+                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+            }
+        }
 
-            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
-                return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
-    <div class="show-overlay-items position-absolute">
-        <div class="show-controls px-2 py-1">
-            <div class="show-banners">
-                ${(e.subtitled) ? '<div class="badge bg-darker mr-1"><i class="fas fa-closed-captioning"></i></div>' : ''}
-                ${(e.nsfw) ? '<div class="badge badge-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
-                <div class="ml-auto"></div>
-            </div>
-            <div class="show-buttons"></div>
+        resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+            return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
+<div class="show-overlay-items position-absolute">
+    <div class="show-controls px-2 py-1">
+        <div class="show-banners">
+            ${(e.subtitled) ? '<div class="badge bg-darker mr-1"><i class="fas fa-closed-captioning"></i></div>' : ''}
+            ${(e.nsfw) ? '<div class="badge badge-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1 no-dynamic-small d-none d-sm-inline">UNCENSORED</span></div>' : ''}
+            <div class="ml-auto"></div>
         </div>
-    </div><a href="#/listTheater?show_id=${e.showId}">
-        <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}'); background-size: cover!important;"></div>
-        <div class="episode-background"></div>
-    </a>
+        <div class="show-buttons"></div>
+    </div>
+</div><a href="#/listTheater?show_id=${e.showId}">
+    <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}'); background-size: cover!important;"></div>
+    <div class="episode-background"></div>
+</a>
 </div>`
-            }))
-            if (resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<div class="mb-2">
-    <form class="col form-inline navbar-search top-menu-search-bar" onsubmit="return false;" method="get" style="width: 100%;">
-        <div class="input-group w-100">
-            <div class="input-group-prepend"><i class="far fa-search align-self-center"></i></div><input class="text-white form-control top-menu-search-bar border-0" id="seriesSearch" type="text" placeholder="Search Shelf..." aria-label="Search Shelf..." onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);" />
-        </div>
-    </form>
+        }))
+        if (resultRows.length > 0) {
+            document.getElementById('contentBlock').innerHTML = `<div class="mb-2">
+<form class="col form-inline navbar-search top-menu-search-bar" onsubmit="return false;" method="get" style="width: 100%;">
+    <div class="input-group w-100">
+        <div class="input-group-prepend"><i class="far fa-search align-self-center"></i></div><input class="text-white form-control top-menu-search-bar border-0" id="seriesSearch" type="text" placeholder="Search Shelf..." aria-label="Search Shelf..." onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);" />
+    </div>
+</form>
 </div><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                setImageLayout(setImageSize);
-                $("#pageNav").html(pageButtons.join(''));
-                $(".container-fluid").fadeTo(2000, 1);
-                element_list = Array.from(document.querySelectorAll('[data-search]'))
-                search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
-        })
+            window.history.replaceState({}, null, `/offline#${_originalURL}`);
+            registerLazyLoader();
+            registerURLHandlers();
+            setImageLayout(setImageSize);
+            $("#pageNav").html(pageButtons.join(''));
+            $(".container-fluid").fadeTo(2000, 1);
+            element_list = Array.from(document.querySelectorAll('[data-search]'))
+            search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
+        } else {
+            $(".container-fluid").fadeTo(2000, 1)
+            $.toast({
+                type: 'error',
+                title: 'No Results Found',
+                subtitle: 'Error',
+                content: `Nothing was found, Please try another option or search term`,
+                delay: 10000,
+            })
+        }
+        responseComplete = true;
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
@@ -1637,111 +1621,110 @@ async function generateEpisodeHTML(url) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const showId = _params.getAll('show_id')[0];
-            const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
+        $(".container-fluid").fadeOut(250)
+        let resultRows = [];
+        const showId = _params.getAll('show_id')[0];
+        const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
 
-            if (episodes && episodes.episodes && episodes.show) {
-                resultRows = await Promise.all(episodes.episodes.sort(function(a, b){
-                    return (((a.season || 0) + 1) * (a.episode || 0)) - (((b.season || 0) + 1) * (b.episode || 0));
-                }).map(async e => {
-                    return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="row m-0 flex-nowrap flex-row py-2 episode-row" id="message-' + e.id+ '"'}>
-        <div class="episode-preview">
-            <div class="preview-watched d-flex">
-                <div class="watched-precent mt-auto" style="width: 0%"></div>
+        if (episodes && episodes.episodes && episodes.show) {
+            resultRows = await Promise.all(episodes.episodes.sort(function(a, b){
+                return (((a.season || 0) + 1) * (a.episode || 0)) - (((b.season || 0) + 1) * (b.episode || 0));
+            }).map(async e => {
+                return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="row m-0 flex-nowrap flex-row py-2 episode-row" id="message-' + e.id+ '"'}>
+    <div class="episode-preview">
+        <div class="preview-watched d-flex">
+            <div class="watched-precent mt-auto" style="width: 0%"></div>
+        </div>
+        <div class="preview-controls d-flex">
+            <div class="d-flex position-absolute">
+                <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
             </div>
-            <div class="preview-controls d-flex">
-                <div class="d-flex position-absolute">
-                    <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
-                </div>
-                <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
-            </div><a href="#_" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;">
-                <div class="episode-preview-image" id="postImage" style="background-image : url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}')"></div>
-            </a>
-        </div>
-        <div class="episode-body">
-            <div class="episode-number position-absolute"><span>${(e.media && e.media.season) ? e.media.season + 'x' :''}${(e.media && e.media.episode) ? e.media.episode :''}</span></div>
-            <div class="episode-name px-2"><span>${(e.media && e.media.meta.name) ? e.media.meta.name : e.filename}</span></div>
-            <div class="episode-description px-2"><span>${(e.media && e.media.meta.description) ? e.media.meta.description : ''}</span></div>
-            <div class="episode-controls px-2 pt-2"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
-        </div>
-    </div>`
-                }))
-            }
-
-            if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<style>
-    .background-image:not(.overlay) {
-        background-image: url("https://media.discordapp.net/attachments${episodes.show.background}");
-    }
-
-    .background-image.overlay {
-        background-image: none;
-        z-index: -99;
-        opacity: 1;
-    }
-
-    .background-image.bg-blur {
-        -webkit-filter: none;
-        filter: none;
-    }
-
-    @media (min-width: 576px) {
-        #contentBlock {
-            box-shadow: 0 0 30px 0 black;
-        }
-
-        .show-background {
-            background: #0000005c;
-            border: 1px solid #872b007a;
-            border-top: none;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-    }
-
-    @media (max-width: 575px) {
-        .background-image.overlay {
-            background-image: linear-gradient(180deg, #000000b8, #00000000);
-        }
-    }
-</style><div class="show-header p-3">
-    <div class="show-preview" style="background-image : url('${episodes.episodes[0].preview_url}');"></div>
-    <div class="show-preview-overlay"></div>
-    <div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${episodes.show.poster}" /></div>
-    <div class="show-info px-2 w-100">
-        <div class="show-title"><a class="text-white" href="https://themoviedb.org/movie/${episodes.show.id}" target="_blank" rel="noopener noreferrer"><span>${episodes.show.original_name}</span></a></div>
-        <div class="show-og-title"><span>${episodes.show.name}</span></div>
-        <div class="show-info-top d-flex flex-row">
-            <div class="show-tags mr-auto">
-                ${(episodes.show.nsfw) ? '<div class="badge badge-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
-                ${(episodes.show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
-                ${episodes.show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>').join('')}
-            </div>
-            <div class="show-date mt-2"><span>${episodes.show.meta.date.split('-')[0]}</span></div>
-        </div>
-        <div class="show-description"><span>${episodes.show.meta.description}</span></div>
+            <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
+        </div><a href="#_" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;">
+            <div class="episode-preview-image" id="postImage" style="background-image : url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}')"></div>
+        </a>
     </div>
+    <div class="episode-body">
+        <div class="episode-number position-absolute"><span>${(e.media && e.media.season) ? e.media.season + 'x' :''}${(e.media && e.media.episode) ? e.media.episode :''}</span></div>
+        <div class="episode-name px-2"><span>${(e.media && e.media.meta.name) ? e.media.meta.name : e.filename}</span></div>
+        <div class="episode-description px-2"><span>${(e.media && e.media.meta.description) ? e.media.meta.description : ''}</span></div>
+        <div class="episode-controls px-2 pt-2"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
+    </div>
+</div>`
+            }))
+        }
+
+        if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
+            document.getElementById('contentBlock').innerHTML = `<style>
+.background-image:not(.overlay) {
+    background-image: url("https://media.discordapp.net/attachments${episodes.show.background}");
+}
+
+.background-image.overlay {
+    background-image: none;
+    z-index: -99;
+    opacity: 1;
+}
+
+.background-image.bg-blur {
+    -webkit-filter: none;
+    filter: none;
+}
+
+@media (min-width: 576px) {
+    #contentBlock {
+        box-shadow: 0 0 30px 0 black;
+    }
+
+    .show-background {
+        background: #0000005c;
+        border: 1px solid #872b007a;
+        border-top: none;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+}
+
+@media (max-width: 575px) {
+    .background-image.overlay {
+        background-image: linear-gradient(180deg, #000000b8, #00000000);
+    }
+}
+</style><div class="show-header p-3">
+<div class="show-preview" style="background-image : url('${episodes.episodes[0].preview_url}');"></div>
+<div class="show-preview-overlay"></div>
+<div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${episodes.show.poster}" /></div>
+<div class="show-info px-2 w-100">
+    <div class="show-title"><a class="text-white" href="https://themoviedb.org/movie/${episodes.show.id}" target="_blank" rel="noopener noreferrer"><span>${episodes.show.original_name}</span></a></div>
+    <div class="show-og-title"><span>${episodes.show.name}</span></div>
+    <div class="show-info-top d-flex flex-row">
+        <div class="show-tags mr-auto">
+            ${(episodes.show.nsfw) ? '<div class="badge badge-danger mr-1"><i class="fas fa-octagon-minus"></i><span class="pl-1">UNCENSORED</span></div>' : ''}
+            ${(episodes.show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
+            ${episodes.show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>').join('')}
+        </div>
+        <div class="show-date mt-2"><span>${episodes.show.meta.date.split('-')[0]}</span></div>
+    </div>
+    <div class="show-description"><span>${episodes.show.meta.description}</span></div>
+</div>
 </div><div class="show accordion accordion-flush show-background pt-4 p-sm-4" id="seasonsAccordion-${episodes.show.id}">${resultRows.join(' ')}</div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                setImageLayout(setImageSize);
-                $("#pageNav").html('');
-                $(".container-fluid").fadeTo(2000, 1);
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
-        })
+            window.history.replaceState({}, null, `/offline#${_originalURL}`);
+            registerLazyLoader();
+            registerURLHandlers();
+            setImageLayout(setImageSize);
+            $("#pageNav").html('');
+            $(".container-fluid").fadeTo(2000, 1);
+        } else {
+            $(".container-fluid").fadeTo(2000, 1)
+            $.toast({
+                type: 'error',
+                title: 'No Results Found',
+                subtitle: 'Error',
+                content: `Nothing was found, Please try another option or search term`,
+                delay: 10000,
+            })
+        }
+        responseComplete = true;
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
@@ -2053,7 +2036,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                     channel: channelString,
                     preemptive: downloadPreemptive,
                     offline: true,
-                    expires: (!offlineFile) ? (new Date().getTime()) + 3600000: false,
+                    expires: (!offlineFile) ? (new Date().getTime()) + (4 * 3600000): false,
                     play: playThis
                 }})
             if (responseMessage && responseMessage.type && responseMessage.fileid) {
@@ -2234,11 +2217,9 @@ async function openKMSPlayer(messageid, seriesId) {
             }
 
             if (nextEpisode.length > 0) {
-                nextEpisodeGroup.querySelector('span').innerText = nextEpisode[0].querySelector('.episode-name > span').innerText;
                 nextEpisodeGroup.classList.remove('hidden');
                 kongouMediaPlayer.setAttribute('nextPlayback', nextEpisode[0].id.split('-').pop());
             } else {
-                nextEpisodeGroup.querySelector('span').innerText = '';
                 nextEpisodeGroup.classList.add('hidden')
                 kongouMediaPlayer.removeAttribute('nextPlayback');
             }
@@ -2246,24 +2227,19 @@ async function openKMSPlayer(messageid, seriesId) {
             if (index > 0) {
                 const prevEpisode = allEpisodes.slice(0, index);
                 if (prevEpisode.length > 0) {
-                    prevEpisodeGroup.querySelector('span').innerText = prevEpisode.slice().pop().querySelector('.episode-name > span').innerText;
                     prevEpisodeGroup.classList.remove('hidden')
                     kongouMediaPlayer.setAttribute('prevPlayback', prevEpisode.slice().pop().id.split('-').pop());
                 } else {
-                    prevEpisodeGroup.querySelector('span').innerText = '';
                     prevEpisodeGroup.classList.add('hidden')
                     kongouMediaPlayer.removeAttribute('prevPlayback');
                 }
             } else {
-                prevEpisodeGroup.querySelector('span').innerText = '';
                 prevEpisodeGroup.classList.add('hidden')
                 kongouMediaPlayer.removeAttribute('prevPlayback');
             }
         } catch (e) {
-            nextEpisodeGroup.querySelector('span').innerText = '';
             nextEpisodeGroup.classList.add('hidden')
             kongouMediaPlayer.removeAttribute('nextPlayback');
-            prevEpisodeGroup.querySelector('span').innerText = '';
             prevEpisodeGroup.classList.add('hidden')
             kongouMediaPlayer.removeAttribute('prevPlayback');
             console.error("Could not get the rest of the episode list");
@@ -2501,7 +2477,7 @@ async function kmsPopUpControls() {
         kongouControlsJQ.fadeTo(500, 1)
     clearTimeout(kmsStageMouseTimeout);
     kmsStageMouseTimeout = setTimeout(() => {
-        $('.kms-stage:not(.keep-active-controls) .kms-title-bar, .kms-stage:not(.keep-active-controls, .advanced-controls) .kms-bottom-bar').fadeTo(1000, 0);
+        $('.kms-stage:not(.keep-active-controls) .kms-title-bar, .kms-stage:not(.keep-active-controls) .kms-center-bar, .kms-stage:not(.keep-active-controls, .advanced-controls) .kms-bottom-bar').fadeTo(1000, 0);
     }, 5000);
     return false;
 }
@@ -2554,7 +2530,7 @@ async function checkKMSTimecode() {
     if (messageid && document.querySelector('body').classList.contains('kms-play-open') &&
     !kongouMediaVideoFull.classList.contains('hidden')) {
         await saveCurrentTimeKMS();
-        if (!isReady && ((kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.55)) {
+        if (!isReady && ((kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration) >= 0.45)) {
             kongouMediaPlayer.setAttribute('nextVideoReady', 'true');
             const element = activeDoc.querySelector('#message-' + messageid);
             if (element) {
@@ -3644,16 +3620,19 @@ async function setSeasonHistory(index, viewed) {
                 success: function (res, txt, xhr) {
                     if (xhr.status < 400) {
                         console.log(res);
-                        e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
+                        if (e.querySelector('.watched-precent'))
+                            e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
                         if (viewed > 0.8)
                             e.classList.add('watched-episode')
                         const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
-                        if (viewed > 0) {
-                            icon.classList.add('fa-eye-slash')
-                            icon.classList.remove('fa-check')
-                        } else {
-                            icon.classList.remove('fa-eye-slash')
-                            icon.classList.add('fa-check')
+                        if (icon) {
+                            if (viewed > 0) {
+                                icon.classList.add('fa-eye-slash')
+                                icon.classList.remove('fa-check')
+                            } else {
+                                icon.classList.remove('fa-eye-slash')
+                                icon.classList.add('fa-check')
+                            }
                         }
                     } else {
                         $.snack('error', `Failed to update watch history`, 3000)
@@ -3688,16 +3667,19 @@ async function setShowHistory(viewed) {
                 success: function (res, txt, xhr) {
                     if (xhr.status < 400) {
                         console.log(res);
-                        e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
+                        if (e.querySelector('.watched-precent'))
+                            e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
                         if (viewed > 0.8)
                             e.classList.add('watched-episode')
                         const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
-                        if (viewed > 0) {
-                            icon.classList.add('fa-eye-slash')
-                            icon.classList.remove('fa-check')
-                        } else {
-                            icon.classList.remove('fa-eye-slash')
-                            icon.classList.add('fa-check')
+                        if (icon) {
+                            if (viewed > 0) {
+                                icon.classList.add('fa-eye-slash')
+                                icon.classList.remove('fa-check')
+                            } else {
+                                icon.classList.remove('fa-eye-slash')
+                                icon.classList.add('fa-check')
+                            }
                         }
                     } else {
                         $.snack('error', `Failed to update watch history`, 3000)
@@ -3735,19 +3717,22 @@ async function setWatchHistory(eid, viewed) {
                 console.log(res);
                 const e = document.querySelector(`[data-msg-eid="${eid}"]`)
                 if (e) {
-                    e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
+                    if (e.querySelector('.watched-precent'))
+                        e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
                     if (viewed > 0.8) {
                         e.classList.add('watched-episode')
                     } else {
                         e.classList.remove('watched-episode')
                     }
                     const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
-                    if (viewed > 0) {
-                        icon.classList.add('fa-eye-slash')
-                        icon.classList.remove('fa-check')
-                    } else {
-                        icon.classList.remove('fa-eye-slash')
-                        icon.classList.add('fa-check')
+                    if (icon) {
+                        if (viewed > 0) {
+                            icon.classList.add('fa-eye-slash')
+                            icon.classList.remove('fa-check')
+                        } else {
+                            icon.classList.remove('fa-eye-slash')
+                            icon.classList.add('fa-check')
+                        }
                     }
                 }
             } else {

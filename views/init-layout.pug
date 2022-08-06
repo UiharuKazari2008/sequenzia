@@ -131,14 +131,15 @@ html
                     }
                 }
     body(id="page-top").sidebar-toggled
-        #kmsBootDisplay.boot-logo-overlay(style="display: none;")
+        #kmsBootDisplay.boot-logo-overlay.d-none
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 1;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.d-flex(style="z-index: 1;")
                             img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
-                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100
+                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
                     div.boot-status.p-3.position-absolute.bottom-right.text-right
                         span Kongou Media Project v9
                     div.boot-author-loog.p-2.position-absolute.bottom-left
@@ -147,6 +148,7 @@ html
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 1;")
                         div.boot-logo-holder.d-flex
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
@@ -169,8 +171,8 @@ html
                         span Starting JuneOS...
         script.
             if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
-                document.getElementById('kmsBootDisplay').style.display = '';
-                document.getElementById('bootUpDisplay').style.display = 'none';
+                document.getElementById('bootUpDisplay').classList.add('d-none');
+                document.getElementById('kmsBootDisplay').classList.remove('d-none');
             }
         #contextSwitchIndicator.animated--fade-in(style="display: none;")
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
@@ -538,7 +540,8 @@ html
                                         $('#topbar > ul > .page-title > i').removeClass('fa-spinner').addClass('fa-home')
                                         $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
                                         hideAddressInput();
-                                        $('#bootUpDisplay').fadeOut(500);
+                                        document.getElementById('bootUpDisplay').classList.add('d-none');
+                                        document.getElementById('kmsBootDisplay').classList.add('d-none');
                                         document.getElementById('mainMenuBar').classList.remove('d-none');
                                     } else {
                                         $('#loadingLogo').fadeIn();
@@ -1086,14 +1089,18 @@ html
                                 a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
                                     i.fas.fa-times
                             .kms-player-controls.px-2.mt-2
-                                a#kongouMediaPlayerPrev.d-flex.w-50.align-items-baseline.justify-content-start.mr-auto(href='#_' onclick=`kmsPlayPrev(); return false;`)
-                                    i.fas.fa-backward-fast
-                                    .div.text-ellipsis.d-none.d-md-block
-                                        span.pl-2 Previous Episode: Name Goes Here
-                                a#kongouMediaPlayerNext.d-flex.w-50.align-items-baseline.justify-content-end.ml-auto(href='#_' onclick=`kmsPlayNext(); return false;`)
-                                    .div.text-ellipsis.d-none.d-md-block
-                                        span.pr-2 Next Episode: Name Goes Here
-                                    i.fas.fa-forward-fast
+
+                        .kms-center-bar.d-flex.flex-row.h-100.mt-auto.mb-auto.disabled-pointer
+                            div.mt-auto.mb-auto.ml-auto.mr-auto
+                                a#kongouControlsPlay.d-flex.align-items-baseline.justify-content-start(href='#_').p-5
+                                    i.fas.fa-pause.fa-3x
+                        .kms-center-bar.d-flex.flex-row.h-100.mt-auto.mb-auto.disabled-pointer
+                            div.mr-auto.mt-auto.mb-auto
+                                a#kongouMediaPlayerPrev.d-flex.align-items-baseline.justify-content-start.mr-auto(href='#_' onclick=`kmsPlayPrev(); return false;` style="pointer-events: initial;").p-5.pl-4
+                                    i.fas.fa-backward-fast.fa-2x
+                            div.ml-auto.mt-auto.mb-auto
+                                a#kongouMediaPlayerNext.d-flex.align-items-baseline.justify-content-end.ml-auto(href='#_' onclick=`kmsPlayNext(); return false;` style="pointer-events: initial;").p-5.pr-4
+                                    i.fas.fa-forward-fast.fa-2x
                         .kms-bottom-bar.d-flex.px-2
                             #kongouScreenshotContainer.kms-screenshot-contaner.hidden.mb-3.flex-row
                                 #kongouScreenShots.kms-screenshot-images
@@ -1135,18 +1142,17 @@ html
                                         input#kongouControlsSpeed(data-slider-id='kongouControlsSpeed' type='text' data-slider-min='0.1' data-slider-max='2' data-slider-step='0.01' data-slider-value='1' data-slider-ticks='[0.1, 1, 2]')
 
                             .kms-player-playback-controls.d-flex.align-items-center
-                                a#kongouControlsPlay(href='#_').px-4
-                                    i.fas.fa-pause.pl-1
-                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").pr-3.d-flex.align-items-center
+                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").px-3.d-flex.align-items-center
                                     span.digital-font 00
                                     span :
                                     span.digital-font 00
                                 div#seekControls.no-seeking.d-flex.w-100
                                     input#kongouControlsSeek(data-slider-id='kongouControlsSeek' type='text' data-slider-min='0' data-slider-max='1' data-slider-step='0.0001' data-slider-value='0')
                                     span#kongouControlsSeekUnavalible.mr-auto Preparing Video...
-                                a#kongouControlsMute(href='#_').px-2
+                                a#kongouControlsMute(href='#_').px-2.d-none.d-sm-flex
                                     i.fas.fa-volume-high
-                                input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
+                                .d-none.d-sm-flex
+                                    input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
                                 a#kongouPIPButton(href='#_' onclick="kongouPIPVideo(); return false;").px-3
                                     i.fas.fa-square-arrow-up-right
                                 a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pr-3

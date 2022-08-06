@@ -38,8 +38,10 @@ function params(_removeParams, _addParams, _url) {
 
 function getNewContent(remove, add, url) {
     if (url.startsWith('/tvTheater') || url.startsWith('/listTheater')) {
+        document.getElementById('kmsBootDisplay').classList.add('animated--grow-in');
         document.getElementById('kmsBootDisplay').classList.remove('d-none');
     } else {
+        document.getElementById('bootUpDisplay').classList.add('animated--grow-in');
         document.getElementById('bootUpDisplay').classList.remove('d-none');
     }
     let _url = (() => {

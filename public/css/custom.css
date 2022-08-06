@@ -2548,7 +2548,7 @@ img.kms-logo {
 .watched-episode:hover, .watched-episode.active {
     opacity: 1;
 }
-.kms-title-bar, .kms-bottom-bar, .kms-progress {
+.kms-title-bar, .kms-bottom-bar, .kms-progress, .kms-center-bar {
     position: absolute;
     width: 100%;
     padding: 1.5em;
@@ -2600,6 +2600,16 @@ img.kms-logo {
 }
 .kms-player-playback-controls {
     font-size: 1.5em;
+}
+.kms-center-bar {
+    padding: 98px 0;
+}
+.advanced-controls .kms-center-bar {
+    padding-bottom: 266px;
+}
+.advanced-controls .kms-center-bar a {
+    padding-top: 32px;
+    padding-bottom: 32px;
 }
 
 .kms-stage .slider-track {
@@ -2666,9 +2676,6 @@ img.kms-logo {
     background: linear-gradient(45deg, #ff7300, #d0730066, #ff7300);
 }
 
-#kongouStage a {
-    cursor: default;
-}
 body.kms-play-open:not(.kms-play-pip) {
     overflow: hidden;
 }
@@ -2686,9 +2693,14 @@ body.kms-play-open:not(.kms-play-pip) {
 .show-controls {
 
 }
-.btn {
+.btn, .btn *, a, img {
     -webkit-user-select: none;
     user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+    user-modify: none;
+    -webkit-user-modify: none;
+    cursor: default;
 }
 .show-item-icon-center {
     margin-left: auto;
@@ -2786,7 +2798,6 @@ div#contextSwitchIndicator {
     background-repeat: no-repeat;
     background-size: cover;
     background-origin: border-box;
-    border: 1px solid #ffffff5c;
     /*border-top: 10px solid #ff7400;*/
     box-shadow: 0 0 30px black;
     max-width: calc(100vw - 3rem);

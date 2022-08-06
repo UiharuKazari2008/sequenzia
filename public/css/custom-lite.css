@@ -367,7 +367,6 @@ code {
     background-repeat: no-repeat;
     background-size: cover;
     background-origin: border-box;
-    border: 1px solid #ffffff5c;
     /*border-top: 10px solid #ff7400;*/
     box-shadow: 0 0 30px black;
     max-width: calc(100vw - 3rem);
