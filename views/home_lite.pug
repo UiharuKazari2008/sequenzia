@@ -52,6 +52,8 @@ html
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
     body
+        #bootBackdrop.boot-logo-overlay(style="display: none;")
+            #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay.animated--grow-in.d-none
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
@@ -211,7 +213,7 @@ html
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                             i.shadow-blk.fas.fa-tv
                                             | Photo Frame
-                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Offline Files" href='/offline')
+                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
                                             i.shadow-blk.fas.fa-folder-bookmark
                                             | Local Files
                                         if (applications_list && applications_list.length > 0)

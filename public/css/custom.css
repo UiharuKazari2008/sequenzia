@@ -2762,21 +2762,23 @@ div#contextSwitchIndicator {
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: all;
     z-index: 500000;
     background: transparent;
-    pointer-events: all;
+    pointer-events: none;
 }
-/*div#bootUpDisplay {
-    background: rgba(0, 0, 0, 25%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    !*background-image: url("/internal/last_full.jpg");*!
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    z-index: 499999;
-}*/
+div#bootBackdrop {
+    background: black;
+    pointer-events: all;
+    z-index: 499990;
+}
+div#bootBackdropSunrise {
+    opacity: 50%;
+    height: 100%;
+    width: 100%;
+    background: radial-gradient(50% 50% at 50% bottom, #351d00, #000);
+    animation: animatedOpasivtyPulse 3s linear infinite;
+    z-index: 499991;
+}
 
 .boot-text {
     margin-bottom: 10em;
@@ -2834,6 +2836,17 @@ div#contextSwitchIndicator {
     }
     100% {
         background-position: 300% 0;
+    }
+}
+@keyframes animatedOpasivtyPulse {
+    0% {
+        opacity: 50%;
+    }
+    50% {
+        opacity: 100%;
+    }
+    100% {
+        opacity: 50%;
     }
 }
 .context-switch-container {

@@ -38,63 +38,63 @@ function params(_removeParams, _addParams, _url) {
 
 function getNewContent(remove, add, url) {
     if (url.startsWith('/tvTheater') || url.startsWith('/listTheater')) {
-        document.getElementById('kmsBootDisplay').classList.add('animated--grow-in');
         document.getElementById('kmsBootDisplay').classList.remove('d-none');
     } else {
-        document.getElementById('bootUpDisplay').classList.add('animated--grow-in');
         document.getElementById('bootUpDisplay').classList.remove('d-none');
     }
-    let _url = (() => {
+    $.when($('#bootBackdrop').fadeIn(1000)).done(() => {
+        let _url = (() => {
+            try {
+                if (url) { return url.split('://' + window.location.host).pop() }
+                if (window.location.hash.substring(1).length > 4) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
+                return null
+            } catch (e) {
+                console.error("Failed to access URL data, falling back")
+                console.error(e)
+                return null
+            }
+        })()
+        if (_url && _url.startsWith('/') && _url.substring(1).length > 0 && _url.substring(1).split('?')[0].length < 0) {
+            $.toast({
+                type: 'error',
+                title: 'Navigation Failure',
+                subtitle: 'Now',
+                content: `Invalid Path JOS:/${_url}`,
+                delay: 5000,
+            });
+            responseComplete = true
+            return false;
+        }
         try {
-            if (url) { return url.split('://' + window.location.host).pop() }
-            if (window.location.hash.substring(1).length > 4) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
-            return null
-        } catch (e) {
-            console.error("Failed to access URL data, falling back")
-            console.error(e)
-            return null
-        }
-    })()
-    if (_url && _url.startsWith('/') && _url.substring(1).length > 0 && _url.substring(1).split('?')[0].length < 0) {
-        $.toast({
-            type: 'error',
-            title: 'Navigation Failure',
-            subtitle: 'Now',
-            content: `Invalid Path JOS:/${_url}`,
-            delay: 5000,
-        });
-        responseComplete = true
-        return false;
-    }
-    try {
-        let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
-        const _pathname = _url.split('?')[0];
+            let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
+            const _pathname = _url.split('?')[0];
 
-        if (add || remove) {
-            for (let e of remove) {
-                _params.delete(e)
-            }
-            for (let e of add) {
-                if (_params.has(e[0])) {
-                    _params.delete(e[0])
+            if (add || remove) {
+                for (let e of remove) {
+                    _params.delete(e)
                 }
-                _params.set(e[0], e[1])
+                for (let e of add) {
+                    if (_params.has(e[0])) {
+                        _params.delete(e[0])
+                    }
+                    _params.set(e[0], e[1])
+                }
+                _url = `${_pathname}?${_params.toString()}`
             }
-            _url = `${_pathname}?${_params.toString()}`
+        } catch (e) {
+            $.toast({
+                type: 'error',
+                title: 'Navigation Failure',
+                subtitle: 'Now',
+                content: `Parser Failure${(e && e.message) ? '\n' + e.message : ''}`,
+                delay: 5000,
+            });
+            responseComplete = true
+            return false;
         }
-    } catch (e) {
-        $.toast({
-            type: 'error',
-            title: 'Navigation Failure',
-            subtitle: 'Now',
-            content: `Parser Failure${(e && e.message) ? '\n' + e.message : ''}`,
-            delay: 5000,
-        });
-        responseComplete = true
-        return false;
-    }
-    console.log(_url);
-    setTimeout(() => {window.location.href = `/juneOS#${_url}`;}, 1000)
+        console.log(_url);
+        window.location.href = `/juneOS#${_url}`;
+    })
 }
 $.toastDefaults = {
     position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
@@ -371,14 +371,14 @@ function verifyNetworkAccess() {
                     type: 'error',
                     title: 'Login Required',
                     subtitle: '',
-                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
+                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
                 });
             } else if (xhr.status !== 200) {
                 $.toast({
                     type: 'error',
                     title: 'Network Error',
                     subtitle: '',
-                    content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                    content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                     delay: 30000,
                 });
             }
@@ -389,7 +389,7 @@ function verifyNetworkAccess() {
                 type: 'error',
                 title: 'Network Error',
                 subtitle: '',
-                content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                 delay: 30000,
             });
         }
@@ -613,4 +613,19 @@ if ('serviceWorker' in navigator) {
                 break;
         }
     };
+}
+async function transitionToOOBPage(pageUrl) {
+    if (pageUrl === '/')
+        return false;
+    if (pageUrl.startsWith('/offline') || pageUrl.startsWith('/june')) {
+        document.getElementById('bootUpDisplay').classList.remove('d-none');
+    }
+    try {
+        document.getElementById('bootBackdropSunrise').classList.add('hidden');
+        $.when($('#bootBackdrop').fadeIn(500)).done(() => { location.href = pageUrl })
+    } catch (e) {
+        console.error('Failed to make fancy transition animation to home page');
+        console.error(e);
+        location.href = pageUrl
+    }
 }

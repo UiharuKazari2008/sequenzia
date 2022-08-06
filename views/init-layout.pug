@@ -8,7 +8,8 @@ doctype html
 html
     head
         script.
-            console.log('Waiting for JuneOS to boot...')
+            console.log('Waiting for JuneOS to boot...');
+            const offlinePage = false;
         title=`${webconf.site_name}`
 
         link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
@@ -131,7 +132,9 @@ html
                     }
                 }
     body(id="page-top").sidebar-toggled
-        #kmsBootDisplay.boot-logo-overlay.d-none
+        #bootBackdrop.boot-logo-overlay
+            #bootBackdropSunrise
+        #kmsBootDisplay.boot-logo-overlay(style="display: none;")
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
                     div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 1;")
@@ -171,8 +174,8 @@ html
                         span Starting JuneOS...
         script.
             if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
-                document.getElementById('bootUpDisplay').classList.add('d-none');
-                document.getElementById('kmsBootDisplay').classList.remove('d-none');
+                document.getElementById('bootUpDisplay').style.display = 'none';
+                document.getElementById('kmsBootDisplay').style.display = 'flex';
             }
         #contextSwitchIndicator.animated--fade-in(style="display: none;")
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
@@ -450,7 +453,7 @@ html
                                                         a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                                             i.fa-light.fa-tv
                                                             | Photo Frame
-                                                        a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='/offline')
+                                                        a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
                                                             i.fa-light.fa-folder-bookmark
                                                             | Local Files
                                                         if (applications_list && applications_list.length > 0)
@@ -530,7 +533,6 @@ html
                                             '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
                                             '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
                                 let currentContext = false;
-                                const offlinePage = false;
                                 let nextContext = 'seq';
                                 $(document).ready(async function () {
                                     if (window.location.hash.substring(1).length < 2) {
@@ -543,6 +545,7 @@ html
                                         document.getElementById('bootUpDisplay').classList.add('d-none');
                                         document.getElementById('kmsBootDisplay').classList.add('d-none');
                                         document.getElementById('mainMenuBar').classList.remove('d-none');
+                                        $('#bootBackdrop').fadeOut(500);
                                     } else {
                                         $('#loadingLogo').fadeIn();
                                         document.getElementById('bootLoaderStatus').innerText = 'Navigating to page...';
@@ -845,7 +848,7 @@ html
                         p If you have offline content you can switch to it now or try again.
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
-                        a.btn.btn-danger(href='/offline') Offline
+                        a.btn.btn-danger(href='#_' onclick="transitionToOOBPage('/offline'); return false;") Offline
         #cachePageModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content

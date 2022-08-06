@@ -343,10 +343,21 @@ code {
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: all;
     z-index: 500000;
     background: transparent;
+    pointer-events: none;
+}
+div#bootBackdrop {
+    background: black;
     pointer-events: all;
+    z-index: 499990;
+}
+div#bootBackdropSunrise {
+    opacity: 50%;
+    height: 100%;
+    width: 100%;
+    background: radial-gradient(50% 50% at 50% bottom, #351d00, #000);
+    z-index: 499991;
 }
 .boot-text {
     margin-bottom: 10em;

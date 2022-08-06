@@ -195,11 +195,9 @@ async function setupReq(push, url) {
             if (nextContext === 'seq') {
                 if (!initialLoad)
                     document.getElementById('bootLoaderStatus').innerText = 'JuneOS Framework v20';
-                document.getElementById('bootUpDisplay').classList.add('animated--grow-in');
-                document.getElementById('bootUpDisplay').classList.remove('d-none');
+                await new Promise((animationCompleted) => { $.when($('#bootUpDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
             } else if (nextContext === 'ticket') {
-                document.getElementById('kmsBootDisplay').classList.add('animated--grow-in');
-                document.getElementById('kmsBootDisplay').classList.remove('d-none');
+                await new Promise((animationCompleted) => { $.when($('#kmsBootDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
             }
         }
     }
@@ -256,57 +254,60 @@ async function requestCompleted (response, url, lastURL, push) {
                 responseComplete = true
                 return false;
             }
-            $.when($(".container-fluid").fadeOut(250)).done(async () => {
-                recoverable = response
-                let contentPage = $(response);
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Static...';
-                if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
-                    $("#appStatic").html(contentPage.find('#appStatic').children());
-                }
-                contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
-                contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
-                    if (_originalURL && _originalURL !== 'undefined')
+            await new Promise((pageReady) => {
+                $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
+                    recoverable = response
+                    let contentPage = $(response);
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Injecting Static...';
+                    if ($("#appStatic").children().length === 0 && contentPage.find('#appStatic').length > 0) {
+                        $("#appStatic").html(contentPage.find('#appStatic').children());
+                    }
+                    contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
+                    contentPage.find('a[href="#_"], a[href="#"] ').click(function(e){
+                        if (_originalURL && _originalURL !== 'undefined')
+                            window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
+                        e.preventDefault();
+                    });
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Injecting Navigator...';
+                    if (contentPage.find('#appTitleBar').length > 0) {
+                        $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
+                    }
+                    if (contentPage.find('#appPanels').length > 0) {
+                        $("#appPanels").html(contentPage.find('#appPanels').children());
+                    }
+                    if (contentPage.find('#appNavigation').length > 0) {
+                        $("#pageNav").html(contentPage.find('#appNavigation').children());
+                    }
+                    if (contentPage.find('#appTitleMenu').length > 0) {
+                        $("#appTitleMenu").html(contentPage.find('#appTitleMenu').children());
+                    } else {
+                        $("#appTitleMenu").html('');
+                    }
+                    if (contentPage.find('#appMenuRow1').length > 0) {
+                        $("#appMenuRow1").html(contentPage.find('#appMenuRow1').children());
+                    }
+                    if (contentPage.find('#appMenuRow2').length > 0) {
+                        $("#appMenuRow2").append(contentPage.html('#appMenuRow2').children());
+                    } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
+                        $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
+                    }
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Injecting Content...';
+                    $("#appContainer").html(contentPage.find('#appContent').children());
+                    if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
+                        $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
+                    }
+                    if (initialLoad)
+                        document.getElementById('bootLoaderStatus').innerText = 'Welcome';
+                    $(".container-fluid").fadeTo(2000, 1)
+                    scrollToTop(true);
+                    if (_originalURL && _originalURL !== 'undefined' )
                         window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                    e.preventDefault();
-                });
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Navigator...';
-                if (contentPage.find('#appTitleBar').length > 0) {
-                    $("#topAddressBarInfo").html(contentPage.find('#appTitleBar').children());
-                }
-                if (contentPage.find('#appPanels').length > 0) {
-                    $("#appPanels").html(contentPage.find('#appPanels').children());
-                }
-                if (contentPage.find('#appNavigation').length > 0) {
-                    $("#pageNav").html(contentPage.find('#appNavigation').children());
-                }
-                if (contentPage.find('#appTitleMenu').length > 0) {
-                    $("#appTitleMenu").html(contentPage.find('#appTitleMenu').children());
-                } else {
-                    $("#appTitleMenu").html('');
-                }
-                if (contentPage.find('#appMenuRow1').length > 0) {
-                    $("#appMenuRow1").html(contentPage.find('#appMenuRow1').children());
-                }
-                if (contentPage.find('#appMenuRow2').length > 0) {
-                    $("#appMenuRow2").append(contentPage.html('#appMenuRow2').children());
-                } else if ($("#appMenuRow2Grid").children().length <= 1 && contentPage.find('#appMenuRow2Grid').length > 0) {
-                    $("#appMenuRow2Grid").append(contentPage.find('#appMenuRow2Grid').contents());
-                }
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Injecting Content...';
-                $("#appContainer").html(contentPage.find('#appContent').children());
-                if ($("#appStaticPost").children().length === 0 && contentPage.find('#appStaticPost').length > 0) {
-                    $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
-                }
-                if (initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'Welcome';
-                $(".container-fluid").fadeTo(2000, 1)
-                scrollToTop(true);
-                if (_originalURL && _originalURL !== 'undefined' )
-                    window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                responseComplete = true
+                    pageReady(true);
+                    responseComplete = true
+                })
             })
         } else {
             if (push === true && !offlinePage) {
@@ -340,73 +341,75 @@ async function requestCompleted (response, url, lastURL, push) {
             } else {
                 if (initialLoad)
                     document.getElementById('bootLoaderStatus').innerText = 'Rendering Page...';
-                $.when($(".container-fluid").fadeOut(250)).done(async () => {
-                    let contentPage = $(response).find('#content-wrapper').children();
-                    contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
-                    contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
-                        if (_originalURL && _originalURL !== 'undefined')
-                            window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
-                        e.preventDefault();
-                    });
-                    if (!offlinePage) {
-                        Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
-                            contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
-                            contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
+                await new Promise((pageReady) => {
+                    $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
+                        let contentPage = $(response).find('#content-wrapper').children();
+                        contentPage.find('#topbar').addClass('no-ani').addClass('ready-to-scroll');
+                        contentPage.find('a[href="#_"], a[href="#"] ').click(function (e) {
+                            if (_originalURL && _originalURL !== 'undefined')
+                                window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
+                            e.preventDefault();
                         });
-                        if (initialLoad)
-                            document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
-                        $("#content-wrapper").html(contentPage);
-                    } else {
-                        const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
-                        $("#contentBlock").html(contentPage.find('#contentBlock').children());
-                        const imageRows = $('#contentBlock').find('.tz-gallery > .row').children();
-                        const resultsTotal = Array.from(imageRows).length;
-                        let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-                        if (resultsTotal < offset)
-                            offset = 0;
-                        const shift = offset + 100;
-                        $("#contentBlock > .tz-gallery > .row").html(imageRows.slice(offset, shift));
-                        let pageButtons = [];
-                        if (resultsTotal > 100) {
-                            if (offset > 0) {
-                                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                        contentPage.find(".container-fluid").fadeTo(0, 0.5);
+                        if (!offlinePage) {
+                            Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                                contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
+                                contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
+                            });
+                            if (initialLoad)
+                                document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
+                            $("#content-wrapper").html(contentPage);
+                        } else {
+                            const _params = new URLSearchParams('?' + _url.split('#').pop().split('?').pop());
+                            $("#contentBlock").html(contentPage.find('#contentBlock').children());
+                            const imageRows = $('#contentBlock').find('.tz-gallery > .row').children();
+                            const resultsTotal = Array.from(imageRows).length;
+                            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+                            if (resultsTotal < offset)
+                                offset = 0;
+                            const shift = offset + 100;
+                            $("#contentBlock > .tz-gallery > .row").html(imageRows.slice(offset, shift));
+                            let pageButtons = [];
+                            if (resultsTotal > 100) {
+                                if (offset > 0) {
+                                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                                }
+                                if (shift <= resultsTotal) {
+                                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                                }
                             }
-                            if (shift <= resultsTotal) {
-                                pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                            $("#pageNav").html(pageButtons.join(''));
+                        }
+                        if (initialLoad)
+                            document.getElementById('bootLoaderStatus').innerText = 'Setting Layout...';
+                        setImageLayout(setImageSize);
+                        setPageLayout(false);
+                        if (initialLoad)
+                            document.getElementById('bootLoaderStatus').innerText = 'Requesting Paginator...';
+                        if (!pageTitle.includes(' - Item Details') && !offlinePage) {
+                            getPaginator(url);
+                        }
+                        scrollToTop(true);
+                        if (!offlinePage) {
+                            if (initialLoad)
+                                document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
+                            if (inReviewMode)
+                                enableReviewMode();
+                            updateActionsPanel();
+                            updateNotficationsPanel();
+                            if (Object.values(apiActions).length > 0) {
+                                const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                                $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                                if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
+                                    $('#hiddenItemsAlert').removeClass('hidden')
+                                }
                             }
                         }
-                        $("#pageNav").html(pageButtons.join(''));
-                    }
-                    if (initialLoad)
-                        document.getElementById('bootLoaderStatus').innerText = 'Setting Layout...';
-                    setImageLayout(setImageSize);
-                    setPageLayout(false);
-                    if (initialLoad)
-                        document.getElementById('bootLoaderStatus').innerText = 'Requesting Paginator...';
-                    if (!pageTitle.includes(' - Item Details') && !offlinePage) {
-                        getPaginator(url);
-                    }
-                    scrollToTop(true);
-                    if (!offlinePage) {
-                        if (initialLoad)
-                            document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
-                        if (inReviewMode)
-                            enableReviewMode();
-                        updateActionsPanel();
-                        updateNotficationsPanel();
-                        if (Object.values(apiActions).length > 0) {
-                            const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
-                            $(Array.from($("#content-wrapper").find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
-                            if ($("#content-wrapper").find('[data-msg-id].col-image.hidden').length > 0) {
-                                $('#hiddenItemsAlert').removeClass('hidden')
-                            }
-                        }
-                    } else {
-                        $(".container-fluid").fadeTo(500, 1);
-                    }
 
-                    undoActions = [];
-                    responseComplete = true
+                        undoActions = [];
+                        pageReady(true);
+                        responseComplete = true
+                    })
                 })
             }
             $("title").text(pageTitle);
@@ -417,14 +420,14 @@ async function requestCompleted (response, url, lastURL, push) {
             }
             const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
+            $(".container-fluid").fadeTo(500, 1);
             responseComplete = true
         }
         pageType = url.split('/')[0];
-        if (initialLoad)
+        if (initialLoad) {
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
-        setTimeout(() => {
-            document.getElementById('bootUpDisplay').classList.add('d-none');
-        }, 2000)
+            $('#bootBackdrop').fadeOut(500);
+        }
         initialLoad = false
         if(!isTouchDevice()) {
             $('[data-tooltip="tooltip"]').tooltip()
@@ -433,8 +436,7 @@ async function requestCompleted (response, url, lastURL, push) {
     }
     if (nextContext !== currentContext) {
         setTimeout(() => {
-            document.getElementById('bootUpDisplay').classList.add('d-none');
-            document.getElementById('kmsBootDisplay').classList.add('d-none');
+            $('#bootUpDisplay, #kmsBootDisplay').fadeOut(500);
         }, 2000);
     }
     currentContext = nextContext;
@@ -461,7 +463,7 @@ async function getNewContent(remove, add, url, keep) {
                 return null
             }
         })()
-    if (_url === null) { location.href = '/'; return false; };
+    if (_url === null) { transitionToOOBPage('/'); return false; };
     if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
         $.toast({
             type: 'error',
@@ -558,12 +560,13 @@ async function getNewContent(remove, add, url, keep) {
                 delay: 2000,
             });
         }
-        if (initialLoad)
+        if (initialLoad) {
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
+            $('#bootBackdrop').fadeOut(500);
+        }
         if (nextContext !== currentContext) {
             setTimeout(() => {
-                document.getElementById('bootUpDisplay').classList.add('d-none');
-                document.getElementById('kmsBootDisplay').classList.add('d-none');
+                $('#bootUpDisplay, #kmsBootDisplay').fadeOut(500);
             }, 2000);
         }
         currentContext = nextContext;
@@ -597,7 +600,7 @@ async function getNewContent(remove, add, url, keep) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -620,7 +623,7 @@ function getMoreContent(remove, add, url, keep) {
             return null
         }
     })()
-    if (_url === null) { location.href = '/'; return false; };
+    if (_url === null) { transitionToOOBPage('/'); return false; };
     if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
         $.toast({
             type: 'error',
@@ -699,7 +702,7 @@ function getMoreContent(remove, add, url, keep) {
                 type: 'error',
                 title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                 subtitle: '',
-                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                 delay: 10000,
             });
         }
@@ -723,7 +726,7 @@ function getSearchContent(element, url) {
                 return null
             }
         })()
-        if (_url === null) { location.href = '/'; return false; };
+        if (_url === null) { transitionToOOBPage('/'); return false; };
         if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
             $.toast({
                 type: 'error',
@@ -787,7 +790,7 @@ function getSearchContent(element, url) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -823,7 +826,7 @@ function getLimitContent(perm) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href="/offline"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -1126,6 +1129,18 @@ async function startDownloadingFiles() {
     downloadModel.querySelector("#downloadProgText").innerText = `Ready`
     disableGallerySelect();
 }
+async function transitionToOOBPage(pageUrl) {
+    if (pageUrl === '/offline')
+        $('#bootUpDisplay').fadeIn(250);
+    try {
+        document.getElementById('bootBackdropSunrise').classList.add('hidden');
+        $.when($('#bootBackdrop').fadeIn(500)).done(() => { location.href = pageUrl })
+    } catch (e) {
+        console.error('Failed to make fancy transition animation to home page');
+        console.error(e);
+        location.href = pageUrl
+    }
+}
 
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
@@ -1341,38 +1356,39 @@ async function generateGalleryHTML(url, eids) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-            const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
-                if (eids)
-                    return eids.indexOf(a.eid) - eids.indexOf(b.eid);
-                return parseFloat(b.eid) - parseFloat(a.eid);
-            });
-            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-            if (allResults.length < offset)
-                offset = 0;
-            const shift = offset + 100;
-            let pageButtons = [];
-            if (allResults.length > 100) {
-                if (offset > 0) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
-                }
-                if (shift <= allResults.length) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                }
-            }
-
-            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
-                const url = await (async () => {
-                    if (e.fileid) {
-                        const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
-                        if (possibleFileSaved && possibleFileSaved.href)
-                            return possibleFileSaved.href;
+        await new Promise((pageReady) => {
+            $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
+                let resultRows = [];
+                const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+                const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
+                    if (eids)
+                        return eids.indexOf(a.eid) - eids.indexOf(b.eid);
+                    return parseFloat(b.eid) - parseFloat(a.eid);
+                });
+                let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+                if (allResults.length < offset)
+                    offset = 0;
+                const shift = offset + 100;
+                let pageButtons = [];
+                if (allResults.length > 100) {
+                    if (offset > 0) {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
                     }
-                    return e.full_url
-                })()
-                return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="overlay-icons">
+                    if (shift <= allResults.length) {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                    }
+                }
+
+                resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+                    const url = await (async () => {
+                        if (e.fileid) {
+                            const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
+                            if (possibleFileSaved && possibleFileSaved.href)
+                                return possibleFileSaved.href;
+                        }
+                        return e.full_url
+                    })()
+                    return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3"'}><div class="overlay-icons">
 <div class="icon-container no-dynamic-tiny">
     <div class="status-icons left-links d-flex w-100">
         <div class="d-inline-flex size-indictor shadow-text"></div>
@@ -1389,11 +1405,11 @@ async function generateGalleryHTML(url, eids) {
     </div>
 </div>
 </div><div class="internal-lightbox d-block"></div><a class="lightbox" ${(e.data_type === 'video') ? 'data-fancybox="video" href="#_" onclick="PlayVideo(\'' + url + '\'); return false;"' : 'data-fancybox="gallery" href="' + url + '"'}><div id="postImage" class="square img img-responsive" style="background-image: url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0, 3).join(', ') : '128, 128, 128'});"></div></a></div>`
-            }))
+                }))
 
-            if (resultRows.length > 0) {
-                const randomImage = allResults[Math.floor(Math.random() * allResults.length)]
-                document.getElementById('contentBlock').innerHTML = `<style>
+                if (resultRows.length > 0) {
+                    const randomImage = allResults[Math.floor(Math.random() * allResults.length)]
+                    document.getElementById('contentBlock').innerHTML = `<style>
 .background-image:not(.overlay) {
     background-image: url("${(randomImage.extpreview_url) ? randomImage.extpreview_url : randomImage.preview_url}");
 }
@@ -1404,24 +1420,27 @@ async function generateGalleryHTML(url, eids) {
     opacity: 1;
 }
 </style><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                setImageLayout(setImageSize);
-                $("#pageNav").html(pageButtons.join(''));
-                $(".container-fluid").fadeTo(2000, 1);
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                    registerLazyLoader();
+                    registerURLHandlers();
+                    setImageLayout(setImageSize);
+                    $("#pageNav").html(pageButtons.join(''));
+                    $(".container-fluid").fadeTo(2000, 1);
+                } else {
+                    $(".container-fluid").fadeTo(2000, 1)
+                    $.toast({
+                        type: 'error',
+                        title: 'No Results Found',
+                        subtitle: 'Error',
+                        content: `Nothing was found, Please try another option or search term`,
+                        delay: 10000,
+                    })
+                }
+                pageReady(true);
+                responseComplete = true;
+            })
         })
+
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
@@ -1442,38 +1461,39 @@ async function generateFilesHTML(url, eids) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-            const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
-                if (eids)
-                    return eids.indexOf(a.eid) - eids.indexOf(b.eid);
-                return parseFloat(b.eid) - parseFloat(a.eid);
-            });
-            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-            if (allResults.length < offset)
-                offset = 0;
-            const shift = offset + 100;
-            let pageButtons = [];
-            if (allResults.length > 100) {
-                if (offset > 0) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
-                }
-                if (shift <= allResults.length) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                }
-            }
-
-            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
-                const url = await (async () => {
-                    if (e.fileid) {
-                        const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
-                        if (possibleFileSaved && possibleFileSaved.href)
-                            return possibleFileSaved.href;
+        await new Promise((pageReady) => {
+            $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
+                let resultRows = [];
+                const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
+                const allResults = files.filter(e => (e.data_type === 'audio' || e.data_type === 'generic') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
+                    if (eids)
+                        return eids.indexOf(a.eid) - eids.indexOf(b.eid);
+                    return parseFloat(b.eid) - parseFloat(a.eid);
+                });
+                let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+                if (allResults.length < offset)
+                    offset = 0;
+                const shift = offset + 100;
+                let pageButtons = [];
+                if (allResults.length > 100) {
+                    if (offset > 0) {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
                     }
-                    return e.full_url
-                })()
-                return `<tr class="dense-table" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : ''}>
+                    if (shift <= allResults.length) {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                    }
+                }
+
+                resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+                    const url = await (async () => {
+                        if (e.fileid) {
+                            const possibleFileSaved = await getSpannedFileIfAvailable(e.fileid);
+                            if (possibleFileSaved && possibleFileSaved.href)
+                                return possibleFileSaved.href;
+                        }
+                        return e.full_url
+                    })()
+                    return `<tr class="dense-table" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : ''}>
                 <!--<td class="preview-holder">
                     <div class="preview-image align-content-start"><i class="fas fa-image fa-2x"></i></div>
                 </td>-->
@@ -1489,9 +1509,9 @@ async function generateFilesHTML(url, eids) {
                 <td class="d-none d-sm-table-cell">${e.date}</td>
                 <td class="d-none d-sm-table-cell">${e.file_size}</td>
             </tr>`
-            }))
-            if (resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<div class="table-responsive p-lg-3 rounded bg-translucent-lg">
+                }))
+                if (resultRows.length > 0) {
+                    document.getElementById('contentBlock').innerHTML = `<div class="table-responsive p-lg-3 rounded bg-translucent-lg">
     <table class="table table-borderless" id="dataTable" width="100%" cellspacing="0">
         <thead class="table-header">
             <tr>
@@ -1504,22 +1524,24 @@ async function generateFilesHTML(url, eids) {
         </thead>
     </table>
 </div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                $("#pageNav").html(pageButtons.join(''));
-                $(".container-fluid").fadeTo(2000, 1);
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                    registerLazyLoader();
+                    registerURLHandlers();
+                    $("#pageNav").html(pageButtons.join(''));
+                    $(".container-fluid").fadeTo(2000, 1);
+                } else {
+                    $(".container-fluid").fadeTo(2000, 1)
+                    $.toast({
+                        type: 'error',
+                        title: 'No Results Found',
+                        subtitle: 'Error',
+                        content: `Nothing was found, Please try another option or search term`,
+                        delay: 10000,
+                    })
+                }
+                responseComplete = true;
+                pageReady(true);
+            })
         })
     } catch (err) {
         responseComplete = true;
@@ -1541,28 +1563,30 @@ async function generateShowsHTML(url) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const shows = await kernelRequestData({type: 'GET_STORAGE_ALL_KMS_SHOW'})
-            const allResults = shows.sort(function (a, b) {
-                return b.name - a.name;
-            });
-            let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
-            if (allResults.length < offset)
-                offset = 0;
-            const shift = offset + 100;
-            let pageButtons = [];
-            if (allResults.length > 100) {
-                if (offset > 0) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+        await new Promise((pageReady) => {
+            $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
+                let resultRows = [];
+                const shows = await kernelRequestData({type: 'GET_STORAGE_ALL_KMS_SHOW'})
+                const allResults = shows.sort(function (a, b) {
+                    return b.name - a.name;
+                });
+                let offset = (_params.has('offset')) ? parseInt(_params.getAll('offset')[0]) : 0
+                if (allResults.length < offset)
+                    offset = 0;
+                const shift = offset + 100;
+                let pageButtons = [];
+                if (allResults.length > 100) {
+                    if (offset > 0) {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                    }
+                    if (shift <= allResults.length) {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
+                    }
                 }
-                if (shift <= allResults.length) {
-                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
-                }
-            }
 
-            resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
-                return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
+                // noinspection CssUnknownTarget
+                resultRows = await Promise.all(allResults.slice(offset, shift).map(async e => {
+                    return `<div class="col-image col-dynamic col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2" id="series-" data-search="${e.name}; ${e.meta.originalName}; ${e.meta.genres};">
 <div class="show-overlay-items position-absolute">
     <div class="show-controls px-2 py-1">
         <div class="show-banners">
@@ -1577,34 +1601,36 @@ async function generateShowsHTML(url) {
     <div class="episode-background"></div>
 </a>
 </div>`
-            }))
-            if (resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<div class="mb-2">
+                }))
+                if (resultRows.length > 0) {
+                    document.getElementById('contentBlock').innerHTML = `<div class="mb-2">
 <form class="col form-inline navbar-search top-menu-search-bar" onsubmit="return false;" method="get" style="width: 100%;">
     <div class="input-group w-100">
         <div class="input-group-prepend"><i class="far fa-search align-self-center"></i></div><input class="text-white form-control top-menu-search-bar border-0" id="seriesSearch" type="text" placeholder="Search Shelf..." aria-label="Search Shelf..." onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);" />
     </div>
 </form>
 </div><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                setImageLayout(setImageSize);
-                $("#pageNav").html(pageButtons.join(''));
-                $(".container-fluid").fadeTo(2000, 1);
-                element_list = Array.from(document.querySelectorAll('[data-search]'))
-                search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                    registerLazyLoader();
+                    registerURLHandlers();
+                    setImageLayout(setImageSize);
+                    $("#pageNav").html(pageButtons.join(''));
+                    $(".container-fluid").fadeTo(2000, 1);
+                    element_list = Array.from(document.querySelectorAll('[data-search]'))
+                    search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
+                } else {
+                    $(".container-fluid").fadeTo(2000, 1)
+                    $.toast({
+                        type: 'error',
+                        title: 'No Results Found',
+                        subtitle: 'Error',
+                        content: `Nothing was found, Please try another option or search term`,
+                        delay: 10000,
+                    })
+                }
+                pageReady(true);
+                responseComplete = true;
+            })
         })
     } catch (err) {
         responseComplete = true;
@@ -1626,16 +1652,17 @@ async function generateEpisodeHTML(url) {
         _originalURL = url;
         setupReq(undefined, _originalURL);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
-        $.when($(".container-fluid").fadeOut(250)).done(async () => {
-            let resultRows = [];
-            const showId = _params.getAll('show_id')[0];
-            const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
+        await new Promise((pageReady) => {
+            $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
+                let resultRows = [];
+                const showId = _params.getAll('show_id')[0];
+                const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
 
-            if (episodes && episodes.episodes && episodes.show) {
-                resultRows = await Promise.all(episodes.episodes.sort(function (a, b) {
-                    return (((a.season || 0) + 1) * (a.episode || 0)) - (((b.season || 0) + 1) * (b.episode || 0));
-                }).map(async e => {
-                    return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="row m-0 flex-nowrap flex-row py-2 episode-row" id="message-' + e.id + '"'}>
+                if (episodes && episodes.episodes && episodes.show) {
+                    resultRows = await Promise.all(episodes.episodes.sort(function (a, b) {
+                        return (((a.season || 0) + 1) * (a.episode || 0)) - (((b.season || 0) + 1) * (b.episode || 0));
+                    }).map(async e => {
+                        return `<div ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.join(' ') : 'class="row m-0 flex-nowrap flex-row py-2 episode-row" id="message-' + e.id + '"'}>
     <div class="episode-preview">
         <div class="preview-watched d-flex">
             <div class="watched-precent mt-auto" style="width: 0%"></div>
@@ -1656,11 +1683,11 @@ async function generateEpisodeHTML(url) {
         <div class="episode-controls px-2 pt-2"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
     </div>
 </div>`
-                }))
-            }
+                    }))
+                }
 
-            if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
-                document.getElementById('contentBlock').innerHTML = `<style>
+                if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
+                    document.getElementById('contentBlock').innerHTML = `<style>
 .background-image:not(.overlay) {
     background-image: url("https://media.discordapp.net/attachments${episodes.show.background}");
 }
@@ -1713,23 +1740,25 @@ async function generateEpisodeHTML(url) {
     <div class="show-description"><span>${episodes.show.meta.description}</span></div>
 </div>
 </div><div class="show accordion accordion-flush show-background pt-4 p-sm-4" id="seasonsAccordion-${episodes.show.id}">${resultRows.join(' ')}</div>`
-                window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                registerLazyLoader();
-                registerURLHandlers();
-                setImageLayout(setImageSize);
-                $("#pageNav").html('');
-                $(".container-fluid").fadeTo(2000, 1);
-            } else {
-                $(".container-fluid").fadeTo(2000, 1)
-                $.toast({
-                    type: 'error',
-                    title: 'No Results Found',
-                    subtitle: 'Error',
-                    content: `Nothing was found, Please try another option or search term`,
-                    delay: 10000,
-                })
-            }
-            responseComplete = true;
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                    registerLazyLoader();
+                    registerURLHandlers();
+                    setImageLayout(setImageSize);
+                    $("#pageNav").html('');
+                    $(".container-fluid").fadeTo(2000, 1);
+                } else {
+                    $(".container-fluid").fadeTo(2000, 1)
+                    $.toast({
+                        type: 'error',
+                        title: 'No Results Found',
+                        subtitle: 'Error',
+                        content: `Nothing was found, Please try another option or search term`,
+                        delay: 10000,
+                    })
+                }
+                pageReady(true);
+                responseComplete = true;
+            })
         })
     } catch (err) {
         responseComplete = true;
@@ -4311,11 +4340,13 @@ if ('serviceWorker' in navigator) {
                 document.getElementById('storageStatus').classList.remove('badge-danger');
             }, 5000)
         }
-        try {
-            await registration.sync.register('SYNC_PAGES_NEW_ONLY');
-        } catch (e) {
-            console.error(e);
-            await kernelRequestData({ type: 'SYNC_PAGES_NEW_ONLY' });
+        if (!offlinePage) {
+            try {
+                await registration.sync.register('SYNC_PAGES_NEW_ONLY');
+            } catch (e) {
+                console.error(e);
+                await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+            }
         }
     });
     // Global Channel

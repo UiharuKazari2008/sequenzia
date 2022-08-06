@@ -7,7 +7,7 @@ html
                     span.sidebar-brand-logo.sequenzia-logo sequenzia
                 // Divider
                 li.nav-item
-                    a.nav-link(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='/')
+                    a.nav-link(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='#_' onclick='transitionToOOBPage("/"); return false;')
                         i.fas.fa-house
                         span.text-capitalize Home
                 if (sidebar && sidebar.length > 0)
