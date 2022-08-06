@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-9-PATCH13';
+const cacheName = 'DEV-v20-10-PATCH2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -966,10 +966,12 @@ async function deleteOfflinePage(url, noupdate) {
                             await removeOfflineData(e.preview_url);
                         if (e.extpreview_url)
                             await removeOfflineData(e.extpreview_url);
-                        if (e.kongou_poster_url)
+                        if (e.kongou_poster_url) {
                             await removeOfflineData(e.kongou_poster_url);
-                        if (e.kongou_poster_url)
-                            await removeOfflineData(e.kongou_poster_url);
+                            await removeOfflineData(e.kongou_poster_url +'?height=580&width=384');
+                        }
+                        if (e.kongou_backdrop_url)
+                            await removeOfflineData(e.kongou_backdrop_url);
                     }
                 }
                 if (browserStorageAvailable) {
@@ -1027,10 +1029,12 @@ async function deleteOfflineFile(eid, noupdate, preemptive) {
                 await removeOfflineData(file.preview_url);
             if (file.extpreview_url)
                 await removeOfflineData(file.extpreview_url);
-            if (file.kongou_poster_url)
+            if (file.kongou_poster_url) {
                 await removeOfflineData(file.kongou_poster_url);
-            if (file.kongou_poster_url)
-                await removeOfflineData(file.kongou_poster_url);
+                await removeOfflineData(file.kongou_poster_url + '?height=580&width=384');
+            }
+            if (file.kongou_backdrop_url)
+                await removeOfflineData(file.kongou_backdrop_url);
             if (browserStorageAvailable) {
                 const indexDBUpdate = offlineContent.transaction(["offline_items", "offline_kongou_shows", "offline_kongou_episodes"], "readwrite");
                 indexDBUpdate.objectStore("offline_kongou_episodes").delete(parseInt(eid.toString()))
@@ -1169,8 +1173,10 @@ async function cacheFileURL(object, page_item) {
                     fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, true, object.preview_url)).status
                 if (object.extpreview_url && !object.full_url.includes('/stream'))
                     fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, true, object.extpreview_url)).status
-                if (object.kongou_poster_url)
-                    fetchKMSResults["kongou_poster_url"] = (await fetchBackground(`${object.id}-kongou_poster_url`, true, object.kongou_poster_url)).status
+                if (object.kongou_poster_url) {
+                    fetchKMSResults["kongou_poster_url_0"] = (await fetchBackground(`${object.id}-kongou_poster_url_0`, true, object.kongou_poster_url + '?height=580&width=384')).status
+                    fetchKMSResults["kongou_poster_url_1"] = (await fetchBackground(`${object.id}-kongou_poster_url_1`, true, object.kongou_poster_url)).status
+                }
                 if (object.kongou_backdrop_url)
                     fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, true, object.kongou_backdrop_url)).status
                 if (object.required_build) {

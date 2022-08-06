@@ -40,7 +40,7 @@ block content
                             .show-preview(style=`background-image : url("${(show[0].media.show.background) ? 'https://media.discordapp.net/attachments' + show[0].media.show.background : showData.background.pop() }");`)
                             .show-preview-overlay
                             .d-none.d-sm-block.show-poster.mr-1
-                                img(src=`${(show[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.show.poster : showData.poster[0]}`)
+                                img(src=`${(show[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.show.poster + '?height=580&width=384' : showData.poster[0]}`)
                             .show-info.px-2.d-flex.flex-column.w-100
                                 .show-title
                                     if (nextEpisode[0].media.meta.name)

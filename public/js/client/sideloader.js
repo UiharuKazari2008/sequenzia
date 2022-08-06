@@ -1573,7 +1573,7 @@ async function generateShowsHTML(url) {
         <div class="show-buttons"></div>
     </div>
 </div><a href="#/listTheater?show_id=${e.showId}">
-    <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}'); background-size: cover!important;"></div>
+    <div class="tv-poster img img-responsive no-hover" id="postImage" style="background-image : url('/media_attachments${e.poster}?height=580&width=384'); background-size: cover!important;"></div>
     <div class="episode-background"></div>
 </a>
 </div>`
@@ -4220,9 +4220,6 @@ function registerDateHandlers() {
     }, applyDate);
 }
 
-function serviceWorkerMessageAsync(message) {
-    return navigator.serviceWorker.controller.postMessage(message, [networkKernelChannel.port2]);
-}
 function kernelRequestData(message) {
     return new Promise(function(resolve, reject) {
         try {
@@ -4239,9 +4236,9 @@ function kernelRequestData(message) {
         } catch (err) {
             $.toast({
                 type: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                title: '<i class="fas fa-microchip pr-2"></i>Kernel Error',
                 subtitle: '',
-                content: `<p>Could not communication with the network kernel!</p><p>${err.message}</p>`,
+                content: `<p>Could not complete "${message.type}" due to communication failure with the network kernel!</p><p>${err.message}</p>`,
                 delay: 5000,
             });
         }
