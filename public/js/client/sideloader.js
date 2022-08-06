@@ -4318,6 +4318,7 @@ if ('serviceWorker' in navigator) {
             await registration.sync.register('SYNC_PAGES_NEW_ONLY');
         } catch (e) {
             console.error(e);
+            await kernelRequestData({ type: 'SYNC_PAGES_NEW_ONLY' });
         }
     });
     // Global Channel

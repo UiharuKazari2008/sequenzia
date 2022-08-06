@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-9-PATCH12';
+const cacheName = 'DEV-v20-9-PATCH13';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -596,6 +596,24 @@ self.addEventListener('message', async (event) => {
             break;
         case 'STATUS_UNPACKER_ACTIVE':
             event.ports[0].postMessage(true);
+            break;
+        case 'SYNC_PAGES_NEW_ONLY':
+        case 'SYNC_PAGES':
+            event.ports[0].postMessage(true);
+            if (!syncActive) {
+                syncActive = true;
+                const pages = await getAllOfflinePages()
+                if (pages && pages.length > 0) {
+                    for (let page of pages) {
+                        await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                    }
+                    self.registration.showNotification("Pages have been synced");
+                }
+                syncActive = false;
+            } else {
+                if (swDebugMode)
+                    console.log('Sync Request Already Active!')
+            }
             break;
         default:
             console.log(event);
