@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-9-PATCH5';
+const cacheName = 'DEV-v20-9-PATCH6';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -596,6 +596,9 @@ self.addEventListener('message', async (event) => {
     break;
     }
 });
+self.addEventListener('backgroundfetchsuccess', event => {
+    console.log('[Service Worker]: Background Fetch Success', event.registration);
+});
 
 function expireTempCache() {
     Promise.all([cacheOptions.tempCacheCDN, cacheOptions.tempCacheProxy].map(async cacheName => {
@@ -1085,6 +1088,12 @@ async function removeOfflineData(url) {
 }
 
 async function fetchBackground(name, save, url, request, options) {
+    const offlineFile = await getDataIfAvailable(url)
+    if (offlineFile) {
+        if (swDebugMode)
+            console.log('JulyOS Internal Kernel: Offline Storage - ' + url);
+        return offlineFile
+    }
     if (false && self.BackgroundFetchManager && self.registration && self.registration.backgroundFetch) {
         return self.registration.backgroundFetch.fetch(name, (request || url), options);
     } else {
@@ -1097,13 +1106,18 @@ async function fetchBackground(name, save, url, request, options) {
                     offlineContent.transaction(['offline_filedata'], "readwrite").objectStore('offline_filedata').put({
                         url: url.split(origin).pop(),
                         data: blob
-                    }).onsuccess = event => { console.log('JulyOS Internal Kernel: Network + Storage - ' + url); }
+                    }).onsuccess = event => {
+                        if (swDebugMode)
+                            console.log('JulyOS Internal Kernel: Network + Storage - ' + url);
+                    }
                 } else {
-                    console.log('JulyOS Internal Kernel: Network Only - ' + url);
+                    if (swDebugMode)
+                        console.log('JulyOS Internal Kernel: Network Only - ' + url);
                 }
                 return response
             } else {
-                console.log('JulyOS Internal Kernel: Offline - ' + url);
+                if (swDebugMode)
+                    console.log('JulyOS Internal Kernel: Offline - ' + url);
                 return new Response(null, {
                     status: 501
                 })
