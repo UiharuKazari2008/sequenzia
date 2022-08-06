@@ -573,8 +573,13 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
             .register('/serviceWorker.min.js')
-            .then(reg => {
+            .then(async registration => {
                 console.log('Service Worker: Registered')
+                try {
+                    await registration.sync.register('SYNC_PAGES_NEW_ONLY');
+                } catch (e) {
+                    console.error(e);
+                }
             })
             .catch(err => console.log(`Service Worker: Error: ${err}`));
     });

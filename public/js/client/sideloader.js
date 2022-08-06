@@ -4308,6 +4308,11 @@ if ('serviceWorker' in navigator) {
                 document.getElementById('storageStatus').classList.remove('badge-danger');
             }, 5000)
         }
+        try {
+            await registration.sync.register('SYNC_PAGES_NEW_ONLY');
+        } catch (e) {
+            console.error(e);
+        }
     });
     // Global Channel
     navigator.serviceWorker.onmessage = async function (event) {

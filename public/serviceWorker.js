@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-9-PATCH6';
+const cacheName = 'DEV-v20-9-PATCH7';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -135,6 +135,7 @@ const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 let offlineMessages = [];
+let syncActive = false;
 
 async function broadcastAllMessage(message) {
     self.clients.matchAll({
@@ -454,12 +455,19 @@ self.addEventListener('sync', async (event) => {
         case 'test-tag-from-devtools':
         case 'SYNC_PAGES_NEW_ONLY':
         case 'SYNC_PAGES':
-            const pages = await getAllOfflinePages()
-            if (pages && pages.length > 0) {
-                for (let page of pages) {
-                    await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+            if (!syncActive) {
+                syncActive = true;
+                const pages = await getAllOfflinePages()
+                if (pages && pages.length > 0) {
+                    for (let page of pages) {
+                        await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                    }
+                    self.registration.showNotification("Pages have been synced");
                 }
-                self.registration.showNotification("Pages have been synced");
+                syncActive = false;
+            } else {
+                if (swDebugMode)
+                    console.log('Sync Request Already Active!')
             }
             break;
         case 'SYNC_SERIES':
@@ -1277,7 +1285,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
         const _cacheItem = await fetchBackground(`${url}-results`, false, url);
         if (_cacheItem) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
-            const title = content.querySelector('title').text;
+            const title = (content.querySelector('title').text).toString().trim().replace('Sequenzia - ', '');
 
             const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type && (!newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1)));
             const totalFiles = itemsToCache.length;
@@ -1357,7 +1365,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                             broadcastAllMessage({
                                 type: 'MAKE_SNACK',
                                 level: 'success',
-                                text: `<i class="fas fa-sd-card pr-2"></i>Page with ${totalFiles} files are available offline`,
+                                text: `<p class="mb-0">${title}</p><i class="fas fa-sd-card pr-2"></i>Synced ${totalFiles} Items Offline!`,
                                 timeout: 5000
                             });
                             console.log(`Page Saved Offline!`);
