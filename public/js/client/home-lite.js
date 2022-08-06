@@ -575,11 +575,6 @@ if ('serviceWorker' in navigator) {
             .register('/serviceWorker.min.js')
             .then(async registration => {
                 console.log('Service Worker: Registered')
-                try {
-                    await registration.sync.register('SYNC_PAGES_NEW_ONLY');
-                } catch (e) {
-                    console.error(e);
-                }
             })
             .catch(err => console.log(`Service Worker: Error: ${err}`));
     });

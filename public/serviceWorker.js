@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-9-PATCH7';
+const cacheName = 'DEV-v20-9-PATCH10';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -376,7 +376,7 @@ self.addEventListener('activate', e => {
                     level: 'success',
                     title: '<i class="fas fa-sync pr-2"></i>Update Successful',
                     subtitle: '',
-                    content: `<p class="text-center">The application and kernel was updated to "${cacheName}"!</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
+                    content: `<p class="text-center">The application and kernel was updated!</p><p class="text-center">Version: "${cacheName}"</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
                 });
             }, 3000)
         }
@@ -1287,10 +1287,10 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
             const title = (content.querySelector('title').text).toString().trim().replace('Sequenzia - ', '');
 
-            const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type && (!newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1)));
-            const totalFiles = itemsToCache.length;
+            const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type);
+            const newItems = itemsToCache.filter(e =>  !newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1))
 
-            if (totalFiles === 0) {
+            if (newItems.length === 0) {
                 if (!newOnly) {
                     broadcastAllMessage({
                         type: 'MAKE_TOAST',
@@ -1310,16 +1310,17 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                 title,
                 downloaded: downloadedFiles,
                 items: itemsToCache.map(e => e.eid),
-                totalItems: totalFiles
+                totalItems: itemsToCache.length
             }
             broadcastAllMessage({
                 type: 'STATUS_STORAGE_CACHE_PAGE_ACTIVE',
                 url,
+                totalItems: newItems.length,
                 status
             })
             offlineDownloadSignals.set(url, true);
 
-            for (let e of itemsToCache) {
+            for (let e of newItems) {
                 if (!offlineDownloadSignals.has(url))
                     break;
                 try {
@@ -1365,7 +1366,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                             broadcastAllMessage({
                                 type: 'MAKE_SNACK',
                                 level: 'success',
-                                text: `<p class="mb-0">${title}</p><i class="fas fa-sd-card pr-2"></i>Synced ${totalFiles} Items Offline!`,
+                                text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
                                 timeout: 5000
                             });
                             console.log(`Page Saved Offline!`);
