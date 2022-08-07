@@ -1445,6 +1445,14 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                                     text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
                                     timeout: 5000
                                 });
+                                if (!newOnly) {
+                                    if ('showNotification' in self.registration) {
+                                        self.registration.showNotification("Sync Page", {
+                                            body: `${title}\nSynced ${newItems.length} Items Offline!`,
+                                            badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
+                                        });
+                                    }
+                                }
                                 console.log(`Page Saved Offline!`);
                                 resolve({title, count: newItems.length, ok: true})
                             };
