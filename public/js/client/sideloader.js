@@ -23,6 +23,9 @@ $(function() {
     // JuneOS Browser Manager
     $.history.on('load change push pushed replace replaced', function(event, url, type) {
         if (event.type === 'change') {
+            if (offlinePage && url === '') {
+                getOfflinePages();
+            }
             if (!(url && url.startsWith('/') && url.substring(1).length > 2 && url.substring(1).split('?')[0].length > 2)) {
                 console.error(`Impossible to navigate to "${url}"`)
                 return false;
@@ -394,6 +397,8 @@ async function requestCompleted (response, url, lastURL, push) {
                             if (resultsTotal > 100) {
                                 if (offset > 0) {
                                     pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                                } else {
+                                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="history.go(-1); return false;"><i class="fas fa-arrow-left"></i></a>`)
                                 }
                                 if (shift <= resultsTotal) {
                                     pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
@@ -1392,6 +1397,7 @@ async function clearCache(list) {
 }
 async function clearKernelCache() {
     await clearCache(['generic', 'kernel', 'config', 'temp-']);
+    await kernelRequestData({type: 'INSTALL_KERNEL'})
     window.location.reload();
 }
 async function clearAllOfflineData() {
@@ -1425,6 +1431,8 @@ async function generateGalleryHTML(url, eids, topText) {
                 if (allResults.length > 100) {
                     if (offset > 0) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                    } else {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="history.go(-1); return false;"><i class="fas fa-arrow-left"></i></a>`)
                     }
                     if (shift <= allResults.length) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
@@ -1536,6 +1544,8 @@ async function generateFilesHTML(url, eids, topText) {
                 if (allResults.length > 100) {
                     if (offset > 0) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                    } else {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="history.go(-1); return false;"><i class="fas fa-arrow-left"></i></a>`)
                     }
                     if (shift <= allResults.length) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
@@ -1642,6 +1652,8 @@ async function generateShowsHTML(url) {
                 if (allResults.length > 100) {
                     if (offset > 0) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="getNewContent([], [['offset', '${(offset > 100) ? offset - 100 : 0}']]); return false;"><i class="fas fa-arrow-left"></i></a>`)
+                    } else {
+                        pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="history.go(-1); return false;"><i class="fas fa-arrow-left"></i></a>`)
                     }
                     if (shift <= allResults.length) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
@@ -1843,6 +1855,7 @@ async function generateEpisodeHTML(url) {
 }
 async function getOfflinePages() {
     if (document.getElementById('offlinePageList')) {
+        scrollToTop();
         document.getElementById('offlinePages').classList.remove('hidden');
         $("#userMenu").collapse("hide")
         const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});

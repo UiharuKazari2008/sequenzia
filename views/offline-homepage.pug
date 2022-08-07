@@ -296,15 +296,17 @@ html
                                                         h2 No Albums!
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             #titleBarContents(style="display: contents").col.p-0
-                                ul.navbar-nav.text-primary.ml-1
-                                    li.nav-item.text-right.text-primary.page-title.d-flex.align-items-center
+                                ul.navbar-nav.text-primary.text-ellipsis
+                                    li#topAddressBarInfo.nav-item.text-right.page-title.text-primary.mr-1
+                                        i.far.fa-folder-bookmark.mr-2
+                                        span Local Files
                             .mr-auto
                             ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
                                 li.nav-item.no-arrow
                                     i.fas.fa-spinner.fa-spin-pulse
                             ul.navbar-nav.text-primary.text-ellipsis.ml-2.mr-1
                                 li.nav-item.no-arrow
-                                    i.fas.fa-cloud-exclamation
+                                    i.fas.fa-wifi-slash
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow.kms-pip-icons.align-items-center
@@ -335,7 +337,7 @@ html
                         }
                     .container-fluid.max-resize
                         #offlinePages.d-flex.align-items-center.flex-column.hidden
-                            div.bg-translucent.p-3.w-100.mb-3.rounded
+                            div.bg-darker.p-3.w-100.mb-3.rounded
                                 table.table.table-borderless.mb-0
                                     thead.table-header
                                         tr

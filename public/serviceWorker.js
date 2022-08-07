@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-10-PATCH10';
+const cacheName = 'DEV-v20-10-PATCH11';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -370,6 +370,13 @@ self.addEventListener('activate', e => {
                 return caches.delete(cache);
         })
         if (oldCaches.length > 0) {
+            caches.open(cacheOptions.cacheKernel).then(function(cache) {
+                const results = cacheOptions.preloadCache.map(async u => {
+                    return await cache.add(u);
+                }).filter(f => !(f && f.ok)).length > 1
+                console.log(results)
+                return results
+            })
             setTimeout(() => {
                 broadcastAllMessage({
                     type: 'MAKE_TOAST',
@@ -675,10 +682,18 @@ self.addEventListener('message', async (event) => {
                 });
             }
             break;
+        case 'INSTALL_KERNEL':
+            const cache = await caches.open(cacheOptions.cacheKernel)
+            cacheOptions.preloadCache.map(async u => {
+                return await cache.add(u);
+            })
+            event.ports[0].postMessage(true);
+            break;
         default:
             console.log(event);
             console.log(event.data);
             console.log('Unknown Message');
+            event.ports[0].postMessage(false);
     break;
     }
 });
