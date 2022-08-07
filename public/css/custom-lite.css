@@ -1681,6 +1681,16 @@ div#time {
 
 }
 
+@media (max-height:500px) {
+    .bottom-time-info {
+        width: 250px;
+    }
+    div#time {
+        font-weight: 400;
+        line-height: 1em;
+        font-size: 5em;
+    }
+}
 @media (max-width:420px) {
     .album-item {
         min-height: 100px;
@@ -1999,7 +2009,7 @@ ul#accordionSidebar * {
 }
 @media (max-width:450px) {
     .main-menu-grid {
-        width: 280px;
+        width: 300px;
     }
 }
 @media (max-width:320px) {

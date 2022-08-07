@@ -14,6 +14,9 @@ body {
     text-decoration: none;
     cursor: default;
 }
+.no-homepage {
+    display: none !important;
+}
 a, a:active, a:hover {
     text-decoration: none;
     cursor: default;

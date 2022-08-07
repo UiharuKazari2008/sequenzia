@@ -394,6 +394,7 @@ color: #b3ff85;
 #content-wrapper > div > #mainMenuBar {
     position: fixed;
     top: -10px;
+    padding-top: 10px;
     right: 0;
     left: 0;
     z-index: 1030;
@@ -403,6 +404,7 @@ color: #b3ff85;
 .bottom-bar #content-wrapper > div > #mainMenuBar {
     top: unset;
     bottom: -10px;
+    padding-bottom: 10px;
     flex-direction: column-reverse;
 }
 

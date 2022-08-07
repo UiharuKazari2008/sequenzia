@@ -433,6 +433,21 @@ function verifyNetworkAccess() {
                 document.getElementById('mainUserButtons').classList.add('hidden');
                 document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
                 noAmbientTimer = true;
+                setInterval(function () {
+                    $.ajax({async: true,
+                        url: '/device-login?checklogin=true',
+                        type: "GET",
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (response === 'true') {
+                                location.href = '/discord/refresh'
+                            }
+                        },
+                        error: function (response) {
+                        }
+                    });
+                }, 60000);
                 /*$.toast({
                     type: 'error',
                     title: 'Login Required',
@@ -662,7 +677,9 @@ function setupAmbientTimers () {
 }
 function startAmbientTimer() {
     if (!ambientTimeout) {
-        $('.container, #homeBg').fadeIn(500);
+        $.when($('.container, #homeBg').fadeIn(500)).done(() => {
+            document.querySelector('.container').classList.remove('disabled-pointer')
+        })
         $('.ambient-items').fadeOut(500);
         document.getElementById('midSearch').classList.remove('shine-effect-go');
         document.getElementById('midSearch').classList.add('shine-effect-go');
@@ -674,6 +691,7 @@ function resetAmbientTimer() {
     startAmbientTimer();
 }
 function switchToAmbientMode() {
+    document.querySelector('.container').classList.add('disabled-pointer')
     $('.container').fadeOut(500);
     $('#homeBg').fadeOut(1000);
     $('.ambient-items').fadeIn(500);
