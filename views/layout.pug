@@ -66,6 +66,11 @@ html
             title= `${webconf.site_name} - No Results`
 
     body(id="page-top" class=showSidebar1)
+        script.
+            if (performaceMode) {
+                document.querySelector('body').classList.add('performance-mode');
+                console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
+            }
         if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
             div.background-image.overlay
             div.background-image.bg-blur
@@ -294,6 +299,9 @@ html
                                                             a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
                                                                 i.fa-light.fa-compass-slash
                                                                 | Hide Channels
+                                                        a.user-menu-item.user-menu-small(title="Toggle Performance Mode" href='#_' onclick=`togglePerformanceMode(); return false;`)
+                                                            i.fa-light.fa-bolt
+                                                            | Performance
                                                         a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                             i.fa-light.fa-info-circle
                                                             | About
@@ -1275,6 +1283,9 @@ html
                                                 i.fas.fa-list
                                             a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kmsPlayNext(); return false;")
                                                 i.fas.fa-forward-fast
+                                    li.nav-item.no-arrow.align-items-center.ml-1.performance-mode-icon
+                                        a.align-items-center.d-flex(title="Disable Performance Mode" href='#_' onClick=`disablePerformanceMode(); return false;`)
+                                            i.fas.fa-bolt
                                     li.nav-item.no-arrow.d-flex.align-items-center
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2

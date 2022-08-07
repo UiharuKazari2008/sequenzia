@@ -19,6 +19,10 @@
     font-size: 1em;
     pointer-events: none;
     width: 100%;
+    color: white;
+}
+.album-icon {
+    color: white;
 }
 
 .album-list {
@@ -28,7 +32,9 @@
     white-space: nowrap;
     flex-wrap: wrap;
     width: 100%;
-    height: 25vh;
+    height: 800px;
+    max-height: 50vh;
+    color: white;
 }
 .album-item {
     min-height: 100px;
@@ -36,15 +42,7 @@
     margin-left: 0.25em;
     margin-right: 0.25em;
     margin-bottom: 0.5rem;
-}
-
-.album-item:first-child  {
-    min-width: calc(25% - 0.25em);
-    margin-left: 0;
-}
-.album-item:last-child  {
-    min-width: calc(25% - 0.25em);
-    margin-right: 0;
+    color: white;
 }
 
 .album-preview {
@@ -54,6 +52,7 @@
     background-position: top;
     background-size: cover;
     background-repeat: no-repeat;
+    color: white;
 }
 
 .menu-grid {
@@ -174,6 +173,9 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
 .container-fluid {
     margin-top: calc(env(safe-area-inset-top) + 4.2em);
 }
+.container {
+    max-width: unset;
+}
 
 .hidden {
     display: none!important;
@@ -287,6 +289,13 @@ a.lightbox:before {
 
 .toggled .sidebar-heading {
     text-align: center;
+}
+
+.container * {
+    user-select: none;
+    user-drag: none;
+    -webkit-user-select: none;
+    -webkit-drag: none;
 }
 
 #timeline {
@@ -828,13 +837,17 @@ div.collapse-divider {
     background-color: rgba(0, 0, 0, 1) !important;
 }
 .sequenzia-logo {
-    color: white;
     font-family: "london 2012","Product Sans","Nunito",monospace;
-    font-size: 1em;
+    font-size: 2.25em;
     font-weight: 100;
     letter-spacing: 0.18em;
     text-decoration: none;
     line-height: 1.12em;
+}
+.username {
+    font-size: 2em;
+    line-height: 1em;
+    font-weight: 300;
 }
 body {
     margin: 0;
@@ -986,11 +999,6 @@ pre {
     font-size: 87.5%;
     color: #b6b9d6;
 }
-a {
-    color: rgb(255, 165, 84);
-    text-decoration: none;
-    background-color: transparent;
-}
 
 a:hover {
     color: #ba5418;
@@ -1113,6 +1121,9 @@ button#sidebarBackTop {
 }
 .form-control.bg-translucent {
     color: #ffe3de;
+}
+.image-description {
+    font-size: 1.25em;
 }
 
 .form-control.bg-home-search {
@@ -1588,6 +1599,16 @@ select.form-control:focus::-ms-value {
     padding-top: 60%;
 }
 
+.bottom-time-info {
+    width: 380px;
+}
+div#time {
+    font-weight: 400;
+    line-height: 1em;
+    font-size: 8em;
+}
+
+
 @media (min-width:356px) {
     .card-columns {
         column-count: 1;
@@ -1619,9 +1640,6 @@ select.form-control:focus::-ms-value {
     .btn-home-small {
         max-width: unset;
     }
-    .mid-center-block.pushUp {
-        top: calc(env(safe-area-inset-top) + 20%);
-    }
 
     .server-icon {
         width: 48px;
@@ -1634,11 +1652,8 @@ select.form-control:focus::-ms-value {
         font-size: 16px;
     }
 
-    .pushUp > div > div > .menu-object {
-        padding-top: calc(env(safe-area-inset-top) + 20% + 4em);
-    }
     .album-item {
-        min-height: 100px;
+        min-height: 125px;
         min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.5em);
         margin-left: 0.25em;
         margin-right: 0.25em;
@@ -1688,13 +1703,6 @@ select.form-control:focus::-ms-value {
     .no-short {
         display: none
     }
-    .mid-center-block.pushUp {
-        top: calc(env(safe-area-inset-top) + 50%);
-    }
-
-    .pushUp > div > div > .menu-object {
-        padding-top: calc(env(safe-area-inset-top) + 50% + 4em);
-    }
 }
 @media (min-width:768px) {
     /*ul#accordionSidebar:hover, ul#accordionSidebar > .collapse .show {
@@ -1716,10 +1724,6 @@ select.form-control:focus::-ms-value {
     .sidebar .nav-item .nav-link i {
         font-size: 0.85rem;
         margin-right: 0.5rem;
-    }
-    .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl {
-        padding-right: calc(env(safe-area-inset-right) + 1.5rem)!important;
-        padding-left: calc(env(safe-area-inset-left) + 1.5rem)!important;
     }
     .navbar-nav.sidebar:not(.toggled) .nav-item .collapse-inner {
         background: #7d2f005c!important;
@@ -1849,29 +1853,6 @@ select.form-control:focus::-ms-value {
         padding: 0.75rem 0rem;
         width: 4rem;
     }
-    .sidebar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1029;
-        background: transparent;
-    }
-    #accordionSidebar:not(.toggled) > #sidebar > #sidebarbottompadding {
-        display: block;
-        margin-bottom: 20em;
-    }
-    #accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-image: linear-gradient(90deg,#000000f2,#000000c4);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        display: block;
-        height: 100vh;
-        width: 100vw;
-        z-index: -1;
-    }
     .music-player {
         margin-left: 1.4em!important;
     }
@@ -1884,9 +1865,51 @@ select.form-control:focus::-ms-value {
     .loading-bar {
         margin-top: calc(env(safe-area-inset-top) + 2.9em);
     }
-    .sidebar.toggled {
-        display: none;
-    }
+
+}
+.menu-icons {
+    font-size: 2em;
+}
+.sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1029;
+    background: transparent;
+}
+#accordionSidebar:not(.toggled) > #sidebar > #sidebarbottompadding {
+    display: block;
+    margin-bottom: 20em;
+}
+#accordionSidebar:not(.toggled) > #sidebar > .overlay-sidebarbg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(90deg,#000000f2,#000000c4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: block;
+    height: 100vh;
+    width: 100vw;
+    z-index: -1;
+}
+.sidebar.toggled, .no-homepage {
+     display: none;
+ }
+.container {
+    display: flex;
+    padding-left: calc(env(safe-area-inset-left) + 1em);
+    padding-right: calc(env(safe-area-inset-right) + 1em);
+    padding-top: calc(env(safe-area-inset-top) + 1em);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1em);
+}
+.menu-container {
+    background: #000000cc;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px black;
+}
+ul#accordionSidebar * {
+    z-index: 5;
 }
 @media (min-width: 2000px) {
     .container-fluid:not(.max-resize) .col-xl-2 {
@@ -1894,9 +1917,90 @@ select.form-control:focus::-ms-value {
         max-width: 11.1%;
     }
 }
+#midSearch {
+    width: 100%;
+}
+.main-menu-grid {
+    width: 360px;
+    justify-content: center;
+    grid-auto-flow: column;
+    margin-left: auto;
+    margin-right: auto;
+    flex-wrap: wrap;
+}
+.main-menu-grid a {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+@media (min-width:850px) {
+    #midSearch {
+        width: 800px;
+    }
+}
+.backdrop-portait, .backdrop-neutral, .backdrop-wide {
 
+}
+
+@media (max-width:767px) {
+    .backdrop-portait {
+        margin-top: 3em!important;
+    }
+    .backdrop-wide{
+        margin-top: 3em!important;
+    }
+}
+@media (max-height:900px) {
+
+
+}
+
+@media (max-width:767px) {
+    .sequenzia-logo {
+        font-size: 1.75em;
+    }
+    .username {
+        font-size: 1.5em
+    }
+    .image-description {
+        font-size: 1em;
+    }
+    .menu-icons {
+        font-size: 1.75em;
+    }
+}
+@media (min-width:650px) {
+    .main-menu-grid {
+        justify-content: space-around;
+    }
+    .main-menu-grid {
+        width: 100%
+    }
+}
+@media (max-width:575px) {
+    .main-menu-grid {
+        width: 360px;
+    }
+}
+@media (max-width:450px) {
+    .main-menu-grid {
+        width: 280px;
+    }
+}
+@media (max-width:320px) {
+    .main-menu-grid {
+        width: 200px;
+    }
+}
 
 .topbar #sidebarToggleTop {
     height: 2.5rem;
     width: unset;
+}
+.p4-safty {
+    padding-left: calc(env(safe-area-inset-left) + 2rem);
+    padding-right: calc(env(safe-area-inset-right) + 2rem);
+    padding-top: calc(env(safe-area-inset-top) + 2rem);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
 }

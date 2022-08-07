@@ -67,6 +67,7 @@ let currentMediaMetadata = {};
 let postsActions = [];
 let apiActions = {};
 let menuBarLocation = (getCookie("menuBarLocation") !== null) ? getCookie("menuBarLocation") : '';
+let performaceMode = (getCookie("performaceMode") !== null) ? getCookie("performaceMode") === 'true' : false;
 let postsDestination = (getCookie("postsDestination") !== null) ? getCookie("postsDestination") : '';
 let recentPostDestination = (getCookie("recentPostDestination") !== null) ? (() => {
     try {
@@ -185,6 +186,31 @@ function calculateTitleWidthPage() {
             document.getElementById('titleExtra').style['min-width'] = ``
         }, 3000);
     }
+}
+
+function togglePerformanceMode() {
+    if (performaceMode) {
+        disablePerformanceMode();
+    } else {
+        enablePerformanceMode();
+    }
+}
+function enablePerformanceMode() {
+    performaceMode = true;
+    document.querySelector('body').classList.add('performance-mode');
+    setCookie("performaceMode", "true");
+    $.toast({
+        type: 'warning',
+        title: '<i class="fas fa-bolt pr-2"></i>Performance Mode',
+        subtitle: '',
+        content: `<p>Performance Mode is enabled, No effects, animations, or shadows are enabled</p>Some elements may be hard to read or my not look as intended!`,
+        delay: 10000,
+    });
+}
+function disablePerformanceMode() {
+    performaceMode = false;
+    document.querySelector('body').classList.remove('performance-mode');
+    setCookie("performaceMode", "false");
 }
 
 async function writeLoadingBar(){

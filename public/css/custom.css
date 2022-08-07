@@ -22,6 +22,14 @@
     src: url('/static/font/Segment7.woff2') format('woff2')
 }
 
+.performance-mode * {
+    filter: none!important;
+    box-shadow: none!important;
+    text-shadow: none!important;
+    backdrop-filter: none!important;
+    animation: none!important;
+}
+
 .list-group-item {
     color: white;
     background-color: #212121;
@@ -3704,6 +3712,19 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     color: #f9c8a7;
 }
 
+.performance-mode #topbarBackground {
+    background-color: black;
+}
+.performance-mode .show-preview {
+    background: #000000ab!important;
+}
+.performance-mode-icon {
+    display: none;
+}
+.performance-mode .performance-mode-icon {
+    display: flex;
+}
+
 @media (prefers-color-scheme: light) {
     body:not(.bottom-bar) .kms-pip-icons .badge {
         background: #ad4c00b3!important;
@@ -3949,10 +3970,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .userDropdown, a.userDropdown, a.userDropdown:hover, a.userDropdown:active {
         color: white;
     }
+    .performance-mode .menu-open #topbarBackground {
+        background-color: #d07300;
+    }
 }
 .shadow {
     box-shadow: none!important;
 }
+
 footer .sequenzia-logo {
     color: #ff9b59;
 }

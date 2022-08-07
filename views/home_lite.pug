@@ -99,14 +99,14 @@ html
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         if (discord)
-            #homeBg.background-image.overlay.animated--fade-in
+            #homeBg.background-image.overlay
             #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
             #fullBG.background-image.full-image-holder(style=`z-index: -101!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
             img#portraitBG.portait-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpeg')
             img#landscapeBG.landscape-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpeg')
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
         else
-            #homeBg.background-image.overlay.animated--fade-in
+            #homeBg.background-image
             #fullBG.background-image.full-image-holder(style=`z-index: -101!important; display: none;`)
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
             script.
@@ -116,80 +116,96 @@ html
                 document.body.addEventListener('touchmove', preventDefault, {passive: false});
                 document.getElementById('homeBg').style.backgroundImage = 'url("/static/img/loading_bg.jpeg")';
                 document.getElementById('cover').classList.add('fadeOut');
-        ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
+        ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
-        .container.p-4
-            .fixed-top.m-sm-5.m-3.d-flex.d-md-none.dimmed(style='z-index: 1; padding-top: env(safe-area-inset-top)!important;')
-                a(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Go to Sequenzia', href='/')
-                    span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.4em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-            if (discord)
-                .fixed-top.m-sm-5.m-3.no-short(style='padding-top: env(safe-area-inset-top)!important;')
-                    .d-flex.justify-content-end(style='opacity: 0.8;')
-                        span.align-self-center.d-none.d-sm-inline(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;') #{user.username}
-                        a#userDropdown.pr-0(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title="User Account and Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                            img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 8px black; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;' src=user.avatar)
-                        // Dropdown - User Information
-                        .dropdown-menu.dropdown-menu-tas.shadow(aria-labelledby='userDropdown')
-                            .input-group(style="width: 13rem;").pr-2.pl-2.pb-2
-                                .input-group-prepend
-                                    span.input-group-text(style="background: #ad400059!important; border: 1px solid #9c5b3e; border-right: none;")
-                                        i.fas.fa-key.fa-sm.align-middle.text-primary
-                                input#expressLoginCode(type='text' placeholder='123ABC' style="background: #ad400059!important; border: 1px solid #9c5b3e;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
-                                .input-group-append
-                                    a.btn.btn-success(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
-                                        span Login
-                            a.dropdown-item(title="Refresh Session" href='/discord/refresh')
-                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                | Update Account
-                            a.dropdown-item(href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
-                                | Logout
-                #midSearch.mid-center-block
-                    .animated--grow-in.shadow-blk-wide
-                        div#menuAccordion(style='display: contents')
-                            div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
-                                .dimmed.d-flex
-                                    .flex-grow-1
-                                        a.d-none.d-md-inline-block.d-sm-none(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
-                                            span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-                                        a#btnShowNavigator.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_').d-md-none
-                                            i.shadow-blk.fas.fa-sidebar
+        .fixed-bottom.ambient-items.p4-safty(style="display: none;")
+            .menu-container.rounded.animated--fade-in.text-center.ml-auto.p-4.bottom-time-info
+                div
+                    #time
+                div
+                    span.ajax-imageLocation.text-capitalize ...
+                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
+                        i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                    span.ajax-imageDate
 
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            //a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
-                                                i.shadow-blk.fas.fa-house
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
-                                                i.shadow-blk.fas.fa-photo-video
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                                i.shadow-blk.fas.fa-folder
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
-                                                i.shadow-blk.fas.fa-dice
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
-                                                i.shadow-blk.fas.fa-ticket
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
-                                                i.shadow-blk.fas.fa-star
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
-                                                i.shadow-blk.fas.fa-archive
-                                            a.pr-2.d-inline.hover-color.align-middle(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
-                                                i.shadow-blk.fas.fa-browsers
+        .container.position-absolute.top-center.h-100.w-100.flex-column
+            #midSearch.d-flex.ml-auto.mr-auto.mt-auto.mb-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
+                .menu-container.w-100.p-3.rounded
+                    div#menuAccordion(style='display: contents').w-100.menu-glow
+                        div#menuItemMain(class="collapse show" data-parent="#menuAccordion").w-100
+                            .d-flex.pb-1.w-100
+                                .flex-grow-1
+                                    span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                div
+                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount").d-flex.align-items-center
+                                        if (discord)
+                                            span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
+                                            img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
+                                        else
+                                            span Login Required
+                            #mainUserButtons.d-flex.menu-grid.main-menu-grid.menu-icons.py-1(class=`${(!discord) ? 'hidden':''}`)
+                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;')
+                                    i.fa-light.fa-sidebar
+                                a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
+                                    i.fa-light.fa-photo-video
+                                a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                    i.fa-light.fa-folder
+                                a.hover-color(data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
+                                    i.fa-light.fa-ticket
+                                a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
+                                    i.fa-light.fa-star
+                                a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                    i.fa-light.fa-archive
+                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
+                                    i.fa-light.fa-dice
+                                a.hover-color(data-placement="top" title="Artists", href='#/artists?')
+                                    i.fa-light.fa-address-book
+                                a.hover-color(data-placement="top" title="Upload Files", href='#_')
+                                    i.fa-light.fa-upload
+                                a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                    i.fa-light.fa-browsers
+                            #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
+                                span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
+                                .login-options.menu-grid
+                                    a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
+                                        i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
+                                        span.align-self-center.pt-1 Login
+                            .d-flex.justify-content-between.align-items-center.image-description
+                                div(style='min-width: 0; overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap;')
+                                    .d-inline(style='white-space: nowrap;  flex: 1;')
+                                        a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                                            .d-inline-block(style='padding: 0 0.25rem 0 0')
+                                                i.fas.fa-star.d-none.ajax-imageFav(style='font-size: 16px; vertical-align: middle; padding-bottom: 8px;')
+                                            span.ajax-imageLocation.text-capitalize ...
+                                            div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
+                                                i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                                            span.ajax-imageDate
+                                div.d-flex.justify-content-center
+                                    a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;').mr-2
+                                        i.i.fas.fa-sync.fa-sm
+                                    a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
+                                        i.i.fas.fa-download.fa-sm
+                            if (pageError)
+                                .d-flex.justify-content-between.align-items-center(style="font-size: 1.25em;").text-center.w-100.text-danger
+                                    span.text-capitalize.shadow-text Internal Server Error
 
-                            div#menuItemAlbums.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
-                                .dimmed.d-flex
+                        if (discord)
+                            div#menuItemAlbums.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
                                             i.fas.fa-arrow-left.fa-fw
 
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.shadow-blk.fas.fa-archive.pr-2
+                                            i.fas.fa-archive.pr-2
                                             span Albums
-                                .d-flex(style='max-width: 600px;').mb-3
+                                .d-flex.w-100.mb-3
                                     if (albums && albums.length > 0)
                                         div.album-list
                                             each thisAlbum in albums
                                                 div.album-item.position-relative
-                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1.dimmed(style="justify-content: left; top: 0;")
+                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
                                                         //x.uri, x.privacy
                                                         div.album-icon
                                                             if (thisAlbum.uri === 'gallery')
@@ -200,7 +216,7 @@ html
                                                                 i.far.fa-sticky-note.pr-1
                                                             else
                                                                 i.far.fa-archive.pr-1
-                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.dimmed(style="justify-content: left; bottom: 0; background: #00000091")
+                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
                                                         span #{thisAlbum.name}
                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                         if (thisAlbum.image)
@@ -209,193 +225,103 @@ html
                                                             div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
                                         span No Albums!
-                            div#menuItemApps.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
-                                .dimmed.d-flex
+                            div#menuItemApps.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
                                     .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                        a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
                                             i.fas.fa-arrow-left.fa-fw
 
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.shadow-blk.fas.fa-browsers.pr-2
+                                            i.fas.fa-browsers.pr-2
                                             span Apps
-                                .dimmed.d-flex(style='max-width: 600px;').mb-3
+                                .d-flex.w-100.mb-3
                                     div.menu-grid.user-menu-small
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
-                                            i.shadow-blk.fas.fa-tv
+                                            i.fas.fa-tv
                                             | Photo Frame
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
-                                            i.shadow-blk.fas.fa-folder-bookmark
+                                            i.fas.fa-folder-bookmark
                                             | Local Files
                                         if (applications_list && applications_list.length > 0)
                                             each thisApp in applications_list
                                                 if (thisApp.type == 0)
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
-                                                        i.shadow-blk.fas(class=`${thisApp.icon}`)
+                                                        i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
                                                 else
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
-                                                        i.shadow-blk.fas(class=`${thisApp.icon}`)
+                                                        i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
-                            div#menuItemLibrary.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
-                                .dimmed.d-flex
+                            div#menuItemLibrary.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
                                             i.fas.fa-arrow-left.fa-fw
 
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.shadow-blk.fas.fa-ticket.pr-2
+                                            i.fas.fa-ticket.pr-2
                                             span Theater
-                                .dimmed.d-flex(style='max-width: 600px;').mb-3
+                                .d-flex.w-100.mb-3
                                     div.menu-grid.user-menu-small
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
-                                            i.shadow-blk.fas.fa-forward
+                                            i.fas.fa-forward
                                             | Up Next
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
-                                            i.shadow-blk.fas.fa-fw.fa-books
+                                            i.fas.fa-fw.fa-books
                                             | Shelves
                                         a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
-                                            i.shadow-blk.fas.fa-star
+                                            i.fas.fa-star
                                             | Favorites
                                         a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
-                                            i.shadow-blk.fas.fa-clock-rotate-left
+                                            i.fas.fa-clock-rotate-left
                                             | History
-                            div#menuItemMediaGroups.menu-object(class="collapse" data-parent="#menuAccordion" style='max-width: 600px;')
-                                .dimmed.d-flex
+                            div#menuItemMediaGroups.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
                                             i.fas.fa-arrow-left.fa-fw
 
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.shadow-blk.fas.fa-books.pr-2
+                                            i.fas.fa-books.pr-2
                                             span Shelves
-                                .dimmed.d-flex(style='max-width: 600px;').mb-3
+                                .d-flex.w-100.mb-3
                                     div.menu-grid.user-menu-small
                                         if (theaters && theaters.length > 0)
                                             each thisTheater in theaters
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
-                                                    i.shadow-blk.fas(class=`${thisTheater.icon}`)
+                                                    i.fas(class=`${thisTheater.icon}`)
                                                     | #{thisTheater.name}
+                        div#menuItemAccount.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            .d-flex
+                                .d-flex.flex-grow-1
+                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                        i.fas.fa-arrow-left.fa-fw
+                                    if (user)
+                                        .input-group(style="width: 13rem;").h-25
+                                            input#expressLoginCode.bg-darker(type='text' placeholder='123ABC' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
+                                            .input-group-append
+                                                a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
+                                                    span Login
+                                .d-flex.top-icon.align-items-center
+                                    i.fas.fa-key.pr-2
+                                    span User Account
+                            div.menu-grid.user-menu-small
+                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
+                                    i.fas.fa-sync
+                                    | Refresh
+                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                    i.fas.fa-sign-out-alt
+                                    | Log Out
 
-                        if (url)
-                            if (url.includes('search=true'))
-                                form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
-                                    .input-group
-                                        input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                        input(type="submit" style="visibility:hidden;position:absolute")
-                                        .input-group-append
-                                            a#btnSearch.btn.input-group-text.bg-home-search.btn-search(title='Search Internet', href='#_')
-                                                i.i.fas.fa-search.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                                            a#btnSearchGallery.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Images', href='#_')
-                                                i.i.fas.fa-image.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                                            a#btnSearchFiles.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Files', href='#_')
-                                                i.i.fas.fa-folder.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                            else
-                                form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='/gallery', target='_self', method='get')
-                                    .input-group
-                                        input#search.form-control(name='search', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                        input(type="hidden" name="channel" value="random")
-                                        input(type="hidden" name="pageinator" value="true")
-                                        input(type="submit" style="visibility:hidden;position:absolute")
-                                        .input-group-append
-                                            a#btnSearchGallery.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Images', href='#_')
-                                                i.i.fas.fa-image.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                                            a#btnSearchFiles.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Files', href='#_')
-                                                i.i.fas.fa-folder.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                    .animated--grow-in(style="max-width: 600px; width: 80vw;")
-                        .dimmed.d-none.d-sm-flex
-                            div(style='font-size: 1.3rem; font-weight: 100; min-width: 0; overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap;')
-                                .d-inline(style='white-space: nowrap;  flex: 1;')
-                                    a.ajax-imageLink(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='View this background photo')
-                                        .d-inline-block(style='padding: 0 0.25rem 0 0')
-                                            i.fas.fa-star.shadow-text.ajax-imageFav.d-none(style='font-size: 16px; vertical-align: middle; padding-bottom: 8px;')
-                                        span.ajax-imageLocation.text-capitalize.shadow-text ...
-                                        div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
-                                            i.fas.fa-circle.shadow-text(style='font-size: 8px; vertical-align: middle;')
-                                        span.ajax-imageDate.shadow-text
-                            .d-flex.flex-column.justify-content-center.bottom-icon.ml-2(style="flex: 0 0 auto;")
-                                div(style='font-size: 1.3rem; font-weight: 100;')
-                                    a.d-inline.hover-color.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
-                                        i.i.fas.fa-sync.fa-sm.shadow-blk
-                                    a.ajax-downloadLink.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
-                                        i.i.fas.fa-download.fa-sm.shadow-blk
-
+            .d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
                 if (discord && discord.servers.list)
-                    div.mid-center-block.server-list.dimmed
-                        div
-                            for thisServer in discord.servers.list
-                                img.server-icon.rounded-circle.shadow-blk(data-tooltip="tooltip" data-trigger="hover" data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
+                    div
+                        for thisServer in discord.servers.list
+                            img.server-icon.rounded-circle(data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
 
-                .fixed-bottom.d-flex.d-sm-none.dimmed.m-3(style='z-index: 1; padding-bottom: env(safe-area-inset-bottom)!important;')
-                    div(style='min-width: 0; overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap;')
-                        .d-inline(style='white-space: nowrap;  flex: 1;')
-                            a.ajax-imageLink(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='View the background photo')
-                                .d-inline-block(style='padding: 0 0.25rem 0 0')
-                                    i.fas.fa-star.shadow-text.d-none.ajax-imageFav(style='font-size: 16px; vertical-align: middle; padding-bottom: 8px;')
-                                span.ajax-imageLocation.text-capitalize.shadow-text ...
-                                div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
-                                    i.fas.fa-circle.shadow-text(style='font-size: 8px; vertical-align: middle;')
-                                span.ajax-imageDate.shadow-text
-                    .d-flex.flex-column.justify-content-center.ml-2(style="flex: 0 0 auto;")
-                        a.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
-                            i.i.fas.fa-sync.fa-sm.shadow-blk
-                    .d-flex.flex-column.justify-content-center.ml-2(style="flex: 0 0 auto;")
-                        a.ajax-downloadLink.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
-                            i.i.fas.fa-download.fa-sm.shadow-blk
-
-            else if (pageError)
-                #midSearch.mid-center-block
-                    .animated--grow-in.shadow-blk-wide
-                        div#menuAccordion(style='display: contents')
-                            div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
-                                .dimmed.d-flex
-                                    .flex-grow-1
-                                        a.d-none.d-md-inline-block.d-sm-none(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
-                                            span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-
-                        form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
-                            .input-group
-                                input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                input(type="submit" style="visibility:hidden;position:absolute")
-                                .input-group-append
-                                    a#btnSearch.btn.input-group-text.bg-home-search.btn-search(title='Search Internet', href='#_')
-                                        i.i.fas.fa-search.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                    .animated--grow-in.shadow-blk-wide
-                        .d-flex
-                            .flex-grow-1(style='font-size: 1.3rem; font-weight: 100;')
-                                span.text-capitalize.shadow-text Internal Server Error
-            else
-                #midSearch.mid-center-block
-                    .animated--grow-in.shadow-blk-wide
-                        div#menuAccordion(style='display: contents')
-                            div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
-                                .dimmed.d-flex
-                                    .flex-grow-1
-                                        a.d-none.d-md-inline-block.d-sm-none(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Start juneOS', href='/juneOS#')
-                                            span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-
-                        form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
-                            .input-group
-                                input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                input(type="submit" style="visibility:hidden;position:absolute")
-                                .input-group-append
-                                    a#btnSearch.btn.input-group-text.bg-home-search.btn-search(title='Search Internet', href='#_')
-                                        i.i.fas.fa-search.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                    .animated--grow-in.shadow-blk-wide
-                        .d-flex
-                            .flex-grow-1(style='font-size: 1.3rem; font-weight: 100;')
-                                a(title="Login to Sequenzia" href='/')
-                                    span.text-capitalize.shadow-text Login Required
-                            .d-flex.flex-column.justify-content-center.bottom-icon
-                                div(style='font-size: 1.3rem; font-weight: 100;')
-                                    a.d-inline.hover-color(title="Login to Sequenzia" style='text-decoration: none;' href='/')
-                                        i.fas.fa-sign-in-alt.fa-sm.shadow-blk
         // Logout Modal
         #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
@@ -423,22 +349,3 @@ html
                 div
                 div
         script(src="/static/js/sb-admin-2.min.js")
-        if (url && url.includes('search=true'))
-            script.
-                document.getElementById("btnSearch").addEventListener("click", () => { $("#srchfrm").submit(); });
-                document.getElementById("btnSearchGallery").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/gallery');
-                });
-                document.getElementById("btnSearchFiles").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/files');
-                });
-        else
-            script.
-                document.getElementById("btnSearchGallery").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/gallery');
-                });
-                document.getElementById("btnSearchFiles").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/files');
-                });
-        script.
-            document.getElementById("btnShowNavigator").addEventListener("click", toggleMenu);

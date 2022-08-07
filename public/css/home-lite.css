@@ -1,7 +1,25 @@
 body {
-    background: black;
     color: white;
+    background: black;
     font-family: "Product Sans", "Yantramanav", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+
+.container a, .ambient-items a,
+.ambient-items a:active, .container a:active,
+.ambient-items a:hover, .container a:hover,
+.ambient-items, .container,
+.ambient-items i, .container i {
+    color: #ffa554;
+    text-shadow: 0 0 4px #ff5100d6;
+    text-decoration: none;
+    cursor: default;
+}
+a, a:active, a:hover {
+    text-decoration: none;
+    cursor: default;
+}
+span#loginCodeDisplay {
+    font-size: 3em;
 }
 .background-image.overlay {
     z-index: -99;
@@ -110,9 +128,10 @@ input.middle:focus {
 }
 
 .top-icon, .top-icon a {
-    color: white;
     font-size: x-large;
     padding: 0 0 0.6em 0;
+    user-select: none;
+    -webkit-user-select: none;
 }
 .top-icon a {
     text-decoration: none;
@@ -121,14 +140,6 @@ input.middle:focus {
 
 }
 
-a, a:hover, a:active {
-    color: white;
-    text-decoration: none;
-}
-
-.hover-color {
-    color: white;
-}
 
 .hover-color:hover {
     color: #ffac78;
@@ -169,6 +180,18 @@ a, a:hover, a:active {
     }
     .dimmed {
         opacity: 1;
+    }
+    .menu-container {
+        background: #ffffff9c;
+        box-shadow: 0 0 20px #4e4e4e;
+    }
+    .container a, .ambient-items a,
+    .ambient-items a:active, .container a:active,
+    .ambient-items a:hover, .container a:hover,
+    .ambient-items, .container,
+    .ambient-items i, .container i {
+        color: #000000;
+        text-shadow: 0 0 4px #9d320066;
     }
 }
 @media (prefers-color-scheme: dark) {

@@ -56,8 +56,8 @@ function toggleLightboxOverlay() {
     }
     if(newWidth !== cachedWidth){
       if ($(window).width() >= 1700) {
-        body.removeClass("sidebar-toggled");
-        sidebar.removeClass("toggled");
+        //body.removeClass("sidebar-toggled");
+        //sidebar.removeClass("toggled");
         $(".music-player").removeClass("toggled");
       } else if ($(window).width() <= 769) {
         if (cachedWidth >= 1700) {

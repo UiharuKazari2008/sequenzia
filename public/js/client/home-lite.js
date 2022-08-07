@@ -13,7 +13,6 @@ function decodeURLRecursively(uri) {
     }
     return uri;
 }
-
 function params(_removeParams, _addParams, _url) {
     let _URL = new URL(window.location.href);
     let _params = new URLSearchParams(_URL.search);
@@ -34,6 +33,42 @@ function params(_removeParams, _addParams, _url) {
     })
     return `${_URL.pathname}?${_params.toString()}`
 
+}
+
+function dct() {
+    const d = new Date();
+    let h = d.getHours()
+    let m = d.getMinutes();
+    if (h < 10) { h = `0${h}` }
+    if (m < 10) { m = `0${m}` }
+    document.getElementById('time').innerHTML = `${h}:${m}`;
+    dc();
+}
+function ddt() {
+    const d = new Date();
+    let mth = month[d.getMonth()];
+    let dy = d.getDate();
+    document.getElementById('date').innerHTML = ` ${mth} ${dy}`;
+    dd();
+}
+function ddwt() {
+    const d = new Date();
+    let dow = days[d.getDay()];
+    document.getElementById('day').innerHTML = `${dow}day`;
+    ddw();
+}
+
+// Time
+function dc(){
+    setTimeout(dct,1000)
+}
+// Date
+function dd(){
+    setTimeout(ddt,5000)
+}
+// Day
+function ddw(){
+    setTimeout(ddwt,5000)
 }
 
 function getNewContent(remove, add, url) {
@@ -133,7 +168,7 @@ function getSidebar(refreshSidebar, disableModels) {
                     type: 'error',
                     title: 'Page Failed',
                     subtitle: 'Now',
-                    content: `Failed to load sidebar, Try Again!: ${xhr.responseText}`,
+                    content: `Failed to load sidebar, Try Again!`,
                     delay: 5000,
                 });
             }
@@ -176,7 +211,7 @@ function sendBasic(channelid, messageid, action, confirm) {
                 type: 'error',
                 title: 'Failed to complete action',
                 subtitle: 'Now',
-                content: `${xhr.responseText}`,
+                content: ``,
                 delay: 5000,
             });
         }
@@ -231,7 +266,7 @@ function authwareLogin() {
                     type: 'error',
                     title: 'Express Login Error',
                     subtitle: 'Now',
-                    content: `${xhr.responseText}`,
+                    content: ``,
                     delay: 5000,
                 });
             }
@@ -250,6 +285,7 @@ function isTouchDevice(){
     return true === ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
 }
 
+let noAmbientTimer = false;
 let pageReady = false
 let refreshLayoutThrottleTimeout
 function refreshLayout() {
@@ -263,21 +299,25 @@ function refreshLayout() {
                 const ratio = (window.innerHeight / window.innerWidth);
                 console.log(_Size[2])
                 console.log(ratio)
+                document.getElementById('midSearch').classList.remove('backdrop-wide');
+                document.getElementById('midSearch').classList.remove('backdrop-neutral');
+                document.getElementById('midSearch').classList.remove('backdrop-portait');
                 if ((ratio <= 0.88 && _Size[2] < 0.97) || (ratio >= 1.2 && ratio <= 2.5 && _Size[2] >= 1)) {
                     document.getElementById('fullBG').style.display = 'initial';
                     document.getElementById('previewBG').style.display = 'none';
                     document.getElementById('portraitBG').style.display = 'none';
                     document.getElementById('landscapeBG').style.display = 'none';
-                    document.getElementById('midSearch').classList.remove('pushUp');
+                    document.getElementById('midSearch').classList.add('backdrop-neutral');
                 } else {
                     document.getElementById('fullBG').style.display = 'none';
-                    document.getElementById('midSearch').classList.add('pushUp');
                     if (_Size[2] < 0.97) {
                         // Widescreen Image
                         document.getElementById('portraitBG').style.display = 'none';
                         document.getElementById('landscapeBG').style.display = 'initial';
+                        document.getElementById('midSearch').classList.add('backdrop-wide');
                     } else {
                         // Portrait Image
+                        document.getElementById('midSearch').classList.add('backdrop-portait');
                         document.getElementById('portraitBG').style.display = 'initial';
                         document.getElementById('landscapeBG').style.display = 'none';
                     }
@@ -288,7 +328,7 @@ function refreshLayout() {
         }, 1000);
     }
 }
-function getRandomImage(refresh) {
+function getRandomImage() {
     //try {
         $.ajax({
             async: true,
@@ -338,7 +378,7 @@ function getRandomImage(refresh) {
                         type: 'error',
                         title: 'Random Image Error',
                         subtitle: 'Now',
-                        content: `${xhr.responseText}`,
+                        content: ``,
                         delay: 5000,
                     });
                 }
@@ -367,12 +407,16 @@ function verifyNetworkAccess() {
         timeout: 5000,
         success: function (res, txt, xhr) {
             if (xhr.status === 200 && !res.loggedin) {
-                $.toast({
+                document.getElementById('loginUserButtons').classList.remove('hidden');
+                document.getElementById('mainUserButtons').classList.add('hidden');
+                document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
+                noAmbientTimer = true;
+                /*$.toast({
                     type: 'error',
                     title: 'Login Required',
                     subtitle: '',
-                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
-                });
+                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/discord/login'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
+                });*/
             } else if (xhr.status !== 200) {
                 $.toast({
                     type: 'error',
@@ -458,7 +502,7 @@ function createNewAlbum() {
                     type: 'error',
                     title: 'Failed to create album',
                     subtitle: 'Now',
-                    content: `${xhr.responseText}`,
+                    content: ``,
                     delay: 5000,
                 });
             }
@@ -505,7 +549,7 @@ function updateAlbum(aid) {
                         type: 'error',
                         title: 'Failed to update album',
                         subtitle: 'Now',
-                        content: `Server Error: ${xhr.responseText}`,
+                        content: `Server Error`,
                         delay: 5000,
                     });
                 }
@@ -580,6 +624,40 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+let ambientTimeout;
+let ambientNextImageTimeout;
+function setupAmbientTimers () {
+    document.addEventListener("mousemove", resetAmbientTimer, false);
+    document.addEventListener("mousedown", resetAmbientTimer, false);
+    document.addEventListener("keypress", resetAmbientTimer, false);
+    document.addEventListener("touchmove", resetAmbientTimer, false);
+    dc();
+    startAmbientTimer();
+    setInterval(() => {
+        if (!document.hidden)
+            getRandomImage();
+    }, 300000)
+}
+function startAmbientTimer() {
+    if (!ambientTimeout) {
+        $('.container, #homeBg').fadeIn(500);
+        $('.ambient-items').fadeOut(500);
+    }
+    ambientTimeout = window.setTimeout(switchToAmbientMode, 30000)
+}
+function resetAmbientTimer() {
+    window.clearTimeout(ambientTimeout);
+    startAmbientTimer();
+}
+function switchToAmbientMode() {
+    $('.container').fadeOut(500);
+    $('#homeBg').fadeOut(1000);
+    $('.ambient-items').fadeIn(500);
+    window.clearTimeout(ambientTimeout);
+    ambientTimeout = null;
+}
+
+
 $(document).ready(function () {
     verifyNetworkAccess();
     getRandomImage();
@@ -593,6 +671,12 @@ $(document).ready(function () {
     document.addEventListener("scroll", refreshLayout);
     window.addEventListener("resize", refreshLayout);
     window.addEventListener("orientationChange", refreshLayout);
+    setTimeout(() => {
+        if (!noAmbientTimer)
+            setupAmbientTimers();
+    }, 15000)
+    //dd();
+    //ddw();
 })
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.onmessage = async function (event) {
