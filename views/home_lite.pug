@@ -52,6 +52,11 @@ html
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
     body
+        script.
+            if (performaceMode) {
+                document.querySelector('body').classList.add('performance-mode');
+                console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
+            }
         #bootBackdrop.boot-logo-overlay(style="display: none;")
             #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay.animated--grow-in.d-none
@@ -130,7 +135,7 @@ html
 
         .container.position-absolute.top-center.h-100.w-100.flex-column
             #midSearch.ml-auto.mr-auto.mt-auto.mb-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
-                .menu-container.w-100.p-3.rounded
+                .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application
                     div#menuAccordion(style='display: contents').w-100.menu-glow
                         div#menuItemMain(class="collapse show" data-parent="#menuAccordion").w-100

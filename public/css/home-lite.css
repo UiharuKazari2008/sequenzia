@@ -210,3 +210,13 @@ input.middle:focus {
         opacity: 1;
     }
 }
+.performance-mode * {
+    filter: none!important;
+    box-shadow: none!important;
+    text-shadow: none!important;
+    backdrop-filter: none!important;
+    animation: none!important;
+}
+.performance-mode .fadeOut, .performance-mode .shine-effect-go .animation-application {
+    display: none;
+}

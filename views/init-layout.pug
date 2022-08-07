@@ -132,6 +132,11 @@ html
                     }
                 }
     body(id="page-top").sidebar-toggled
+        script.
+            if (performaceMode) {
+                document.querySelector('body').classList.add('performance-mode');
+                console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
+            }
         #bootBackdrop.boot-logo-overlay
             #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay(style="display: none;")
