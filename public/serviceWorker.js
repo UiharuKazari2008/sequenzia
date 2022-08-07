@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-10-PATCH4';
+const cacheName = 'DEV-v20-10-PATCH6';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -458,11 +458,26 @@ self.addEventListener('sync', async (event) => {
             if (!syncActive) {
                 syncActive = true;
                 const pages = await getAllOfflinePages()
+                let itemsUpdated = 0;
+                let pagesUpdated = [];
                 if (pages && pages.length > 0) {
                     for (let page of pages) {
-                        await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        const results = await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        if (results && results.count > 0) {
+                            itemsUpdated += results.count
+                            pagesUpdated.push(`${(results.title) ? results.title : page.url}${(!results.ok) ? ' (Failed)' : ' (' + results.count + ')'}`);
+                        }
                     }
-                    self.registration.showNotification("Pages have been synced");
+                    if (itemsUpdated > 0) {
+                        if ('showNotification' in self.registration) {
+                            self.registration.showNotification("Synced Pages", {
+                                body: pagesUpdated.join('\n'),
+                                badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
+                            });
+                        }
+                        console.log('Background Sync Complete');
+                        console.log(pagesUpdated.join('\n'));
+                    }
                 }
                 syncActive = false;
             } else {
@@ -487,14 +502,34 @@ self.addEventListener('periodicsync', async (event) => {
     switch (event.tag) {
         case 'test-tag-from-devtools':
         case 'SYNC_PAGES_NEW_ONLY':
-            const pages = await getAllOfflinePages()
-            if (pages && pages.length > 0) {
-                event.waitUntil(async () => {
+            if (!syncActive) {
+                syncActive = true;
+                const pages = await getAllOfflinePages()
+                let itemsUpdated = 0;
+                let pagesUpdated = [];
+                if (pages && pages.length > 0) {
                     for (let page of pages) {
-                        await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        const results = await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        if (results && results.count > 0) {
+                            itemsUpdated += results.count
+                            pagesUpdated.push(`${(results.title) ? results.title : page.url}${(!results.ok) ? ' (Failed)' : ' (' + results.count + ')'}`);
+                        }
                     }
-                    return true;
-                })
+                    if (itemsUpdated > 0) {
+                        if ('showNotification' in self.registration) {
+                            self.registration.showNotification("Synced Pages", {
+                                body: pagesUpdated.join('\n'),
+                                badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
+                            });
+                        }
+                        console.log('Background Sync Complete');
+                        console.log(pagesUpdated.join('\n'));
+                    }
+                }
+                syncActive = false;
+            } else {
+                if (swDebugMode)
+                    console.log('Sync Request Already Active!')
             }
             break;
         case 'SYNC_SERIES':
@@ -603,11 +638,26 @@ self.addEventListener('message', async (event) => {
             if (!syncActive) {
                 syncActive = true;
                 const pages = await getAllOfflinePages()
+                let itemsUpdated = 0;
+                let pagesUpdated = [];
                 if (pages && pages.length > 0) {
                     for (let page of pages) {
-                        await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        const results = await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        if (results && results.count > 0) {
+                            itemsUpdated += results.count
+                            pagesUpdated.push(`${(results.title) ? results.title : page.url}${(!results.ok) ? ' (Failed)' : ' (' + results.count + ')'}`);
+                        }
                     }
-                    self.registration.showNotification("Pages have been synced");
+                    if (itemsUpdated > 0) {
+                        if ('showNotification' in self.registration) {
+                            self.registration.showNotification("Synced Pages", {
+                                body: pagesUpdated.join('\n'),
+                                badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
+                            });
+                        }
+                        console.log('Background Sync Complete');
+                        console.log(pagesUpdated.join('\n'));
+                    }
                 }
                 syncActive = false;
             } else {
@@ -1371,57 +1421,63 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             }
             console.log(`Cached ${downloadedFiles} Items`);
 
-            if (!offlineDownloadSignals.has(url)) {
-                console.error('Offline download was canceled!')
-                broadcastAllMessage({
-                    type: 'MAKE_SNACK',
-                    level: 'error',
-                    text: `<i class="fas fa-sd-card pr-2"></i>Offline Download Canceled or Failed`,
-                    timeout: 5000
-                });
-                broadcastAllMessage({
-                    type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
-                    url
-                })
-            } else {
-                if (browserStorageAvailable) {
-                    try {
-                        offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').put(status).onsuccess = event => {
+            return await new Promise((resolve) => {
+                if (!offlineDownloadSignals.has(url)) {
+                    console.error('Offline download was canceled!')
+                    broadcastAllMessage({
+                        type: 'MAKE_SNACK',
+                        level: 'error',
+                        text: `<i class="fas fa-sd-card pr-2"></i>Offline Download Canceled or Failed`,
+                        timeout: 5000
+                    });
+                    broadcastAllMessage({
+                        type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
+                        url
+                    });
+                    resolve({title, count: 0, ok: false})
+                } else {
+                    if (browserStorageAvailable) {
+                        try {
+                            offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').put(status).onsuccess = event => {
+                                broadcastAllMessage({
+                                    type: 'MAKE_SNACK',
+                                    level: 'success',
+                                    text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
+                                    timeout: 5000
+                                });
+                                console.log(`Page Saved Offline!`);
+                                resolve({title, count: newItems.length, ok: true})
+                            };
+                        } catch (e) {
                             broadcastAllMessage({
-                                type: 'MAKE_SNACK',
-                                level: 'success',
-                                text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
-                                timeout: 5000
+                                type: 'MAKE_TOAST',
+                                level: 'error',
+                                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                                subtitle: '',
+                                content: `<p>Failed to save offline storage record "${title}"!</p><p>${e.message}</p>`,
+                                timeout: 10000
                             });
-                            console.log(`Page Saved Offline!`);
-                        };
-                    } catch (e) {
+                            console.error(`Failed to save record for ${url}`);
+                            resolve({title, count: 0, ok: false})
+                        }
+                    } else {
                         broadcastAllMessage({
                             type: 'MAKE_TOAST',
                             level: 'error',
                             title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
                             subtitle: '',
-                            content: `<p>Failed to save offline storage record "${title}"!</p><p>${e.message}</p>`,
+                            content: `<p>Failed access offline storage databsae!</p>`,
                             timeout: 10000
                         });
-                        console.error(`Failed to save record for ${url}`);
+                        resolve({title, count: 0, ok: false})
                     }
-                } else {
                     broadcastAllMessage({
-                        type: 'MAKE_TOAST',
-                        level: 'error',
-                        title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
-                        subtitle: '',
-                        content: `<p>Failed access offline storage databsae!</p>`,
-                        timeout: 10000
-                    });
+                        type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
+                        url
+                    })
+                    offlineDownloadSignals.delete(url);
                 }
-                broadcastAllMessage({
-                    type: 'STATUS_STORAGE_CACHE_PAGE_COMPLETE',
-                    url
-                })
-                offlineDownloadSignals.delete(url);
-            }
+            })
         } else {
             broadcastAllMessage({
                 type: 'MAKE_TOAST',
@@ -1436,6 +1492,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                 url
             })
             console.error('Item did not hit cache. Please try again')
+            return {count: 0, ok: false}
         }
     } catch (err) {
         console.error(`Uncaught Page Download Error`);
@@ -1453,8 +1510,8 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             content: `<p>Could not download offline page results</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
         });
+        return {count: 0, ok: false}
     }
-    return false;
 }
 async function cacheFileOffline(meta, noConfirm) {
     try {
