@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-10-PATCH18';
+const cacheName = 'DEV-v20-10-PATCH19';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
