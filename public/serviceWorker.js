@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-10-PATCH7';
+const cacheName = 'DEV-v20-10-PATCH8';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -1060,12 +1060,12 @@ async function deleteOfflinePage(url, noupdate) {
         });
     }
 }
-async function deleteOfflineFile(eid, noupdate, preemptive) {
+async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
     try {
         let blockedItems = [];
         const linkedItems = (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
         const file = await getFileIfAvailable(eid);
-        if (file && (!preemptive || (preemptive && file.preemptive_download)) && blockedItems.indexOf(file.eid) === -1) {
+        if (file && (!preemptive || (preemptive && file.preemptive_download)) && (bypassBlocking || blockedItems.indexOf(file.eid) === -1)) {
             const cachesList = await caches.keys();
             const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
             const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
@@ -1362,8 +1362,16 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             const title = (content.querySelector('title').text).toString().trim().replace('Sequenzia - ', '');
 
             const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type);
+            const existingItems = await getPageIfAvailable(url);
             const newItems = itemsToCache.filter(e =>  !newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1))
 
+            if (existingItems && existingItems.items && existingItems.items.length > 0) {
+                const itemsRemoved = existingItems.items.filter(e => itemsToCache.filter(f => f.eid === e.eid).length === 0);
+                for (let remove of itemsRemoved) {
+                    await deleteOfflineFile(remove.eid, true, false, true)
+                }
+                console.log(`Removed ${itemsRemoved.length} items`);
+            }
             if (newItems.length === 0) {
                 if (!newOnly) {
                     broadcastAllMessage({
@@ -1438,7 +1446,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                 } else {
                     if (browserStorageAvailable) {
                         try {
-                            offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').put(status).onsuccess = event => {
+                            offlineContent.transaction([`offline_pages`], "readwrite").objectStore('offline_pages').put(status).onsuccess = async event => {
                                 broadcastAllMessage({
                                     type: 'MAKE_SNACK',
                                     level: 'success',
@@ -1452,6 +1460,13 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                                             badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
                                         });
                                     }
+                                }
+                                if (existingItems && existingItems.items && existingItems.items.length > 0) {
+                                    const itemsRemoved = existingItems.items.filter(e => itemsToCache.filter(f => f.eid === e.eid).length === 0);
+                                    for (let remove of itemsRemoved) {
+                                        await deleteOfflineFile(remove.eid, true)
+                                    }
+                                    console.log(`Removed ${itemsRemoved.length} items`);
                                 }
                                 console.log(`Page Saved Offline!`);
                                 resolve({title, count: newItems.length, ok: true})

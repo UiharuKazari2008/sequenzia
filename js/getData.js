@@ -746,6 +746,9 @@ module.exports = async (req, res, next) => {
         if (!(page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) && req.query.offset && !isNaN(parseInt(req.query.offset.toString()))) {
             offset = parseInt(req.query.offset.toString().substring(0,6))
         }
+        if (req.query.album) {
+            hideChannels = false;
+        }
         // Where Exec
         if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
             baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ` ) AND ${req.session.cache.channels_view}.media_group IS NULL AND `

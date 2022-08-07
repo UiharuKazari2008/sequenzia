@@ -4624,7 +4624,7 @@ try {
                                 kmsProgress.style.width = '0%';
                                 kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden');
                             }
-                            if (!dataJob.preemptive) {
+                            if (!dataJob.preemptive && !kongouMediaPlayer.getAttribute('activePlayback') === dataJob.messageid) {
                                 $.toast({
                                     type: 'success',
                                     title: 'Unpack File',
