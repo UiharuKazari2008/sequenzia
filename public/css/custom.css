@@ -2780,7 +2780,7 @@ div#bootBackdropSunrise {
     z-index: 499991;
 }
 .shine-effect {
-    opacity: 0.1;
+    opacity: 0.125;
     background: linear-gradient(235deg,transparent 0,transparent 54%, rgba(255, 255, 255, 78%) 75%, rgba(255, 255, 255, 89%) 78%,transparent 82%,transparent 100%) 0 0/500% 100%;
     animation: shineEffectAnimation 8s linear infinite;
 }
