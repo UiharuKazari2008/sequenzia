@@ -89,7 +89,8 @@ html
         #kmsBootDisplay.boot-logo-overlay(style="display: none;")
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
-                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 1;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.d-flex(style="z-index: 1;")
                             img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
@@ -108,8 +109,9 @@ html
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
-                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 1;")
-                        div.boot-logo-holder.d-flex
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                         div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
@@ -642,6 +644,25 @@ html
                         .modal-background.blur-this
                         .modal-gradient
 
+        #videoBuilderModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='videoBuilderModal' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header.text-ellipsis
+                        h5.modal-title.text-ellipsis Video Preview
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            video(preload="true" volume="0.5" loop controls playsinline webkit-playsinline style="background: black; background-clip: content-box;").w-100.hidden
+                            img().w-100.hidden
+                        div.row.pl-3.pr-3.mt-2.d-block
+                            .progress.mb-1(style="height: 30px;")
+                                .progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
+                        div.row.pl-3.pr-3.d-block.text-ellipsis
+                            span.status-text Ready
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal' onclick='cancelPendingUnpack(); return false;') Cancel
+                        a.btn.btn-success(title="Load File" href='#_' onclick='startPendingUnpack(); return false;')
+                            i.fas.pr-2.fa-box-open
+                            span Play
         #kongouMediaPlayer.kms-media-container.animated--grow-in
             .kms-background
                 .kms-logo-center
