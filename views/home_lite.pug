@@ -226,9 +226,9 @@ html
                                                         span #{thisAlbum.name}
                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                         if (thisAlbum.image)
-                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                            div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
                                                         else
-                                                            div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
                                         span No Albums!
                             div#menuItemApps.menu-object(class="collapse" data-parent="#menuAccordion").w-100

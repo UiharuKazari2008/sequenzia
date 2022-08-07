@@ -268,7 +268,7 @@ html
                                                         | Albums
                                                 .w-100.position-absolute(style="justify-content: left; top: 3em;")
                                                     if (albums && albums.length > 0)
-                                                        div.album-list(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                        div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in albums
                                                                 div.album-item.position-relative
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
@@ -293,9 +293,9 @@ html
                                                                         span #{thisAlbum.name}
                                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                                         if (thisAlbum.image)
-                                                                            div.album-preview(style=`background-image: url("${thisAlbum.image}");`)
+                                                                            div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
                                                                         else
-                                                                            div.album-preview(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
 
                                                     else
                                                         h2 No Albums!

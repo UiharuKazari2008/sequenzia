@@ -393,7 +393,7 @@ color: #b3ff85;
 
 #content-wrapper > div > #mainMenuBar {
     position: fixed;
-    top: 0;
+    top: -10px;
     right: 0;
     left: 0;
     z-index: 1030;
@@ -402,7 +402,7 @@ color: #b3ff85;
 }
 .bottom-bar #content-wrapper > div > #mainMenuBar {
     top: unset;
-    bottom: 0;
+    bottom: -10px;
     flex-direction: column-reverse;
 }
 
@@ -862,11 +862,12 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 }
 
 .top-padding-safety {
-    padding-top: calc(env(safe-area-inset-top) + 0px);
+    top: -10px;
+    padding-top: calc(env(safe-area-inset-top) + 10px);
 }
 .bottom-bar .top-padding-safety {
     padding-top: 0;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 0px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
 }
 
 #content > #mainMenuBar {
@@ -2299,12 +2300,12 @@ footer .server-grid-parent {
 }
 .modal-background {
     z-index: -2;
-    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='8' height='1'%3E%3CfeGaussianBlur stdDeviation='3' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(2) brightness(1.2);
-    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='3' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(2) brightness(1.2);
 }
 .modal-gradient {
     z-index: -1;
     background-image: linear-gradient(0deg, black, transparent);
+    backdrop-filter: blur(3px) saturate(2) brightness(1.2);
+    -webkit-backdrop-filter: blur(3px) saturate(2) brightness(1.2);
 }
 
 .episode-number {
