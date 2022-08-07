@@ -1163,6 +1163,19 @@ async function transitionToOOBPage(pageUrl) {
         location.href = pageUrl
     }
 }
+async function requestSyncPages() {
+    $.snack('success', `Requested Offline Pages Sync`, 5000)
+    const results = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+    if (results && results.didActions) {
+        if (results.itemsGot && results.itemsGot > 0) {
+            $.snack('success', `Sync ${results.itemsGot} Items`, 5000)
+        } else {
+            $.snack('success', `There are no new new items to sync!`, 5000)
+        }
+    } else {
+        $.snack('error', `There are no offline pages to sync!`, 5000)
+    }
+}
 
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;

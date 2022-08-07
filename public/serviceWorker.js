@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-10-PATCH8';
+const cacheName = 'DEV-v20-10-PATCH9';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -634,7 +634,6 @@ self.addEventListener('message', async (event) => {
             break;
         case 'SYNC_PAGES_NEW_ONLY':
         case 'SYNC_PAGES':
-            event.ports[0].postMessage(true);
             if (!syncActive) {
                 syncActive = true;
                 const pages = await getAllOfflinePages()
@@ -642,7 +641,7 @@ self.addEventListener('message', async (event) => {
                 let pagesUpdated = [];
                 if (pages && pages.length > 0) {
                     for (let page of pages) {
-                        const results = await cachePageOffline(undefined, page.url, undefined, (event.tag === 'SYNC_PAGES_NEW_ONLY'));
+                        const results = await cachePageOffline(undefined, page.url, undefined, (event.data.type === 'SYNC_PAGES_NEW_ONLY'));
                         if (results && results.count > 0) {
                             itemsUpdated += results.count
                             pagesUpdated.push(`${(results.title) ? results.title : page.url}${(!results.ok) ? ' (Failed)' : ' (' + results.count + ')'}`);
@@ -657,12 +656,23 @@ self.addEventListener('message', async (event) => {
                         }
                         console.log('Background Sync Complete');
                         console.log(pagesUpdated.join('\n'));
+                        event.ports[0].postMessage({
+                            didActions: true,
+                            itemsGot: itemsUpdated
+                        });
+                    } else {
+                        event.ports[0].postMessage({
+                            didActions: true,
+                            itemsGot: 0
+                        });
                     }
                 }
                 syncActive = false;
             } else {
-                if (swDebugMode)
-                    console.log('Sync Request Already Active!')
+                event.ports[0].postMessage({
+                    didActions: false,
+                    itemsGot: 0
+                });
             }
             break;
         default:
@@ -1364,11 +1374,13 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type);
             const existingItems = await getPageIfAvailable(url);
             const newItems = itemsToCache.filter(e =>  !newOnly || (newOnly && offlineMessages.indexOf(e.id) === -1))
+            let itemsRemovedCount = 0;
 
             if (existingItems && existingItems.items && existingItems.items.length > 0) {
-                const itemsRemoved = existingItems.items.filter(e => itemsToCache.filter(f => f.eid === e.eid).length === 0);
+                const itemsRemoved = existingItems.items.filter(e => itemsToCache.filter(f => f.eid === e).length === 0);
                 for (let remove of itemsRemoved) {
-                    await deleteOfflineFile(remove.eid, true, false, true)
+                    await deleteOfflineFile(remove.eid, true, false, true);
+                    itemsRemovedCount++
                 }
                 console.log(`Removed ${itemsRemoved.length} items`);
             }
@@ -1383,7 +1395,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                         timeout: 10000
                     });
                 }
-                return false;
+                return {title, count: itemsRemovedCount, ok: true};
             }
 
             let downloadedFiles = 0;
@@ -1453,6 +1465,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                                     text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
                                     timeout: 5000
                                 });
+                                await getAllOfflineEIDs();
                                 if (!newOnly) {
                                     if ('showNotification' in self.registration) {
                                         self.registration.showNotification("Sync Page", {
@@ -1461,15 +1474,8 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                                         });
                                     }
                                 }
-                                if (existingItems && existingItems.items && existingItems.items.length > 0) {
-                                    const itemsRemoved = existingItems.items.filter(e => itemsToCache.filter(f => f.eid === e.eid).length === 0);
-                                    for (let remove of itemsRemoved) {
-                                        await deleteOfflineFile(remove.eid, true)
-                                    }
-                                    console.log(`Removed ${itemsRemoved.length} items`);
-                                }
                                 console.log(`Page Saved Offline!`);
-                                resolve({title, count: newItems.length, ok: true})
+                                resolve({title, count: (newItems.length + itemsRemovedCount), ok: true})
                             };
                         } catch (e) {
                             broadcastAllMessage({

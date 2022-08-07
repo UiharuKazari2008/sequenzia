@@ -112,7 +112,7 @@ html
                                             .row.p-0.ml-0.mr-0
                                                 if (user && user.source === 900)
                                                     div.text-center.text-ellipsis.align-middle.p-2
-                                                        span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                                        span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
                                             .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                 if (user && user.banner)
                                                     .col-auto.p-0
@@ -285,26 +285,23 @@ html
                                                             a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
                                                                 i.fa-light.fa-tv
                                                                 | Photo Frame
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Offline Pages" href='#_' onclick="requestSyncPages(); return false;")
+                                                                i.fa-light.fa-sync
+                                                                | Sync
                                                             a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
                                                                 i.fa-light.fa-sd-card
                                                                 | Storage
                                                             if (user && user.source < 900)
-                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
-                                                                    i.fa-light.fa-key
-                                                                    | Security
-                                                            a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
-                                                                i.fa-light.fa-compass-slash
-                                                                | Hide Channels
-                                                            if (webconfig && webconfig.support_lines)
-                                                                a.user-menu-item.user-menu-small(title="Support" href='#_' data-toggle='modal' data-target='#supportModal' onclick='$("#userMenu").collapse("hide");')
-                                                                    i.fa-light.fa-question-circle
-                                                                    | Support
+                                                                a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
+                                                                    i.fa-light.fa-compass-slash
+                                                                    | Hide Channels
                                                             a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                                 i.fa-light.fa-info-circle
                                                                 | About
-                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Session" href='/discord/refresh')
-                                                                i.fa-light.fa-sync
-                                                                | Update
+                                                            if (user && user.source < 900)
+                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='$("#userMenu").collapse("hide"); showAuthManager(); return false;')
+                                                                    i.fa-light.fa-key
+                                                                    | Security
                                                             a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
                                                                 i.fa-light.fa-sign-out-alt
                                                                 | Logout
