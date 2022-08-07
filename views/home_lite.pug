@@ -307,13 +307,13 @@ html
                                         i.fas.fa-arrow-left.fa-fw
                                     if (user)
                                         .input-group(style="width: 13rem;").h-25
-                                            input#expressLoginCode.bg-darker(type='text' placeholder='123ABC' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
+                                            input#expressLoginCode.bg-darker(type='text' placeholder='123ABC' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="height: 1.8em;").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
                                             .input-group-append
-                                                a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
+                                                a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`).py-0
                                                     span Login
                                 .d-flex.top-icon.align-items-center
-                                    i.fas.fa-key.pr-2
-                                    span User Account
+                                    i.fas.fa-key.pr-sm-2
+                                    span.d-none.d-sm-inline User Account
                             div.menu-grid.user-menu-small
                                 a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
                                     i.fas.fa-sync

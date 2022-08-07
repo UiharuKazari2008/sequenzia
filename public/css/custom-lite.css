@@ -1906,6 +1906,7 @@ div#time {
 .menu-container {
     background: #000000cc;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 20px black;
     border: solid 1px #000000f2;
 }
