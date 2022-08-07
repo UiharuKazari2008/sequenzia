@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'DEV-v20-10-PATCH9';
+const cacheName = 'DEV-v20-10-PATCH10';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -1252,10 +1252,8 @@ async function cacheFileURL(object, page_item) {
                     fetchResults['spanned_file'] = await new Promise(async resolve => {
                         const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
                         if (windows.length > 0) {
-                            self.clients.matchAll({
-                                includeUncontrolled: true,
-                                type: "window"
-                            }).then(clients => clients[0].postMessage({type: 'UNPACK_FILE', object: unpackerJob}));
+                            console.log(`${windows.length} windows are available, sending request to first window`)
+                            windows[0].postMessage({type: 'UNPACK_FILE', object: unpackerJob});
                             let i = 0;
                             function setTimer() {
                                 setTimeout(() => {
@@ -1370,6 +1368,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
         if (_cacheItem) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
             const title = (content.querySelector('title').text).toString().trim().replace('Sequenzia - ', '');
+            const titleBarHTML = (content.querySelector('#titleBarContents').innerHTML).trim();
 
             const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type);
             const existingItems = await getPageIfAvailable(url);
@@ -1402,6 +1401,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             let status = {
                 url: params(['offset', '_h', 'responseType'], [], url),
                 title,
+                titleBarHTML,
                 downloaded: downloadedFiles,
                 items: itemsToCache.map(e => e.eid),
                 totalItems: itemsToCache.length
@@ -1571,6 +1571,8 @@ async function cacheFileOffline(meta, noConfirm) {
                     id: meta.id,
                 });
             }
+        } else {
+            console.error(`Failed to offline file, missing required metadata`)
         }
     } catch (err) {
         console.error(`Uncaught Item Download Error`);

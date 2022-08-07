@@ -295,8 +295,9 @@ html
                                                     else
                                                         h2 No Albums!
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
-                            ul.navbar-nav.text-primary.ml-1
-                                li.nav-item.text-right.text-primary.page-title.d-flex.align-items-center
+                            #titleBarContents(style="display: contents").col.p-0
+                                ul.navbar-nav.text-primary.ml-1
+                                    li.nav-item.text-right.text-primary.page-title.d-flex.align-items-center
                             .mr-auto
                             ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
                                 li.nav-item.no-arrow

@@ -170,6 +170,10 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
 .container-fluid {
     margin-top: calc(env(safe-area-inset-top) + 3.5em);
 }
+.bottom-bar .toast-container {
+    margin-top: calc(env(safe-area-inset-top) + 1.5rem);
+}
+
 .bottom-bar .container-fluid {
     margin-top: calc(env(safe-area-inset-top) + 1em);
     margin-bottom: calc(env(safe-area-inset-bottom) + 3.5em);
@@ -3320,6 +3324,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 767px) {
+    .top-left, .top-right {
+        transform: translateX(-50%);
+        top: 0;
+        left: 50%;
+    }
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/

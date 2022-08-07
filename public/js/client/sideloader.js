@@ -112,6 +112,7 @@ let kmsVideoWatcher = null;
 let search_list = [];
 let element_list = [];
 let lazyloadImages;
+let extratitlewidth = 0
 const networkKernelChannel = new MessageChannel();
 const unpackerWorker = new Worker('/js/client/worker.unpacker.js');
 
@@ -169,6 +170,18 @@ function msToTime(s,f) {
     var hrs = (s - mins) / 60;
 
     return ((hrs > 0 || f) ? pad(hrs) + ':' : '') + pad(mins) + ':' + pad(secs) + ((f) ? '.' + pad(ms, 2) : '')
+}
+function calculateTitleWidthPage() {
+    if (document.getElementById('titleExtra') && $(window).width() >= 768) {
+        document.getElementById('titleExtra').style['min-width'] = `fit-content`
+        setTimeout(() => {
+            extratitlewidth = $('#titleExtra').width() + 10
+            if (extratitlewidth > 20) {
+                $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${extratitlewidth}px;} }; @keyframes slidetextextrain { from {max-width: ${extratitlewidth}px; to {max-width: 0;}} };</style>`);
+            }
+            document.getElementById('titleExtra').style['min-width'] = ``
+        }, 3000);
+    }
 }
 
 async function writeLoadingBar(){
@@ -546,18 +559,21 @@ async function getNewContent(remove, add, url, keep) {
     console.log(_url);
     if (offlinePage) {
         if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater') || _url.startsWith('/listTheater'))) {
+            let titleBarHTML;
             const eids = await (async () => {
                 const revisedUrl = params(['limit', 'offset', '_h'], [], _url)
                 if (revisedUrl.split('?').pop().length === 0)
                     return false;
                 const isFoundPage = await kernelRequestData({type: 'GET_STORAGE_PAGE_ITEMS', url: revisedUrl})
-                if (isFoundPage)
+                if (isFoundPage) {
+                    titleBarHTML = ((isFoundPage && isFoundPage.titleBarHTML) ? isFoundPage.titleBarHTML : undefined)
                     return isFoundPage.items
-            })()
+                }
+            })();
             if (_url.startsWith('/gallery')) {
-                await generateGalleryHTML(_url, eids);
+                await generateGalleryHTML(_url, eids, titleBarHTML);
             } else if (_url.startsWith('/files')) {
-                await generateFilesHTML(_url, eids);
+                await generateFilesHTML(_url, eids, titleBarHTML);
             } else if (_url.startsWith('/tvTheater')) {
                 await generateShowsHTML(_url);
             } else if (_url.startsWith('/listTheater')) {
@@ -1264,6 +1280,7 @@ async function cacheFileOffline(element, noConfirm, preemptive) {
         const eid = element.getAttribute('data-msg-eid');
         const fileExists = (eid) ? await kernelRequestData({type: 'GET_STORAGE_FILE', eid}) : false;
         const meta = extractMetaFromElement(element, (preemptive && !fileExists));
+        console.log(meta);
         kernelRequestData({
             type: 'SAVE_STORAGE_FILE',
             meta,
@@ -1385,7 +1402,7 @@ async function clearCDNCache() {
     return await kernelRequestData({type: 'CLEAN_TEMP_CACHE'})
 }
 
-async function generateGalleryHTML(url, eids) {
+async function generateGalleryHTML(url, eids, topText) {
     $("#userMenu").collapse("hide");
     try {
         _originalURL = url;
@@ -1455,9 +1472,16 @@ async function generateGalleryHTML(url, eids) {
     opacity: 1;
 }
 </style><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
+                    if (topText) {
+                        document.getElementById('titleBarContents').innerHTML = topText;
+                    } else {
+                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-photo-film"></i><span class="text-uppercase">Gallery</span></li></ul>'
+                    }
                     window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
                     registerURLHandlers();
+                    extratitlewidth = 0;
+                    calculateTitleWidthPage();
                     setImageLayout(setImageSize);
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
@@ -1475,7 +1499,6 @@ async function generateGalleryHTML(url, eids) {
                 responseComplete = true;
             })
         })
-
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
@@ -1490,7 +1513,7 @@ async function generateGalleryHTML(url, eids) {
         });
     }
 }
-async function generateFilesHTML(url, eids) {
+async function generateFilesHTML(url, eids, topText) {
     $("#userMenu").collapse("hide");
     try {
         _originalURL = url;
@@ -1559,8 +1582,14 @@ async function generateFilesHTML(url, eids) {
         </thead>
     </table>
 </div>`
+                    if (topText) {
+                        document.getElementById('titleBarContents').innerHTML = topText;
+                    } else {
+                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-folder"></i><span class="text-uppercase">Files</span></li></ul>'
+                    }
                     window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
+                    calculateTitleWidthPage();
                     registerURLHandlers();
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
@@ -1645,6 +1674,7 @@ async function generateShowsHTML(url) {
     </div>
 </form>
 </div><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
+                    document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-ticket"></i><span class="text-uppercase">Theater</span></li></ul>'
                     window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
                     registerURLHandlers();
@@ -1775,9 +1805,11 @@ async function generateEpisodeHTML(url) {
     <div class="show-description"><span>${episodes.show.meta.description}</span></div>
 </div>
 </div><div class="show accordion accordion-flush show-background pt-4 p-sm-4" id="seasonsAccordion-${episodes.show.id}">${resultRows.join(' ')}</div>`
+                    document.getElementById('titleBarContents').innerHTML = `<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><div class="d-inline-flex" id="titleIcon"><i class="far mr-2 fa-tv"></i></div><div class="d-inline-flex" id="titleExtraStyleAdjustment"></div><div class="d-none d-md-inline-flex" id="titleExtra"><span class="pr-1 align-self-baseline text-uppercase">Theater</span><i class="far fa-chevron-right pr-1 align-self-baseline"></i></div><div class="d-inline" id="titleMain"><span class="align-self-baseline text-uppercase">${episodes.show.name}</span></div>`
                     window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
                     registerURLHandlers();
+                    calculateTitleWidthPage();
                     setImageLayout(setImageSize);
                     $("#pageNav").html('');
                     $(".container-fluid").fadeTo(2000, 1);
@@ -2887,7 +2919,6 @@ async function showSearchOptions(post) {
         }
         return false
     })();
-    console.log(postKMSJSON)
     let postBody = _post.getAttribute('data-msg-bodyraw') + '';
     const postFlagged = _post.getAttribute('data-msg-flagged') + '' === 'true';
     const postIsVideo = _post.getAttribute('data-msg-isvideo') + '' === 'true';
@@ -3009,7 +3040,7 @@ async function showSearchOptions(post) {
             modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-xmark')
             if (postKMSJSON) {
                 modalOfflineThisButton.onclick = function () {
-                    const element = document.querySelector('#message-' + postID);
+                    const element = document.getElementById('message-' + postID);
                     if (element) {
                         cacheEpisodeOffline(element)
                     }
@@ -3018,7 +3049,7 @@ async function showSearchOptions(post) {
                 }
             } else {
                 modalOfflineThisButton.onclick = function () {
-                    const element = document.querySelector('#message-' + postID);
+                    const element = document.getElementById('message-' + postID);
                     if (element) {
                         cacheFileOffline(element);
                     }
