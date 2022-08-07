@@ -193,9 +193,10 @@ async function setupReq(push, url) {
     })()
     if (!currentContext || (currentContext && currentContext !== nextContext)) {
         if (currentContext) {
-            if (nextContext === 'seq') {
-                if (!initialLoad)
-                    document.getElementById('bootLoaderStatus').innerText = 'JuneOS Framework v20';
+            if (nextContext === 'seq' || nextContext === 'browser') {
+                if (!initialLoad) {
+                    document.getElementById('bootStatusIcons').classList.add('d-none');
+                }
                 await new Promise((animationCompleted) => { $.when($('#bootUpDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
             } else if (nextContext === 'ticket') {
                 await new Promise((animationCompleted) => { $.when($('#kmsBootDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
@@ -206,8 +207,10 @@ async function setupReq(push, url) {
     if (offlinePage) {
         document.getElementById('offlinePages').classList.add('hidden');
     }
-    if (initialLoad)
+    if (initialLoad) {
         document.getElementById('bootLoaderStatus').innerText = 'Starting Handler...';
+        document.getElementById('bootStatusIcons').children[0].style.opacity = 1;
+    }
     responseComplete = false;
     $('#loadingSpinner').fadeIn();
     if (push !== true)
@@ -242,8 +245,10 @@ async function requestCompleted (response, url, lastURL, push) {
         responseComplete = true
     } else {
         if (url.startsWith('/app/web/')) {
-            if (initialLoad)
+            if (initialLoad) {
                 document.getElementById('bootLoaderStatus').innerText = 'Rendering Application...';
+                document.getElementById('bootStatusIcons').children[2].style.opacity = 1;
+            }
             if (offlinePage) {
                 $.toast({
                     type: 'error',
@@ -340,8 +345,10 @@ async function requestCompleted (response, url, lastURL, push) {
                 undoActions = [];
                 responseComplete = true
             } else {
-                if (initialLoad)
+                if (initialLoad) {
+                    document.getElementById('bootStatusIcons').children[2].style.opacity = 1;
                     document.getElementById('bootLoaderStatus').innerText = 'Rendering Page...';
+                }
                 await new Promise((pageReady) => {
                     $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
                         let contentPage = $(response).find('#content-wrapper').children();
@@ -406,13 +413,21 @@ async function requestCompleted (response, url, lastURL, push) {
                                 }
                             }
                         }
-
                         undoActions = [];
                         pageReady(true);
                         responseComplete = true
                     })
                 })
             }
+            (async () => {
+                const checkUrl = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'offset', 'limit', '_h'], [], url);
+                const isAvailable = await kernelRequestData({type: 'GET_STORAGE_PAGE', url: checkUrl}, true);
+                if (isAvailable) {
+                    $('#pageIsOffline').removeClass('d-none').addClass('d-flex')
+                } else {
+                    $('#pageIsOffline').addClass('d-none').removeClass('d-flex')
+                }
+            })()
             $("title").text(pageTitle);
             let addOptions = [];
             if (url.includes('offset=') && !initialLoad) {
@@ -426,6 +441,7 @@ async function requestCompleted (response, url, lastURL, push) {
         }
         pageType = url.split('/')[0];
         if (initialLoad) {
+            document.getElementById('bootStatusIcons').children[3].style.opacity = 1;
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
             $('#bootBackdrop').fadeOut(500);
         }
@@ -437,7 +453,10 @@ async function requestCompleted (response, url, lastURL, push) {
     }
     if (nextContext !== currentContext) {
         setTimeout(() => {
-            $('#bootUpDisplay, #kmsBootDisplay').fadeOut(500);
+            $.when($('#bootUpDisplay, #kmsBootDisplay').fadeOut(500)).done(() => {
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
+            });
         }, 2000);
     }
     currentContext = nextContext;
@@ -575,8 +594,10 @@ async function getNewContent(remove, add, url, keep) {
         initialLoad = false;
         return true;
     }
-    if (initialLoad)
+    if (initialLoad) {
+        document.getElementById('bootStatusIcons').children[1].style.opacity = 1;
         document.getElementById('bootLoaderStatus').innerText = 'Connecting...';
+    }
     requestInprogress = $.ajax({async: true,
         url: ((offlinePage) ? params(['offset', '_h'], [], _url) : _url),
         type: "GET", data: '',

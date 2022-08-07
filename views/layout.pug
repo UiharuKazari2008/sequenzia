@@ -746,7 +746,9 @@ html
                                             ul.navbar-nav.text-primary
                                                 li.nav-item.mr-1
                                                     i.fas.fa-circle.text-danger
-
+                                    ul.navbar-nav.text-primary(style="font-size: 1.4rem;")
+                                        li#pageIsOffline.nav-item.mr-1.d-none
+                                            i.fas.fa-cloud-check
                                     .mr-auto
                                     if (appData)
                                         ul#appTitleMenu.navbar-nav.text-primary.text-ellipsis(style="display: contents;")

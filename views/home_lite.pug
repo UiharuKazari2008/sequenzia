@@ -63,8 +63,13 @@ html
                             img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
                         img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
-                    div.boot-status.p-3.position-absolute.bottom-right.text-right
-                        span Kongou Media Project v9
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder Kongou Media Project v9
+                        .mt-1.boot-icons-holder
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         #bootUpDisplay.boot-logo-overlay.animated--grow-in.d-none
@@ -81,12 +86,16 @@ html
                             i.px-2.fas.fa-music
                             i.px-2.fas.fa-folder
                             i.px-2.fas.fa-archive
-                    div.boot-status.p-3.position-absolute.bottom-right.text-right
-                        span#bootLoaderStatus JuneOS Platform v20
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span#bootLoaderStatus.boot-status-holder.font-weight-bolder JuneOS Platform v20
+                        .mt-1.boot-icons-holder#bootStatusIcons
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
                         //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
-
         if (discord)
             #homeBg.background-image.overlay.animated--fade-in
             #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
