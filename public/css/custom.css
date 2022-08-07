@@ -2108,7 +2108,6 @@ div.collapse-divider {
 
 .album-list {
     display: flex;
-    margin-right: calc(env(safe-area-inset-right, 0) + 2.3em);
 }
 .album-item {
     min-height: 120px;
