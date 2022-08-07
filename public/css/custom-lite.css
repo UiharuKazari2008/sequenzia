@@ -1669,6 +1669,15 @@ div#time {
         margin-right: 0;
     }
 
+    .bottom-time-info {
+        width: 250px;
+    }
+    div#time {
+        font-weight: 400;
+        line-height: 1em;
+        font-size: 5em;
+    }
+
 }
 
 @media (max-width:420px) {
@@ -1688,6 +1697,7 @@ div#time {
         min-width: calc(50% - 0.25em);
         margin-right: 0;
     }
+
 }
 @media (min-height:450px) {
     .no-short {

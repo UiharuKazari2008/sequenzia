@@ -129,9 +129,9 @@ html
                     #time
                 div
                     span.ajax-imageLocation.text-capitalize ...
-                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
+                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
                         i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
-                    span.ajax-imageDate
+                    span.ajax-imageDate.d-none.d-sm-inline
 
         .container.position-absolute.top-center.h-100.w-100.flex-column
             #midSearch.ml-auto.mr-auto.mt-auto.mb-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
@@ -183,10 +183,10 @@ html
                                             .d-inline-block(style='padding: 0 0.25rem 0 0')
                                                 i.fas.fa-star.d-none.ajax-imageFav(style='font-size: 16px; vertical-align: middle; padding-bottom: 8px;')
                                             span.ajax-imageLocation.text-capitalize ...
-                                            div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
+                                            div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden
                                                 i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
                                             span.ajax-imageDate
-                                div.d-flex.justify-content-center
+                                div.d-flex.justify-content-center.ml-2
                                     a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;').mr-2
                                         i.i.fas.fa-sync.fa-sm
                                     a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
