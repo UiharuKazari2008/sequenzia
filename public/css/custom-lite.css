@@ -1900,13 +1900,14 @@ div#time {
     display: flex;
     padding-left: calc(env(safe-area-inset-left) + 1em);
     padding-right: calc(env(safe-area-inset-right) + 1em);
-    padding-top: calc(env(safe-area-inset-top) + 1em);
-    padding-bottom: calc(env(safe-area-inset-bottom) + 1em);
+    padding-top: calc(env(safe-area-inset-top) + 2em);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 2em);
 }
 .menu-container {
     background: #000000cc;
     backdrop-filter: blur(10px);
     box-shadow: 0 0 20px black;
+    border: solid 1px #000000f2;
 }
 ul#accordionSidebar * {
     z-index: 5;
@@ -1918,6 +1919,7 @@ ul#accordionSidebar * {
     }
 }
 #midSearch {
+    display: flex;
     width: 100%;
 }
 .main-menu-grid {
@@ -2003,4 +2005,20 @@ ul#accordionSidebar * {
     padding-right: calc(env(safe-area-inset-right) + 2rem);
     padding-top: calc(env(safe-area-inset-top) + 2rem);
     padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+}
+.shine-effect-go .animation-application {
+    opacity: 0.125;
+    background: linear-gradient(235deg,transparent 0,transparent 54%,rgb(255 123 0 / 78%) 75%,rgb(255 160 2 / 89%) 78%,transparent 82%,transparent 100%) 0 0/500% 100%;
+    animation: shineEffectAnimation 8s linear 1;
+    -webkit-animation-fill-mode: forwards;
+    animation-iteration-count: 1;
+    pointer-events: none;
+}
+@keyframes shineEffectAnimation {
+    0% {
+        background-position: 0% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
 }

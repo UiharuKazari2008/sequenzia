@@ -362,6 +362,7 @@ function getRandomImage() {
                     }
                     pageReady = true;
                     refreshLayout();
+                    setTimeout(() => {document.getElementById('midSearch').classList.add('shine-effect-go');}, 3000);
                 } else if (xhr.status >= 403) {
                     $.toast({
                         type: 'error',
@@ -642,6 +643,8 @@ function startAmbientTimer() {
     if (!ambientTimeout) {
         $('.container, #homeBg').fadeIn(500);
         $('.ambient-items').fadeOut(500);
+        document.getElementById('midSearch').classList.remove('shine-effect-go');
+        document.getElementById('midSearch').classList.add('shine-effect-go');
     }
     ambientTimeout = window.setTimeout(switchToAmbientMode, 30000)
 }
