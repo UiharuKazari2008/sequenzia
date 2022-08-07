@@ -223,3 +223,6 @@ input.middle:focus {
 .performance-mode .fadeOut, .performance-mode .shine-effect-go .animation-application {
     display: none;
 }
+.disabled-pointer {
+    pointer-events: none!important;
+}

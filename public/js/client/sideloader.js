@@ -255,8 +255,8 @@ async function setupReq(push, url) {
     }
     responseComplete = false;
     $('#loadingSpinner').fadeIn();
-    if (push !== true)
-        $(".container-fluid").fadeTo(500, 0.4);
+    $(".container-fluid").fadeTo(500, 0.4);
+    $(".container-fluid").addClass('disabled-pointer');
     if (!initalPageLoad)
         $("#userMenu").collapse("hide");
     $(".sidebar").removeClass('open');
@@ -276,7 +276,8 @@ async function requestCompleted (response, url, lastURL, push) {
     if (pageTitle === 'Lets Login') {
         window.location.href = url;
     } else if (pageTitle.includes(' - No Results') && !initialLoad) {
-        $(".container-fluid").fadeTo(2000, 1)
+        $(".container-fluid").fadeTo(2000, 1);
+        $(".container-fluid").removeClass('disabled-pointer');
         $.toast({
             type: 'error',
             title: 'No Results Found',
@@ -349,7 +350,8 @@ async function requestCompleted (response, url, lastURL, push) {
                     }
                     if (initialLoad)
                         document.getElementById('bootLoaderStatus').innerText = 'Welcome';
-                    $(".container-fluid").fadeTo(2000, 1)
+                    $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                     scrollToTop(true);
                     if (_originalURL && _originalURL !== 'undefined' )
                         window.history.replaceState({}, null, `/${(offlinePage) ? 'offline' : 'juneOS'}#${_originalURL}`);
@@ -385,6 +387,8 @@ async function requestCompleted (response, url, lastURL, push) {
                     enableReviewMode();
                 updateActionsPanel();
                 undoActions = [];
+                $(".container-fluid").fadeTo(500, 1);
+                $(".container-fluid").removeClass('disabled-pointer');
                 responseComplete = true
             } else {
                 if (initialLoad) {
@@ -481,6 +485,7 @@ async function requestCompleted (response, url, lastURL, push) {
             const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
             $(".container-fluid").fadeTo(500, 1);
+            $(".container-fluid").removeClass('disabled-pointer');
             responseComplete = true
         }
         pageType = url.split('/')[0];
@@ -665,6 +670,7 @@ async function getNewContent(remove, add, url, keep) {
             } else {
                 responseComplete = true
                 $(".container-fluid").fadeTo(2000, 1);
+                $(".container-fluid").removeClass('disabled-pointer');
                 $.toast({
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
@@ -854,7 +860,8 @@ function getSearchContent(element, url) {
                     window.location.href = '/offline';
                 }
                 responseComplete = true
-                $(".container-fluid").fadeTo(2000, 1)
+                $(".container-fluid").fadeTo(2000, 1);
+                $(".container-fluid").removeClass('disabled-pointer');
                 $.toast({
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
@@ -890,7 +897,8 @@ function getLimitContent(perm) {
                     window.location.href = '/offline';
                 }
                 responseComplete = true
-                $(".container-fluid").fadeTo(2000, 1)
+                $(".container-fluid").fadeTo(2000, 1);
+                $(".container-fluid").removeClass('disabled-pointer');
                 $.toast({
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
@@ -991,7 +999,8 @@ function getNewURIContent(element, type) {
             getNewContent(['_h'],[], `/${(pagetype) ? pagetype : window.location.hash.substring(2).split('?')[0]}?${_e}`);
         } else {
             responseComplete = true
-            $(".container-fluid").fadeTo(2000, 1)
+            $(".container-fluid").fadeTo(2000, 1);
+            $(".container-fluid").removeClass('disabled-pointer');
             $.toast({
                 type: 'error',
                 title: 'Navigation Failed',
@@ -1003,7 +1012,8 @@ function getNewURIContent(element, type) {
         setupReq(undefined, _url)
     } catch (e) {
         responseComplete = true
-        $(".container-fluid").fadeTo(2000, 1)
+        $(".container-fluid").fadeTo(2000, 1);
+        $(".container-fluid").removeClass('disabled-pointer');
         $.toast({
             type: 'error',
             title: 'Navigation Failed',
@@ -1519,8 +1529,10 @@ async function generateGalleryHTML(url, eids, topText) {
                     setImageLayout(setImageSize);
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                 } else {
-                    $(".container-fluid").fadeTo(2000, 1)
+                    $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                     $.toast({
                         type: 'error',
                         title: 'No Results Found',
@@ -1536,6 +1548,7 @@ async function generateGalleryHTML(url, eids, topText) {
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
+        $(".container-fluid").removeClass('disabled-pointer');
         console.error(`Uncaught Item HTML Generator Error`);
         console.error(err)
         $.toast({
@@ -1629,8 +1642,10 @@ async function generateFilesHTML(url, eids, topText) {
                     registerURLHandlers();
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                 } else {
-                    $(".container-fluid").fadeTo(2000, 1)
+                    $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                     $.toast({
                         type: 'error',
                         title: 'No Results Found',
@@ -1646,6 +1661,7 @@ async function generateFilesHTML(url, eids, topText) {
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
+        $(".container-fluid").removeClass('disabled-pointer');
         console.error(`Uncaught Item HTML Generator Error`);
         console.error(err)
         $.toast({
@@ -1719,10 +1735,12 @@ async function generateShowsHTML(url) {
                     setImageLayout(setImageSize);
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                     element_list = Array.from(document.querySelectorAll('[data-search]'))
                     search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
                 } else {
-                    $(".container-fluid").fadeTo(2000, 1)
+                    $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                     $.toast({
                         type: 'error',
                         title: 'No Results Found',
@@ -1738,6 +1756,7 @@ async function generateShowsHTML(url) {
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
+        $(".container-fluid").removeClass('disabled-pointer');
         console.error(`Uncaught Item HTML Generator Error`);
         console.error(err)
         $.toast({
@@ -1851,8 +1870,10 @@ async function generateEpisodeHTML(url) {
                     setImageLayout(setImageSize);
                     $("#pageNav").html('');
                     $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                 } else {
-                    $(".container-fluid").fadeTo(2000, 1)
+                    $(".container-fluid").fadeTo(2000, 1);
+                    $(".container-fluid").removeClass('disabled-pointer');
                     $.toast({
                         type: 'error',
                         title: 'No Results Found',
@@ -1868,6 +1889,7 @@ async function generateEpisodeHTML(url) {
     } catch (err) {
         responseComplete = true;
         $(".container-fluid").fadeTo(2000, 1);
+        $(".container-fluid").removeClass('disabled-pointer');
         console.error(`Uncaught Item HTML Generator Error`);
         console.error(err)
         $.toast({
