@@ -1447,8 +1447,7 @@ async function clearCDNCache() {
 async function generateGalleryHTML(url, eids, topText) {
     $("#userMenu").collapse("hide");
     try {
-        _originalURL = url;
-        setupReq(undefined, _originalURL);
+        setupReq(undefined, url);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         await new Promise((pageReady) => {
             $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
@@ -1521,12 +1520,13 @@ async function generateGalleryHTML(url, eids, topText) {
                     } else {
                         document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-photo-film"></i><span class="text-uppercase">Gallery</span></li></ul>'
                     }
-                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
+                    
                     registerLazyLoader();
                     registerURLHandlers();
                     extratitlewidth = 0;
                     calculateTitleWidthPage();
                     setImageLayout(setImageSize);
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
                     $(".container-fluid").removeClass('disabled-pointer');
@@ -1563,8 +1563,7 @@ async function generateGalleryHTML(url, eids, topText) {
 async function generateFilesHTML(url, eids, topText) {
     $("#userMenu").collapse("hide");
     try {
-        _originalURL = url;
-        setupReq(undefined, _originalURL);
+        setupReq(undefined, url);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         await new Promise((pageReady) => {
             $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
@@ -1636,10 +1635,10 @@ async function generateFilesHTML(url, eids, topText) {
                     } else {
                         document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-folder"></i><span class="text-uppercase">Files</span></li></ul>'
                     }
-                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
                     calculateTitleWidthPage();
                     registerURLHandlers();
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
                     $(".container-fluid").removeClass('disabled-pointer');
@@ -1676,8 +1675,7 @@ async function generateFilesHTML(url, eids, topText) {
 async function generateShowsHTML(url) {
     $("#userMenu").collapse("hide");
     try {
-        _originalURL = url;
-        setupReq(undefined, _originalURL);
+        setupReq(undefined, url);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         await new Promise((pageReady) => {
             $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
@@ -1729,10 +1727,10 @@ async function generateShowsHTML(url) {
 </form>
 </div><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
                     document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-ticket"></i><span class="text-uppercase">Theater</span></li></ul>'
-                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
                     registerURLHandlers();
                     setImageLayout(setImageSize);
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     $("#pageNav").html(pageButtons.join(''));
                     $(".container-fluid").fadeTo(2000, 1);
                     $(".container-fluid").removeClass('disabled-pointer');
@@ -1771,8 +1769,7 @@ async function generateShowsHTML(url) {
 async function generateEpisodeHTML(url) {
     $("#userMenu").collapse("hide");
     try {
-        _originalURL = url;
-        setupReq(undefined, _originalURL);
+        setupReq(undefined, url);
         const _params = new URLSearchParams('?' + url.split('#').pop().split('?').pop());
         await new Promise((pageReady) => {
             $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
@@ -1863,11 +1860,11 @@ async function generateEpisodeHTML(url) {
 </div>
 </div><div class="show accordion accordion-flush show-background pt-4 p-sm-4" id="seasonsAccordion-${episodes.show.id}">${resultRows.join(' ')}</div>`
                     document.getElementById('titleBarContents').innerHTML = `<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><div class="d-inline-flex" id="titleIcon"><i class="far mr-2 fa-tv"></i></div><div class="d-inline-flex" id="titleExtraStyleAdjustment"></div><div class="d-none d-md-inline-flex" id="titleExtra"><span class="pr-1 align-self-baseline text-uppercase">Theater</span><i class="far fa-chevron-right pr-1 align-self-baseline"></i></div><div class="d-inline" id="titleMain"><span class="align-self-baseline text-uppercase">${episodes.show.name}</span></div>`
-                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     registerLazyLoader();
                     registerURLHandlers();
                     calculateTitleWidthPage();
                     setImageLayout(setImageSize);
+                    window.history.replaceState({}, null, `/offline#${_originalURL}`);
                     $("#pageNav").html('');
                     $(".container-fluid").fadeTo(2000, 1);
                     $(".container-fluid").removeClass('disabled-pointer');

@@ -103,6 +103,7 @@ html
             let inReviewMode = false;
             let initalPageLoad = true;
             let IPHL = history.length;
+            let _originalURL = '';
             function isFirstPage() {
                 if (history.length <= IPHL && !initalPageLoad) {
                     document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);

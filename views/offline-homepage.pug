@@ -54,6 +54,7 @@ html
         script.
             let inReviewMode = false;
             let initalPageLoad = true;
+            let _originalURL = '';
             let IPHL = history.length;
             function isFirstPage() {
                 if (history.length <= IPHL && !initalPageLoad) {
