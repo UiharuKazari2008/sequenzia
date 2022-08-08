@@ -345,7 +345,7 @@ color: #b3ff85;
     background-size: cover;
     display: none;
     z-index: -1;
-    height: calc(100% - 10px);
+    height: calc(100% - 1px);
     width: 100%;
     position: absolute;
     padding-bottom: solid 1px #e3990887;
@@ -394,8 +394,8 @@ color: #b3ff85;
 
 #content-wrapper > div > #mainMenuBar {
     position: fixed;
-    top: -10px;
-    padding-top: 10px;
+    top: -1px;
+    padding-top: 1px;
     right: 0;
     left: 0;
     z-index: 1030;
@@ -404,8 +404,8 @@ color: #b3ff85;
 }
 .bottom-bar #content-wrapper > div > #mainMenuBar {
     top: unset;
-    bottom: -10px;
-    padding-bottom: 10px;
+    bottom: -1px;
+    padding-bottom: 1px;
     flex-direction: column-reverse;
 }
 
@@ -865,12 +865,12 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 }
 
 .top-padding-safety {
-    top: -10px;
-    padding-top: calc(env(safe-area-inset-top) + 10px)!important;
+    top: -1px;
+    padding-top: calc(env(safe-area-inset-top) + 1px)!important;
 }
 .bottom-bar .top-padding-safety {
     padding-top: 0!important;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 10px)!important;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1px)!important;
 }
 
 #content > #mainMenuBar {
