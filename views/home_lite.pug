@@ -165,12 +165,12 @@ html
                                     i.fa-light.fa-archive
                                 a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
                                     i.fa-light.fa-compass
-                                a.hover-color(data-placement="top" title="Artists", href='#/artists?')
-                                    i.fa-light.fa-address-book
+                                a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
+                                    i.fa-light.fa-cloud-check
                                 a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
                                     i.fa-light.fa-dice
-                                a.hover-color(data-placement="top" title="Upload Files", href='#_')
-                                    i.fa-light.fa-upload
+                                a.hover-color(data-placement="top" title="Artists", href='#/artists?')
+                                    i.fa-light.fa-address-book
                                 a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                     i.fa-light.fa-browsers
                             #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
@@ -249,9 +249,6 @@ html
                                         a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                             i.fas.fa-tv
                                             | Photo Frame
-                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
-                                            i.fas.fa-folder-bookmark
-                                            | Local Files
                                         if (applications_list && applications_list.length > 0)
                                             each thisApp in applications_list
                                                 if (thisApp.type == 0)
