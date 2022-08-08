@@ -292,7 +292,7 @@ a.lightbox:before {
     text-align: center;
 }
 
-.container * {
+.container *:not(input) {
     user-select: none;
     user-drag: none;
     -webkit-user-select: none;
@@ -1672,6 +1672,7 @@ div#time {
 
     .bottom-time-info {
         width: 250px;
+        margin-right: auto;
     }
     div#time {
         font-weight: 400;
@@ -1921,8 +1922,8 @@ div#time {
     display: flex;
     padding-left: calc(env(safe-area-inset-left) + 1em);
     padding-right: calc(env(safe-area-inset-right) + 1em);
-    padding-top: calc(env(safe-area-inset-top) + 2em);
-    padding-bottom: calc(env(safe-area-inset-bottom) + 2em);
+    padding-top: calc(env(safe-area-inset-top) + 1em);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1em);
 }
 .menu-container {
     background: #000000cc;
@@ -1945,7 +1946,7 @@ ul#accordionSidebar * {
     width: 100%;
 }
 .main-menu-grid {
-    width: 360px;
+    width: 300px;
     justify-content: center;
     grid-auto-flow: column;
     margin-left: auto;
@@ -1963,7 +1964,7 @@ ul#accordionSidebar * {
         width: 800px;
     }
 }
-.backdrop-portait, .backdrop-neutral, .backdrop-wide {
+/*.backdrop-portait, .backdrop-neutral, .backdrop-wide {
 
 }
 
@@ -1974,13 +1975,18 @@ ul#accordionSidebar * {
     .backdrop-wide{
         margin-top: 3em!important;
     }
-}
+}*/
 @media (max-height:900px) {
 
 
 }
-
+#midSearch {
+    margin-bottom: auto;
+}
 @media (max-width:767px) {
+    #midSearch {
+        margin-bottom: 0;
+    }
     .sequenzia-logo {
         font-size: 1.75em;
     }
@@ -1994,22 +2000,30 @@ ul#accordionSidebar * {
         font-size: 1.75em;
     }
 }
-@media (min-width:650px) {
+.mobile-only {
+    display: inline;
+}
+.desktop-only {
+    display: none;
+}
+@media (min-width:652px) {
     .main-menu-grid {
         justify-content: space-around;
     }
     .main-menu-grid {
         width: 100%
     }
-}
-@media (max-width:575px) {
-    .main-menu-grid {
-        width: 360px;
+    .mobile-only {
+        display: none;
+    }
+    .desktop-only {
+        display: inline;
     }
 }
-@media (max-width:450px) {
+@media (max-width:366px) {
     .main-menu-grid {
-        width: 300px;
+        font-size: 1.5em;
+        width: 255px;
     }
 }
 @media (max-width:320px) {

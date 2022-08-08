@@ -344,7 +344,7 @@ function refreshLayout() {
                     }
                     document.getElementById('previewBG').style.display = 'initial';
                 }
-                document.getElementById('cover').classList.add('fadeOut')
+                $('#cover').fadeTo(1000, 0);
             }
         }, 1000);
     }
@@ -368,21 +368,41 @@ function getRandomImage() {
                     _Size = [ json.randomImagev2[0].sizeH, json.randomImagev2[0].sizeW, json.randomImagev2[0].sizeR ];
                     _Color = [ json.randomImagev2[0].colorR, json.randomImagev2[0].colorG, json.randomImagev2[0].colorB ];
 
-                    $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
-                    $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
-                    $('.full-image-holder').attr('src', fullImage);
-                    $('.ajax-downloadLink').attr("href", fullImage);
-                    $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
-                    $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
-                    $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                    $('.middle-indicator').removeClass('hidden');
-                    if (json.randomImagev2[0].pinned) {
-                        $('.ajax-imageFav').removeClass('d-none');
+                    if (!pageReady) {
+                        $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
+                        $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
+                        $('.full-image-holder').attr('src', fullImage);
+                        $('.ajax-downloadLink').attr("href", fullImage);
+                        $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
+                        $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
+                        $('.ajax-imageDate').text(json.randomImagev2[0].date);
+                        $('.middle-indicator').removeClass('hidden');
+                        if (json.randomImagev2[0].pinned) {
+                            $('.ajax-imageFav').removeClass('d-none');
+                        } else {
+                            $('.ajax-imageFav').addClass('d-none');
+                        }
+                        pageReady = true;
+                        refreshLayout();
                     } else {
-                        $('.ajax-imageFav').addClass('d-none');
+                        $.when($('#cover').fadeTo(1000, 1)).done(() => {
+                            $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
+                            $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
+                            $('.full-image-holder').attr('src', fullImage);
+                            $('.ajax-downloadLink').attr("href", fullImage);
+                            $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
+                            $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
+                            $('.ajax-imageDate').text(json.randomImagev2[0].date);
+                            $('.middle-indicator').removeClass('hidden');
+                            if (json.randomImagev2[0].pinned) {
+                                $('.ajax-imageFav').removeClass('d-none');
+                            } else {
+                                $('.ajax-imageFav').addClass('d-none');
+                            }
+                            pageReady = true;
+                            refreshLayout();
+                        });
                     }
-                    pageReady = true;
-                    refreshLayout();
                     setTimeout(() => {document.getElementById('midSearch').classList.add('shine-effect-go');}, 3000);
                 } else if (xhr.status >= 403) {
                     $.toast({
@@ -671,8 +691,9 @@ function setupAmbientTimers () {
     dc();
     startAmbientTimer();
     setInterval(() => {
-        if (!document.hidden)
+        if (!document.hidden) {
             getRandomImage();
+        }
     }, 300000)
 }
 function startAmbientTimer() {
@@ -714,8 +735,9 @@ $(document).ready(function () {
     window.addEventListener("resize", refreshLayout);
     window.addEventListener("orientationChange", refreshLayout);
     setTimeout(() => {
-        if (!noAmbientTimer)
+        if (!noAmbientTimer) {
             setupAmbientTimers();
+        }
     }, 15000)
     //dd();
     //ddw();

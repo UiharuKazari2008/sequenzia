@@ -134,7 +134,7 @@ html
                     span.ajax-imageDate.d-none.d-sm-inline
 
         .container.position-fixed.top-center.h-100.w-100.flex-column
-            #midSearch.ml-auto.mr-auto.mt-auto.mb-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
+            #midSearch.ml-auto.mr-auto.mt-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application
                     div#menuAccordion(style='display: contents').w-100.menu-glow
@@ -150,8 +150,8 @@ html
                                         else
                                             span Login Required
                             #mainUserButtons.d-flex.menu-grid.main-menu-grid.menu-icons.py-1(class=`${(!discord) ? 'hidden':''}`)
-                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;')
-                                    i.fa-light.fa-sidebar
+                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
+                                    i.fa-light.fa-compass
                                 a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
                                     i.fa-light.fa-photo-video
                                 a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
@@ -162,10 +162,12 @@ html
                                     i.fa-light.fa-star
                                 a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
                                     i.fa-light.fa-archive
-                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
-                                    i.fa-light.fa-dice
+                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
+                                    i.fa-light.fa-compass
                                 a.hover-color(data-placement="top" title="Artists", href='#/artists?')
                                     i.fa-light.fa-address-book
+                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
+                                    i.fa-light.fa-dice
                                 a.hover-color(data-placement="top" title="Upload Files", href='#_')
                                     i.fa-light.fa-upload
                                 a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
@@ -322,7 +324,7 @@ html
                                     i.fas.fa-sign-out-alt
                                     | Log Out
 
-            .d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
+            //.d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
                 if (discord && discord.servers.list)
                     div.shadow-blk
                         for thisServer in discord.servers.list
