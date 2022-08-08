@@ -4387,6 +4387,16 @@ function registerURLHandlers(){
             const el = this.querySelector('div#postImage');
             el.style.backgroundImage = 'url("' + this.getAttribute('data-msg-url-extpreview') + '")';
         });
+    _originalURL = (() => {
+        try {
+            if ($.history) { return $.history.url() }
+            if (window.location.hash.substring(1).length > 0) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
+            return undefined
+        } catch (e) {
+            if (window.location.hash.substring(1).length > 0) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
+            return undefined
+        }
+    })()
 }
 function registerUserMenuHandlers() {
     $('#userMenu').on('show.bs.collapse', function () {

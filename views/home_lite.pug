@@ -211,7 +211,7 @@ html
                                         div.album-list
                                             each thisAlbum in albums
                                                 div.album-item.position-relative
-                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
                                                         //x.uri, x.privacy
                                                         div.album-icon
                                                             if (thisAlbum.uri === 'gallery')
@@ -222,7 +222,7 @@ html
                                                                 i.far.fa-sticky-note.pr-1
                                                             else
                                                                 i.far.fa-archive.pr-1
-                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
                                                         span #{thisAlbum.name}
                                                     a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                         if (thisAlbum.image)
