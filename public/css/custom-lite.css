@@ -1964,18 +1964,18 @@ ul#accordionSidebar * {
         width: 800px;
     }
 }
-/*.backdrop-portait, .backdrop-neutral, .backdrop-wide {
+.backdrop-portait, .backdrop-neutral, .backdrop-wide {
 
 }
 
 @media (max-width:767px) {
     .backdrop-portait {
-        margin-top: 3em!important;
+        margin-bottom: 0!important;
     }
     .backdrop-wide{
-        margin-top: 3em!important;
+        margin-bottom: 0!important;
     }
-}*/
+}
 @media (max-height:900px) {
 
 
@@ -1983,10 +1983,11 @@ ul#accordionSidebar * {
 #midSearch {
     margin-bottom: auto;
 }
+.container .d-none.ajax-imageFav {
+    display: initial!important;
+    opacity: 0.25;
+}
 @media (max-width:767px) {
-    #midSearch {
-        margin-bottom: 0;
-    }
     .sequenzia-logo {
         font-size: 1.75em;
     }
@@ -2041,6 +2042,9 @@ ul#accordionSidebar * {
     padding-right: calc(env(safe-area-inset-right) + 2rem);
     padding-top: calc(env(safe-area-inset-top) + 2rem);
     padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+}
+.top-right {
+    margin: calc(env(safe-area-inset-top) + 1.5rem) calc(env(safe-area-inset-right) + 1.5rem) calc(env(safe-area-inset-bottom) + 1.5rem) calc(env(safe-area-inset-left) + 1.5rem)!important;
 }
 .shine-effect-go .animation-application {
     opacity: 0.125;

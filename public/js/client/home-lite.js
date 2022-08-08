@@ -197,11 +197,13 @@ function getSidebar(refreshSidebar, disableModels) {
     });
 }
 
-function toggleFavorite(channelid, eid) {
-    const star = document.querySelector(`#fav-${eid} > i.fas.fa-star`)
+function toggleFavorite() {
+    const channelid = document.getElementById('midSearch').getAttribute('channel');
+    const eid = document.getElementById('midSearch').getAttribute('eid');
+    const star = document.querySelectorAll(`.ajax-imageFav`)
     let isFavorite = false;
-    if (star)
-        isFavorite = star.classList.contains('favorited');
+    if (star.length > 0)
+        isFavorite = !(star[0].classList.contains('d-none'));
 
     sendBasic(channelid, eid, (isFavorite) ? `Unpin${(channelid === null) ? 'User' : ''}`: `Pin${(channelid === null) ? 'User' : ''}`, true);
 
@@ -242,11 +244,11 @@ function sendBasic(channelid, messageid, action, confirm) {
 function afterAction(action, data, id, confirm) {
     console.log('Message Request Sent!')
     if (action === 'Pin' || action === 'Unpin') {
-        [].forEach.call(document.querySelectorAll(`#fav-${id} > i.fas.fa-star`), function (el) {
+        [].forEach.call(document.querySelectorAll(`.ajax-imageFav`), function (el) {
             if (action.startsWith('Un')) {
-                el.classList.remove('favorited')
+                el.classList.add('d-none')
             } else {
-                el.classList.add('favorited')
+                el.classList.remove('d-none')
             }
         });
     } else if (action === 'PinUser' || action === 'UnpinUser') {
@@ -365,6 +367,8 @@ function getRandomImage() {
                 if (json.randomImagev2 && json.randomImagev2.length > 0) {
                     const previewImage = json.randomImagev2[0].previewImage;
                     const fullImage = json.randomImagev2[0].fullImage;
+                    document.getElementById('midSearch').setAttribute('channel', json.randomImagev2[0].channelId);
+                    document.getElementById('midSearch').setAttribute('eid', json.randomImagev2[0].eid);
                     _Size = [ json.randomImagev2[0].sizeH, json.randomImagev2[0].sizeW, json.randomImagev2[0].sizeR ];
                     _Color = [ json.randomImagev2[0].colorR, json.randomImagev2[0].colorG, json.randomImagev2[0].colorB ];
 
