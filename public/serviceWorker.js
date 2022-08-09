@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'HEAVY_DEV-v20-7-7-2022-P9';
+const cacheName = 'HEAVY_DEV-v20-7-9-2022-P2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -99,6 +99,7 @@ const cacheOptions = {
         "/favicon.ico",
         "/static/css/jquery.fancybox.min.css",
         "/static/css/bootstrap-slider.min.css",
+        "/static/vendor/fontawesome/css/fontawesome.min.css",
         "/static/vendor/fontawesome/css/all.min.css",
         "/css/custom.min.css",
         "/css/custom-lite.min.css",
@@ -123,6 +124,7 @@ const cacheOptions = {
     ]
 };
 let swDebugMode = (origin && origin.includes('localhost:3000'));
+let swUseInternalUnpacker = true;
 let browserStorageAvailable = false;
 let offlineContent;
 let downloadSpannedController = new Map();
@@ -130,7 +132,6 @@ let downloadSpannedResponse = new Map();
 let offlineDownloadSignals = new Map();
 let downloadSpannedSignals = new Map();
 let activeSpannedJob = false;
-let tempURLController = new Map();
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
@@ -178,9 +179,10 @@ async function handleResponse(url, response, reqType) {
         }
     } else {
         if (swDebugMode)
-            console.log(`JulyOS Kernel: ${(reqType) ? reqType : ''} Only (Bypass Cache) - ${url}`);
+            console.log(`JulyOS Kernel: ${(reqType) ? reqType : 'Network'} Only (Bypass Cache) - ${url}`);
     }
     if (uri.includes('/discord/login') || uri.includes('/discord/destroy') || uri.includes('/discord/refresh')) {
+        console.log(`Config Cache will be cleared!`);
         await caches.delete(cacheOptions.cacheConfig)
     }
     return response;
@@ -457,7 +459,7 @@ self.addEventListener('fetch', event => {
 });
 self.addEventListener('sync', async (event) => {
     console.log(event.tag);
-    await getAllOfflineEIDs();
+    await refreshOfflineItemCache();
     switch (event.tag) {
         case 'test-tag-from-devtools':
         case 'SYNC_PAGES_NEW_ONLY':
@@ -486,7 +488,7 @@ self.addEventListener('sync', async (event) => {
                         console.log(pagesUpdated.join('\n'));
                     }
                 }
-                syncActive = false;
+                setTimeout(() => {syncActive = false}, 60000)
             } else {
                 if (swDebugMode)
                     console.log('Sync Request Already Active!')
@@ -505,7 +507,7 @@ self.addEventListener('sync', async (event) => {
 });
 self.addEventListener('periodicsync', async (event) => {
     console.log(event.tag);
-    await getAllOfflineEIDs();
+    await refreshOfflineItemCache();
     switch (event.tag) {
         case 'test-tag-from-devtools':
         case 'SYNC_PAGES_NEW_ONLY':
@@ -533,7 +535,7 @@ self.addEventListener('periodicsync', async (event) => {
                         console.log(pagesUpdated.join('\n'));
                     }
                 }
-                syncActive = false;
+                setTimeout(() => {syncActive = false}, 60000)
             } else {
                 if (swDebugMode)
                     console.log('Sync Request Already Active!')
@@ -562,7 +564,7 @@ self.addEventListener('message', async (event) => {
             event.ports[0].postMessage(true);
             break;
         case 'CLEAR_ALL_STORAGE':
-            clearAllOfflineData();
+            deleteAllOfflineData();
             event.ports[0].postMessage(true);
             break;
         case 'SAVE_STORAGE_PAGE':
@@ -611,7 +613,7 @@ self.addEventListener('message', async (event) => {
             event.ports[0].postMessage(await deleteOfflineFile(event.data.eid, (!!event.data.noupdate), (!!event.data.preemptive)));
             break;
         case 'REMOVE_STORAGE_SPANNED_FILE':
-            event.ports[0].postMessage(await removeCacheItem(event.data.fileid));
+            event.ports[0].postMessage(await deleteOfflineSpannedFile(event.data.fileid));
             break;
         case 'PING':
             event.ports[0].postMessage(true);
@@ -674,7 +676,7 @@ self.addEventListener('message', async (event) => {
                         });
                     }
                 }
-                syncActive = false;
+                setTimeout(() => {syncActive = false}, 60000)
             } else {
                 event.ports[0].postMessage({
                     didActions: false,
@@ -688,6 +690,12 @@ self.addEventListener('message', async (event) => {
                 return await cache.add(u);
             })
             event.ports[0].postMessage(true);
+            break;
+        case 'GET_ALL_ACTIVE_JOBS':
+            event.ports[0].postMessage({
+                activeSpannedJob,
+                activeSpannedJobs: Array.from(downloadSpannedController.values())
+            });
             break;
         default:
             console.log(event);
@@ -997,7 +1005,7 @@ async function getAllOfflineFiles() {
         }
     })
 }
-async function getAllOfflineEIDs() {
+async function refreshOfflineItemCache() {
     return new Promise((resolve) => {
         try {
             if (browserStorageAvailable) {
@@ -1019,9 +1027,10 @@ async function getAllOfflineEIDs() {
         }
     })
 }
-async function updateNotficationsPanel() { // TODO: Send notifications to all clients to update the notifications panel
-
+async function updateNotficationsPanel() {
+    // TODO: Send notifications to all clients to update the notifications panel
 }
+
 async function deleteOfflinePage(url, noupdate) {
     try {
         if (url) {
@@ -1036,17 +1045,17 @@ async function deleteOfflinePage(url, noupdate) {
                     const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(e.eid);
                     indexDBUpdate.onsuccess = async event => {
                         if (e.full_url)
-                            await removeOfflineData(e.full_url);
+                            await deleteOfflineData(e.full_url);
                         if (e.preview_url)
-                            await removeOfflineData(e.preview_url);
+                            await deleteOfflineData(e.preview_url);
                         if (e.extpreview_url)
-                            await removeOfflineData(e.extpreview_url);
+                            await deleteOfflineData(e.extpreview_url);
                         if (e.kongou_poster_url) {
-                            await removeOfflineData(e.kongou_poster_url);
-                            await removeOfflineData(e.kongou_poster_url +'?height=580&width=384');
+                            await deleteOfflineData(e.kongou_poster_url);
+                            await deleteOfflineData(e.kongou_poster_url +'?height=580&width=384');
                         }
                         if (e.kongou_backdrop_url)
-                            await removeOfflineData(e.kongou_backdrop_url);
+                            await deleteOfflineData(e.kongou_backdrop_url);
                     }
                 }
                 if (browserStorageAvailable) {
@@ -1061,7 +1070,7 @@ async function deleteOfflinePage(url, noupdate) {
                             });
                         }
                         updateNotficationsPanel();
-                        getAllOfflineEIDs();
+                        refreshOfflineItemCache();
                     };
                 } else {
                     updateNotficationsPanel();
@@ -1097,19 +1106,19 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
             const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
             const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
             if (file.fileid)
-                await removeCacheItem(file.fileid)
+                await deleteOfflineSpannedFile(file.fileid)
             if (file.full_url)
-                await removeOfflineData(file.full_url);
+                await deleteOfflineData(file.full_url);
             if (file.preview_url)
-                await removeOfflineData(file.preview_url);
+                await deleteOfflineData(file.preview_url);
             if (file.extpreview_url)
-                await removeOfflineData(file.extpreview_url);
+                await deleteOfflineData(file.extpreview_url);
             if (file.kongou_poster_url) {
-                await removeOfflineData(file.kongou_poster_url);
-                await removeOfflineData(file.kongou_poster_url + '?height=580&width=384');
+                await deleteOfflineData(file.kongou_poster_url);
+                await deleteOfflineData(file.kongou_poster_url + '?height=580&width=384');
             }
             if (file.kongou_backdrop_url)
-                await removeOfflineData(file.kongou_backdrop_url);
+                await deleteOfflineData(file.kongou_backdrop_url);
             if (browserStorageAvailable) {
                 const indexDBUpdate = offlineContent.transaction(["offline_items", "offline_kongou_shows", "offline_kongou_episodes"], "readwrite");
                 indexDBUpdate.objectStore("offline_kongou_episodes").delete(parseInt(eid.toString()))
@@ -1135,7 +1144,7 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
                         });
                         updateNotficationsPanel();
                     }
-                    getAllOfflineEIDs();
+                    refreshOfflineItemCache();
                     broadcastAllMessage({
                         type: 'STATUS_STORAGE_CACHE_UNMARK',
                         id: file.id,
@@ -1159,13 +1168,13 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
         });
     }
 }
-async function clearAllOfflineData() {
+async function deleteAllOfflineData() {
     const pages = await getAllOfflinePages();
     await Promise.all(pages.map(async e => await deleteOfflinePage(e.url, true)));
     const files = await getAllOfflineFiles();
     await Promise.all(files.map(async e => await deleteOfflineFile(e.eid, true)));
     const spanned = await getAllOfflineSpannedFiles();
-    await Promise.all(spanned.map(async e => await removeCacheItem(e.id)));
+    await Promise.all(spanned.map(async e => await deleteOfflineSpannedFile(e.id)));
     broadcastAllMessage({
         type: 'MAKE_SNACK',
         level: 'success',
@@ -1173,15 +1182,15 @@ async function clearAllOfflineData() {
         timeout: 5000
     });
 }
-async function removeCacheItem(id) {
+async function deleteOfflineSpannedFile(id) {
     if (browserStorageAvailable) {
         const indexDBUpdate = offlineContent.transaction(["spanned_files"], "readwrite").objectStore("spanned_files").delete(id);
         indexDBUpdate.onsuccess = event => {
-            getAllOfflineEIDs();
+            refreshOfflineItemCache();
         };
     }
 }
-async function removeOfflineData(url) {
+async function deleteOfflineData(url) {
     if (browserStorageAvailable) {
         return new Promise((resolve) => {
             const indexDBUpdate = offlineContent.transaction(["offline_filedata"], "readwrite").objectStore("offline_filedata").delete(url);
@@ -1255,6 +1264,7 @@ async function cacheFileURL(object, page_item) {
                 if (object.kongou_backdrop_url)
                     fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, true, object.kongou_backdrop_url)).status
                 if (object.required_build) {
+                    const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
                     const unpackerJob = {
                         id: object.fileid,
                         name: object.filename,
@@ -1263,14 +1273,37 @@ async function cacheFileURL(object, page_item) {
                         preemptive: true,
                         expires: false,
                         offline: true,
+                        swHandeler: (windows.length === 0 || navigator.userAgent.indexOf('Chrome') !== -1)
                     }
                     fetchResults['spanned_file'] = await new Promise(async resolve => {
-                        const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
-                        if (windows.length > 0) {
+                        if (windows.length === 0 || (navigator.userAgent.indexOf('Chrome') !== -1 && swUseInternalUnpacker)) {
+                            if (windows.length === 0) {
+                                console.error('No windows available, ServiceWorker must unpack the file!')
+                            } else {
+                                console.log('Using ServiceWorker for request!')
+                            }
+                            broadcastAllMessage({
+                                type: 'STATUS_UNPACKER_NOTIFY',
+                                fileid: object.fileid,
+                                object: unpackerJob,
+                            })
+                            openUnpackingFiles(unpackerJob);
+                            function setInternalTimer() {
+                                setTimeout(async () => {
+                                    if (!downloadSpannedController.has(unpackerJob.id)) {
+                                        const fileIfAvailable = await getSpannedFileIfAvailable(unpackerJob.id)
+                                        resolve((fileIfAvailable && fileIfAvailable.id));
+                                    } else {
+                                        setInternalTimer();
+                                    }
+                                }, 1000)
+                            }
+                            setInternalTimer();
+                        } else if (windows.length > 0) {
                             console.log(`${windows.length} windows are available, sending request to first window`)
                             windows[0].postMessage({type: 'UNPACK_FILE', object: unpackerJob});
                             let i = 0;
-                            function setTimer() {
+                            function setExternalTimer() {
                                 setTimeout(() => {
                                     if (!downloadSpannedSignals.has(object.fileid) && i > 30) {
                                         console.error(`Spanned file ${object.fileid} could not be downloaded, No worker response received`)
@@ -1279,31 +1312,13 @@ async function cacheFileURL(object, page_item) {
                                         resolve(downloadSpannedResponse.get(object.fileid) || false);
                                         downloadSpannedResponse.delete(object.fileid);
                                     } else {
-                                        setTimer();
+                                        setExternalTimer();
                                     }
                                 }, 1000)
                             }
-                            setTimer();
+                            setExternalTimer();
                         } else {
-                            console.log('No windows available')
-                            broadcastAllMessage({
-                                type: 'STATUS_UNPACKER_NOTIFY',
-                                fileid: object.fileid,
-                                object: unpackerJob,
-                            })
-                            openUnpackingFiles(unpackerJob);
-                            fetchResults['spanned_file'] = await new Promise((resolve) => {
-                                function setTimer() {
-                                    setTimeout(() => {
-                                        if (!downloadSpannedController.has(object.fileid)) {
-                                            resolve((!!getSpannedFileIfAvailable(object.fileid)));
-                                        } else {
-                                            setTimer();
-                                        }
-                                    }, 1000)
-                                }
-                                setTimer();
-                            })
+                            console.error(`Unable to download ${object.fileid} because there is no worker available`);
                         }
                     })
                 }
@@ -1317,7 +1332,12 @@ async function cacheFileURL(object, page_item) {
             }
             if (browserStorageAvailable) {
                 try {
-                    const transaction = offlineContent.transaction(['offline_items', 'offline_kongou_shows', 'offline_kongou_episodes'], "readwrite")
+                    let requestedTargets = ['offline_items'];
+                    if (object.kongou_meta && object.kongou_meta.show)
+                        requestedTargets.push('offline_kongou_shows');
+                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.meta)
+                        requestedTargets.push('offline_kongou_episodes');
+                    const transaction = offlineContent.transaction(requestedTargets, "readwrite")
                     if (object.kongou_meta && object.kongou_meta.show) {
                         transaction.objectStore('offline_kongou_shows').put({
                             showId: object.kongou_meta.show.id,
@@ -1340,6 +1360,7 @@ async function cacheFileURL(object, page_item) {
                         page_item: (!!page_item),
                         fetchResults: fetchResults
                     }).onsuccess = event => {
+                        console.log(event)
                         resolve({
                             ...fetchResults,
                             ...fetchKMSResults,
@@ -1480,7 +1501,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                                     text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
                                     timeout: 5000
                                 });
-                                await getAllOfflineEIDs();
+                                await refreshOfflineItemCache();
                                 if (!newOnly) {
                                     if ('showNotification' in self.registration) {
                                         self.registration.showNotification("Sync Page", {
@@ -1580,7 +1601,7 @@ async function cacheFileOffline(meta, noConfirm) {
                         timeout: 5000
                     });
                 }
-                getAllOfflineEIDs();
+                refreshOfflineItemCache();
                 broadcastAllMessage({
                     type: 'STATUS_STORAGE_CACHE_MARK',
                     id: meta.id,
@@ -1626,7 +1647,7 @@ async function cacheEpisodeOffline(meta, noConfirm) {
                         timeout: 5000
                     });
                 }
-                getAllOfflineEIDs();
+                refreshOfflineItemCache();
                 broadcastAllMessage({
                     type: 'STATUS_STORAGE_CACHE_MARK',
                     id: meta.id,
@@ -1697,7 +1718,7 @@ async function getAllOfflineSpannedFiles() {
     })
 }
 async function checkExpiredFiles(filesArray) {
-    return await Promise.all(filesArray.filter(e => (e.expires && e.expires < Date.now())).map(e => removeCacheItem(e.id)))
+    return await Promise.all(filesArray.filter(e => (e.expires && e.expires < Date.now())).map(e => deleteOfflineSpannedFile(e.id)))
 }
 async function openUnpackingFiles(object, channel) {
     /*{

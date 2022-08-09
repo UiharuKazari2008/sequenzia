@@ -155,6 +155,8 @@ block content
                                 if (item.media.show && item.media.show.id)
                                     a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
                                         i.btn-links.fas.fa-arrow-right
+                                a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                    i.btn-links.fas.fa-cloud-check
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                     if (item.media.watched)
                                         i.btn-links.fas.fa-eye-slash
@@ -321,6 +323,8 @@ block content
                                                         i.btn-links.fas.fa-archive
                                                     a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
                                                         i.btn-links.fas.fa-info-circle
+                                                    a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                                        i.btn-links.fas.fa-cloud-check
                                                     a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                                         if (item.media.watched)
                                                             i.btn-links.fas.fa-eye-slash
@@ -411,6 +415,8 @@ block content
                             if (item.media.show && item.media.show.id)
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
                                     i.btn-links.fas.fa-arrow-right
+                            a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                i.btn-links.fas.fa-cloud-check
                             a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                 if (item.media.watched)
                                     i.btn-links.fas.fa-eye-slash
@@ -517,6 +523,8 @@ block content
                                     i.btn-links.fas.fa-archive
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
                                     i.btn-links.fas.fa-info-circle
+                                a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                    i.btn-links.fas.fa-cloud-check
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                     if (item.media.watched)
                                         i.btn-links.fas.fa-eye-slash

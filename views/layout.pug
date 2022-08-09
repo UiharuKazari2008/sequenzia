@@ -746,13 +746,33 @@ html
                                     // OFFLINE PAGE
                                 else if (appData)
                                     ul#appTitleMenu.navbar-nav.text-primary.text-ellipsis(style="display: contents;")
-                                    ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                    ul.navbar-nav.text-primary.text-ellipsis
                                         li.nav-item.no-arrow
-                                            i.fas.fa-spinner.fa-spin-pulse
+                                            div#actionPanel.btn-group.hidden(style="display: contents;")
+                                                a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
+                                                    i.far.fa-trash-can-undo
+                                                div.dropdown(style="display: contents;")
+                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.pl-2.pr-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
+                                                        i.fas.fa-clipboard.pr-1
+                                                        span#pendingActionsIndicator.badge.badge-primary ...
+                                                    .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
+                                                        a.dropdown-item(onclick="commitPendingActions(); return false;")
+                                                            i.fas.fa-inbox-out.pr-2
+                                                            span Commit
+                                                        a.dropdown-item(onclick="cancelPendingAction(-1); return false;")
+                                                            i.fas.fa-trash-alt.pr-2
+                                                            span Cancel
+
+                                            div#statusPanel.btn-group.hidden(style="display: contents;")
+                                                div.dropdown(style="display: contents;")
+                                                    a#statusMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                        i#statusMenuIcon.fas.fa-spinner
+                                                        i#statusMenuIndicator.fas.fa-square-0.pl-1
+                                                        div#statusMenuProgress
+                                                    .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
+                                                        span.dropdown-header
+                                                            | No Active Tasks
                                 else
-                                    ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
-                                        li.nav-item.no-arrow
-                                            i.fas.fa-spinner.fa-spin-pulse
                                     ul.navbar-nav.text-primary.text-ellipsis
                                         li.nav-item.no-arrow
                                             div#actionPanel.btn-group.hidden(style="display: contents;")
@@ -1273,6 +1293,9 @@ html
                                                         i.far.fa-cloud-download.align-middle
                                                     a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                         i.far.fa-download.align-middle
+                                ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                    li.nav-item.no-arrow
+                                        i.fas.fa-spinner.fa-spin-pulse
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow.kms-pip-icons.align-items-center

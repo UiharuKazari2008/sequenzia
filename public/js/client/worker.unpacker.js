@@ -16,7 +16,7 @@ offlineContentDB.onsuccess = event => {
 };
 
 let downloadSpannedController = new Map();
-let activeSpannedJob = false;
+let activeSpannedJobs = {};
 async function openUnpackingFiles(object) {
     /*{
         id: ,
@@ -28,7 +28,7 @@ async function openUnpackingFiles(object) {
         play:
     }*/
     if (object.id && object.id.length > 0) {
-        if (downloadSpannedController.size === 0 && !activeSpannedJob) {
+        if (downloadSpannedController.size === 0) {
             downloadSpannedController.set(object.id, {
                 ...object,
                 pending: true,
@@ -37,9 +37,9 @@ async function openUnpackingFiles(object) {
             postMessage({type: 'STATUS_UNPACK_STARTED', fileid: object.id});
             while (downloadSpannedController.size !== 0) {
                 const itemToGet = Array.from(downloadSpannedController.keys())[0]
-                activeSpannedJob = downloadSpannedController.get(itemToGet)
-                if (activeSpannedJob.ready && activeSpannedJob.pending) {
-                    const download = await unpackFile();
+                const job = downloadSpannedController.get(itemToGet)
+                if (job.ready && job.pending) {
+                    const download = await unpackFile(job);
                     if (download) {
                         postMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: object.id})
                     } else {
@@ -50,7 +50,6 @@ async function openUnpackingFiles(object) {
                 console.log(`Job Complete: ${downloadSpannedController.size} Jobs Left`)
                 postMessage({type: 'STATUS_UNPACKER_UPDATE'});
             }
-            activeSpannedJob = false;
         } else if (!downloadSpannedController.has(object.id)) {
             downloadSpannedController.set(object.id, {
                 ...object,
@@ -65,13 +64,17 @@ async function openUnpackingFiles(object) {
         postMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
     }
 }
-async function unpackFile() {
-    if (activeSpannedJob && activeSpannedJob.id && activeSpannedJob.pending && activeSpannedJob.ready) {
-        console.log(`Downloading File ${activeSpannedJob.id}...`)
-        const activeID = activeSpannedJob.id + '';
-        activeSpannedJob.pending = false;
-        let blobs = []
+async function unpackFile(_requestedJob) {
+    if (_requestedJob && _requestedJob.id && _requestedJob.pending && _requestedJob.ready) {
+        console.log(`Downloading File ${_requestedJob.id}...`)
+        const activeID = _requestedJob.id + '';
+        activeSpannedJobs[activeID] = {
+            ..._requestedJob,
+            pending: false
+        };
+        let blobs = [];
         postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'GET_METADATA', fileid: activeID});
+
         return await new Promise(async (job) => {
             try {
                 const response = await fetch( new Request(`/parity/${activeID}`, {
@@ -85,36 +88,34 @@ async function unpackFile() {
                 if (response.status < 300) {
                     try {
                         const object = JSON.parse((await response.text()).toString());
-                        activeSpannedJob = {
+                        activeSpannedJobs[activeID] = {
                             ...object,
-                            ...activeSpannedJob,
+                            ...activeSpannedJobs[activeID],
                             progress: '0%',
                             abort: new AbortController()
                         };
 
-                        if (activeSpannedJob.parts && activeSpannedJob.parts.length > 0 && activeSpannedJob.expected_parts) {
-                            if (activeSpannedJob.parts.length === activeSpannedJob.expected_parts) {
-                                postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'EXPECTED_PARTS', expected_parts: activeSpannedJob.expected_parts, fileid: activeID});
+                        if (activeSpannedJobs[activeID].parts && activeSpannedJobs[activeID].parts.length > 0 && activeSpannedJobs[activeID].expected_parts) {
+                            if (activeSpannedJobs[activeID].parts.length === activeSpannedJobs[activeID].expected_parts) {
+                                postMessage({type: 'STATUS_UNPACKER_ACTIVE', action: 'EXPECTED_PARTS', expected_parts: activeSpannedJobs[activeID].expected_parts, fileid: activeID});
                                 let pendingBlobs = {}
                                 let retryBlobs = {}
-                                activeSpannedJob.parts.map((e,i) => {
-                                    pendingBlobs[i] = e;
-                                    retryBlobs[i] = 0;
-                                })
+                                activeSpannedJobs[activeID].parts.map((e,i) => { pendingBlobs[i] = e; retryBlobs[i] = 0; })
                                 function calculatePercent() {
-                                    const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJob.parts.length) / activeSpannedJob.parts.length)) * 100
-                                    activeSpannedJob.progress = percentage.toFixed(0);
+                                    const percentage = (Math.abs((Object.keys(pendingBlobs).length - activeSpannedJobs[activeID].parts.length) / activeSpannedJobs[activeID].parts.length)) * 100
+                                    activeSpannedJobs[activeID].progress = percentage.toFixed(0);
                                     postMessage({
                                         type: 'STATUS_UNPACKER_ACTIVE',
                                         action: 'FETCH_PARTS_PROGRESS',
-                                        percentage: activeSpannedJob.progress,
+                                        percentage: activeSpannedJobs[activeID].progress,
                                         fetchedBlocks: blobs.length,
-                                        pendingBlocks: activeSpannedJob.parts.length - blobs.length,
-                                        totalBlocks: activeSpannedJob.parts.length,
+                                        pendingBlocks: activeSpannedJobs[activeID].parts.length - blobs.length,
+                                        totalBlocks: activeSpannedJobs[activeID].parts.length,
                                         fileid: activeID});
                                 }
+
                                 while (Object.keys(pendingBlobs).length !== 0) {
-                                    if (!(activeSpannedJob && activeSpannedJob.ready))
+                                    if (!(activeSpannedJobs[activeID] && activeSpannedJobs[activeID].ready))
                                         break;
                                     let downloadKeys = Object.keys(pendingBlobs).slice(0,8)
                                     const results = await Promise.all(downloadKeys.map(async item => {
@@ -122,10 +123,11 @@ async function unpackFile() {
                                             try {
                                                 const block = await fetch(new Request(pendingBlobs[item], {
                                                     method: 'GET',
-                                                    signal: activeSpannedJob.abort.signal
+                                                    signal: activeSpannedJobs[activeID].abort.signal
                                                 }))
-                                                if (block && (block.status === 200 || block.status === 0)) {
-                                                    console.log(`Downloaded Parity ${item}`);
+                                                if (block && (block.status < 300)) {
+                                                    if (activeSpannedJobs[activeID] && activeSpannedJobs[activeID].ready)
+                                                        console.log(`Downloaded Parity Block #${item} for ${activeID}`);
                                                     const blob = await block.blob()
                                                     if (blob.size > 5) {
                                                         blobs[item] = blob;
@@ -133,16 +135,17 @@ async function unpackFile() {
                                                         delete pendingBlobs[item];
                                                         ok(true);
                                                     } else {
-                                                        if (activeSpannedJob)
-                                                            activeSpannedJob.ready = false;
+                                                        if (activeSpannedJobs[activeID])
+                                                            activeSpannedJobs[activeID].ready = false;
                                                         ok(false);
                                                     }
                                                 } else if (block) {
-                                                    console.error(`Failed Parity ${item} (Retry attempt #${retryBlobs[item]}) - ${block.status}`)
+                                                    if (activeSpannedJobs[activeID] && activeSpannedJobs[activeID].ready)
+                                                        console.error(`Failed Parity Block #${item} (Retry attempt #${retryBlobs[item]}) - ${block.status}`)
                                                     retryBlobs[item] = retryBlobs[item] + 1
                                                     if (retryBlobs[item] > 3) {
-                                                        if (activeSpannedJob)
-                                                            activeSpannedJob.ready = false;
+                                                        if (activeSpannedJobs[activeID] && activeSpannedJobs[activeID].ready)
+                                                            activeSpannedJobs[activeID].ready = false;
                                                         ok(false);
                                                     } else {
                                                         ok(null);
@@ -151,11 +154,12 @@ async function unpackFile() {
                                                     ok(false);
                                                 }
                                             } catch (err) {
-                                                console.error(`Failed Parity ${item} (Retry attempt #${retryBlobs[item]})`)
+                                                if (activeSpannedJobs[activeID] && activeSpannedJobs[activeID].ready)
+                                                    console.error(`Failed Parity ${item} (Retry attempt #${retryBlobs[item]})`)
                                                 retryBlobs[item] = retryBlobs[item] + 1
                                                 if (retryBlobs[item] > 3) {
-                                                    if (activeSpannedJob)
-                                                        activeSpannedJob.ready = false;
+                                                    if (activeSpannedJobs[activeID])
+                                                        activeSpannedJobs[activeID].ready = false;
                                                     ok(false);
                                                 } else {
                                                     ok(null);
@@ -167,19 +171,20 @@ async function unpackFile() {
                                         break;
                                 }
 
-                                if (activeSpannedJob && blobs.length === activeSpannedJob.expected_parts) {
-                                    activeSpannedJob.progress = `100%`;
+                                if (activeSpannedJobs[activeID] && blobs.length === activeSpannedJobs[activeID].expected_parts) {
+                                    activeSpannedJobs[activeID].progress = `100%`;
                                     let blobType = {}
-                                    if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'video/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
-                                    if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
+                                    if (activeSpannedJobs[activeID].play === 'video' || activeSpannedJobs[activeID].play === 'kms-video' || videoFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()) > -1)
+                                        blobType.type = 'video/' + activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim();
+                                    if (activeSpannedJobs[activeID].play === 'audio' || audioFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()) > -1)
+                                        blobType.type = 'audio/' + activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim();
 
                                     const finalBlock = new Blob(blobs, blobType);
+                                    blobs = null;
                                     if (browserStorageAvailable) {
                                         try {
                                             offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').put({
-                                                ...activeSpannedJob,
+                                                ...activeSpannedJobs[activeID],
                                                 block: finalBlock,
                                                 parts: undefined,
                                                 expected_parts: undefined,
@@ -219,38 +224,38 @@ async function unpackFile() {
                         job(false);
                     }
                 } else {
+                    console.error(`Failed to get parity information to compile file ${activeID}`);
                     postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', message: (await response.text()), fileid: activeID})
                     job(false);
                 }
-                if (activeSpannedJob) {
+                if (activeSpannedJobs[activeID]) {
                     blobs = null;
-                    activeSpannedJob.parts = null;
-                    delete activeSpannedJob.parts;
+                    activeSpannedJobs[activeID].parts = null;
+                    delete activeSpannedJobs[activeID].parts;
                 }
             } catch (err) {
                 postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', fileid: activeID})
                 blobs = null;
-                activeSpannedJob.parts = null;
-                delete activeSpannedJob.parts;
-                console.error(err);
+                activeSpannedJobs[activeID].parts = null;
+                delete activeSpannedJobs[activeID].parts;
+                console.error('Unexpected unpacker error: ', err);
                 job(false);
             }
         })
     } else {
+        console.error('Missing Required Parameters to create a new unpacker job!');
+        console.error(_requestedJob);
         return false
     }
 }
 async function stopUnpackingFiles(fileid) {
-    if (downloadSpannedController.has(fileid)) {
+    if (downloadSpannedController.has(fileid) && activeSpannedJobs[fileid]) {
         const _controller = downloadSpannedController.get(fileid)
         if (_controller.pending === true) {
-            _controller.pending = false;
-            _controller.ready = false;
             downloadSpannedController.delete(fileid)
         } else {
-            activeSpannedJob.abort.abort();
-            activeSpannedJob = null;
-            downloadSpannedController.delete(fileid);
+            activeSpannedJobs[fileid].abort.abort();
+            activeSpannedJobs[fileid].ready = false;
         }
     }
 }
@@ -267,9 +272,7 @@ onmessage = function(event) {
             postMessage({type: 'PONG'});
             break;
         default:
-            console.log(event);
-            console.log(event.data);
-            console.log('Unknown Message');
+            console.error('Unknown Message', event);
             break;
     }
 }

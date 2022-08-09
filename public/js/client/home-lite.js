@@ -1,5 +1,8 @@
 let _Size = null;
 let _Color = null;
+let unpackingJobs = new Map();
+let offlineDownloadController = new Map();
+let notificationControler = null;
 let performaceMode = (getCookie("performaceMode") !== null) ? getCookie("performaceMode") === 'true' : false;
 function setCookie(cname, cvalue, exdays) {
     const d = new Date();
@@ -306,6 +309,23 @@ function authwareLogin() {
 }
 function isTouchDevice(){
     return true === ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
+}
+async function clearCache(list) {
+    await caches.keys().then(cacheNames => {
+        console.log(`Local Caches Stores:`);
+        return Promise.all(
+            cacheNames.filter(e => !list || (list && list.filter(f => e.includes(f)).length > 0)).map(cache => {
+                console.log(cache)
+                console.log('JulyOS Kernel: Deleteing Old Cache - ' + cache);
+                return caches.delete(cache);
+            })
+        );
+    })
+}
+async function clearKernelCache() {
+    await clearCache(['generic', 'kernel', 'config', 'temp-']);
+    await kernelRequestData({type: 'INSTALL_KERNEL'})
+    window.location.reload();
 }
 
 let noAmbientTimer = false;
@@ -674,17 +694,6 @@ function deleteAlbum(aid) {
         });
     }
 }
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker
-            .register('/serviceWorker.min.js')
-            .then(async registration => {
-                console.log('Service Worker: Registered')
-            })
-            .catch(err => console.log(`Service Worker: Error: ${err}`));
-    });
-}
-
 let ambientTimeout;
 let ambientNextImageTimeout;
 function setupAmbientTimers () {
@@ -716,39 +725,292 @@ function resetAmbientTimer() {
     startAmbientTimer();
 }
 function switchToAmbientMode() {
-    document.querySelector('.container').classList.add('disabled-pointer')
-    $('.container').fadeOut(500);
-    $('#homeBg').fadeOut(1000);
-    $('.ambient-items').fadeIn(500);
+    if (!noAmbientTimer) {
+        document.querySelector('.container').classList.add('disabled-pointer')
+        $('.container').fadeOut(500);
+        $('#homeBg').fadeOut(1000);
+        $('.ambient-items').fadeIn(500);
+    }
     window.clearTimeout(ambientTimeout);
     ambientTimeout = null;
 }
-
-
-$(document).ready(function () {
-    verifyNetworkAccess();
-    getRandomImage();
-    getSidebar();
-    $('.popover').popover('hide');
-    $('[data-toggle="popover"]').popover()
-    if(isTouchDevice()===false) {
-        $('[data-tooltip="tooltip"]').tooltip()
-        $('[data-tooltip="tooltip"]').tooltip('hide')
-    }
-    document.addEventListener("scroll", refreshLayout);
-    window.addEventListener("resize", refreshLayout);
-    window.addEventListener("orientationChange", refreshLayout);
-    setTimeout(() => {
-        if (!noAmbientTimer) {
-            setupAmbientTimers();
+async function stopUnpackingFiles(fileid) {
+    unpackingJobs.delete(fileid)
+    kernelRequestData({type: 'CANCEL_UNPACK_FILE', fileid});
+}
+async function updateNotficationsPanel() {
+    const tempSpannedFiles = await (async () => {
+        const offlineSpannedFiles = await kernelRequestData({type: 'GET_STORAGE_ALL_SPANNED_FILES'});
+        if (offlineSpannedFiles) {
+            return offlineSpannedFiles.filter(e => e.expires)
+        } else {
+            return false;
         }
-    }, 15000)
-    //dd();
-    //ddw();
-})
+    })();
+    if (unpackingJobs.size !== 0 || offlineDownloadController.size !== 0 || tempSpannedFiles.length > 0) {
+        let activeSpannedJob = false;
+        let completedKeys = [];
+        const keys = Array.from(unpackingJobs.keys()).map(e => {
+            const item = unpackingJobs.get(e);
+            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
+            if (item.active) {
+                results.push(`<i class="fas fa-spinner fa-spin-pulse"></i>`);
+                if (item.swHandeler)
+                    results.push(`<i class="fas fa-rectangle-code ${(item.active) ? ' pl-1' : ''}"></i>`);
+                results.push(`<span class="text-ellipsis${(item.active || item.swHandeler) ? ' pl-1' : ''}">${item.name} (${item.size})</span>`);
+                if (item.progress) {
+                    activeSpannedJob = true;
+                    results.push(`<span class="pl-2 text-success">${item.progress}%</span>`);
+                }
+            } else {
+                results.push(`<i class="fas fa-hourglass-start pr-1"></i>`);
+                if (item.swHandeler)
+                    results.push(`<i class="fas fa-rectangle-code pr-1"></i>`);
+                results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`);
+            }
+            results.push(`</a>`);
+            return results.join('\n');
+        });
+        const offlineKeys = Array.from(offlineDownloadController.keys()).map(e => {
+            if (keys.length > 0)
+                completedKeys.push(`<div class="dropdown-divider"></div>`);
+            const item = offlineDownloadController.get(e);
+            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="cancelPendingCache('${e}'); return false;")>`]
+            results.push(`<i class="fas fa-cloud-download pr-2"></i>`);
+            results.push(`<span class="text-ellipsis">${(item.title) ? item.title : e} (${item.totalItems})</span>`);
+            results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
+            results.push(`</a>`);
+            return results.join('\n');
+        });
+        if (tempSpannedFiles.length > 0) {
+            if (keys.length > 0 || offlineKeys.length > 0)
+                completedKeys.push(`<div class="dropdown-divider"></div>`);
+            completedKeys.push(...tempSpannedFiles.map(item => {
+                let results = [];
+                results.push(`<div style="padding: 0.5em 1.25em; display: flex; max-width: 87vw;">`)
+                results.push(`<a class="text-ellipsis mr-auto d-flex align-items-baseline" style="max-width: 80vw;"  title="Save File" href="${item.href}" role='button')>`);
+                results.push(`<i class="fas fa-clock mr-1"></i>`)
+                if (item.play) {
+                    if (item.play === 'video' || item.play === 'kms-video') {
+                        results.push(`<i class="fas fa-film mr-1"></i>`)
+                    } else if (item.play === 'audio') {
+                        results.push(`<i class="fas fa-music mr-1"></i>`)
+                    } else {
+                        results.push(`<i class="fas fa-file mr-1"></i>`)
+                    }
+                }
+                results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`)
+                results.push(`</div>`)
+                return results.join('\n');
+            }))
+        }
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').removeClass('hidden');
+            if (keys.length > 0 || offlineKeys.length > 0 || completedKeys.length > 0) {
+                $('#statusPanel > .dropdown > .dropdown-menu').html($([...keys, ...offlineKeys, ...completedKeys].join('\n')));
+                //$('#statusMenuProgress').html($(activeProgress.join('\n')));
+                if (keys.length <= 9 && keys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-' + keys.length;
+                } else if (keys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-ellipsis';
+                } else if (offlineKeys.length <= 9 && offlineKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-' + offlineKeys.length;
+                } else if (offlineKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-ellipsis';
+                } else if (completedKeys.length <= 9 && completedKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-' + completedKeys.length;
+                } else if (completedKeys.length > 0) {
+                    document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-ellipsis';
+                }
+            } else {
+                $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>');
+                document.getElementById('statusMenuIndicator').classList = 'fas pl-2 fa-square-0';
+            }
+        }
+        if (activeSpannedJob) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-laptop-arrow-down fa-fade';
+        } else if (unpackingJobs.size !== 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-cog fa-spin';
+        } else if (offlineKeys.length > 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-sync fa-spin';
+        } else if (tempSpannedFiles.length !== 0) {
+            document.getElementById('statusMenuIcon').classList = 'fas fa-sd-card';
+            clearInterval(notificationControler);
+            notificationControler = null;
+        }
+    } else {
+        clearInterval(notificationControler);
+        notificationControler = null;
+        if (document.getElementById('statusPanel')) {
+            $('#statusPanel').addClass('hidden');
+            $('#statusPanel > .dropdown > .dropdown-menu').html('<span class="dropdown-header">No Active Jobs</span>');
+            $('#statusMenuProgress').html('');
+        }
+    }
+}
+function kernelRequestData(message) {
+    return new Promise(function(resolve, reject) {
+        try {
+            const messageChannel = new MessageChannel();
+            messageChannel.port1.onmessage = function(event) {
+                if (event.data && event.data.error) {
+                    console.error(event.data.error);
+                    reject(false);
+                } else {
+                    resolve(event.data);
+                }
+            };
+            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+        } catch (err) {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-microchip pr-2"></i>Kernel Error',
+                subtitle: '',
+                content: `<p>Could not complete "${message.type}" due to communication failure with the network kernel!</p><p>${err.message}</p>`,
+                delay: 5000,
+            });
+        }
+    });
+}
+
 if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/serviceWorker.min.js')
+            .then(async registration => {
+                console.log('Service Worker: Registered');
+            })
+            .catch(err => console.log(`Service Worker: Error: ${err}`));
+    });
     navigator.serviceWorker.onmessage = async function (event) {
         switch (event.data.type) {
+            case 'STATUS_UNPACK_STARTED':
+            case 'STATUS_UNPACK_QUEUED':
+            case 'STATUS_UNPACK_DUPLICATE':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    downloadSpannedController.set(event.data.fileid, event.data);
+                    updateNotficationsPanel();
+                }
+                break;
+            case 'STATUS_UNPACK_COMPLETED':
+                setTimeout(() => {
+                    unpackingJobs.delete(event.data.fileid);
+                    updateNotficationsPanel();
+                }, 1000);
+                break;
+            case 'STATUS_UNPACK_FAILED':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    console.error(`Failed to unpack file ${event.data.fileid}`)
+                    setTimeout(() => {
+                        unpackingJobs.delete(event.data.fileid);
+                        updateNotficationsPanel();
+                    }, 1000);
+                    downloadSpannedController.set(event.data.fileid, event.data);
+                    updateNotficationsPanel();
+                }
+                break;
+            case 'STATUS_UNPACKER_ACTIVE':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    const dataJob = unpackingJobs.get(event.data.fileid);
+                    switch (event.data.action) {
+                        case 'GET_METADATA':
+                        case 'EXPECTED_PARTS':
+                            if (!dataJob.active) {
+                                unpackingJobs.set(event.data.fileid, {
+                                    ...dataJob,
+                                    active: true
+                                })
+                            }
+                            break;
+                        case 'FETCH_PARTS_PROGRESS':
+                            unpackingJobs.set(event.data.fileid, {
+                                ...dataJob,
+                                active: true,
+                                progress: event.data.percentage
+                            })
+                            break;
+                        case 'BLOCKS_ACQUIRED':
+                            console.log(`File ${dataJob.name} is ready`)
+                            break;
+                        default:
+                            console.error('Unknown Unpacker Status');
+                            console.error(event.data);
+                            break;
+                    }
+                    updateNotficationsPanel();
+                }
+                break;
+            case 'STATUS_UNPACKER_UPDATE':
+                updateNotficationsPanel();
+                break;
+            case 'STATUS_UNPACKER_FAILED':
+                if (unpackingJobs.has(event.data.fileid)) {
+                    switch (event.data.action) {
+                        case 'GET_METADATA':
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File failed to unpack!<br/>${event.data.message}`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'READ_METADATA':
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `Failed to read the parity metadata response!`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'EXPECTED_PARTS':
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'EXPECTED_FETCH_PARTS':
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `Missing a downloaded parity file, Retry to download!`,
+                                delay: 15000,
+                            });
+                            break;
+                        case 'UNCAUGHT_ERROR':
+                            console.error(event.data.message);
+                            $.toast({
+                                type: 'error',
+                                title: 'Unpack File',
+                                subtitle: 'Now',
+                                content: `File Handeler Fault!<br/>${event.data.message}`,
+                                delay: 15000,
+                            });
+                            break;
+                        default:
+                            console.error('Unknown Unpacker Error');
+                            console.error(event.data);
+                            break;
+                    }
+                    updateNotficationsPanel();
+                }
+                break;
+            case 'STATUS_UNPACKER_NOTIFY':
+                unpackingJobs.set(event.data.object.id, event.data.object);
+                break;
+            case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
+                offlineDownloadController.set(event.data.url, event.data.status);
+                updateNotficationsPanel();
+                break;
+            case 'STATUS_STORAGE_CACHE_PAGE_COMPLETE':
+                offlineDownloadController.delete(event.data.url);
+                updateNotficationsPanel();
+                break;
             case 'MAKE_SNACK':
                 $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
                 break;
@@ -766,6 +1028,45 @@ if ('serviceWorker' in navigator) {
         }
     };
 }
+
+$(document).ready(function () {
+    verifyNetworkAccess();
+    getRandomImage();
+    getSidebar();
+    kernelRequestData({ type: 'GET_ALL_ACTIVE_JOBS'})
+        .then(async data => {
+            if (data && data.activeSpannedJobs) {
+                data.activeSpannedJobs.map(job => {
+                    if (job && job.id) {
+                        unpackingJobs.set(job.id, job);
+                    }
+                })
+            }
+            const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+            console.log(updateOfflinePages);
+            updateNotficationsPanel();
+        })
+        .catch(error => {
+            console.error('Failed to get active jobs', error)
+        })
+    $('.popover').popover('hide');
+    $('[data-toggle="popover"]').popover()
+    if(isTouchDevice() === false) {
+        $('[data-tooltip="tooltip"]').tooltip()
+        $('[data-tooltip="tooltip"]').tooltip('hide')
+    }
+    document.addEventListener("scroll", refreshLayout);
+    window.addEventListener("resize", refreshLayout);
+    window.addEventListener("orientationChange", refreshLayout);
+    setTimeout(() => {
+        if (!noAmbientTimer) {
+            setupAmbientTimers();
+        }
+    }, 30000)
+    //dd();
+    //ddw();
+})
+
 async function transitionToOOBPage(pageUrl) {
     if (pageUrl === '/')
         return false;

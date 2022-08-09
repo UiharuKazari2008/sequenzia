@@ -94,7 +94,7 @@ function toggleLightboxOverlay() {
       e.preventDefault();
     }
   });
-  if (menuBarLocation) {
+  if (typeof menuBarLocation !== 'undefined') {
     switch (menuBarLocation) {
       case 'bottom':
         $('body').addClass('bottom-bar');

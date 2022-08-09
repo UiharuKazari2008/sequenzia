@@ -27,6 +27,7 @@ html
         link(rel='manifest' href='/static/manifest.json')
         title= `${webconf.site_name}`
 
+        link(rel='preload', href="/static/vendor/fontawesome/css/fontawesome.min.css" as='style')
         link(rel='preload', href="/static/vendor/fontawesome/css/all.min.css" as='style')
         link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
         link(rel='preload', href="/css/custom-lite.min.css" as='style')
@@ -37,6 +38,7 @@ html
         link(rel='preload', href='/static/vendor/bootstrap/js/bootstrap.bundle.min.js' as='script')
         //link(rel='preload', href='/static/vendor/jquery-easing/jquery.easing.min.js' as='script')
 
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
         link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
         link(rel='stylesheet', href="/css/custom-lite.min.css")
@@ -141,8 +143,17 @@ html
                     div#menuAccordion(style='display: contents').w-100.menu-glow
                         div#menuItemMain(class="collapse show" data-parent="#menuAccordion").w-100
                             .d-flex.pb-1.w-100
-                                .flex-grow-1
+                                .d-flex.flex-grow-1.align-items-center
                                     span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                    div#statusPanel(style='display: contents;')
+                                        .dropdown
+                                            a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
+                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
+                                                div#statusMenuProgress
+                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
+                                                span.dropdown-header
+                                                    | Syncing Offline Pages...
                                 div
                                     a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount").d-flex.align-items-center
                                         if (discord)

@@ -19,6 +19,17 @@ function getCookie(cname) {
     return null;
 }
 
+try {
+    window.addEventListener("load", () => {
+        // CHROME
+        if (!(navigator.userAgent.indexOf("Chrome") !== -1 || navigator.userAgent.indexOf("Firefox") !== -1 || navigator.userAgent.indexOf("Safari") !== -1)) {
+            console.log("Unsupported browser");
+        }
+    });
+} catch (err) {
+    console.error(err)
+}
+
 $(function() {
     // JuneOS Browser Manager
     $.history.on('load change push pushed replace replaced', function(event, url, type) {
@@ -118,7 +129,7 @@ let element_list = [];
 let lazyloadImages;
 let extratitlewidth = 0
 const networkKernelChannel = new MessageChannel();
-const unpackerWorker = new Worker('/js/client/worker.unpacker.js');
+let unpackerWorker = new Worker('/js/client/worker.unpacker.js');
 
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
@@ -366,6 +377,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
                     contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
                     contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
+                    contentPage.find(`#${e.id} .toggleOffline i`).addClass('text-success');
                 });
                 $("#contentBlock > .tz-gallery > .row").append(contentPage.find('.tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
@@ -409,6 +421,7 @@ async function requestCompleted (response, url, lastURL, push) {
                             Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
                                 contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
                                 contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
+                                contentPage.find(`#${e.id} .toggleOffline i`).addClass('text-success');
                             });
                             if (initialLoad)
                                 document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
@@ -1339,6 +1352,28 @@ async function cacheEpisodeOffline(element, noConfirm, preemptive) {
             meta,
             noconfirm: noConfirm
         })
+    }
+}
+async function toggleEpisodeOffline(id) {
+    const element = document.getElementById('message-' + id);
+    if (element) {
+        if (offlineMessages.indexOf(id) !== -1) {
+            const postEID = element.getAttribute('data-msg-eid');
+            deleteOfflineFile(postEID)
+        } else {
+            cacheEpisodeOffline(element)
+        }
+    }
+}
+async function toggleFileOffline(id) {
+    const element = document.getElementById('message-' + id);
+    if (element) {
+        if (offlineMessages.indexOf(id) !== -1) {
+            const postEID = element.getAttribute('data-msg-eid');
+            deleteOfflineFile(postEID)
+        } else {
+            cacheFileOffline(element);
+        }
     }
 }
 async function cachePageOffline(_url) {
@@ -2829,19 +2864,24 @@ async function updateNotficationsPanel() {
         let completedKeys = [];
         const keys = Array.from(unpackingJobs.keys()).map(e => {
             const item = unpackingJobs.get(e);
+            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
             if (item.active) {
-                let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
                 results.push(`<i class="fas fa-spinner fa-spin-pulse"></i>`);
-                results.push(`<span class="text-ellipsis pl-2">${item.name} (${item.size})</span>`);
+                if (item.swHandeler)
+                    results.push(`<i class="fas fa-rectangle-code ${(item.active) ? ' pl-1' : ''}"></i>`);
+                results.push(`<span class="text-ellipsis${(item.active || item.swHandeler) ? ' pl-1' : ''}">${item.name} (${item.size})</span>`);
                 if (item.progress) {
                     activeSpannedJob = true;
                     results.push(`<span class="pl-2 text-success">${item.progress}%</span>`);
                 }
-                results.push(`</a>`);
-                return results.join('\n');
             } else {
-                return `<span>${item.name} (${item.size})</span>`
+                results.push(`<i class="fas fa-hourglass-start pr-1"></i>`);
+                if (item.swHandeler)
+                    results.push(`<i class="fas fa-rectangle-code pr-1"></i>`);
+                results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`);
             }
+            results.push(`</a>`);
+            return results.join('\n');
         });
         const offlineKeys = Array.from(offlineDownloadController.keys()).map(e => {
             if (keys.length > 0)
@@ -4602,13 +4642,16 @@ if ('serviceWorker' in navigator) {
                 break;
             case 'STATUS_STORAGE_CACHE_UNMARK':
                 $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
+                $(`#message-${event.data.id} .toggleOffline i`).removeClass('text-success');
                 $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
                 break;
             case 'STATUS_STORAGE_CACHE_MARK':
                 $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
+                $(`#message-${event.data.id} .toggleOffline i`).addClass('text-success');
                 $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
                 break;
             case 'STATUS_UNPACKER_NOTIFY':
+                unpackingJobs.set(event.data.object.id, event.data.object);
                 break;
             case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
                 offlineDownloadController.set(event.data.url, event.data.status);
@@ -4618,49 +4661,6 @@ if ('serviceWorker' in navigator) {
                 offlineDownloadController.delete(event.data.url);
                 updateNotficationsPanel();
                 break;
-            case 'MAKE_SNACK':
-                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
-                break;
-            case 'MAKE_TOAST':
-                $.toast({
-                    type: (event.data.level || 'info'),
-                    title: (event.data.title || ''),
-                    subtitle: (event.data.subtitle || ''),
-                    content: (event.data.content || 'No Data'),
-                    delay: (event.data.timeout || undefined),
-                });
-                break;
-            case 'NOTIFY_OFFLINE_READY':
-            case 'PING_STORAGE':
-                console.log('Service Worker Storage Ready');
-                break;
-            case 'PONG':
-                break;
-            case 'UNPACK_FILE':
-                unpackingJobs.set(event.data.object.id, event.data.object);
-                updateNotficationsPanel();
-                unpackerWorker.postMessage(event.data);
-                break;
-            default:
-                console.error('Service Worker Message Unknown', event.data.type);
-                break;
-        }
-    };
-    // Page Channel
-    networkKernelChannel.onmessage = function (event) {
-        switch (event.data.type) {
-            case 'PONG':
-                console.log('Service Worker Comms are OK');
-                break;
-            default:
-                console.error('Service Worker Message Unknown', event.data.type);
-                break;
-        }
-    }
-}
-try {
-    unpackerWorker.onmessage = async function(event) {
-        switch (event.data.type) {
             case 'STATUS_UNPACK_STARTED':
             case 'STATUS_UNPACK_QUEUED':
             case 'STATUS_UNPACK_DUPLICATE':
@@ -4945,16 +4945,351 @@ try {
                     updateNotficationsPanel();
                 }
                 break;
+            case 'MAKE_SNACK':
+                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
+                break;
+            case 'MAKE_TOAST':
+                $.toast({
+                    type: (event.data.level || 'info'),
+                    title: (event.data.title || ''),
+                    subtitle: (event.data.subtitle || ''),
+                    content: (event.data.content || 'No Data'),
+                    delay: (event.data.timeout || undefined),
+                });
+                break;
+            case 'NOTIFY_OFFLINE_READY':
+            case 'PING_STORAGE':
+                console.log('Service Worker Storage Ready');
+                break;
             case 'PONG':
-                setTimeout(() => {
-                    document.getElementById('webWorkerComms').classList.add('badge-success');
-                    document.getElementById('webWorkerComms').classList.remove('badge-danger');
-                }, 5000)
+                break;
+            case 'UNPACK_FILE':
+                unpackingJobs.set(event.data.object.id, event.data.object);
+                updateNotficationsPanel();
+                unpackerWorker.postMessage(event.data);
                 break;
             default:
+                console.error('Service Worker Message Unknown', event.data.type);
                 break;
         }
-        await kernelRequestData(event.data)
+    };
+    // Page Channel
+    networkKernelChannel.onmessage = function (event) {
+        switch (event.data.type) {
+            case 'PONG':
+                console.log('Service Worker Comms are OK');
+                break;
+            default:
+                console.error('Service Worker Message Unknown', event.data.type);
+                break;
+        }
+    }
+}
+try {
+    unpackerWorker.onmessage = async function(event) {
+        try {
+            switch (event.data.type) {
+                case 'STATUS_UNPACK_STARTED':
+                case 'STATUS_UNPACK_QUEUED':
+                case 'STATUS_UNPACK_DUPLICATE':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        downloadSpannedController.set(event.data.fileid, event.data);
+                        updateNotficationsPanel();
+                    }
+                    break;
+                case 'STATUS_UNPACK_COMPLETED':
+                    setTimeout(() => {
+                        unpackingJobs.delete(event.data.fileid);
+                        updateNotficationsPanel();
+                    }, 1000);
+                    break;
+                case 'STATUS_UNPACK_FAILED':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        console.error(`Failed to unpack file ${event.data.fileid}`)
+                        setTimeout(() => {
+                            unpackingJobs.delete(event.data.fileid);
+                            updateNotficationsPanel();
+                        }, 1000);
+                        downloadSpannedController.set(event.data.fileid, event.data);
+                        updateNotficationsPanel();
+                    }
+                    break;
+                case 'STATUS_UNPACKER_ACTIVE':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        const dataJob = unpackingJobs.get(event.data.fileid);
+                        switch (event.data.action) {
+                            case 'GET_METADATA':
+                                console.log(`Downloading File ${event.data.fileid}...`);
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                    kmsStatus.innerText = 'Getting Parity Metadata...';
+                                }
+                                if (!dataJob.active) {
+                                    unpackingJobs.set(event.data.fileid, {
+                                        ...dataJob,
+                                        active: true
+                                    })
+                                }
+                                break;
+                            case 'EXPECTED_PARTS':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                    videoStatus.innerText = `Expecting ${event.data.expected_parts} Parts`;
+                                }
+                                if (!dataJob.active) {
+                                    unpackingJobs.set(event.data.fileid, {
+                                        ...dataJob,
+                                        active: true
+                                    })
+                                }
+                                break;
+                            case 'FETCH_PARTS_PROGRESS':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                    videoStatus.innerText = `Downloaded ${event.data.fetchedBlocks} Blocks, ${event.data.pendingBlocks} Pending`;
+                                    videoProgress.style.width = event.data.percentage + '%';
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === dataJob.messageid) {
+                                    kmsStatus.innerText = `Downloaded ${event.data.fetchedBlocks}/${event.data.pendingBlocks} Blocks`;
+                                    kmsProgress.style.width = event.data.percentage + '%';
+                                }
+                                unpackingJobs.set(event.data.fileid, {
+                                    ...dataJob,
+                                    active: true,
+                                    progress: event.data.percentage
+                                })
+                                break;
+                            case 'BLOCKS_ACQUIRED':
+                                console.log(dataJob)
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === dataJob.messageid) {
+                                    videoStatus.innerText = `All Blocks Downloaded! Processing Blocks...`;
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === dataJob.messageid) {
+                                    kmsStatus.innerText = ``;
+                                    kmsProgress.style.width = '0%';
+                                    kongouMediaPlayer.querySelector('.kms-progress-bar').classList.add('hidden');
+                                }
+                                if (!dataJob.preemptive && !kongouMediaPlayer.getAttribute('activePlayback') === dataJob.messageid) {
+                                    $.toast({
+                                        type: 'success',
+                                        title: 'Unpack File',
+                                        subtitle: 'Now',
+                                        content: `File was unpacked successfully<br/>${dataJob.name}`,
+                                        delay: 15000,
+                                    });
+                                }
+                                if (!(dataJob.offline && dataJob.preemptive)) {
+                                    const fileData = await getSpannedFileIfAvailable(event.data.fileid);
+                                    if (fileData) {
+                                        const element = document.createElement('a');
+                                        element.id = `fileData-${event.data.fileid}`
+                                        element.classList = `hidden`
+                                        element.href = fileData.href;
+                                        element.setAttribute('download', dataJob.name);
+                                        document.body.appendChild(element);
+
+                                        if (element && !dataJob.preemptive) {
+                                            if (dataJob.play) {
+                                                console.log(`Launching File...`)
+                                                if (dataJob.play === 'audio') {
+                                                    PlayTrack(element.href);
+                                                } else if (dataJob.play === 'video') {
+                                                    $('#videoBuilderModal').modal('hide');
+                                                    const videoPlayer = videoModel.querySelector('video')
+                                                    videoPlayer.pause();
+                                                    memoryVideoPositions.set(dataJob.id, videoPlayer.currentTime);
+                                                    PlayVideo(element.href, `${dataJob.channel}/${dataJob.name} (${dataJob.size})`, event.data.id);
+                                                } else if (dataJob.play === 'kms-video') {
+                                                    const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
+                                                    const _post = (activeDoc) ? activeDoc.querySelector(`#message-${dataJob.messageid}`) : document.getElementById(`message-${dataJob.messageid}`);
+                                                    const kmsprogress = _post.getAttribute('data-kms-progress');
+
+                                                    if (kongouMediaVideoPreview.currentTime !== kongouMediaVideoPreview.duration)
+                                                        memoryVideoPositions.set(event.data.id, kongouMediaVideoPreview.currentTime);
+                                                    kongouMediaVideoFull.src = element.href;
+                                                    kongouMediaVideoFull.volume = 0;
+                                                    try {
+                                                        await kongouMediaVideoFull.play();
+                                                    } catch (err) {
+                                                        console.error(err)
+                                                    }
+
+                                                    if (kmsprogress && !isNaN(parseFloat(kmsprogress)) && parseFloat(kmsprogress) > 0.05 && parseFloat(kmsprogress) <= 0.9) {
+                                                        kongouMediaVideoFull.currentTime = (kongouMediaVideoFull.duration * parseFloat(kmsprogress));
+                                                    } else if (kmsPreviewLastPostion && kmsPreviewLastPostion < kongouMediaVideoFull.duration) {
+                                                        if (!kmsPreviewPrematureEnding && kongouMediaVideoPreview.currentTime && kmsPreviewLastPostion < 5) {
+                                                            kongouMediaVideoFull.currentTime = kongouMediaVideoPreview.currentTime;
+                                                        } else {
+                                                            kongouMediaVideoFull.currentTime = kmsPreviewLastPostion;
+                                                        }
+                                                    }
+                                                    setTimeout(async () => {
+                                                        if (kongouMediaVideoPreview.paused && !kmsPreviewPrematureEnding) {
+                                                            kongouMediaVideoFull.pause();
+                                                        } else if (kongouMediaVideoFull.paused) {
+                                                            try {
+                                                                await kongouMediaVideoFull.play();
+                                                            } catch (err) {
+                                                                console.error(err);
+                                                            }
+                                                        }
+                                                        kongouMediaVideoPreview.pause();
+                                                        kongouMediaVideoPreview.classList.add('hidden');
+                                                        kongouMediaVideoFull.volume = kongouMediaVideoPreview.volume
+                                                        kmsPreviewLastPostion = null;
+                                                        kmsPreviewPrematureEnding = false;
+                                                        clearInterval(kmsPreviewInterval)
+                                                        kmsPreviewInterval = null;
+                                                        kongouMediaVideoFull.classList.remove('hidden');
+                                                        kongouControlsSeekUnavalible.classList.remove('no-seeking');
+                                                        document.getElementById('kmsWarningProgress').classList.add('hidden');
+                                                        document.getElementById('kmsWarningQuality').classList.add('hidden');
+                                                    }, 100);
+                                                } else {
+                                                    console.error('No Datatype was provided')
+                                                }
+                                            } else {
+                                                element.click();
+                                            }
+                                        }
+                                    } else {
+                                        console.error('File data was not found')
+                                    }
+                                } else {
+                                    console.log(`File ${dataJob.name} is ready`)
+                                }
+                                break;
+                            default:
+                                console.error('Unknown Unpacker Status');
+                                console.error(event.data);
+                                break;
+                        }
+                        updateNotficationsPanel();
+                    }
+                    break;
+                case 'STATUS_UNPACKER_UPDATE':
+                    updateNotficationsPanel();
+                    break;
+                case 'STATUS_UNPACKER_FAILED':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        switch (event.data.action) {
+                            case 'GET_METADATA':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    videoStatus.innerText = `Server Error: ${xhr.responseText}`;
+                                    videoProgress.classList.remove('badge-success');
+                                    videoProgress.classList.add('badge-danger');
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    kmsStatus.innerText = `Server Error: ${xhr.responseText}`;
+                                    kmsProgress.classList.remove('badge-success');
+                                    kmsProgress.classList.add('badge-danger');
+                                    kmsProgress.style.width = '100%';
+                                }
+                                console.error(event.data.message);
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File failed to unpack!<br/>${event.data.message}`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'READ_METADATA':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    videoStatus.innerText = `Failed to read the metadata, please report to the site administrator!`;
+                                    videoProgress.classList.remove('badge-success');
+                                    videoProgress.classList.add('badge-danger');
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    kmsStatus.innerText = `Cannot to read the metadata, please report to the site administrator!`;
+                                    kmsProgress.classList.remove('badge-success');
+                                    kmsProgress.classList.add('badge-danger');
+                                    kmsProgress.style.width = '100%';
+                                }
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `Failed to read the parity metadata response!`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'EXPECTED_PARTS':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    videoStatus.innerText = `File is damaged or is missing parts, please report to the site administrator!`;
+                                    videoProgress.classList.remove('badge-success');
+                                    videoProgress.classList.add('badge-danger');
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    kmsStatus.innerText = `File is damaged or is missing blocks!`;
+                                    kmsProgress.classList.remove('badge-success');
+                                    kmsProgress.classList.add('badge-danger');
+                                    kmsProgress.style.width = '100%';
+                                }
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'EXPECTED_FETCH_PARTS':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    videoStatus.innerText = `Failed, Not all blocks where downloaded`;
+                                    videoProgress.classList.remove('badge-success');
+                                    videoProgress.classList.add('badge-danger');
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    kmsStatus.innerText = `Cannot Play Full Video: Not all blocks where downloaded!`;
+                                    kmsProgress.classList.remove('badge-success');
+                                    kmsProgress.classList.add('badge-danger');
+                                    kmsProgress.style.width = '100%';
+                                }
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `Missing a downloaded parity file, Retry to download!`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'UNCAUGHT_ERROR':
+                                if (videoModel.hasAttribute('pendingMessage') && videoModel.getAttribute('pendingMessage') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    videoStatus.innerText = `Handler Failure: ${e.message}`;
+                                    videoProgress.classList.remove('badge-success');
+                                    videoProgress.classList.add('badge-danger');
+                                } else if (kongouMediaPlayer.hasAttribute('activePlayback') && kongouMediaPlayer.getAttribute('activePlayback') === unpackingJobs.get(event.data.fileid).messageid) {
+                                    kmsStatus.innerText = `Handler Failure: ${e.message}`;
+                                    kmsProgress.classList.remove('badge-success');
+                                    kmsProgress.classList.add('badge-danger');
+                                    kmsProgress.style.width = '100%';
+                                }
+                                console.error(event.data.message);
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File Handeler Fault!<br/>${event.data.message}`,
+                                    delay: 15000,
+                                });
+                                break;
+                            default:
+                                console.error('Unknown Unpacker Error');
+                                console.error(event.data);
+                                break;
+                        }
+                        updateNotficationsPanel();
+                    }
+                    break;
+                case 'PONG':
+                    setTimeout(() => {
+                        document.getElementById('webWorkerComms').classList.add('badge-success');
+                        document.getElementById('webWorkerComms').classList.remove('badge-danger');
+                    }, 5000)
+                    break;
+                default:
+                    break;
+            }
+        } catch (err) {
+            console.error('Failed to proccess message from worker', err);
+        }
+        try {
+            await kernelRequestData(event.data)
+        } catch (err) {
+            console.error('Failed to mirror message to serviceWorker', err);
+        }
     }
     setTimeout(() => {
         document.getElementById('webWorkerStatus').classList.add('badge-success');

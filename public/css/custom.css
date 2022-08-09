@@ -1311,6 +1311,10 @@ li.nav-item {
     border: #ffffff26 1px solid;
     text-shadow: 0 0 4px #ff5100;
 }
+.performance-mode .bottomBtn,
+.performance-mode .bottomBtn:hover {
+    background: #000000;
+}
 
 button#sidebarToggleTop {
 padding: 0;
@@ -3849,11 +3853,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         /*background-color: #d07300a1;*/
         border-bottom: solid 1px #e3990859;
     }
-    .menu-open #topbarBackground {
+    .menu-open #topbarBackground, .bottom-bar #topbarBackground {
         background: #d07300a1;
     }
     .bottom-bar #topbarBackground {
-        background: #d07300a1;
         border-bottom: none;
         border-top: solid 1px #e3990859;
     }
@@ -3886,6 +3889,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         background: rgba(255, 119, 0, 0.66);
         color: #ffffff;
         text-shadow: 0 0 4px rgba(255, 255, 255, 0.47);
+    }
+    .performance-mode .bottomBtn,
+    .performance-mode .bottomBtn:hover {
+        background: rgb(255, 119, 0);
     }
     .bg-translucent {
         background-color: rgba(0, 0, 0, 0.35) !important;
@@ -3973,8 +3980,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .userDropdown, a.userDropdown, a.userDropdown:hover, a.userDropdown:active {
         color: white;
     }
-    .performance-mode .menu-open #topbarBackground {
-        background-color: #d07300;
+    .performance-mode #topbarBackground,
+    .performance-mode #topbarBackground {
+        background: #d07300;
     }
 }
 .shadow {

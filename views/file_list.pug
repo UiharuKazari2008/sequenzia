@@ -136,7 +136,7 @@ block content
 
                             td
                                 span.align-middle #{item.entities.filename}
-                                div.text-primary
+                                div.text-primary.d-flex
                                     if (thisImageManage)
                                         .file-select.d-inline-block.hidden
                                             a#checkItem.btn.selectPostToMode.file-CheckItem(title="Select Item" href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)
@@ -174,7 +174,8 @@ block content
                                         else if (item.entities.download && item.entities.download.length > 5)
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
-
+                                        a.btn.btn-fav.toggleOffline(title=`Toggle Offline Access` href='#_' onClick=`toggleFileOffline('${item.id}'); return false;`)
+                                            i.fas.fa-cloud-check
                                     .btn-group.file-tools.d-inline-block
                                         if (user && user.source < 900)
                                             a.btn.btn-fav(id='fav-' + item.eid data-placement="top" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)

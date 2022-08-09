@@ -189,6 +189,9 @@ input.middle:focus {
         box-shadow: 0 0 20px #4e4e4e;
         border: solid 1px #ffffff87;
     }
+    .performance-mode .menu-container {
+        background: white;
+    }
     .container a, .ambient-items a,
     .ambient-items a:active, .container a:active,
     .ambient-items a:hover, .container a:hover,

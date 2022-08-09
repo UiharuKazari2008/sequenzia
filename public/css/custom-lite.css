@@ -1608,6 +1608,9 @@ div#time {
     line-height: 1em;
     font-size: 8em;
 }
+#statusMenu {
+    font-size: 1.5em;
+}
 
 
 @media (min-width:356px) {
@@ -1836,6 +1839,9 @@ div#time {
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/
+    #statusMenu {
+        font-size: 1.25em;
+    }
     #load{
         width:100%;
         height:100%;
@@ -1931,6 +1937,9 @@ div#time {
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 20px black;
     border: solid 1px #000000f2;
+}
+.performance-mode .menu-container {
+    background: black;
 }
 ul#accordionSidebar * {
     z-index: 5;
