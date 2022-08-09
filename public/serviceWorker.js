@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'HEAVY_DEV-v20-7-9-2022-P2';
+const cacheName = 'HEAVY_DEV-v20-7-9-2022-P3';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -55,6 +55,7 @@ const cacheOptions = {
         '/sidebar'
     ],
     preloadCache: [
+        offlineUrl,
         "/static/img/acr-logo.png",
         "/static/img/sequenzia-logo-nav.png",
         "/js/client/worker.unpacker.js",
@@ -120,7 +121,26 @@ const cacheOptions = {
         'https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js',
         'https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i',
         'https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap',
-        offlineUrl
+        "/static/img/splash/apple/ipadpro1_splash.png",
+        "/static/img/splash/apple/ipadpro1_splash_landscape.png",
+        "/static/img/splash/apple/ipadpro2_splash.png",
+        "/static/img/splash/apple/ipadpro2_splash_landscape.png",
+        "/static/img/splash/apple/ipadpro3_splash.png",
+        "/static/img/splash/apple/ipadpro3_splash_landscape.png",
+        "/static/img/splash/apple/ipad_splash.png",
+        "/static/img/splash/apple/ipad_splash_landscape.png",
+        "/static/img/splash/apple/iphone5_splash.png",
+        "/static/img/splash/apple/iphone5_splash_landscape.png",
+        "/static/img/splash/apple/iphone6_splash.png",
+        "/static/img/splash/apple/iphone6_splash_landscape.png",
+        "/static/img/splash/apple/iphoneplus_splash.png",
+        "/static/img/splash/apple/iphoneplus_splash_landscape.png",
+        "/static/img/splash/apple/iphonexr_splash.png",
+        "/static/img/splash/apple/iphonexr_splash_landscape.png",
+        "/static/img/splash/apple/iphonexsmax_splash.png",
+        "/static/img/splash/apple/iphonexsmax_splash_landscape.png",
+        "/static/img/splash/apple/iphonex_splash.png",
+        "/static/img/splash/apple/iphonex_splash_landscape.png",
     ]
 };
 let swDebugMode = (origin && origin.includes('localhost:3000'));
@@ -488,7 +508,7 @@ self.addEventListener('sync', async (event) => {
                         console.log(pagesUpdated.join('\n'));
                     }
                 }
-                setTimeout(() => {syncActive = false}, 60000)
+                setTimeout(() => {syncActive = false}, 90000)
             } else {
                 if (swDebugMode)
                     console.log('Sync Request Already Active!')
@@ -535,7 +555,7 @@ self.addEventListener('periodicsync', async (event) => {
                         console.log(pagesUpdated.join('\n'));
                     }
                 }
-                setTimeout(() => {syncActive = false}, 60000)
+                setTimeout(() => {syncActive = false}, 90000)
             } else {
                 if (swDebugMode)
                     console.log('Sync Request Already Active!')
@@ -675,8 +695,13 @@ self.addEventListener('message', async (event) => {
                             itemsGot: 0
                         });
                     }
+                } else {
+                    event.ports[0].postMessage({
+                        didActions: true,
+                        itemsGot: 0
+                    });
                 }
-                setTimeout(() => {syncActive = false}, 60000)
+                setTimeout(() => {syncActive = false}, 90000)
             } else {
                 event.ports[0].postMessage({
                     didActions: false,
