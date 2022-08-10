@@ -1989,8 +1989,20 @@ ul#accordionSidebar * {
 
 
 }
-#midSearch {
-    margin-bottom: auto;
+.container.menu-top #pushUp {
+    display: none;
+}
+.container.menu-bottom #pushDown {
+    display: none;
+}
+#pushUp, #pushDown {
+    opacity: 0;
+    pointer-events: none;
+}
+.container.show-menu-buttons #pushUp,
+.container.show-menu-buttons #pushDown {
+    opacity: 1;
+    pointer-events: initial;
 }
 .container .d-none.ajax-imageFav {
     display: initial!important;

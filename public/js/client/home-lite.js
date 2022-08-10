@@ -4,6 +4,7 @@ let unpackingJobs = new Map();
 let offlineDownloadController = new Map();
 let notificationControler = null;
 let performaceMode = (getCookie("performaceMode") !== null) ? getCookie("performaceMode") === 'true' : false;
+let menuLocation = (getCookie("menuLocation") !== null) ? getCookie("menuLocation") : false;
 function setCookie(cname, cvalue, exdays) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -872,7 +873,29 @@ function kernelRequestData(message) {
         }
     });
 }
-
+async function setMenuLocation(location) {
+    menuLocation = location;
+    if (location === 'bottom') {
+        if (document.querySelector('.container').classList.contains('menu-top')) {
+            document.querySelector('.container').classList.remove('menu-top');
+            menuLocation = null;
+        } else {
+            document.querySelector('.container').classList.add('menu-bottom');
+        }
+    } else if (location === 'top') {
+        if (document.querySelector('.container').classList.contains('menu-bottom')) {
+            document.querySelector('.container').classList.remove('menu-bottom');
+            menuLocation = null;
+        } else {
+            document.querySelector('.container').classList.add('menu-top');
+        }
+    } else {
+        document.querySelector('.container').classList.remove('menu-bottom');
+        document.querySelector('.container').classList.remove('menu-top');
+        menuLocation = null;
+    }
+    setCookie("menuLocation", location);
+}
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
@@ -1030,6 +1053,13 @@ if ('serviceWorker' in navigator) {
 }
 
 $(document).ready(function () {
+    if (menuLocation) {
+        if (menuLocation === 'bottom') {
+            document.querySelector('.container').classList.add('menu-bottom');
+        } else if (menuLocation === 'top') {
+            document.querySelector('.container').classList.add('menu-top');
+        }
+    }
     verifyNetworkAccess();
     getRandomImage();
     getSidebar();

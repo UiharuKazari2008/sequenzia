@@ -126,6 +126,9 @@ block content
                                     #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                         i.fas.fa-cloud-check
                                         span.d-none.d-md-inline.pl-1 Offline
+                                    #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
+                                        i.fas.fa-clock
+                                        span.pl-1 Expiring
                                 .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                     i.fas.fa-play
                             a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)
@@ -303,6 +306,9 @@ block content
                                                         #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                                             i.fas.fa-cloud-check
                                                             span.d-none.d-md-inline.pl-1 Offline
+                                                        #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
+                                                            i.fas.fa-clock
+                                                            span.pl-1 Expiring
                                                     .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                                         i.fas.fa-play
                                                 a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)
@@ -384,6 +390,9 @@ block content
                                 #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                     i.fas.fa-cloud-check
                                     span.d-none.d-md-inline.pl-1 Offline
+                                #offlineExpiring.badge.bg-danger.warning.text-dark.ml-1(title='Expiring Soon')
+                                    i.fas.fa-clock
+                                    span.pl-1 Expiring
                             .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                 i.fas.fa-play
                         a(href='#_' onclick=`openPreviewUnpacking("${item.id}"); return false;`)
@@ -503,6 +512,9 @@ block content
                                     #offlineReady.badge.bg-success.hidden(title='Saved Locally')
                                         i.fas.fa-cloud-check
                                         span.d-none.d-md-inline.pl-1 Offline
+                                    #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
+                                        i.fas.fa-clock
+                                        span.pl-1 Expiring
                                 .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                     i.fas.fa-play
                             a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)

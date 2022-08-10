@@ -165,7 +165,10 @@ html
                     span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
 
         .container.position-fixed.top-center.h-100.w-100.flex-column
-            #midSearch.ml-auto.mr-auto.mt-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
+            #pushUp.ml-auto.mr-auto.mt-auto
+                a(href='#_' onclick='setMenuLocation("top"); return false;')
+                    i.fas.fa-chevron-up.fa-2x.py-2.px-5
+            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                     div#menuAccordion(style='display: contents').w-100.menu-glow
@@ -183,7 +186,7 @@ html
                                                 span.dropdown-header
                                                     | Syncing Offline Pages...
                                 div
-                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount").d-flex.align-items-center
+                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.querySelector('.container').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
                                         if (discord)
                                             span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
                                             img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
@@ -238,7 +241,7 @@ html
                                     span.text-capitalize.shadow-text Internal Server Error
 
                         if (discord)
-                            div#menuItemAlbums.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemAlbums.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -273,7 +276,7 @@ html
                                                             div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
                                         span No Albums!
-                            div#menuItemApps.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemApps.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -298,7 +301,7 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
-                            div#menuItemLibrary.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemLibrary.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -322,7 +325,7 @@ html
                                         a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
                                             i.fas.fa-clock-rotate-left
                                             | History
-                            div#menuItemMediaGroups.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemMediaGroups.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
@@ -339,10 +342,10 @@ html
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                     i.fas(class=`${thisTheater.icon}`)
                                                     | #{thisTheater.name}
-                        div#menuItemAccount.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                        div#menuItemAccount.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                             .d-flex
                                 .d-flex.flex-grow-1
-                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.querySelector('.container').classList.remove('show-menu-buttons'); return false;")
                                         i.fas.fa-arrow-left.fa-fw
                                     if (user)
                                         .input-group(style="width: 13rem;").h-25
@@ -360,7 +363,9 @@ html
                                 a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
                                     i.fas.fa-sign-out-alt
                                     | Log Out
-
+            #pushDown.ml-auto.mr-auto.mb-auto
+                a(href='#_' onclick='setMenuLocation("bottom"); return false;')
+                    i.fas.fa-chevron-down.fa-2x.py-2.px-5
             //.d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
                 if (discord && discord.servers.list)
                     div.shadow-blk

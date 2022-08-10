@@ -70,6 +70,9 @@ let initialLoad = true;
 let serviceWorkerReady = false;
 let offlineEntities = [];
 let offlineMessages = [];
+let expiresEntities = [];
+let expiresMessages = [];
+let expiresTimes = [];
 let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
 let spannedFilesFIFOOffline = true;
@@ -374,10 +377,19 @@ async function requestCompleted (response, url, lastURL, push) {
             if (push === true && !offlinePage) {
                 $('#LoadNextPage').remove();
                 let contentPage = $(response).find('#content-wrapper').children();
-                Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map(async (e) => {
                     contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
                     contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
                     contentPage.find(`#${e.id} .toggleOffline i`).addClass('text-success');
+                    const expireIndex = expiresMessages.indexOf(e.id.split('-').pop())
+                    if (expireIndex !== -1) {
+                        contentPage.find(`#${e.id} #offlineExpiring`).removeClass('hidden');
+                        contentPage.find(`#${e.id} #offlineExpiring > span`).text((() => {
+                            if (expiresTimes[expireIndex] > 60)
+                                return (expiresTimes[expireIndex] / 60).toFixed(1) + ' Hour(s)';
+                            return expiresTimes[expireIndex].toFixed(0) + ' Min(s)';
+                        })())
+                    }
                 });
                 $("#contentBlock > .tz-gallery > .row").append(contentPage.find('.tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
@@ -418,10 +430,22 @@ async function requestCompleted (response, url, lastURL, push) {
                         });
                         contentPage.find(".container-fluid").fadeTo(0, 0.5);
                         if (!offlinePage) {
-                            Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map((e) => {
+                            Array.from(contentPage.find('[data-msg-eid]')).filter(e => e.id && offlineEntities.indexOf(e.getAttribute('data-msg-eid')) !== -1).map(async (e) => {
                                 contentPage.find(`#${e.id} .hide-offline`).addClass('hidden');
                                 contentPage.find(`#${e.id} #offlineReady`).removeClass('hidden');
                                 contentPage.find(`#${e.id} .toggleOffline i`).addClass('text-success');
+                                const expireIndex = expiresMessages.indexOf(e.id.split('-').pop())
+                                if (expireIndex !== -1) {
+                                    contentPage.find(`#${e.id} #offlineExpiring`).removeClass('hidden');
+                                    contentPage.find(`#${e.id} #offlineExpiring > span`).text((() => {
+                                        const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                                        if (time > 60)
+                                            return (time / 60).toFixed(1) + ' Hour(s)';
+                                        if (time <= 0)
+                                            return 'Soon'
+                                        return time.toFixed(0) + ' Min(s)';
+                                    })())
+                                }
                             });
                             if (initialLoad)
                                 document.getElementById('bootLoaderStatus').innerText = 'Injecting Results...';
@@ -1453,6 +1477,12 @@ async function deleteOfflinePage(_url, noupdate) {
 }
 async function deleteOfflineFile(eid, noupdate, preemptive) {
     return await kernelRequestData({type: 'REMOVE_STORAGE_FILE', eid, noupdate, preemptive})
+}
+async function expireOfflineFile(eid, noupdate, hours) {
+    return await kernelRequestData({type: 'EXPIRE_STORAGE_FILE', eid, noupdate, hours})
+}
+async function keepExpireOfflineFile(eid, noupdate) {
+    return await kernelRequestData({type: 'KEEP_EXPIRE_STORAGE_FILE', eid, noupdate})
 }
 async function clearCache(list) {
     await caches.keys().then(cacheNames => {
@@ -2578,6 +2608,7 @@ async function openKMSPlayer(messageid, seriesId) {
     kongouMediaVideoFull.pause();
     kongouMediaVideoFull.classList.add('hidden');
     if (!debugMode) {
+        await keepExpireOfflineFile(_post.getAttribute('data-msg-eid'))
         openUnpackingFiles(messageid, 'kms-video', undefined, undefined, activeDoc);
         if (active) {
             const _activePost = activeDoc.querySelector(`#message-${active}`);
@@ -2585,11 +2616,9 @@ async function openKMSPlayer(messageid, seriesId) {
                 const activeFileid = _activePost.getAttribute('data-msg-fileid');
                 const activeEid = _activePost.getAttribute('data-msg-eid');
                 if (activeEid)
-                    deleteOfflineFile(activeEid, true, true);
-                if (activeFileid) {
+                    expireOfflineFile(activeEid, false, true);
+                if (activeFileid)
                     stopUnpackingFiles(activeFileid);
-                    removeCacheItem(activeFileid);
-                }
             }
         }
     }
@@ -3038,6 +3067,8 @@ async function showSearchOptions(post) {
     const modalOfflineThisButton = document.getElementById(`makeOffline`);
     const modalPlayButton = document.getElementById(`goToPlay`);
     const modalGoToPostSource = document.getElementById(`goToPostSource`);
+    const modalKeepExpireingSection = document.getElementById(`keepExpireingFile`);
+    const modalKeepExpireingButton = modalKeepExpireingSection.querySelector('a');
     const modalSearchByUser = document.getElementById(`searchByUser`);
     const modalSearchByParent = document.getElementById(`searchByParent`);
     const modalSearchByColor = document.getElementById(`searchByColor`);
@@ -3221,6 +3252,29 @@ async function showSearchOptions(post) {
             normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
             normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Offline</span>`)
             normalInfo.push('</div>')
+            const expireIndex = expiresMessages.indexOf(postID)
+            if (expireIndex !== -1) {
+                normalInfo.push('<div class="badge badge-warning text-dark mx-1">')
+                normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>Expires in ${(() => {
+                    const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                    if (time > 60)
+                        return (time / 60).toFixed(1) + ' Hour(s)';
+                    if (time <= 0)
+                        return 'Soon'
+                    return time.toFixed(0) + ' Min(s)';
+                })()}</span>`)
+                normalInfo.push('</div>')
+                modalKeepExpireingSection.classList.remove('hidden');
+                modalKeepExpireingButton.onclick = function () {
+                    keepExpireOfflineFile(postEID);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+                //keepExpireOfflineFile
+            } else {
+                modalKeepExpireingSection.classList.add('hidden');
+                modalKeepExpireingButton.onclick = null;
+            }
             modalDownloadButton.title = 'Local Download'
             modalDownloadButton.href = '#_'
             modalDownloadButton.download = undefined
@@ -3255,6 +3309,8 @@ async function showSearchOptions(post) {
                     return false;
                 }
             }
+            modalKeepExpireingSection.classList.add('hidden');
+            modalKeepExpireingButton.onclick = null;
         }
 
         modalDownloadButton.classList.remove('hidden')
@@ -4638,6 +4694,9 @@ if ('serviceWorker' in navigator) {
                 console.log('Status Storage Cache Update Got')
                 offlineEntities = event.data.entities;
                 offlineMessages = event.data.messages;
+                expiresEntities = event.data.expires_entities;
+                expiresMessages = event.data.expires_messages;
+                expiresTimes = event.data.expires_time;
                 updateNotficationsPanel();
                 break;
             case 'STATUS_STORAGE_CACHE_UNMARK':

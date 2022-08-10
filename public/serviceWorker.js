@@ -2,7 +2,7 @@
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
 
-const cacheName = 'HEAVY_DEV-v20-7-9-2022-P6';
+const cacheName = 'HEAVY_DEV-v20-7-10-2022-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -291,6 +291,8 @@ offlineContentDB.onerror = event => {
 offlineContentDB.onsuccess = event => {
     offlineContent = event.target.result;
     console.log('Offline Database is available');
+    setInterval(() => checkExpiredFiles, 900000);
+    checkExpiredFiles();
     broadcastAllMessage({type: 'NOTIFY_OFFLINE_READY', status: true });
     browserStorageAvailable = true;
 };
@@ -609,11 +611,23 @@ self.addEventListener('message', async (event) => {
         case 'REMOVE_STORAGE_PAGE':
             event.ports[0].postMessage(await deleteOfflinePage(event.data.url, (!!event.data.noupdate)));
             break;
+        case 'EXPIRE_STORAGE_PAGE':
+            event.ports[0].postMessage(await expireOfflinePage(event.data.url, (!!event.data.noupdate), (event.data.hours)));
+            break;
         case 'REMOVE_STORAGE_FILE':
             event.ports[0].postMessage(await deleteOfflineFile(event.data.eid, (!!event.data.noupdate), (!!event.data.preemptive)));
             break;
+        case 'EXPIRE_STORAGE_FILE':
+            event.ports[0].postMessage(await expireOfflineFile(event.data.eid, (!!event.data.noupdate), (event.data.hours)));
+            break;
+        case 'KEEP_EXPIRE_STORAGE_FILE':
+            event.ports[0].postMessage(await keepExpireOfflineFile(event.data.eid, (!!event.data.noupdate)));
+            break;
         case 'REMOVE_STORAGE_SPANNED_FILE':
             event.ports[0].postMessage(await deleteOfflineSpannedFile(event.data.fileid));
+            break;
+        case 'EXPIRE_STORAGE_SPANNED_FILE':
+            event.ports[0].postMessage(await expireSpannedFile(event.data.fileid, (!!event.data.noupdate), (event.data.hours)));
             break;
         case 'PING':
             event.ports[0].postMessage(true);
@@ -805,12 +819,12 @@ async function extractMetaFromElement(e, preemptive) {
         kongou_meta: (postKMSJSON && postKMSJSON.show.id) ? postKMSJSON : null,
     }
 }
-async function getPageIfAvailable(url) {
+async function getPageIfAvailable(url, includeExpired) {
     return new Promise((resolve) => {
         try {
             if (url && browserStorageAvailable) {
                 offlineContent.transaction("offline_pages").objectStore("offline_pages").get(url).onsuccess = event => {
-                    if (event.target.result && event.target.result.items) {
+                    if (event.target.result && event.target.result.items && (includeExpired || !(event.target.result.expires && event.target.result.expires < Date.now()))) {
                         resolve({
                             ...event.target.result
                         })
@@ -832,7 +846,7 @@ async function getPageItemsIfAvailable(_url) {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_pages").objectStore("offline_pages").get(_url).onsuccess = event => {
-                    if (event.target.result && event.target.result.url) {
+                    if (event.target.result && event.target.result.url && !(event.target.result.expires && event.target.result.expires < Date.now())) {
                         resolve({
                             ...event.target.result
                         })
@@ -849,12 +863,12 @@ async function getPageItemsIfAvailable(_url) {
         }
     })
 }
-async function getFileIfAvailable(eid) {
+async function getFileIfAvailable(eid, includeExpired) {
     return new Promise((resolve) => {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_items").objectStore("offline_items").get(eid).onsuccess = event => {
-                    if (event.target.result && event.target.result.eid) {
+                    if (event.target.result && event.target.result.eid && (includeExpired || !(event.target.result.expires && event.target.result.expires < Date.now()))) {
                         resolve({
                             ...event.target.result
                         })
@@ -871,13 +885,39 @@ async function getFileIfAvailable(eid) {
         }
     })
 }
-async function getDataIfAvailable(url) {
+async function getSpannedFileIfAvailable(fileid, includeExpired) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("spanned_files").objectStore("spanned_files").get(fileid).onsuccess = async (event) => {
+                    if (event.target.result && event.target.result.id && event.target.result.block) {
+                        if (includeExpired || !(event.target.result.expires && event.target.result.expires < Date.now())) {
+                            resolve({
+                                ...event.target.result
+                            })
+                        } else {
+                            resolve(false)
+                        }
+                    } else {
+                        resolve(false)
+                    }
+                };
+            } else {
+                resolve(false)
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getDataIfAvailable(url, includeExpired) {
     return new Promise((resolve) => {
         let timeout = setTimeout(() => { resolve(false); }, 2500);
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_filedata").objectStore("offline_filedata").get(url).onsuccess = event => {
-                    if (event.target.result && event.target.result.data) {
+                    if (event.target.result && event.target.result.data && (includeExpired || !(event.target.result.expires && event.target.result.expires < Date.now()))) {
                         resolve(event.target.result.data)
                     } else {
                         resolve(false)
@@ -898,14 +938,14 @@ async function getDataIfAvailable(url) {
         }
     })
 }
-async function getEpisodesIfAvailable(showId) {
+async function getEpisodesIfAvailable(showId, includeExpired) {
     return new Promise(async (resolve) => {
         try {
             if (browserStorageAvailable && !isNaN(parseInt(showId.toString()))) {
                 const transaction = offlineContent.transaction(["offline_kongou_shows", "offline_kongou_episodes"])
                 const showData = await new Promise((data) => {
                     transaction.objectStore("offline_kongou_shows").get(parseInt(showId.toString())).onsuccess = event => {
-                        if (event.target.result && event.target.result.meta) {
+                        if (event.target.result && event.target.result.meta && (includeExpired || !(event.target.result.expires && event.target.result.expires < Date.now()))) {
                             data({ ...event.target.result })
                         } else {
                             data(false)
@@ -916,7 +956,7 @@ async function getEpisodesIfAvailable(showId) {
                     const episodeData = await new Promise((data) => {
                         transaction.objectStore("offline_kongou_episodes").index('showId').getAll(parseInt(showId.toString())).onsuccess = async (event) => {
                             if (event.target.result && event.target.result.length > 0) {
-                                const episodes = await Promise.all(event.target.result.map(async episode => {
+                                const episodes = await Promise.all(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(async episode => {
                                     const ep_item = await getFileIfAvailable(episode.eid.toString())
                                     if (ep_item) {
                                         return {
@@ -950,12 +990,12 @@ async function getEpisodesIfAvailable(showId) {
         }
     })
 }
-async function getAllOfflinePages() {
+async function getAllOfflinePages(includeExpired) {
     return new Promise((resolve) => {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
+                    resolve(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(e => {
                         return {
                             ...e
                         }
@@ -970,12 +1010,12 @@ async function getAllOfflinePages() {
         }
     })
 }
-async function getAllOfflineSeries() {
+async function getAllOfflineSeries(includeExpired) {
     return new Promise((resolve) => {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_kongou_shows").objectStore("offline_kongou_shows").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
+                    resolve(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(e => {
                         return {
                             ...e
                         }
@@ -990,12 +1030,32 @@ async function getAllOfflineSeries() {
         }
     })
 }
-async function getAllOfflineFiles() {
+async function getAllOfflineFiles(includeExpired) {
     return new Promise((resolve) => {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
-                    resolve(event.target.result.map(e => {
+                    resolve(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(e => {
+                        return {
+                            ...e
+                        }
+                    }))
+                }
+            } else {
+                resolve([]);
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
+async function getAllOfflineSpannedFiles(includeExpired) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("spanned_files").objectStore("spanned_files").getAll().onsuccess = async (event) => {
+                    resolve(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(e => {
                         return {
                             ...e
                         }
@@ -1015,11 +1075,15 @@ async function refreshOfflineItemCache() {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_items").objectStore("offline_items").getAll().onsuccess = event => {
-                    offlineMessages = [...event.target.result.map(e => e.id)]
+                    const items = event.target.result
+                    offlineMessages = [...items.map(e => e.id)]
                     broadcastAllMessage({
                         type: 'STATUS_STORAGE_CACHE_LIST',
-                        entities: [...event.target.result.map(e => e.eid)],
-                        messages: offlineMessages
+                        entities: [...items.map(e => e.eid)],
+                        expires_entities: [...items.filter(e => !!e.expires).map(e => e.eid)],
+                        messages: offlineMessages,
+                        expires_messages: [...items.filter(e => !!e.expires).map(e => e.id)],
+                        expires_time: [...items.filter(e => !!e.expires).map(e => e.expires)]
                     });
                     resolve(true);
                 }
@@ -1099,11 +1163,52 @@ async function deleteOfflinePage(url, noupdate) {
         });
     }
 }
+async function expireOfflinePage(url, noupdate, hours) {
+    return new Promise(async resolve => {
+        try {
+            const page = await getPageIfAvailable(url, true);
+            if (page) {
+                if (browserStorageAvailable) {
+                    offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").put({
+                        ...page,
+                        expires:(new Date().getTime()) + ((hours || 1.5) * 3600000)
+                    }).onsuccess = event => {
+                        if (!noupdate) {
+                            updateNotficationsPanel();
+                            refreshOfflineItemCache();
+                        }
+                        resolve(true);
+                    };
+                } else {
+                    if (!noupdate) {
+                        updateNotficationsPanel();
+                        refreshOfflineItemCache();
+                    }
+                    resolve(false);
+                }
+            } else {
+                resolve(false);
+            }
+        } catch (err) {
+            console.error(`Uncaught Item Download Error`);
+            console.error(err)
+            broadcastAllMessage({
+                type: 'MAKE_TOAST',
+                level: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Could not make page expireable</p><p>Internal Application Error: ${err.message}</p>`,
+                timeout: 10000
+            });
+            resolve(false);
+        }
+    })
+}
 async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
     try {
         let blockedItems = [];
         const linkedItems = (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
-        const file = await getFileIfAvailable(eid);
+        const file = await getFileIfAvailable(eid, true);
         if (file && (!preemptive || (preemptive && file.preemptive_download)) && (bypassBlocking || blockedItems.indexOf(file.eid) === -1)) {
             const cachesList = await caches.keys();
             const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
@@ -1172,6 +1277,131 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
             timeout: 10000
         });
     }
+}
+async function expireOfflineFile(eid, noupdate, hours, bypassBlocking) {
+    return new Promise(async resolve => {
+        try {
+            let blockedItems = [];
+            (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
+            const file = await getFileIfAvailable(eid, true);
+            if (file && (bypassBlocking || blockedItems.indexOf(file.eid) === -1)) {
+                if (browserStorageAvailable) {
+                    offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").put({
+                        ...file,
+                        expires:(new Date().getTime()) + ((hours || 1.5) * 3600000)
+                    }).onsuccess = event => {
+                        if (!noupdate) {
+                            updateNotficationsPanel();
+                            refreshOfflineItemCache();
+                        }
+                        resolve(true);
+                    };
+                } else {
+                    if (!noupdate) {
+                        updateNotficationsPanel();
+                        refreshOfflineItemCache();
+                    }
+                    resolve(false);
+                }
+            } else {
+                resolve(false);
+            }
+        } catch (err) {
+            console.error(`Uncaught Item Download Error`);
+            console.error(err)
+            broadcastAllMessage({
+                type: 'MAKE_TOAST',
+                level: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Could not mak file expireable</p><p>Internal Application Error: ${err.message}</p>`,
+                timeout: 10000
+            });
+            resolve(false);
+        }
+    })
+}
+async function keepExpireOfflineFile(eid, noupdate) {
+    return new Promise(async resolve => {
+        try {
+            const file = await getFileIfAvailable(eid, true);
+            if (file) {
+                if (browserStorageAvailable) {
+                    offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").put({
+                        ...file,
+                        expires: false
+                    }).onsuccess = event => {
+                        if (!noupdate) {
+                            updateNotficationsPanel();
+                            refreshOfflineItemCache();
+                        }
+                        resolve(true);
+                    };
+                } else {
+                    if (!noupdate) {
+                        updateNotficationsPanel();
+                        refreshOfflineItemCache();
+                    }
+                    resolve(false);
+                }
+            } else {
+                resolve(false);
+            }
+        } catch (err) {
+            console.error(`Uncaught Item Download Error`);
+            console.error(err)
+            broadcastAllMessage({
+                type: 'MAKE_TOAST',
+                level: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Could not mak file expireable</p><p>Internal Application Error: ${err.message}</p>`,
+                timeout: 10000
+            });
+            resolve(false);
+        }
+    })
+}
+async function expireSpannedFile(fileid, noupdate, hours) {
+    return new Promise(async resolve => {
+        try {
+            const file = await getSpannedFileIfAvailable(fileid, true);
+            if (file) {
+                if (browserStorageAvailable) {
+                    offlineContent.transaction(["spanned_files"], "readwrite").objectStore("spanned_files").put({
+                        ...file,
+                        expires:(new Date().getTime()) + ((hours || 1.5) * 3600000)
+                    }).onsuccess = event => {
+                        if (!noupdate) {
+                            updateNotficationsPanel();
+                            refreshOfflineItemCache();
+                        }
+                        resolve(true);
+                    };
+                } else {
+                    if (!noupdate) {
+                        updateNotficationsPanel();
+                        refreshOfflineItemCache();
+                    }
+                    resolve(false);
+                }
+            } else {
+                resolve(false);
+            }
+        } catch (err) {
+            console.error(`Uncaught Item Download Error`);
+            console.error(err)
+            broadcastAllMessage({
+                type: 'MAKE_TOAST',
+                level: 'error',
+                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                subtitle: '',
+                content: `<p>Could not make spanned file expireable</p><p>Internal Application Error: ${err.message}</p>`,
+                timeout: 10000
+            });
+            resolve(false);
+        }
+    })
 }
 async function deleteAllOfflineData() {
     const pages = await getAllOfflinePages();
@@ -1674,56 +1904,49 @@ async function cacheEpisodeOffline(meta, noConfirm) {
     return false;
 }
 
-async function getSpannedFileIfAvailable(fileid) {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("spanned_files").objectStore("spanned_files").get(fileid).onsuccess = async (event) => {
-                    if (event.target.result && event.target.result.id && event.target.result.block) {
-                        await checkExpiredFiles([event.target.result]);
-                        if (!(event.target.result.expires && event.target.result.expires < Date.now())) {
-                            resolve({
-                                ...event.target.result
-                            })
-                        } else {
-                            resolve(false)
-                        }
-                    } else {
-                        resolve(false)
-                    }
-                };
+async function checkExpiredFiles() {
+    if (swDebugMode)
+        console.log('Checking for expired files');
+    await new Promise(async resolve => {
+        offlineContent.transaction(["spanned_files"]).objectStore("spanned_files").getAll().onsuccess = async (files) => {
+            if (files && files.target && files.target.result && files.target.result.length > 0) {
+                resolve(await Promise.all(files.target.result.filter(e => e.expires && e.expires < Date.now()).map(async e => {
+                    console.log("Spanned Files Expired: " + e.id);
+                    await deleteOfflineSpannedFile(e.id);
+                })))
             } else {
-                resolve(false)
+                resolve([])
             }
-        } catch (e) {
-            console.log(e);
-            resolve(false)
         }
     })
-}
-async function getAllOfflineSpannedFiles() {
-    return new Promise((resolve) => {
-        try {
-            if (browserStorageAvailable) {
-                offlineContent.transaction("spanned_files").objectStore("spanned_files").getAll().onsuccess = async (event) => {
-                    await checkExpiredFiles(event.target.result);
-                    resolve(event.target.result.filter(e => !(e.expires && e.expires < Date.now())).map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
+    await new Promise(async resolve => {
+        offlineContent.transaction(["offline_items"]).objectStore("offline_items").getAll().onsuccess = async (files) => {
+            if (files && files.target && files.target.result && files.target.result.length > 0) {
+                resolve(await Promise.all(files.target.result.filter(e => e.expires && e.expires < Date.now()).map(async e => {
+                    console.log("Offline Files Expired: " + e.eid);
+                    await deleteOfflineFile(e.eid, true);
+                })))
             } else {
-                resolve([]);
+                resolve([])
             }
-        } catch (e) {
-            console.log(e);
-            resolve([])
         }
     })
-}
-async function checkExpiredFiles(filesArray) {
-    return await Promise.all(filesArray.filter(e => (e.expires && e.expires < Date.now())).map(e => deleteOfflineSpannedFile(e.id)))
+    await new Promise(async resolve => {
+        offlineContent.transaction(["offline_filedata"]).objectStore("offline_filedata").getAll().onsuccess = async (files) => {
+            if (files && files.target && files.target.result && files.target.result.length > 0) {
+                resolve(await Promise.all(files.target.result.filter(e => e.expires && e.expires < Date.now()).map(async e => {
+                    console.log("Offline Data Expired: " + e.url);
+                    await deleteOfflineData(e.url);
+                })))
+            } else {
+                resolve([])
+            }
+        }
+    })
+    if (swDebugMode)
+        console.log("Completed Expired Files Check")
+    updateNotficationsPanel();
+    refreshOfflineItemCache();
 }
 async function openUnpackingFiles(object, channel) {
     /*{
