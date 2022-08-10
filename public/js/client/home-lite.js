@@ -878,23 +878,23 @@ async function setMenuLocation(location) {
     if (location === 'bottom') {
         if (document.querySelector('.container').classList.contains('menu-top')) {
             document.querySelector('.container').classList.remove('menu-top');
-            menuLocation = null;
+            menuLocation = 'null';
         } else {
             document.querySelector('.container').classList.add('menu-bottom');
         }
     } else if (location === 'top') {
         if (document.querySelector('.container').classList.contains('menu-bottom')) {
             document.querySelector('.container').classList.remove('menu-bottom');
-            menuLocation = null;
+            menuLocation = 'null';
         } else {
             document.querySelector('.container').classList.add('menu-top');
         }
     } else {
         document.querySelector('.container').classList.remove('menu-bottom');
         document.querySelector('.container').classList.remove('menu-top');
-        menuLocation = null;
+        menuLocation = 'null';
     }
-    setCookie("menuLocation", location);
+    setCookie("menuLocation", menuLocation);
 }
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

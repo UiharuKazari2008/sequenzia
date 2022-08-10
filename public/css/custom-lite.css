@@ -1973,27 +1973,20 @@ ul#accordionSidebar * {
         width: 800px;
     }
 }
-.backdrop-portait, .backdrop-neutral, .backdrop-wide {
 
-}
-
-@media (max-width:767px) {
-    .backdrop-portait {
-        margin-bottom: 0!important;
-    }
-    .backdrop-wide{
-        margin-bottom: 0!important;
-    }
-}
-@media (max-height:900px) {
-
-
-}
 .container.menu-top #pushUp {
     display: none;
 }
 .container.menu-bottom #pushDown {
     display: none;
+}
+@media (min-width:850px) {
+    .container.menu-top #midSearch {
+        margin-top: 2em;
+    }
+    .container.menu-bottom #midSearch {
+        margin-bottom: 2em;
+    }
 }
 #pushUp, #pushDown {
     opacity: 0;
@@ -2007,6 +2000,18 @@ ul#accordionSidebar * {
 .container .d-none.ajax-imageFav {
     display: initial!important;
     opacity: 0.25;
+}
+
+.backdrop-portait, .backdrop-neutral, .backdrop-wide {
+
+}
+@media (max-width:767px) {
+    .backdrop-portait:not(.menu-top) #pushDown {
+        display: none;
+    }
+    .container.backdrop-wide:not(.menu-top) #pushDown {
+        display: none;
+    }
 }
 @media (max-width:767px) {
     .sequenzia-logo {
