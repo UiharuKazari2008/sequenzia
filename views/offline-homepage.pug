@@ -573,17 +573,17 @@ html
                                 button.close.text-white(type='button' data-dismiss='modal' aria-label='Close').align-self-center.shadow-text.ml-auto
                                     span(aria-hidden='true') &times;
                         div.row.px-2.flex-nowrap.mb-1.mt-2(style='display: flex; justify-content: space-evenly; align-content: center; flex-direction: row; align-items: center;')
-                            a#toggleFavoritePost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                            a#toggleFavoritePost.btn.text-white(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-star.shadow-text
-                            a#manageAlbumPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                            a#manageAlbumPost.btn.text-white(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-archive.shadow-text
-                            a#addFlagPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                            a#addFlagPost.btn.text-white(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-flag.shadow-text
-                            a#goToPostLocation.btn.text-white.d-none(href='#_' role='button')
+                            a#goToPostLocation.btn.text-white(href='#_' role='button')
                                 i.fas.fa-directions.shadow-text
                             a#goToPostSource.btn.text-white(href='#_' role='button').hidden
                                 i.fas.fa-globe-americas.shadow-text
-                            a#goToHistoryDisplay.btn.text-white.d-none(href='#_' role='button')
+                            a#goToHistoryDisplay.btn.text-white(href='#_' role='button')
                                 i.fas.fa-history.shadow-text
                             a#goToPlay.btn.text-white(href='#_' role='button')
                                 i.fas.fa-play.shadow-text
@@ -591,6 +591,10 @@ html
                                 i.fas.fa-download.shadow-text
                             a#makeOffline.btn.text-white(href='#_' role='button')
                                 i.fas.fa-cloud-download.shadow-text
+                        #keepExpireingFile.row.pl-3.pr-3.hidden
+                            a.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                i.fas.fa-clock.pr-2
+                                span Keep Offline File
                         div.row.px-3
                             div#kmsContent.mb-2.text-center.w-100
                                 div.d-flex
@@ -610,7 +614,7 @@ html
                         div.row.px-3.mb-2
                             div#rawBodyContent.mt-1.text-center.w-100
                                 div.card-ui(style='max-height: 200px; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere')
-                        div#manageButtons.px-2.d-none
+                        div#manageButtons.px-2
                             .row.flex-nowrap
                                 a#infoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
                                     i.fas.fa-cut.pr-0.pr-sm-2
@@ -640,29 +644,29 @@ html
                                 a#infoReport.btn.btn-danger.mx-1.mb-2(title="Clear Reported Item(s)" href='#_').w-100.text-ellipsis
                                     i.fas.fa-flag.pr-0.pr-sm-2
                                     span.d-none.d-sm-inline Clear
-                        div.row.pl-3.pr-3.mt-2.d-none
+                        div.row.pl-3.pr-3.mt-2
                             h3 Search
-                        div.row.pl-3.pr-3.d-none
+                        div.row.pl-3.pr-3
                             a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
                                 i.fas.fa-level-up-alt.pr-2
                                 span Parent Post
-                        div.row.pl-3.pr-3.d-none
+                        div.row.pl-3.pr-3
                             a#searchByUser.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
                                 i.fas.fa-user.pr-2
                                 span Artist
-                        div.row.pl-3.pr-3.d-none
+                        div.row.pl-3.pr-3
                             a#searchByColor.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
                                 i.fas.fa-swatchbook.pr-2
                                 span Similar Color
-                        div.row.pl-3.pr-3.d-none
+                        div.row.pl-3.pr-3
                             a#searchByID.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
                                 i.fas.fa-asterisk.pr-2
                                 span Related IDs
-                        div.row.pl-3.pr-3.d-none
+                        div.row.pl-3.pr-3
                             a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
                                 i.fas.fa-i-cursor.pr-2
                                 span Selected Text
-                        div.row.pl-3.pr-3.d-none
+                        div.row.pl-3.pr-3
                             div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
                                 label#searchFilterPost.btn.btn-info.w-100.active
                                     input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
@@ -682,7 +686,6 @@ html
                                 div#advancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
                         .modal-background.blur-this
                         .modal-gradient
-
         #videoBuilderModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='videoBuilderModal' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
