@@ -1973,7 +1973,7 @@ async function getOfflinePages() {
             if (page.url.includes('/gallery'))
                 icon = 'fa-image'
             if (page.url.includes('/files'))
-                icon = 'fa-folder'
+                icon = 'fa-music'
             if (page.url.includes('/cards'))
                 icon = 'fa-message'
             if (page.url.includes('album='))
