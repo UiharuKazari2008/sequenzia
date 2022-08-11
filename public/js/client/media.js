@@ -103,7 +103,7 @@ async function kmsTogglePlay() {
 }
 async function kmsToggleTaporPlay() {
     if ((!kongouMediaVideoPreview.classList.contains('hidden') || !kongouMediaVideoFull.classList.contains('hidden')) && !kongouPlayTimer) {
-        if (kongouTitleBar.style.opacity !== '1' ) {
+        if (kongouTitleBar.style.opacity && kongouTitleBar.style.opacity !== '1' ) {
             kmsPopUpControls();
         } else {
             kongouPlayTimer = setTimeout(() => {

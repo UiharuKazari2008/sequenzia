@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-11-2022-P3';
+const cacheName = 'HEAVY_DEV-v20-7-11-2022-P5';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -2167,15 +2167,14 @@ async function unpackFile() {
                                     if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
                                         blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
 
-                                    let finalBlock = await new Promise(newBlob => {
+                                    const finalBlock = await new Promise(newBlob => {
                                         try {
                                             offlineContent.transaction([`temp_spanned_parity`]).objectStore('temp_spanned_parity').index('fileid').getAll(activeID).onsuccess = event => {
                                                 if (event.target.result && event.target.result.length === activeSpannedJob.expected_parts) {
                                                     const blobList = event.target.result.filter(e => blobs.indexOf(e.name) !== -1).sort((x, y) => (x.name.split('.').pop() < y.name.split('.').pop()) ? -1 : (y.name.split('.').pop() > x.name.split('.').pop()) ? 1 : 0).map(e => e.blob)
                                                     if (blobList.length === activeSpannedJob.expected_parts) {
-                                                        let blobCompleted = new Blob(blobList, blobType)
+                                                        const blobCompleted = new Blob(blobList, blobType)
                                                         newBlob(blobCompleted);
-                                                        blobCompleted = null;
                                                     } else {
                                                         newBlob(false);
                                                     }
@@ -2206,17 +2205,13 @@ async function unpackFile() {
                                                 }).onsuccess = event => {
                                                     console.log(`File Saved Offline!`);
                                                     resolve(true);
-                                                    finalBlock = null;
                                                 };
                                             } catch (e) {
                                                 console.error(`Failed to save block ${activeID}`);
                                                 console.error(e);
                                                 resolve(false);
-                                                finalBlock = null;
                                             }
                                         })
-                                    } else {
-                                        finalBlock = null;
                                     }
 
 
