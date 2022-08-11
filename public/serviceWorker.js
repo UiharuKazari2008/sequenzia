@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-11-2022-P2';
+const cacheName = 'HEAVY_DEV-v20-7-11-2022-P3';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -281,7 +281,7 @@ function params(_removeParams, _addParams, _url, keep) {
     return `${_URL.pathname}?${_params.toString()}`
 }
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 3);
+const offlineContentDB = self.indexedDB.open("offlineContent", 4);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     broadcastAllMessage({type: 'NOTIFY_ERROR', message: `IndexedDB Is Not Available: Offline Content will not be available!`});
@@ -299,7 +299,7 @@ offlineContentDB.onupgradeneeded = event => {
     // Save the IDBDatabase interface
     const db = event.target.result;
     // Create an objectStore for this database
-    if (event.oldVersion < 1) {
+    if (!event.oldVersion || event.oldVersion < 1) {
         const spannedFilesStore = db.createObjectStore("spanned_files", {keyPath: "id"});
         spannedFilesStore.createIndex("id", "id", {unique: true});
         spannedFilesStore.createIndex("name", "name", {unique: false});
@@ -322,7 +322,7 @@ offlineContentDB.onupgradeneeded = event => {
         offlineItemsStore.transaction.oncomplete = event => {
         }
     }
-    if (event.oldVersion < 2) {
+    if (!event.oldVersion || event.oldVersion < 2) {
         const offlineKongouShows = db.createObjectStore("offline_kongou_shows", {keyPath: "showId"});
         offlineKongouShows.createIndex("showId", "showId", {unique: true});
         offlineKongouShows.transaction.oncomplete = event => {
@@ -333,10 +333,17 @@ offlineContentDB.onupgradeneeded = event => {
         offlineKongouEpisode.transaction.oncomplete = event => {
         }
     }
-    if (event.oldVersion < 3) {
+    if (!event.oldVersion || event.oldVersion < 3) {
         const offlineStorageData = db.createObjectStore("offline_filedata", {keyPath: "url"});
         offlineStorageData.createIndex("url", "url", {unique: true});
         offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
+    if (!event.oldVersion || event.oldVersion < 4) {
+        const tempSpannedStorageData = db.createObjectStore("temp_spanned_parity", {keyPath: "name"});
+        tempSpannedStorageData.createIndex("name", "name", {unique: true});
+        tempSpannedStorageData.createIndex("fileid", "fileid", {unique: false});
+        tempSpannedStorageData.transaction.oncomplete = event => {
         }
     }
 };
@@ -1504,7 +1511,8 @@ async function cacheFileURL(object, page_item) {
                 if (object.kongou_backdrop_url)
                     fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, true, object.kongou_backdrop_url)).status
                 if (object.required_build) {
-                    const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
+                    //const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
+                    const windows = [];
                     const unpackerJob = {
                         id: object.fileid,
                         name: object.filename,
@@ -2069,7 +2077,18 @@ async function unpackFile() {
                                         break;
                                     let downloadKeys = Object.keys(pendingBlobs).slice(0,8)
                                     const results = await Promise.all(downloadKeys.map(async item => {
-                                        return new Promise(async ok => {
+                                        return await new Promise(foundItem => {
+                                            offlineContent.transaction([`temp_spanned_parity`]).objectStore('temp_spanned_parity').index('name').get(pendingBlobs[item].split('/').pop()).onsuccess = event => {
+                                                if (event.target.result && event.target.result.blob) {
+                                                    blobs[item] = event.target.result.name;
+                                                    calculatePercent();
+                                                    delete pendingBlobs[item];
+                                                    foundItem(true);
+                                                } else {
+                                                    foundItem(false);
+                                                }
+                                            }
+                                        }) || new Promise(async ok => {
                                             try {
                                                 const block = await fetchBackground(`parity-block-${activeID}-${item}`, false, pendingBlobs[item], new Request(pendingBlobs[item], {
                                                     method: 'GET',
@@ -2077,13 +2096,35 @@ async function unpackFile() {
                                                 }))
                                                 if (block && (block.status === 200 || block.status === 0)) {
                                                     console.log(`Downloaded Parity ${item}`);
-                                                    const blob = await block.blob()
+                                                    let blob = await block.blob()
                                                     if (blob.size > 5) {
-                                                        blobs[item] = blob;
-                                                        calculatePercent();
-                                                        delete pendingBlobs[item];
-                                                        ok(true);
+                                                        const name = pendingBlobs[item].split('/').pop();
+                                                        try {
+                                                            offlineContent.transaction([`temp_spanned_parity`], "readwrite").objectStore('temp_spanned_parity').put({
+                                                                name, fileid: activeID, blob
+                                                            }).onsuccess = event => {
+                                                                if (!event.target.error) {
+                                                                    blobs[item] = name;
+                                                                    calculatePercent();
+                                                                    delete pendingBlobs[item];
+                                                                    ok(true);
+                                                                } else {
+                                                                    if (activeSpannedJob)
+                                                                        activeSpannedJob.ready = false;
+                                                                    ok(false);
+                                                                }
+                                                                blob = null;
+                                                            };
+                                                        } catch (e) {
+                                                            console.error('Failed to save partiy block: ', name);
+                                                            console.error(e);
+                                                            blob = null;
+                                                            if (activeSpannedJob)
+                                                                activeSpannedJob.ready = false;
+                                                            ok(false);
+                                                        }
                                                     } else {
+                                                        blob = null;
                                                         if (activeSpannedJob)
                                                             activeSpannedJob.ready = false;
                                                         ok(false);
@@ -2126,27 +2167,56 @@ async function unpackFile() {
                                     if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
                                         blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
 
-                                    const finalBlock = new Blob(blobs, blobType);
-                                    if (browserStorageAvailable) {
+                                    let finalBlock = await new Promise(newBlob => {
                                         try {
-                                            offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').put({
-                                                ...activeSpannedJob,
-                                                block: finalBlock,
-                                                parts: undefined,
-                                                expected_parts: undefined,
-                                                pending: undefined,
-                                                ready: undefined,
-                                                blobs: undefined,
-                                                abort: undefined,
-                                                progress: undefined,
-                                                offline: undefined,
-                                            }).onsuccess = event => {
-                                                console.log(`File Saved Offline!`);
-                                            };
-                                        } catch (e) {
-                                            console.error(`Failed to save block ${activeID}`);
-                                            console.error(e);
+                                            offlineContent.transaction([`temp_spanned_parity`]).objectStore('temp_spanned_parity').index('fileid').getAll(activeID).onsuccess = event => {
+                                                if (event.target.result && event.target.result.length === activeSpannedJob.expected_parts) {
+                                                    const blobList = event.target.result.filter(e => blobs.indexOf(e.name) !== -1).sort((x, y) => (x.name.split('.').pop() < y.name.split('.').pop()) ? -1 : (y.name.split('.').pop() > x.name.split('.').pop()) ? 1 : 0).map(e => e.blob)
+                                                    if (blobList.length === activeSpannedJob.expected_parts) {
+                                                        let blobCompleted = new Blob(blobList, blobType)
+                                                        newBlob(blobCompleted);
+                                                        blobCompleted = null;
+                                                    } else {
+                                                        newBlob(false);
+                                                    }
+                                                } else {
+                                                    newBlob(false);
+                                                }
+                                            }
+                                        } catch (err) {
+                                            console.error('Failed to get partiy files in storage!');
+                                            console.error(err);
+                                            newBlob(false);
                                         }
+                                    })
+                                    if (browserStorageAvailable && finalBlock) {
+                                        await new Promise((resolve) => {
+                                            try {
+                                                offlineContent.transaction([`spanned_files`], "readwrite").objectStore('spanned_files').put({
+                                                    ...activeSpannedJob,
+                                                    block: finalBlock,
+                                                    parts: undefined,
+                                                    expected_parts: undefined,
+                                                    pending: undefined,
+                                                    ready: undefined,
+                                                    blobs: undefined,
+                                                    abort: undefined,
+                                                    progress: undefined,
+                                                    offline: undefined,
+                                                }).onsuccess = event => {
+                                                    console.log(`File Saved Offline!`);
+                                                    resolve(true);
+                                                    finalBlock = null;
+                                                };
+                                            } catch (e) {
+                                                console.error(`Failed to save block ${activeID}`);
+                                                console.error(e);
+                                                resolve(false);
+                                                finalBlock = null;
+                                            }
+                                        })
+                                    } else {
+                                        finalBlock = null;
                                     }
 
 
@@ -2155,6 +2225,11 @@ async function unpackFile() {
                                 } else {
                                     broadcastAllMessage({type: 'STATUS_UNPACKER_FAILED', action: 'EXPECTED_FETCH_PARTS', fileid: activeID});
                                     job(false);
+                                }
+                                offlineContent.transaction([`temp_spanned_parity`]).objectStore('temp_spanned_parity').index('fileid').getAll(activeID).onsuccess = event => {
+                                    if (event.target.result && event.target.result.length > 0) {
+                                        event.target.result.map(e => { offlineContent.transaction([`temp_spanned_parity`], "readwrite").objectStore('temp_spanned_parity').delete(e.name) })
+                                    }
                                 }
                             } else {
                                 broadcastAllMessage({type: 'STATUS_UNPACKER_FAILED', action: 'EXPECTED_PARTS', fileid: activeID});

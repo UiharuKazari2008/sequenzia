@@ -798,7 +798,44 @@ html
                                                         div#statusMenuProgress
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
                                                         span.dropdown-header
-                                                            | No Active Tasks
+                                                            i.fas.fa-hammer.pr-1
+                                                            | Compiler
+                                                        div.dropdown-item.d-flex.position-relative
+                                                            div
+                                                                i.fas.fa-hammer.pr-1
+                                                                i.fas.fa-rectangle-code.pr-1
+                                                            div.d-flex(style="width: calc(58vw - (env(safe-area-inset-left,0) + env(safe-area-inset-right,0)));")
+                                                                div.text-ellipsis
+                                                                    span FILENAME_THAT_COULD_GET_PRETTY_LONG_SO_DEAL_WITH_IT.DAT
+                                                                span.pl-1 100 GB
+                                                            div
+                                                                div.pl-1
+                                                                    i.fas.fa-times.text-danger
+                                                            div.position-absolute.h-100(style="background-color: green; width: 50%")
+                                                        div.dropdown-item.d-flex
+                                                            div
+                                                                i.fas.fa-hourglass.pr-1
+                                                            div.d-flex(style="width: calc(58vw - (env(safe-area-inset-left,0) + env(safe-area-inset-right,0)));")
+                                                                div.text-ellipsis
+                                                                    span FILENAME_THAT_COULD_GET_PRETTY_LONG_SO_DEAL_WITH_IT.DAT
+                                                                span.pl-1 100 GB
+                                                            div
+                                                                div.pl-1
+                                                                    i.fas.fa-times.text-danger
+                                                        .dropdown-header
+                                                        span.dropdown-header
+                                                            | Sync
+                                                        div.dropdown-item.d-flex
+                                                            div
+                                                                i.fas.fa-sync.pr-1
+                                                            div.text-ellipsis
+                                                                span PAGE NAME (000)
+                                                            div
+                                                                div.pl-1
+                                                                    i.fas.fa-trash-alt.text-danger
+                                                        .dropdown-header
+                                                        span.dropdown-header
+                                                            | Temporary Files
 
                                         li.nav-item.no-arrow.edit-btns
                                             .btn-group.show-menu-open.hidden(style="display: contents;")

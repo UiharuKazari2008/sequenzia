@@ -4,7 +4,7 @@ const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 3);
+const offlineContentDB = self.indexedDB.open("offlineContent", 4);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     console.error(`IndexedDB Is Not Available: Offline Content will not be available!`)

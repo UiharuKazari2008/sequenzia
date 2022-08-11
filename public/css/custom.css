@@ -2016,7 +2016,8 @@ div.collapse-divider {
     height: calc(env(safe-area-inset-bottom, 0) + 200px);
 }
 .topbar .dropdown .dropdown-menu {
-    max-height: calc(80vh - 200px);
+    max-height: calc(85vh - 200px);
+    max-width: calc(85vw - (env(safe-area-inset-left,0) + env(safe-area-inset-right,0)));
 }
 
 .user-menu-item:hover, .user-menu-item:focus, .user-menu-item:active {
