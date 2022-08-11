@@ -48,8 +48,8 @@ const closestIndex = (num, arr) => {
 if (web.Base_URL)
     web.base_url = web.Base_URL;
 
-router.get(['/juneOS'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
-router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
+router.get(['/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
+router.get(['/home', '/'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
 router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, renderResults);
 router.get('/homeImage', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
