@@ -1140,7 +1140,7 @@ async function offlineSelectedItems() {
         notificationControler = setInterval(updateNotficationsPanel, 1000);
 
         for (let i in postsActions) {
-            if (!offlineDownloadSignals.has(url))
+            if (!offlineDownloadSignals.has(_url))
                 break;
             const element = document.getElementById('message-' + postsActions[i].messageid);
             if (element) {
