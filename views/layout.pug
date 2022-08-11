@@ -1293,9 +1293,10 @@ html
                                                         i.far.fa-cloud-download.align-middle
                                                     a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                         i.far.fa-download.align-middle
-                                ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
-                                    li.nav-item.no-arrow
-                                        i.fas.fa-spinner.fa-spin-pulse
+                                if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
+                                    ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                        li.nav-item.no-arrow
+                                            i.fas.fa-spinner.fa-spin-pulse
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow.kms-pip-icons.align-items-center
