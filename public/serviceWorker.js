@@ -1,8 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-
-const cacheName = 'HEAVY_DEV-v20-7-10-2022-P2';
+const cacheName = 'HEAVY_DEV-v20-7-11-2022-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -776,6 +775,7 @@ async function extractMetaFromElement(e, preemptive) {
     let extpreviewItem = null;
     let kongouPoster = null;
     let kongouBackdrop = null;
+    let kongouisMovie = null;
 
     if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1) {
         data_type = 'image';
@@ -792,10 +792,15 @@ async function extractMetaFromElement(e, preemptive) {
         fullItem = replaceDiscordCDN(postFullImage);
     if (postDownload && !(postFilID && !postCached) && !required_build)
         fullItem = replaceDiscordCDN(postDownload);
-    if (postKMSJSON && postKMSJSON.show.poster)
-        kongouPoster = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.poster}`)
-    if (postKMSJSON && postKMSJSON.show.background)
-        kongouBackdrop = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.background}`)
+    if (postKMSJSON) {
+        kongouisMovie = (!!postKMSJSON.show)
+        if (postKMSJSON.show.poster) {
+            kongouPoster = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.poster}`)
+        }
+        if (postKMSJSON.show.background) {
+            kongouBackdrop = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.background}`)
+        }
+    }
 
     return {
         full_url: fullItem,
@@ -816,7 +821,7 @@ async function extractMetaFromElement(e, preemptive) {
         required_build: required_build,
         preemptive_download: (!!preemptive),
         htmlAttributes: attribs,
-        kongou_meta: (postKMSJSON && postKMSJSON.show.id) ? postKMSJSON : null,
+        kongou_meta: (postKMSJSON && postKMSJSON.show) ? postKMSJSON : null,
     }
 }
 async function getPageIfAvailable(url, includeExpired) {
@@ -1554,6 +1559,7 @@ async function cacheFileURL(object, page_item) {
                             setExternalTimer();
                         } else {
                             console.error(`Unable to download ${object.fileid} because there is no worker available`);
+                            resolve(false);
                         }
                     })
                 }
@@ -1568,27 +1574,37 @@ async function cacheFileURL(object, page_item) {
             if (browserStorageAvailable) {
                 try {
                     let requestedTargets = ['offline_items'];
-                    if (object.kongou_meta && object.kongou_meta.show)
+                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.show.id)
                         requestedTargets.push('offline_kongou_shows');
                     if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.meta)
                         requestedTargets.push('offline_kongou_episodes');
                     const transaction = offlineContent.transaction(requestedTargets, "readwrite")
-                    if (object.kongou_meta && object.kongou_meta.show) {
+                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.show.id) {
                         transaction.objectStore('offline_kongou_shows').put({
                             showId: object.kongou_meta.show.id,
                             ...object.kongou_meta.show,
                             fetchResults: fetchKMSResults
                         })
                     }
-                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.meta) {
-                        transaction.objectStore('offline_kongou_episodes').put({
-                            showId: object.kongou_meta.show.id,
-                            eid: object.kongou_meta.meta.entity,
-                            episode: object.kongou_meta.episode,
-                            season: object.kongou_meta.season,
-                            meta: object.kongou_meta.meta,
-                            fetchResults: fetchKMSResults
-                        })
+                    if (object.kongou_meta && object.kongou_meta.show && object.kongou_meta.show.id && object.kongou_meta.meta) {
+                        if (object.kongou_meta.meta.entity) {
+                            transaction.objectStore('offline_kongou_episodes').put({
+                                showId: object.kongou_meta.show.id,
+                                eid: object.kongou_meta.meta.entity,
+                                episode: object.kongou_meta.episode,
+                                season: object.kongou_meta.season,
+                                meta: object.kongou_meta.meta,
+                                fetchResults: fetchKMSResults
+                            })
+                        } else {
+                            transaction.objectStore('offline_kongou_episodes').put({
+                                showId: object.kongou_meta.show.id,
+                                eid: object.kongou_meta.meta,
+                                episode: object.kongou_meta.episode,
+                                season: object.kongou_meta.season,
+                                fetchResults: fetchKMSResults
+                            })
+                        }
                     }
                     transaction.objectStore('offline_items').put({
                         ...object,
@@ -1605,6 +1621,9 @@ async function cacheFileURL(object, page_item) {
                 } catch (e) {
                     console.error(`Failed to save record for ${object.eid}`);
                     console.error(e)
+                    console.error(object);
+                    console.error(fetchResults);
+                    console.error(fetchKMSResults);
                     resolve({
                         ...fetchResults,
                         ...fetchKMSResults,
@@ -1690,7 +1709,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                     break;
                 try {
                     const fetchResult = await cacheFileURL(e, true)
-                    if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
+                    if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400) || (fetchResult.required_build !== undefined && fetchResult.required_build === false)) {
                         offlineDownloadSignals.delete(url);
                         break;
                     }
@@ -1817,7 +1836,7 @@ async function cacheFileOffline(meta, noConfirm) {
     try {
         if (meta) {
             const fetchResult = await cacheFileURL(meta, false);
-            if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
+            if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400) || (fetchResult.required_build !== undefined && fetchResult.required_build === false)) {
                 broadcastAllMessage({
                     type: 'MAKE_TOAST',
                     level: 'error',
@@ -1863,7 +1882,7 @@ async function cacheEpisodeOffline(meta, noConfirm) {
     try {
         if (meta) {
             const fetchResult = await cacheFileURL(meta, true);
-            if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400)) {
+            if ((fetchResult.full_url !== undefined && fetchResult.full_url >= 400) || (fetchResult.preview_url !== undefined && fetchResult.preview_url >= 400) || (fetchResult.extpreview_url !== undefined && fetchResult.extpreview_url >= 400) || (fetchResult.required_build !== undefined && fetchResult.required_build === false)) {
                 broadcastAllMessage({
                     type: 'MAKE_TOAST',
                     level: 'error',

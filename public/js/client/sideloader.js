@@ -75,7 +75,6 @@ let expiresMessages = [];
 let expiresTimes = [];
 let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
-let spannedFilesFIFOOffline = true;
 let currentMediaMetadata = {};
 
 let postsActions = [];
@@ -1862,8 +1861,8 @@ async function generateEpisodeHTML(url) {
     </div>
     <div class="episode-body">
         <div class="episode-number position-absolute"><span>${(e.media && e.media.season) ? e.media.season + 'x' : ''}${(e.media && e.media.episode) ? e.media.episode : ''}</span></div>
-        <div class="episode-name px-2"><span>${(e.media && e.media.meta.name) ? e.media.meta.name : e.filename}</span></div>
-        <div class="episode-description px-2"><span>${(e.media && e.media.meta.description) ? e.media.meta.description : ''}</span></div>
+        <div class="episode-name px-2"><span>${(e.media && e.media.meta && e.media.meta.name) ? e.media.meta.name : e.filename.split(' - ').slice(1).join(' - ').split('.')[0].trim()}</span></div>
+        <div class="episode-description px-2"><span>${(e.media && e.media.meta && e.media.meta.description) ? e.media.meta.description : ''}</span></div>
         <div class="episode-controls px-2 pt-2"><a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a></div>
     </div>
 </div>`
@@ -1911,7 +1910,7 @@ async function generateEpisodeHTML(url) {
 <div class="show-preview-overlay"></div>
 <div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${episodes.show.poster}" /></div>
 <div class="show-info px-2 w-100">
-    <div class="show-title"><a class="text-white" href="https://themoviedb.org/movie/${episodes.show.id}" target="_blank" rel="noopener noreferrer"><span>${episodes.show.original_name}</span></a></div>
+    <div class="show-title"><a class="text-white" href="https://themoviedb.org/${(episodes.show.meta.seasons) ? 'tv' : 'movie'}/${episodes.show.id}" target="_blank" rel="noopener noreferrer"><span>${episodes.show.original_name}</span></a></div>
     <div class="show-og-title"><span>${episodes.show.name}</span></div>
     <div class="show-info-top d-flex flex-row">
         <div class="show-tags mr-auto">
@@ -1919,7 +1918,7 @@ async function generateEpisodeHTML(url) {
             ${(episodes.show.subtitled) ? '<div class="badge badge-light mr-1"><i class="fas fa-closed-captioning"></i><span class="pl-1">Subtitled</span></div>' : ''}
             ${episodes.show.meta.genres.map(f => '<span class="badge badge-light mr-1">' + f + '</span>').join('')}
         </div>
-        <div class="show-date mt-2"><span>${episodes.show.meta.date.split('-')[0]}</span></div>
+        <div class="show-date mt-2"><span>${(episodes.show.meta.date) ? episodes.show.meta.date.split('-')[0] : ''}</span></div>
     </div>
     <div class="show-description"><span>${episodes.show.meta.description}</span></div>
 </div>
