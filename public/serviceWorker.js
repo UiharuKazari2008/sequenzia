@@ -1515,7 +1515,7 @@ async function cacheFileURL(object, page_item) {
                         offline: true,
                         swHandeler: (windows.length === 0 || navigator.userAgent.indexOf('Chrome') !== -1)
                     }
-                    fetchResults['spanned_file'] = await getSpannedFileIfAvailable(object.fileid) || await new Promise(async resolve => {
+                    fetchResults['spanned_file'] = await new Promise(async resolve => {
                         if (windows.length === 0 || (navigator.userAgent.indexOf('Chrome') !== -1 && swUseInternalUnpacker)) {
                             if (windows.length === 0) {
                                 console.error('No windows available, ServiceWorker must unpack the file!')
