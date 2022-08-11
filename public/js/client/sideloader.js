@@ -1697,7 +1697,7 @@ async function generateFilesHTML(url, eids, topText) {
                     if (topText) {
                         document.getElementById('titleBarContents').innerHTML = topText;
                     } else {
-                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-folder"></i><span class="text-uppercase">Files</span></li></ul>'
+                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-music"></i><span class="text-uppercase">Music</span></li></ul>'
                     }
                     registerLazyLoader();
                     calculateTitleWidthPage();
