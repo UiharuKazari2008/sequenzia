@@ -1765,6 +1765,8 @@ async function generateShowsHTML(url) {
                     if (shift <= allResults.length) {
                         pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="nextPage" title="Next Page" href="#_" role="button" accesskey="."  onclick="getNewContent([], [['offset', '${shift}']]); return false;"><i class="fa fa-arrow-right"></i></a>`)
                     }
+                } else {
+                    pageButtons.push(`<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="history.go(-1); return false;"><i class="fas fa-arrow-left"></i></a>`)
                 }
 
                 // noinspection CssUnknownTarget
@@ -1843,6 +1845,8 @@ async function generateEpisodeHTML(url) {
                 let resultRows = [];
                 const showId = _params.getAll('show_id')[0];
                 const episodes = await kernelRequestData({type: 'GET_STORAGE_KMS_SHOW', id: showId});
+                const episodeEids = (episodes.episodes) ? episodes.episodes.map(e => e.media.eid.toString()) : [];
+                const kmsViewedProgress = await kernelRequestData({type: 'GET_VIEWED_KMS'});
 
                 if (episodes && episodes.episodes && episodes.show) {
                     resultRows = await Promise.all(episodes.episodes.sort(function (a, b) {
@@ -1850,10 +1854,12 @@ async function generateEpisodeHTML(url) {
                             return (((a.media.season || 0) + 1) * (a.media.episode || 0)) - (((b.media.season || 0) + 1) * (b.media.episode || 0));
                         return -1
                     }).map(async e => {
-                        return `<div class="col-12 col-sm-6 col-md-4 m-0 flex-nowrap episode-row p-1" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.filter(j => !j.startsWith('class=')).join(' ') : 'id="message-' + e.id + '"'}>
+                        const watchedPercentage = kmsViewedProgress.filter(x => episodeEids.indexOf(x.eid) !== -1).pop()
+                        const viewed = (watchedPercentage && watchedPercentage.viewed) ? watchedPercentage.viewed : (e.htmlAttributes.filter(j => j.startsWith('data-kms-progress=')).length > 0) ? e.htmlAttributes.filter(j => j.startsWith('data-kms-progress='))[0].split('=')[1].split('"').join('') : 0;
+                        return `<div class="col-12 col-sm-6 col-md-4 m-0 flex-nowrap episode-row p-1 ${(parseFloat(viewed.toString()) > 0.8) ? 'watched-episode' :''}" data-kms-progress="${viewed}" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.filter(j => !(j.startsWith('class=') || j.startsWith('data-kms-progress'))).join(' ') : 'id="message-' + e.id + '"'}>
     <div class="episode-preview-grid">
         <div class="preview-watched d-flex pr-2">
-            <div class="watched-precent mt-auto" style="width: 0%"></div>
+            <div class="watched-precent mt-auto" style="width: ${(parseFloat(viewed.toString()) > 0.05) ? (parseFloat(viewed.toString())) * 100 : 0}%"></div>
         </div>
         <div class="position-absolute pr-2 pb-2" style="height: 100%; width: inherit;">
             <div class="position-relative w-100 h-100 d-flex flex-column" style="background-image: linear-gradient(129deg, #000000bd, transparent);">
@@ -1866,8 +1872,9 @@ async function generateEpisodeHTML(url) {
                     </div>
                     <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
                 </div>
-                <div class="p-1 d-flex">
+                <div class="p-1 d-flex pb-3 episodes-controls-options">
                     <a class="btn btn-links goto-link" data-placement="top" title="Search content related to this image" href="#_" onClick="showSearchOptions('${e.id}'); return false;"><i class="btn-links fas fa-info-circle"></i></a>
+                    <a class="btn btn-links goto-link" data-placement="top" title="Toggle Watch State" href="#_" onClick="toggleWatchHistory('${e.eid}'); return false;"><i class="btn-links fas fa-${(parseFloat(viewed.toString()) > 0.05) ? 'eye-slash' : 'check'}"></i></a>
                 </div>
             </div>
         </div>
@@ -1877,8 +1884,6 @@ async function generateEpisodeHTML(url) {
 </div>`
                     }))
                 }
-
-
 
                 if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
                     document.getElementById('contentBlock').innerHTML = `<style>
@@ -2769,8 +2774,7 @@ async function saveCurrentTimeKMS(wasNext) {
         } else {
             memoryVideoPositions.delete(fileid);
         }
-        if (!offlinePage)
-            setWatchHistory(eid, (wasNext) ? 1 : percentage)
+        setWatchHistory(eid, (wasNext) ? 1 : percentage)
     }
 }
 async function kmsScreenshot() {
@@ -4088,9 +4092,9 @@ async function setSeasonHistory(index, viewed) {
                             e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
                         if (viewed > 0.8)
                             e.classList.add('watched-episode')
-                        const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
+                        const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-check, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-eye-slash`)
                         if (icon) {
-                            if (viewed > 0) {
+                            if (viewed > 0.05) {
                                 icon.classList.add('fa-eye-slash')
                                 icon.classList.remove('fa-check')
                             } else {
@@ -4135,9 +4139,9 @@ async function setShowHistory(viewed) {
                             e.querySelector('.watched-precent').style.width = (viewed * 100) + '%'
                         if (viewed > 0.8)
                             e.classList.add('watched-episode')
-                        const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
+                        const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-check, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-eye-slash`)
                         if (icon) {
-                            if (viewed > 0) {
+                            if (viewed > 0.05) {
                                 icon.classList.add('fa-eye-slash')
                                 icon.classList.remove('fa-check')
                             } else {
@@ -4159,7 +4163,7 @@ async function setShowHistory(viewed) {
     })
 }
 async function toggleWatchHistory(eid) {
-    return setWatchHistory(eid, (document.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check`)) ? 1 : 0);
+    return setWatchHistory(eid, (document.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-check`)) ? 1 : 0);
 }
 async function setWatchHistory(eid, viewed) {
     const percentage = (!isNaN(viewed) && viewed > 0.05) ? (viewed <= 0.9) ? viewed : 1 : 0
@@ -4188,9 +4192,9 @@ async function setWatchHistory(eid, viewed) {
                     } else {
                         e.classList.remove('watched-episode')
                     }
-                    const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash`)
+                    const icon = e.querySelector(`[data-msg-eid="${eid}"] .episode-controls i.fas.fa-check, [data-msg-eid="${eid}"] .episode-controls i.fas.fa-eye-slash, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-check, [data-msg-eid="${eid}"] .episodes-controls-options i.fas.fa-eye-slash`)
                     if (icon) {
-                        if (viewed > 0) {
+                        if (viewed > 0.05) {
                             icon.classList.add('fa-eye-slash')
                             icon.classList.remove('fa-check')
                         } else {

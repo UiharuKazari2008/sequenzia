@@ -4,7 +4,7 @@ const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 4);
+const offlineContentDB = self.indexedDB.open("offlineContent", 6);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     console.error(`IndexedDB Is Not Available: Offline Content will not be available!`)
@@ -13,6 +13,58 @@ offlineContentDB.onsuccess = event => {
     offlineContent = event.target.result;
     console.log('Offline Database is available');
     browserStorageAvailable = true;
+};
+offlineContentDB.onupgradeneeded = event => {
+    // Save the IDBDatabase interface
+    const db = event.target.result;
+    // Create an objectStore for this database
+    if (event.oldVersion < 1) {
+        const spannedFilesStore = db.createObjectStore("spanned_files", {keyPath: "id"});
+        spannedFilesStore.createIndex("id", "id", {unique: true});
+        spannedFilesStore.createIndex("name", "name", {unique: false});
+        spannedFilesStore.createIndex("size", "size", {unique: false});
+        spannedFilesStore.createIndex("channel", "channel", {unique: false});
+        spannedFilesStore.transaction.oncomplete = event => {
+        }
+        const offlinePageStore = db.createObjectStore("offline_pages", {keyPath: "url"});
+        offlinePageStore.createIndex("url", "url", {unique: true});
+        offlinePageStore.createIndex("title", "title", {unique: false});
+        offlinePageStore.createIndex("files", "files", {unique: false});
+        offlinePageStore.createIndex("previews", "previews", {unique: false});
+        offlinePageStore.transaction.oncomplete = event => {
+        }
+        const offlineItemsStore = db.createObjectStore("offline_items", {keyPath: "eid"});
+        offlineItemsStore.createIndex("eid", "eid", {unique: true});
+        offlineItemsStore.createIndex("data_type", "data_type", {unique: false});
+        offlineItemsStore.createIndex("full_url", "full_url", {unique: true});
+        offlineItemsStore.createIndex("preview_url", "preview_url", {unique: false});
+        offlineItemsStore.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 2) {
+        const offlineKongouShows = db.createObjectStore("offline_kongou_shows", {keyPath: "showId"});
+        offlineKongouShows.createIndex("showId", "showId", {unique: true});
+        offlineKongouShows.transaction.oncomplete = event => {
+        }
+        const offlineKongouEpisode = db.createObjectStore("offline_kongou_episodes", {keyPath: "eid"});
+        offlineKongouEpisode.createIndex("eid", "eid", {unique: true});
+        offlineKongouEpisode.createIndex("showId", "showId", {unique: false});
+        offlineKongouEpisode.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 3) {
+        const offlineStorageData = db.createObjectStore("offline_filedata", {keyPath: "url"});
+        offlineStorageData.createIndex("url", "url", {unique: true});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 5 || !db.objectStoreNames.contains('offline_actions')) {
+        const offlineStorageData = db.createObjectStore("offline_actions", {keyPath: "id"});
+        offlineStorageData.createIndex("id", "id", {unique: true});
+        offlineStorageData.createIndex("action", "action", {unique: false});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
 };
 
 let downloadSpannedController = new Map();

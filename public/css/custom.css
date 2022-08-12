@@ -2326,7 +2326,7 @@ footer .server-grid-parent {
 
 .episode-number {
     position: absolute;
-    padding-top: 0;
+    padding-top: .125em;
     padding-left: .125em;
     font-size: 7em;
     line-height: 1;
@@ -2586,6 +2586,7 @@ img.kms-logo {
     height: inherit;
     width: inherit;
     pointer-events: none;
+    z-index: 1;
 }
 .watched-episode {
     opacity: 0.4;

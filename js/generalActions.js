@@ -123,6 +123,26 @@ module.exports = (req, res, next) => {
                         })
                     }
                     break;
+                case 'GetWatchHistory':
+                    printLine("ActionParser", `Request to get watch History`, 'info')
+                    sqlSafe(`SELECT * FROM kongou_watch_history WHERE user = ?`, [req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to deliver watch history: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result && result.length > 0) {
+                            res.status(200).json({
+                                history: result.map(row => {
+                                    return {
+                                        eid: row.eid,
+                                        viewed: row.viewed,
+                                    }
+                                })
+                            });
+                        } else {
+                            res.status(500).send(`Failed to get history`);
+                        }
+                    })
+                    break;
                 case 'PinUser':
                 case 'UnpinUser':
                     sqlSafe(`SELECT * FROM sequenzia_artists_favorites WHERE id = ? AND userid = ? LIMIT 1`, [req.body.messageid, req.session.discord.user.id], (err, found) => {

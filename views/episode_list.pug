@@ -316,7 +316,7 @@ block content
                                                                     span.pl-1 Expiring
                                                             .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
                                                                 i.fas.fa-play
-                                                        .p-1.d-flex
+                                                        .p-1.d-flex.pb-3.episodes-controls-options
                                                             if (user && user.source < 900)
                                                                 a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
                                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)

@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-12-2022-P14';
+const cacheName = 'PRODUCTION-v20-7-12-2022-BUGWATCH-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -136,6 +136,73 @@ const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 let offlineMessages = [];
 let syncActive = false;
+
+const offlineContentDB = self.indexedDB.open("offlineContent", 6);
+offlineContentDB.onerror = event => {
+    console.error(event.errorCode);
+    broadcastAllMessage({type: 'NOTIFY_ERROR', message: `IndexedDB Is Not Available: Offline Content will not be available!`});
+    console.error(`IndexedDB Is Not Available: Offline Content will not be available!`)
+};
+offlineContentDB.onsuccess = event => {
+    offlineContent = event.target.result;
+    console.log('Offline Database is available');
+    setInterval(() => checkExpiredFiles, 900000);
+    checkExpiredFiles();
+    broadcastAllMessage({type: 'NOTIFY_OFFLINE_READY', status: true });
+    browserStorageAvailable = true;
+};
+offlineContentDB.onupgradeneeded = event => {
+    // Save the IDBDatabase interface
+    const db = event.target.result;
+    // Create an objectStore for this database
+    if (event.oldVersion < 1) {
+        const spannedFilesStore = db.createObjectStore("spanned_files", {keyPath: "id"});
+        spannedFilesStore.createIndex("id", "id", {unique: true});
+        spannedFilesStore.createIndex("name", "name", {unique: false});
+        spannedFilesStore.createIndex("size", "size", {unique: false});
+        spannedFilesStore.createIndex("channel", "channel", {unique: false});
+        spannedFilesStore.transaction.oncomplete = event => {
+        }
+        const offlinePageStore = db.createObjectStore("offline_pages", {keyPath: "url"});
+        offlinePageStore.createIndex("url", "url", {unique: true});
+        offlinePageStore.createIndex("title", "title", {unique: false});
+        offlinePageStore.createIndex("files", "files", {unique: false});
+        offlinePageStore.createIndex("previews", "previews", {unique: false});
+        offlinePageStore.transaction.oncomplete = event => {
+        }
+        const offlineItemsStore = db.createObjectStore("offline_items", {keyPath: "eid"});
+        offlineItemsStore.createIndex("eid", "eid", {unique: true});
+        offlineItemsStore.createIndex("data_type", "data_type", {unique: false});
+        offlineItemsStore.createIndex("full_url", "full_url", {unique: true});
+        offlineItemsStore.createIndex("preview_url", "preview_url", {unique: false});
+        offlineItemsStore.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 2) {
+        const offlineKongouShows = db.createObjectStore("offline_kongou_shows", {keyPath: "showId"});
+        offlineKongouShows.createIndex("showId", "showId", {unique: true});
+        offlineKongouShows.transaction.oncomplete = event => {
+        }
+        const offlineKongouEpisode = db.createObjectStore("offline_kongou_episodes", {keyPath: "eid"});
+        offlineKongouEpisode.createIndex("eid", "eid", {unique: true});
+        offlineKongouEpisode.createIndex("showId", "showId", {unique: false});
+        offlineKongouEpisode.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 3) {
+        const offlineStorageData = db.createObjectStore("offline_filedata", {keyPath: "url"});
+        offlineStorageData.createIndex("url", "url", {unique: true});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 5 || !db.objectStoreNames.contains('offline_actions')) {
+        const offlineStorageData = db.createObjectStore("offline_actions", {keyPath: "id"});
+        offlineStorageData.createIndex("id", "id", {unique: true});
+        offlineStorageData.createIndex("action", "action", {unique: false});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
+};
 
 async function broadcastAllMessage(message) {
     self.clients.matchAll({
@@ -280,66 +347,46 @@ function params(_removeParams, _addParams, _url, keep) {
     })
     return `${_URL.pathname}?${_params.toString()}`
 }
-
-const offlineContentDB = self.indexedDB.open("offlineContent", 4);
-offlineContentDB.onerror = event => {
-    console.error(event.errorCode);
-    broadcastAllMessage({type: 'NOTIFY_ERROR', message: `IndexedDB Is Not Available: Offline Content will not be available!`});
-    console.error(`IndexedDB Is Not Available: Offline Content will not be available!`)
-};
-offlineContentDB.onsuccess = event => {
-    offlineContent = event.target.result;
-    console.log('Offline Database is available');
-    setInterval(() => checkExpiredFiles, 900000);
-    checkExpiredFiles();
-    broadcastAllMessage({type: 'NOTIFY_OFFLINE_READY', status: true });
-    browserStorageAvailable = true;
-};
-offlineContentDB.onupgradeneeded = event => {
-    // Save the IDBDatabase interface
-    const db = event.target.result;
-    // Create an objectStore for this database
-    if (event.oldVersion < 1) {
-        const spannedFilesStore = db.createObjectStore("spanned_files", {keyPath: "id"});
-        spannedFilesStore.createIndex("id", "id", {unique: true});
-        spannedFilesStore.createIndex("name", "name", {unique: false});
-        spannedFilesStore.createIndex("size", "size", {unique: false});
-        spannedFilesStore.createIndex("channel", "channel", {unique: false});
-        spannedFilesStore.transaction.oncomplete = event => {
-        }
-        const offlinePageStore = db.createObjectStore("offline_pages", {keyPath: "url"});
-        offlinePageStore.createIndex("url", "url", {unique: true});
-        offlinePageStore.createIndex("title", "title", {unique: false});
-        offlinePageStore.createIndex("files", "files", {unique: false});
-        offlinePageStore.createIndex("previews", "previews", {unique: false});
-        offlinePageStore.transaction.oncomplete = event => {
-        }
-        const offlineItemsStore = db.createObjectStore("offline_items", {keyPath: "eid"});
-        offlineItemsStore.createIndex("eid", "eid", {unique: true});
-        offlineItemsStore.createIndex("data_type", "data_type", {unique: false});
-        offlineItemsStore.createIndex("full_url", "full_url", {unique: true});
-        offlineItemsStore.createIndex("preview_url", "preview_url", {unique: false});
-        offlineItemsStore.transaction.oncomplete = event => {
+async function handleFailedRequest(request) {
+    if (request.mode === 'navigate' || (request.method === 'GET' && request.headers.get('accept').includes('text/html')))
+        return caches.match(offlineUrl);
+    if (request.url.includes('/actions/v1') && request.method === 'POST') {
+        const query = new URLSearchParams('?' + await request.text());
+        if (query.has('action') && !query.has('retry')) {
+            const action = query.get('action');
+            console.log(action)
+            switch (action) {
+                case'SetWatchHistory':
+                    if (browserStorageAvailable) {
+                        return new Promise(resolve => {
+                            try {
+                                let dataObject = {};
+                                Array.from(query.entries()).map(entry => {
+                                    dataObject[entry[0]] = entry[1];
+                                })
+                                offlineContent.transaction([`offline_actions`], "readwrite").objectStore('offline_actions').put({
+                                    action,
+                                    id: action + '-' + query.get('eid'),
+                                    itemId: query.get('eid'),
+                                    data: dataObject
+                                }).onsuccess = event => {
+                                    console.log(`Watch History Saved Offline!`);
+                                    resolve(new Response('Saved in pending watch states', { status: 200 }));
+                                };
+                            } catch (e) {
+                                console.error(`Failed to save watch history offline`, e);
+                            }
+                        })
+                    }
+                    break;
+                default:
+                    console.log('Unhandled action:', action);
+                    break;
+            }
         }
     }
-    if (event.oldVersion < 2) {
-        const offlineKongouShows = db.createObjectStore("offline_kongou_shows", {keyPath: "showId"});
-        offlineKongouShows.createIndex("showId", "showId", {unique: true});
-        offlineKongouShows.transaction.oncomplete = event => {
-        }
-        const offlineKongouEpisode = db.createObjectStore("offline_kongou_episodes", {keyPath: "eid"});
-        offlineKongouEpisode.createIndex("eid", "eid", {unique: true});
-        offlineKongouEpisode.createIndex("showId", "showId", {unique: false});
-        offlineKongouEpisode.transaction.oncomplete = event => {
-        }
-    }
-    if (event.oldVersion < 3) {
-        const offlineStorageData = db.createObjectStore("offline_filedata", {keyPath: "url"});
-        offlineStorageData.createIndex("url", "url", {unique: true});
-        offlineStorageData.transaction.oncomplete = event => {
-        }
-    }
-};
+    return new Response(undefined, {status: 500});
+}
 
 self.addEventListener('install', event => {
     console.log('Waiting for kernel to install...');
@@ -395,6 +442,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', event => {
     event.respondWith(async function() {
+        const clonedBody = await event.request.clone();
         try {
             const cachedResponse = await caches.match(event.request);
             if (cachedResponse) {
@@ -447,14 +495,12 @@ self.addEventListener('fetch', event => {
                 return response;
             } else {
                 console.log('JulyOS Kernel: Offline - ' + event.request.url);
-                if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html')))
-                    return caches.match(offlineUrl);
+                return await handleFailedRequest(clonedBody);
             }
         } catch (err) {
             console.log('JulyOS Kernel: Offline - ' + event.request.url);
-            if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html')))
-                return caches.match(offlineUrl);
             console.error(err);
+            return await handleFailedRequest(clonedBody);
         }
     }());
 });
@@ -467,6 +513,9 @@ self.addEventListener('sync', async (event) => {
         case 'SYNC_PAGES':
             if (!syncActive) {
                 syncActive = true;
+                await sendPendingRequests();
+                await pullWatchProgress();
+
                 const pages = await getAllOfflinePages()
                 let itemsUpdated = 0;
                 let pagesUpdated = [];
@@ -479,12 +528,12 @@ self.addEventListener('sync', async (event) => {
                         }
                     }
                     if (itemsUpdated > 0) {
-                        if ('showNotification' in self.registration) {
+                        /*if ('showNotification' in self.registration) {
                             self.registration.showNotification("Synced Pages", {
                                 body: pagesUpdated.join('\n'),
                                 badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
                             });
-                        }
+                        }*/
                         console.log('Background Sync Complete');
                         console.log(pagesUpdated.join('\n'));
                     }
@@ -514,6 +563,9 @@ self.addEventListener('periodicsync', async (event) => {
         case 'SYNC_PAGES_NEW_ONLY':
             if (!syncActive) {
                 syncActive = true;
+                await sendPendingRequests();
+                await pullWatchProgress();
+
                 const pages = await getAllOfflinePages()
                 let itemsUpdated = 0;
                 let pagesUpdated = [];
@@ -526,12 +578,12 @@ self.addEventListener('periodicsync', async (event) => {
                         }
                     }
                     if (itemsUpdated > 0) {
-                        if ('showNotification' in self.registration) {
+                        /*if ('showNotification' in self.registration) {
                             self.registration.showNotification("Synced Pages", {
                                 body: pagesUpdated.join('\n'),
                                 badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
                             });
-                        }
+                        }*/
                         console.log('Background Sync Complete');
                         console.log(pagesUpdated.join('\n'));
                     }
@@ -607,6 +659,9 @@ self.addEventListener('message', async (event) => {
         case 'GET_STORAGE_ALL_KMS_SHOW':
             event.ports[0].postMessage(await getAllOfflineSeries());
             break;
+        case 'GET_VIEWED_KMS':
+            event.ports[0].postMessage(await getAllOfflineWatchHistory());
+            break;
         case 'GET_TOTAL_STORAGE_USAGE':
             event.ports[0].postMessage(await getTotalStorageUsage());
             break;
@@ -662,6 +717,9 @@ self.addEventListener('message', async (event) => {
         case 'SYNC_PAGES':
             if (!syncActive) {
                 syncActive = true;
+                await sendPendingRequests();
+                await pullWatchProgress();
+
                 const pages = await getAllOfflinePages()
                 let itemsUpdated = 0;
                 let pagesUpdated = [];
@@ -674,12 +732,12 @@ self.addEventListener('message', async (event) => {
                         }
                     }
                     if (itemsUpdated > 0) {
-                        if ('showNotification' in self.registration) {
+                        /*if ('showNotification' in self.registration) {
                             self.registration.showNotification("Synced Pages", {
                                 body: pagesUpdated.join('\n'),
                                 badge: '/static/vendor/fontawesome/svgs/solid/arrows-rotate.svg'
                             });
-                        }
+                        }*/
                         console.log('Background Sync Complete');
                         console.log(pagesUpdated.join('\n'));
                         event.ports[0].postMessage({
@@ -1079,6 +1137,38 @@ async function getAllOfflineData(includeExpired) {
         }
     })
 }
+async function getAllOfflineActions(actionType) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_actions").objectStore("offline_actions").getAll().onsuccess = event => {
+                    resolve(event.target.result.filter(e => !actionType || (actionType && e.action === actionType)))
+                }
+            } else {
+                resolve([]);
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
+async function getAllOfflineWatchHistory() {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_actions").objectStore("offline_actions").getAll().onsuccess = event => {
+                    resolve(event.target.result.filter(e => e.action === 'SetWatchHistory').map(e => e.data))
+                }
+            } else {
+                resolve([]);
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
 async function getAllOfflineSpannedFiles(includeExpired) {
     return new Promise((resolve) => {
         try {
@@ -1149,6 +1239,98 @@ async function getTotalStorageUsage() {
 }
 async function updateNotficationsPanel() {
     // TODO: Send notifications to all clients to update the notifications panel
+}
+async function sendPendingRequests() {
+    await Promise.all(['SetWatchHistory'].map(async action => {
+        const pendingActions = await getAllOfflineActions(action);
+        if (pendingActions.length > 0) {
+            await Promise.all(pendingActions.map(async actionItem => {
+                const sendResponse = await fetch(new Request('/actions/v1', {
+                    method: 'POST',
+                    body: JSON.stringify({retry: true, ...actionItem.data}),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'SequenziaXHR'
+                    }
+                }))
+                if (sendResponse.status < 300) {
+                    offlineContent.transaction("offline_actions", "readwrite").objectStore("offline_actions").delete(actionItem.id).onsuccess = event => {
+                        if (swDebugMode)
+                            console.log(`Sent pending action ${actionItem.id}`)
+                    }
+                } else {
+                    console.error(`Failed to sync action ${actionItem.id}`)
+                }
+            }))
+            broadcastAllMessage({
+                type: 'MAKE_SNACK',
+                level: 'success',
+                text: `<i class="fas fa-upload pr-2"></i>Synced ${pendingActions.length} pending actions`,
+                timeout: 5000
+            });
+        }
+    }))
+    if (swDebugMode)
+        console.log('Uploaded pending actions!')
+    return false;
+}
+async function pullWatchProgress() {
+    const watchHistoryRequest = await fetch(new Request('/actions/v1', {
+        method: 'POST',
+        body: JSON.stringify({
+            action: "GetWatchHistory"
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'SequenziaXHR'
+        }
+    }))
+    if (watchHistoryRequest.status < 300) {
+        try {
+            const watchHistory = JSON.parse(await watchHistoryRequest.text());
+            const pendingActions = await getAllOfflineActions('SetWatchHistory')
+            if (watchHistory.history && watchHistory.history.length > 0 && browserStorageAvailable) {
+                return await new Promise((resolve) => {
+                    offlineContent.transaction(["offline_items"]).objectStore("offline_items").getAll().onsuccess = async (event) => {
+                        if (event.target.result && event.target.result.length > 0) {
+                            await Promise.all(event.target.result.filter(e => e.kongou_meta && e.kongou_meta.show && e.kongou_meta.show.id).map(async episode => {
+                                if (episode.eid) {
+                                    await new Promise((write) => {
+                                        const watchedPercentage = pendingActions.filter(x => x.eid === episode.eid.toString()).pop()
+                                        const watchedLocal = (watchedPercentage && watchedPercentage.viewed) ? watchedPercentage.viewed : (episode.htmlAttributes.filter(j => j.startsWith('data-kms-progress=')).length > 0) ? episode.htmlAttributes.filter(j => j.startsWith('data-kms-progress='))[0].split('=')[1].split('"').join('') : 0;
+                                        const _watchedRemote = watchHistory.history.filter(j => j.eid.toString() === episode.eid.toString())
+                                        const watchedRemote = (_watchedRemote && _watchedRemote.length > 0) ? _watchedRemote[0].viewed : null;
+                                        if (watchedRemote && watchedRemote.toString() !== watchedLocal.toString()) {
+                                            offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").put({
+                                                ...episode,
+                                                htmlAttributes: [
+                                                    ...episode.htmlAttributes.filter(j => !j.startsWith('data-kms-progress=')),
+                                                    `data-kms-progress="${watchedRemote}"`
+                                                ]
+                                            }).onsuccess = async (event) => {
+                                                write(true);
+                                            }
+                                        } else {
+                                            write(false);
+                                        }
+                                    })
+                                }
+                            }))
+                        }
+                        resolve(true);
+                    }
+                })
+            } else {
+                return false;
+            }
+        } catch (e) {
+            console.error("Failed to process watch history", e);
+            return false;
+        }
+    } else {
+        console.error(`Failed to get watch history to sync local episodes`)
+        return false;
+    }
 }
 
 async function deleteOfflinePage(url, noupdate) {
