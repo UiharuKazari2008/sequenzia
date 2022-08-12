@@ -2907,7 +2907,7 @@ async function updateNotficationsPanel() {
             if (item.active) {
                 results.push(`<i class="fas fa-hammer"></i>`);
                 if (!item.swHandeler)
-                    results.push(`<i class="fas fa-rectangle-code ${(item.active) ? ' pl-1' : ''}"></i>`);
+                    results.push(`<i class="fas fa-browser ${(item.active) ? ' pl-1' : ''}"></i>`);
                 results.push(`<span class="text-ellipsis${(item.active || !item.swHandeler) ? ' pl-1' : ''}">${item.name} (${item.size})</span>`);
                 if (item.progress) {
                     activeSpannedJob = true;
@@ -2916,7 +2916,7 @@ async function updateNotficationsPanel() {
             } else {
                 results.push(`<i class="fas fa-hourglass-start pr-1"></i>`);
                 if (!item.swHandeler)
-                    results.push(`<i class="fas fa-rectangle-code pr-1"></i>`);
+                    results.push(`<i class="fas fa-browser pr-1"></i>`);
                 results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`);
             }
             results.push(`</a>`);
