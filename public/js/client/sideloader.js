@@ -2083,40 +2083,106 @@ async function displayOfflineData() {
             document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
         }
 
+        $('#cacheModal').modal('show');
+
         const usedDBStorage = document.getElementById('storageDBUsed');
         const usedCacheStorage = document.getElementById('storageCacheUsed');
         const usedOtherStorage = document.getElementById('storageOtherUsed');
         const freeStorage = document.getElementById('storageFreeText');
+        const textSpannedUsed = document.getElementById('textSpannedUsed');
+        const textDataUsed = document.getElementById('textDataUsed');
+        const textCacheUsed = document.getElementById('textCacheUsed');
+        const textOtherUsed = document.getElementById('textOtherUsed');
 
         try {
             const usedSpace = await navigator.storage.estimate();
             const freeSpace = (usedSpace.quota - usedSpace.usage);
-            const freeSpaceText = (() => {
-                if (freeSpace > 1000000000000) {
-                    return (freeSpace / 1000000000000).toFixed(2) + ' TB'
-                } else if (freeSpace > 1000000000) {
-                    return (freeSpace / 1000000000).toFixed(2) + ' GB'
-                } else if (freeSpace > 1000000) {
-                    return (freeSpace / 1000000).toFixed(2) + ' MB'
+            const freeSpaceText = ((bytes) => {
+                if (bytes > 1000000000000) {
+                    return (bytes / 1000000000000).toFixed(2) + ' TB'
+                } else if (bytes > 1000000000) {
+                    return (bytes / 1000000000).toFixed(2) + ' GB'
+                } else if (bytes > 1000000) {
+                    return (bytes / 1000000).toFixed(2) + ' MB'
                 } else {
-                    return (freeSpace / 1000).toFixed(2) + ' KB'
+                    return (bytes / 1000).toFixed(2) + ' KB'
                 }
-            })();
+            })(freeSpace);
 
 
             usedDBStorage.style.width = `${(usedSpace.usageDetails.indexedDB / usedSpace.quota) * 100}%`;
             usedCacheStorage.style.width = `${((usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations) / usedSpace.quota) * 100}%`;
             usedOtherStorage.style.width = `${((usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations)) / usedSpace.quota) * 100}%`;
             freeStorage.innerText = `${freeSpaceText} Free`;
+
+            const cacheUsage = ((bytes) => {
+                if (bytes > 1000000000000) {
+                    return (bytes / 1000000000000).toFixed(2) + ' TB'
+                } else if (bytes > 1000000000) {
+                    return (bytes / 1000000000).toFixed(2) + ' GB'
+                } else if (bytes > 1000000) {
+                    return (bytes / 1000000).toFixed(2) + ' MB'
+                } else {
+                    return (bytes / 1000).toFixed(2) + ' KB'
+                }
+            })((usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations));
+            textCacheUsed.querySelector('span').innerText = cacheUsage
+
+            const otherUsage = ((bytes) => {
+                if (bytes > 1000000000000) {
+                    return (bytes / 1000000000000).toFixed(2) + ' TB'
+                } else if (bytes > 1000000000) {
+                    return (bytes / 1000000000).toFixed(2) + ' GB'
+                } else if (bytes > 1000000) {
+                    return (bytes / 1000000).toFixed(2) + ' MB'
+                } else {
+                    return (bytes / 1000).toFixed(2) + ' KB'
+                }
+            })((usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations)));
+            textOtherUsed.querySelector('span').innerText = otherUsage
         } catch (e) {
             freeStorage.innerText = `Not Available`;
+            textCacheUsed.querySelector('span').innerText = '?'
+            textOtherUsed.querySelector('span').innerText = '?'
             console.error(e);
             console.error(`Failed to get usage information`);
         }
+        try {
+            const usage = await kernelRequestData({type: 'GET_TOTAL_STORAGE_USAGE'});
+            if (usage) {
+                const spannedUsage = ((bytes) => {
+                    if (bytes > 1000000000000) {
+                        return (bytes / 1000000000000).toFixed(2) + ' TB'
+                    } else if (bytes > 1000000000) {
+                        return (bytes / 1000000000).toFixed(2) + ' GB'
+                    } else if (bytes > 1000000) {
+                        return (bytes / 1000000).toFixed(2) + ' MB'
+                    } else {
+                        return (bytes / 1000).toFixed(2) + ' KB'
+                    }
+                })(usage.spanned);
+                textSpannedUsed.querySelector('span').innerText = spannedUsage
+                const dataUsage = ((bytes) => {
+                    if (bytes > 1000000000000) {
+                        return (bytes / 1000000000000).toFixed(2) + ' TB'
+                    } else if (bytes > 1000000000) {
+                        return (bytes / 1000000000).toFixed(2) + ' GB'
+                    } else if (bytes > 1000000) {
+                        return (bytes / 1000000).toFixed(2) + ' MB'
+                    } else {
+                        return (bytes / 1000).toFixed(2) + ' KB'
+                    }
+                })(usage.data);
+                textDataUsed.querySelector('span').innerText = dataUsage
+            } else {
 
-
-        $('#cacheModal').modal('show');
+            }
+        } catch (e2) {
+            console.error(e2);
+            console.error(`Failed to get usage information`);
+        }
     } catch (e) {
+        console.error(e);
         $.toast({
             type: 'error',
             title: '<i class="fas fa-server pr-2"></i>Kernel Failure',

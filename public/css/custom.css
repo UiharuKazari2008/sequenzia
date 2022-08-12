@@ -2754,16 +2754,20 @@ body.kms-play-open:not(.kms-play-pip) {
     height: 2em;
     background: #131313;
 }
+.storage-usage-spanned-used {
+    background: #e73c01;
+    height: 100%;
+}
 .storage-usage-db-used {
     background: rgb(231, 105, 1);
     height: 100%;
 }
 .storage-usage-cache-used {
-    background: #43ec00;
+    background: #00a118;
     height: 100%;
 }
 .storage-usage-other-used {
-    background: #00bbff;
+    background: #7c7c7c;
     height: 100%;
 }
 

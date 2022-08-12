@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-12-2022-P7';
+const cacheName = 'HEAVY_DEV-v20-7-12-2022-P8';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -607,6 +607,9 @@ self.addEventListener('message', async (event) => {
         case 'GET_STORAGE_ALL_KMS_SHOW':
             event.ports[0].postMessage(await getAllOfflineSeries());
             break;
+        case 'GET_TOTAL_STORAGE_USAGE':
+            event.ports[0].postMessage(await getTotalStorageUsage());
+            break;
         case 'REMOVE_STORAGE_PAGE':
             event.ports[0].postMessage(await deleteOfflinePage(event.data.url, (!!event.data.noupdate)));
             break;
@@ -1056,6 +1059,26 @@ async function getAllOfflineFiles(includeExpired) {
         }
     })
 }
+async function getAllOfflineData(includeExpired) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("offline_filedata").objectStore("offline_filedata").getAll().onsuccess = event => {
+                    resolve(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(e => {
+                        return {
+                            ...e
+                        }
+                    }))
+                }
+            } else {
+                resolve([]);
+            }
+        } catch (e) {
+            console.log(e);
+            resolve([])
+        }
+    })
+}
 async function getAllOfflineSpannedFiles(includeExpired) {
     return new Promise((resolve) => {
         try {
@@ -1096,6 +1119,28 @@ async function refreshOfflineItemCache() {
             } else {
                 resolve(false);
             }
+        } catch (e) {
+            console.log(e);
+            resolve(false)
+        }
+    })
+}
+async function getTotalStorageUsage() {
+    return new Promise(async (resolve) => {
+        try {
+            let totalSpannedUsage = 0;
+            let totalDataUsage = 0;
+            (await getAllOfflineSpannedFiles()).filter(e => !!e.block).map(e => {
+                totalSpannedUsage += e.block.size
+            });
+            (await getAllOfflineData()).filter(e => !!e.data).map(e => {
+                totalDataUsage += e.data.size
+            });
+            resolve({
+                spanned: totalSpannedUsage,
+                data: totalDataUsage
+            });
+
         } catch (e) {
             console.log(e);
             resolve(false)
@@ -1143,9 +1188,9 @@ async function deleteOfflinePage(url, noupdate) {
                                 text: `<i class="fas fa-sd-card pr-2"></i>Removed Page and ${pageItems.length} files`,
                                 timeout: 5000
                             });
+                            refreshOfflineItemCache();
                         }
                         updateNotficationsPanel();
-                        refreshOfflineItemCache();
                     };
                 } else {
                     updateNotficationsPanel();
@@ -1259,8 +1304,8 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
                             timeout: 5000
                         });
                         updateNotficationsPanel();
+                        refreshOfflineItemCache();
                     }
-                    refreshOfflineItemCache();
                     broadcastAllMessage({
                         type: 'STATUS_STORAGE_CACHE_UNMARK',
                         id: file.id,
@@ -1855,8 +1900,8 @@ async function cacheFileOffline(meta, noConfirm) {
                         text: `<i class="fas fa-sd-card pr-2"></i>File available offline`,
                         timeout: 5000
                     });
+                    refreshOfflineItemCache();
                 }
-                refreshOfflineItemCache();
                 broadcastAllMessage({
                     type: 'STATUS_STORAGE_CACHE_MARK',
                     id: meta.id,

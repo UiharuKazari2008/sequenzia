@@ -928,11 +928,24 @@ html
                         div.row.px-2
                             h4 Storage
                         div.row.mb-2.d-flex.flex-column.px-2
-                            h5#storageFreeText Usage NaN%
+                            h5#storageFreeText Free Space Waiting...
                             .storage-usage-holder.d-flex
                                 #storageDBUsed.storage-usage-db-used
                                 #storageCacheUsed.storage-usage-cache-used
                                 #storageOtherUsed.storage-usage-other-used
+                            .d-flex.mt-1
+                                #textSpannedUsed.badge.text-light.storage-usage-spanned-used.mr-1
+                                    i.fas.fa-box-open.pr-2
+                                    span NaN
+                                #textDataUsed.badge.text-light.storage-usage-db-used.mr-1
+                                    i.fas.fa-file.pr-2
+                                    span NaN
+                                #textCacheUsed.badge.text-light.storage-usage-cache-used.mr-1
+                                    i.fas.fa-microchip.pr-2
+                                    span NaN
+                                #textOtherUsed.badge.text-light.storage-usage-other-used
+                                    i.fas.fa-question-circle.pr-2
+                                    span NaN
                         div.row.px-2.mb-2
                             a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
                                 i.fas.fa-trash.pr-2
