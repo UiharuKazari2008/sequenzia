@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-12-2022-P5';
+const cacheName = 'HEAVY_DEV-v20-7-12-2022-P6';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -1514,7 +1514,7 @@ async function cacheFileURL(object, page_item) {
                         preemptive: true,
                         expires: false,
                         offline: true,
-                        swHandeler: (windows.length === 0 || navigator.userAgent.indexOf('Chrome') !== -1)
+                        swHandeler: (windows.length === 0 || (navigator.userAgent.indexOf('Chrome') !== -1 && swUseInternalUnpacker))
                     }
                     fetchResults['spanned_file'] = await new Promise(async resolve => {
                         if (windows.length === 0 || (navigator.userAgent.indexOf('Chrome') !== -1 && swUseInternalUnpacker)) {

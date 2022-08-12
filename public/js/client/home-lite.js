@@ -755,17 +755,17 @@ async function updateNotficationsPanel() {
             const item = unpackingJobs.get(e);
             let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' onclick="stopUnpackingFiles('${e}'); return false;" role='button')>`]
             if (item.active) {
-                results.push(`<i class="fas fa-spinner fa-spin-pulse"></i>`);
-                if (item.swHandeler)
+                results.push(`<i class="fas fa-hammer"></i>`);
+                if (!item.swHandeler)
                     results.push(`<i class="fas fa-rectangle-code ${(item.active) ? ' pl-1' : ''}"></i>`);
-                results.push(`<span class="text-ellipsis${(item.active || item.swHandeler) ? ' pl-1' : ''}">${item.name} (${item.size})</span>`);
+                results.push(`<span class="text-ellipsis${(item.active || !item.swHandeler) ? ' pl-1' : ''}">${item.name} (${item.size})</span>`);
                 if (item.progress) {
                     activeSpannedJob = true;
                     results.push(`<span class="pl-2 text-success">${item.progress}%</span>`);
                 }
             } else {
                 results.push(`<i class="fas fa-hourglass-start pr-1"></i>`);
-                if (item.swHandeler)
+                if (!item.swHandeler)
                     results.push(`<i class="fas fa-rectangle-code pr-1"></i>`);
                 results.push(`<span class="text-ellipsis">${item.name} (${item.size})</span>`);
             }
