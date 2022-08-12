@@ -2589,7 +2589,7 @@ async function openKMSPlayer(messageid, seriesId) {
             const nextEpisode = allEpisodes.slice(index + 1);
 
             if (allEpisodes[index]) {
-                currentEpisode.innerText = allEpisodes[index].querySelector('.episode-name > span').innerText;
+                currentEpisode.innerText = allEpisodes[index].querySelector('.episode-name > span, .episode-name-grid > span').innerText;
             } else {
                 currentEpisode.innerText = filename.split('.')[0];
             }
