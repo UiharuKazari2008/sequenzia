@@ -1846,8 +1846,10 @@ async function generateEpisodeHTML(url) {
 
                 if (episodes && episodes.episodes && episodes.show) {
                     resultRows = await Promise.all(episodes.episodes.sort(function (a, b) {
-                        return (((b.season || 0) + 1) * (b.episode || 0)) - (((a.season || 0) + 1) * (a.episode || 0));
-                    }).reverse().map(async e => {
+                        if (a.media && b.media)
+                            return (((a.media.season || 0) + 1) * (a.media.episode || 0)) - (((b.media.season || 0) + 1) * (b.media.episode || 0));
+                        return -1
+                    }).map(async e => {
                         return `<div class="col-12 col-sm-6 col-md-4 m-0 flex-nowrap episode-row p-1" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.filter(j => !j.startsWith('class=')).join(' ') : 'id="message-' + e.id + '"'}>
     <div class="episode-preview-grid">
         <div class="preview-watched d-flex pr-2">
