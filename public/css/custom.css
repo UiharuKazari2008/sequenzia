@@ -2324,6 +2324,9 @@ footer .server-grid-parent {
     opacity: 0.4;
     pointer-events: none;
 }
+.episode-name-grid {
+    height: 34px;
+}
 .episode-name-grid span {
     font-size: 1.25em;
     line-height: 1;
