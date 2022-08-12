@@ -436,7 +436,9 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Ready to Leave?
+                        h5.modal-title
+                            i.fas.fa-sign-out-alt.pr-2
+                            | Ready to Leave?
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body Select &quot;Logout&quot; below if you are ready to end your current session.
@@ -447,22 +449,43 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Storage Manager
+                        h5.modal-title
+                            i.fas.fa-sd-card.pr-2
+                            | Storage Manager
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
-                        div.row.px-2
-                            h4 Pages
-                        div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2
-                            span No Offline Pages
-                        div.row.px-2
-                            h4 Items
-                        div#cacheItemsManager.row.mb-2.d-flex.flex-column.px-2
-                            span No Offline Items
-                        div.row.px-2
-                            h4 Files
-                        div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
-                            span No Offline Files
+                        #accordionFlushExample.accordion.accordion-flush
+                            .accordion-item
+                                h4#cacheList-pagesHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-pagesBody' aria-expanded='false' aria-controls='cacheList-pagesBody')
+                                        i.fas.fa-browsers.pr-2
+                                        | Pages
+                                        span#cachePagesCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-pagesBody.accordion-collapse.collapse.show(aria-labelledby='cacheList-pagesHeading' data-parent='#accordionFlushExample')
+                                    #cachePagesManager.accordion-body.mb-2
+                                        span No Offline Pages
+                            .accordion-item
+                                h4#cacheList-itemsHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-itemsBody' aria-expanded='false' aria-controls='cacheList-itemsBody')
+                                        i.fas.fa-photo-film-music.pr-2
+                                        | Media
+                                        span#cacheItemsCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-itemsBody.accordion-collapse.collapse(aria-labelledby='cacheList-itemsHeading' data-parent='#accordionFlushExample')
+                                    #cacheItemsManager.accordion-body.mb-2
+                                        span No Offline Items
+                            .accordion-item
+                                h4#cacheList-tempHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-tempBody' aria-expanded='false' aria-controls='cacheList-tempBody')
+                                        i.fas.fa-clock.pr-2
+                                        | Temp
+                                        span#cacheFilesCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-tempBody.accordion-collapse.collapse(aria-labelledby='cacheList-tempHeading' data-parent='#accordionFlushExample')
+                                    #cacheFilesManager.accordion-body.mb-2
+                                        span No Temporary Items
                         div.row.px-2
                             h4 Storage
                         div.row.mb-2.d-flex.flex-column.px-2
@@ -473,22 +496,24 @@ html
                                 #storageOtherUsed.storage-usage-other-used
                             .d-flex.mt-1
                                 #textSpannedUsed.badge.text-light.storage-usage-spanned-used.mr-1
-                                    i.fas.fa-box-open.pr-2
+                                    i.fas.fa-box-open.pr-1
                                     span NaN
-                                #textDataUsed.badge.text-light.storage-usage-db-used.mr-1
-                                    i.fas.fa-file.pr-2
+                                #textDataUsed.badge.text-light.storage-usage-files-used.mr-1
+                                    i.fas.fa-file.pr-1
                                     span NaN
                                 #textCacheUsed.badge.text-light.storage-usage-cache-used.mr-1
-                                    i.fas.fa-microchip.pr-2
+                                    i.fas.fa-microchip.pr-1
                                     span NaN
                                 #textOtherUsed.badge.text-light.storage-usage-other-used
-                                    i.fas.fa-question-circle.pr-2
+                                    i.fas.fa-question-circle.pr-1
                                     span NaN
         #aboutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
             .modal-dialog(role='document').about-dialog
                 .modal-content
                     .modal-header
-                        h5.modal-title About
+                        h5.modal-title
+                            i.fas.fa-circle-info.pr-2
+                            | About
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body.d-flex.p-0.flex-column.flex-md-row(style="max-height: 75vh;height: 650px;")

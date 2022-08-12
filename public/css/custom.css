@@ -1133,10 +1133,19 @@ border: 1px solid rgba(255,255,255, .15);
 }
 
 .modal-header {
-border-bottom: 1px solid #ffffff3b;
+    border-bottom: 1px solid #ffffff3b;
+    background: linear-gradient(335deg, black, #ff8b0087);
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
 }
 .modal-header.modal-danger {
-background: #a21204;
+background: linear-gradient(335deg, black, #ff1700bd);
+}
+.modal-header .close {
+    font-size: 1.5rem;
+    line-height: 1em;
+    padding: 1rem 1rem;
+    margin: -1rem -1rem -1rem auto;
 }
 .modal-footer {
 border-top: 1px solid #ffffff3b;
@@ -2758,8 +2767,12 @@ body.kms-play-open:not(.kms-play-pip) {
     background: #e73c01;
     height: 100%;
 }
+.storage-usage-files-used {
+    background: #E76901;
+    height: 100%;
+}
 .storage-usage-db-used {
-    background: rgb(231, 105, 1);
+    background: linear-gradient(90deg, #e73c01, #E76901);
     height: 100%;
 }
 .storage-usage-cache-used {

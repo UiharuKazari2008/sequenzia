@@ -2002,21 +2002,29 @@ async function displayOfflineData() {
     try {
         let linkedEids = [];
         let linkedFileids = [];
-        const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
-        const pageRows = pages.map((e,i) => {
-            let icon = 'fa-page';
-            if (e.url.includes('/gallery'))
-                icon = 'fa-image'
-            if (e.url.includes('/files'))
-                icon = 'fa-folder'
-            if (e.url.includes('/cards'))
-                icon = 'fa-message'
-            if (e.url.includes('album='))
-                icon = 'fa-archive'
-            if (e.items)
-                linkedEids.push(...e.items);
 
-            return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
+        const cachePagesCount = document.getElementById('cachePagesCount');
+        const cacheItemsCount = document.getElementById('cacheItemsCount');
+        const cacheFilesCount = document.getElementById('cacheFilesCount');
+
+        const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
+
+        if (pages.length > 0) {
+            cachePagesCount.innerText = `(${pages.length})`;
+            const pageRows = pages.map((e,i) => {
+                let icon = 'fa-page';
+                if (e.url.includes('/gallery'))
+                    icon = 'fa-image'
+                if (e.url.includes('/files'))
+                    icon = 'fa-folder'
+                if (e.url.includes('/cards'))
+                    icon = 'fa-message'
+                if (e.url.includes('album='))
+                    icon = 'fa-archive'
+                if (e.items)
+                    linkedEids.push(...e.items);
+
+                return`<div class="d-flex py-1 align-items-center" id='cachePageItem-${i}'>
             <div class="px-2"><i class="fas ${icon}"></i></div>
             <div class="w-100"><span>${e.title}</span></div>
             <div class="d-flex">
@@ -2028,26 +2036,32 @@ async function displayOfflineData() {
                 </a>
             </div>
         </div>`
-        });
-
-        if (pageRows.length > 0) {
-            document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
+            });
+            if (pageRows.length > 0) {
+                document.getElementById('cachePagesManager').innerHTML = pageRows.join('')
+            } else {
+                document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
+            }
         } else {
+            cachePagesCount.innerText = '';
             document.getElementById('cachePagesManager').innerHTML = '<span>No Offline Pages</span>'
         }
 
         const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
         linkedFileids.push(...files.filter(e => !!e.fileid).map((e) => e.fileid))
-        const fileRows = files.filter(e => linkedEids.indexOf(e.eid) === -1).map((e,i) => {
-            let icon = 'fa-file';
-            if (e.data_type === 'image')
-                icon = 'fa-image'
-            if (e.data_type === 'video')
-                icon = 'fa-film'
-            if (e.data_type === 'audio')
-                icon = 'fa-music'
+        const filesMatched = files.filter(e => linkedEids.indexOf(e.eid) === -1);
+        if (filesMatched.length > 0) {
+            cacheItemsCount.innerText = `(${filesMatched.length})`
+            const fileRows = filesMatched.map((e,i) => {
+                let icon = 'fa-file';
+                if (e.data_type === 'image')
+                    icon = 'fa-image'
+                if (e.data_type === 'video')
+                    icon = 'fa-film'
+                if (e.data_type === 'audio')
+                    icon = 'fa-music'
 
-            return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
+                return`<div class="d-flex py-1 align-items-center" id='cacheItemItem-${i}'>
             <div class="px-2"><i class="fas ${icon}"></i></div>
             <div class="w-100"><span>${e.filename}</span></div>
             <div class="d-flex">
@@ -2056,17 +2070,23 @@ async function displayOfflineData() {
                 </a>
             </div>
         </div>`
-        });
-
-        if (fileRows.length > 0) {
-            document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
+            });
+            if (fileRows.length > 0) {
+                document.getElementById('cacheItemsManager').innerHTML = fileRows.join('')
+            } else {
+                document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
+            }
         } else {
+            cacheItemsCount.innerText = ''
             document.getElementById('cacheItemsManager').innerHTML = '<span>No Offline Items</span>'
         }
 
         const offlineSpannedFiles = await getAllOfflineSpannedFiles();
-        const spannedRows = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1).map((e,i) => {
-            return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
+        const spannedMatched = offlineSpannedFiles.filter(e => linkedFileids.indexOf(e.id) === -1)
+        if (spannedMatched.length > 0) {
+            cacheFilesCount.innerText = `(${spannedMatched.length})`
+            const spannedRows = spannedMatched.map((e,i) => {
+                return`<div class="d-flex py-1 align-items-center" id='cacheSpanItem-${i}'>
             <div class="px-2"><i class="fas fa-box-open"></i></div>
             <div class="w-100"><span>${e.filename}</span></div>
             <div class="d-flex">
@@ -2075,13 +2095,18 @@ async function displayOfflineData() {
                 </a>
             </div>
         </div>`
-        });
+            });
 
-        if (spannedRows.length > 0) {
-            document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
+            if (spannedRows.length > 0) {
+                document.getElementById('cacheFilesManager').innerHTML = spannedRows.join('')
+            } else {
+                document.getElementById('cacheFilesManager').innerHTML = '<span>No Temporary Files</span>'
+            }
         } else {
-            document.getElementById('cacheFilesManager').innerHTML = '<span>No Spanned Files</span>'
+            document.getElementById('cacheFilesManager').innerHTML = '<span>No Temporary Files</span>'
+            cacheFilesCount.innerText = ''
         }
+
 
         $('#cacheModal').modal('show');
 

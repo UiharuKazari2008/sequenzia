@@ -665,7 +665,9 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header.text-ellipsis
-                        h5.modal-title.text-ellipsis Video Preview
+                        h5.modal-title.text-ellipsis
+                            i.fas.fa-film.pr-2
+                            | Video Preview
                     .modal-body
                         div.row.pl-3.pr-3
                             video(preload="true" volume="0.5" loop controls playsinline webkit-playsinline style="background: black; background-clip: content-box;").w-100.hidden
@@ -684,7 +686,9 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Ready to Leave?
+                        h5.modal-title
+                            i.fas.fa-sign-out-alt.pr-2
+                            | Ready to Leave?
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body Select &quot;Logout&quot; below if you are ready to end your current session.
@@ -695,7 +699,9 @@ html
             .modal-dialog(role='document').about-dialog
                 .modal-content
                     .modal-header
-                        h5.modal-title About
+                        h5.modal-title
+                            i.fas.fa-circle-info.pr-2
+                            |  About
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body.d-flex.p-0.flex-column.flex-md-row(style="max-height: 75vh;height: 650px;")
@@ -787,7 +793,9 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Search Help
+                        h5.modal-title
+                            i.fas.fa-magnifying-glass.pr-2
+                            | Search Help
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
@@ -881,7 +889,9 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Go Offline?
+                        h5.modal-title
+                            i.fas.fa-wifi-exclamation.pr-2
+                            | Go Offline?
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
@@ -894,7 +904,9 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Keep Offline
+                        h5.modal-title
+                            i.fas.fa-cloud-download.pr-2
+                            | Save Offline
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
@@ -909,22 +921,43 @@ html
             .modal-dialog(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title Storage Manager
+                        h5.modal-title
+                            i.fas.fa-sd-card.pr-2
+                            | Storage Manager
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
-                        div.row.px-2
-                            h4 Pages
-                        div#cachePagesManager.row.mb-2.d-flex.flex-column.px-2
-                            span No Offline Pages
-                        div.row.px-2
-                            h4 Items
-                        div#cacheItemsManager.row.mb-2.d-flex.flex-column.px-2
-                            span No Offline Items
-                        div.row.px-2
-                            h4 Files
-                        div#cacheFilesManager.row.mb-2.d-flex.flex-column.px-2
-                            span No Offline Files
+                        #accordionFlushExample.accordion.accordion-flush
+                            .accordion-item
+                                h4#cacheList-pagesHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-pagesBody' aria-expanded='false' aria-controls='cacheList-pagesBody')
+                                        i.fas.fa-browsers.pr-2
+                                        | Pages
+                                        span#cachePagesCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-pagesBody.accordion-collapse.collapse.show(aria-labelledby='cacheList-pagesHeading' data-parent='#accordionFlushExample')
+                                    #cachePagesManager.accordion-body.mb-2
+                                        span No Offline Pages
+                            .accordion-item
+                                h4#cacheList-itemsHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-itemsBody' aria-expanded='false' aria-controls='cacheList-itemsBody')
+                                        i.fas.fa-photo-film-music.pr-2
+                                        | Media
+                                        span#cacheItemsCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-itemsBody.accordion-collapse.collapse(aria-labelledby='cacheList-itemsHeading' data-parent='#accordionFlushExample')
+                                    #cacheItemsManager.accordion-body.mb-2
+                                        span No Offline Items
+                            .accordion-item
+                                h4#cacheList-tempHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-tempBody' aria-expanded='false' aria-controls='cacheList-tempBody')
+                                        i.fas.fa-clock.pr-2
+                                        | Temp
+                                        span#cacheFilesCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-tempBody.accordion-collapse.collapse(aria-labelledby='cacheList-tempHeading' data-parent='#accordionFlushExample')
+                                    #cacheFilesManager.accordion-body.mb-2
+                                        span No Temporary Items
                         div.row.px-2
                             h4 Storage
                         div.row.mb-2.d-flex.flex-column.px-2
@@ -935,16 +968,16 @@ html
                                 #storageOtherUsed.storage-usage-other-used
                             .d-flex.mt-1
                                 #textSpannedUsed.badge.text-light.storage-usage-spanned-used.mr-1
-                                    i.fas.fa-box-open.pr-2
+                                    i.fas.fa-box-open.pr-1
                                     span NaN
-                                #textDataUsed.badge.text-light.storage-usage-db-used.mr-1
-                                    i.fas.fa-file.pr-2
+                                #textDataUsed.badge.text-light.storage-usage-files-used.mr-1
+                                    i.fas.fa-file.pr-1
                                     span NaN
                                 #textCacheUsed.badge.text-light.storage-usage-cache-used.mr-1
-                                    i.fas.fa-microchip.pr-2
+                                    i.fas.fa-microchip.pr-1
                                     span NaN
                                 #textOtherUsed.badge.text-light.storage-usage-other-used
-                                    i.fas.fa-question-circle.pr-2
+                                    i.fas.fa-question-circle.pr-1
                                     span NaN
                         div.row.px-2.mb-2
                             a.btn.btn-danger(href='#_' onclick='clearAllOfflineData(); return false;').w-100
@@ -960,7 +993,8 @@ html
                 .modal-content
                     .modal-header
                         h5.modal-title
-                            span Setup Photo Frame
+                            i.fas.fa-image-landscape.pr-2
+                            | Setup Photo Frame
                         button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
@@ -980,7 +1014,9 @@ html
             .modal-dialog.modal-dialog-scrollable(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title.flex-grow-1 Photo Frames
+                        h5.modal-title.flex-grow-1
+                            i.fas.fa-image-landscape.pr-2
+                            | Photo Frames
                         a.align-self-center(href='#_' onclick='getDisplayHistory("command=getAll"); return false;' role='button').text-white
                             i.fas.fa-sync-alt
                         button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
@@ -1003,7 +1039,8 @@ html
                 .modal-content
                     .modal-header
                         h5.modal-title
-                            span History
+                            i.fas.fa-fa-history.pr-2
+                            | History
                         button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
                     .modal-body
@@ -1087,7 +1124,9 @@ html
             .modal-dialog.modal-dialog-scrollable(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title.flex-grow-1 Albums
+                        h5.modal-title.flex-grow-1
+                            i.fas.fa-archive.pr-2
+                            | Albums
                         a.align-self-center(href='#_' onclick='refreshAlbumsList(); return false;' role='button').text-white
                             i.fas.fa-sync-alt
                         button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
@@ -1121,7 +1160,9 @@ html
             .modal-dialog.modal-dialog-scrollable(role='document')
                 .modal-content
                     .modal-header
-                        h5.modal-title.flex-grow-1 Directory
+                        h5.modal-title.flex-grow-1
+                            i.fas.fa-earth-americas.pr-2
+                            | Directory
                         a.align-self-center(href='#_' onclick='getAlbumDirectory(); return false;' role='button').text-white
                             i.fas.fa-sync-alt
                         button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
@@ -1240,7 +1281,8 @@ html
                     .modal-content
                         .modal-header
                             h5.modal-title
-                                span Security Settings
+                                i.fas.fa-key.pr-2
+                                | Security
                             button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                 span(aria-hidden='true') &times;
                         .modal-body
