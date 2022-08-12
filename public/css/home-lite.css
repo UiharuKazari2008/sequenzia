@@ -161,8 +161,8 @@ input.middle:focus {
 
 @media (prefers-color-scheme: light) {
     .dropdown-menu {
-        color: #f7f7f7;
-        background-color: #823d08ed;
+        color: #000000;
+        background-color: rgba(255, 255, 255, 0.93);
         border: 1px solid #ff7f001f;
     }
     .dropdown .dropdown-menu .dropdown-header, .dropdown-header {
