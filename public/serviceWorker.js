@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-12-2022-P4';
+const cacheName = 'HEAVY_DEV-v20-7-12-2022-P5';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -632,6 +632,7 @@ self.addEventListener('message', async (event) => {
             event.ports[0].postMessage(true);
             break;
         case 'PING_STORAGE':
+            await refreshOfflineItemCache();
             event.ports[0].postMessage(browserStorageAvailable);
             break;
         case 'STATUS_UNPACK_STARTED':
