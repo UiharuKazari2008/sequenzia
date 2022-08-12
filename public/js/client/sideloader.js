@@ -2141,9 +2141,9 @@ async function displayOfflineData() {
             })((usedSpace.usage - (usedSpace.usageDetails.indexedDB + usedSpace.usageDetails.caches + usedSpace.usageDetails.serviceWorkerRegistrations)));
             textOtherUsed.querySelector('span').innerText = otherUsage
         } catch (e) {
-            freeStorage.innerText = `Not Available`;
-            textCacheUsed.querySelector('span').innerText = '?'
-            textOtherUsed.querySelector('span').innerText = '?'
+            freeStorage.innerText = `Free Space Unknown`;
+            textCacheUsed.querySelector('span').innerText = 'Unknown'
+            textOtherUsed.querySelector('span').innerText = 'Unknown'
             console.error(e);
             console.error(`Failed to get usage information`);
         }
