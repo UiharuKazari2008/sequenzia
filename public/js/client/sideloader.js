@@ -5069,7 +5069,7 @@ async function startUnpackerWorker() {
                 type: 'error',
                 title: '<i class="fas fa-microchip pr-2"></i>TLHWP Crashed',
                 subtitle: '',
-                content: `<p>The compliler has crashed, this could be due to low system memory. Jobs will be recovered shortly.</p>`,
+                content: `<p>The compiler has crashed, this could be due to low system memory. Jobs will be recovered shortly.</p>`,
                 delay: 90000,
             });
         }
@@ -5410,3 +5410,13 @@ async function startUnpackerWorker() {
 }
 startUnpackerWorker();
 
+window.onbeforeunload = function (e) {
+    if (unpackingJobs.size > 0) {
+        e = e || window.event;
+        if (e) {
+            e.returnValue = 'WARNING: There are active files being unpacked in the compiler. If you close the application the tasks will be canceled!';
+        }
+        // For Safari
+        return 'WARNING: There are active files being unpacked in the compiler. If you close the application the tasks will be canceled!';
+    }
+};
