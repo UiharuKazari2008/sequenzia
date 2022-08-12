@@ -1940,7 +1940,7 @@ async function generateEpisodeHTML(url) {
                     calculateTitleWidthPage();
                     setImageLayout(setImageSize);
                     window.history.replaceState({}, null, `/offline#${_originalURL}`);
-                    $("#pageNav").html('');
+                    $("#pageNav").html('<a class="bottomBtn btn btn-lg btn-circle red" id="prevPage" title="Go Back" href="#_" role="button" accesskey="," onClick="history.go(-1); return false;"><i class="fas fa-arrow-left"></i></a>');
                     $(".container-fluid").fadeTo(2000, 1);
                     $(".container-fluid").removeClass('disabled-pointer');
                 } else {

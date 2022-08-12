@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-12-2022-P13';
+const cacheName = 'HEAVY_DEV-v20-7-12-2022-P14';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
