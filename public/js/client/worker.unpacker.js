@@ -41,9 +41,9 @@ async function openUnpackingFiles(object) {
                 if (job.ready && job.pending) {
                     const download = await unpackFile(job);
                     if (download) {
-                        postMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: object.id})
+                        postMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: job.id})
                     } else {
-                        postMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
+                        postMessage({type: 'STATUS_UNPACK_FAILED', fileid: job.id})
                     }
                 }
                 downloadSpannedController.delete(itemToGet);
@@ -270,6 +270,9 @@ onmessage = function(event) {
             break;
         case 'PING':
             postMessage({type: 'PONG'});
+            break;
+        case 'HEARTBEAT':
+            postMessage(event.data);
             break;
         default:
             console.error('Unknown Message', event);

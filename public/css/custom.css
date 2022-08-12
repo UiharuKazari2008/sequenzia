@@ -2324,6 +2324,14 @@ footer .server-grid-parent {
     opacity: 0.4;
     pointer-events: none;
 }
+.episode-name-grid span {
+    font-size: 1.25em;
+    line-height: 1;
+}
+.episode-preview-grid {
+    height: 175px;
+    width: inherit;
+}
 .episode-name span {
     font-size: 2em;
     line-height: 1;
@@ -2332,7 +2340,7 @@ footer .server-grid-parent {
     height: 144px;
     width: 256px;
 }
-.episode-preview-image {
+.episode-preview-image, .episode-preview-image-grid {
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat;
@@ -2403,6 +2411,11 @@ footer .server-grid-parent {
 .episode-body {
     max-height: 140px;
     max-width: calc(100% - 256px);
+}
+.preview-controls-grid {
+    height: 100%;
+    width: 100%;
+    padding: 0.5em;
 }
 .preview-controls {
     position: absolute;
@@ -3369,6 +3382,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .episode-number {
         font-size: 3em;
+    }
+    .episode-name-grid span {
+        font-size: 1em;
     }
     .episode-name span {
         font-size: 1.5em;

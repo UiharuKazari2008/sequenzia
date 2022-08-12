@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'HEAVY_DEV-v20-7-11-2022-P6';
+const cacheName = 'HEAVY_DEV-v20-7-12-2022-P2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -123,7 +123,7 @@ const cacheOptions = {
     ]
 };
 let swDebugMode = (origin && origin.includes('localhost:3000'));
-let swUseInternalUnpacker = true;
+let swUseInternalUnpacker = false;
 let browserStorageAvailable = false;
 let offlineContent;
 let downloadSpannedController = new Map();
@@ -1864,6 +1864,9 @@ async function cacheFileOffline(meta, noConfirm) {
         } else {
             console.error(`Failed to offline file, missing required metadata`)
         }
+        broadcastAllMessage({
+            type: 'STATUS_STORAGE_CACHE_COMPLETE'
+        });
     } catch (err) {
         console.error(`Uncaught Item Download Error`);
         console.error(err)
@@ -1874,6 +1877,9 @@ async function cacheFileOffline(meta, noConfirm) {
             subtitle: '',
             content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
+        });
+        broadcastAllMessage({
+            type: 'STATUS_STORAGE_CACHE_COMPLETE'
         });
     }
     return false;
@@ -1908,6 +1914,9 @@ async function cacheEpisodeOffline(meta, noConfirm) {
                 });
             }
         }
+        broadcastAllMessage({
+            type: 'STATUS_STORAGE_CACHE_COMPLETE'
+        });
     } catch (err) {
         console.error(`Uncaught Item Download Error`);
         console.error(err)
@@ -1918,6 +1927,9 @@ async function cacheEpisodeOffline(meta, noConfirm) {
             subtitle: '',
             content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
+        });
+        broadcastAllMessage({
+            type: 'STATUS_STORAGE_CACHE_COMPLETE'
         });
     }
     return false;
@@ -1992,9 +2004,9 @@ async function openUnpackingFiles(object, channel) {
                 if (activeSpannedJob.ready && activeSpannedJob.pending) {
                     const download = await unpackFile();
                     if (download) {
-                        broadcastAllMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: object.id})
+                        broadcastAllMessage({type: 'STATUS_UNPACK_COMPLETED', fileid: activeSpannedJob.id})
                     } else {
-                        broadcastAllMessage({type: 'STATUS_UNPACK_FAILED', fileid: object.id})
+                        broadcastAllMessage({type: 'STATUS_UNPACK_FAILED', fileid: activeSpannedJob.id})
                     }
                 }
                 downloadSpannedController.delete(itemToGet);

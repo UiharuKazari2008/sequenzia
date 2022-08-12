@@ -654,6 +654,13 @@ html
                 video( id='videoplayerobject' preload="false" height="427" controls style="background: black; background-clip: content-box;").col-auto
                 button.align-self-end.btn.btn-circle(type='button' onclick='CloseVideo(); return false;' style='background: #f1f3f4;')
                     i.fas.fa-times
+        #offlineFileStartedModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='offlineFileStartedModal' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-body
+                        p.mb-0(style="font-size: 1.5em;")
+                            i.fas.fa-laptop-arrow-down.fa-fade.mr-2
+                            span File is preparing for offline access...
         #videoBuilderModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='videoBuilderModal' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
