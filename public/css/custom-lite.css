@@ -2006,7 +2006,7 @@ ul#accordionSidebar * {
 
 }
 @media (max-width:767px) {
-    .backdrop-portait:not(.menu-top) #pushDown {
+    .backdrop-neutral:not(.menu-top) #pushDown {
         display: none;
     }
     .container.backdrop-wide:not(.menu-top) #pushDown {
