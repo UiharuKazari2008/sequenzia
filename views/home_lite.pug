@@ -222,15 +222,15 @@ html
                                         i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
                                         span.align-self-center.pt-1 Login
                             .d-flex.justify-content-between.align-items-center.image-description
-                                div(style='min-width: 0; overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap;')
+                                div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;')
                                     .d-inline(style='white-space: nowrap;  flex: 1;')
                                         i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
                                         a.ajax-imageLink(data-placement="bottom" title='View the background photo')
                                             .d-inline-block
                                                 span.ajax-imageLocation.text-capitalize ...
-                                                div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden
+                                                div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
                                                     i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
-                                                span.ajax-imageDate
+                                                span.ajax-imageDate.d-sm-inline.d-none
                                 div.d-flex.justify-content-center.ml-2.align-items-center
                                     a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;').mr-3
                                         i.i.fas.fa-download.fa-sm
