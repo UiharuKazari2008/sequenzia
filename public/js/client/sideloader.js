@@ -5506,6 +5506,7 @@ async function startUnpackerWorker() {
 startUnpackerWorker();
 
 window.onbeforeunload = function (e) {
+    kernelRequestData({ type: 'SYNC_EPISODE_WATCH_STATE'});
     if (unpackingJobs.size > 0) {
         e = e || window.event;
         if (e) {

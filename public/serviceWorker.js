@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-7-12-2022-BUGWATCH-P1';
+const cacheName = 'PRODUCTION-v20-7-12-2022-BUGWATCH-P2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -136,6 +136,8 @@ const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 let offlineMessages = [];
 let syncActive = false;
+let pushActionsActive = false;
+let pullActionsActive = false;
 
 const offlineContentDB = self.indexedDB.open("offlineContent", 6);
 offlineContentDB.onerror = event => {
@@ -715,11 +717,10 @@ self.addEventListener('message', async (event) => {
             break;
         case 'SYNC_PAGES_NEW_ONLY':
         case 'SYNC_PAGES':
+            let didActions = false;
+            let itemsGot = 0;
             if (!syncActive) {
                 syncActive = true;
-                await sendPendingRequests();
-                await pullWatchProgress();
-
                 const pages = await getAllOfflinePages()
                 let itemsUpdated = 0;
                 let pagesUpdated = [];
@@ -740,28 +741,44 @@ self.addEventListener('message', async (event) => {
                         }*/
                         console.log('Background Sync Complete');
                         console.log(pagesUpdated.join('\n'));
-                        event.ports[0].postMessage({
-                            didActions: true,
-                            itemsGot: itemsUpdated
-                        });
+                        didActions = true;
+                        itemsUpdated += itemsUpdated;
                     } else {
-                        event.ports[0].postMessage({
-                            didActions: true,
-                            itemsGot: 0
-                        });
+                        didActions = true;
                     }
-                } else {
-                    event.ports[0].postMessage({
-                        didActions: true,
-                        itemsGot: 0
-                    });
                 }
                 setTimeout(() => {syncActive = false}, 90000)
+            }
+            if (!pushActionsActive) {
+                pushActionsActive = true;
+                const pushResults = await sendPendingRequests();
+                if (pushResults > 0) {
+                    itemsGot += pushResults;
+                    didActions = true;
+                }
+                setTimeout(() => {pushActionsActive = false}, 15000)
+            }
+            if (!pullActionsActive) {
+                pullActionsActive = true;
+                const pullResults = await pullWatchProgress();
+                if (pullResults > 0) {
+                    itemsGot += pullResults;
+                    didActions = true;
+                }
+                setTimeout(() => {pullActionsActive = false}, 60000)
+            }
+            event.ports[0].postMessage({
+                didActions,
+                itemsGot
+            });
+            break;
+        case 'SYNC_EPISODE_WATCH_STATE':
+            if (!pullActionsActive) {
+                pullActionsActive = true;
+                event.ports[0].postMessage(await pullWatchProgress());
+                setTimeout(() => {pushActionsActive = false}, 60000)
             } else {
-                event.ports[0].postMessage({
-                    didActions: false,
-                    itemsGot: 0
-                });
+                event.ports[0].postMessage(false);
             }
             break;
         case 'INSTALL_KERNEL':
@@ -1241,6 +1258,7 @@ async function updateNotficationsPanel() {
     // TODO: Send notifications to all clients to update the notifications panel
 }
 async function sendPendingRequests() {
+    let actionsPrccessed = 0;
     await Promise.all(['SetWatchHistory'].map(async action => {
         const pendingActions = await getAllOfflineActions(action);
         if (pendingActions.length > 0) {
@@ -1257,6 +1275,7 @@ async function sendPendingRequests() {
                     offlineContent.transaction("offline_actions", "readwrite").objectStore("offline_actions").delete(actionItem.id).onsuccess = event => {
                         if (swDebugMode)
                             console.log(`Sent pending action ${actionItem.id}`)
+                        actionsPrccessed++;
                     }
                 } else {
                     console.error(`Failed to sync action ${actionItem.id}`)
@@ -1272,9 +1291,10 @@ async function sendPendingRequests() {
     }))
     if (swDebugMode)
         console.log('Uploaded pending actions!')
-    return false;
+    return actionsPrccessed;
 }
 async function pullWatchProgress() {
+    let actionsPrccessed = 0;
     const watchHistoryRequest = await fetch(new Request('/actions/v1', {
         method: 'POST',
         body: JSON.stringify({
@@ -1290,7 +1310,7 @@ async function pullWatchProgress() {
             const watchHistory = JSON.parse(await watchHistoryRequest.text());
             const pendingActions = await getAllOfflineActions('SetWatchHistory')
             if (watchHistory.history && watchHistory.history.length > 0 && browserStorageAvailable) {
-                return await new Promise((resolve) => {
+                await new Promise((resolve) => {
                     offlineContent.transaction(["offline_items"]).objectStore("offline_items").getAll().onsuccess = async (event) => {
                         if (event.target.result && event.target.result.length > 0) {
                             await Promise.all(event.target.result.filter(e => e.kongou_meta && e.kongou_meta.show && e.kongou_meta.show.id).map(async episode => {
@@ -1308,6 +1328,7 @@ async function pullWatchProgress() {
                                                     `data-kms-progress="${watchedRemote}"`
                                                 ]
                                             }).onsuccess = async (event) => {
+                                                actionsPrccessed++;
                                                 write(true);
                                             }
                                         } else {
@@ -1320,17 +1341,14 @@ async function pullWatchProgress() {
                         resolve(true);
                     }
                 })
-            } else {
-                return false;
             }
         } catch (e) {
             console.error("Failed to process watch history", e);
-            return false;
         }
     } else {
         console.error(`Failed to get watch history to sync local episodes`)
-        return false;
     }
+    return actionsPrccessed;
 }
 
 async function deleteOfflinePage(url, noupdate) {
