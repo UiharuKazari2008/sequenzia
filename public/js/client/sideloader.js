@@ -1857,6 +1857,18 @@ async function generateEpisodeHTML(url) {
                     }).map(async e => {
                         const watchedPercentage = kmsViewedProgress.filter(x => episodeEids.indexOf(x.eid) !== -1).pop()
                         const viewed = (watchedPercentage && watchedPercentage.viewed) ? watchedPercentage.viewed : (e.htmlAttributes.filter(j => j.startsWith('data-kms-progress=')).length > 0) ? e.htmlAttributes.filter(j => j.startsWith('data-kms-progress='))[0].split('=')[1].split('"').join('') : 0;
+                        const expireIndex = expiresMessages.indexOf(e.id.split('-').pop())
+                        const expireingText = (() => {
+                            if (expireIndex !== -1) {
+                                if (expiresTimes[expireIndex] > 60)
+                                    return (expiresTimes[expireIndex] / 60).toFixed(1) + ' Hour(s)';
+                                if (expiresTimes[expireIndex] <= 0)
+                                    return 'Soon'
+                                return expiresTimes[expireIndex].toFixed(0) + ' Min(s)';
+                            }
+                            return false;
+                        })();
+
                         return `<div class="col-12 col-sm-6 col-md-4 m-0 flex-nowrap episode-row p-1 ${(parseFloat(viewed.toString()) > 0.8) ? 'watched-episode' :''}" data-kms-progress="${viewed}" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.filter(j => !(j.startsWith('class=') || j.startsWith('data-kms-progress'))).join(' ') : 'id="message-' + e.id + '"'}>
     <div class="episode-preview-grid">
         <div class="preview-watched d-flex pr-2">
@@ -1870,6 +1882,7 @@ async function generateEpisodeHTML(url) {
                 <div class="preview-controls-grid d-flex" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;" style="z-index: 1;">
                     <div class="d-flex position-absolute">
                         <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
+                        <div class="badge bg-warning text-dark ${(expireingText) ? 'hidden' : ''} ml-1" id="offlineExpiring"><i class="fas fa-clock"></i><span class="pl-1">${expireingText || 'Expireing'}</span></div>
                     </div>
                     <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
                 </div>
@@ -4809,17 +4822,29 @@ if ('serviceWorker' in navigator) {
                 expiresEntities = event.data.expires_entities;
                 expiresMessages = event.data.expires_messages;
                 expiresTimes = event.data.expires_time;
+                expiresMessages.map((e,expireIndex) => {
+                    if (document.getElementById('message-' + e)) {
+                        $(`#message-${e} #offlineExpiring`).removeClass('hidden');
+                        $(`#message-${e} #offlineExpiring > span`).text((() => {
+                            if (expiresTimes[expireIndex] > 60)
+                                return (expiresTimes[expireIndex] / 60).toFixed(1) + ' Hour(s)';
+                            return expiresTimes[expireIndex].toFixed(0) + ' Min(s)';
+                        })())
+                    }
+                })
                 updateNotficationsPanel();
                 break;
             case 'STATUS_STORAGE_CACHE_UNMARK':
                 $(`#message-${event.data.id} .hide-offline`).removeClass('hidden');
                 $(`#message-${event.data.id} .toggleOffline i`).removeClass('text-success');
                 $(`#message-${event.data.id} #offlineReady`).addClass('hidden');
+                $(`#message-${event.data.id} #offlineExpiring`).addClass('hidden');
                 break;
             case 'STATUS_STORAGE_CACHE_MARK':
                 $(`#message-${event.data.id} .hide-offline`).addClass('hidden');
                 $(`#message-${event.data.id} .toggleOffline i`).addClass('text-success');
                 $(`#message-${event.data.id} #offlineReady`).removeClass('hidden');
+                $(`#message-${event.data.id} #offlineExpiring`).addClass('hidden');
                 break;
             case 'STATUS_STORAGE_CACHE_COMPLETE':
                 $('#offlineFileStartedModal').modal('hide');
