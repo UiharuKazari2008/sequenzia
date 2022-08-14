@@ -385,9 +385,12 @@ async function requestCompleted (response, url, lastURL, push) {
                     if (expireIndex !== -1) {
                         contentPage.find(`#${e.id} #offlineExpiring`).removeClass('hidden');
                         contentPage.find(`#${e.id} #offlineExpiring > span`).text((() => {
-                            if (expiresTimes[expireIndex] > 60)
-                                return (expiresTimes[expireIndex] / 60).toFixed(1) + ' Hour(s)';
-                            return expiresTimes[expireIndex].toFixed(0) + ' Min(s)';
+                            const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                            if (time > 60)
+                                return (time / 60).toFixed(1) + ' Hour(s)';
+                            if (time <= 0)
+                                return 'Soon'
+                            return time.toFixed(0) + ' Min(s)';
                         })())
                     }
                 });
@@ -1860,11 +1863,12 @@ async function generateEpisodeHTML(url) {
                         const expireIndex = expiresMessages.indexOf(e.id.split('-').pop())
                         const expireingText = (() => {
                             if (expireIndex !== -1) {
-                                if (expiresTimes[expireIndex] > 60)
-                                    return (expiresTimes[expireIndex] / 60).toFixed(1) + ' Hour(s)';
-                                if (expiresTimes[expireIndex] <= 0)
+                                const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                                if (time > 60)
+                                    return (time / 60).toFixed(1) + ' Hour(s)';
+                                if (time <= 0)
                                     return 'Soon'
-                                return expiresTimes[expireIndex].toFixed(0) + ' Min(s)';
+                                return time.toFixed(0) + ' Min(s)';
                             }
                             return false;
                         })();
@@ -4826,9 +4830,12 @@ if ('serviceWorker' in navigator) {
                     if (document.getElementById('message-' + e)) {
                         $(`#message-${e} #offlineExpiring`).removeClass('hidden');
                         $(`#message-${e} #offlineExpiring > span`).text((() => {
-                            if (expiresTimes[expireIndex] > 60)
-                                return (expiresTimes[expireIndex] / 60).toFixed(1) + ' Hour(s)';
-                            return expiresTimes[expireIndex].toFixed(0) + ' Min(s)';
+                            const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                            if (time > 60)
+                                return (time / 60).toFixed(1) + ' Hour(s)';
+                            if (time <= 0)
+                                return 'Soon'
+                            return time.toFixed(0) + ' Min(s)';
                         })())
                     }
                 })
