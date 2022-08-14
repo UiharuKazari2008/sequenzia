@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-7-12-2022-BUGWATCH-P4';
+const cacheName = 'PRODUCTION-v20-7-14-2022-BUGWATCH-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -51,10 +51,12 @@ const cacheOptions = {
     updateCache: [
         '/homeImage',
         '/juneOS',
-        '/sidebar'
+        '/sidebar',
+        '/static/manifest.json'
     ],
     preloadCache: [
         offlineUrl,
+        "/static/manifest.json",
         "/static/img/acr-logo.png",
         "/static/img/sequenzia-logo-nav.png",
         "/js/client/worker.unpacker.js",
@@ -230,7 +232,8 @@ function selectCache(url) {
 }
 async function handleResponse(url, response, reqType) {
     const uri = url.split(origin).pop().toString()
-    if (response.status < 204 &&
+    const validation = response.headers.get('X-Validator')
+    if (response.status < 204 && validation === 'SequenziaOK' &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
         !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
@@ -301,14 +304,19 @@ async function handleHomeImageCachesEvent(url, selectedCache, lastResponse) {
 async function reCache(event, cacheName) {
     return fetch(event.request)
         .then(async response => {
-            const selectedCache = cacheName || selectCache(event.request.url);
-            if (swDebugMode)
-                console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`)
-            const lastResponse = await caches.match(event.request.url);
-            const cache = await caches.open(selectedCache)
-            await cache.put(event.request, response)
-            if (event.request.url.includes('/homeImage')) {
-                await handleHomeImageCachesEvent(event.request.url, selectedCache, lastResponse);
+            const validation = response.headers.get('X-Validator')
+            if (validation === 'SequenziaOK') {
+                const selectedCache = cacheName || selectCache(event.request.url);
+                if (swDebugMode)
+                    console.log(`JulyOS Kernel: Update Cache (${selectedCache}) - ${event.request.url}`)
+                const lastResponse = await caches.match(event.request.url);
+                const cache = await caches.open(selectedCache)
+                await cache.put(event.request, response)
+                if (event.request.url.includes('/homeImage')) {
+                    await handleHomeImageCachesEvent(event.request.url, selectedCache, lastResponse);
+                }
+            } else {
+                console.error(`Failed to detect a valid server on the other end: Could be a attack to replace the kernel`)
             }
         })
         .catch(error => {

@@ -76,6 +76,7 @@ let expiresTimes = [];
 let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
 let currentMediaMetadata = {};
+let actionHandlers = [];
 
 let postsActions = [];
 let apiActions = {};
@@ -2250,7 +2251,12 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
             } else if (playThis === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 kongouMediaVideoFull.src = fastAccess;
-                try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                try {
+                    await kongouMediaVideoFull.play();
+                    createMediaSession();
+                } catch (err) {
+                    console.error(err);
+                }
                 kongouMediaVideoPreview.pause();
                 kongouMediaVideoPreview.classList.add('hidden');
                 kongouMediaVideoFull.classList.remove('hidden');
@@ -2313,7 +2319,12 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
             } else if (playThis === 'kms-video') {
                 const kmsprogress = _post.getAttribute('data-kms-progress');
                 kongouMediaVideoFull.src = href;
-                try { await kongouMediaVideoFull.play(); } catch (err) { console.error(err); }
+                try {
+                    await kongouMediaVideoFull.play();
+                    createMediaSession();
+                } catch (err) {
+                    console.error(err);
+                }
                 kongouMediaVideoPreview.pause()
                 kongouMediaVideoPreview.classList.add('hidden');
                 kongouMediaVideoFull.classList.remove('hidden');
@@ -2516,6 +2527,18 @@ async function removeCacheItem(id) {
 let kmsPreviewInterval = null;
 let kmsPreviewLastPostion = null;
 let kmsPreviewPrematureEnding = false;
+async function createMediaSession() {
+    if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata(currentMediaMetadata);
+        for (const [action, handler] of actionHandlers) {
+            try {
+                navigator.mediaSession.setActionHandler(action, handler);
+            } catch (error) {
+                console.log(`The media session action "${action}" is not supported yet.`);
+            }
+        }
+    }
+}
 async function openKMSPlayer(messageid, seriesId) {
     const activeDoc = (kongouMediaCache && kongouMediaActiveURL !== _originalURL) ? kongouMediaCache : document;
     $('#userMenu').collapse('hide');
@@ -2549,7 +2572,7 @@ async function openKMSPlayer(messageid, seriesId) {
         }
         return false
     })();
-    let actionHandlers = [
+    actionHandlers = [
         ['play', () => {
             if (document.querySelector('body').classList.contains('kms-play-open')) {
                 kmsTogglePlay();
@@ -2570,7 +2593,6 @@ async function openKMSPlayer(messageid, seriesId) {
         } }]
     ]
     if (postKMSJSON) {
-        // = (postKMSJSON.show.poster) ? `https://media.discordapp.net/attachments${postKMSJSON.show.poster}` : '';
         currentMediaMetadata.artist = postKMSJSON.show.name || 'Unknown Series';
         currentMediaMetadata.title = (postKMSJSON.meta.name || 'No Title') + ((postKMSJSON.season && postKMSJSON.episode) ? ' (' + postKMSJSON.season + 'x' + postKMSJSON.episode + ')' : '');
         currentMediaMetadata.album = "Sequenzia x Kongou";
@@ -2579,7 +2601,6 @@ async function openKMSPlayer(messageid, seriesId) {
         } else {
             currentMediaMetadata.artwork = [];
         }
-        // = postKMSJSON.meta.description || 'No Episode Description';
     } else {
         currentMediaMetadata.artist = 'Unknown Series';
         currentMediaMetadata.title = filename.split('.')[0];
@@ -2647,17 +2668,6 @@ async function openKMSPlayer(messageid, seriesId) {
         currentEpisode.innerText = filename.split('.')[0];
     }
 
-    if ("mediaSession" in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata(currentMediaMetadata);
-        for (const [action, handler] of actionHandlers) {
-            try {
-                navigator.mediaSession.setActionHandler(action, handler);
-            } catch (error) {
-                console.log(`The media session action "${action}" is not supported yet.`);
-            }
-        }
-    }
-
     if (!playerOpen) {
         //window.resizeTo(window.outerWidth, (window.outerHeight - window.innerHeight) + findHeight('16:9', window.outerWidth) - 8)
         document.querySelector('body').classList.add('kms-play-open');
@@ -2713,24 +2723,21 @@ async function openKMSPlayer(messageid, seriesId) {
     kmsPreviewInterval = setInterval(() => { kmsPreviewWatchdog(); }, 3000);
     kongouMediaVideoFull.pause();
     kongouMediaVideoFull.classList.add('hidden');
-    if (!debugMode) {
-        await keepExpireOfflineFile(_post.getAttribute('data-msg-eid'))
-        openUnpackingFiles(messageid, 'kms-video', undefined, undefined, activeDoc);
-        if (active) {
-            const _activePost = activeDoc.querySelector(`#message-${active}`);
-            if (_activePost) {
-                const activeFileid = _activePost.getAttribute('data-msg-fileid');
-                const activeEid = _activePost.getAttribute('data-msg-eid');
-                if (activeEid)
-                    expireOfflineFile(activeEid, false, true);
-                if (activeFileid)
-                    stopUnpackingFiles(activeFileid);
-            }
+    await keepExpireOfflineFile(_post.getAttribute('data-msg-eid'))
+    openUnpackingFiles(messageid, 'kms-video', undefined, undefined, activeDoc);
+    if (active) {
+        const _activePost = activeDoc.querySelector(`#message-${active}`);
+        if (_activePost) {
+            const activeEid = _activePost.getAttribute('data-msg-eid');
+            if (activeEid)
+                expireOfflineFile(activeEid, false, true);
+            const activeFileid = _activePost.getAttribute('data-msg-fileid');
+            if (activeFileid)
+                stopUnpackingFiles(activeFileid);
         }
     }
-    if (show) {
+    if (show)
         kongouMediaPlayer.setAttribute('showId', show);
-    }
     kongouMediaPlayer.setAttribute('activePlayback', messageid);
     kongouMediaPlayer.setAttribute('activeFilename', filename);
     kongouMediaPlayer.setAttribute('activeFilesize', filesize);
@@ -4944,6 +4951,7 @@ if ('serviceWorker' in navigator) {
                                                 kongouMediaVideoFull.volume = 0;
                                                 try {
                                                     await kongouMediaVideoFull.play();
+                                                    createMediaSession();
                                                 } catch (err) {
                                                     console.error(err)
                                                 }
@@ -4963,6 +4971,7 @@ if ('serviceWorker' in navigator) {
                                                     } else if (kongouMediaVideoFull.paused) {
                                                         try {
                                                             await kongouMediaVideoFull.play();
+                                                            createMediaSession();
                                                         } catch (err) {
                                                             console.error(err);
                                                         }
@@ -5290,6 +5299,7 @@ async function startUnpackerWorker() {
                                                         kongouMediaVideoFull.volume = 0;
                                                         try {
                                                             await kongouMediaVideoFull.play();
+                                                            createMediaSession();
                                                         } catch (err) {
                                                             console.error(err)
                                                         }
@@ -5309,6 +5319,7 @@ async function startUnpackerWorker() {
                                                             } else if (kongouMediaVideoFull.paused) {
                                                                 try {
                                                                     await kongouMediaVideoFull.play();
+                                                                    createMediaSession();
                                                                 } catch (err) {
                                                                     console.error(err);
                                                                 }

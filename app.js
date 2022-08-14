@@ -122,9 +122,10 @@ app.set('view engine', 'pug');
 
 app.use(function (req, res, next) {
     res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
-    res.setHeader('X-Site-Name', web.site_name);
-    res.setHeader('X-Site-Owner', web.company_name);
-    res.setHeader('X-Eiga-Node', config.system_name);
+    res.setHeader('X-Site-Name', web.site_name || 'Sequenzia');
+    res.setHeader('X-Site-Owner', web.company_name || 'Undisclosed Operator Name');
+    res.setHeader('X-Eiga-Node', config.system_name || 'Anonymous Server Name');
+    res.setHeader('X-Validator', web.domain_validation || 'SequenziaOK');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');

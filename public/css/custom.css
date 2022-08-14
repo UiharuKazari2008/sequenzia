@@ -3771,6 +3771,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+    body:not(.bottom-bar) .shadow .kms-pip-icons .badge i {
+        color: unset;
+    }
     body:not(.bottom-bar) .kms-pip-icons .badge {
         background: #ad4c00b3!important;
         border: solid 1px #e3990840;
