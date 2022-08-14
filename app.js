@@ -137,7 +137,7 @@ app.use(compression());
 app.use(morgan(function(tokens, req, res) {
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
-    let ipaddress = (req.headers['X-Real-IP']) ? req.headers['X-Real-IP'] : (req.headers['X-Forwarded-For']) ? req.headers['X-Forwarded-For'] : 'Unknown'
+    let ipaddress = (req.headers['x-real-ip']) ? req.headers['x-real-ip'] : (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'] : 'Unknown'
     if (req.session && req.session.user && req.session.user.username) {
         username = req.session.user.username;
     }
