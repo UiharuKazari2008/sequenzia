@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-7-14-2022-BUGWATCH-P1';
+const cacheName = 'PRODUCTION-v20-7-14-2022-BUGWATCH-P2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -231,12 +231,14 @@ function selectCache(url) {
     return cacheOptions.cacheGeneral
 }
 async function handleResponse(url, response, reqType) {
-    const uri = url.split(origin).pop().toString()
-    const validation = response.headers.get('X-Validator')
-    if (response.status < 204 && validation === 'SequenziaOK' &&
+    const uri = url.split(origin).pop().toString();
+    if (response.status < 204 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
-        !((uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) && (uri.includes('JFS_') || uri.includes('PARITY_'))) &&
-        !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
+        !(
+            (uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/'))
+            && (uri.includes('JFS_') || uri.includes('PARITY_'))
+        ) && !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
+
         const selectedCache = selectCache(url);
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
