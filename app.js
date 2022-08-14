@@ -137,14 +137,16 @@ app.use(compression());
 app.use(morgan(function(tokens, req, res) {
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
+    let ipaddress = (req.headers['X-Real-IP']) ? req.headers['X-Real-IP'] : (req.headers['X-Forwarded-For']) ? req.headers['X-Forwarded-For'] : 'Unknown'
     if (req.session && req.session.user && req.session.user.username) {
         username = req.session.user.username;
     }
     if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
         if (res.statusCode !== 304 && res.method === 'GET') {
-            printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
+            printLine(`Express`, `"${username}" via ${ipaddress} => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
                 method: req.method,
                 url: req.originalUrl,
+                ip: ipaddress,
                 base: baseURL,
                 status: res.statusCode,
                 params: req.query,
@@ -153,9 +155,10 @@ app.use(morgan(function(tokens, req, res) {
                 username: username,
             })
         } else {
-            printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
+            printLine(`Express`, `"${username}" via ${ipaddress} => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
                 method: req.method,
                 url: req.originalUrl,
+                ip: ipaddress,
                 base: baseURL,
                 status: res.statusCode,
                 params: req.query,
