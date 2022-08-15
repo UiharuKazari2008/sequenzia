@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-7-14-2022-BUGWATCH-P6';
+const cacheName = 'PRODUCTION-v20-7-14-2022-BUGWATCH-P7';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -51,8 +51,7 @@ const cacheOptions = {
     updateCache: [
         '/homeImage',
         '/juneOS',
-        '/sidebar',
-        '/static/manifest.json'
+        '/sidebar'
     ],
     preloadCache: [
         offlineUrl,
@@ -266,19 +265,6 @@ async function shouldRecache(event, response) {
 }
 async function handleHomeImageCachesEvent(url, selectedCache, lastResponse) {
     try {
-        if (lastResponse) {
-            const lastJson = await lastResponse.json();
-            if (lastJson.randomImagev2 && lastJson.randomImagev2.length > 0) {
-                const lastFullImage = await caches.match(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage)) || await fetch(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage));
-                if (lastFullImage)
-                    caches.open(selectedCache).then(cache => cache.put('/internal/last_full.jpg', lastFullImage))
-                if (swDebugMode)
-                    console.log('Cached last image for transition')
-            }
-        } else {
-            if (swDebugMode)
-                console.log('JSON not valid!')
-        }
         if (swDebugMode)
             console.log('Fetching next home image')
         const response = await caches.match(url);
@@ -287,16 +273,32 @@ async function handleHomeImageCachesEvent(url, selectedCache, lastResponse) {
             const previewImage = replaceDiscordCDN(json.randomImagev2[0].previewImage);
             const fullImage = replaceDiscordCDN(json.randomImagev2[0].fullImage);
             const previewImageResults = await fetch(previewImage)
-            if (previewImageResults)
+            if (previewImageResults && previewImageResults.status < 204)
                 caches.open(selectedCache).then(cache => cache.put(previewImage, previewImageResults));
             const fullImageResults = await fetch(fullImage)
-            if (fullImageResults)
+            if (fullImageResults && fullImageResults.status < 204)
                 caches.open(selectedCache).then(cache => cache.put(fullImage, fullImageResults));
             if (swDebugMode)
                 console.log('Got new images for cache!')
+            if (lastResponse &&
+                previewImageResults && previewImageResults.status < 204 &&
+                fullImageResults && fullImageResults.status < 204) {
+                const lastJson = await lastResponse.json();
+                if (lastJson.randomImagev2 && lastJson.randomImagev2.length > 0) {
+                    if (lastJson.randomImagev2[0].fullImage !== json.randomImagev2[0].fullImage)
+                        caches.open(selectedCache).then(cache => cache.delete(replaceDiscordCDN(lastJson.randomImagev2[0].fullImage)))
+                    if (lastJson.randomImagev2[0].previewImage !== json.randomImagev2[0].previewImage)
+                        caches.open(selectedCache).then(cache => cache.delete(replaceDiscordCDN(lastJson.randomImagev2[0].previewImage)))
+                    if (swDebugMode)
+                        console.log('Deleted last image form cache')
+                }
+            } else {
+                if (swDebugMode)
+                    console.log('Last JSON not valid!')
+            }
         } else {
             if (swDebugMode)
-                console.log('JSON not valid!')
+                console.log('New JSON not valid!')
         }
     } catch (e) {
         console.error('Error cacheing next image request for home page');
