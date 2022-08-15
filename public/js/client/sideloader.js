@@ -2573,6 +2573,7 @@ async function openKMSPlayer(messageid, seriesId) {
     const nextEpisodeGroup = document.getElementById('kongouMediaPlayerNext')
     const prevEpisodeGroup = document.getElementById('kongouMediaPlayerPrev')
     const currentEpisode = document.getElementById('kongouMediaPlayerCurrent')
+    const currentEpisodeNumber = document.getElementById('kongouMediaPlayerCurrentNumber')
     const playerOpen = document.querySelector('body').classList.contains('kms-play-open');
     const postKMSJSON = (() => {
         const _data = _post.getAttribute('data-kms-json');
@@ -2633,8 +2634,20 @@ async function openKMSPlayer(messageid, seriesId) {
 
             if (allEpisodes[index]) {
                 currentEpisode.innerText = allEpisodes[index].querySelector('.episode-name > span, .episode-name-grid > span').innerText;
+                if (postKMSJSON) {
+                    currentEpisodeNumber.innerText = (() => {
+                        if (postKMSJSON.episode) {
+                            let txt = postKMSJSON.episode;
+                            if (postKMSJSON.season)
+                                txt = `${postKMSJSON.season}x${txt}`
+                            return txt
+                        }
+                        return ''
+                    })()
+                }
             } else {
                 currentEpisode.innerText = filename.split('.')[0];
+                currentEpisodeNumber.innerText = '';
             }
 
             if (nextEpisode.length > 0) {
@@ -2683,6 +2696,7 @@ async function openKMSPlayer(messageid, seriesId) {
         kongouMediaPlayer.removeAttribute('prevPlayback');
         actionHandlers.push(['previoustrack', null])
         currentEpisode.innerText = filename.split('.')[0];
+        currentEpisodeNumber.innerText = '';
     }
 
     if (!playerOpen) {
@@ -2950,7 +2964,7 @@ async function closeKMSPlayer() {
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
         if (eid && (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration).toFixed(3) >= 0.9) {
-            deleteOfflineFile(eid, true, true);
+            expireOfflineFile(eid, false, true);
         }
         stopUnpackingFiles(fileid);
     }
