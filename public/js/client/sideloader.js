@@ -1630,7 +1630,7 @@ async function generateGalleryHTML(url, eids, topText) {
         console.error(err)
         $.toast({
             type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not render page!</p><p>Internal Application Error: ${err.message}</p>`,
             delay: 10000,
@@ -1742,7 +1742,7 @@ async function generateFilesHTML(url, eids, topText) {
         console.error(err)
         $.toast({
             type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not render page!</p><p>Internal Application Error: ${err.message}</p>`,
             delay: 10000,
@@ -1838,7 +1838,7 @@ async function generateShowsHTML(url) {
         console.error(err)
         $.toast({
             type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not render page!</p><p>Internal Application Error: ${err.message}</p>`,
             delay: 10000,
@@ -1997,7 +1997,7 @@ async function generateEpisodeHTML(url) {
         console.error(err)
         $.toast({
             type: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not render page!</p><p>Internal Application Error: ${err.message}</p>`,
             delay: 10000,

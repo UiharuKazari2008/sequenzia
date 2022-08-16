@@ -1398,7 +1398,7 @@ async function deleteOfflinePage(url, noupdate) {
                             broadcastAllMessage({
                                 type: 'MAKE_SNACK',
                                 level: 'success',
-                                text: `<i class="fas fa-sd-card pr-2"></i>Removed Page and ${pageItems.length} files`,
+                                text: `<i class="fas fa-bookmark-slash pr-2"></i>Removed Page and ${pageItems.length} files`,
                                 timeout: 5000
                             });
                             refreshOfflineItemCache();
@@ -1420,7 +1420,7 @@ async function deleteOfflinePage(url, noupdate) {
         broadcastAllMessage({
             type: 'MAKE_TOAST',
             level: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not delete offline item</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
@@ -1459,7 +1459,7 @@ async function expireOfflinePage(url, noupdate, hours) {
             broadcastAllMessage({
                 type: 'MAKE_TOAST',
                 level: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                 subtitle: '',
                 content: `<p>Could not make page expireable</p><p>Internal Application Error: ${err.message}</p>`,
                 timeout: 10000
@@ -1508,7 +1508,7 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
                         broadcastAllMessage({
                             type: 'MAKE_SNACK',
                             level: 'success',
-                            text: `<i class="fas fa-sd-card pr-2"></i>Removed Offline File`,
+                            text: `<i class="fas fa-bookmark-slash pr-2"></i>Removed Offline File`,
                             timeout: 5000
                         });
                         updateNotficationsPanel();
@@ -1530,7 +1530,7 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
         broadcastAllMessage({
             type: 'MAKE_TOAST',
             level: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not delete offline item</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
@@ -1571,7 +1571,7 @@ async function expireOfflineFile(eid, noupdate, hours, bypassBlocking) {
             broadcastAllMessage({
                 type: 'MAKE_TOAST',
                 level: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                 subtitle: '',
                 content: `<p>Could not mak file expireable</p><p>Internal Application Error: ${err.message}</p>`,
                 timeout: 10000
@@ -1612,7 +1612,7 @@ async function keepExpireOfflineFile(eid, noupdate) {
             broadcastAllMessage({
                 type: 'MAKE_TOAST',
                 level: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                 subtitle: '',
                 content: `<p>Could not mak file expireable</p><p>Internal Application Error: ${err.message}</p>`,
                 timeout: 10000
@@ -1653,7 +1653,7 @@ async function expireSpannedFile(fileid, noupdate, hours) {
             broadcastAllMessage({
                 type: 'MAKE_TOAST',
                 level: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                 subtitle: '',
                 content: `<p>Could not make spanned file expireable</p><p>Internal Application Error: ${err.message}</p>`,
                 timeout: 10000
@@ -1672,7 +1672,7 @@ async function deleteAllOfflineData() {
     broadcastAllMessage({
         type: 'MAKE_SNACK',
         level: 'success',
-        text: `<i class="fas fa-sd-card pr-2"></i>Removed all offline files and pages`,
+        text: `<i class="fas fa-bookmark-slash pr-2"></i>Removed all offline files and pages`,
         timeout: 5000
     });
 }
@@ -1932,7 +1932,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                     broadcastAllMessage({
                         type: 'MAKE_TOAST',
                         level: 'error',
-                        title: '<i class="fas fa-sd-card pr-2"></i>No Items',
+                        title: '<i class="fas fa-bookmark pr-2"></i>No Items',
                         subtitle: '',
                         content: `<p>There are no media files on this page that can be made offline!</p>`,
                         timeout: 10000
@@ -1991,7 +1991,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                     broadcastAllMessage({
                         type: 'MAKE_SNACK',
                         level: 'error',
-                        text: `<i class="fas fa-sd-card pr-2"></i>Offline Download Canceled or Failed`,
+                        text: `<i class="fas fa-bookmark-slash pr-2"></i>Offline Download Canceled or Failed`,
                         timeout: 5000
                     });
                     broadcastAllMessage({
@@ -2006,7 +2006,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                                 broadcastAllMessage({
                                     type: 'MAKE_SNACK',
                                     level: 'success',
-                                    text: `<p class="mb-0"><i class="fas fa-sd-card pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
+                                    text: `<p class="mb-0"><i class="fas fa-sync pr-2"></i>${title}</p>Synced ${newItems.length} Items Offline!`,
                                     timeout: 5000
                                 });
                                 await refreshOfflineItemCache();
@@ -2025,7 +2025,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                             broadcastAllMessage({
                                 type: 'MAKE_TOAST',
                                 level: 'error',
-                                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                                title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                                 subtitle: '',
                                 content: `<p>Failed to save offline storage record "${title}"!</p><p>${e.message}</p>`,
                                 timeout: 10000
@@ -2037,7 +2037,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                         broadcastAllMessage({
                             type: 'MAKE_TOAST',
                             level: 'error',
-                            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                             subtitle: '',
                             content: `<p>Failed access offline storage databsae!</p>`,
                             timeout: 10000
@@ -2055,7 +2055,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
             broadcastAllMessage({
                 type: 'MAKE_TOAST',
                 level: 'error',
-                title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                 subtitle: '',
                 content: `<p>Failed to get offline page results, Try again later</p>`,
                 timeout: 10000
@@ -2078,7 +2078,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
         broadcastAllMessage({
             type: 'MAKE_TOAST',
             level: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not download offline page results</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
@@ -2094,7 +2094,7 @@ async function cacheFileOffline(meta, noConfirm) {
                 broadcastAllMessage({
                     type: 'MAKE_TOAST',
                     level: 'error',
-                    title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                    title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                     subtitle: '',
                     content: `<p>Failed to save offline storage record "${meta.id}"!</p>`,
                     timeout: 10000
@@ -2105,7 +2105,7 @@ async function cacheFileOffline(meta, noConfirm) {
                     broadcastAllMessage({
                         type: 'MAKE_SNACK',
                         level: 'success',
-                        text: `<i class="fas fa-sd-card pr-2"></i>File available offline`,
+                        text: `<i class="fas fa-bookmark pr-2"></i>File available offline`,
                         timeout: 5000
                     });
                     refreshOfflineItemCache();
@@ -2127,7 +2127,7 @@ async function cacheFileOffline(meta, noConfirm) {
         broadcastAllMessage({
             type: 'MAKE_TOAST',
             level: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
@@ -2146,7 +2146,7 @@ async function cacheEpisodeOffline(meta, noConfirm) {
                 broadcastAllMessage({
                     type: 'MAKE_TOAST',
                     level: 'error',
-                    title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+                    title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
                     subtitle: '',
                     content: `<p>Failed to save offline storage record "${meta.id}"!`,
                     timeout: 10000
@@ -2157,7 +2157,7 @@ async function cacheEpisodeOffline(meta, noConfirm) {
                     broadcastAllMessage({
                         type: 'MAKE_SNACK',
                         level: 'success',
-                        text: `<i class="fas fa-sd-card pr-2"></i>File available offline`,
+                        text: `<i class="fas fa-bookmark pr-2"></i>File available offline`,
                         timeout: 5000
                     });
                 }
@@ -2177,7 +2177,7 @@ async function cacheEpisodeOffline(meta, noConfirm) {
         broadcastAllMessage({
             type: 'MAKE_TOAST',
             level: 'error',
-            title: '<i class="fas fa-sd-card pr-2"></i>Application Error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
             subtitle: '',
             content: `<p>Could not download offline item</p><p>Internal Application Error: ${err.message}</p>`,
             timeout: 10000
