@@ -3653,7 +3653,7 @@ async function showSearchOptions(post) {
         modalEditText.onclick = null;
     }
     if (searchSource && searchSource.length > 0) {
-        normalInfo.push('<div class="badge text-light m-1">')
+        normalInfo.push('<div class="badge text-light badge-info m-1">')
         normalInfo.push(`<i class="fas fa-link pr-1"></i><span>Source Available</span>`)
         normalInfo.push('</div>')
 
@@ -3670,8 +3670,51 @@ async function showSearchOptions(post) {
         modalGoToPostSource.classList.add('hidden')
     }
     if (postDisplayName && postDisplayName.length > 0) {
-        normalInfo.push('<div class="badge text-light m-1">')
-        normalInfo.push(`<i class="fas fa-history pr-1"></i><span>${postDisplayName}</span>`)
+        normalInfo.push('<div class="badge badge-light text-light m-1">')
+        let history_name = postDisplayName;
+        let history_type = 'tv'
+        if (postDisplayName.startsWith('ADSMicro-')) {
+            history_type = 'laptop'
+            if (postDisplayName.includes('Untitled')) {
+                history_name = 'Desktop'
+            } else {
+                history_name = history_name.split('ADSMicro-').pop();
+            }
+        } else if (postDisplayName.startsWith('ADSWidget-')) {
+            history_type = 'app-store-ios'
+            if (postDisplayName.includes('Untitled')) {
+                history_name = 'Widget'
+            } else {
+                history_name = history_name.split('ADSWidget-').pop();
+            }
+        } else if (postDisplayName.startsWith('ADSEmbed-')) {
+            history_type = 'dice-five'
+            if (postDisplayName.includes('Untitled')) {
+                history_name = 'Randomizer'
+            } else {
+                history_name = history_name.split('ADSEmbed-').pop();
+            }
+        } else if (postDisplayName.startsWith('ADSMobile-')) {
+            history_type = 'mobile-alt'
+            if (postDisplayName.includes('Untitled')) {
+                history_name = 'Mobile'
+            } else {
+                history_name = history_name.split('ADSMobile-').pop();
+            }
+        } else if (postDisplayName.startsWith('ADS')) {
+            history_type = 'tv'
+        } else if (postDisplayName === 'Homepage') {
+            history_type = 'home'
+            history_name = "Homepage";
+        } else if (postDisplayName === 'WebExtension') {
+            history_type = 'webextention'
+        } else {
+            history_type = 'tv'
+            if (postDisplayName.includes('Untitled')) {
+                history_name = 'Default'
+            }
+        }
+        normalInfo.push(`<i class="fas fa-history pr-1"></i><i class="fas fa-${history_type} pr-1"></i><span>${history_name}</span>`)
         normalInfo.push('</div>')
 
         modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
