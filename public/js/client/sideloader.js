@@ -1413,7 +1413,7 @@ async function toggleFileOffline(id) {
     }
 }
 async function cachePageOffline(_url) {
-    const limit = (document.getElementById("maxCountOfflinePage")) ? document.getElementById("maxCountOfflinePage").value : undefined;
+    const limit = (document.getElementById("maxCountOfflinePage")) ? document.getElementById("maxCountOfflinePage").value : 2000;
     let requestOpts = [['responseType', 'offline']];
     if (limit && limit.length > 0 && !isNaN(parseInt(limit)))
         requestOpts.push(['num', limit]);
