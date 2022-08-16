@@ -2243,7 +2243,7 @@ async function displayOfflineData() {
             type: 'error',
             title: '<i class="fas fa-server pr-2"></i>Kernel Failure',
             subtitle: '',
-            content: `<p>Unable to communicate with the application kernel</p><a class="btn btn-danger w-100" href="#_" onclick="clearKernelCache(); return false;"><i class="fas fa-microchip pr-2"></i>Reinstall Kernel</a>`,
+            content: `<p>Unable to communicate with the application kernel</p><a class="btn btn-danger w-100" href="#_" onclick="clearKernelCache(); return false;"><i class="fas fa-monitor-waveform pr-2"></i>Reinstall Kernel</a>`,
             delay: 10000,
         });
     }
