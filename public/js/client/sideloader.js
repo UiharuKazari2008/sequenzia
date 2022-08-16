@@ -3670,7 +3670,7 @@ async function showSearchOptions(post) {
         modalGoToPostSource.classList.add('hidden')
     }
     if (postDisplayName && postDisplayName.length > 0) {
-        normalInfo.push('<div class="badge badge-light text-light m-1">')
+        normalInfo.push('<div class="badge badge-warning text-dark m-1">')
         let history_name = postDisplayName;
         let history_type = 'tv'
         if (postDisplayName.startsWith('ADSMicro-')) {
