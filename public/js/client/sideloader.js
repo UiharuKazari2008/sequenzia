@@ -3276,7 +3276,7 @@ async function showSearchOptions(post) {
     }
 
     if (resolutionRatio && resolutionRatio.length > 0) {
-        normalInfo.push('<div class="badge badge-light mx-1">')
+        normalInfo.push('<div class="badge badge-light m-1">')
         const ratio = parseFloat(resolutionRatio.split(':')[1])
         if (!isNaN(ratio)) {
             if (ratio > 1.15) {
@@ -3291,12 +3291,12 @@ async function showSearchOptions(post) {
         normalInfo.push('</div>')
     }
     if (fileSize && fileSize.length > 0) {
-        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push('<div class="badge badge-light m-1 ">')
         normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize}</span>`)
         normalInfo.push('</div>')
     }
     if (postFilename && postFilename.length > 0) {
-        normalInfo.push('<div class="badge badge-light text-dark mx-1 ">')
+        normalInfo.push('<div class="badge badge-light text-dark m-1 ">')
         if (postIsVideo) {
             normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
         } else if (postIsAudio) {
@@ -3347,7 +3347,7 @@ async function showSearchOptions(post) {
         modalOfflineThisButton.classList.add('hidden');
     }
     if (postDate && postDate.length > 0) {
-        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push('<div class="badge badge-light m-1 ">')
         normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>${postDate}</span>`)
         normalInfo.push('</div>')
     }
@@ -3395,18 +3395,18 @@ async function showSearchOptions(post) {
         modelKMSEpisodeName.innerText = postKMSJSON.meta.name || 'Unknown Episode'
         modelKMSEpisodeNumber.innerText = (postKMSJSON.season && postKMSJSON.episode) ? postKMSJSON.season + 'x' + postKMSJSON.episode : ''
         modelKMSEpisodeDescription.innerText = postKMSJSON.meta.description || 'No Episode Description'
-        normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas fa-tv pr-1"></i><span>Kongou Media Meta</span></div>`);
+        normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas fa-tv pr-1"></i><span>Kongou Media Meta</span></div>`);
     } else {
         modelKMSRow.classList.add('hidden');
     }
     if (postFilID && postFilID.length > 0) {
         if (postOffline) {
-            normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
+            normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
             normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
             normalInfo.push('</div>')
             const expireIndex = expiresMessages.indexOf(postID)
             if (expireIndex !== -1) {
-                normalInfo.push('<div class="badge badge-warning text-dark mx-1">')
+                normalInfo.push('<div class="badge badge-warning text-dark m-1">')
                 normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>Expires in ${(() => {
                     const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
                     if (time > 1440)
@@ -3437,11 +3437,11 @@ async function showSearchOptions(post) {
                 return false;
             }
         } else {
-            normalInfo.push('<div class="badge badge-warning text-dark mx-1 ">')
+            normalInfo.push('<div class="badge badge-warning text-dark m-1 ">')
             normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
             normalInfo.push('</div>')
             if (postCached) {
-                normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
+                normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
                 normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Fast Access</span>`)
                 normalInfo.push('</div>')
                 modalDownloadButton.title = `Fast Access Download`
@@ -3470,7 +3470,7 @@ async function showSearchOptions(post) {
         advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
     } else if (postDownload && postDownload.length > 0) {
         if (postOffline) {
-            normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
+            normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
             normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
             normalInfo.push('</div>')
         }
@@ -3491,7 +3491,7 @@ async function showSearchOptions(post) {
         modalDownloadButton.classList.add('hidden')
     }
     if (postFlagged) {
-        normalInfo.push('<div class="badge badge-danger mx-1 ">')
+        normalInfo.push('<div class="badge badge-danger m-1 ">')
         normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
         normalInfo.push('</div>')
     }
@@ -3499,11 +3499,11 @@ async function showSearchOptions(post) {
         modalAuthorData.querySelector('span').innerText = postAuthorName;
     } else {
         modalAuthorData.querySelector('span').innerText = 'Framework';
-        normalInfo.push('<div class="badge badge-light mx-1 ">')
+        normalInfo.push('<div class="badge badge-light m-1 ">')
         normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
         normalInfo.push('</div>')
     }
-    normalInfo.push(`<div class="badge badge-light text-dark mx-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
+    normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
     if (postAuthorImage && postAuthorImage.length > 0) {
         let imageURL = postAuthorImage
         if (imageURL.includes('?size='))
@@ -3525,11 +3525,6 @@ async function showSearchOptions(post) {
     modalGoToPostLocation.onclick = function() {
         $('#searchModal').modal('hide');
         window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], `/${pageType}`));
-        return false;
-    }
-    modalGoToHistoryDisplay.onclick = function() {
-        $('#searchModal').modal('hide');
-        window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
         return false;
     }
     modalToggleFav.onclick = function() {
@@ -3658,6 +3653,10 @@ async function showSearchOptions(post) {
         modalEditText.onclick = null;
     }
     if (searchSource && searchSource.length > 0) {
+        normalInfo.push('<div class="badge text-light m-1">')
+        normalInfo.push(`<i class="fas fa-link pr-1"></i><span>Source Available</span>`)
+        normalInfo.push('</div>')
+
         modalGoToPostSource.title = `Go To "${searchSource}"`
         modalGoToPostSource.onclick = function() {
             $('#searchModal').modal('hide');
@@ -3671,10 +3670,14 @@ async function showSearchOptions(post) {
         modalGoToPostSource.classList.add('hidden')
     }
     if (postDisplayName && postDisplayName.length > 0) {
+        normalInfo.push('<div class="badge text-light m-1">')
+        normalInfo.push(`<i class="fas fa-history pr-1"></i><span>${postDisplayName}</span>`)
+        normalInfo.push('</div>')
+
         modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
         modalGoToHistoryDisplay.onclick = function() {
             $('#searchModal').modal('hide');
-            $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
+            window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
             return false;
         }
         modalGoToHistoryDisplay.classList.remove('hidden')
