@@ -386,6 +386,8 @@ async function requestCompleted (response, url, lastURL, push) {
                         contentPage.find(`#${e.id} #offlineExpiring`).removeClass('hidden');
                         contentPage.find(`#${e.id} #offlineExpiring > span`).text((() => {
                             const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                            if (time > 1440)
+                                return Math.ceil(time / 1440) + ' Day(s)';
                             if (time > 60)
                                 return (time / 60).toFixed(1) + ' Hour(s)';
                             if (time <= 0)
@@ -442,6 +444,8 @@ async function requestCompleted (response, url, lastURL, push) {
                                     contentPage.find(`#${e.id} #offlineExpiring`).removeClass('hidden');
                                     contentPage.find(`#${e.id} #offlineExpiring > span`).text((() => {
                                         const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                                        if (time > 1440)
+                                            return Math.ceil(time / 1440) + ' Day(s)';
                                         if (time > 60)
                                             return (time / 60).toFixed(1) + ' Hour(s)';
                                         if (time <= 0)
@@ -1866,6 +1870,8 @@ async function generateEpisodeHTML(url) {
                         const expireingText = (() => {
                             if (expireIndex !== -1) {
                                 const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                                if (time > 1440)
+                                    return Math.ceil(time / 1440) + ' Day(s)';
                                 if (time > 60)
                                     return (time / 60).toFixed(1) + ' Hour(s)';
                                 if (time <= 0)
@@ -2756,14 +2762,14 @@ async function openKMSPlayer(messageid, seriesId) {
     kmsPreviewInterval = setInterval(() => { kmsPreviewWatchdog(); }, 3000);
     kongouMediaVideoFull.pause();
     kongouMediaVideoFull.classList.add('hidden');
-    await keepExpireOfflineFile(_post.getAttribute('data-msg-eid'))
+    expireOfflineFile(_post.getAttribute('data-msg-eid'), false, (30 * 24));
     openUnpackingFiles(messageid, 'kms-video', undefined, undefined, activeDoc);
     if (active) {
         const _activePost = activeDoc.querySelector(`#message-${active}`);
         if (_activePost) {
             const activeEid = _activePost.getAttribute('data-msg-eid');
             if (activeEid && activeEid.length > 1)
-                expireOfflineFile(activeEid, false, true);
+                expireOfflineFile(activeEid, false);
             const activeFileid = _activePost.getAttribute('data-msg-fileid');
             if (activeFileid && activeFileid.length > 1)
                 stopUnpackingFiles(activeFileid);
@@ -2966,7 +2972,7 @@ async function closeKMSPlayer() {
         const fileid = _post.getAttribute('data-msg-fileid');
         const eid = _post.getAttribute('data-msg-eid');
         if (eid && (kongouMediaVideoFull.currentTime / kongouMediaVideoFull.duration).toFixed(3) >= 0.9) {
-            expireOfflineFile(eid, false, true);
+            expireOfflineFile(eid, false);
         }
         stopUnpackingFiles(fileid);
     }
@@ -3402,6 +3408,8 @@ async function showSearchOptions(post) {
                 normalInfo.push('<div class="badge badge-warning text-dark mx-1">')
                 normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>Expires in ${(() => {
                     const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                    if (time > 1440)
+                        return Math.ceil(time / 1440) + ' Day(s)';
                     if (time > 60)
                         return (time / 60).toFixed(1) + ' Hour(s)';
                     if (time <= 0)
@@ -3415,7 +3423,6 @@ async function showSearchOptions(post) {
                     $('#searchModal').modal('hide');
                     return false;
                 }
-                //keepExpireOfflineFile
             } else {
                 modalKeepExpireingSection.classList.add('hidden');
                 modalKeepExpireingButton.onclick = null;
@@ -4847,6 +4854,8 @@ if ('serviceWorker' in navigator) {
                         $(`#message-${e} #offlineExpiring`).removeClass('hidden');
                         $(`#message-${e} #offlineExpiring > span`).text((() => {
                             const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                            if (time > 1440)
+                                return Math.ceil(time / 1440) + ' Day(s)';
                             if (time > 60)
                                 return (time / 60).toFixed(1) + ' Hour(s)';
                             if (time <= 0)
