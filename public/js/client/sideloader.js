@@ -3301,6 +3301,8 @@ async function showSearchOptions(post) {
             normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
         } else if (postIsAudio) {
             normalInfo.push(`<i class="fa fa-file-audio pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+        } else if (imageFiles.indexOf(postFilename.split('.').pop().toLowerCase()) !== -1) {
+            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
         } else {
             normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
         }
