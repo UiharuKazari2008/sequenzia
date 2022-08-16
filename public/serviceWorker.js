@@ -830,7 +830,7 @@ function replaceDiscordCDN(url) {
 function returnDiscordCDN(url) {
     return (url.includes('_attachments')) ? `https://${(url.startsWith('/media_') ? 'media.discordapp.net' : 'cdn.discordapp.com')}/attachments${url.split('attachments').pop()}` : url;
 }
-async function extractMetaFromElement(e, preemptive) {
+async function extractMetaFromElement(e, preemptive, expires) {
     const postChannelString = e.getAttribute('data-msg-channel-string');
     const postChannelIcon = e.getAttribute('data-msg-channel-icon');
     const postDownload = e.getAttribute('data-msg-download');
@@ -911,6 +911,7 @@ async function extractMetaFromElement(e, preemptive) {
         eid: postEID,
         required_build: required_build,
         preemptive_download: (!!preemptive),
+        expires: (expires) ? (new Date().getTime()) + (expires * 3600000) : false,
         htmlAttributes: attribs,
         kongou_meta: (postKMSJSON && postKMSJSON.show) ? postKMSJSON : null,
     }
@@ -1434,7 +1435,7 @@ async function expireOfflinePage(url, noupdate, hours) {
                 if (browserStorageAvailable) {
                     offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").put({
                         ...page,
-                        expires:(new Date().getTime()) + ((hours || 1.5) * 3600000)
+                        expires: (new Date().getTime()) + ((hours || 1.5) * 3600000)
                     }).onsuccess = event => {
                         if (!noupdate) {
                             updateNotficationsPanel();
@@ -1470,14 +1471,9 @@ async function expireOfflinePage(url, noupdate, hours) {
 async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
     try {
         let blockedItems = [];
-        const linkedItems = (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
+        (await getAllOfflinePages()).map(page => blockedItems.push(...page.items))
         const file = await getFileIfAvailable(eid, true);
-        if (file && (!preemptive || (preemptive && file.preemptive_download)) && (bypassBlocking || blockedItems.indexOf(file.eid) === -1)) {
-            const cachesList = await caches.keys();
-            const nameCDNCache = cachesList.filter(e => e.startsWith('offline-cdn-'))
-            const nameProxyCache = cachesList.filter(e => e.startsWith('offline-proxy-'))
-            const cdnCache = (nameCDNCache.length > 0) ? await caches.open(nameCDNCache[0]) : false;
-            const proxyCache = (nameProxyCache.length > 0) ? await caches.open(nameProxyCache[0]) : false;
+        if (file && (bypassBlocking || blockedItems.indexOf(file.eid) === -1)) {
             if (file.fileid)
                 await deleteOfflineSpannedFile(file.fileid)
             if (file.full_url)
@@ -1551,7 +1547,7 @@ async function expireOfflineFile(eid, noupdate, hours, bypassBlocking) {
                 if (browserStorageAvailable) {
                     offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").put({
                         ...file,
-                        expires:(new Date().getTime()) + ((hours || 1.5) * 3600000)
+                        expires: (new Date().getTime()) + ((hours || 1.5) * 3600000)
                     }).onsuccess = event => {
                         if (!noupdate) {
                             updateNotficationsPanel();
@@ -1633,7 +1629,7 @@ async function expireSpannedFile(fileid, noupdate, hours) {
                 if (browserStorageAvailable) {
                     offlineContent.transaction(["spanned_files"], "readwrite").objectStore("spanned_files").put({
                         ...file,
-                        expires:(new Date().getTime()) + ((hours || 1.5) * 3600000)
+                        expires: (new Date().getTime()) + ((hours || 1.5) * 3600000)
                     }).onsuccess = event => {
                         if (!noupdate) {
                             updateNotficationsPanel();

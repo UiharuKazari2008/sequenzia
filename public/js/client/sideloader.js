@@ -1277,7 +1277,7 @@ async function requestSyncPages() {
 function replaceDiscordCDN(url) {
     return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
 }
-function extractMetaFromElement(e, preemptive) {
+function extractMetaFromElement(e, preemptive, expires) {
     const postChannelString = e.getAttribute('data-msg-channel-string');
     const postChannelIcon = e.getAttribute('data-msg-channel-icon');
     const postDownload = e.getAttribute('data-msg-download');
@@ -1352,15 +1352,16 @@ function extractMetaFromElement(e, preemptive) {
         eid: postEID,
         required_build: required_build,
         preemptive_download: (!!preemptive),
+        expires: (expires) ? (new Date().getTime()) + (expires * 3600000) : false,
         htmlAttributes: attribs,
         kongou_meta: (postKMSJSON && postKMSJSON.show.id) ? postKMSJSON : null,
     }
 }
-async function cacheFileOffline(element, noConfirm, preemptive, noDialog) {
+async function cacheFileOffline(element, noConfirm, preemptive, noDialog, expires) {
     if (element) {
         const eid = element.getAttribute('data-msg-eid');
         const fileExists = (eid) ? await kernelRequestData({type: 'GET_STORAGE_FILE', eid}) : false;
-        const meta = extractMetaFromElement(element, (preemptive && !fileExists));
+        const meta = extractMetaFromElement(element, (preemptive && !fileExists), expires);
         if (!noDialog)
             $('#offlineFileStartedModal').modal('show')
         kernelRequestData({
@@ -1370,16 +1371,17 @@ async function cacheFileOffline(element, noConfirm, preemptive, noDialog) {
         })
     }
 }
-async function cacheEpisodeOffline(element, noConfirm, preemptive, noDialog) {
+async function cacheEpisodeOffline(element, noConfirm, preemptive, noDialog, expires, play) {
     if (element) {
         const eid = element.getAttribute('data-msg-eid');
         const fileExists = await kernelRequestData({type: 'GET_STORAGE_FILE', eid: eid});
-        const meta = extractMetaFromElement(element, (preemptive && !fileExists));
+        const meta = extractMetaFromElement(element, (preemptive && !fileExists), expires);
         if (!noDialog)
             $('#offlineFileStartedModal').modal('show')
         kernelRequestData({
             type: 'SAVE_STORAGE_KMS_EPISODE',
             meta,
+            play,
             noconfirm: noConfirm
         })
     }
@@ -2395,7 +2397,7 @@ async function openUnpackingFiles(messageid, playThis, downloadPreemptive, offli
                     channel: channelString,
                     preemptive: downloadPreemptive,
                     offline: true,
-                    expires: (!offlineFile) ? (new Date().getTime()) + (4 * 3600000): false,
+                    expires: (!offlineFile) ? (new Date().getTime()) + (4 * 3600000) : (typeof offlineFile === "number" && !isNaN(offlineFile)) ? (new Date().getTime()) + (offlineFile * 3600000) : false,
                     play: playThis
                 }})
             if (responseMessage && responseMessage.type && responseMessage.fileid) {
@@ -2760,10 +2762,10 @@ async function openKMSPlayer(messageid, seriesId) {
         const _activePost = activeDoc.querySelector(`#message-${active}`);
         if (_activePost) {
             const activeEid = _activePost.getAttribute('data-msg-eid');
-            if (activeEid)
+            if (activeEid && activeEid.length > 1)
                 expireOfflineFile(activeEid, false, true);
             const activeFileid = _activePost.getAttribute('data-msg-fileid');
-            if (activeFileid)
+            if (activeFileid && activeFileid.length > 1)
                 stopUnpackingFiles(activeFileid);
         }
     }
@@ -2773,7 +2775,7 @@ async function openKMSPlayer(messageid, seriesId) {
     kongouMediaPlayer.setAttribute('activeFilename', filename);
     kongouMediaPlayer.setAttribute('activeFilesize', filesize);
     kongouMediaPlayer.removeAttribute('nextVideoReady');
-    kmsPopUpControls();
+    //kmsPopUpControls();
 }
 async function kmsPlayNext() {
     const messageid = kongouMediaPlayer.getAttribute('nextPlayback');
@@ -3009,7 +3011,7 @@ async function checkKMSTimecode() {
             kongouMediaPlayer.setAttribute('nextVideoReady', 'true');
             const element = activeDoc.querySelector('#message-' + messageid);
             if (element) {
-                cacheEpisodeOffline(element, true, true, true)
+                cacheEpisodeOffline(element, true, true, true, (30 * 24))
             }
         }
     }
