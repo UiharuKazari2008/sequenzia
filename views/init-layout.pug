@@ -902,7 +902,7 @@ html
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(href='#_' onclick="transitionToOOBPage('/offline'); return false;") Offline
         #cachePageModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
-            .modal-dialog(role='document')
+            .modal-dialog(role='document' style="max-width: 300px;")
                 .modal-content
                     .modal-header
                         h5.modal-title
@@ -913,8 +913,8 @@ html
                     .modal-body
                         div.row.px-2.pb-2
                             b All media from the current results will be available offline
-                        div.pb-2.d-flex
-                            input#maxCountOfflinePage.form-control(type="text" placeholder="Max Items (Default: 2000)" style="max-width: 150px;").mr-3
+                        div.pb-2.d-flex.flex-column
+                            input#maxCountOfflinePage.form-control(type="text" placeholder="Max Items (Default: 2000)").pb-2
                             a.btn.btn-success.ml-auto.mr-1.w-100(href='#_' onclick='cachePageOffline(); return false;' )
                                 i.pr-2.fas.fa-download
                                 | Download
