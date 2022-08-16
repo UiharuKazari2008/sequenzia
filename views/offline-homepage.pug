@@ -588,7 +588,7 @@ html
                             each thisServer, thisIndex in discord.servers.list
                                 .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
                                     div.mr-3
-                                        img.rounded(src=thisServer.icon style='height: 8em;')
+                                        img.rounded-pill(src=thisServer.icon style='height: 8em;')
                                     div
                                         h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
                                         if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
