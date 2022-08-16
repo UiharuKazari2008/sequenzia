@@ -8,7 +8,7 @@ block content
                 for error in errors
                     li= error.msg
         - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
-        -backgroundImgColor = 'rgba(' + ((backgroundImg.meta.color) ? `rgba(${backgroundImg.meta.color[0]}, ${backgroundImg.meta.color[1]}, ${backgroundImg.meta.color[2]}` : ``) + ', 0.72)'
+        -backgroundImgColor = 'rgba(' + ((backgroundImg.meta.color) ? `${backgroundImg.meta.color[0]}, ${backgroundImg.meta.color[1]}, ${backgroundImg.meta.color[2]}` : ``) + ', 0.72)'
         style.
             .background-image:not(.overlay) {
                 background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
