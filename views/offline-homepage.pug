@@ -552,7 +552,7 @@ html
                                 p.mb-1 Proudly Developed in the United States of America 🇺🇸
                             div.row.pl-3.pr-3.pt-2
                                 h3
-                                    i.fas.fa-monitor-waveform
+                                    i.fas.fa-monitor-waveform.pr-2
                                     | Application Status
                             div.row.pl-3.pr-3.mb-3.justify-content-center
                                 span#serviceWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
@@ -577,7 +577,9 @@ html
                                     i.fas.fa-vr-cardboard.pr-1
                                     | XR
                             div.row.pl-3.pr-3.pt-2
-                                h3 Extensions
+                                h3
+                                    i.fas.fa-puzzle.pr-2
+                                    | Extensions
                             div.row.pl-3.pr-3.pt-2.mb-2
                                 p.mb-1
                                     img(src="/static/img/kongoumedialogo-wide.png" style="width: 400px; height: auto;").img-fluid
@@ -586,7 +588,9 @@ html
                                 p.mb-1 Sequenzia Content Distribution and Auditing System (CDS)
 
                             div.row.pl-3.pr-3.pt-2
-                                h3 Storage Servers
+                                h3
+                                    i.fas.fa-server.pr-2
+                                    | Storage Servers
                             each thisServer, thisIndex in discord.servers.list
                                 .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
                                     div.mr-3
