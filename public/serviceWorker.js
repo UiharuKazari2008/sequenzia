@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-7-16-2022-BUGWATCH-P1';
+const cacheName = 'PRODUCTION-v20-7-16-2022-BUGWATCH-P2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -1745,11 +1745,11 @@ async function cacheFileURL(object, page_item) {
             let fetchResults = {}
             let fetchKMSResults = {}
             if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
-                if (object.full_url && !object.full_url.includes('/stream'))
+                if (object.full_url && !(object.full_url.includes('/stream') && object.required_build))
                     fetchResults["full_url"] = (await fetchBackground(`${object.id}-full_url`, true, object.full_url)).status
-                if (object.preview_url && !object.full_url.includes('/stream'))
+                if (object.preview_url)
                     fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, true, object.preview_url)).status
-                if (object.extpreview_url && !object.full_url.includes('/stream'))
+                if (object.extpreview_url)
                     fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, true, object.extpreview_url)).status
                 if (object.kongou_poster_url) {
                     fetchKMSResults["kongou_poster_url_0"] = (await fetchBackground(`${object.id}-kongou_poster_url_0`, true, object.kongou_poster_url + '?height=580&width=384')).status
