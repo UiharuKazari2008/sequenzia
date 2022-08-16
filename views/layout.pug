@@ -323,7 +323,7 @@ html
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`$('#cachePageModal').modal('show'); return false;`)
-                                                            i.fa-light.fa-cloud-check
+                                                            i.fa-light.fa-bookmark
                                                             | Offline
                                                         if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                             a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
@@ -740,7 +740,7 @@ html
                                                 i.fas.fa-circle.text-danger
                                 ul.navbar-nav.text-primary(style="font-size: 1.4rem;")
                                     li#pageIsOffline.nav-item.mr-1.d-none
-                                        i.fas.fa-cloud-check
+                                        i.fas.fa-bookmark
                                 .mr-auto
                                 if (params.has('responseType') && params.getAll('responseType')[0] === 'offline')
                                     // OFFLINE PAGE
@@ -1327,7 +1327,7 @@ html
                                                         a.navbar-item.btn.btn-admin(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
                                                             i.far.fa-paste.align-middle
                                                     a.navbar-item.btn.btn-admin(title="Offline Messages" href='#_' onclick='offlineSelectedItems(); return false;')
-                                                        i.far.fa-cloud-download.align-middle
+                                                        i.far.fa-bookmark.align-middle
                                                     a.navbar-item.btn.btn-admin(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                         i.far.fa-download.align-middle
                                 if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
@@ -1961,7 +1961,7 @@ html
                                             a#goToDownload.btn.text-white(href='#_' role='button' target="_blank" rel="noopener noreferrer")
                                                 i.fas.fa-download.shadow-text
                                             a#makeOffline.btn.text-white(href='#_' role='button')
-                                                i.fas.fa-cloud-download.shadow-text
+                                                i.fas.fa-bookmark.shadow-text
                                         #keepExpireingFile.row.pl-3.pr-3.hidden
                                             a.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
                                                 i.fas.fa-clock.pr-2

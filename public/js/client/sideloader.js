@@ -1565,7 +1565,7 @@ async function generateGalleryHTML(url, eids, topText) {
     <div class="status-icons left-links d-flex w-100">
         <div class="d-inline-flex size-indictor shadow-text"></div>
         <div class="d-inline-flex ratio-indictor shadow-text"></div>
-        <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-cloud-check text-success"></i></div>
+        <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-bookmark text-success"></i></div>
         <div class="d-inline-flex ml-auto shadow-text"><i class="fas ${(e.channel_icon) ? e.channel_icon : 'fa-question'} pr-1"></i></div>
     </div>
     ${(e.data_type === 'video') ? '<div class="status-icons left-links d-flex w-100 no-dynamic-tiny" style="padding-top: 1.4em;"><div class="d-flex shadow-text text-ellipsis"><span class="text-ellipsis" style="line-height: 1.1; text-weight: bold;">' + e.filename + '</span></div></div>' : ''}
@@ -1893,7 +1893,7 @@ async function generateEpisodeHTML(url) {
                 </div>
                 <div class="preview-controls-grid d-flex" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;" style="z-index: 1;">
                     <div class="d-flex position-absolute">
-                        <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-cloud-check"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
+                        <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-bookmark"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
                         <div class="badge bg-warning text-dark ${(!expireingText) ? 'hidden' : ''} ml-1" id="offlineExpiring"><i class="fas fa-clock"></i><span class="pl-1">${expireingText || 'Expireing'}</span></div>
                     </div>
                     <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
@@ -3069,7 +3069,7 @@ async function updateNotficationsPanel() {
                 results.push(`<div class="dropdown-divider"></div>`);
             const item = offlineDownloadController.get(e);
             results.push(`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="cancelPendingCache('${e}'); return false;")>`)
-            results.push(`<i class="fas fa-cloud-download pr-2"></i>`);
+            results.push(`<i class="fas fa-bookmark pr-2"></i>`);
             results.push(`<span class="text-ellipsis">${(item.title) ? item.title : e} (${item.totalItems})</span>`);
             results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
             results.push(`</a>`);
@@ -3309,16 +3309,16 @@ async function showSearchOptions(post) {
         modalFilename.innerText = postFilename.split('.')[0];
         modalFilename.classList.remove('hidden');
         if (postOffline) {
-            modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-download')
-            modalOfflineThisButton.querySelector('i').classList.add('fa-cloud-xmark')
+            modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark')
+            modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark-slash')
             modalOfflineThisButton.onclick = function () {
                 deleteOfflineFile(postEID)
                 $('#searchModal').modal('hide');
                 return false;
             }
         } else {
-            modalOfflineThisButton.querySelector('i').classList.add('fa-cloud-download')
-            modalOfflineThisButton.querySelector('i').classList.remove('fa-cloud-xmark')
+            modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark')
+            modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark-slash')
             if (postKMSJSON) {
                 modalOfflineThisButton.onclick = function () {
                     const element = document.getElementById('message-' + postID);
@@ -3402,7 +3402,7 @@ async function showSearchOptions(post) {
     if (postFilID && postFilID.length > 0) {
         if (postOffline) {
             normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
-            normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Offline</span>`)
+            normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
             normalInfo.push('</div>')
             const expireIndex = expiresMessages.indexOf(postID)
             if (expireIndex !== -1) {
@@ -3442,7 +3442,7 @@ async function showSearchOptions(post) {
             normalInfo.push('</div>')
             if (postCached) {
                 normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
-                normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Fast Access</span>`)
+                normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Fast Access</span>`)
                 normalInfo.push('</div>')
                 modalDownloadButton.title = `Fast Access Download`
                 modalDownloadButton.href = postDownload
@@ -3471,7 +3471,7 @@ async function showSearchOptions(post) {
     } else if (postDownload && postDownload.length > 0) {
         if (postOffline) {
             normalInfo.push('<div class="badge text-light mx-1" style="background: #00b14f;">')
-            normalInfo.push(`<i class="fa fa-cloud-check pr-1"></i><span>Offline</span>`)
+            normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
             normalInfo.push('</div>')
         }
         modalDownloadButton.title = `Direct Download`
@@ -5229,7 +5229,7 @@ async function startUnpackerWorker() {
         if (unpackingJobs.size > 0) {
             $.toast({
                 type: 'error',
-                title: '<i class="fas fa-microchip pr-2"></i>TLHWP Crashed',
+                title: '<i class="fas fa-monitor-waveform pr-2"></i>TLHWP Crashed',
                 subtitle: '',
                 content: `<p>The compiler has crashed, this could be due to low system memory. Jobs will be recovered shortly.</p>`,
                 delay: 90000,

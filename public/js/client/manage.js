@@ -177,13 +177,13 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Compile'
             actionModel.querySelector("#postID").innerText = `Compile Fast Access Cache ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
-            actionModel.querySelector('#sectionIcon i').classList.add('fa-cloud-check')
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-bookmark')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'DecompileSF') {
             actionModel.querySelector("#ActionName").innerText = 'Remove'
             actionModel.querySelector("#postID").innerText = `Remove Cache ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
-            actionModel.querySelector('#sectionIcon i').classList.add('fa-cloud-xmark')
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-bookmark-slash')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         }
         actionModel.querySelector('#selectedMenu').classList.add('d-none');

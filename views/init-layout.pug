@@ -737,7 +737,9 @@ html
                                 p.mb-1 Developed and Maintained by Academy City Research (acr.moe)
                                 p.mb-1 Proudly Developed in the United States of America 🇺🇸
                             div.row.pl-3.pr-3.pt-2
-                                h3 Application Status
+                                h3
+                                    i.fas.fa-monitor-waveform
+                                    | Application Status
                             div.row.pl-3.pr-3.mb-3.justify-content-center
                                 span#serviceWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-block-brick-fire.pr-1
@@ -904,7 +906,7 @@ html
                 .modal-content
                     .modal-header
                         h5.modal-title
-                            i.fas.fa-cloud-download.pr-2
+                            i.fas.fa-folder-bookmark.pr-2
                             | Save Offline
                         button.close(type='button' data-dismiss='modal' aria-label='Close')
                             span(aria-hidden='true') &times;
@@ -914,7 +916,7 @@ html
                         div.pb-2.d-flex
                             input#maxCountOfflinePage.form-control(type="text" placeholder="Max Items" style="max-width: 150px;").mr-3
                             a.btn.btn-success.ml-auto.mr-1.w-100(href='#_' onclick='cachePageOffline(); return false;' )
-                                i.pr-2.fas.fa-cloud-download
+                                i.pr-2.fas.fa-download
                                 | Download
         #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
             .modal-dialog(role='document')

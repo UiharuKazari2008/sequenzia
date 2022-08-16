@@ -124,7 +124,7 @@ block content
                                             i.fas.fa-play
                                             span.d-none.d-md-inline.pl-1 Instant Play
                                     #offlineReady.badge.bg-success.hidden(title='Saved Locally')
-                                        i.fas.fa-cloud-check
+                                        i.fas.fa-bookmark
                                         span.d-none.d-md-inline.pl-1 Offline
                                     #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
                                         i.fas.fa-clock
@@ -158,7 +158,7 @@ block content
                                     a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
                                         i.btn-links.fas.fa-arrow-right
                                 a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
-                                    i.btn-links.fas.fa-cloud-check
+                                    i.btn-links.fas.fa-bookmark
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                     if (item.media.watched)
                                         i.btn-links.fas.fa-eye-slash
@@ -309,7 +309,7 @@ block content
                                                                         i.fas.fa-play
                                                                         span.d-none.d-md-inline.pl-1 Instant Play
                                                                 #offlineReady.badge.bg-success.hidden(title='Saved Locally')
-                                                                    i.fas.fa-cloud-check
+                                                                    i.fas.fa-bookmark
                                                                     span.d-none.d-md-inline.pl-1 Offline
                                                                 #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
                                                                     i.fas.fa-clock
@@ -325,7 +325,7 @@ block content
                                                             a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
                                                                 i.btn-links.fas.fa-info-circle
                                                             a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
-                                                                i.btn-links.fas.fa-cloud-check
+                                                                i.btn-links.fas.fa-bookmark
                                                             a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                                                 if (item.media.watched)
                                                                     i.btn-links.fas.fa-eye-slash
@@ -386,7 +386,7 @@ block content
                                         i.fas.fa-play
                                         span.d-none.d-md-inline.pl-1 Instant Play
                                 #offlineReady.badge.bg-success.hidden(title='Saved Locally')
-                                    i.fas.fa-cloud-check
+                                    i.fas.fa-bookmark
                                     span.d-none.d-md-inline.pl-1 Offline
                                 #offlineExpiring.badge.bg-danger.warning.text-dark.ml-1(title='Expiring Soon')
                                     i.fas.fa-clock
@@ -423,7 +423,7 @@ block content
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
                                     i.btn-links.fas.fa-arrow-right
                             a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
-                                i.btn-links.fas.fa-cloud-check
+                                i.btn-links.fas.fa-bookmark
                             a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                 if (item.media.watched)
                                     i.btn-links.fas.fa-eye-slash
@@ -508,7 +508,7 @@ block content
                                             i.fas.fa-play
                                             span.d-none.d-md-inline.pl-1 Instant Play
                                     #offlineReady.badge.bg-success.hidden(title='Saved Locally')
-                                        i.fas.fa-cloud-check
+                                        i.fas.fa-bookmark
                                         span.d-none.d-md-inline.pl-1 Offline
                                     #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
                                         i.fas.fa-clock
@@ -534,7 +534,7 @@ block content
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
                                     i.btn-links.fas.fa-info-circle
                                 a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
-                                    i.btn-links.fas.fa-cloud-check
+                                    i.btn-links.fas.fa-bookmark
                                 a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
                                     if (item.media.watched)
                                         i.btn-links.fas.fa-eye-slash

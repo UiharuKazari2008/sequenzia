@@ -143,8 +143,8 @@ block content
                                                 //span.pr-1.text-ellipsis.no-dynamic-tiny(style='line-height: 1.1;') #{(item.history.name.startsWith('ADS')) ? item.history.name.split('-').splice(1).join('-') : item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
                                             if (item.flagged)
                                                 i.fas.fa-flag.text-danger
-                                            i#offlineReady.fas.fa-cloud-check.text-success.hidden
-                                            i#offlineExpiring.fas.fa-cloud.text-warning.hidden.ml-1
+                                            i#offlineReady.fas.fa-bookmark.text-success.hidden
+                                            i#offlineExpiring.fas.fa-clock.text-warning.hidden.ml-1
                                         div.d-inline-flex.ml-auto.shadow-text
                                             i.fas(class=`${item.channel.icon}`).pr-1
                                     if (isVideo)
