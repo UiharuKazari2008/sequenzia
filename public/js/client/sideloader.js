@@ -3063,11 +3063,12 @@ async function updateNotficationsPanel() {
             results.push(`</a>`);
             return results.join('\n');
         });
-        const offlineKeys = Array.from(offlineDownloadController.keys()).map(e => {
-            if (keys.length > 0)
-                completedKeys.push(`<div class="dropdown-divider"></div>`);
+        const offlineKeys = Array.from(offlineDownloadController.keys()).map((e,i) => {
+            let results = [];
+            if (keys.length > 0 && i === 0)
+                results.push(`<div class="dropdown-divider"></div>`);
             const item = offlineDownloadController.get(e);
-            let results = [`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="cancelPendingCache('${e}'); return false;")>`]
+            results.push(`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="cancelPendingCache('${e}'); return false;")>`)
             results.push(`<i class="fas fa-cloud-download pr-2"></i>`);
             results.push(`<span class="text-ellipsis">${(item.title) ? item.title : e} (${item.totalItems})</span>`);
             results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
