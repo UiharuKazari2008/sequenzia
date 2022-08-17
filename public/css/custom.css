@@ -2890,6 +2890,9 @@ div#bootBackdropSunrise {
         top: 0;
     }
 }
+.kongou-next-episode-image {
+    height: 172px;
+}
 .about-left-panel {
     width: 40%;
 }
@@ -3303,6 +3306,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 880px) {
+    .kongou-next-episode-image {
+        height: 192px;
+    }
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;

@@ -239,9 +239,9 @@ html
                                         div(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
                                             div.pl-3
                                                 if (next_episode)
-                                                    img(style='width: 80px;' src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
+                                                    img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
                                                     - console.log(next_episode)
-                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            div.position-relative.pr-3.ml-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100#appMenuRow1.align-items-center
                                                     if (path && (path === '/tvTheater' || path === '/listTheater'))
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
