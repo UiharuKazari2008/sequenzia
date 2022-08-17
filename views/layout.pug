@@ -251,13 +251,12 @@ html
                                                             a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                                 i.fas.fa-arrow-left.fa-fw
                                                         h4.text-primary.ml-auto.mb-0
-                                                            img.kms-menu-logo.d-none.d-sm-block(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
-                                                            i.fas.fa-ticket.mr-2.d-sm-none
+                                                            img.kms-menu-logo(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         if (next_episode)
-                                                            div.pl-3.mr-3.inner-menu-next-episode.d-none(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
+                                                            div.inner-menu-next-episode(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                                        .menu-grid.kms-main-grid.mt-auto
+                                                        .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
                                                             a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
                                                                 i.fa-light.fa-forward
                                                                 | Up Next

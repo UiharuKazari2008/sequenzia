@@ -3689,6 +3689,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 190px;
     }
 }
+@media (max-width: 383px) {
+    .inner-menu-next-episode .kongou-next-episode-image {
+        height: 163px;
+    }
+    .kms-main-grid {
+        max-width: 170px;
+    }
+}
 @media (max-width: 350px) {
     .show-poster img {
         height: 84px;
@@ -3717,7 +3725,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 245px;
     }
     .kms-main-grid {
-        max-width: 200px;
+        max-width: 167px;
     }
     .shown-user-menu {
         height: calc(env(safe-area-inset-top, 0px) + 320px);
