@@ -172,7 +172,7 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
 }
 
 .container-fluid {
-    margin-top: calc(env(safe-area-inset-top) + 4.5em + env(titlebar-area-height,0))
+    margin-top: calc(env(safe-area-inset-top,0px) + 4.5em + env(titlebar-area-height,0px))
 }
 .container {
     max-width: unset;
