@@ -2974,6 +2974,9 @@ div#bootBackdropSunrise {
     .menu-grid {
         max-width: 490px;
     }
+    .kms-main-grid {
+        max-width: 480px;
+    }
 }
 @media (max-width:1655px) {
     .user-menu-item {
@@ -3615,6 +3618,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .menu-grid {
         max-width: 340px;
     }
+    .kms-main-grid {
+        max-width: 300px;
+    }
     .shown-user-menu {
         height: calc(env(safe-area-inset-top, 0px) + 265px);
         flex-direction: column;
@@ -3686,6 +3692,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     .menu-grid {
         max-width: 245px;
+    }
+    .kms-main-grid {
+        max-width: 200px;
     }
     .shown-user-menu {
         height: calc(env(safe-area-inset-top, 0px) + 320px);
