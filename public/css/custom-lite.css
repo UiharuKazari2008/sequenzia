@@ -1957,7 +1957,7 @@ ul#accordionSidebar * {
     width: 100%;
 }
 .main-menu-grid {
-    width: 300px;
+    width: 322px;
     justify-content: center;
     grid-auto-flow: column;
     margin-left: auto;
@@ -1965,11 +1965,8 @@ ul#accordionSidebar * {
     flex-wrap: wrap;
 }
 .main-menu-grid a {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    min-width: 56px;
+    padding: 0.25em;
+    min-width: 64px;
     display: flex;
     justify-content: center;
 }
@@ -2038,7 +2035,7 @@ ul#accordionSidebar * {
 .desktop-only {
     display: none!important;
 }
-@media (min-width:652px) {
+@media (min-width:706px) {
     .main-menu-grid {
         justify-content: space-around;
     }
@@ -2052,7 +2049,7 @@ ul#accordionSidebar * {
         display: flex!important;
     }
 }
-@media (max-width:366px) {
+@media (max-width:390px) {
     .main-menu-grid {
         font-size: 1.5em;
         width: 255px;
