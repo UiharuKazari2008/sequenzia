@@ -178,13 +178,6 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
     max-width: unset;
 }
 
-.hidden {
-    display: none!important;
-}
-.hidden-default:not(.active) {
-    display: none!important;
-}
-
 footer.musicActive {
     margin-bottom: 8em !important;
 }
@@ -1976,6 +1969,9 @@ ul#accordionSidebar * {
     padding-right: 0.5em;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
+    min-width: 56px;
+    display: flex;
+    justify-content: center;
 }
 @media (min-width:850px) {
     #midSearch {
@@ -2110,4 +2106,10 @@ ul#accordionSidebar * {
     100% {
         background-position: 200% 0;
     }
+}
+.hidden {
+    display: none!important;
+}
+.hidden-default:not(.active) {
+    display: none!important;
 }
