@@ -2901,6 +2901,17 @@ div#bootBackdropSunrise {
     overflow: hidden;
 }
 
+#topBarPWA {
+    margin-left: env(titlebar-area-x, 0);
+    margin-top: env(titlebar-area-y, 0);
+    height: env(titlebar-area-height, 0px);
+    width: env(titlebar-area-width, 0px);
+    -webkit-app-region: drag;
+}
+.menu-open #topBarPWA {
+    display: none;
+}
+
 @keyframes animateBg {
     0% {
         background-position: 0 0;
