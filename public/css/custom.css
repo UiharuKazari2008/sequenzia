@@ -2040,10 +2040,10 @@ div.collapse-divider {
     border-top-right-radius: 20px;
 }
 
-#menuAccordion > div > div:not(.d-flex) {
+#menuAccordion > div > div {
     margin-top: calc(env(safe-area-inset-top, 0px) + 1rem);
 }
-.bottom-bar #menuAccordion > div > div:not(.d-flex) {
+.bottom-bar #menuAccordion > div > div {
     margin-top: 0;
     margin-bottom: 1rem;
 }
