@@ -2054,12 +2054,12 @@ div.collapse-divider {
 .page-navigator {
     position: fixed;
     right: calc(env(safe-area-inset-right, 0) + 1.5rem);
-    bottom: calc(env(safe-area-inset-bottom, 0) + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
     z-index: 500;
 }
 
 .scrollBtn {
-    bottom: calc(env(safe-area-inset-bottom, 0) + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
     position: fixed;
     z-index: 500;
 }
@@ -2067,13 +2067,13 @@ div.collapse-divider {
 .bottom-bar .page-navigator,
 .bottom-bar .scrollBtn,
 .bottom-bar .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 3rem + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+    bottom: calc(env(safe-area-inset-bottom, 0) + 3rem + 1.5rem);
 }
 
 .bottom-bar.menu-open .page-navigator,
 .bottom-bar.menu-open .scrollBtn,
 .bottom-bar.menu-open .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 200px + 3rem + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+    bottom: calc(env(safe-area-inset-bottom, 0) + 200px + 3rem + 1.5rem);
 }
 
 .btn .badge {
@@ -3350,7 +3350,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 215px + 2.5rem + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+        bottom: calc(env(safe-area-inset-bottom, 0) + 215px + 2.5rem + 1.5rem);
     }
 
     .user-menu-height {
@@ -3559,7 +3559,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn ,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 400px + 2.5rem + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+        bottom: calc(env(safe-area-inset-bottom, 0) + 400px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
@@ -3598,7 +3598,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 265px + 2.5rem + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+        bottom: calc(env(safe-area-inset-bottom, 0) + 265px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
@@ -3673,7 +3673,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 320px + 2.5rem + min(0rem, env(safe-area-inset-bottom, 0) - 1.5rem));
+        bottom: calc(env(safe-area-inset-bottom, 0) + 320px + 2.5rem + 1.5rem);
     }
 
     .topbar .dropdown .dropdown-menu {
