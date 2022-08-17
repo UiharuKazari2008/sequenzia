@@ -3354,6 +3354,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
         padding: 0!important;
     }
+    #menuAccordion>div>.d-flex {
+        margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
+        padding: 0!important;
+    }
     #menuAccordion>div>.d-flex>div {
         padding: 0!important;
     }
