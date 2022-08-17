@@ -321,7 +321,7 @@ html
                                 .d-flex.w-100.mb-3
                                     .d-flex.w-100
                                         if (next_episode)
-                                            div.pl-3.mr-3(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
+                                            div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
                                         div.menu-grid.user-menu-small.mt-auto.mb-auto
                                             a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
@@ -333,6 +333,10 @@ html
                                             a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
                                                 i.fas.fa-star
                                                 | Favorites
+                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                i.fas.fa-certificate
+                                                | Newest
+
                             div#menuItemMediaGroups.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
