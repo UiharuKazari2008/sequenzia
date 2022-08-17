@@ -2971,9 +2971,6 @@ div#bootBackdropSunrise {
     }
 }
 @media (max-width:1400px) {
-    .menu-grid {
-        max-width: 490px;
-    }
     .kms-main-grid {
         max-width: 480px;
     }
@@ -3062,6 +3059,9 @@ div#bootBackdropSunrise {
 @media (min-width:576px) {
     .card-columns {
         column-count: 2;
+    }
+    .menu-grid {
+        max-width: 490px;
     }
     .pagination .page-link {
         padding: 0.25rem 0.5rem;
@@ -3311,7 +3311,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 @media (max-width: 880px) {
     .kongou-next-episode-image {
-        height: 192px;
+        height: 185px;
     }
     #topbarIcon, #topbarAccent {
         top: unset;
