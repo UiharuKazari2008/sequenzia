@@ -2049,7 +2049,7 @@ ul#accordionSidebar * {
         display: flex!important;
     }
 }
-@media (max-width:390px) {
+@media (max-width:389px) {
     .main-menu-grid {
         font-size: 1.5em;
         width: 255px;
