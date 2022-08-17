@@ -251,6 +251,10 @@ html
                                                         i.fas.fa-ticket.mr-2.d-sm-none
                                                         span.d-sm-none Kongou
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                    div
+                                                        if (next_episode)
+                                                            - console.log(next_episode)
+                                                        // NEXT EPISODE HERE
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
                                                             i.fa-light.fa-forward

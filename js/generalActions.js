@@ -2,9 +2,9 @@ const global = require('../config.json');
 const config = require('../host.config.json');
 const { printLine } = require("./logSystem");
 const { sendData } = require('./mqAccess');
-const { sqlSafe } = require('../js/sqlClient');
+const { sqlSafe, sqlPromiseSimple } = require('../js/sqlClient');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     try {
         if (req.session.user && (req.session.user.source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
@@ -122,6 +122,10 @@ module.exports = (req, res, next) => {
                             }
                         })
                     }
+                    const nextEpisodeView = await sqlPromiseSimple(`SET @last_eid = 0; SET @last_show_id = 0;
+SELECT Max(y.eid), MAX(y.show_id) INTO @last_eid, @last_show_id FROM (SELECT * FROM kanmi_system.kongou_watch_history WHERE user = '${req.session.discord.user.id}' ORDER BY date DESC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_episodes) y ON (x.eid = y.eid);
+SELECT * FROM  (SELECT * FROM kanmi_system.kongou_episodes WHERE eid > @last_eid AND show_id = @last_show_id AND season_num > 0 ORDER BY season_num ASC, episode_num ASC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_shows) y ON (x.show_id = y.show_id);`)
+                    req.session.kongou_next_episode = (nextEpisodeView.rows.length > 0) ? nextEpisodeView.rows : {};
                     break;
                 case 'GetWatchHistory':
                     printLine("ActionParser", `Request to get watch History`, 'info')

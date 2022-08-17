@@ -593,8 +593,9 @@ async function generateViews(req, id) {
 
     req.session.cache = {
         channels_view: `kanmi_auth_${id}`,
-        sidebar_view: `kanmi_sidebar_${id}`,
+        sidebar_view: `kanmi_sidebar_${id}`
     };
+    await getNextEpisode(req, id);
 
     const serverResults = await sqlPromiseSimple(`SELECT DISTINCT kanmi_sidebar_${id}.serverid, kanmi_sidebar_${id}.server_nice, kanmi_sidebar_${id}.server_name, kanmi_sidebar_${id}.server_short, discord_servers.position, discord_servers.authware_enabled FROM kanmi_sidebar_${id}, discord_servers WHERE kanmi_sidebar_${id}.serverid = discord_servers.serverid ORDER BY discord_servers.position`);
     req.session.server_list = serverResults.rows.map((e) => ({
@@ -604,6 +605,14 @@ async function generateViews(req, id) {
         login: (e.authware_enabled)
     }));
     printLine("ViewGenerator", `User ${id} channels index cache was loaded into memory!`, 'info');
+
+
+}
+async function getNextEpisode(req, id) {
+    const nextEpisodeView = await sqlPromiseSimple(`SET @last_eid = 0; SET @last_show_id = 0;
+SELECT Max(y.eid), MAX(y.show_id) INTO @last_eid, @last_show_id FROM (SELECT * FROM kanmi_system.kongou_watch_history WHERE user = '${id}' ORDER BY date DESC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_episodes) y ON (x.eid = y.eid);
+SELECT * FROM  (SELECT * FROM kanmi_system.kongou_episodes WHERE eid > @last_eid AND show_id = @last_show_id AND season_num > 0 ORDER BY season_num ASC, episode_num ASC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_shows) y ON (x.show_id = y.show_id);`)
+    req.session.kongou_next_episode = (nextEpisodeView.rows.length > 0) ? nextEpisodeView.rows : {};
 }
 async function checkAccessToken(token, req, res, redirect, next) {
     if (token !== undefined) {

@@ -228,6 +228,7 @@ module.exports = async (req, res, next) => {
                             user: req.session.user,
                             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                             theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+                            next_episode: req.session.kongou_next_episode,
                             applications_list: req.session.applications_list,
                             device: ua,
                             folderInfo: null
@@ -282,6 +283,7 @@ module.exports = async (req, res, next) => {
                             user: req.session.user,
                             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                             theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+                            next_episode: req.session.kongou_next_episode,
                             applications_list: req.session.applications_list,
                             device: ua,
                         }
@@ -303,6 +305,7 @@ module.exports = async (req, res, next) => {
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
                     theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+                    next_episode: req.session.kongou_next_episode,
                     applications_list: req.session.applications_list,
                     device: ua,
                 }

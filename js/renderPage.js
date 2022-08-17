@@ -35,6 +35,7 @@ module.exports = async (req, res, next) => {
 
     let results = {
         sidebar: req.session.sidebar,
+        next_episode: req.session.kongou_next_episode,
         albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
         theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
         applications_list: req.session.applications_list,
