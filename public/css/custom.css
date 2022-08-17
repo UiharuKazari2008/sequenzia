@@ -3378,11 +3378,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 767px) {
-    .top-left, .top-right {
+    .toast-container .top-left,
+    .toast-container .top-right {
         transform: translateX(-50%);
         top: 0;
         left: 50%;
+        right: unset;
     }
+
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/
