@@ -2971,6 +2971,9 @@ div#bootBackdropSunrise {
     }
 }
 @media (max-width:1400px) {
+    .menu-grid {
+        max-width: 490px;
+    }
 }
 @media (max-width:1655px) {
     .user-menu-item {
