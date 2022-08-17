@@ -4703,7 +4703,7 @@ function registerUserMenuHandlers() {
         }
         $('#mainMenuBar').removeClass('top-padding-safety');
         $('.show-menu-open').removeClass('hidden');
-        $('#topbarBackground').fadeIn();
+        //$('#topbarBackground').fadeIn();
         $('#topbar').addClass('shadow').addClass('menu-open');
         $('body').addClass('menu-open');
         const bottombar = document.querySelector('body').classList.contains('bottom-bar')
@@ -4721,7 +4721,7 @@ function registerUserMenuHandlers() {
             $('#mainMenuBar').addClass('top-padding-safety');
             $('#topbar').removeClass('menu-open')
             if ($('html').scrollTop() <= 50) {
-                $('#topbarBackground').fadeOut();
+                //$('#topbarBackground').fadeOut();
                 $('#topbar').removeClass('shadow');
             }
             $('body').removeClass('menu-open');

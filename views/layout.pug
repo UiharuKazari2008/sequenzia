@@ -1358,7 +1358,8 @@ html
                         div#topbarUserBackground.show-menu-open.hidden
                         div#topbarIcon.show-menu-open.hidden.d-none
                         div#topbarKmsIcon.show-menu-open.hidden.d-none
-                        div#topbarBackground(style='display: none;')
+                        div#topbarBackground
+                            //(style='display: none;')
 
                     .container-fluid.max-resize(class=`${(path === '/listTheater' && params.has('show_id')) ? 'thin-width' : ''}`)
                         #hiddenItemsAlert.alert.alert-danger-transparent.hidden(role="alert")

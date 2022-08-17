@@ -151,7 +151,6 @@ $(document).ready(function () {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
-                $('#topbarBackground').fadeIn();
                 if (mediaRule &&!playeropen)
                     mediaRule.content = (bottombar) ? "#000" : "#d07300"
                 topbar.classList.add('shadow');
@@ -159,7 +158,6 @@ $(document).ready(function () {
                 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 
                 }
-                $('#topbarBackground').fadeOut();
                 if (mediaRule &&!playeropen)
                     mediaRule.content = (bottombar) ? "#000" : "#000"
                 topbar.classList.remove('shadow');
