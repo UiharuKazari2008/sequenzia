@@ -237,6 +237,10 @@ html
                                                     .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center#appMenuRow2
                                                         .menu-grid#appMenuRow2Grid
                                         div(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
+                                            div.pl-3
+                                                if (next_episode)
+                                                    img(style='width: 80px;' src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
+                                                    - console.log(next_episode)
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100#appMenuRow1.align-items-center
                                                     if (path && (path === '/tvTheater' || path === '/listTheater'))
@@ -251,11 +255,6 @@ html
                                                         i.fas.fa-ticket.mr-2.d-sm-none
                                                         span.d-sm-none Kongou
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
-                                                    div
-                                                        if (next_episode)
-                                                            img(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                                            - console.log(next_episode)
-                                                        // NEXT EPISODE HERE
                                                     .menu-grid
                                                         a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
                                                             i.fa-light.fa-forward
