@@ -11,6 +11,12 @@ html
         link(rel='preload', href="/static/img/acr-logo.png" as='image')
         link(rel='preload', href="/static/img/kongou-group.png" as='image')
         link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
+        if (user && user.banner)
+            link(rel='preload', href=`${user.banner}` as='image')
+        if (user && user.avatar)
+            link(rel='preload', href=`${user.avatar}` as='image')
+        each thisServer, thisIndex in discord.servers.list
+            link(rel='preload', href=`${thisServer.icon}` as='image')
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')

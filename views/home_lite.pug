@@ -14,6 +14,12 @@ html
         meta(content="Sequenzia" property="og:title")
         meta(content="Image Gallery and File Manager" property="og:description")
         meta(content="Sequenzia" property="og:site_name")
+        if (user && user.banner)
+            link(rel='preload', href=`${user.banner}` as='image')
+        if (user && user.avatar)
+            link(rel='preload', href=`${user.avatar}` as='image')
+        each thisServer, thisIndex in discord.servers.list
+            link(rel='preload', href=`${thisServer.icon}` as='image')
         
         link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
