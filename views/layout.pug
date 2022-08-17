@@ -237,40 +237,41 @@ html
                                                     .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center#appMenuRow2
                                                         .menu-grid#appMenuRow2Grid
                                         div(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
-                                            div.pl-3
-                                                if (next_episode)
-                                                    img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                                    - console.log(next_episode)
-                                            div.position-relative.pr-3.ml-3.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100#appMenuRow1.align-items-center
-                                                    if (path && (path === '/tvTheater' || path === '/listTheater'))
-                                                        a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
-                                                            i.fas.fa-house.fa-fw.d-none
-                                                            img.my-2.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
-                                                    else
-                                                        a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
-                                                            i.fas.fa-arrow-left.fa-fw
-                                                    h4.text-primary.ml-auto.mb-0
-                                                        img.kms-menu-logo.d-none.d-sm-block(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
-                                                        i.fas.fa-ticket.mr-2.d-sm-none
-                                                        span.d-sm-none Kongou
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
-                                                    .menu-grid
-                                                        a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
-                                                            i.fa-light.fa-forward
-                                                            | Up Next
-                                                        a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
-                                                            i.fa-light.fa-fw.fa-books
-                                                            | Shelves
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
-                                                            i.fa-light.fa-star
-                                                            | Favorites
-                                                        a.user-menu-item.user-menu-small(title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
-                                                            i.fa-light.fa-certificate
-                                                            | Newest
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
-                                                            i.fa-light.fa-clock-rotate-left
-                                                            | History
+                                            .d-flex
+                                                div.pl-3
+                                                    if (next_episode)
+                                                        img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
+                                                        - console.log(next_episode)
+                                                div.position-relative.pr-3.ml-3.user-menu-height(style="width: 100%;")
+                                                    .d-flex.w-100#appMenuRow1.align-items-center
+                                                        if (path && (path === '/tvTheater' || path === '/listTheater'))
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
+                                                                i.fas.fa-house.fa-fw.d-none
+                                                                img.my-2.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
+                                                        else
+                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
+                                                                i.fas.fa-arrow-left.fa-fw
+                                                        h4.text-primary.ml-auto.mb-0
+                                                            img.kms-menu-logo.d-none.d-sm-block(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
+                                                            i.fas.fa-ticket.mr-2.d-sm-none
+                                                            span.d-sm-none Kongou
+                                                    .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                        .menu-grid
+                                                            a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                                                i.fa-light.fa-forward
+                                                                | Up Next
+                                                            a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                                                i.fa-light.fa-fw.fa-books
+                                                                | Shelves
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                                i.fa-light.fa-star
+                                                                | Favorites
+                                                            a.user-menu-item.user-menu-small(title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                                i.fa-light.fa-certificate
+                                                                | Newest
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
+                                                                i.fa-light.fa-clock-rotate-left
+                                                                | History
                                         div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
                                             div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
