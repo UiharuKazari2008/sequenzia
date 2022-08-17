@@ -2033,10 +2033,10 @@ ul#accordionSidebar * {
     }
 }
 .mobile-only {
-    display: inline;
+    display: flex!important;
 }
 .desktop-only {
-    display: none;
+    display: none!important;
 }
 @media (min-width:652px) {
     .main-menu-grid {
@@ -2046,10 +2046,10 @@ ul#accordionSidebar * {
         width: 100%
     }
     .mobile-only {
-        display: none;
+        display: none!important;
     }
     .desktop-only {
-        display: inline;
+        display: flex!important;
     }
 }
 @media (max-width:366px) {
