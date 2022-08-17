@@ -257,7 +257,7 @@ html
                                                         if (next_episode)
                                                             div.pl-3.mr-3.inner-menu-next-episode.d-none(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                                        .menu-grid.kms-main-grid
+                                                        .menu-grid.kms-main-grid.mt-auto
                                                             a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
                                                                 i.fa-light.fa-forward
                                                                 | Up Next

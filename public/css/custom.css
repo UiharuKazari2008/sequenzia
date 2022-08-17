@@ -3612,7 +3612,19 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
 }
+.inner-menu-next-episode {
+    display: none;
+}
 @media (max-width: 509px) {
+    .inner-menu-next-episode {
+        display: block;
+    }
+    .inner-menu-next-episode .kongou-next-episode-image {
+        height: 163px;
+    }
+    .outer-menu-next-episode {
+        display: none;
+    }
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
@@ -3625,7 +3637,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 340px;
     }
     .kms-main-grid {
-        max-width: 300px;
+         max-width: 235px;
     }
     .shown-user-menu {
         height: calc(env(safe-area-inset-top, 0px) + 265px);
