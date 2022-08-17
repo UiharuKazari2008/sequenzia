@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-7-16-2022-BUGWATCH-P12';
+const cacheName = 'PRODUCTION-v20-7-17-2022-BUGWATCH-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -87,6 +87,7 @@ const cacheOptions = {
         "/static/img/about-bg.jpeg",
         "/static/img/kongoumedialogo-wide.png",
         "/static/img/kongoumedialogo-menu-dark.png",
+        "/static/img/kongoumedialogo-menu-black.png",
         "/static/img/kongoumedialogo-menu.png",
         "/static/img/kongoumedialogo-bg.png",
         "/static/img/kongou-group.png",
