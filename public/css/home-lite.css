@@ -161,7 +161,7 @@ input.middle:focus {
 
 @media (prefers-color-scheme: light) {
     .kms-menu-logo {
-        content:url("/static/img/kongoumedialogo-menu.png");
+        content:url("/static/img/kongoumedialogo-menu-black.png");
     }
     .dropdown-menu {
         color: #000000;
