@@ -1772,7 +1772,7 @@ div#time {
         left: calc(4.5rem + 1.5rem / 2);
     }
     #btnTop {
-        left: 50%;
+        left: calc(50% - (3.5rem / 2));
     }
     .music-player.toggled {
         margin-left: 15.5em!important;
