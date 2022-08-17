@@ -239,10 +239,10 @@ html
                                         div(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
                                             .d-flex
                                                 if (next_episode)
-                                                    div.pl-3(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]':''}${(!next_episode.data.seasons) ? ',["sort","name"]':''}],'/listTheater')`)
+                                                    div.pl-3.mr-3(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]':''}${(!next_episode.data.seasons) ? ',["sort","name"]':''}],'/listTheater')`)
                                                         img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
                                                     - console.log(next_episode)
-                                                div.position-relative.pr-3.ml-3.user-menu-height(style="width: 100%;")
+                                                div.position-relative.pr-3.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100#appMenuRow1.align-items-center
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
                                                             a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
@@ -254,7 +254,6 @@ html
                                                         h4.text-primary.ml-auto.mb-0
                                                             img.kms-menu-logo.d-none.d-sm-block(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
                                                             i.fas.fa-ticket.mr-2.d-sm-none
-                                                            span.d-sm-none Kongou
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         .menu-grid.kms-main-grid
                                                             a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
