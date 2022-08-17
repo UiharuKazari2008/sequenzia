@@ -1611,6 +1611,9 @@ div#time {
 #statusMenu {
     font-size: 1.5em;
 }
+.kongou-next-episode-image {
+    height: 280px;
+}
 
 
 @media (min-width:356px) {
@@ -1635,6 +1638,9 @@ div#time {
     }
 }
 @media (max-width:575px) {
+    .kongou-next-episode-image {
+        height: 200px;
+    }
     .table-responsive {
         overflow-x: hidden;
     }
@@ -1696,6 +1702,9 @@ div#time {
     }
 }
 @media (max-width:420px) {
+    .kongou-next-episode-image {
+        height: 143px;
+    }
     .album-item {
         min-height: 100px;
         min-width: calc(50% - 0.5em);
