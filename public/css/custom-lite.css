@@ -2080,6 +2080,15 @@ ul#accordionSidebar * {
     animation-iteration-count: 1;
     pointer-events: none;
 }
+@media (max-width: 767px) {
+    .toast-container .top-left,
+    .toast-container .top-right {
+        transform: translateX(-50%);
+        top: 0;
+        left: 50%;
+        right: unset;
+    }
+}
 @keyframes shineEffectAnimation {
     0% {
         background-position: 0% 0;
