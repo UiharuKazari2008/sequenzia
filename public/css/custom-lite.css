@@ -2098,6 +2098,11 @@ ul#accordionSidebar * {
         right: unset;
     }
 }
+@media (max-width: 510px) {
+    .kms-main-grid {
+        max-width: 209px;
+    }
+}
 @keyframes shineEffectAnimation {
     0% {
         background-position: 0% 0;
