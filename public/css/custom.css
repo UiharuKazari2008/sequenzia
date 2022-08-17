@@ -176,10 +176,10 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
 }
 
 .container-fluid {
-    margin-top: calc(env(safe-area-inset-top) + 4.25em + env(titlebar-area-height,0));
+    margin-top: calc(env(safe-area-inset-top, 0px) + 4.25em + env(titlebar-area-height,0px));
 }
 .bottom-bar .toast-container {
-    margin-top: calc(env(safe-area-inset-top) + 1.5rem);
+    margin-top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
 }
 
 .bottom-bar .container-fluid {
@@ -252,7 +252,7 @@ a.lightbox:before {
     background-color: transparent;
     padding: 0;
     width: 50em;
-    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
     position: fixed;
 }
 
@@ -873,7 +873,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     background-size: cover;
 }
 .bottom-bar #content > #mainMenuBar {
-    background-image: linear-gradient(0deg, black, rgba(0,0,0,0.85) calc(env(safe-area-inset-bottom, 0)), transparent);
+    background-image: linear-gradient(0deg, black, rgba(0,0,0,0.85) calc(env(safe-area-inset-bottom, 0px)), transparent);
 }
 
 #postBackground {
@@ -2010,13 +2010,13 @@ div.collapse-divider {
 }
 
 .shown-user-menu, .user-info-bg {
-    height: calc(env(safe-area-inset-top, 0) + 200px);
+    height: calc(env(safe-area-inset-top, 0px) + 200px);
 }
 .user-menu-height {
     height: 185px;
 }
 .bottom-bar .shown-user-menu, .bottom-bar .user-info-bg {
-    height: calc(env(safe-area-inset-bottom, 0) + 200px);
+    height: calc(env(safe-area-inset-bottom, 0px) + 200px);
 }
 .topbar .dropdown .dropdown-menu {
     max-height: calc(85vh - 200px);
@@ -2041,7 +2041,7 @@ div.collapse-divider {
 }
 
 #menuAccordion > div > div {
-    margin-top: calc(env(safe-area-inset-top, 0) + 1rem);
+    margin-top: calc(env(safe-area-inset-top, 0px) + 1rem);
 }
 .bottom-bar #menuAccordion > div > div {
     margin-top: 0;
@@ -2053,13 +2053,13 @@ div.collapse-divider {
 
 .page-navigator {
     position: fixed;
-    right: calc(env(safe-area-inset-right, 0) + 1.5rem);
-    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
+    right: calc(env(safe-area-inset-right, 0px) + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
     z-index: 500;
 }
 
 .scrollBtn {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
     position: fixed;
     z-index: 500;
 }
@@ -2067,13 +2067,13 @@ div.collapse-divider {
 .bottom-bar .page-navigator,
 .bottom-bar .scrollBtn,
 .bottom-bar .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 3rem + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 3rem + 1.5rem);
 }
 
 .bottom-bar.menu-open .page-navigator,
 .bottom-bar.menu-open .scrollBtn,
 .bottom-bar.menu-open .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0) + 200px + 3rem + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 200px + 3rem + 1.5rem);
 }
 
 .btn .badge {
@@ -2096,15 +2096,15 @@ div.collapse-divider {
 }
 .user-infocard-row1 {
     margin-top: auto;
-    margin-left: calc(env(safe-area-inset-left, 0) + 0.5em);
+    margin-left: calc(env(safe-area-inset-left, 0px) + 0.5em);
     margin-bottom: 0.5rem;
 }
 .user-infocard-row2 {
-    margin-right: calc(env(safe-area-inset-right, 0) + 1em);
+    margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
 }
 
 .bottom-bar .user-infocard-row1 {
-    margin-bottom: calc(env(safe-area-inset-bottom, 0) + 0.5rem);
+    margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
 }
 
 .album-info {
@@ -2902,8 +2902,8 @@ div#bootBackdropSunrise {
 }
 
 #topBarPWA {
-    margin-left: env(titlebar-area-x, 0);
-    margin-top: env(titlebar-area-y, 0);
+    margin-left: env(titlebar-area-x, 0px);
+    margin-top: env(titlebar-area-y, 0px);
     height: env(titlebar-area-height, 0px);
     width: env(titlebar-area-width, 0px);
     -webkit-app-region: drag;
@@ -3313,38 +3313,38 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: initial;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 215px);
+        height: calc(env(safe-area-inset-top, 0px) + 215px);
         flex-direction: column;
     }
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 215px);
+        height: calc(env(safe-area-inset-bottom, 0px) + 215px);
         flex-direction: column;
     }
     .topbar .dropdown .dropdown-menu {
         max-height: calc(80vh - 200px);
     }
     .user-infocard-row1 {
-        margin-top: calc(env(safe-area-inset-top, 0) + 1em);
+        margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
         display: none;
-        margin-left: calc(env(safe-area-inset-left, 0) + 1em);
-        margin-right: calc(env(safe-area-inset-right, 0) + 1em);
+        margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
+        margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
     }
     .bottom-bar .user-infocard-row1 {
         margin-top: 0;
     }
     .user-infocard-row2 {
-        margin-left: calc(env(safe-area-inset-left, 0) + 1em);
-        margin-right: calc(env(safe-area-inset-right, 0) + 1em);
+        margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
+        margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));
     }
     .user-infocard-row2 .album-list {
-        margin-right: calc(env(safe-area-inset-right, 0) + 0em);
+        margin-right: calc(env(safe-area-inset-right, 0px) + 0em);
     }
 
     #menuAccordion>div>div, #menuAccordion>#appPanels>div>div {
-        margin-top: calc(env(safe-area-inset-top, 0) + 1em);
+        margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
         padding: 0!important;
     }
     .bottom-bar #menuAccordion>div>div, .bottom-bar #menuAccordion>#appPanels>div>div {
@@ -3361,7 +3361,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 215px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 215px + 2.5rem + 1.5rem);
     }
 
     .user-menu-height {
@@ -3563,18 +3563,18 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: none!important;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 0.5em + 400px);
+        height: calc(env(safe-area-inset-top, 0px) + 0.5em + 400px);
         flex-direction: column;
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn ,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 400px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 400px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 400px);
+        height: calc(env(safe-area-inset-bottom, 0px) + 400px);
     }
     .topbar .dropdown .dropdown-menu {
         max-height: calc(80vh - 300px);
@@ -3602,24 +3602,24 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 340px;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 265px);
+        height: calc(env(safe-area-inset-top, 0px) + 265px);
         flex-direction: column;
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 265px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 265px + 2.5rem + 1.5rem);
     }
 
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 265px);
+        height: calc(env(safe-area-inset-bottom, 0px) + 265px);
     }
     .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-top, 0) + 265px));
+        max-height: calc(80vh - (env(safe-area-inset-top, 0px) + 265px));
     }
     .bottom-bar .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 265px));
+        max-height: calc(80vh - (env(safe-area-inset-bottom, 0px) + 265px));
     }
     #padding {
         margin-top: calc(475px - env(safe-area-inset-top, 0px));
@@ -3674,24 +3674,24 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 245px;
     }
     .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0) + 320px);
+        height: calc(env(safe-area-inset-top, 0px) + 320px);
         flex-direction: column;
     }
     .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0) + 320px);
+        height: calc(env(safe-area-inset-bottom, 0px) + 320px);
     }
 
     .bottom-bar.menu-open .page-navigator,
     .bottom-bar.menu-open .scrollBtn,
     .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0) + 320px + 2.5rem + 1.5rem);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 320px + 2.5rem + 1.5rem);
     }
 
     .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-top, 0) + 320px));
+        max-height: calc(80vh - (env(safe-area-inset-top, 0px) + 320px));
     }
     .bottom-bar .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - (env(safe-area-inset-bottom, 0) + 320px));
+        max-height: calc(80vh - (env(safe-area-inset-bottom, 0px) + 320px));
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));

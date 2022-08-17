@@ -6,13 +6,13 @@
 .toast-container {
     position: fixed;
     z-index: 1;
-    margin-top: calc(env(safe-area-inset-top) + 4.5rem + env(titlebar-area-height,0));
-    margin-left: calc(env(safe-area-inset-left) + 1.5rem);
-    margin-right: calc(env(safe-area-inset-right) + 1.5rem);
-    margin-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
+    margin-top: calc(env(safe-area-inset-top, 0px) + 4.5rem + env(titlebar-area-height,0px));
+    margin-left: calc(env(safe-area-inset-left, 0px) + 1.5rem);
+    margin-right: calc(env(safe-area-inset-right, 0px) + 1.5rem);
+    margin-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
 }
 .menu-open:not(.bottom-bar) .toast-container {
-    margin-top: calc(env(safe-area-inset-top) + 17rem);
+    margin-top: calc(env(safe-area-inset-top, 0px) + 17rem);
 }
 
 .top-right {
