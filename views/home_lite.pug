@@ -307,7 +307,7 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
-                            div#menuItemLibrary.collapse.menu-object(class="collapse" data-parent="#menuAccordion" data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`).w-100
+                            div#menuItemLibrary.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -321,9 +321,8 @@ html
                                 .d-flex.w-100.mb-3
                                     .d-flex.w-100
                                         if (next_episode)
-                                            div.pl-3.mr-3(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
+                                            div.pl-3.mr-3(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                            - console.log(next_episode)
                                         div.menu-grid.user-menu-small.mt-auto.mb-auto
                                             a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
                                                 i.fas.fa-forward

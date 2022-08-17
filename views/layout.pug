@@ -241,7 +241,6 @@ html
                                                 if (next_episode)
                                                     div.pl-3.mr-3(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]':''}${(!next_episode.data.seasons) ? ',["sort","name"]':''}],'/listTheater')`)
                                                         img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                                    - console.log(next_episode)
                                                 div.position-relative.pr-3.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100#appMenuRow1.align-items-center
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
