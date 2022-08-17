@@ -3350,8 +3350,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-right: calc(env(safe-area-inset-right, 0px) + 0em);
     }
 
-    #menuAccordion>div>div:not(.d-flex),#menuAccordion>div>.d-flex>div, #menuAccordion>#appPanels>div>div {
+    #menuAccordion>div>div:not(.d-flex), #menuAccordion>#appPanels>div>div {
         margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
+        padding: 0!important;
+    }
+    #menuAccordion>div>.d-flex>div {
         padding: 0!important;
     }
     .bottom-bar #menuAccordion>div>div:not(.d-flex), .bottom-bar #menuAccordion>div>.d-flex>div, .bottom-bar #menuAccordion>#appPanels>div>div {
