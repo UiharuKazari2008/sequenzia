@@ -3615,6 +3615,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         bottom: 0;
         height: 300px;
     }
+    .kongou-next-episode-image {
+        height: 236px;
+    }
     .menu-grid {
         max-width: 340px;
     }
@@ -3664,6 +3667,11 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         overflow-y: auto!important;
         display: flex;
         flex-wrap: wrap;
+    }
+}
+@media (max-width: 398px) {
+    .kongou-next-episode-image {
+        height: 190px;
     }
 }
 @media (max-width: 350px) {
