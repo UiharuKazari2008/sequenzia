@@ -3452,6 +3452,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         padding-bottom: 4px;
         padding-top: 4px;
     }
+    .container-fluid {
+        margin-top: calc(env(safe-area-inset-top) + 3.5em);
+    }
     .img-profile {
         height: 2.2rem!important;
         width: 2.2rem!important;;
