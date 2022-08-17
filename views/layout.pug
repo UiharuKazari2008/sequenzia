@@ -253,6 +253,7 @@ html
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     div
                                                         if (next_episode)
+                                                            img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
                                                             - console.log(next_episode)
                                                         // NEXT EPISODE HERE
                                                     .menu-grid
