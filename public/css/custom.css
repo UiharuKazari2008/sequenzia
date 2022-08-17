@@ -2971,9 +2971,6 @@ div#bootBackdropSunrise {
     }
 }
 @media (max-width:1400px) {
-    .kms-main-grid {
-        max-width: 480px;
-    }
 }
 @media (max-width:1655px) {
     .user-menu-item {
@@ -3082,6 +3079,9 @@ div#bootBackdropSunrise {
     .search-dropdown {
         max-width: calc(100% - 1.5rem);
         right: .75rem!important;
+    }
+    .kms-main-grid {
+        max-width: 280px;
     }
 
 }
