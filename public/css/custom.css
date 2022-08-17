@@ -2833,7 +2833,7 @@ div#bootBackdropSunrise {
     opacity: 50%;
     height: 100%;
     width: 100%;
-    background: radial-gradient(50% 50% at 50% bottom, #351d00, #000);
+    background: radial-gradient(50% 50% at 50% bottom, #4f2b00, #000);
     /*animation: animatedOpasivtyPulse 3s linear infinite;*/
     z-index: 499991;
 }
