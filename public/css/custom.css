@@ -343,6 +343,7 @@ color: #b3ff85;
 #topbarUserBackground {
     opacity: 0.5;
     background-size: cover;
+    display: none;
     z-index: -1;
     height: calc(100% - 1px);
     width: 100%;
@@ -3334,7 +3335,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         opacity: 0.4;
     }
     #topbarUserBackground {
-        display: initial;
+        display: block;
     }
     .shown-user-menu {
         height: calc(env(safe-area-inset-top, 0px) + 215px);
