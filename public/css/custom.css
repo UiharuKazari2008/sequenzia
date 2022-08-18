@@ -2035,6 +2035,11 @@ div.collapse-divider {
     min-width: 500px;
     border-bottom-right-radius: 20px;
 }
+#topbarBackground .user-info-backdrop {
+    min-width: 100%!important;
+    height: inherit;
+    border-bottom-right-radius: unset;
+}
 .bottom-bar .nav-item .dropdown-menu {
     bottom: 100%;
     top: unset;
@@ -3330,7 +3335,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         opacity: 0.4;
     }
     #topbarUserBackground {
-        display: initial;
+        display: block;
     }
     .shown-user-menu {
         height: calc(env(safe-area-inset-top, 0px) + 215px);

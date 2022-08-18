@@ -58,6 +58,7 @@ const cacheOptions = {
         "/static/manifest.json",
         "/static/img/acr-logo.png",
         "/static/img/sequenzia-logo-nav.png",
+        "/static/img/user-card-background.png",
         "/js/client/worker.unpacker.js",
         "/static/vendor/domparser_bundle.js",
         "/static/vendor/jquery/jquery.min.js",
