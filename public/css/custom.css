@@ -1913,7 +1913,7 @@ div.collapse-divider {
     margin-left: 0;
 }
 
-.user-info-bg {
+.user-info-bg, .user-info-backdrop {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -2009,13 +2009,13 @@ div.collapse-divider {
     color: #ff9b59;
 }
 
-.shown-user-menu, .user-info-bg {
+.shown-user-menu, .user-info-bg, .user-info-backdrop {
     height: calc(env(safe-area-inset-top, 0px) + 200px);
 }
 .user-menu-height {
     height: 185px;
 }
-.bottom-bar .shown-user-menu, .bottom-bar .user-info-bg {
+.bottom-bar .shown-user-menu, .bottom-bar .user-info-bg .bottom-bar .user-info-backdrop {
     height: calc(env(safe-area-inset-bottom, 0px) + 200px);
 }
 .topbar .dropdown .dropdown-menu {
@@ -2026,7 +2026,12 @@ div.collapse-divider {
 .user-menu-item:hover, .user-menu-item:focus, .user-menu-item:active {
     text-decoration: none;
 }
-.user-info-bg {
+.user-info-backdrop {
+    position: absolute;
+    background-image: url("/static/img/user-card-background.png");
+    z-index: -1;
+}
+.user-info-bg, .user-info-backdrop {
     min-width: 500px;
     border-bottom-right-radius: 20px;
 }
@@ -2034,7 +2039,7 @@ div.collapse-divider {
     bottom: 100%;
     top: unset;
 }
-.bottom-bar .user-info-bg {
+.bottom-bar .user-info-bg, .bottom-bar .user-info-backdrop {
     min-width: 500px;
     border-bottom-right-radius: 0;
     border-top-right-radius: 20px;
@@ -2984,7 +2989,8 @@ div#bootBackdropSunrise {
     .user-menu-icon {
         font-size: 2em;
     }
-    .user-info-bg, .bottom-bar .user-info-bg {
+    .user-info-bg, .bottom-bar .user-info-bg,
+    .user-info-backdrop, .bottom-bar .user-info-backdrop {
         min-width: 450px;
     }
     /*.shown-user-menu, .user-info-bg, .user-menu-height {
@@ -3041,7 +3047,8 @@ div#bootBackdropSunrise {
 }
 
 @media (max-width:990px) {
-    .user-info-bg, .bottom-bar .user-info-bg {
+    .user-info-bg, .bottom-bar .user-info-bg,
+    .user-info-backdrop, .bottom-bar .user-info-backdrop {
         min-width: 375px;
     }
 
@@ -3371,7 +3378,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-top: 0;
     }
 
-    .user-info-bg, .bottom-bar .user-info-bg {
+    .user-info-bg, .bottom-bar .user-info-bg,
+    .user-info-backdrop, .bottom-bar .user-info-backdrop {
         height: 0;
         border-bottom-right-radius: 0;
         border-top-right-radius: 0;
