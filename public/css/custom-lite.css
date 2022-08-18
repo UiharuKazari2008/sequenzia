@@ -1966,7 +1966,7 @@ ul#accordionSidebar * {
 }
 .main-menu-grid a {
     padding: 0.25em;
-    min-width: 64px;
+    min-width: 4rem;
     display: flex;
     justify-content: center;
 }
@@ -2054,10 +2054,17 @@ ul#accordionSidebar * {
         font-size: 1.5em;
         width: 255px;
     }
+    .main-menu-grid a {
+        min-width: 3rem;
+    }
 }
 @media (max-width:320px) {
     .main-menu-grid {
+        font-size: 1.25em;
         width: 200px;
+    }
+    .main-menu-grid a {
+        min-width: 2.5rem;
     }
 }
 
