@@ -3072,9 +3072,6 @@ div#bootBackdropSunrise {
     .card-columns {
         column-count: 2;
     }
-    .menu-grid {
-        max-width: 490px;
-    }
     .pagination .page-link {
         padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
@@ -3082,6 +3079,9 @@ div#bootBackdropSunrise {
     }
 }
 @media (max-width:575px) {
+    .menu-grid {
+        max-width: 490px;
+    }
     .table-responsive {
         overflow-x: hidden;
     }
