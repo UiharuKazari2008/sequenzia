@@ -14,6 +14,13 @@
     font-display: swap;
 }
 
+:root {
+    --master-color-h: 33deg;
+    --master-color-s: 87%;
+    --master-color-l: 100%;
+    --master-forground-color: black;
+}
+
 .album-info {
     z-index: 1;
     font-size: 1em;
@@ -420,7 +427,7 @@ div#bootBackdropSunrise {
 }
 
 .btn-lucky, .btn-lucky:hover, .btn-lucky.active, .btn-lucky:active {
-    background: #ff9c21;
+    background: hsl(var(--master-color-h, 33deg), var(--master-color-s, 87%), var(--master-color-l, 100%));
     color: #000000;
     width: 100%;
 }

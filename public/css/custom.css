@@ -22,6 +22,13 @@
     src: url('/static/font/Segment7.woff2') format('woff2')
 }
 
+:root {
+    --master-color-h: 33deg;
+    --master-color-s: 87%;
+    --master-color-l: 100%;
+    --master-forground-color: black;
+}
+
 .performance-mode * {
     filter: none!important;
     box-shadow: none!important;
@@ -36,8 +43,8 @@
 }
 
 .list-group-item-action:focus, .list-group-item-action:hover {
-    color: #000000;
-    background-color: #ff9c21;
+    color: var(--master-forground-color, #000);
+    background-color: hsl(var(--master-color-h, 33deg), var(--master-color-s, 87%), var(--master-color-l, 100%));
 }
 
 
@@ -47,7 +54,7 @@
 }
 
 .sequenzia-logo {
-    color: #f9c8a7;
+    color: hsl(var(--master-color-h, 33deg), 33%, 87%);
     font-family: "london 2012","Product Sans","Nunito",monospace;
     font-size: 1em;
     font-weight: 100;
@@ -123,11 +130,11 @@ hr.solid {
 
 .card {
     background-color: #000;
-    border: 1px solid #7f3b00;
+    border: 1px solid hsl(var(--master-color-h, 33deg), 100%, 50%);
 }
 .card-header {
-    background-color: #351100;
-    border-bottom: 1px solid #844020;
+    background-color: hsl(var(--master-color-h, 33deg), 100%, 21%);
+    border-bottom: 1px solid hsl(var(--master-color-h, 33deg), 100%, 50%);
 }
 
 hr.hr-text {
@@ -232,7 +239,7 @@ i.btn-links.reported {
 }
 
 .table {
-    color: #f18a4d;
+    color: hsl(var(--master-color-h, 33deg), 68%, 98%);
 }
 
 .navbar {
@@ -338,7 +345,7 @@ color: #b3ff85;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     background-color: #000000a1;
-    border-bottom: solid 1px #ff844e21;
+    border-bottom: solid 1px hsla(var(--master-color-h, 33deg), 69%, 100%, 13%);
 }
 #topbarUserBackground {
     opacity: 0.5;
@@ -348,7 +355,7 @@ color: #b3ff85;
     height: calc(100% - 1px);
     width: 100%;
     position: absolute;
-    padding-bottom: solid 1px #e3990887;
+    padding-bottom: solid 1px hsla(var(--master-color-h, 33deg), 96%, 89%, 53%);
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -462,7 +469,7 @@ color: #b3ff85;
 }
 
 .super-class-name {
-    color: #ffd5b1;
+    color: hsl(var(--master-color-h, 33deg), 31%, 100%);
     font-size: 14pt;
     letter-spacing: 5pt;
     margin-top: 1em;
@@ -474,7 +481,7 @@ background: #0000004f;
 }
 
 .btn-lucky, .btn-lucky:hover, .btn-lucky.active, .btn-lucky:active {
-    background: #ff9c21;
+    background: hsl(var(--master-color-h, 33deg), var(--master-color-s, 87%), var(--master-color-l, 100%));
     color: #000000;
     width: 100%;
 }
@@ -624,7 +631,7 @@ border-color: rgba(0, 217, 234, 0.2);
     margin-right: 20%;
 }
 .tz-gallery .col-image .icon-container {
-    color: #ffe9cf;
+    color: hsl(var(--master-color-h, 33deg), 19%, 100%);
 }
 img.status-icons {
     height: 2em;
