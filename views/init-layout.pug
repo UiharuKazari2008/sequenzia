@@ -148,23 +148,13 @@ html
                 .user-info-bg, #topbarUserBackground {
                     background-image: url('#{user.banner}');
                 }
-                @media (max-width: 880px) {
-                    #topbarUserBackground {
-                        background-image: url('#{user.banner}');
-                    }
-                }
         else if (user && user.avatar)
             style.
-                .user-info-bg {
-                    background-image: url('#{user.avatar}');
-                }
-                #topbarUserBackground {
+                .user-info-bg, #topbarUserBackground {
                     background-color: transparent;
                 }
-                @media (max-width: 880px) {
-                    #topbarUserBackground {
-                        background-image: url('#{user.avatar}');
-                    }
+                #topbarUserBackground {
+                    display: none!important;
                 }
     body(id="page-top").sidebar-toggled
         script.
@@ -293,9 +283,8 @@ html
                                                 div.text-center.text-ellipsis.align-middle.p-2
                                                     span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
                                         .row.p-0.user-infocard-row1
-                                            if (user && user.banner)
-                                                .col-auto.p-0
-                                                    img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                            .col-auto.p-0
+                                                img.rounded-circle.user-infocard-icon(src=user.avatar)
                                             .col.p-0.position-relative.pl-2(style="min-height: 75px;")
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
                                                     //if (user && user.source || user && user.source === 0)

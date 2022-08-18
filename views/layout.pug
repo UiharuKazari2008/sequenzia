@@ -120,9 +120,8 @@ html
                                                 div.text-center.text-ellipsis.align-middle.p-2
                                                     span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
                                         .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                            if (user && user.banner)
-                                                .col-auto.p-0
-                                                    img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                            .col-auto.p-0
+                                                img.rounded-circle.user-infocard-icon(src=user.avatar)
                                             .col.p-0.position-relative.pl-2.text-ellipsis(style="min-height: 75px;")
                                                 div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
