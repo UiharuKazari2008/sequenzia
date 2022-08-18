@@ -4728,11 +4728,7 @@ function registerUserMenuHandlers() {
             const bottombar = document.querySelector('body').classList.contains('bottom-bar')
             const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
             if (mediaRule) {
-                if ($(document).scrollTop() > 50) {
-                    mediaRule.content = (bottombar) ? "#000" : "#d07300"
-                } else {
-                    mediaRule.content = "#000"
-                }
+                mediaRule.content = (bottombar) ? "#000" : "#d07300"
             }
             const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
             if (mediaRule2)

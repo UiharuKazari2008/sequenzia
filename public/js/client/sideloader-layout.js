@@ -159,7 +159,7 @@ $(document).ready(function () {
 
                 }
                 if (mediaRule &&!playeropen)
-                    mediaRule.content = (bottombar) ? "#000" : "#000"
+                    mediaRule.content = (bottombar) ? "#000" : "#d07300"
                 topbar.classList.remove('shadow');
             }
             if (!topbar.classList.contains('no-ani')) {

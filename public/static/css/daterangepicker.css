@@ -112,7 +112,7 @@
   .daterangepicker td.start-date.end-date {
     border-radius: 4px; }
   .daterangepicker td.active, .daterangepicker td.active:hover {
-    background-color: #ff7f3b9e;
+    background-color: hsla(var(--master-color-h, 33deg), 77%, 100%, 62%);
     border-color: transparent;
     color: rgb(255, 235, 217); }
   .daterangepicker th.month {
@@ -187,12 +187,12 @@
     background-color: transparent;
     border: transparent;
     border-radius: 4px;
-    color: #ffbb8a;
+    color: hsl(var(--master-color-h, 33deg), 46%, 100%);
     padding: 3px 12px;
     margin-bottom: 8px;
     cursor: pointer; }
     .ranges li:hover,.ranges li.active {
-      background-color: #ff7f3b9e;
+      background-color: hsla(var(--master-color-h, 33deg), 77%, 100%, 62%);
       border: transparent;
       color: rgb(255, 235, 217); }
 .cancelBtn {
