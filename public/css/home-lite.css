@@ -10,7 +10,7 @@ body {
 .ambient-items, .container,
 .ambient-items i, .container i {
     color: #ffa554;
-    text-shadow: 0 0 4px hsla(calc(var(--master-color-h, 33deg) - 14deg), 100%, 100%, 0.86);
+    text-shadow: 0 0 4px #ff5100d6;
     text-decoration: none;
     cursor: default;
 }
