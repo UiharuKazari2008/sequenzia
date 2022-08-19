@@ -41,7 +41,7 @@
 
 .list-group-item-action:focus, .list-group-item-action:hover {
     color: #000000;
-    background-color: hsla(var(--master-color-h, 33deg), 100%, 56%, 1);
+    background-color: hsla(var(--master-color-h, 33deg), 56%, 100%, 1);
 }
 
 
@@ -51,7 +51,7 @@
 }
 
 .sequenzia-logo {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 1);
     font-family: "london 2012","Product Sans","Nunito",monospace;
     font-size: 1em;
     font-weight: 100;
@@ -127,11 +127,11 @@ hr.solid {
 
 .card {
     background-color: #000;
-    border: 1px solid hsla(calc(var(--master-color-h, 33deg) - 5deg), 50%, 100%, 1);
+    border: 1px solid hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 50%, 1);
 }
 .card-header {
     background-color: #351100;
-    border-bottom: 1px solid hsla(calc(var(--master-color-h, 33deg) - 14deg), 52%, 76%, 1);
+    border-bottom: 1px solid hsla(calc(var(--master-color-h, 33deg) - 14deg), 76%, 52%, 1);
 }
 
 hr.hr-text {
@@ -236,7 +236,7 @@ i.btn-links.reported {
 }
 
 .table {
-    color: hsla(calc(var(--master-color-h, 33deg) - 11deg), 95%, 68%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 11deg), 68%, 95%, 1);
 }
 
 .navbar {
@@ -342,7 +342,7 @@ color: #b3ff85;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     background-color: #000000a1;
-    border-bottom: solid 1px hsla(calc(var(--master-color-h, 33deg) - 15deg), 100%, 69%, 0.13);
+    border-bottom: solid 1px hsla(calc(var(--master-color-h, 33deg) - 15deg), 69%, 100%, 0.13);
 }
 #topbarUserBackground {
     opacity: 0.5;
@@ -352,7 +352,7 @@ color: #b3ff85;
     height: calc(100% - 1px);
     width: 100%;
     position: absolute;
-    padding-bottom: solid 1px hsla(calc(var(--master-color-h, 33deg) + 7deg), 89%, 96%, 0.53);
+    padding-bottom: solid 1px hsla(calc(var(--master-color-h, 33deg) + 7deg), 96%, 89%, 0.53);
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -363,7 +363,7 @@ color: #b3ff85;
 }
 .bottom-bar  #topbarBackground {
     border-bottom: none;
-    border-top: solid 1px hsla(calc(var(--master-color-h, 33deg) - 15deg), 100%, 69%, 0.13);
+    border-top: solid 1px hsla(calc(var(--master-color-h, 33deg) - 15deg), 69%, 100%, 0.13);
 }
 
 @keyframes mainMenuBar-open {
@@ -466,7 +466,7 @@ color: #b3ff85;
 }
 
 .super-class-name {
-    color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 31%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 31%, 100%, 1);
     font-size: 14pt;
     letter-spacing: 5pt;
     margin-top: 1em;
@@ -478,13 +478,13 @@ background: #0000004f;
 }
 
 .btn-lucky, .btn-lucky:hover, .btn-lucky.active, .btn-lucky:active {
-    background: hsla(var(--master-color-h, 33deg), 100%, 87%, 1);
+    background: hsla(var(--master-color-h, 33deg), 87%, 100%, 1);
     color: #000000;
     width: 100%;
 }
 
 .btn-home:hover, .btn-home.active {
-background: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 98%, 1);
+background: hsla(calc(var(--master-color-h, 33deg) - 5deg), 98%, 100%, 1);
 color: white;
 }
 
@@ -508,7 +508,7 @@ vertical-align: middle;
 }
 
 .card-link {
-color: hsla(calc(var(--master-color-h, 33deg) - 8deg), 100%, 23%, 1);
+color: hsla(calc(var(--master-color-h, 33deg) - 8deg), 23%, 100%, 1);
 }
 
 .card-body-login {
@@ -516,17 +516,17 @@ background-color: #000000fa
 }
 
 .card-link:hover, .card-link:active {
-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 100%, 44%, 1);
+color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 44%, 100%, 1);
 }
 
 input.form-control.form-control-user {
 background-color: transparent;
-border-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 88%, 57%, 1);
+border-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 57%, 88%, 1);
 }
 
 input.btn.btn-primary.btn-user.btn-block {
-background-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 88%, 57%, 1);
-border-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 88%, 57%, 1);
+background-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 57%, 88%, 1);
+border-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 57%, 88%, 1);
 }
 
 .card-ui, .card-ui .card-footer {
@@ -539,7 +539,7 @@ border: 1px solid #86242457;
 }
 
 .card-header-text {
-color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 100%, 44%, 1);
+color: hsla(calc(var(--master-color-h, 33deg) - 33deg), 44%, 100%, 1);
 }
 
 .alert-success-transparent {
@@ -684,7 +684,7 @@ div.image-container {
 
 i.btn-links:not(.bypass) {
     font-size: 1.4rem;
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 100%, 13%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 13%, 100%, 1);
     -webkit-text-stroke: 1px #00000069;
     text-shadow: 0px 0px 10px #000000a6;
 }
@@ -694,12 +694,12 @@ i.btn-links:not(.bypass) {
 }
 
 h6.dropdown-header.text-capitalize.channel-selector {
-    color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 100%, 69%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 100%, 1);
     padding-top: 1rem;
 }
 
 .dropdown-divider.channel-selector {
-    border-top: 2px solid hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+    border-top: 2px solid hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 }
 
 .scrollable-menu {
@@ -809,7 +809,7 @@ button#dropdownMenuButton:focus {
 }
 
 .navbar-light .navbar-brand:active, .navbar-light .navbar-brand:focus, .navbar-light .navbar-brand:hover {
-    color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 67%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 67%, 100%, 1);
 }
 .sidebar .sidebar-card {
     background-color: #7325004d;
@@ -898,7 +898,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     height: calc(100% - .2em);
     z-index: -10;
     background-clip: content-box;
-    background-image: linear-gradient(139deg, hsla(calc(var(--master-color-h, 33deg) - 14deg), 100%, 56%, 1), #000000);
+    background-image: linear-gradient(139deg, hsla(calc(var(--master-color-h, 33deg) - 14deg), 56%, 100%, 1), #000000);
 }
 
 #postImage {
@@ -946,7 +946,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
     background-color: #bfbfbf00;
     background-image: none;
     background-size: cover;
-    color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 95%, 61%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 61%, 95%, 1);
 }
 .center-block {
     position: fixed;
@@ -976,34 +976,34 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 }
 
 .sidebar-dark .nav-item .nav-link:active, .sidebar-dark .nav-item .nav-link:focus, .sidebar-dark .nav-item .nav-link:hover {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 100%, 13%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 13%, 100%, 1);
     text-shadow: 0 0 18px #0a0a0a;
 }
 
 .sidebar-dark .nav-item .nav-link:active i, .sidebar-dark .nav-item .nav-link:focus i, .sidebar-dark .nav-item .nav-link:hover i {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 100%, 13%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 13%, 100%, 1);
 }
 
 .sidebar-dark .nav-item .nav-link[data-toggle="collapse"]::after {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 1);
 }
 
 .sidebar-dark .nav-item .nav-link {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 1);
     text-shadow: 0 0 18px #00000070;
 }
 
 .sidebar-dark .nav-item .nav-link i {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 1);
 }
 
 .sidebar-dark .nav-item.active .nav-link, .sidebar-dark .nav-item.active .nav-link i {
-    color: hsla(var(--master-color-h, 33deg), 100%, 83%, 1);
+    color: hsla(var(--master-color-h, 33deg), 83%, 100%, 1);
     text-shadow: 0 0 12px #000000;
 }
 
 .sidebar-dark .sidebar-heading {
-    color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 67%, 0.87);
+    color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 67%, 100%, 0.87);
     text-shadow: 0 0 18px #00000070;
 }
 
@@ -1073,11 +1073,11 @@ body {
 }
 
 .navbar-search .input-group-text, i.fas.fa-search.fa-sm.align-middle.nav-item {
-color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 57%, 1);
+color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 57%, 100%, 1);
 }
 
 #searchDropdown i.fas.fa-search.fa-fw {
-color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 0.8);
+color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 0.8);
 }
 
 .card-header #checkItem, .card-header #unCheckItem {
@@ -1132,7 +1132,7 @@ border: 1px solid rgba(255,255,255, .15);
 
 .modal-header {
     border-bottom: 1px solid #ffffff3b;
-    background: linear-gradient(335deg, black, hsla(var(--master-color-h, 33deg), 98%, 33%, 0.53));
+    background: linear-gradient(335deg, black, hsla(var(--master-color-h, 33deg), 33%, 98%, 0.53));
     padding-bottom: 0.5em;
     padding-top: 0.5em;
 }
@@ -1205,7 +1205,7 @@ font-size: 87.5%;
 color: #b6b9d6;
 }
 a {
-color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 67%, 1);
+color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 67%, 100%, 1);
 text-decoration: none;
 background-color: transparent;
 }
@@ -1230,13 +1230,13 @@ border-color: transparent;
 
 
 .btn-primary.disabled, .btn-primary:disabled {
-color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 0.80);
+color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 0.80);
 background-color: rgba(103, 40, 11, .65);
 border-color: transparent;
 }
 
 .btn-admin, .btn-switchmode, .btn-fav, .btn-ice, .btn-navigation {
-color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 0.80);
+color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 0.80);
 background-color: transparent;
 border-color: transparent;
 }
@@ -1306,7 +1306,7 @@ li.nav-item {
 }
 
 .bottomBtn a i, .bottomBtn a:hover i {
-    color: hsla(calc(var(--master-color-h, 33deg) - 17deg), 100%, 69%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 17deg), 69%, 100%, 1);
     text-shadow: 0 0 4px hsla(calc(var(--master-color-h, 33deg) - 14deg), 100%, 100%, 1);
 }
 .bottomBtn, .bottomBtn:hover {
@@ -1314,7 +1314,7 @@ li.nav-item {
     /*backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);*/
     z-index: 49;
-    color: hsla(calc(var(--master-color-h, 33deg) - 17deg), 100%, 69%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 17deg), 69%, 100%, 1);
     border: #ffffff26 1px solid;
     text-shadow: 0 0 4px hsla(calc(var(--master-color-h, 33deg) - 14deg), 100%, 100%, 1);
 }
@@ -1344,14 +1344,14 @@ border-color: transparent;
 }
 
 .btn-outline-primary {
-background-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+background-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 border-color: #df8d4e;
 }
 
 .btn-outline-primary:hover {
 color: #fff;
 background-color: #ec7821;
-border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 }
 
 .bg-translucent {
@@ -1388,7 +1388,7 @@ background-color: transparent;
 .show > .btn-outline-primary.dropdown-toggle {
 color: #fff;
 background-color: #df8d4e;
-border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 }
 
 .btn-outline-primary:not(:disabled):not(.disabled):active:focus, .btn-outline-primary:not(:disabled):not(.disabled).active:focus,
@@ -1417,7 +1417,7 @@ text-decoration: none;
 
 .custom-control-input:checked ~ .custom-control-label::before {
 color: #fff;
-border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 background-color: #df6b4e;
 }
 .nav-pills .nav-link.active,
@@ -1431,7 +1431,7 @@ display: block;
 padding: 0.5rem 0.75rem;
 margin-left: -1px;
 line-height: 1.25;
-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 background-color: #fff;
 border: 1px solid #dddfeb;
 }
@@ -1448,7 +1448,7 @@ border-color: #dddfeb;
 z-index: 3;
 color: #fff;
 background-color: #df814e;
-border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 }
 
 .page-item.disabled .page-link {
@@ -1683,7 +1683,7 @@ background-color: #000000;
 }
 
 .page-link {
-    color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
     background-color: #000;
     border: 1px solid #210f00;
 }
@@ -2493,7 +2493,7 @@ footer .server-grid-parent {
     border: solid 1px #e3990840;
 }
 .shadow .kms-pip-icons .badge {
-    background: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 0.8)!important;
+    background: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 0.8)!important;
     border: solid 1px #ffc41d66;
 }
 body:not(.bottom-bar) .shadow .kms-pip-icons .badge i {
@@ -2685,7 +2685,7 @@ img.kms-logo {
 }
 .kms-stage .kongou-frameer input[type=range] {
     background: linear-gradient(45deg, #ff7300, #d0730066, #ff7300);
-    border: 1px solid hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+    border: 1px solid hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
 }
 .kms-player-playback-advanced {
     font-size: 1.25em;
@@ -3569,7 +3569,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 .badge-primary {
     color: black;
-    background-color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 1);
+    background-color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 1);
 }
 @media (min-width: 1700px) {
     .hide-1700 {
@@ -3843,7 +3843,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 .userDropdown, a.userDropdown, a.userDropdown:hover, a.userDropdown:active {
-    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 98%, 33%, 1);
+    color: hsla(calc(var(--master-color-h, 33deg) - 9deg), 33%, 98%, 1);
 }
 
 .performance-mode #topbarBackground {
@@ -3907,12 +3907,12 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 
     .sidebar-dark .nav-item.active .nav-link, .sidebar-dark .nav-item.active .nav-link i {
-        color: hsla(var(--master-color-h, 33deg), 100%, 83%, 1);
+        color: hsla(var(--master-color-h, 33deg), 83%, 100%, 1);
         text-shadow: 0 0 12px #000000;
     }
 
     .sidebar-dark .sidebar-heading {
-        color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 100%, 67%, 0.87);
+        color: hsla(calc(var(--master-color-h, 33deg) - 5deg), 67%, 100%, 0.87);
         text-shadow: 0 0 18px #00000070;
     }
 
@@ -3971,7 +3971,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .page-item.active .page-link {
         color: #fff;
         background-color: #ad3d00;
-        border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 87%, 69%, 1);
+        border-color: hsla(calc(var(--master-color-h, 33deg) - 14deg), 69%, 87%, 1);
     }
 
     #topbarBackground {
