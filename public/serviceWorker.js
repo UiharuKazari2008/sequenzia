@@ -1385,12 +1385,6 @@ async function deleteOfflinePage(url, noupdate) {
                             await deleteOfflineData(e.preview_url);
                         if (e.extpreview_url)
                             await deleteOfflineData(e.extpreview_url);
-                        if (e.kongou_poster_url) {
-                            await deleteOfflineData(e.kongou_poster_url);
-                            await deleteOfflineData(e.kongou_poster_url +'?height=580&width=384');
-                        }
-                        if (e.kongou_backdrop_url)
-                            await deleteOfflineData(e.kongou_backdrop_url);
                     }
                 }
                 if (browserStorageAvailable) {
@@ -1484,12 +1478,6 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
                 await deleteOfflineData(file.preview_url);
             if (file.extpreview_url)
                 await deleteOfflineData(file.extpreview_url);
-            if (file.kongou_poster_url) {
-                await deleteOfflineData(file.kongou_poster_url);
-                await deleteOfflineData(file.kongou_poster_url + '?height=580&width=384');
-            }
-            if (file.kongou_backdrop_url)
-                await deleteOfflineData(file.kongou_backdrop_url);
             if (browserStorageAvailable) {
                 const indexDBUpdate = offlineContent.transaction(["offline_items", "offline_kongou_shows", "offline_kongou_episodes"], "readwrite");
                 indexDBUpdate.objectStore("offline_kongou_episodes").delete(parseInt(eid.toString()))
@@ -1500,8 +1488,14 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
                 })
                 indexDBUpdate.objectStore("offline_kongou_shows").getAll().onsuccess = event => {
                     if (event.target.result && event.target.result.length > 0) {
-                        event.target.result.filter(e => allEpisodes.indexOf(e.showId) === -1).map(e => {
+                        event.target.result.filter(e => allEpisodes.indexOf(e.showId) === -1).map(async e => {
                             indexDBUpdate.objectStore("offline_kongou_shows").delete(e.showId);
+                            if (file.kongou_poster_url) {
+                                await deleteOfflineData(file.kongou_poster_url);
+                                await deleteOfflineData(file.kongou_poster_url + '?height=580&width=384');
+                            }
+                            if (file.kongou_backdrop_url)
+                                await deleteOfflineData(file.kongou_backdrop_url);
                         })
                     }
                 }
@@ -2472,4 +2466,37 @@ async function stopUnpackingFiles(fileid) {
             downloadSpannedController.delete(fileid);
         }
     }
+}
+
+function hexToCssHsl(hex, valuesOnly = false) {
+    var result = (hex.length === 9) ? /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex) : /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    var r = parseInt(result[1], 16);
+    var g = parseInt(result[2], 16);
+    var b = parseInt(result[3], 16);
+    var a = (result.length !== 5) ? 1 : (parseInt(result[4], 16) / 255).toFixed(2);
+    var cssString = '';
+    r /= 255, g /= 255, b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+    if (max == min) {
+        h = s = 0; // achromatic
+    } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    h = Math.round(h * 360);
+    s = Math.round(s * 100);
+    l = Math.round(l * 100);
+
+    cssString = h + ',' + s + '%,' + l + '%';
+    cssString = !valuesOnly ? 'hsl(' + cssString + ')' : cssString;
+
+    return cssString;
 }
