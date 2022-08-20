@@ -55,8 +55,6 @@ html
                 background: url("!{loginImage}") center fixed
             }
         #container
-            #headerContainer
-                img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-white.png"}` class=`${(webconf.login_banner_no_shadow) ? '' : 'banner-shadow'}`)
             #inviteContainer
                 if (webconf.login_logo_background)
                     style.
@@ -75,6 +73,8 @@ html
                     .logoContainer
                         img.logo(src=`${(webconf.login_logo_overides) ? webconf.login_logo_overides : "/static/img/sequenzia-logo-mini.png"}`)
                 .acceptContainer
+                    .logo-container
+                        img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-white.png"}` class=`${(webconf.login_banner_no_shadow) ? '' : 'banner-shadow'}`)
                     if (noLoginAvalible)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
                             if (noLoginAvalible === 'nomember')

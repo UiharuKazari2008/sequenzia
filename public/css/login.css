@@ -74,8 +74,10 @@ body {
     display: flex;
     overflow: hidden;
     position: relative;
-    border-radius: 15px;
+    border-radius: 0;
     box-shadow: 0px 6px 20px 0px #000000c2;
+    height: 100vh;
+    max-width: 40vw;
 }
 #inviteContainer .acceptContainer {
     padding: 45px 30px;
