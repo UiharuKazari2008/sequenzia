@@ -1480,9 +1480,8 @@ async function getAllExpirableSpannedFiles() {
     }
 }
 async function deleteOfflinePage(_url, noupdate) {
-    const url = params(['limit', 'offset', 'num', '_h'], [], _url);
-    if (url) {
-        return await kernelRequestData({type: 'REMOVE_STORAGE_PAGE', url: url, noupdate: noupdate})
+    if (_url) {
+        return await kernelRequestData({type: 'REMOVE_STORAGE_PAGE', url: _url, noupdate: noupdate})
     } else {
         console.log('URL not validated')
     }
