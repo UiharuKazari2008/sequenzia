@@ -244,7 +244,7 @@ i.fas, i.fab {
 }
 .register a {
     color: #fff;
-    text-decoration: underline;
+    text-decoration: none;
     margin-left: 5px;
     box-shadow: inset 0 -2px 0 transparent;
     padding-bottom: 5px;
