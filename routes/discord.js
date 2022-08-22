@@ -686,7 +686,6 @@ async function loginPage(req, res, obj) {
     if (obj) {
         _obj = obj;
     }
-    _obj.enableTelegram = (host.telegram_secret);
     _obj.joinLink = webconfig.discord_join_link;
     if (host.telegram_callback_url && host.telegram_secret && host.telegram_bot_name) {
         _obj.telegramCallback = host.telegram_callback_url;

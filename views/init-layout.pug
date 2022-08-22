@@ -1309,20 +1309,6 @@ html
                                                     a.btn.btn-success(title="Update Account Settings" href='#_' onClick=`saveAccountSettings(); return false;`).w-100
                                                         i.fas.fa-check.pr-2
                                                         span Save
-                                if (enableTelegram)
-                                    .card
-                                        #headingOne.card-header.collapsed
-                                            h5.mb-0
-                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#collapseOne' aria-expanded='true' aria-controls='collapseOne')
-                                                    i.fab.fa-telegram-plane.pr-2
-                                                    | Telegram Login
-                                        #collapseOne.collapse(aria-labelledby='headingOne' data-parent='#authManagerMenus')
-                                            .card-body.auth-col.d-flex
-                                                script(async src='https://telegram.org/js/telegram-widget.js?15' data-telegram-login='sequenzia_authware_bot' data-size='large' data-auth-url='https://seq.moe/telegram/register')
-                                                div.ml-auto
-                                                    a.btn.mr-2.btn-danger(title="Remove Account Link for Telegram" href='/telegram/remove').align-self-center
-                                                        i.fas.fa-unlink.pr-2
-                                                        span Unlink
                                 .card
                                     #headingTwo.card-header.collapsed
                                         h5.mb-0

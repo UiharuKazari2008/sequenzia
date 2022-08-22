@@ -25,7 +25,6 @@ module.exports = async (req, res, next) => {
                 next_episode: req.session.kongou_next_episode,
                 sidebar: req.session.sidebar,
                 applications_list: req.session.applications_list,
-                enableTelegram: (config.telegram_secret),
                 history: history_urls.rows
             })
         } else if (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' && req.headers['x-requested-page'] || (req.query && (req.query.json || req.query.responseType))) {

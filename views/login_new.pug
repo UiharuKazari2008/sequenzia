@@ -51,47 +51,32 @@ html
     body
         - loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpeg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
         style.
-            #container, .acceptContainer:before {
+            body {
                 background: url("!{loginImage}") center fixed
             }
         #container
             #inviteContainer
-                if (webconf.login_logo_background)
-                    style.
-                        .logoContainer:before {
-                            top: unset;
-                            left: unset;
-                            filter: none;
-                            width: 100%;
-                            height: 100%;
-                            box-shadow: none;
-                            background: url("!{webconf.login_logo_background}") center
-                        }
-                    .logoContainer
-                        div(style='width: 150px; height: 150px; display: block; content: ""')
-                else
-                    .logoContainer
-                        img.logo(src=`${(webconf.login_logo_overides) ? webconf.login_logo_overides : "/static/img/sequenzia-logo-mini.png"}`)
                 .acceptContainer
                     .logo-container
-                        img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-white.png"}` class=`${(webconf.login_banner_no_shadow) ? '' : 'banner-shadow'}`)
+                        img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-white.png"}`)
                     if (noLoginAvalible)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
                             if (noLoginAvalible === 'nomember')
                                 i.fas.fa-passport.fa-7x.center(style='padding: 0;')
-                                h3 No Membership
+                                h3 No Passport
+                                p Your account has no access rights
                                 .formContainer
                                     if (joinLink)
                                         .formDiv.center(style='margin-bottom: 15px;')
                                             a.acceptBtn(href=joinLink)
                                                 i.fab.fa-discord
-                                                | Join Discord
+                                                span Join Discord
                                     .formDiv.center
                                         a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
                                             i.fas.fa-sync(style="padding: 0;")
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
-                                            | Logout
+                                            span Logout
                             else if (noLoginAvalible === 'notelegram')
                                 i.fas.fa-passport.fa-7x.center(style='padding: 0;')
                                 h3 Account Not Found
@@ -99,28 +84,28 @@ html
                                 p If you are a member, login with discord, User Menu > Authentication > Login with Telegram
                                 .formContainer
                                     if (joinLink)
-                                        .formDiv.center(style='margin-bottom: 15px;')
-                                            a.acceptBtn(href=joinLink)
+                                        .formDiv.center
+                                            a.acceptBtn(href=joinLink style='margin-bottom: 15px;')
                                                 i.fab.fa-discord
-                                                | Join Discord
+                                                span Join Discord
                                     .formDiv.center
                                         a.acceptBtn(href='/discord/login')
                                             i.fab.fa-discord
-                                            | Log in with Discord
+                                            span Log in with Discord
                                     .formDiv.center
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
-                                            | Cancel
+                                            span Cancel
                             else if (noLoginAvalible === 'noauth')
-                                i.fas.fa-user-check.fa-7x.center(style='padding: 0;')
+                                i.fas.fa-user-xmark.fa-7x.center(style='padding: 0;')
                                 h3 No Permission
                                 .formContainer
                                     .formDiv.center
-                                        a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
+                                        a.acceptBtn(href='/discord/refresh' style="margin-right: .5em;")
                                             i.fas.fa-sync
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
-                                            | Cancel
+                                            span Cancel
                             else
                                 i.fas.fa-ban.fa-7x.center(style='padding: 0;')
                                 h3 No Valid Membership
@@ -130,7 +115,7 @@ html
                                             i.fas.fa-sync
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
-                                            | Cancel
+                                            span Cancel
 
                     else if (authenticatedDevice)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
@@ -139,7 +124,7 @@ html
                             .formContainer
                                 .formDiv.center
                                     span.register
-                                        | It may take up to a minute for the client to refresh, you can manually refresh if you want
+                                        span It may take up to a minute for the client to refresh, you can manually refresh if you want
                     else if (authfailedDevice)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
                             i.fas.fa-times-circle.fa-7x.center(style='padding: 0;')
@@ -148,7 +133,7 @@ html
                                 .formDiv.center
                                     a.acceptBtn(href='/')
                                         i.fas.fa-home
-                                        | Go Home
+                                        span Go Home
                     else if (serverError)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
                             i.fas.fa-times-circle.fa-7x.center(style='padding: 0;')
@@ -157,7 +142,7 @@ html
                                 .formDiv.center
                                     a.acceptBtn(href='/')
                                         i.fas.fa-home
-                                        | Go Home
+                                        span Go Home
                     else
                         form(style='color: #460000;')
                             if (login_code)
@@ -168,18 +153,14 @@ html
                                     if (login_image)
                                         div#collapseQRCode.login-qr.collapse(style='display: none')
                                             img(src=login_image style='padding-bottom: 1em;')
-                                    if (enableTelegram)
-                                        div.login-button(style='padding-bottom: 1.5em;')
-                                            script(async src='https://telegram.org/js/telegram-widget.js?15' data-telegram-login=telegramName data-size='large' data-auth-url=telegramCallback)
-                                    div.login-button(style=((!enableTelegram) ? 'padding-top: 20px;' : ''))
-                                        a.acceptBtn(href='/discord/login')
+                                    div.login-button
+                                        a.acceptBtn.discord(href='/discord/login')
                                             i.fab.fa-discord
-                                            | Log in with Discord
-                                    if (login_image)
-                                        div.login-button(style="padding-top: 2em;")
-                                            a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;" style="background: #d0814e")
+                                            span Discord
+                                        if (login_image)
+                                            a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
                                                 i.fas.fa-qrcode
-                                                | Log in with QR Code
+                                                span QR Code
                                     if (joinLink)
                                         span.register
                                             a(href=joinLink) Requires a valid membership

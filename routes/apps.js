@@ -63,7 +63,6 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
             theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
             next_episode: req.session.kongou_next_episode,
             applications_list: req.session.applications_list,
-            enableTelegram: (config.telegram_secret),
             appData: global.web_applications[id],
             appUrl: `/app/web/${id}`
         })

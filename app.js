@@ -20,7 +20,6 @@ const apps = require('./routes/apps');
 const { router: routesDiscord, sessionVerification, loginPage } = require('./routes/discord');
 const { sqlPromiseSafe } = require('./js/sqlClient');
 const routesAccessories = require('./routes/accessories');
-const { router: routesTelegram } = require('./routes/telegram');
 const { printLine } = require('./js/logSystem');
 let routesUpload = require('./routes/upload');
 const bodyParser = require('body-parser');
@@ -226,7 +225,6 @@ cacheDatabase();
 app.use('/', routes);
 app.use('/app', apps);
 app.use('/discord', routesDiscord);
-app.use('/telegram', routesTelegram);
 app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
