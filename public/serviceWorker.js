@@ -1377,15 +1377,7 @@ async function deleteOfflinePage(url, noupdate) {
                 const pageItems = files.filter(e => blockedItems.indexOf(e.eid) === -1 && page.items.indexOf(e.eid) !== -1);
 
                 for (let e of pageItems) {
-                    const indexDBUpdate = offlineContent.transaction(["offline_items"], "readwrite").objectStore("offline_items").delete(e.eid);
-                    indexDBUpdate.onsuccess = async event => {
-                        if (e.full_url)
-                            await deleteOfflineData(e.full_url);
-                        if (e.preview_url)
-                            await deleteOfflineData(e.preview_url);
-                        if (e.extpreview_url)
-                            await deleteOfflineData(e.extpreview_url);
-                    }
+                    await deleteOfflineFile(e.eid, true);
                 }
                 if (browserStorageAvailable) {
                     const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
