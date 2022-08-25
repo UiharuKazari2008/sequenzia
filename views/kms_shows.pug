@@ -12,11 +12,11 @@ block content
         style.
             .background-image:not(.overlay) {
                 background-image: url("!{backgroundImg}");
+                background-color: unset;
             }
 
             .background-image.overlay {
                 background-image: linear-gradient(180deg, #000000b8, #00000000);
-                z-index: -99;
                 opacity: 1;
             }
         // Search Bar

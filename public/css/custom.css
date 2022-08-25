@@ -1026,6 +1026,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
+    background-image: radial-gradient(50% 50% at 50% bottom, #683900, #000);
     height: 100vh;
     width: 100vw;
     z-index: -100;
@@ -3856,6 +3857,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+    .background-image {
+        background-image: radial-gradient(50% 50% at 50% bottom, #c56c00, #331500);
+    }
     body:not(.bottom-bar) .shadow .kms-pip-icons .badge i {
         color: unset;
     }
