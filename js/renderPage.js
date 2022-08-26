@@ -83,14 +83,12 @@ module.exports = async (req, res, next) => {
                 if (item.entities.download && item.entities.download.length > 5 && !(item.entities.download.includes('/stream/'))) {
                     podcastItem.enclosure = {
                         url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
-                        file: item.entities.filename,
                         size: item.entities.meta.filesize * 1024000,
                         type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
                         url: `/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
-                        file: item.entities.filename,
                         size: item.entities.meta.filesize * 1024000,
                         type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
