@@ -80,7 +80,7 @@ module.exports = async (req, res, next) => {
                     link: `${web.base_url}${results.call_uri}?search=eid:${item.eid}`,
                     date: moment(item.date.iso).toDate(),
                 }
-                if (item.entities.download && item.entities.download.length > 5) {
+                if (item.entities.download && item.entities.download.length > 5 && !(item.entities.download.includes('/stream/'))) {
                     podcastItem.enclosure = {
                         url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                     }
