@@ -80,6 +80,9 @@ module.exports = async (req, res, next) => {
                     }
                     title = title.join('(').split('_').join(' ')
                 }
+                if (item.pinned) {
+                    title = '⭐️ ' + title
+                }
                 let podcastItem = {
                     guid: item.id,
                     title,
