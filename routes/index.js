@@ -388,10 +388,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
         }
         return false
     } catch (err) {
-        res.status(500).json({
-            state: 'HALTED',
-            message: err.message,
-        });
         console.error(err)
     }
 });
