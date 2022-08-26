@@ -216,9 +216,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
                     printLine('StreamFile', `Sending cached file for ${file.real_filename}`, 'info');
-                    const contentLength = fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)).size
-                    /*if (contentLength)
-                        res.setHeader('Content-Length', contentLength);*/
                     res.sendFile(`.${file.fileid}`, {
                         dotfiles : 'allow',
                         root: path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache),
@@ -279,7 +276,10 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                                 passTrough.destroy();
                                 passTrough = null;
                             })
-                            passTrough.on('error', (error) => { res.status(500).send(error.message); })
+                            passTrough.on('error', (error) => {
+                                console.error(error.message);
+                                res.end();
+                            })
                             // Pipeline Files to Save for future requests
                             if ((global.fw_serve || global.spanned_cache) && requestedStartBytes === 0 && !(req.query.nocache && !req.query.nocache === 'true') && (!web.cache_max_file_size || (web.cache_max_file_size && (contentLength / 1024000).toFixed(2) <= web.cache_max_file_size))) {
                                 printLine('StreamFile', `Sequential Stream will be saved in parallel`, 'info');
