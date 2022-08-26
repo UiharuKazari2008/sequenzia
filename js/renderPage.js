@@ -70,8 +70,8 @@ module.exports = async (req, res, next) => {
         });
         if (results.results) {
             results.results.forEach(item => {
-                let title = (item.content.single > 0) ? item.content.single : item.entities.filename
-                if (item.content.single === 0) {
+                let title = (item.content.single.length > 0) ? item.content.single : item.entities.filename
+                if (item.content.single.length === 0) {
                     title = title.split('.')
                     title.pop()
                     title = title.join('.').split('(')
