@@ -48,7 +48,7 @@ module.exports = async (req, res, next) => {
     }
 
     if (req.query.responseType && req.query.responseType === 'podcast') {
-        const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
+        const serverIcon = (req.query.image) ? decodeURI(req.query.image) : (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
         const podcastResponse = new podcast({
             title: `${results.full_title}`,
             itunesSubtitle: web.site_name,
