@@ -70,10 +70,20 @@ module.exports = async (req, res, next) => {
         });
         if (results.results) {
             results.results.forEach(item => {
+                let title = (item.content.single > 0) ? item.content.single : item.entities.filename
+                if (item.content.single === 0) {
+                    title = title.split('.')
+                    title.pop()
+                    title = title.join('.').split('(')
+                    if (title.length > 1 && title[title.length - 1].length > 0 && !isNaN(parseInt(title[title.length - 1].substring(0, 1)))) {
+                        title.pop()
+                    }
+                    title = title.join('(').split('_').join(' ')
+                }
                 let podcastItem = {
                     guid: item.id,
-                    title: (item.content.single > 0) ? item.content.single : item.entities.filename.split('.')[0].split('_').join(' '),
-                    itunesTitle: (item.content.single > 0) ? item.content.single : item.entities.filename.split('.')[0].split('_').join(' '),
+                    title,
+                    itunesTitle: title,
                     description: item.content.clean,
                     content: item.content.clean.split('\n').join('<br/>'),
                     itunesSummary: item.content.clean,
