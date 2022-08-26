@@ -330,7 +330,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             }
                             printLine('StreamFile', `Parity Stream completed for ${file.real_filename}`, 'info');
                             passTrough.destroy()
-                            passTrough.close()
                         } else if (global.fw_serve || global.spanned_cache) {
                             printLine('StreamFile', `Stalled build for spanned file ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB), due to file size being to large!`, 'info');
                             const filePath = path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`);
