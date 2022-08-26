@@ -272,7 +272,6 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                             passTrough.pipe(res, {end: true})
                             passTrough.on('end', () => {
                                 printLine('StreamFile', `Stream completed for ${file.real_filename} (${(contentLength / 1024000).toFixed(2)} MB)`, 'info');
-                                passTrough.close()
                                 passTrough.destroy();
                                 passTrough = null;
                             })
