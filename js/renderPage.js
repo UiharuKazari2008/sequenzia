@@ -88,7 +88,7 @@ module.exports = async (req, res, next) => {
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
+                        url: `${web.base_url}/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
                         size: item.entities.meta.filesize * 1024000,
                         type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
