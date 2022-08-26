@@ -368,15 +368,7 @@ module.exports = async (req, res, next) => {
                 let folderInfo;
                 let _req_uri = req.protocol + '://' + req.get('host') + req.originalUrl;
 
-                if (req.query.title && req.query.title !== '') {
-                    page_title = req.query.title
-                    full_title = req.query.title
-                    if (req.query.channel) {
-                        folderInfo = `${results[0].server_short_name}:${results[0].classification}:${results[0].channel}`
-                    } else if (req.query.folder) {
-                        folderInfo = decodeURIComponent(req.query.folder);
-                    }
-                } else if (multiChannelBase) {
+                if (multiChannelBase) {
                     page_title = `${results[0].class_name}`
                     full_title = `${results[0].class_name}`
                     folderInfo = `${results[0].server_short_name}:${results[0].class_name}:*`
@@ -421,6 +413,10 @@ module.exports = async (req, res, next) => {
                 } else {
                     page_title = ''
                     full_title = ''
+                }
+                if (req.query.title && req.query.title !== '') {
+                    page_title = req.query.title
+                    full_title = req.query.title
                 }
 
                 results.forEach(item => {

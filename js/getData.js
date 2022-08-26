@@ -1524,29 +1524,7 @@ module.exports = async (req, res, next) => {
                     let channelid = []
 
                     debugTimes.post_proccessing = new Date();
-                    if (req.query.title && req.query.title !== '') {
-                        page_title = ''
-                        full_title = ''
-                        if ((req.query.channel && req.query.channel !== 'random') || req.query.vchannel || req.query.folder) {
-                            if (messages[0].class_name) {
-                                page_title += `${messages[0].class_name} / `
-                                full_title += `${messages[0].class_name} / `
-                            }
-                            if (messages[0].class_icon && (req.query.folder && req.query.folder.split(':').length <= 2)) {
-                                currentClassIcon = `${messages[0].class_icon}`
-                                currentServerId = messages[0].server;
-                            }
-                        }
-                        page_title += req.query.title
-                        full_title += req.query.title
-                        if (req.query.channel || req.query.vchannel) {
-                            folderInfo = `${messages[0].server_short_name}:/${messages[0].classification}/${messages[0].channel}`
-                            android_uri.push('folder=' + folderInfo);
-                        } else if (req.query.folder) {
-                            folderInfo = req.query.folder;
-                            android_uri.push('folder=' + folderInfo);
-                        }
-                    } else if (messages[0].album_name && messages[0].album_name !== null) {
+                    if (messages[0].album_name && messages[0].album_name !== null) {
                         page_title = `${messages[0].album_name}`
                         full_title = `${messages[0].album_name}`
                     } else if (multiChannelBase) {
@@ -1645,6 +1623,11 @@ module.exports = async (req, res, next) => {
                         page_title = ''
                         full_title = ''
                     }
+                    if (req.query.title && req.query.title !== '') {
+                        page_title = req.query.title
+                        full_title = req.query.title
+                    }
+
                     if (!multiChannel) {
                         page_image = messages[0].channel_image
                     }
