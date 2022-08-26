@@ -472,7 +472,7 @@ function verifyNetworkAccess() {
             'X-Requested-With': 'SequenziaXHR'
         },
         timeout: 5000,
-        success: async function (res, txt, xhr) {
+        success: function (res, txt, xhr) {
             if (xhr.status === 200 && !res.loggedin) {
                 document.getElementById('loginUserButtons').classList.remove('hidden');
                 document.getElementById('mainUserButtons').classList.add('hidden');
@@ -507,10 +507,7 @@ function verifyNetworkAccess() {
                     content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                     delay: 30000,
                 });
-            } else {
-                await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
             }
-            updateNotficationsPanel();
         },
         error: function (error) {
             console.log(error);
@@ -521,7 +518,6 @@ function verifyNetworkAccess() {
                 content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                 delay: 30000,
             });
-            updateNotficationsPanel();
         }
     });
 }
@@ -1076,6 +1072,9 @@ $(document).ready(function () {
                     }
                 })
             }
+            const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+            console.log(updateOfflinePages);
+            updateNotficationsPanel();
         })
         .catch(error => {
             console.error('Failed to get active jobs', error)

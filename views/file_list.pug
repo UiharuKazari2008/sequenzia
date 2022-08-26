@@ -2,7 +2,35 @@ extends layout
 
 block content
     if (results && results.length > 0 )
+        //style.
+            .background-image {
+                background: linear-gradient(-45deg, #4e1700, #450000, #013364, #310053);
+                background-size: 400% 400%;
+                animation: gradient 120s ease infinite;
+            }
+
+            @keyframes gradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+            @media (prefers-color-scheme: light) {
+
+            }
+        style.
+            .background-image.bg-blur {
+                background-image: url("/static/img/loading_bg.jpeg");
+            }
         .table-responsive.p-lg-3.rounded.bg-translucent-lg
+            - thisImageManage = false
+            each item, index in results
+                - if (item.manage) { thisImageManage = true }
             table#dataTable.table.table-borderless(width='100%' cellspacing='0')
                 thead.table-header
                     tr
@@ -22,7 +50,7 @@ block content
                         - media_json = ''
                         if (item.media)
                             - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
-                        tr.dense-table(id=`message-${item.id}` data-msg-isaudio=`${isAudio}` data-msg-isvideo=`${isVideo}` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
+                        tr.dense-table(id=`message-${item.id}` data-msg-isaudio=`${isAudio}` data-msg-isvideo=`${isVideo}` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
                             if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.jp') || item.entities.preview.toLowerCase().includes('.jfif') || item.entities.preview.toLowerCase().includes('.png') || item.entities.preview.toLowerCase().includes('.gif') || item.entities.preview.toLowerCase().includes('.web')))
                                 td.preview-holder
                                     div.preview-image.align-content-start(style=`background-image: url("${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.preview}")`)
@@ -109,7 +137,7 @@ block content
                             td
                                 span.align-middle #{item.entities.filename}
                                 div.text-primary.d-flex
-                                    if (item.manage)
+                                    if (thisImageManage)
                                         .file-select.d-inline-block.hidden
                                             a#checkItem.btn.selectPostToMode.file-CheckItem(title="Select Item" href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)
                                                 i.fas.fa-check-circle.text-white(id='select-' + item.id)
@@ -154,7 +182,7 @@ block content
                                                 i.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                             a.btn.btn-fav(data-placement="top" title="Add or Remove from Album" href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.fas.fa-archive
-                                            a.btn.btn-fav(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
+                                            a.btn.btn-fav(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
                                                 i.fas.fa-info-circle
                             td.d-none.d-sm-table-cell #{item.date.pretty}
                             td.d-none.d-sm-table-cell #{item.entities.meta.filesize}
