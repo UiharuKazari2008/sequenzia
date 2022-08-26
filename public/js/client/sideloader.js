@@ -1580,7 +1580,17 @@ async function generateGalleryHTML(url, eids, topText) {
 
                 if (resultRows.length > 0) {
                     const randomImage = allResults[Math.floor(Math.random() * allResults.length)]
-                    document.getElementById('contentBlock').innerHTML = `<div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
+                    document.getElementById('contentBlock').innerHTML = `<style>
+.background-image:not(.overlay) {
+    background-image: url("${(randomImage.extpreview_url) ? randomImage.extpreview_url : randomImage.preview_url}");
+}
+
+.background-image.overlay {
+    background-image: linear-gradient(180deg, #000000b8, #00000000);
+    z-index: -99;
+    opacity: 1;
+}
+</style><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
                     if (topText) {
                         document.getElementById('titleBarContents').innerHTML = topText;
                     } else {
