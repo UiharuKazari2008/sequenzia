@@ -31,6 +31,19 @@ function cleanDeadCodes() {
 }
 setInterval(cleanDeadCodes, 60 * 1000);
 
+const noSessionTrandferURL = [
+    '/login',
+    '/discord',
+    '/homeImage',
+    '/sidebar',
+    '/actions',
+    '/status',
+    '/parity',
+    '/ambient-',
+    '/device-login',
+    '/ping',
+];
+
 // Redirect to Discord Login
 router.get('/login', (req, res) => {
     try {
@@ -767,7 +780,7 @@ async function loginPage(req, res, obj) {
 }
 function sessionTransfer(req) {
     console.log(req.originalUrl)
-    if (req.originalUrl && req.originalUrl !== '/' && (
+    if (req.originalUrl && req.originalUrl !== '/' && noSessionTrandferURL.filter(e => req.originalUrl.startsWith(e)).length === 0 && (
         req.originalUrl.toLowerCase().includes('juneOS') || req.originalUrl.toLowerCase().includes('lite') || req.originalUrl.toLowerCase().includes('home') ||
         req.originalUrl.toLowerCase().includes('ambient') || req.originalUrl.toLowerCase().includes('ads') ||
         req.originalUrl.toLowerCase().includes('gallery') || req.originalUrl.toLowerCase().includes('files') || req.originalUrl.toLowerCase().includes('cards'))) {

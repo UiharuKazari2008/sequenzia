@@ -36,6 +36,18 @@ let activeRequests = new Map();
 let fileIDCache = new Map();
 if (web.Base_URL)
     web.base_url = web.Base_URL;
+const noSessionTrandferURL = [
+    '/login',
+    '/discord',
+    '/homeImage',
+    '/sidebar',
+    '/actions',
+    '/status',
+    '/parity',
+    '/ambient-',
+    '/device-login',
+    '/ping',
+];
 
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
@@ -237,7 +249,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                     loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
                 } else {
                     let passURL = undefined
-                    if (session1 && session1.goto && session1.goto !== '/') {
+                    if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
                         passURL = session1.goto
                     }
                     if (req.query.type === '1' && !passURL) {
@@ -280,7 +292,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                         res.status(401).send(`Transfer session failed - Could not read session`)
                     } else {
                         let passURL = undefined
-                        if (session1 && session1.goto && session1.goto !== '/') {
+                        if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
                             passURL = session1.goto
                         }
                         if (req.query.type === '1' && !passURL) {
