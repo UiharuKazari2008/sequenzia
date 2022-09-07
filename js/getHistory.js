@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
                     [
                         ...displayNames.filter(e => initList.indexOf(e) !== -1),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSEmbed-')),
-                        ...displayNames.filter(e => initList.indexOf(e) === -1 && !e.startsWith('ADS')),
+                        ...displayNames.filter(e => initList.indexOf(e) === -1 && e && !e.startsWith('ADS')),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSWidget-')),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSMobile-')),
                         ...displayNames.filter(e => initList.indexOf(e) === -1 && e.startsWith('ADSMicro-')),
@@ -46,42 +46,53 @@ module.exports = async (req, res) => {
                             displayQuery = screenMain;
                         }
                         let nice_name = null;
-                        displayQuery.splice(0,(req.query.json && req.query.json === 'true') ? 75 : 2).forEach((x, index) => {
-                            if (index === 0 && x.config_nice) { nice_name = x.config_nice; };
-                            function getimageSizeParam() {
-                                if (x.sizeH && x.sizeW && (x.sizeH > 512 || x.sizeW > 512)) {
-                                    let ih = 512;
-                                    let iw = 512;
-                                    if (x.sizeW >= x.sizeH) {
-                                        iw = (x.sizeW * (512 / x.sizeH)).toFixed(0)
-                                    } else {
-                                        ih = (x.sizeH * (512 / x.sizeW)).toFixed(0)
-                                    }
-                                    return `?width=${iw}&height=${ih}`
-                                } else {
-                                    return ''
+                        displayQuery.filter(e => e && e.eid).splice(0,(req.query.json && req.query.json === 'true') ? 75 : 2).forEach((x, index) => {
+                            try {
+                                console.log(x)
+                                if (index === 0 && x.config_nice) {
+                                    nice_name = x.config_nice;
                                 }
+
+                                function getimageSizeParam() {
+                                    if (x.sizeH && x.sizeW && (x.sizeH > 512 || x.sizeW > 512)) {
+                                        let ih = 512;
+                                        let iw = 512;
+                                        if (x.sizeW >= x.sizeH) {
+                                            iw = (x.sizeW * (512 / x.sizeH)).toFixed(0)
+                                        } else {
+                                            ih = (x.sizeH * (512 / x.sizeW)).toFixed(0)
+                                        }
+                                        return `?width=${iw}&height=${ih}`
+                                    } else {
+                                        return ''
+                                    }
+                                }
+
+                                displayHistory.push({
+                                    preview: (x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`),
+                                    full: (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` : `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`),
+                                    id: x.id,
+                                    eid: x.eid,
+                                    screen: x.screen_id,
+                                    channel: x.channel,
+                                    server: x.server,
+                                    nsfw: x.nsfw,
+                                    fav: (x.fav_date !== null),
+                                    color: [x.colorR, x.colorG, x.colorB],
+                                    ratio: x.sizeR,
+                                    date: moment(x.display_date).format('MM/DD/YY HH:mm')
+                                })
+                            } catch (err) {
+                                console.error(err)
                             }
-                            displayHistory.push({
-                                preview: (x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`),
-                                full: (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` : `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`),
-                                id: x.id,
-                                eid: x.eid,
-                                screen: x.screen_id,
-                                channel: x.channel,
-                                server: x.server,
-                                nsfw: x.nsfw,
-                                fav: (x.fav_date !== null),
-                                color: [x.colorR, x.colorG, x.colorB],
-                                ratio: x.sizeR,
-                                date: moment(x.display_date).format('MM/DD/YY HH:mm')
+                        })
+                        if (displayHistory.length > 0) {
+                            displayResults.push({
+                                display: dn,
+                                name: (nice_name) ? nice_name : dn,
+                                images: displayHistory
                             })
-                        })
-                        displayResults.push({
-                            display: dn,
-                            name: (nice_name) ? nice_name : dn,
-                            images: displayHistory
-                        })
+                        }
                     })
                     if (req.query.json && req.query.json === 'true') {
                         res.json(displayResults);

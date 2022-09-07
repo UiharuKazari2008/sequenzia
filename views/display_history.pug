@@ -8,7 +8,7 @@ div#displayHistoryResults
                 div.display-results.pt-1
                     div.display-jumbotron.pl-3.pr-3
                         .row.position-relative
-                            if (secondDisplay.length > 0)
+                            if (mainDisplay.length > 0 && secondDisplay.length > 0)
                                 a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-left: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
@@ -33,7 +33,7 @@ div#displayHistoryResults
                                         else
                                             div.half-full(style=`${nsfwFilter2}background-position: center; background-size: cover; background-image: url('${secondDisplay[0].preview}'); position: absolute; z-index: 2; border-left: black 1px solid;`)
                                         div.half-full(style=`background: linear-gradient(0deg, #000000c7, transparent 25%, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
-                            else
+                            else if (mainDisplay.length > 0)
                                 a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
@@ -83,7 +83,7 @@ div#displayHistoryResults
                                 else
                                     i.fas.fa-tv.pr-2.align-self-center
                                     | #{display.name}
-                            if (secondDisplay.length > 0)
+                            if (mainDisplay.length > 0 && secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
                                     if (user && user.source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
@@ -119,7 +119,7 @@ div#displayHistoryResults
                                             i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=secondDisplay[0].full).text-white.h5
                                         i.fas.fa-download
-                            else
+                            else if (mainDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
                                     if (user && user.source < 900)
                                         a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
