@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-8-26-2022-BUGWATCH-P1';
+const cacheName = 'PRODUCTION-v20-9-9-2022-BUGWATCH-P5';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -467,6 +467,12 @@ self.addEventListener('fetch', event => {
                 shouldRecache(event);
                 return cachedResponse;
             }
+            const offlineFile = await getDataIfAvailable(event.request.url.split(origin).pop())
+            if (offlineFile) {
+                if (swDebugMode)
+                    console.log('JulyOS Kernel: Offline Storage - ' + event.request.url);
+                return new Response(offlineFile, { status: 200 });
+            }
 
             if (event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
                 const newURL = (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop();
@@ -791,6 +797,19 @@ self.addEventListener('message', async (event) => {
                 pullActionsActive = true;
                 event.ports[0].postMessage(await pullWatchProgress());
                 setTimeout(() => {pushActionsActive = false}, 60000)
+            } else {
+                event.ports[0].postMessage(false);
+            }
+            break;
+        case 'CACHE_URLS':
+            if (event.data.urls) {
+                event.data.urls.map(async url => {
+                    console.log(`Cacheing ${url}`)
+                    if (!(await getDataIfAvailable(url))) {
+                        await fetchBackground(`${url}`, true, url)
+                    }
+                })
+                event.ports[0].postMessage(true);
             } else {
                 event.ports[0].postMessage(false);
             }

@@ -99,6 +99,36 @@ function ddw(){
 function getNewContent(remove, add, url) {
     if (url.startsWith('/tvTheater') || url.startsWith('/listTheater')) {
         document.getElementById('kmsBootDisplay').classList.remove('d-none');
+    } else if (url.startsWith('/app')) {
+        const appName = url.split('/app/').pop().split('/')[1].split('app_').pop().split('?')[0].trim();
+        if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
+            document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
+            document.getElementById('appBootLogo').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+        } else {
+            document.getElementById('appBootLogo').src = "/static/img/sequenzia-logo-nav.png"
+        }
+        if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
+            document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
+            document.getElementById('appBootBackground').style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+        } else {
+            document.getElementById('appBootBackground').style.backgroundImage = 'url(/static/img/app-background.jpg)'
+        }
+        if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
+            document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
+            document.getElementById('appBootAccent').classList.remove('hidden')
+            document.getElementById('appBootAccent').querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+        } else {
+            document.getElementById('appBootAccent').classList.add('hidden')
+            document.getElementById('appBootAccent').querySelector('img').src = "/static/img/kongou-group.png"
+        }
+        if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
+            document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
+            document.getElementById('appBootPublisher').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+        } else {
+            document.getElementById('appBootPublisher').src = "/static/img/acr-logo.png"
+        }
+
+        document.getElementById('appBootDisplay').classList.remove('d-none');
     } else {
         document.getElementById('bootUpDisplay').classList.remove('d-none');
     }
@@ -197,6 +227,27 @@ function getSidebar(refreshSidebar, disableModels) {
                     delay: 5000,
                 });
             }
+        }
+    });
+}
+function getHistory() {
+    document.getElementById('menuLoaderImageHistory').classList.remove('hidden');
+    $.ajax({async: true,
+        url: `/ambient-history?command=getAll`,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR',
+            'X-Requested-Page': 'SeqHistoryFromHome'
+        },
+        success: function (response, textStatus, xhr) {
+            document.getElementById('menuBodyImageHistory').innerHTML = response
+            document.getElementById('menuLoaderImageHistory').classList.add('hidden');
+        },
+        error: function (xhr) {
+            document.getElementById('menuBodyImageHistory').innerHTML = `<div class='align-content-center ml-1'><i class="fas fa-times mr-2"></i><span>Failed to load history data</span>`
+            document.getElementById('menuLoaderImageHistory').classList.add('hidden');
         }
     });
 }
@@ -1063,6 +1114,7 @@ $(document).ready(function () {
     verifyNetworkAccess();
     getRandomImage();
     getSidebar();
+    kernelRequestData({type: 'CACHE_URLS', urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))});
     kernelRequestData({ type: 'GET_ALL_ACTIVE_JOBS'})
         .then(async data => {
             if (data && data.activeSpannedJobs) {
@@ -1112,3 +1164,9 @@ async function transitionToOOBPage(pageUrl) {
         location.href = pageUrl
     }
 }
+
+$('#menuItemImageHistory').on('show.bs.collapse', function () {
+    if (document.getElementById('menuBodyImageHistory').classList.contains('ready')) {
+        getHistory();
+    }
+})

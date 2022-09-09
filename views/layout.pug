@@ -758,7 +758,7 @@ html
                                                 a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
                                                     i.far.fa-trash-can-undo
                                                 div.dropdown(style="display: contents;")
-                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.pl-2.pr-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
+                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.py-0.px-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
                                                         i.fas.fa-clipboard.pr-1
                                                         span#pendingActionsIndicator.badge.badge-primary ...
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
@@ -771,7 +771,7 @@ html
 
                                             div#statusPanel.btn-group.hidden(style="display: contents;")
                                                 div.dropdown(style="display: contents;")
-                                                    a#statusMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                    a#statusMenu.navbar-item.btn.btn-ice.py-0.px-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
                                                         i#statusMenuIcon.fas.fa-spinner
                                                         i#statusMenuIndicator.fas.fa-square-0.pl-1
                                                         div#statusMenuProgress
@@ -782,10 +782,10 @@ html
                                     ul.navbar-nav.text-primary.text-ellipsis
                                         li.nav-item.no-arrow
                                             div#actionPanel.btn-group.hidden(style="display: contents;")
-                                                a.navbar-item.btn.btn-ice.pl-2.pr-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
+                                                a.navbar-item.btn.btn-ice.py-0.px-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
                                                     i.far.fa-trash-can-undo
                                                 div.dropdown(style="display: contents;")
-                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.pl-2.pr-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
+                                                    a#pendingActionsMenu.navbar-item.btn.btn-ice.py-0.px-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
                                                         i.fas.fa-clipboard.pr-1
                                                         span#pendingActionsIndicator.badge.badge-primary ...
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
@@ -798,7 +798,7 @@ html
 
                                             div#statusPanel.btn-group.hidden(style="display: contents;")
                                                 div.dropdown(style="display: contents;")
-                                                    a#statusMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                    a#statusMenu.navbar-item.btn.btn-ice.py-0.px-2(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
                                                         i#statusMenuIcon.fas.fa-spinner
                                                         i#statusMenuIndicator.fas.fa-square-0.pl-1
                                                         div#statusMenuProgress
@@ -846,15 +846,15 @@ html
                                         li.nav-item.no-arrow.edit-btns
                                             .btn-group.show-menu-open.hidden(style="display: contents;")
                                                 if (path !== '/artists' && path !== '/tvTheater' && path !== '/listTheater' && results && results.length > 1)
-                                                    a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
+                                                    a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
                                                         i.far.fa-check-circle
                                                     if (manage_channels && manage_channels.length > 0)
-                                                        a.hide-review.navbar-item.btn.btn-admin.pl-2.pr-2(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
+                                                        a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
                                                             i.far.fa-check-to-slot
 
                                                 if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')) && path !== '/tvTheater' && path !== '/listTheater')
                                                     div.dropdown(style="display: contents;")
-                                                        a#viewMenu.navbar-item.btn.btn-ice.pl-2.pr-2(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
+                                                        a#viewMenu.navbar-item.btn.btn-ice.py-0.px-2(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
                                                             i.far.fa-filter
                                                             #postRange
                                                         .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="viewMenu")
@@ -1316,7 +1316,7 @@ html
                                                                         i.fas.fa-address-book.pr-2
                                                                         | Artists
                                             if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
-                                                a.navbar-item.btn.btn-ice.pl-2.pr-2.show-menu-open.hidden(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
+                                                a.navbar-item.btn.btn-ice.py-0.px-2.show-menu-open.hidden(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
                                                     i.far.fa-info-circle
                                         li.nav-item.no-arrow.hidden.done-btns
                                             if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
@@ -1724,7 +1724,8 @@ html
                             // Next Page Button
                             if (params && ((((params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) && params.getAll('sort')[0] === 'random') || params.getAll('sort')[0] === 'random') && !search_prev))
                                 a.bottomBtn.btn.btn-lg.btn-circle.red(title="Go Back" href='#_' role='button' accesskey="," onClick="history.go(-1); return false;")
-                                    i.fas.fa-arrow-left
+                                    i.fa.fa-chevron-left
+                                    i.fa.fa-arrow-left
                                 a#nextPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Reload Page" href='#_' onClick="getNewContent([],[]); return false;")
                                     if (params && params.getAll('sort')[0] === 'random')
                                         i.fa.fa-dice
@@ -1739,7 +1740,8 @@ html
                                         i.fa.fa-arrow-left
                                 else
                                     a.bottomBtn.btn.btn-lg.btn-circle.red(title="Go Back" href='#_' role='button' accesskey="," onClick="history.go(-1); return false;")
-                                        i.fas.fa-arrow-left
+                                        i.fa.fa-chevron-left
+                                        i.fa.fa-arrow-left
                                 a#refreshPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Refresh Page" href='#_' onClick=`getNewContent([], []); return false;`)
                                     i.fa.fa-sync
                                 if (nexturl !== 'NA')
@@ -1747,7 +1749,8 @@ html
                                         i.fa.fa-arrow-right
                             else
                                 a.bottomBtn.btn.btn-lg.btn-circle.red(title="Go Back" href='#_' role='button' accesskey="," onClick="history.go(-1); return false;")
-                                    i.fas.fa-arrow-left
+                                    i.fa.fa-chevron-left
+                                    i.fa.fa-arrow-left
                                 a#refreshPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Refresh Page" href='#_' onClick="getNewContent([], []); return false;")
                                     i.fa.fa-sync
                             // On Load Scripts

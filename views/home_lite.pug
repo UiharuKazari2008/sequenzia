@@ -21,7 +21,13 @@ html
         if (discord && discord.servers)
             each thisServer, thisIndex in discord.servers.list
                 link(rel='preload', href=`${thisServer.icon}` as='image')
-        
+        if (applications_list && applications_list.length > 0)
+            each app in applications_list
+                if (app.images)
+                    each image in Array.from(Object.entries(app.images))
+                        meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
+                        link(rel='preload', href=`${image[1]}` as='image')
+
         link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone6_splash.png' media='screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
@@ -89,6 +95,7 @@ html
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
     body
+        div#topBarPWA
         script.
             if (performaceMode) {
                 document.querySelector('body').classList.add('performance-mode');
@@ -115,6 +122,25 @@ html
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        #appBootDisplay.boot-logo-overlay.animated--grow-in.d-none
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div#appBootBackground.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/app-background.jpg);")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            img#appBootLogo(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                    div#appBootAccent.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder JuneApp Platform v1
+                        .mt-1.boot-icons-holder
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img#appBootPublisher(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         #bootUpDisplay.boot-logo-overlay.animated--grow-in.d-none
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative
@@ -199,29 +225,41 @@ html
                                             img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
                                         else
                                             span Login Required
-                            #mainUserButtons.d-flex.menu-grid.main-menu-grid.menu-icons.py-1(class=`${(!discord) ? 'hidden':''}`)
-                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
-                                    i.fa-light.fa-compass
-                                a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
-                                    i.fa-light.fa-photo-video
-                                a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                    i.fa-light.fa-folder
-                                a.hover-color(data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
-                                    i.fa-light.fa-ticket
-                                a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
-                                    i.fa-light.fa-star
-                                a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
-                                    i.fa-light.fa-archive
-                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
-                                    i.fa-light.fa-compass
-                                a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
-                                    i.fa-light.fa-bookmark
-                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
-                                    i.fa-light.fa-dice
-                                a.hover-color(data-placement="top" title="Artists", href='#/artists?')
-                                    i.fa-light.fa-address-book
-                                a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
-                                    i.fa-light.fa-browsers
+                            #mainUserButtons.d-flex(class=`${(!discord) ? 'hidden':''}`).flex-column
+                                div#mainButtonsAccordion(style='display: contents').w-100
+                                    div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
+                                        .menu-grid.main-menu-grid.menu-icons.py-1
+                                            a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
+                                                i.fa-light.fa-compass
+                                            a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
+                                                i.fa-light.fa-photo-video
+                                            a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                i.fa-light.fa-folder
+                                            a.hover-color(data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
+                                                i.fa-light.fa-ticket
+                                            a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
+                                                i.fa-light.fa-star
+                                            a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                i.fa-light.fa-archive
+                                            a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
+                                                i.fa-light.fa-compass
+                                            a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
+                                                i.fa-light.fa-rectangle-history
+                                            a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
+                                                i.fa-light.fa-bookmark
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                                i.fa-light.fa-browsers
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2")
+                                                i.fa-light.fa-ellipsis-stroke
+                                    div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
+                                        .menu-grid.main-menu-grid.menu-icons.py-1
+                                            a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
+                                                i.fa-light.fa-dice
+                                            a.hover-color(data-placement="top" title="Artists", href='#/artists?')
+                                                i.fa-light.fa-address-book
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
+                                                i.fa-light.fa-chevron-down
+
                             #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
                                 span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
                                 .login-options.menu-grid
@@ -283,6 +321,28 @@ html
                                                             div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
                                         span No Albums!
+                            div#menuItemImageHistory.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+                                        #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
+                                            i.fas.fa-spin-pulse.fa-spinner
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-rectangle-history.pr-2
+                                            span History
+                                .d-flex.w-100.mb-3
+                                    div.album-list
+                                        div.album-item.position-relative(style="height: 7.125em;")
+                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                div.album-icon
+                                                    i.far.fa-history.pr-1
+                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                span Show All
+                                            a.position-absolute.text-capitalize(style='width: 100%' title="Show All Displays" href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`)
+                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #02289f, #1cccf7); padding-bottom: 62%`)
+                                        #menuBodyImageHistory.ready(style="display: contents;")
                             div#menuItemApps.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1

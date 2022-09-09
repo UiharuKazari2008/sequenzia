@@ -35,9 +35,11 @@ module.exports = async (req, res) => {
                     ].forEach(dn => {
                         let displayHistory = [];
                         let displayQuery = [];
-                        let screenMain = history.filter(x => {return x.display_name === dn && x.screen_id.toString() === '0'})
-                        let screenSec = history.filter(x => {return x.display_name === dn && x.screen_id.toString() !== '0'})
-                        if (screenSec.length > 0) {
+                        let screenMain = history.filter(x => x.display_name === dn && (!x.screen_id || x.screen_id === 0))
+                        let screenSec = history.filter(x => x.display_name === dn && x.screen_id && x.screen_id !== 0)
+                        if (screenSec.length > 0 && screenMain.length === 0) {
+                            displayQuery = screenSec;
+                        } else if (screenSec.length > 0) {
                             displayQuery.push(screenMain[0]);
                             displayQuery.push(screenSec[0]);
                             displayQuery.push(screenMain.splice(1));
@@ -45,10 +47,10 @@ module.exports = async (req, res) => {
                         } else {
                             displayQuery = screenMain;
                         }
+                        console.log(dn + ': ' + screenMain.length + ': ' + screenSec.length)
                         let nice_name = null;
                         displayQuery.filter(e => e && e.eid).splice(0,(req.query.json && req.query.json === 'true') ? 75 : 2).forEach((x, index) => {
                             try {
-                                console.log(x)
                                 if (index === 0 && x.config_nice) {
                                     nice_name = x.config_nice;
                                 }
@@ -96,6 +98,9 @@ module.exports = async (req, res) => {
                     })
                     if (req.query.json && req.query.json === 'true') {
                         res.json(displayResults);
+                    } else if (req.headers && req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqHistoryFromHome') {
+                        // SeqHistoryFromHome
+                        res.render('display_history_embedded', { displayResults, user: req.session.user });
                     } else {
                         res.render('display_history', { displayResults, user: req.session.user });
                     }

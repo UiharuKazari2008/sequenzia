@@ -14,6 +14,17 @@
     font-display: swap;
 }
 
+#topBarPWA {
+    display: block;
+    position: fixed;
+    top: 0;
+    margin-left: env(titlebar-area-x);
+    margin-top: env(titlebar-area-y);
+    height: env(titlebar-area-height);
+    width: env(titlebar-area-width);
+    -webkit-app-region: drag;
+}
+
 .album-info {
     z-index: 1;
     font-size: 1em;
@@ -883,6 +894,9 @@ body {
 .collapse {
     z-index: 51!important;
 }
+.sideways-collapse {
+    width: 100%;
+}
 
 .discord-login {
     color: #ffffff;
@@ -1593,7 +1607,13 @@ select.form-control:focus::-ms-value {
 .half-full, .half-center {
     padding-top: 60%;
 }
+.album-list .wide-center, .album-list .wide-full, .album-list .half-center, .album-list .half-full  {
+    padding-bottom: 62%;
+}
 
+.album-list .half-full, .album-list .half-center {
+    padding-top: 62%;
+}
 .bottom-time-info {
     width: 380px;
 }

@@ -172,6 +172,18 @@ html
                 document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
                 document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
                 document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+            } else if (location.hash.startsWith('#/app')) {
+                document.getElementById('bootUpDisplay').style.display = 'none';
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.add('d-none');
+
+                document.getElementById('appBootDisplay').style.display = 'flex';
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
             }
         div.background-image.overlay
         div.background-image.bg-blur

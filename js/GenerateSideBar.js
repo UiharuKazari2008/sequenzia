@@ -43,11 +43,21 @@ module.exports = async (req, res, next) => {
             ).map(k => {
                 const app = global.web_applications[k];
                 if (app.embedded) {
+                    let images = {}
+                    if (app.images) {
+                        const keys = Object.keys(app.images);
+                        keys.map(j => {
+                            images[j] = `/app/web/${k}/${app.images[j]}`
+                        })
+                    } else {
+                        images = undefined
+                    }
                     return {
                         type: 1,
                         id: k,
                         icon: app.icon,
-                        name: app.name
+                        name: app.name,
+                        images
                     }
                 } else {
                     return {

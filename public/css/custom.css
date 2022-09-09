@@ -176,7 +176,7 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
 }
 
 .container-fluid {
-    margin-top: calc(env(safe-area-inset-top, 0px) + 4.25em);
+    margin-top: calc(env(safe-area-inset-top, 0px) + 3.25em);
 }
 .bottom-bar .toast-container {
     margin-top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
@@ -211,7 +211,7 @@ footer.musicActive {
 
 .sidebar {
     width: 4rem;
-    margin-top: calc(env(safe-area-inset-top) + 3.75em);
+    margin-top: calc(env(safe-area-inset-top) + 2.75em);
     margin-bottom: calc(env(safe-area-inset-bottom) + 3.5em);
 }
 .bottom-bar .sidebar {
@@ -236,7 +236,7 @@ i.btn-links.reported {
 }
 
 .navbar {
-    padding-top: 0.5rem;
+    padding: 0.25rem;
 }
 
 a.lightbox:before {
@@ -1588,7 +1588,7 @@ text-shadow: 2px 2px 5px #0000006e;
 }
 
 h2.page-title:not(.dropdown-item), h2.page-title a:not(.dropdown-item), li.nav-item.page-title:not(.dropdown-item), li.nav-item.page-title a:not(.dropdown-item)  {
-font-size: 1.4rem;
+font-size: 1.2rem;
 white-space: nowrap;
 overflow: hidden;
 text-overflow: ellipsis;
@@ -2078,13 +2078,13 @@ div.collapse-divider {
 .bottom-bar .page-navigator,
 .bottom-bar .scrollBtn,
 .bottom-bar .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 3rem + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 2.25rem + 1.5rem);
 }
 
 .bottom-bar.menu-open .page-navigator,
 .bottom-bar.menu-open .scrollBtn,
 .bottom-bar.menu-open .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 200px + 3rem + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 200px + 2.25rem + 1.5rem);
 }
 
 .btn .badge {
@@ -2100,10 +2100,14 @@ div.collapse-divider {
     text-decoration: none!important;
 }
 .topbar {
-    margin-left: calc(env(safe-area-inset-left,0) + 1em);
-    margin-right: calc(env(safe-area-inset-right,0) + 1em);
+    margin-left: calc(env(safe-area-inset-left,0) + 0.75em);
+    margin-right: calc(env(safe-area-inset-right,0) + 0.75em);
     padding-left: 0;
     padding-right: 0;
+}
+body:not(.menu-open):not(.bottom-bar) .topbar {
+    margin-left: calc(env(safe-area-inset-left,0) + env(titlebar-area-x,0.01px) + 0.75em);
+    max-width: calc(env(titlebar-area-width, 100%) - calc(env(safe-area-inset-left,0) + env(safe-area-inset-right,0) + 1.25em));
 }
 .user-infocard-row1 {
     margin-top: auto;
@@ -2177,11 +2181,11 @@ div.collapse-divider {
     display: none;
 }
 .userDropdown.collapsed > i {
-    margin-right: -.2em;
+    margin-right: -.45em;
     font-size: 1.3em;
 }
 .userDropdown:not(.collapsed) > i {
-    font-size: 1.6em;
+    font-size: 1.5em;
 }
 
 #topbar.shown-user-menu {
@@ -2834,6 +2838,7 @@ div#contextSwitchIndicator {
     z-index: 500000;
     background: transparent;
     pointer-events: none;
+    -webkit-app-region: drag;
 }
 div#bootBackdrop {
     background: black;
@@ -2864,6 +2869,11 @@ div#bootBackdropSunrise {
 
 .boot-text {
     margin-bottom: 10em;
+}
+
+.img-profile {
+    height: 2rem!important;
+    width: 2rem!important;;
 }
 .boot-loader-bar {
     height: 1.25em;
@@ -2916,14 +2926,25 @@ div#bootBackdropSunrise {
 }
 
 #topBarPWA {
+    display: none;
+}
+.menu-open:not(.bottom-bar) #topBarPWA, #topBarPWABottomBar {
+    display: block;
     margin-left: env(titlebar-area-x);
     margin-top: env(titlebar-area-y);
     height: env(titlebar-area-height);
     width: env(titlebar-area-width);
     -webkit-app-region: drag;
+    background: #4e1e06;
 }
-.menu-open #topBarPWA {
+#topBarPWABottomBar {
     display: none;
+}
+.bottom-bar #topBarPWABottomBar {
+    display: block;
+    position: fixed;
+    top: 0;
+    background: transparent!important;
 }
 
 @keyframes animateBg {
@@ -2973,7 +2994,6 @@ div#bootBackdropSunrise {
     from {max-width: 10.8em;}
     to {max-width: 0;}
 }
-
 @media (min-width:1400px) {
     .container-fluid:not(.max-resize) > div > .tz-gallery > div > div > .overlay-icons .no-dynamic-small.dynamic-hide,
     .container-fluid:not(.max-resize) > div > .tz-gallery > div > div > .internal-lightbox .no-dynamic-small.dynamic-hide  {
@@ -3287,14 +3307,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 @media (min-width:1400px) {
     .max-resize {
         max-width: 1300px;
-        margin-top: calc(env(safe-area-inset-top) + 5.5em);
+        margin-top: calc(env(safe-area-inset-top) + 4em);
     }
     .thin-width.max-resize {
         max-width: 900px;
     }
     .bottom-bar .max-resize {;
         margin-top: calc(env(safe-area-inset-top) + 3em);
-        margin-bottom: calc(env(safe-area-inset-top) + 5.5em);
+        margin-bottom: calc(env(safe-area-inset-top) + 4em);
     }
     .d-xxl-none {
         display: none !important;
@@ -3502,10 +3522,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .container-fluid {
         margin-top: calc(env(safe-area-inset-top,0px) + 3.5em);
     }
-    .img-profile {
-        height: 2.2rem!important;
-        width: 2.2rem!important;;
-    }
 
     .music-player {
         margin-left: 1.4em!important;
@@ -3517,7 +3533,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-top: calc(env(safe-area-inset-top) + 2.9em);
     }
     .sidebar {
-        margin-top: calc(env(safe-area-inset-top) + 3.8em);
+        margin-top: calc(env(safe-area-inset-top) + 2.8em);
     }
 
     .sidebar .nav-item .collapse {
@@ -3856,6 +3872,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+    .menu-open #topBarPWA {
+        background: #d07300;
+    }
     body:not(.bottom-bar) .shadow .kms-pip-icons .badge i {
         color: unset;
     }

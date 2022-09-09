@@ -239,7 +239,7 @@ async function writeLoadingBar(){
 async function setupReq(push, url) {
     nextContext = (() => {
         if (url && (url.startsWith('/app/'))) {
-            return 'browser'
+            return "app_" + url.split('/app/').pop().split('/')[1]
         } else if (url && (url.startsWith('/tvTheater') || url.startsWith('/listTheater'))) {
             return 'ticket'
         } else if (url) {
@@ -249,11 +249,41 @@ async function setupReq(push, url) {
     })()
     if (!currentContext || (currentContext && currentContext !== nextContext)) {
         if (currentContext) {
-            if (nextContext === 'seq' || nextContext === 'browser') {
+            if (nextContext === 'seq') {
                 if (!initialLoad) {
                     document.getElementById('bootStatusIcons').classList.add('d-none');
                 }
                 await new Promise((animationCompleted) => { $.when($('#bootUpDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
+            } else if (nextContext.startsWith('app_')) {
+                const appName = nextContext.split('app_').pop().trim();
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
+                    document.getElementById('appBootLogo').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+                } else {
+                    document.getElementById('appBootLogo').src = "/static/img/sequenzia-logo-nav.png"
+                }
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
+                    document.getElementById('appBootBackground').style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+                } else {
+                    document.getElementById('appBootBackground').style.backgroundImage = 'url(/static/img/app-background.jpg)'
+                }
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
+                    document.getElementById('appBootAccent').classList.remove('hidden')
+                    document.getElementById('appBootAccent').querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+                } else {
+                    document.getElementById('appBootAccent').classList.add('hidden')
+                    document.getElementById('appBootAccent').querySelector('img').src = "/static/img/kongou-group.png"
+                }
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
+                    document.getElementById('appBootPublisher').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+                } else {
+                    document.getElementById('appBootPublisher').src = "/static/img/acr-logo.png"
+                }
+
+                await new Promise((animationCompleted) => { $.when($('#appBootDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
             } else if (nextContext === 'ticket') {
                 await new Promise((animationCompleted) => { $.when($('#kmsBootDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
             }
@@ -546,8 +576,9 @@ async function requestCompleted (response, url, lastURL, push) {
     }
     if (nextContext !== currentContext) {
         setTimeout(() => {
-            $.when($('#bootUpDisplay, #kmsBootDisplay').fadeOut(500)).done(() => {
+            $.when($('#bootUpDisplay, #kmsBootDisplay, #appBootDisplay').fadeOut(500)).done(() => {
                 document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').innerText = "JuneApp Platform v1"
                 document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
             });
         }, 2000);
@@ -682,7 +713,7 @@ async function getNewContent(remove, add, url, keep) {
         }
         if (nextContext !== currentContext) {
             setTimeout(() => {
-                $('#bootUpDisplay, #kmsBootDisplay').fadeOut(500);
+                $('#bootUpDisplay, #kmsBootDisplay, #appBootDisplay').fadeOut(500);
             }, 2000);
         }
         currentContext = nextContext;

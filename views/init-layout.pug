@@ -25,6 +25,12 @@ html
             link(rel='preload', href=`${user.avatar}` as='image')
         each thisServer, thisIndex in discord.servers.list
             link(rel='preload', href=`${thisServer.icon}` as='image')
+        if (applications_list && applications_list.length > 0)
+            each app in applications_list
+                if (app.images)
+                    each image in Array.from(Object.entries(app.images))
+                        meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
+                        link(rel='preload', href=`${image[1]}` as='image')
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
@@ -183,6 +189,25 @@ html
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        #appBootDisplay.boot-logo-overlay(style="display: none;")
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div#appBootBackground.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/app-background.jpg);")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            img#appBootLogo(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                    div#appBootAccent.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder JuneApp Platform v1
+                        .mt-1.boot-icons-holder.d-none
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img#appBootPublisher(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         #bootUpDisplay.boot-logo-overlay
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative
@@ -221,6 +246,46 @@ html
                 document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
                 document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
                 document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+            } else if (location.hash.startsWith('#/app')) {
+                document.getElementById('bootUpDisplay').style.display = 'none';
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.add('d-none');
+
+                const appName = location.hash.split('/app/').pop().split('/')[1].split('app_').pop().split('?')[0].trim();
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
+                    document.getElementById('appBootLogo').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+                } else {
+                    document.getElementById('appBootLogo').src = "/static/img/sequenzia-logo-nav.png"
+                }
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
+                    document.getElementById('appBootBackground').style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+                } else {
+                    document.getElementById('appBootBackground').style.backgroundImage = 'url(/static/img/app-background.jpg)'
+                }
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
+                    document.getElementById('appBootAccent').classList.remove('hidden')
+                    document.getElementById('appBootAccent').querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+                } else {
+                    document.getElementById('appBootAccent').classList.add('hidden')
+                    document.getElementById('appBootAccent').querySelector('img').src = "/static/img/kongou-group.png"
+                }
+                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
+                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
+                    document.getElementById('appBootPublisher').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+                } else {
+                    document.getElementById('appBootPublisher').src = "/static/img/acr-logo.png"
+                }
+
+                document.getElementById('appBootDisplay').style.display = 'flex';
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
             }
         #contextSwitchIndicator.animated--fade-in(style="display: none;")
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
@@ -234,6 +299,7 @@ html
         div.background-image.overlay
         div.background-image.bg-blur
 
+        div#topBarPWABottomBar
         div(id="wrapper")
             ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
                 #sidebar
@@ -589,6 +655,7 @@ html
                                         $('#topbar > ul > .page-title > span')[0].innerText = 'Welcome'
                                         hideAddressInput();
                                         document.getElementById('bootUpDisplay').classList.add('d-none');
+                                        document.getElementById('appBootDisplay').classList.add('d-none');
                                         document.getElementById('kmsBootDisplay').classList.add('d-none');
                                         document.getElementById('mainMenuBar').classList.remove('d-none');
                                         $('#bootBackdrop').fadeOut(500);
