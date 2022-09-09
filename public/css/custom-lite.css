@@ -889,7 +889,7 @@ body {
 
 .dropdown {
     list-style-type:none;
-    z-index: 50!important;
+    z-index: 52!important;
 }
 .collapse {
     z-index: 51!important;
