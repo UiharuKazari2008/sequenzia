@@ -1658,7 +1658,7 @@ background-color: #000000;
 }
 
 .fancybox-inner {
-    margin-top: env(safe-area-inset-top);
+    margin-top: calc(env(safe-area-inset-top) + env(titlebar-area-height,0.01px));
 }
 
 .fancybox-is-open .fancybox-bg {
@@ -2576,6 +2576,7 @@ img.kms-logo {
     height: 0.5em;
     position: absolute;
     background: #d37f00;
+    padding-top: calc(env(titlebar-area-height,0.01px) + .5em);
     left: 0;
     top: 0;
 }
@@ -2583,7 +2584,7 @@ img.kms-logo {
     position: absolute;
     left: 0;
     top: 0;
-    padding: calc(env(safe-area-inset-top) + 1.5rem) calc(env(safe-area-inset-right) + 1.5rem) calc(env(safe-area-inset-bottom) + 1.5rem) calc(env(safe-area-inset-left) + 1.5rem);
+    padding: calc(env(safe-area-inset-top) + env(titlebar-area-height,0.01px) + 1.5rem) calc(env(safe-area-inset-right) + 1.5rem) calc(env(safe-area-inset-bottom) + 1.5rem) calc(env(safe-area-inset-left) + 1.5rem);
     font-size: 7em;
     line-height: 1;
     opacity: 0.4;
@@ -2623,6 +2624,9 @@ img.kms-logo {
 }
 .kms-progress {
     pointer-events: none;
+}
+.kms-title-bar {
+    padding-top: calc(env(titlebar-area-height,0.01px) + 1.5em);
 }
 .kms-bottom-bar, .kms-title-bar {
     background: linear-gradient(0deg, transparent, black);
@@ -2939,12 +2943,12 @@ div#bootBackdropSunrise {
 }
 #topBarPWABottomBar {
     display: none;
-}
-.bottom-bar #topBarPWABottomBar {
-    display: block;
     position: fixed;
     top: 0;
     background: transparent!important;
+}
+.bottom-bar #topBarPWABottomBar, .kms-play-open:not(.kms-play-pip) #topBarPWABottomBar {
+    display: block;
 }
 
 @keyframes animateBg {
