@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-9-9-2022-BUGWATCH-P5';
+const cacheName = 'PRODUCTION-v20-9-9-2022-BUGWATCH-P6';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -80,6 +80,7 @@ const cacheOptions = {
         "/js/client/media-enabler.min.js",
         "/static/img/kongoumedialogo-wide.png",
         "/static/img/kms-background.jpeg",
+        "/static/img/app-background.jpg",
         "/static/js/sb-admin-2.min.js",
         "/js/client/media.min.js",
         "/static/img/boot-logo.png",
