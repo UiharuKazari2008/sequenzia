@@ -3876,7 +3876,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
-    .menu-open #topBarPWA {
+    #topBarPWABottomBar, .menu-open:not(.bottom-bar) #topBarPWA {
         background: #d07300;
     }
     body:not(.bottom-bar) .shadow .kms-pip-icons .badge i {
