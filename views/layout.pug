@@ -127,7 +127,7 @@ html
                                                     .col.p-0.position-relative.pl-2.text-ellipsis(style="min-height: 52px;")
                                                         div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
                                                             span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .row.w-100.ml-0.mr-0
                                                 .col-auto.p-0
                                                     if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
@@ -224,7 +224,7 @@ html
                                                         | Settings
                                     if (appData)
                                         div.w-100(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`)
-                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100#appMenuRow1.align-items-center
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
                                                         i.fas.fa-house.fa-fw.d-none
@@ -238,9 +238,9 @@ html
                                     div.w-100(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
                                         .d-flex.w-100
                                             if (next_episode)
-                                                div.pl-3.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]':''}${(!next_episode.data.seasons) ? ',["sort","name"]':''}],'/listTheater')`)
+                                                div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]':''}${(!next_episode.data.seasons) ? ',["sort","name"]':''}],'/listTheater')`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                            div.position-relative.pr-3.user-menu-height(style="width: 100%;")
+                                            div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100#appMenuRow1.align-items-center
                                                     if (path && (path === '/tvTheater' || path === '/listTheater'))
                                                         a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
@@ -272,7 +272,7 @@ html
                                                             i.fa-light.fa-clock-rotate-left
                                                             | History
                                     div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
@@ -318,7 +318,7 @@ html
                                                         i.fa-light.fa-sign-out-alt
                                                         | Logout
                                     div#menuItemTools.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
@@ -351,7 +351,7 @@ html
                                                         i.fa-light.fa-fw.fa-history
                                                         | Page History
                                     div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                     i.fas.fa-arrow-left.fa-fw
@@ -426,7 +426,7 @@ html
                                                                 i.fa-light.fa-flag
                                                                 | Only Flagged
                                     div#menuItemUpload.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
@@ -464,7 +464,7 @@ html
                                                                 | Download URL
 
                                     div#menuItemAlbums.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
@@ -511,7 +511,7 @@ html
                                                 else
                                                     h2 No Albums!
                                     div#menuItemApps.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
@@ -541,7 +541,7 @@ html
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                     div#menuItemMediaGroups.w-100(class="collapse" data-parent="#menuAccordion")
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}`)
                                                     i.fas.fa-arrow-left.fa-fw
