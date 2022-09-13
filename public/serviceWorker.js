@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-9-9-2022-BUGWATCH-P8';
+const cacheName = 'PRODUCTION-v20-9-12-2022-BUGWATCH-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -459,6 +459,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', event => {
     event.respondWith(async function() {
+        if (event.request.url.startsWith('chrome-extension'))
+            return new Response(undefined, {status: 401});
         const clonedBody = await event.request.clone();
         try {
             const cachedResponse = await caches.match(event.request);

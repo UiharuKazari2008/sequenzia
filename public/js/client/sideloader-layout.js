@@ -138,28 +138,17 @@ $(document).ready(function () {
         if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); scrollManagerThrottleTimeout = null; }
         scrollManagerThrottleTimeout = setTimeout(function() {
             const topbar = document.getElementById('topbar');
-            const menu = document.getElementById('userMenu')
-            const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
-            const playeropen = document.querySelector('body').classList.contains('kms-play-open')
-            const bottombar = document.querySelector('body').classList.contains('bottom-bar')
+            const menu = document.getElementById('userMenu');
             if ($(this).scrollTop() > 50) {
                 $('.scrollBtn').fadeIn();
             } else {
                 $('.scrollBtn').fadeOut();
             }
             if ($(this).scrollTop() > 50 || menu.classList.contains('show')) {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                }
-                if (mediaRule &&!playeropen)
-                    mediaRule.content = (bottombar) ? "#000" : "#d07300"
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {}
                 topbar.classList.add('shadow');
             } else {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                }
-                if (mediaRule &&!playeropen)
-                    mediaRule.content = (bottombar) ? "#000" : "#d07300"
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {}
                 topbar.classList.remove('shadow');
             }
             if (!topbar.classList.contains('no-ani')) {
@@ -168,10 +157,10 @@ $(document).ready(function () {
             if (sidebar.hasClass("open")) {
                 const sidebarTop = $("#accordionSidebar").offset().top; //gets offset of header
                 const sidebarHeight = $("#accordionSidebar").outerHeight(); //gets height of header
-                if ($(window).scrollTop() > (sidebarTop + sidebarHeight)) {
+                if ($(window).scrollTop() > (sidebarTop + sidebarHeight))
                     toggleMenu();
-                }
             }
+            updateApplicationThemeColor();
         }, 250);
     }
 

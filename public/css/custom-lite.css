@@ -337,7 +337,7 @@ code {
     z-index: -1;
     /*backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);*/
-    background-color: #0000009e;
+    background-color: #000000;
 }
 
 .topbar .navbar-search {

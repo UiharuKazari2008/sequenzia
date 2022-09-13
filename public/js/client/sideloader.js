@@ -563,6 +563,7 @@ async function requestCompleted (response, url, lastURL, push) {
             responseComplete = true
         }
         pageType = url.split('/')[0];
+        updateApplicationThemeColor();
         if (initialLoad) {
             document.getElementById('bootStatusIcons').children[3].style.opacity = 1;
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
@@ -2741,15 +2742,10 @@ async function openKMSPlayer(messageid, seriesId) {
         //window.resizeTo(window.outerWidth, (window.outerHeight - window.innerHeight) + findHeight('16:9', window.outerWidth) - 8)
         document.querySelector('body').classList.add('kms-play-open');
         document.querySelector('body').classList.remove('kms-play-pip');
-        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
-        const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
-        if (mediaRule)
-            mediaRule.content = "#000"
-        if (mediaRule2)
-            mediaRule2.content = "#000"
         kongouMediaCache = document.querySelector('#contentBlock')
         kongouMediaActiveURL = _originalURL + '';
     }
+    updateApplicationThemeColor();
     kongouMediaPlayer.querySelector('.kms-status-bar > span').innerText = ''
 
     kongouMediaVideoPreview.classList.add('hidden');
@@ -4736,13 +4732,7 @@ function registerUserMenuHandlers() {
         //$('#topbarBackground').fadeIn();
         $('#topbar').addClass('shadow').addClass('menu-open');
         $('body').addClass('menu-open');
-        const bottombar = document.querySelector('body').classList.contains('bottom-bar')
-        const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
-        if (mediaRule)
-            mediaRule.content = (bottombar) ? "#000" : "#d07300"
-        const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
-        if (mediaRule2)
-            mediaRule2.content = (bottombar) ? "#000" : "#4e1e06"
+        updateApplicationThemeColor();
     })
     $('#userMenu').on('hidden.bs.collapse', function () {
         if (!($('#userMenu').hasClass('show'))) {
@@ -4755,14 +4745,7 @@ function registerUserMenuHandlers() {
                 $('#topbar').removeClass('shadow');
             }
             $('body').removeClass('menu-open');
-            const bottombar = document.querySelector('body').classList.contains('bottom-bar')
-            const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
-            if (mediaRule) {
-                mediaRule.content = (bottombar) ? "#000" : "#d07300"
-            }
-            const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
-            if (mediaRule2)
-                mediaRule2.content = "#000"
+            updateApplicationThemeColor();
         }
     })
 }
@@ -4812,6 +4795,17 @@ function registerDateHandlers() {
         opens: 'left',
         showDropdowns: true
     }, applyDate);
+}
+function updateApplicationThemeColor() {
+    const playerOpen = document.querySelector('body').classList.contains('kms-play-open');
+    const bottombar = document.querySelector('body').classList.contains('bottom-bar')
+    const menuopen = document.querySelector('body').classList.contains('menu-open')
+    const mediaRule = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]')
+    if (mediaRule)
+        mediaRule.content = (playerOpen || bottombar) ? "#000" : "#d07300"
+    const mediaRule2 = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]')
+    if (mediaRule2)
+        mediaRule2.content = (playerOpen || bottombar || !menuopen) ? "#000" : "#4e1e06"
 }
 
 function kernelRequestData(message) {
