@@ -2086,7 +2086,7 @@ div.collapse-divider {
 .bottom-bar.menu-open .page-navigator,
 .bottom-bar.menu-open .scrollBtn,
 .bottom-bar.menu-open .music-player {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 175px + 2.25rem + 1.5rem);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 190px + 2.25rem + 1.5rem);
 }
 
 .btn .badge {
@@ -3035,7 +3035,7 @@ div#bootBackdropSunrise {
         min-width: 300px;
     }
 }
-@media (max-width:1500px) {
+@media (max-width:1520px) {
     .main-menu-items .user-menu-item {
         font-size: .8em;
         padding-top: 0.5em;
@@ -3080,6 +3080,11 @@ div#bootBackdropSunrise {
 
     .album-info {
         font-size: 0.8em;
+    }
+    .bottom-bar.menu-open .page-navigator,
+    .bottom-bar.menu-open .scrollBtn,
+    .bottom-bar.menu-open .music-player {
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 175px + 2.25rem + 1.5rem);
     }
 }
 @media (max-width:1120px) {
