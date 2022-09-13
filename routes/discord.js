@@ -459,6 +459,7 @@ async function roleGeneration(id, res, req, authToken) {
                 req.session.discord = {
                     user: {
                         id,
+                        server: _server_list.filter(e => e.serverid === users[0].server),
                         name: users[0].nice_name,
                         username: users[0].username,
                         avatar: users[0].avatar,

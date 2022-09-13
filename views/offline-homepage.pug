@@ -194,148 +194,147 @@ html
                     div#mainMenuBar.top-padding-safety
                         div#topBarPWA
                         div#userMenu.collapsed.collapse
-                            div.shown-user-menu.d-flex
-                                div.user-info-bg
-                                    div.user-info-backdrop
-                                    div.user-infocard-holder.d-flex.flex-column
-                                        .row.p-0.ml-0.mr-0
-                                            if (user && user.source === 900)
-                                                div.text-center.text-ellipsis.align-middle.p-2
-                                                    span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
-                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                            .col-auto.p-0
-                                                img.rounded-circle.user-infocard-icon(src=user.avatar)
-                                            .col.p-0.position-relative.pl-2.text-ellipsis(style="min-height: 75px;")
-                                                div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
-                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-                                div.user-menu-buttons(style="width: 100%; height: 100%")
-                                    div#menuAccordion.user-infocard-row2
-                                        div(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
-                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                .row.w-100.ml-0.mr-0
-                                                    .d-flex.w-100.align-items-center
-                                                        h4.text-primary.ml-auto.mb-0
-                                                            span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
-                                                .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
-                                                    .menu-grid
-                                                        a.user-menu-item(title="Offline Pages" href='#_' onclick="getOfflinePages();")
-                                                            i.fa-light.fa-fw.fa-window-restore
-                                                            | Pages
-                                                        //a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
-                                                            i.fa-light.fa-fw.fa-archive
-                                                            | Albums
-                                                        a.user-menu-item(title="Theater Media" href='#/tvTheater?')
-                                                            i.fa-light.fa-fw.fa-ticket
-                                                            | Theater
-                                                        a.user-menu-item(title="Offline Media" href='#/gallery?')
-                                                            i.fa-light.fa-fw.fa-photo-video
-                                                            | Gallery
-                                                        a.user-menu-item(title="Offline Music" href=`#/files?`)
-                                                            i.fa-light.fa-fw.fa-music
-                                                            | Music
-                                                        a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
-                                                            i.fa-light.fa-fw.fa-cog
-                                                            | Settings
-                                                        a.user-menu-item(title="Try to go online" href='#_' onclick="transitionToOOBPage('/'); return false;")
-                                                            i.fa-light.fa-plug
-                                                            | Connect
-                                        div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
-                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                            div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
+                                div#menuAccordion.w-100
+                                    div.main-menu-items.w-100(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
+                                        div.user-info-bg
+                                            div.user-info-backdrop
+                                            div.user-infocard-holder.d-flex.flex-column
+                                                .row.p-0.ml-0.mr-0
+                                                    if (user && user.source === 900)
+                                                        div.text-center.text-ellipsis.align-middle.p-2
+                                                            span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
+                                                .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                    .col-auto.p-0
+                                                        img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                                    .col.p-0.position-relative.pl-2.text-ellipsis(style="min-height: 75px;")
+                                                        div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
+                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .row.w-100.ml-0.mr-0
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
-                                                        i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
-                                                        i.fas.fa-cog.mr-2
-                                                        | Settings
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
-                                                    .menu-grid
-                                                        a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
-                                                            i.fa-light.fa-sliders-h
-                                                            | Display
-                                                        //a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
-                                                            i.fa-light.fa-tv
-                                                            | Photo Frame
-                                                        a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
-                                                            i.fa-light.fa-sd-card
-                                                            | Storage
-                                                        a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
-                                                            i.fa-light.fa-info-circle
-                                                            | About
-                                        div#menuItemDisplay(class="collapse" data-parent="#menuAccordion")
-                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
-                                                        i.fas.fa-arrow-left.fa-fw
-                                                    h4.text-primary.ml-auto.mb-0
-                                                        i.fas.fa-sliders-h.mr-2
-                                                        span.d-none.d-sm-inline Display
-                                                .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
-                                                    .menu-grid
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
-                                                            i.fa-light.fa-grid-5
-                                                            | Thumbs
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
-                                                            i.fa-light.fa-grid-4
-                                                            | Small
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
-                                                            i.fa-light.fa-grid
-                                                            | Default
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
-                                                            i.fa-light.fa-grid-2
-                                                            | Large
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`)
-                                                            i.fa-light.fa-distribute-spacing-horizontal
-                                                            | Full Width
-                                                        a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
-                                                            i.fa-light.fa-arrow-up-arrow-down
-                                                            | Menubar
-                                        div#menuItemAlbums(class="collapse" data-parent="#menuAccordion")
-                                            div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
-                                                        i.fas.fa-arrow-left.fa-fw
-                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
-                                                        i.fas.fa-fw.mr-md-1.fa-globe-americas
-                                                        span.d-none.d-md-inline Directory
-                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
-                                                        i.fas.fa-cog.fa-fw.mr-md-1
-                                                        span.d-none.d-md-inline Manage
-                                                    h4.text-primary.ml-auto
-                                                        i.fas.fa-archive.mr-2
+                                                        span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
+                                            .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
+                                                .menu-grid
+                                                    a.user-menu-item(title="Offline Pages" href='#_' onclick="getOfflinePages();")
+                                                        i.fa-light.fa-fw.fa-window-restore
+                                                        | Pages
+                                                    //a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                        i.fa-light.fa-fw.fa-archive
                                                         | Albums
-                                                .w-100.position-absolute(style="justify-content: left; top: 3em;")
-                                                    if (albums && albums.length > 0)
-                                                        div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                                            each thisAlbum in albums
-                                                                div.album-item.position-relative
-                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
-                                                                        //x.uri, x.privacy
-                                                                        div.album-icon
-                                                                            if (thisAlbum.uri === 'gallery')
-                                                                                i.far.fa-photo-video.pr-1
-                                                                            else if (thisAlbum.uri === 'files')
-                                                                                i.far.fa-folder.pr-1
-                                                                            else if (thisAlbum.uri === 'cards')
-                                                                                i.far.fa-sticky-note.pr-1
-                                                                            else
-                                                                                i.far.fa-archive.pr-1
-
-                                                                            if (thisAlbum.privacy === 0)
-                                                                                i.far.fa-globe-americas.pr-1
-                                                                            else if (thisAlbum.privacy === 1)
-                                                                                i.far.fa-lock.pr-1
-                                                                            else if (thisAlbum.privacy === 2)
-                                                                                i.far.fa-link.pr-1
-                                                                    div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
-                                                                        span #{thisAlbum.name}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
-                                                                        if (thisAlbum.image)
-                                                                            div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
+                                                    a.user-menu-item(title="Theater Media" href='#/tvTheater?')
+                                                        i.fa-light.fa-fw.fa-ticket
+                                                        | Theater
+                                                    a.user-menu-item(title="Offline Media" href='#/gallery?')
+                                                        i.fa-light.fa-fw.fa-photo-video
+                                                        | Gallery
+                                                    a.user-menu-item(title="Offline Music" href=`#/files?`)
+                                                        i.fa-light.fa-fw.fa-music
+                                                        | Music
+                                                    a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                        i.fa-light.fa-fw.fa-cog
+                                                        | Settings
+                                                    a.user-menu-item(title="Try to go online" href='#_' onclick="transitionToOOBPage('/'); return false;")
+                                                        i.fa-light.fa-plug
+                                                        | Connect
+                                    div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-cog.mr-2
+                                                    | Settings
+                                            .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                .menu-grid
+                                                    a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
+                                                        i.fa-light.fa-sliders-h
+                                                        | Display
+                                                    //a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
+                                                        i.fa-light.fa-tv
+                                                        | Photo Frame
+                                                    a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
+                                                        i.fa-light.fa-sd-card
+                                                        | Storage
+                                                    a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
+                                                        i.fa-light.fa-info-circle
+                                                        | About
+                                    div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-sliders-h.mr-2
+                                                    span.d-none.d-sm-inline Display
+                                            .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                .menu-grid
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
+                                                        i.fa-light.fa-grid-5
+                                                        | Thumbs
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
+                                                        i.fa-light.fa-grid-4
+                                                        | Small
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
+                                                        i.fa-light.fa-grid
+                                                        | Default
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
+                                                        i.fa-light.fa-grid-2
+                                                        | Large
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`)
+                                                        i.fa-light.fa-distribute-spacing-horizontal
+                                                        | Full Width
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
+                                                        i.fa-light.fa-arrow-up-arrow-down
+                                                        | Menubar
+                                    div#menuItemAlbums.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-globe-americas
+                                                    span.d-none.d-md-inline Directory
+                                                a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                    i.fas.fa-cog.fa-fw.mr-md-1
+                                                    span.d-none.d-md-inline Manage
+                                                h4.text-primary.ml-auto
+                                                    i.fas.fa-archive.mr-2
+                                                    | Albums
+                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                if (albums && albums.length > 0)
+                                                    div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                        each thisAlbum in albums
+                                                            div.album-item.position-relative
+                                                                div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                    //x.uri, x.privacy
+                                                                    div.album-icon
+                                                                        if (thisAlbum.uri === 'gallery')
+                                                                            i.far.fa-photo-video.pr-1
+                                                                        else if (thisAlbum.uri === 'files')
+                                                                            i.far.fa-folder.pr-1
+                                                                        else if (thisAlbum.uri === 'cards')
+                                                                            i.far.fa-sticky-note.pr-1
                                                                         else
-                                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                                                            i.far.fa-archive.pr-1
 
-                                                    else
-                                                        h2 No Albums!
+                                                                        if (thisAlbum.privacy === 0)
+                                                                            i.far.fa-globe-americas.pr-1
+                                                                        else if (thisAlbum.privacy === 1)
+                                                                            i.far.fa-lock.pr-1
+                                                                        else if (thisAlbum.privacy === 2)
+                                                                            i.far.fa-link.pr-1
+                                                                div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
+                                                                    span #{thisAlbum.name}
+                                                                a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                    if (thisAlbum.image)
+                                                                        div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
+                                                                    else
+                                                                        div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+
+                                                else
+                                                    h2 No Albums!
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             #titleBarContents(style="display: contents").col.p-0
                                 ul.navbar-nav.text-primary.text-ellipsis

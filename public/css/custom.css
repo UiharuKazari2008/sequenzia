@@ -1988,17 +1988,19 @@ div.collapse-divider {
     margin-top: .3em;
 }
 
-.user-infocard-holder {
+.user-infocard-holder, .user-info-overlay {
     /*background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);*/
     height: inherit;
 }
+.user-info-overlay {
+    background-image: linear-gradient(0deg, #00000070, transparent);
+}
 .user-infocard-icon {
-    width: 72px;
+    width: 64px;
     box-shadow: 0 0 17px #000000;
 }
 .user-infocard-info {
     font-size: 1.5em;
-    bottom: 0;
     max-width: 480px;
 }
 
@@ -2034,9 +2036,8 @@ div.collapse-divider {
 .user-info-bg {
     margin: calc(env(safe-area-inset-top, 0px) + 0.75em) 0 0.75em 0.75em;
 }
-.user-info-bg, .user-info-backdrop {
+.user-info-bg, .user-info-backdrop, .user-info-overlay {
     min-width: 400px;
-    border-radius: 0.5em;
 }
 #topbarUserBackground .user-info-backdrop {
     min-width: 100%!important;
@@ -3031,7 +3032,7 @@ div#bootBackdropSunrise {
     }
 }
 @media (max-width:1645px) {
-    .user-info-bg, .user-info-backdrop{
+    .user-info-bg, .user-info-backdrop, .user-info-overlay {
         min-width: 300px;
     }
 }
@@ -3052,7 +3053,7 @@ div#bootBackdropSunrise {
     .shown-user-menu, .user-info-backdrop, .user-info-bg {
         height: 135px;
     }
-    .user-info-bg, .user-info-backdrop {
+    .user-info-bg, .user-info-backdrop, .user-info-overlay {
         min-width: 300px;
     }
     .user-menu-height {
