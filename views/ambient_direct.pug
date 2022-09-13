@@ -6,7 +6,7 @@ html
         meta(name='description', content='Sequenzia')
         meta(name='author', content='Yukimi Kazari')
         meta(name="apple-mobile-web-app-capable" content="yes")
-        meta(name="pple-mobile-web-app-title" content="Sequenzia")
+        meta(name="apple-mobile-web-app-title" content="Sequenzia")
         meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
@@ -54,6 +54,21 @@ html
 
 
         #content-wrapper.container.p-4
+            #banner.fixed-top.w-100.text-center(style="background: #5b5b5b;").d-none
+                span#bannerText(style="font-weight: bold; font-size: 18px;") CONFIGURE BANNER TEXT
+            script.
+                const params = new URLSearchParams(location.hash.substring(1))
+                if (params.has('bannerText')) {
+                    document.getElementById('banner').classList.remove('d-none')
+                    if (params.has('bannerColor'))
+                        document.getElementById('banner').style.background = params.getAll('bannerColor')[0]
+                    if (params.has('bannerText'))
+                        document.getElementById('bannerText').innerText = params.getAll('bannerText')[0]
+                    if (params.has('textColor'))
+                        document.getElementById('bannerText').style.color = params.getAll('textColor')[0]
+                    if (params.has('textSize'))
+                        document.getElementById('bannerText').style.fontSize = params.getAll('textSize')[0]
+                }
             #BottomSestion.fixed-bottom.d-flex.m-5
                 if (randomImagev2.length > 0)
                     #logoStart.flex-grow-1.align-self-end(style='opacity: .5')
