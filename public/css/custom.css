@@ -2185,7 +2185,7 @@ body:not(.menu-open):not(.bottom-bar) .topbar {
     justify-items: center;
     padding: 0 1em;
     display: inline-grid;
-    min-width: 85px;
+    min-width: 96px;
 }
 .user-menu-item > i {
     font-size: 1.5em;
@@ -2322,7 +2322,7 @@ footer .server-grid-parent {
     text-shadow: 0 0 4px #ff5100d6;
 }
 
-#menuAccordion>div>div, #menuAccordion>#appPanels>div>div {
+#menuAccordion>div>div:not(.user-info-bg), #menuAccordion>#appPanels>div>div {
     margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
     margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
     margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
@@ -3030,12 +3030,12 @@ div#bootBackdropSunrise {
         display: none!important;
     }
 }
-@media (max-width:1620px) {
+@media (max-width:1645px) {
     .user-info-bg, .user-info-backdrop{
         min-width: 300px;
     }
 }
-@media (max-width:1520px) {
+@media (max-width:1550px) {
     .main-menu-items .user-menu-item {
         font-size: .8em;
         padding-top: 0.5em;

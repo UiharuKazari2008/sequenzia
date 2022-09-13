@@ -149,9 +149,9 @@ html
                                                                         a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current"  href='#_', onclick=`getSearchContent("dropdownSearch2"); return false;`)
                                                                             i.far.fa-search.fa-sm.align-middle.nav-item
                                                                         a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "/gallery"); return false;`)
-                                                                            i.far.fa-image.fa-sm.align-middle.nav-item
+                                                                            i.far.fa-photo-video.fa-sm.align-middle.nav-item
                                                                         a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "/files"); return false;`)
-                                                                            i.far.fa-folder.fa-sm.align-middle.nav-item
+                                                                            i.far.fa-files.fa-sm.align-middle.nav-item
                                                                         a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "/artists"); return false;`).d-none.d-sm-inline
                                                                             i.far.fa-sm.align-middle.nav-item.fa-address-book
                                                         div#locationDirect(class="collapse" data-parent="#locationAccordion")
@@ -173,8 +173,8 @@ html
                                                             i.fa-light.fa-fw.fa-browser
                                                             | App Menu
                                                     a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
-                                                        i.fa-light.fa-sidebar.fa-fw
-                                                        | Navigator
+                                                        i.fa-light.fa-compass.fa-fw
+                                                        | Directory
                                                     //a.user-menu-item(title="Homepage" href='/')
                                                         i.fa-light.fa-fw.fa-home
                                                         | Home
@@ -182,7 +182,7 @@ html
                                                         i.fa-light.fa-fw.fa-photo-video
                                                         | Gallery
                                                     a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                                        i.fa-light.fa-fw.fa-folder
+                                                        i.fa-light.fa-fw.fa-files
                                                         | Files
                                                     a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}`)
                                                         i.fa-light.fa-fw.fa-ticket
