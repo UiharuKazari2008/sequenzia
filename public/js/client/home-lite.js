@@ -901,28 +901,36 @@ async function updateNotficationsPanel() {
     }
 }
 function kernelRequestData(message) {
-    return new Promise(function(resolve, reject) {
-        try {
-            const messageChannel = new MessageChannel();
-            messageChannel.port1.onmessage = function(event) {
-                if (event.data && event.data.error) {
-                    console.error(event.data.error);
-                    reject(false);
-                } else {
-                    resolve(event.data);
-                }
-            };
-            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
-        } catch (err) {
-            $.toast({
-                type: 'error',
-                title: '<i class="fas fa-microchip pr-2"></i>Kernel Error',
-                subtitle: '',
-                content: `<p>Could not complete "${message.type}" due to communication failure with the network kernel!</p><p>${err.message}</p>`,
-                delay: 5000,
-            });
+    if (!navigator.serviceWorker.controller) {
+        if (window.location.protocol !== 'https:') {
+            $.snack('error', `Application not secure!`, 1500);
+        } else {
+            $.snack('error', `Application not ready!`, 1500);
         }
-    });
+    } else {
+        return new Promise(function (resolve, reject) {
+            try {
+                const messageChannel = new MessageChannel();
+                messageChannel.port1.onmessage = function (event) {
+                    if (event.data && event.data.error) {
+                        console.error(event.data.error);
+                        reject(false);
+                    } else {
+                        resolve(event.data);
+                    }
+                };
+                navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+            } catch (err) {
+                $.toast({
+                    type: 'error',
+                    title: '<i class="fas fa-microchip pr-2"></i>Kernel Error',
+                    subtitle: '',
+                    content: `<p>Could not complete "${message.type}" due to communication failure with the network kernel!</p><p>${err.message}</p>`,
+                    delay: 5000,
+                });
+            }
+        });
+    }
 }
 async function setMenuLocation(location) {
     menuLocation = location;
@@ -956,151 +964,171 @@ if ('serviceWorker' in navigator) {
             })
             .catch(err => console.log(`Service Worker: Error: ${err}`));
     });
-    navigator.serviceWorker.onmessage = async function (event) {
-        switch (event.data.type) {
-            case 'STATUS_UNPACK_STARTED':
-            case 'STATUS_UNPACK_QUEUED':
-            case 'STATUS_UNPACK_DUPLICATE':
-                if (unpackingJobs.has(event.data.fileid)) {
-                    downloadSpannedController.set(event.data.fileid, event.data);
-                    updateNotficationsPanel();
-                }
-                break;
-            case 'STATUS_UNPACK_COMPLETED':
-                setTimeout(() => {
-                    unpackingJobs.delete(event.data.fileid);
-                    updateNotficationsPanel();
-                }, 1000);
-                break;
-            case 'STATUS_UNPACK_FAILED':
-                if (unpackingJobs.has(event.data.fileid)) {
-                    console.error(`Failed to unpack file ${event.data.fileid}`)
+    if (!navigator.serviceWorker.controller) {
+        if (window.location.protocol !== 'https:') {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-microchip pr-2"></i>Kernel Failure',
+                subtitle: '',
+                content: `<p>You must access Sequenzia as HTTPS for the appliation to function</p>Some features will not be available!`,
+                delay: 5000,
+            });
+        } else {
+            $.toast({
+                type: 'error',
+                title: '<i class="fas fa-microchip pr-2"></i>Kernel Failure',
+                subtitle: '',
+                content: `<p>The Network Kernel is not registered, please refresh the application and try again!</p>`,
+                delay: 5000,
+            });
+        }
+    } else {
+        navigator.serviceWorker.onmessage = async function (event) {
+            switch (event.data.type) {
+                case 'STATUS_UNPACK_STARTED':
+                case 'STATUS_UNPACK_QUEUED':
+                case 'STATUS_UNPACK_DUPLICATE':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        downloadSpannedController.set(event.data.fileid, event.data);
+                        updateNotficationsPanel();
+                    }
+                    break;
+                case 'STATUS_UNPACK_COMPLETED':
                     setTimeout(() => {
                         unpackingJobs.delete(event.data.fileid);
                         updateNotficationsPanel();
                     }, 1000);
-                    downloadSpannedController.set(event.data.fileid, event.data);
-                    updateNotficationsPanel();
-                }
-                break;
-            case 'STATUS_UNPACKER_ACTIVE':
-                if (unpackingJobs.has(event.data.fileid)) {
-                    const dataJob = unpackingJobs.get(event.data.fileid);
-                    switch (event.data.action) {
-                        case 'GET_METADATA':
-                        case 'EXPECTED_PARTS':
-                            if (!dataJob.active) {
+                    break;
+                case 'STATUS_UNPACK_FAILED':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        console.error(`Failed to unpack file ${event.data.fileid}`)
+                        setTimeout(() => {
+                            unpackingJobs.delete(event.data.fileid);
+                            updateNotficationsPanel();
+                        }, 1000);
+                        downloadSpannedController.set(event.data.fileid, event.data);
+                        updateNotficationsPanel();
+                    }
+                    break;
+                case 'STATUS_UNPACKER_ACTIVE':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        const dataJob = unpackingJobs.get(event.data.fileid);
+                        switch (event.data.action) {
+                            case 'GET_METADATA':
+                            case 'EXPECTED_PARTS':
+                                if (!dataJob.active) {
+                                    unpackingJobs.set(event.data.fileid, {
+                                        ...dataJob,
+                                        active: true
+                                    })
+                                }
+                                break;
+                            case 'FETCH_PARTS_PROGRESS':
                                 unpackingJobs.set(event.data.fileid, {
                                     ...dataJob,
-                                    active: true
+                                    active: true,
+                                    progress: event.data.percentage
                                 })
-                            }
-                            break;
-                        case 'FETCH_PARTS_PROGRESS':
-                            unpackingJobs.set(event.data.fileid, {
-                                ...dataJob,
-                                active: true,
-                                progress: event.data.percentage
-                            })
-                            break;
-                        case 'BLOCKS_ACQUIRED':
-                            console.log(`File ${dataJob.name} is ready`)
-                            break;
-                        default:
-                            console.error('Unknown Unpacker Status');
-                            console.error(event.data);
-                            break;
+                                break;
+                            case 'BLOCKS_ACQUIRED':
+                                console.log(`File ${dataJob.name} is ready`)
+                                break;
+                            default:
+                                console.error('Unknown Unpacker Status');
+                                console.error(event.data);
+                                break;
+                        }
+                        updateNotficationsPanel();
                     }
+                    break;
+                case 'STATUS_UNPACKER_UPDATE':
                     updateNotficationsPanel();
-                }
-                break;
-            case 'STATUS_UNPACKER_UPDATE':
-                updateNotficationsPanel();
-                break;
-            case 'STATUS_UNPACKER_FAILED':
-                if (unpackingJobs.has(event.data.fileid)) {
-                    switch (event.data.action) {
-                        case 'GET_METADATA':
-                            $.toast({
-                                type: 'error',
-                                title: 'Unpack File',
-                                subtitle: 'Now',
-                                content: `File failed to unpack!<br/>${event.data.message}`,
-                                delay: 15000,
-                            });
-                            break;
-                        case 'READ_METADATA':
-                            $.toast({
-                                type: 'error',
-                                title: 'Unpack File',
-                                subtitle: 'Now',
-                                content: `Failed to read the parity metadata response!`,
-                                delay: 15000,
-                            });
-                            break;
-                        case 'EXPECTED_PARTS':
-                            $.toast({
-                                type: 'error',
-                                title: 'Unpack File',
-                                subtitle: 'Now',
-                                content: `File is damaged or is missing parts, please report to the site administrator!`,
-                                delay: 15000,
-                            });
-                            break;
-                        case 'EXPECTED_FETCH_PARTS':
-                            $.toast({
-                                type: 'error',
-                                title: 'Unpack File',
-                                subtitle: 'Now',
-                                content: `Missing a downloaded parity file, Retry to download!`,
-                                delay: 15000,
-                            });
-                            break;
-                        case 'UNCAUGHT_ERROR':
-                            console.error(event.data.message);
-                            $.toast({
-                                type: 'error',
-                                title: 'Unpack File',
-                                subtitle: 'Now',
-                                content: `File Handeler Fault!<br/>${event.data.message}`,
-                                delay: 15000,
-                            });
-                            break;
-                        default:
-                            console.error('Unknown Unpacker Error');
-                            console.error(event.data);
-                            break;
+                    break;
+                case 'STATUS_UNPACKER_FAILED':
+                    if (unpackingJobs.has(event.data.fileid)) {
+                        switch (event.data.action) {
+                            case 'GET_METADATA':
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File failed to unpack!<br/>${event.data.message}`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'READ_METADATA':
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `Failed to read the parity metadata response!`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'EXPECTED_PARTS':
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File is damaged or is missing parts, please report to the site administrator!`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'EXPECTED_FETCH_PARTS':
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `Missing a downloaded parity file, Retry to download!`,
+                                    delay: 15000,
+                                });
+                                break;
+                            case 'UNCAUGHT_ERROR':
+                                console.error(event.data.message);
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Unpack File',
+                                    subtitle: 'Now',
+                                    content: `File Handeler Fault!<br/>${event.data.message}`,
+                                    delay: 15000,
+                                });
+                                break;
+                            default:
+                                console.error('Unknown Unpacker Error');
+                                console.error(event.data);
+                                break;
+                        }
+                        updateNotficationsPanel();
                     }
+                    break;
+                case 'STATUS_UNPACKER_NOTIFY':
+                    unpackingJobs.set(event.data.object.id, event.data.object);
+                    break;
+                case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
+                    offlineDownloadController.set(event.data.url, event.data.status);
                     updateNotficationsPanel();
-                }
-                break;
-            case 'STATUS_UNPACKER_NOTIFY':
-                unpackingJobs.set(event.data.object.id, event.data.object);
-                break;
-            case 'STATUS_STORAGE_CACHE_PAGE_ACTIVE':
-                offlineDownloadController.set(event.data.url, event.data.status);
-                updateNotficationsPanel();
-                break;
-            case 'STATUS_STORAGE_CACHE_PAGE_COMPLETE':
-                offlineDownloadController.delete(event.data.url);
-                updateNotficationsPanel();
-                break;
-            case 'MAKE_SNACK':
-                $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
-                break;
-            case 'MAKE_TOAST':
-                $.toast({
-                    type: (event.data.level || 'info'),
-                    title: (event.data.title || ''),
-                    subtitle: (event.data.subtitle || ''),
-                    content: (event.data.content || 'No Data'),
-                    delay: (event.data.timeout || undefined),
-                });
-                break;
-            default:
-                break;
-        }
-    };
+                    break;
+                case 'STATUS_STORAGE_CACHE_PAGE_COMPLETE':
+                    offlineDownloadController.delete(event.data.url);
+                    updateNotficationsPanel();
+                    break;
+                case 'MAKE_SNACK':
+                    $.snack((event.data.level || 'info'), (event.data.text || 'No Data'), (event.data.timeout || undefined))
+                    break;
+                case 'MAKE_TOAST':
+                    $.toast({
+                        type: (event.data.level || 'info'),
+                        title: (event.data.title || ''),
+                        subtitle: (event.data.subtitle || ''),
+                        content: (event.data.content || 'No Data'),
+                        delay: (event.data.timeout || undefined),
+                    });
+                    break;
+                default:
+                    break;
+            }
+        };
+    }
 }
 
 $(document).ready(function () {
@@ -1114,23 +1142,35 @@ $(document).ready(function () {
     verifyNetworkAccess();
     getRandomImage();
     getSidebar();
-    kernelRequestData({type: 'CACHE_URLS', urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))});
-    kernelRequestData({ type: 'GET_ALL_ACTIVE_JOBS'})
-        .then(async data => {
-            if (data && data.activeSpannedJobs) {
-                data.activeSpannedJobs.map(job => {
-                    if (job && job.id) {
-                        unpackingJobs.set(job.id, job);
-                    }
-                })
-            }
-            const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
-            console.log(updateOfflinePages);
-            updateNotficationsPanel();
-        })
-        .catch(error => {
-            console.error('Failed to get active jobs', error)
-        })
+    if (!navigator.serviceWorker.controller) {
+        if (window.location.protocol !== 'https:') {
+            $.snack('error', `Application not secure!`, 1500);
+        } else {
+            $.snack('error', `Application not ready!`, 1500);
+        }
+        updateNotficationsPanel();
+    } else {
+        kernelRequestData({
+            type: 'CACHE_URLS',
+            urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))
+        });
+        kernelRequestData({type: 'GET_ALL_ACTIVE_JOBS'})
+            .then(async data => {
+                if (data && data.activeSpannedJobs) {
+                    data.activeSpannedJobs.map(job => {
+                        if (job && job.id) {
+                            unpackingJobs.set(job.id, job);
+                        }
+                    })
+                }
+                const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+                console.log(updateOfflinePages);
+                updateNotficationsPanel();
+            })
+            .catch(error => {
+                console.error('Failed to get active jobs', error)
+            })
+    }
     $('.popover').popover('hide');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice() === false) {

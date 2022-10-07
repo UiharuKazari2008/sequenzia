@@ -4809,28 +4809,36 @@ function updateApplicationThemeColor() {
 }
 
 function kernelRequestData(message) {
-    return new Promise(function(resolve, reject) {
-        try {
-            const messageChannel = new MessageChannel();
-            messageChannel.port1.onmessage = function(event) {
-                if (event.data && event.data.error) {
-                    console.error(event.data.error);
-                    reject(false);
-                } else {
-                    resolve(event.data);
-                }
-            };
-            navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
-        } catch (err) {
-            $.toast({
-                type: 'error',
-                title: '<i class="fas fa-microchip pr-2"></i>Kernel Error',
-                subtitle: '',
-                content: `<p>Could not complete "${message.type}" due to communication failure with the network kernel!</p><p>${err.message}</p>`,
-                delay: 5000,
-            });
+    if (!navigator.serviceWorker.controller) {
+        if (window.location.protocol !== 'https:') {
+            $.snack('error', `Application not secure!`, 1500);
+        } else {
+            $.snack('error', `Application not ready!`, 1500);
         }
-    });
+    } else {
+        return new Promise(function(resolve, reject) {
+            try {
+                const messageChannel = new MessageChannel();
+                messageChannel.port1.onmessage = function (event) {
+                    if (event.data && event.data.error) {
+                        console.error(event.data.error);
+                        reject(false);
+                    } else {
+                        resolve(event.data);
+                    }
+                };
+                navigator.serviceWorker.controller.postMessage(message, [messageChannel.port2]);
+            } catch (err) {
+                $.toast({
+                    type: 'error',
+                    title: '<i class="fas fa-microchip pr-2"></i>Kernel Error',
+                    subtitle: '',
+                    content: `<p>Could not complete "${message.type}" due to communication failure with the network kernel!</p><p>${err.message}</p>`,
+                    delay: 5000,
+                });
+            }
+        });
+    }
 }
 function unpackRequestData(message) {
     return new Promise(resolve => {
@@ -4886,25 +4894,45 @@ if ('serviceWorker' in navigator) {
         }
         console.log(`Service Worker is ready!`);
         serviceWorkerReady = true;
-        if (await kernelRequestData({ type: 'PING' })) {
-            console.log('Service Worker Comms are OK');
-            setTimeout(() => {
-                document.getElementById('serviceWorkerComms').classList.add('badge-success');
-                document.getElementById('serviceWorkerComms').classList.remove('badge-danger');
-            }, 5000)
-        }
-        if (await kernelRequestData({ type: 'PING_STORAGE' })) {
-            setTimeout(() => {
-                document.getElementById('storageStatus').classList.add('badge-success');
-                document.getElementById('storageStatus').classList.remove('badge-danger');
-            }, 5000)
-        }
-        if (!offlinePage) {
-            try {
-                await registration.sync.register('SYNC_PAGES_NEW_ONLY');
-            } catch (e) {
-                console.error(e);
-                await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+        if (!navigator.serviceWorker.controller) {
+            if (window.location.protocol !== 'https:') {
+                $.toast({
+                    type: 'error',
+                    title: '<i class="fas fa-microchip pr-2"></i>Kernel Failure',
+                    subtitle: '',
+                    content: `<p>You must access Sequenzia as HTTPS for the appliation to function</p>Some features will not be available!`,
+                    delay: 5000,
+                });
+            } else {
+                $.toast({
+                    type: 'error',
+                    title: '<i class="fas fa-microchip pr-2"></i>Kernel Failure',
+                    subtitle: '',
+                    content: `<p>The Network Kernel is not registered, please refresh the application and try again!</p>`,
+                    delay: 5000,
+                });
+            }
+        } else {
+            if (await kernelRequestData({type: 'PING'})) {
+                console.log('Service Worker Comms are OK');
+                setTimeout(() => {
+                    document.getElementById('serviceWorkerComms').classList.add('badge-success');
+                    document.getElementById('serviceWorkerComms').classList.remove('badge-danger');
+                }, 5000)
+            }
+            if (await kernelRequestData({type: 'PING_STORAGE'})) {
+                setTimeout(() => {
+                    document.getElementById('storageStatus').classList.add('badge-success');
+                    document.getElementById('storageStatus').classList.remove('badge-danger');
+                }, 5000)
+            }
+            if (!offlinePage) {
+                try {
+                    await registration.sync.register('SYNC_PAGES_NEW_ONLY');
+                } catch (e) {
+                    console.error(e);
+                    await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+                }
             }
         }
     });
