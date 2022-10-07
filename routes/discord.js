@@ -1,4 +1,5 @@
-const config = require('../host.config.json')
+let config = require('../config.json')
+let host = require('../host.config.json');
 const webconfig = require('../web.config.json')
 const express = require('express');
 const router = express.Router();
@@ -9,10 +10,12 @@ const useragent = require('express-useragent');
 const qrcode = require("qrcode");
 const { printLine } = require("../js/logSystem");
 const { catchAsync } = require('../utils');
-const creds = btoa(`${config.discord_id}:${config.discord_secret}`);
+const creds = btoa(`${host.discord_id}:${host.discord_secret}`);
 const { sqlSafe, sqlSimple, sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const moment = require('moment');
 const persistSettingsManager = require('../js/persistSettingsManager');
+const app = require('./../app');
+const web = require("../web.config.json");
 
 function _encode(obj) {
     let string = "";
@@ -28,11 +31,24 @@ function cleanDeadCodes() {
 }
 setInterval(cleanDeadCodes, 60 * 1000);
 
+const noSessionTrandferURL = [
+    '/login',
+    '/discord',
+    '/homeImage',
+    '/sidebar',
+    '/actions',
+    '/status',
+    '/parity',
+    '/ambient-',
+    '/device-login',
+    '/ping',
+];
+
 // Redirect to Discord Login
 router.get('/login', (req, res) => {
     try {
         printLine('SessionInit', `Login Attempt!`, 'debug');
-        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${config.discord_id}&scope=identify+guilds&response_type=code&redirect_uri=${encodeURIComponent(`${config.discord_redirect_base}/discord/callback`)}`);
+        res.redirect(`https://discordapp.com/api/oauth2/authorize?client_id=${host.discord_id}&scope=identify+guilds&response_type=code&redirect_uri=${encodeURIComponent(`${(host.discord_redirect_base) ? host.discord_redirect_base : web.base_url}/discord/callback`)}`);
     } catch (err) {
         res.status(500).json({
             state: 'HALTED',
@@ -55,11 +71,11 @@ router.get('/destroy', catchAsync(async (req, res) => {
                             'Content-Type': 'application/x-www-form-urlencoded'
                         },
                         body: _encode({
-                            'client_id': config.discord_id,
-                            'client_secret': config.discord_secret,
+                            'client_id': host.discord_id,
+                            'client_secret': host.discord_secret,
                             'grant_type': 'authorization_code',
                             'token': token,
-                            'redirect_uri': `${config.discord_redirect_base}/discord/callback`,
+                            'redirect_uri': `${(host.discord_redirect_base) ? host.discord_redirect_base : web.base_url}/discord/callback`,
                             'scope': 'identify guilds'
                         })
                     });
@@ -95,11 +111,11 @@ router.get('/callback', catchAsync(async (req, res) => {
                         Authorization: `Basic ${creds}`,
                         'Content-Type': 'application/x-www-form-urlencoded'},
                     body: _encode({
-                        'client_id': config.discord_id,
-                        'client_secret': config.discord_secret,
+                        'client_id': host.discord_id,
+                        'client_secret': host.discord_secret,
                         'grant_type': 'authorization_code',
                         'code': code,
-                        'redirect_uri': `${config.discord_redirect_base}/discord/callback`,
+                        'redirect_uri': `${(host.discord_redirect_base) ? host.discord_redirect_base : web.base_url}/discord/callback`,
                         'scope': 'identify guilds'
                     })
                 });
@@ -114,6 +130,33 @@ router.get('/callback', catchAsync(async (req, res) => {
         });
     }
 }));
+if (config.enable_impersonation) {
+    printLine("Init", `User Impersonation is ENABLED! You should never enable this on a non-localhost instance for testing only!`, 'critical');
+    router.get('/impersonate/:userId', catchAsync(async (req, res) => {
+        try {
+            await roleGeneration(req.params.userId, res, req)
+                .then((config) => {
+                    if (config) {
+                        req.session.loggedin = true;
+                        req.session.user = {
+                            id: req.session.discord.user.id,
+                            source: 0,
+                            username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                            avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                            banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                        }
+                        printLine("PassportImpersonation", `User ${req.session.user.username} (${req.session.user.id}) logged in!`, 'info');
+                        res.redirect('/');
+                    }
+                })
+        } catch (err) {
+            res.status(500).json({
+                state: 'HALTED',
+                message: err.message,
+            });
+        }
+    }));
+}
 router.get('/refresh', async (req, res) => {
     try {
         async function _generate(token) {
@@ -128,7 +171,8 @@ router.get('/refresh', async (req, res) => {
                             id: req.session.discord.user.id,
                             source: _source,
                             username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                            avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`
+                            avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                            banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                         }
                         printLine('SessionRefresh', `Successfully refreshed session for ${req.session.discord.user.username}`, 'info');
                         if (req.session.goto && req.session.goto !== '') {
@@ -340,31 +384,32 @@ router.post('/persistent/settings', persistSettingsManager);
 
 async function roleGeneration(id, res, req, authToken) {
     return new Promise(async function (resolve) {
-        const users = await sqlPromiseSafe(`SELECT * FROM discord_users WHERE id = ?`, [id])
-        const extraLinks = await sqlPromiseSimple(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
-        const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type FROM discord_users_permissons WHERE userid = ?", [id])
-        const allChannels = await sqlPromiseSimple("SELECT x.*, y.chid_download FROM ( SELECT DISTINCT kanmi_channels.channelid, kanmi_channels.serverid, kanmi_channels.role, kanmi_channels.role_write, kanmi_channels.role_manage FROM kanmi_channels, sequenzia_class WHERE kanmi_channels.role IS NOT NULL AND kanmi_channels.classification = sequenzia_class.class) x LEFT OUTER JOIN (SELECT chid_download, serverid FROM discord_servers) y ON (x.serverid = y.serverid AND x.channelid = y.chid_download)");
-        const disabledChannels = await sqlPromiseSafe(`SELECT DISTINCT cid FROM sequenzia_hidden_channels WHERE user = ?`, [id])
+        const users = app.get('users').rows.filter(user => user.id === id);
+        const extraLinks = app.get('extraLinks').rows
+        const userPermissions = app.get('userPermissions').rows.filter(user => user.userid === id);
+        const allChannels = app.get('allChannels').rows
+        const disabledChannels = app.get('disabledChannels').rows.filter(user => user.user === id);
+        const allServers = app.get('allServers').rows
 
-        const readPermissions = userPermissions.rows.filter(e => e.type === 1).map(e => e.role);
-        const writePermissions = userPermissions.rows.filter(e => e.type === 2).map(e => e.role);
-        const managePermissions = userPermissions.rows.filter(e => e.type === 3).map(e => e.role);
-        const specialPermissions = userPermissions.rows.filter(e => e.type === 4).map(e => e.role);
+        const readPermissions = userPermissions.filter(e => e.type === 1).map(e => e.role);
+        const writePermissions = userPermissions.filter(e => e.type === 2).map(e => e.role);
+        const managePermissions = userPermissions.filter(e => e.type === 3).map(e => e.role);
+        const specialPermissions = userPermissions.filter(e => e.type === 4).map(e => e.role);
 
-        if (disabledChannels && disabledChannels.rows) {
-            req.session.disabled_channels = disabledChannels.rows.map(e => e.cid);
+        if (disabledChannels) {
+            req.session.disabled_channels = disabledChannels.map(e => e.cid);
         } else {
             req.session.disabled_channels = [];
         }
 
-        if (allChannels && allChannels.rows.length > 0 ) {
-            if (users && users.rows.length > 0) {
+        if (allChannels.length > 0 ) {
+            if (users.length > 0) {
                 let _roles_channels = [];
                 let _write_channels = [];
                 let _manage_channels = [];
                 let _server_download = [];
                 let _server_list = [];
-                await allChannels.rows.forEach(u => {
+                await allChannels.forEach(u => {
                     if (readPermissions.indexOf(u.role) !== -1 || specialPermissions.indexOf(u.role) !== -1) {
                         _roles_channels.push(u.channelid)
                     }
@@ -382,16 +427,15 @@ async function roleGeneration(id, res, req, authToken) {
                     }
                 })
                 printLine("AuthorizationGenerator", `User ${id} was found and role session data is loaded into memory!`, 'info');
-                const allServers = await sqlPromiseSimple(`SELECT DISTINCT * FROM discord_servers ORDER BY position`);
 
-                if (allServers && allServers.rows.length > 0) {
-                    allServers.rows.forEach(e => {
+                if (allServers.length > 0) {
+                    allServers.forEach(e => {
                         _server_list.push({
                             serverid: e.serverid,
                             name: e.name,
                             nice_name: e.nice_name,
                             short_name: e.short_name,
-                            icon: `https://cdn.discordapp.com/icons/${e.serverid}/${e.avatar}.png`,
+                            icon: `https://cdn.discordapp.com/icons/${e.serverid}/${e.avatar}.png?size=4096`,
                             login: (e.authware_enabled)
                         })
                     })
@@ -404,7 +448,7 @@ async function roleGeneration(id, res, req, authToken) {
                     _authToken = req.session.discord.user.auth_token;
                 }
                 let homeLinks = [];
-                await extraLinks.rows.forEach(link => {
+                await extraLinks.forEach(link => {
                     homeLinks.push({
                         title: link.name,
                         icon: (link.icon !== url) ? link.icon : undefined,
@@ -415,15 +459,23 @@ async function roleGeneration(id, res, req, authToken) {
                 req.session.discord = {
                     user: {
                         id,
-                        name: users.rows[0].nice_name,
-                        username: users.rows[0].username,
-                        avatar: users.rows[0].avatar,
+                        server: _server_list.filter(e => e.serverid === users[0].server),
+                        name: users[0].nice_name,
+                        username: users[0].username,
+                        avatar: users[0].avatar,
+                        banner: users[0].banner,
                         known: true,
                         auth_token: _authToken,
-                        token: users.rows[0].token,
-                        token_login: users.rows[0].blind_token,
-                        token_static: users.rows[0].token_static,
-                        token_rotation: users.rows[0].token_expires
+                        token: users[0].token,
+                        token_login: users[0].blind_token,
+                        token_static: users[0].token_static,
+                        token_rotation: users[0].token_expires
+                    },
+                    permissions: {
+                        read: readPermissions,
+                        write: writePermissions,
+                        manage: managePermissions,
+                        specialPermissions: specialPermissions
                     },
                     channels: {
                         read: _roles_channels,
@@ -436,8 +488,8 @@ async function roleGeneration(id, res, req, authToken) {
                     },
                     links: homeLinks
                 }
-                res.cookie('user_token', users.rows[0].token, {
-                    maxAge: (new Date(users.rows[0].token_expires).getTime() - new Date(Date.now()).getTime()).toFixed(0),
+                res.cookie('user_token', users[0].token, {
+                    maxAge: (new Date(users[0].token_expires).getTime() - new Date(Date.now()).getTime()).toFixed(0),
                     httpOnly: true, // The cookie only accessible by the web server
                     signed: true, // Indicates if the cookie should be signed
                 })
@@ -481,6 +533,7 @@ async function generateViews(req, id) {
         'kanmi_channels.role_write',
         'kanmi_channels.role_manage',
         'kanmi_channels.classification',
+        'kanmi_channels.media_group',
         'sequenzia_class.name AS class_name',
         'sequenzia_class.icon AS class_icon',
     ].join(', ');
@@ -554,8 +607,9 @@ async function generateViews(req, id) {
 
     req.session.cache = {
         channels_view: `kanmi_auth_${id}`,
-        sidebar_view: `kanmi_sidebar_${id}`,
+        sidebar_view: `kanmi_sidebar_${id}`
     };
+    await getNextEpisode(req, id);
 
     const serverResults = await sqlPromiseSimple(`SELECT DISTINCT kanmi_sidebar_${id}.serverid, kanmi_sidebar_${id}.server_nice, kanmi_sidebar_${id}.server_name, kanmi_sidebar_${id}.server_short, discord_servers.position, discord_servers.authware_enabled FROM kanmi_sidebar_${id}, discord_servers WHERE kanmi_sidebar_${id}.serverid = discord_servers.serverid ORDER BY discord_servers.position`);
     req.session.server_list = serverResults.rows.map((e) => ({
@@ -565,6 +619,18 @@ async function generateViews(req, id) {
         login: (e.authware_enabled)
     }));
     printLine("ViewGenerator", `User ${id} channels index cache was loaded into memory!`, 'info');
+
+
+}
+async function getNextEpisode(req, id) {
+    const tempLastEpisode = await sqlPromiseSimple(`SELECT Max(y.eid) AS eid, MAX(y.show_id) AS show_id FROM (SELECT * FROM kanmi_system.kongou_watch_history WHERE user = '${id}' ORDER BY date DESC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_episodes) y ON (x.eid = y.eid);`)
+    if (tempLastEpisode.rows.length > 0) {
+        const nextEpisodeView = await sqlPromiseSimple(`SELECT * FROM  (SELECT * FROM kanmi_system.kongou_episodes WHERE eid > ${tempLastEpisode.rows[0].eid} AND show_id = ${tempLastEpisode.rows[0].show_id} AND season_num > 0 ORDER BY season_num ASC, episode_num ASC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_shows) y ON (x.show_id = y.show_id);`)
+        console.log(nextEpisodeView.rows)
+        req.session.kongou_next_episode = nextEpisodeView.rows[0];
+    } else {
+        req.session.kongou_next_episode = {};
+    }
 }
 async function checkAccessToken(token, req, res, redirect, next) {
     if (token !== undefined) {
@@ -598,7 +664,8 @@ async function checkAccessToken(token, req, res, redirect, next) {
                                 id: req.session.discord.user.id,
                                 source: 0,
                                 username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                                avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                             }
                             printLine("PassportCheck", `User ${user_response_json.username}#${user_response_json.discriminator} (${user_response_json.id}) logged in!`, 'info', user_response_json);
                             if (redirect === true) {
@@ -633,18 +700,17 @@ async function loginPage(req, res, obj) {
     if (obj) {
         _obj = obj;
     }
-    _obj.enableTelegram = (config.telegram_secret);
     _obj.joinLink = webconfig.discord_join_link;
-    if (config.telegram_callback_url && config.telegram_secret && config.telegram_bot_name) {
-        _obj.telegramCallback = config.telegram_callback_url;
-        _obj.telegramName = config.telegram_bot_name;
+    if (host.telegram_callback_url && host.telegram_secret && host.telegram_bot_name) {
+        _obj.telegramCallback = host.telegram_callback_url;
+        _obj.telegramName = host.telegram_bot_name;
     }
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
         if (obj && obj.keepSession) {
             req.session.loggedin = false;
         }
-        res.status(((obj && obj.status) ? obj.status : 200)).render('login_new', _obj);
+        res.status(((obj && obj.status) ? obj.status : 403)).render('login_new', _obj);
     } else {
         try {
             async function tryToGenerateCode() {
@@ -708,204 +774,352 @@ async function loginPage(req, res, obj) {
                     if (req.session.login_code) {
                         _obj.login_code = req.session.login_code;
                     }
-                    res.status(((obj && obj.status) ? obj.status : 200)).render('login_new', _obj);
+                    res.status(((obj && obj.status) ? obj.status : 403)).render('login_new', _obj);
                 });
         }
     }
 }
 function sessionTransfer(req) {
-    console.log(req.originalUrl)
-    if (req.originalUrl && req.originalUrl !== '/' && (
+    /* Session Transfer aka GoTo Urls are removed until its be fixed for rare issues */
+    /*console.log(req.originalUrl)
+    if (req.originalUrl && req.originalUrl !== '/' && noSessionTrandferURL.filter(e => req.originalUrl.startsWith(e)).length === 0 && (
         req.originalUrl.toLowerCase().includes('juneOS') || req.originalUrl.toLowerCase().includes('lite') || req.originalUrl.toLowerCase().includes('home') ||
         req.originalUrl.toLowerCase().includes('ambient') || req.originalUrl.toLowerCase().includes('ads') ||
         req.originalUrl.toLowerCase().includes('gallery') || req.originalUrl.toLowerCase().includes('files') || req.originalUrl.toLowerCase().includes('cards'))) {
         printLine('SessionTransfer', `Redirect URL "${req.originalUrl}" Saved`, 'debug');
         req.session.goto = req.originalUrl
-    }
+    }*/
 }
 async function sessionVerification(req, res, next) {
-    const source = req.headers['user-agent']
-    const ua = (source) ? useragent.parse(source) : undefined
-    if (!ua || !source || (ua && ua.browser === 'PocketCasts')) {
-        res.status(401).send('This app is blocked from connecting')
-    } else {
-        if (req.session && req.session.loggedin === true && req.session.discord && req.session.discord.user.id) {
-            if (req.session.discord.channels.read && req.session.discord.channels.read.length > 0) {
-                next();
-            } else if (req.originalUrl && req.originalUrl === '/home') {
-                printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+    if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content'))) {
+        printLine('PassportCheck', `CDS Checks are bypassed`, 'warn');
+        next()
+    } else if (req.session && req.session.loggedin === true && req.session.discord && req.session.discord.user.id) {
+        if (req.session.discord.channels.read && req.session.discord.channels.read.length > 0) {
+            next();
+        } else if (req.originalUrl && req.originalUrl === '/home') {
+            printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+            res.render('home_lite', {});
+        } else {
+            printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+            loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+        }
+    } else if (req.query && req.query.key) {
+        printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
+        const user = app.get('users').rows.filter(e => e.token && e.token_static && e.token_static === ((typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()));
+        if (user.length === 0 || !user) {
+            printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
+            if (req.originalUrl && req.originalUrl === '/home') {
                 res.render('home_lite', {});
             } else {
-                printLine('PassportCheck', `User ${req.session.discord.user.username} is known but does not have rights to access anything!`, 'warn');
                 loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
             }
-        } else if (req.query && req.query.key) {
-            printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
-            sqlSafe(`SELECT *
-                     FROM discord_users
-                     WHERE (token_static = ? AND token_static IS NOT NULL AND token IS NOT NULL)
-                     LIMIT 1`, [(typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()], async (err, user) => {
-                if (err) {
-                    printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
-                    }
-                } else if (user.length === 0 || !user) {
-                    printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                    }
-                } else {
-                    await roleGeneration(user[0].id, res, req)
-                        .then((config) => {
-                            if (config) {
-                                if (req.session.discord && req.session.discord.user.known) {
-                                    req.session.user = {
-                                        id: req.session.discord.user.id,
-                                        source: 900,
-                                        username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
-                                    }
-                                    req.session.loggedin = true;
-                                    next();
-                                } else {
-                                    printLine('PassportCheck', `Session Launch Failed using Static Login Token, redirecting to login`, 'warn');
-                                    if (req.originalUrl && req.originalUrl === '/home') {
-                                        res.render('home_lite', {});
-                                    } else {
-                                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                                    }
-                                }
+        } else {
+            await roleGeneration(user[0].id, res, req)
+                .then((config) => {
+                    if (config) {
+                        if (req.session.discord && req.session.discord.user.known) {
+                            req.session.user = {
+                                id: req.session.discord.user.id,
+                                source: 900,
+                                username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                             }
-                        })
-                }
-            })
-        } else if (req.query && req.query.blind_key) {
-            printLine('PassportCheck', `Session does not exist but there is a blind key, attempting to silently re-login`, 'warn');
-            sqlSafe(`SELECT *
+                            req.session.loggedin = true;
+                            next();
+                        } else {
+                            printLine('PassportCheck', `Session Launch Failed using Static Login Token, redirecting to login`, 'warn');
+                            if (req.originalUrl && req.originalUrl === '/home') {
+                                res.render('home_lite', {});
+                            } else {
+                                loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                            }
+                        }
+                    }
+                })
+        }
+    } else if (req.query && req.query.blind_key) {
+        printLine('PassportCheck', `Session does not exist but there is a blind key, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
                      FROM discord_users
                      WHERE (blind_token = ? AND blind_token IS NOT NULL AND token IS NOT NULL AND token_static IS NOT NULL)
                      LIMIT 1`, [(typeof req.query.blind_key === 'string') ? req.query.blind_key : req.query.blind_key.pop()], async (err, user) => {
-                if (err) {
-                    printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
-                    }
-                } else if (user.length === 0 || !user) {
-                    printLine('PassportCheck', `Invalid Blind Token, redirecting to login`, 'warn');
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                    }
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
                 } else {
-                    await roleGeneration(user[0].id, res, req)
-                        .then((config) => {
-                            if (config) {
-                                if (req.session.discord && req.session.discord.user.known) {
-                                    req.session.user = {
-                                        id: req.session.discord.user.id,
-                                        source: 900,
-                                        username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
-                                    }
-                                    req.session.loggedin = true;
-                                    next();
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Blind Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: 900,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                                }
+                                req.session.loggedin = true;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
                                 } else {
-                                    printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
-                                    if (req.originalUrl && req.originalUrl === '/home') {
-                                        res.render('home_lite', {});
-                                    } else {
-                                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                                    }
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
                                 }
                             }
-                        })
-                }
-            })
-        } else if (req.signedCookies && req.signedCookies.user_token && req.signedCookies.user_token.length > 64) {
-            printLine('PassportCheck', `Session does not exist but there is a cookie, attempting to silently re-login`, 'warn');
-            sqlSafe(`SELECT *
+                        }
+                    })
+            }
+        })
+    } else if (req.signedCookies && req.signedCookies.user_token && req.signedCookies.user_token.length > 64) {
+        printLine('PassportCheck', `Session does not exist but there is a cookie, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
                      FROM discord_users
                      WHERE (token = ? AND token IS NOT NULL)
                      LIMIT 1`, [req.signedCookies.user_token], async (err, user) => {
-                if (err) {
-                    printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
-                    }
-                } else if (user.length === 0 || !user) {
-                    printLine('PassportCheck', `Invalid Session Token, redirecting to login`, 'warn');
-                    if (req.originalUrl && req.originalUrl === '/home') {
-                        res.render('home_lite', {});
-                    } else {
-                        loginPage(req, res);
-                    }
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
                 } else {
-                    await roleGeneration(user[0].id, res, req)
-                        .then((config) => {
-                            if (config) {
-                                if (req.session.discord && req.session.discord.user.known) {
-                                    let _source = 100;
-                                    if (req.session.user && req.session.user.source || req.session.user && req.session.user.source === 0) {
-                                        _source = req.session.user.source
-                                    }
-                                    req.session.user = {
-                                        id: req.session.discord.user.id,
-                                        source: _source,
-                                        username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
-                                    }
-                                    req.session.loggedin = true;
-                                    next();
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Session Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res);
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                let _source = 100;
+                                if (req.session.user && req.session.user.source || req.session.user && req.session.user.source === 0) {
+                                    _source = req.session.user.source
+                                }
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: _source,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                                }
+                                req.session.loggedin = true;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
                                 } else {
-                                    printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
-                                    if (req.originalUrl && req.originalUrl === '/home') {
-                                        res.render('home_lite', {});
-                                    } else {
-                                        loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
-                                    }
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
                                 }
                             }
-                        })
-                }
-            })
+                        }
+                    })
+            }
+        })
+    } else {
+        if (req.originalUrl && req.originalUrl === '/home') {
+            res.render('home_lite', {});
+        } else if (req.originalUrl && req.originalUrl !== '' && req.originalUrl.includes('ambient')) {
+            if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
+                sessionTransfer(req);
+            }
+            res.cookie('device', 'nonInteractive', {
+                maxAge: 3155692600,
+                httpOnly: true,
+                signed: true
+            });
+            printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
+            res.redirect(307, '/device-login');
         } else {
+            if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
+                sessionTransfer(req);
+            }
+            printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
+            loginPage(req, res);
+        }
+    }
+}
+async function sessionVerificationWithReload(req, res, next) {
+    if (req.query && req.query.key) {
+        printLine('PassportCheck', `Session does not exist but there is a static key, attempting to silently re-login`, 'warn');
+        const user = app.get('users').rows.filter(e => e.token && e.token_static && e.token_static === ((typeof req.query.key === 'string') ? req.query.key : req.query.key.pop()));
+        if (user.length === 0 || !user) {
+            printLine('PassportCheck', `Invalid Static Token, redirecting to login`, 'warn');
             if (req.originalUrl && req.originalUrl === '/home') {
                 res.render('home_lite', {});
-            } else if (req.originalUrl && req.originalUrl !== '' && req.originalUrl.includes('ambient')) {
-                if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
-                    sessionTransfer(req);
-                }
-                res.cookie('device', 'nonInteractive', {
-                    maxAge: 3155692600,
-                    httpOnly: true,
-                    signed: true
-                });
-                printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
-                res.redirect(307, '/device-login');
             } else {
-                if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
-                    sessionTransfer(req);
-                }
-                printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
-                loginPage(req, res);
+                loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
             }
+        } else {
+            await roleGeneration(user[0].id, res, req)
+                .then((config) => {
+                    if (config) {
+                        if (req.session.discord && req.session.discord.user.known) {
+                            req.session.user = {
+                                id: req.session.discord.user.id,
+                                source: 900,
+                                username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                            }
+                            req.session.loggedin = true;
+                            req.session.sidebar = undefined;
+                            next();
+                        } else {
+                            printLine('PassportCheck', `Session Launch Failed using Static Login Token, redirecting to login`, 'warn');
+                            if (req.originalUrl && req.originalUrl === '/home') {
+                                res.render('home_lite', {});
+                            } else {
+                                loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                            }
+                        }
+                    }
+                })
+        }
+    } else if (req.query && req.query.blind_key) {
+        printLine('PassportCheck', `Session does not exist but there is a blind key, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
+                     FROM discord_users
+                     WHERE (blind_token = ? AND blind_token IS NOT NULL AND token IS NOT NULL AND token_static IS NOT NULL)
+                     LIMIT 1`, [(typeof req.query.blind_key === 'string') ? req.query.blind_key : req.query.blind_key.pop()], async (err, user) => {
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Blind Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: 900,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                                }
+                                req.session.loggedin = true;
+                                req.session.sidebar = undefined;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
+                                } else {
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                                }
+                            }
+                        }
+                    })
+            }
+        })
+    } else if (req.signedCookies && req.signedCookies.user_token && req.signedCookies.user_token.length > 64) {
+        printLine('PassportCheck', `Session does not exist but there is a cookie, attempting to silently re-login`, 'warn');
+        sqlSafe(`SELECT *
+                     FROM discord_users
+                     WHERE (token = ? AND token IS NOT NULL)
+                     LIMIT 1`, [req.signedCookies.user_token], async (err, user) => {
+            if (err) {
+                printLine('PassportCheck', `Error with SQL Login, redirecting to login`, 'error', err);
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res, { noLoginAvalible: 'noauth', status: 401 });
+                }
+            } else if (user.length === 0 || !user) {
+                printLine('PassportCheck', `Invalid Session Token, redirecting to login`, 'warn');
+                if (req.originalUrl && req.originalUrl === '/home') {
+                    res.render('home_lite', {});
+                } else {
+                    loginPage(req, res);
+                }
+            } else {
+                await roleGeneration(user[0].id, res, req)
+                    .then((config) => {
+                        if (config) {
+                            if (req.session.discord && req.session.discord.user.known) {
+                                let _source = 100;
+                                if (req.session.user && req.session.user.source || req.session.user && req.session.user.source === 0) {
+                                    _source = req.session.user.source
+                                }
+                                req.session.user = {
+                                    id: req.session.discord.user.id,
+                                    source: _source,
+                                    username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
+                                }
+                                req.session.loggedin = true;
+                                req.session.sidebar = undefined;
+                                next();
+                            } else {
+                                printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
+                                if (req.originalUrl && req.originalUrl === '/home') {
+                                    res.render('home_lite', {});
+                                } else {
+                                    loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
+                                }
+                            }
+                        }
+                    })
+            }
+        })
+    } else {
+        if (req.originalUrl && req.originalUrl === '/home') {
+            res.render('home_lite', {});
+        } else if (req.originalUrl && req.originalUrl !== '' && req.originalUrl.includes('ambient')) {
+            if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
+                sessionTransfer(req);
+            }
+            res.cookie('device', 'nonInteractive', {
+                maxAge: 3155692600,
+                httpOnly: true,
+                signed: true
+            });
+            printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
+            res.redirect(307, '/device-login');
+        } else {
+            if (req.originalUrl !== '/' && req.originalUrl.toLowerCase().includes('login') && req.originalUrl.toLowerCase().includes('discord')) {
+                sessionTransfer(req);
+            }
+            printLine('PassportCheck', `Session does not exist, redirecting to login`, 'warn');
+            loginPage(req, res);
         }
     }
 }
 function manageValidation(req, res, next) {
     if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
-        if (req.body && req.body.serverid && req.body.channelid) {
-            if ((req.session.discord.channels.manage && req.session.discord.channels.manage.length > 0 && req.session.discord.channels.manage.indexOf(req.body.channelid) !== -1) || req.body.action && req.body.action === 'RequestFile') {
+        if (req.body && (req.body.batch || req.body.serverid && req.body.channelid)) {
+            if (req.body.action && req.body.action === 'RequestFile' || (req.session.discord.channels.manage && req.session.discord.channels.manage.length > 0 && ((req.body.batch && req.body.batch.filter(e => e.action !== 'RequestFile').map(e => e.channelid).filter(e => req.session.discord.channels.manage.indexOf(e) === -1).length === 0) || req.session.discord.channels.manage.indexOf(req.body.channelid) !== -1))) {
                 next();
             } else {
                 printLine('PassportCheck-Manage', `User ${req.session.discord.user.username} does not have the rights to manage this channel`, 'error', req.body);
@@ -939,8 +1153,10 @@ function manageValidation(req, res, next) {
     }
 }
 function readValidation(req, res, next) {
-    console.log(req.query)
-    if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
+    if (config.bypass_cds_check) {
+        printLine('PassportCheck-Read', `CDS Checks are bypassed`, 'warn');
+        next()
+    } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
         if ( req.session.discord.channels.read && req.session.discord.channels.read.length > 0 ) {
             next();
         } else {
@@ -973,7 +1189,8 @@ function readValidation(req, res, next) {
                                     id: req.session.discord.user.id,
                                     source: 900,
                                     username: (req.session.discord.user.name) ? req.session.discord.user.name : req.session.discord.user.username,
-                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                                    avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
+                                    banner: (req.session.discord.user.banner) ? `https://cdn.discordapp.com/banners/${req.session.discord.user.id}/${req.session.discord.user.banner}.${(req.session.discord.user.banner && req.session.discord.user.banner.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : undefined
                                 }
                                 req.session.loggedin = true;
                                 next();
@@ -993,7 +1210,9 @@ function readValidation(req, res, next) {
     }
 }
 function downloadValidation(req, res, next) {
-    if (req.originalUrl && (req.originalUrl.includes('/content/link/') || req.originalUrl.includes('/content/json/'))) {
+    if (config.bypass_cds_check) {
+        next()
+    } else if (req.originalUrl && (req.originalUrl.startsWith('/content/link/') || req.originalUrl.startsWith('/content/json/'))) {
         printLine('PassportCheck-Proxy', `Request Bypassed for CDS Permalink URL`, 'debug', req.body);
         next();
     } else if (req.session && req.session.loggedin && req.session.discord && req.session.discord.user.id && req.session.discord.user.known === true) {
@@ -1041,6 +1260,7 @@ function writeValidation(req, res, next) {
 
 module.exports = {
     sessionTransfer,
+    sessionVerificationWithReload,
     roleGeneration,
     sessionVerification,
     manageValidation,

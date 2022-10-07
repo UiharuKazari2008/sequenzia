@@ -1,26 +1,53 @@
+let config = require('./host.config.json')
+let global = require('./config.json')
+let web = require('./web.config.json')
+
+if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+    config.system_name = process.env.SYSTEM_NAME.trim()
+if (process.env.DATABASE_HOST && process.env.DATABASE_HOST.trim().length > 0)
+    config.sql_host = process.env.DATABASE_HOST.trim()
+if (process.env.DATABASE_NAME && process.env.DATABASE_NAME.trim().length > 0)
+    config.sql_database  = process.env.DATABASE_NAME.trim()
+if (process.env.DATABASE_USERNAME && process.env.DATABASE_USERNAME.trim().length > 0)
+    config.sql_user = process.env.DATABASE_USERNAME.trim()
+if (process.env.DATABASE_PASSWORD && process.env.DATABASE_PASSWORD.trim().length > 0)
+    config.sql_pass = process.env.DATABASE_PASSWORD.trim()
+
 const express = require("express");
-const app = express()
+const app = module.exports = express()
 const routes = require('./routes/index');
+const apps = require('./routes/apps');
 const { router: routesDiscord, sessionVerification, loginPage } = require('./routes/discord');
 const { sqlPromiseSafe } = require('./js/sqlClient');
 const routesAccessories = require('./routes/accessories');
-const { router: routesTelegram } = require('./routes/telegram');
 const { printLine } = require('./js/logSystem');
 let routesUpload = require('./routes/upload');
 const bodyParser = require('body-parser');
+const compression = require('compression')
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const cors = require('cors');
 const morgan = require('morgan');
-const config = require('./host.config.json')
-const global = require('./config.json')
-const web = require('./web.config.json')
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
 let activeRequests = new Map();
 let fileIDCache = new Map();
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
+const noSessionTrandferURL = [
+    '/login',
+    '/discord',
+    '/homeImage',
+    '/sidebar',
+    '/actions',
+    '/status',
+    '/parity',
+    '/ambient-',
+    '/device-login',
+    '/ping',
+];
 
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
@@ -49,9 +76,9 @@ app.use('/stream', rateLimit({
 }));
 app.use('/actions', rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 250,
+    max: 1000,
     message:
-        "Action API: Too many requests"
+        "Actions API: Too many requests"
 }));
 app.use([ '/ads-micro', '/ambient-get', '/ads-widget'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -71,7 +98,7 @@ app.use(['/gallery', '/files', '/cards', '/start', '/pages', '/artists', '/sideb
     message:
         "Sequenzia: Too many requests"
 }));
-app.use(['/pipe'], rateLimit({
+app.use(['/attachments'], rateLimit({
     windowMs: 60 * 1000, // 5 minutes
     max: 1000,
     message:
@@ -106,9 +133,10 @@ app.set('view engine', 'pug');
 
 app.use(function (req, res, next) {
     res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
-    res.setHeader('X-Site-Name', web.site_name);
-    res.setHeader('X-Site-Owner', web.company_name);
-    res.setHeader('X-Eiga-Node', config.system_name);
+    res.setHeader('X-Site-Name', web.site_name || 'Sequenzia');
+    res.setHeader('X-Site-Owner', web.company_name || 'Undisclosed Operator Name');
+    res.setHeader('X-Eiga-Node', config.system_name || 'Anonymous Server Name');
+    res.setHeader('X-Validator', web.domain_validation || 'SequenziaOK');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
@@ -116,41 +144,49 @@ app.use(function (req, res, next) {
 })
 
 app.use(cors());
+app.use(compression());
 app.use(morgan(function(tokens, req, res) {
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
+    let ipaddress = (req.headers['x-real-ip']) ? req.headers['x-real-ip'] : (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'] : 'Unknown'
     if (req.session && req.session.user && req.session.user.username) {
         username = req.session.user.username;
     }
-    if (res.statusCode !== 304 && res.method === 'GET') {
-        printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
-            method: req.method,
-            url: req.originalUrl,
-            base: baseURL,
-            status: res.statusCode,
-            params: req.query,
-            length: tokens.res(req, res, 'content-length'),
-            time: tokens['response-time'](req, res),
-            username: username,
-        })
-    } else {
-        printLine(`Express`, `"${username}" => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
-            method: req.method,
-            url: req.originalUrl,
-            base: baseURL,
-            status: res.statusCode,
-            params: req.query,
-            length: 0,
-            time: parseInt(tokens['response-time'](req, res)),
-            username: username,
-        })
+    if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
+        if (res.statusCode !== 304 && res.method === 'GET') {
+            printLine(`Express`, `"${username}" via ${ipaddress} => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send ${tokens.res(req, res, 'content-length')}`, 'debug', {
+                method: req.method,
+                url: req.originalUrl,
+                ip: ipaddress,
+                base: baseURL,
+                status: res.statusCode,
+                params: req.query,
+                length: tokens.res(req, res, 'content-length'),
+                time: tokens['response-time'](req, res),
+                username: username,
+            })
+        } else {
+            printLine(`Express`, `"${username}" via ${ipaddress} => ${req.method} ${res.statusCode} ${req.originalUrl} - Completed in ${tokens['response-time'](req, res)}ms - Send Nothing`, 'debug', {
+                method: req.method,
+                url: req.originalUrl,
+                ip: ipaddress,
+                base: baseURL,
+                status: res.statusCode,
+                params: req.query,
+                length: 0,
+                time: parseInt(tokens['response-time'](req, res)),
+                username: username,
+            })
+        }
     }
-
 }));
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json({limit: '20mb'}));
-app.use(express.urlencoded({extended : true, limit: '20mb'}));
+app.use(bodyParser.urlencoded({
+    limit: '50mb',
+    parameterLimit: 100000,
+    extended: true
+}));
+app.use(express.json({limit: '50mb'}));
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-WSS-Key, X-API-Key, X-User-Agent, User-Agent");
@@ -173,10 +209,34 @@ app.use(session({
     saveUninitialized: true
 }));
 app.set('trust proxy', 1);
+if (process.env.NODE_ENV !== 'production') {
+    printLine("Init", `View Caching is not enabled and performance WILL SUFFER GREATLY, Set the environment variable NODE_ENV to production`, 'critical');
+    app.disable('view cache')
+}
+
+app.locals.databaseCache = new Map();
+
+async function cacheDatabase() {
+    const users = await sqlPromiseSafe(`SELECT * FROM discord_users`)
+    const extraLinks = await sqlPromiseSafe(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
+    const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type, userid, serverid FROM discord_users_permissons")
+    const allChannels = await sqlPromiseSafe("SELECT x.*, y.chid_download FROM ( SELECT DISTINCT kanmi_channels.channelid, kanmi_channels.serverid, kanmi_channels.role, kanmi_channels.role_write, kanmi_channels.role_manage FROM kanmi_channels, sequenzia_class WHERE kanmi_channels.role IS NOT NULL AND kanmi_channels.classification = sequenzia_class.class) x LEFT OUTER JOIN (SELECT chid_download, serverid FROM discord_servers) y ON (x.serverid = y.serverid AND x.channelid = y.chid_download)");
+    const disabledChannels = await sqlPromiseSafe(`SELECT DISTINCT user, cid FROM sequenzia_hidden_channels`)
+    const allServers = await sqlPromiseSafe(`SELECT DISTINCT * FROM discord_servers ORDER BY position`);
+
+    app.set('users', users)
+    app.set('extraLinks', extraLinks)
+    app.set('userPermissions', userPermissions)
+    app.set('allChannels', allChannels)
+    app.set('disabledChannels', disabledChannels)
+    app.set('allServers', allServers)
+}
+setInterval(cacheDatabase, 60000)
+cacheDatabase();
 
 app.use('/', routes);
+app.use('/app', apps);
 app.use('/discord', routesDiscord);
-app.use('/telegram', routesTelegram);
 app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
@@ -189,7 +249,8 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                     loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
                 } else {
                     let passURL = undefined
-                    if (session1 && session1.goto && session1.goto !== '/') {
+                    /* Session Transfer aka GoTo Urls are removed until its be fixed for rare issues */
+                    /*if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
                         passURL = session1.goto
                     }
                     if (req.query.type === '1' && !passURL) {
@@ -197,7 +258,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                         if (session1 && session1.goto && session1.goto !== '' && session1.goto.includes('ambient')) {
                             passURL = session1.goto
                         }
-                    }
+                    }*/
 
                     sessionStore.set(device, {
                         cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null },
@@ -232,7 +293,8 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                         res.status(401).send(`Transfer session failed - Could not read session`)
                     } else {
                         let passURL = undefined
-                        if (session1 && session1.goto && session1.goto !== '/') {
+                        /* Session Transfer aka GoTo Urls are removed until its be fixed for rare issues */
+                        /*if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
                             passURL = session1.goto
                         }
                         if (req.query.type === '1' && !passURL) {
@@ -240,7 +302,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                             if (session1 && session1.goto && session1.goto !== '' && session1.goto.includes('ambient')) {
                                 passURL = session1.goto
                             }
-                        }
+                        }*/
 
                         sessionStore.set(device, {
                             cookie: {path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},

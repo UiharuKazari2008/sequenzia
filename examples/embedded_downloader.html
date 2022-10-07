@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Downloading File</title>
+    <style>
+      html {
+        background: #0a0a0a;
+        color: orange;
+      }
+      .success {
+          color: #1cc88a;
+      }
+      .failed {
+          color: red;
+      }
+    </style>
+    <script>
+        let controller = {
+
+        }
+        try {
+            const data = window.atob(decodeURIComponent(new URL(document.URL).hash.substring(1)))
+            controller = {
+                ...(JSON.parse(data)),
+                pending: false,
+                ready: true,
+                progress: '0%',
+                abort: new AbortController(),
+                blobs: []
+            };
+            console.log(controller)
+
+            if (controller.parts && controller.parts.length > 0 && controller.expected_parts) {
+                if (controller.parts.length === controller.expected_parts) {
+                    for (let i in controller.parts) {
+                        document.getElementById('status').innerText = `Downloading Parity File (${parseInt(i) + 1}/${controller.parts.length})...`
+
+                        const part = await new Promise(ok => {
+                            const url = (() => {
+                                if (controller.parts[i].includes('discordapp.com/')) {
+                                    return `${document.location.protocol}//${document.location.host}/attachments${controller.parts[i].split('attachments').pop()}`
+                                } else if (controller.parts[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
+                                    return controller.parts[i]
+                                } else {
+                                    return undefined
+                                }
+                            })()
+                            if (url) {
+                                axios({
+                                    url,
+                                    method: 'GET',
+                                    signal: controller.abort.signal,
+                                    responseType: 'blob'
+                                })
+                                    .then((response) => {
+                                        console.log(`Downloaded Parity ${url}`)
+                                        controller.blobs.push(response.data);
+                                        ok(true);
+                                    })
+                                    .catch(e => {
+                                        console.error(`Failed Parity ${url} - ${e.message}`)
+                                        controller.ready = false;
+                                        ok(false);
+                                    })
+                            } else {
+                                console.error('Download not possible, not a valid url');
+                                controller.ready = false;
+                                ok(false);
+                            }
+                        })
+                    }
+
+                    if (controller.blobs.length === controller.expected_parts) {
+                        document.getElementById('status').innerText = `Download Completed`
+
+                        const downloadedFile = window.URL.createObjectURL(new Blob(controller.blobs));
+                        const link = document.createElement('a');
+                        link.href = downloadedFile;
+                        link.setAttribute('download', controller.filename);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        document.getElementById('status').classList = 'success'
+                    } else {
+                        document.getElementById('status').innerText = 'Not all parts were downloaded, try again'
+                        document.getElementById('status').classList = 'failed'
+                    }
+                } else {
+                    document.getElementById('status').innerText = 'Missing required parts for this download'
+                    document.getElementById('status').classList = 'failed'
+                }
+            } else {
+                document.getElementById('status').innerText = 'Failed to parse the given data'
+                document.getElementById('status').classList = 'failed'
+            }
+        } catch (e) {
+            document.getElementById('status').innerText = e.message
+            document.getElementById('status').classList = 'failed'
+        }
+    </script>
+</head>
+<body>
+    <span id="status" class="">Waiting to start...</span>
+</body>
+</html>

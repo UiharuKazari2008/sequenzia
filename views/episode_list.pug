@@ -1,0 +1,557 @@
+extends layout
+
+block content
+    if (req_uri)
+        - params = new URLSearchParams(req_uri.split('?')[1])
+        - path = '/' + req_uri.split('?')[0].split('/').pop()
+    if (results && results.length > 0 )
+        if (!params.has('show_id'))
+            - showData = results[Math.floor(Math.random() * results.length)].media.show.meta
+            if (results[0].media.show.background)
+                - backgroundImg = { preview: (results[0].media.show.background) ? 'https://media.discordapp.net/attachments' + results[0].media.show.background : showData.background.pop() }
+            else
+                - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+            // Page Heading
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+                }
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+
+            if (params.getAll('watch_history')[0] === 'none')
+                - shows = [...new Set(results.map(e => e.media.show.id))].map(e => results.filter(f => f.media.season !== 0 && f.media.show.id === e))
+                - shows = shows.filter(e => e.length > 0 && (!(e[0].media.season === 1 && e[0].media.episode === 1) || (e[0].media.episode === 1 && e[0].media.watched && e[0].media.watched > 0.05)))
+                each show in shows
+                    - showData = show[0].media.show.meta
+                    if (showData.seasons)
+                        - seasons = showData.seasons
+                        - nextEpisode = show.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < .9) ) && e.media.meta.season !== 0)
+                        - banner = (nextEpisode.length > 0) ? nextEpisode : show
+                        .show-header.slim-line.mb-3.p-3
+                            .show-preview(style=`background-image : url("${(show[0].media.show.background) ? 'https://media.discordapp.net/attachments' + show[0].media.show.background : showData.background.pop() }");`)
+                            .show-preview-overlay
+                            .d-none.d-sm-block.show-poster.mr-1
+                                img(src=`${(show[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.show.poster + '?height=580&width=384' : showData.poster[0]}`)
+                            .show-info.px-2.d-flex.flex-column.w-100
+                                .show-title
+                                    if (nextEpisode[0].media.meta.name)
+                                        a(href=`https://themoviedb.org/tv/${nextEpisode[0].media.show.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                                            span #{nextEpisode[0].media.meta.name}
+                                    else
+                                        a(href=`https://themoviedb.org/tv/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                                            span #{showData.name}
+                                .show-info-top.d-flex.flex-row
+                                .episode-number.position-absolute
+                                    if (nextEpisode[0].media.meta.number)
+                                        if (nextEpisode[0].media.meta.season)
+                                            span #{nextEpisode[0].media.meta.season}x
+                                        span #{nextEpisode[0].media.meta.number}
+                                .show-description.mb-auto
+                                    if (nextEpisode[0].media.meta.description)
+                                        span #{nextEpisode[0].media.meta.description}
+                                    else
+                                        span #{showData.description}
+                                .show-snacks.mt-2.d-flex
+                                    if (nextEpisode.length > 0)
+                                        a.btn.btn-primary.ml-auto(href='#_' onclick=`openKMSPlayer("${nextEpisode[0].id}", "${nextEpisode[0].media.show.meta.id}");`)
+                                            i.fas.fa-play.pr-2
+                                            | Continue Watching
+                        .accordion.accordion-flush.show-background.pt-4.p-sm-4.hidden(id=`seasonsAccordion-${showData.id}`)
+                            each season, seasonIndex in seasons
+                                each item, indexImage in results.filter(e => e.media.show.id === showData.id && e.media.season === season.number)
+                                    - fileURL = item.entities.full
+                                    - previewURL = item.entities.preview;
+                                    if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                                        - fileURL = item.entities.full
+                                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                                        - fileURL = item.entities.download
+                                        - previewURL = item.entities.download
+                                    - isVideo = false
+                                    if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                                        - isVideo = true
+                                    - media_json = ''
+                                    if (item.media)
+                                        - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` class=`${(item.media.watched && item.media.watched > 0.8) ? 'watched-episode' : ''}` data-kms-progress=`${(item.media.watched !== null) ? (item.media.watched < 0.85) ? item.media.watched : 1 : 0}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
+                                        .episode-body
+                                            .episode-number.position-absolute
+                                                if (item.media.meta.number)
+                                                    if (item.media.meta.season)
+                                                        span #{item.media.meta.season}x
+                                                    span #{item.media.meta.number}
+                                            .episode-name.px-2
+                                                if (item.media.meta.name)
+                                                    span #{item.media.meta.name}
+                                                else if (item.entities.filename)
+                                                    span #{(item.entities.filename.split(" - ").length > 1) ? item.entities.filename.split(" - ")[1].split('.')[0] : item.entities.filename.split('.')[0]}
+                                            if (item.media.show.name)
+                                                .series-name.px-2
+                                                    span #{item.media.show.name}
+
+            else
+                each item, indexImage in results
+                    - fileURL = item.entities.full
+                    - previewURL = item.entities.preview;
+                    if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                        - fileURL = item.entities.full
+                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                        - fileURL = item.entities.download
+                        - previewURL = item.entities.download
+
+                    - isVideo = false
+                    if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                        - isVideo = true
+                    - media_json = ''
+                    if (item.media)
+                        - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` data-kms-progress=`${(item.media.watched !== null) ? (item.media.watched < 0.85) ? item.media.watched : 1 : 0}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
+                        .episode-preview
+                            .preview-watched.d-flex
+                                .watched-precent.mt-auto(style=`width: ${(item.media.watched !== null) ? item.media.watched * 100 : 0}%`)
+                            .preview-controls.d-flex
+                                .d-flex.position-absolute(onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)
+                                    if (item.meta.cached)
+                                        .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                            i.fas.fa-play
+                                            span.d-none.d-md-inline.pl-1 Instant Play
+                                    #offlineReady.badge.bg-success.hidden(title='Saved Locally')
+                                        i.fas.fa-bookmark
+                                        span.d-none.d-md-inline.pl-1 Offline
+                                    #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
+                                        i.fas.fa-clock
+                                        span.pl-1 Expiring
+                                .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
+                                    i.fas.fa-play
+                            #postImage.episode-preview-image(style=`background-image : url(${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.full});`)
+                        .episode-body
+                            .episode-number.position-absolute
+                                if (item.media.meta.number)
+                                    if (item.media.meta.season)
+                                        span #{item.media.meta.season}x
+                                    span #{item.media.meta.number}
+                            .episode-name.px-2
+                                if (item.media.meta.name)
+                                    span #{item.media.meta.name}
+                                else if (item.entities.filename)
+                                    span #{(item.entities.filename.split(" - ").length > 1) ? item.entities.filename.split(" - ")[1].split('.')[0] : item.entities.filename.split('.')[0]}
+                            if (item.media.show.name)
+                                .series-name.px-2
+                                    span #{item.media.show.name}
+                            .episode-controls.px-2.pt-2
+                                if (user && user.source < 900)
+                                    a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                        i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                    i.btn-links.fas.fa-archive
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
+                                    i.btn-links.fas.fa-info-circle
+                                if (item.media.show && item.media.show.id)
+                                    a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
+                                        i.btn-links.fas.fa-arrow-right
+                                a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                    i.btn-links.fas.fa-bookmark
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
+                                    if (item.media.watched)
+                                        i.btn-links.fas.fa-eye-slash
+                                    else
+                                        i.btn-links.fas.fa-check
+        else if (results[0].media.show.meta && results[0].media.show.meta.seasons)
+            - showData = results[0].media.show.meta
+            if (results[0].media.show.background)
+                - backgroundImg = { preview: (results[0].media.show.background) ? 'https://media.discordapp.net/attachments' + results[0].media.show.background : showData.background.pop() }
+            else
+                - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+            // Page Heading
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+                }
+                .background-image.overlay {
+                    background-image: none;
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: none;
+                    filter: none;
+                }
+
+                @media (min-width: 576px) {
+                    #contentBlock {
+                        box-shadow: 0 0 30px 0 black;
+                    }
+                    .show-background {
+                        background: #0000005c;
+                        border: 1px solid #872b007a;
+                        border-top: none;
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                    }
+                }
+                @media (max-width: 575px) {
+                    .background-image.overlay {
+                        background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    }
+                }
+
+
+            - seasons = showData.seasons
+            - banner = results.filter(e => (!e.media.watched || (e.media.watched && e.media.watched < 1)) && e.media.meta.season !== 0)
+            - banner = (banner.length > 0) ? banner : results
+            - nextEpisode = results.filter(e => e.media.meta.season !== 0 && (!e.media.watched || (e.media.watched && e.media.watched <= .85)))
+            .show-header.p-3
+                .show-preview(style=`background-image : url("${banner[0].entities.preview}");`)
+                .show-preview-overlay
+                .d-none.d-sm-block.show-poster.mr-1
+                    img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
+                .show-info.px-2.d-flex.flex-column.w-100
+                    .show-title
+                        a(href=`https://themoviedb.org/tv/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                            span #{showData.originalName}
+                    .show-og-title
+                        span #{showData.name}
+                    .show-info-top.d-flex.flex-row
+                        .show-tags.mr-auto
+                            if (results[0].media.show.nsfw)
+                                .badge.bg-danger.mr-1
+                                    i.fas.fa-octagon-minus
+                                    span.pl-1 UNCENSORED
+                            if (results[0].media.show.subtitled)
+                                .badge.badge-light.mr-1
+                                    i.fas.fa-closed-captioning
+                                    span.pl-1 Subtitled
+                            if (showData.genres)
+                                each genera in showData.genres
+                                    span.badge.badge-light.mr-1
+                                        | #{genera}
+                        if (showData.date)
+                            .show-date.mt-2
+                                span #{showData.date.split('-')[0]}
+                    .show-description.mb-auto
+                        span #{showData.description}
+                    .show-snacks.mt-2.d-flex
+                        if (results.filter(e => !e.media.watched).length === 0)
+                            a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark show as watched` href='#_' onClick=`setShowHistory(0); return false;`)
+                                i.fas.fa-eye-slash
+                        else
+                            a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark show as watched` href='#_' onClick=`setShowHistory(1); return false;`)
+                                i.fas.fa-check-double.px-1
+                        if (nextEpisode.length > 0)
+                            a.btn.btn-primary.ml-2(href='#_' onclick=`openKMSPlayer("${nextEpisode[0].id}", "${nextEpisode[0].media.show.meta.id}");`)
+                                i.fas.fa-play.pr-2
+                                if (nextEpisode[0].media.meta.number === 1 && nextEpisode[0].media.meta.season === 1)
+                                    | Start Watching
+                                else
+                                    | Continue Watching
+            .accordion.accordion-flush.show-background.pt-4.p-sm-4(id=`seasonsAccordion-${showData.id}`)
+                each season, seasonIndex in seasons
+                    .accordion-item
+                        - episodes = results.filter(e => e.media.season === season.number)
+                        if (episodes.length > 0)
+                            if (seasons.length > 1)
+                                h2.accordion-header.d-flex
+                                    a.accordion-button.collapsed(href='#_' data-toggle='collapse' data-target=`#seasonBody${seasonIndex}`)
+                                        i.fas.fa-square-list.pr-2
+                                        if (season.number !== 0)
+                                            if (`Season ${season.number}`.toLowerCase() !== season.name.toLowerCase())
+                                                | Season #{season.number} (#{season.name})
+                                            else
+                                                | #{season.name}
+                                        else
+                                            | Special Features
+                                    if (results.filter(e => e.media.season === season.number && !e.media.watched).length === 0)
+                                        a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark season as watched` href='#_' onClick=`setSeasonHistory(${seasonIndex}, 0); return false;`)
+                                            i.fas.fa-eye-slash
+                                    else
+                                        a.btn.btn-primary.ml-auto(data-placement="top" title=`Mark season as watched` href='#_' onClick=`setSeasonHistory(${seasonIndex}, 1); return false;`)
+                                            i.fas.fa-check-double.px-1
+                            .accordion-collapse.collapse(id=`seasonBody${seasonIndex}` class=`${(seasons.length === 1 || (season.number !== 0 && results.filter(e => e.media.season === season.number && !(e.media.watched && e.media.watched > 0.8)).length > 0)) ? 'show' : ''}`)
+                                .accordion-body.d-flex.row.m-0
+                                    each item, indexImage in episodes
+                                        - fileURL = item.entities.full
+                                        - previewURL = item.entities.preview;
+                                        if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                                            - fileURL = item.entities.full
+                                        if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                                            - fileURL = item.entities.download
+                                            - previewURL = item.entities.download
+
+                                        - isVideo = false
+                                        if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                                            - isVideo = true
+                                        - media_json = ''
+                                        if (item.media)
+                                            - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                                        div.col-12.col-sm-6.col-md-4.m-0.flex-nowrap.episode-row.p-1(id=`message-${item.id}` class=`${(item.media.watched && item.media.watched > 0.8) ? 'watched-episode' : ''}` data-kms-progress=`${(item.media.watched !== null) ? (item.media.watched < 0.85) ? item.media.watched : 1 : 0}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
+                                            .episode-preview-grid
+                                                .preview-watched.d-flex.pr-2
+                                                    .watched-precent.mt-auto(style=`width: ${(item.media.watched !== null) ? item.media.watched * 100 : 0}%`)
+                                                .position-absolute(style="height: 100%; width: inherit;").pr-2.pb-2
+                                                    .position-relative.w-100.h-100.d-flex.flex-column(style="background-image: linear-gradient(129deg, #000000bd, transparent);")
+                                                        .d-flex.w-100
+                                                            .episode-name-grid.p-2.text-ellipsis
+                                                                if (item.media.meta.name)
+                                                                    span #{item.media.meta.name}
+                                                        .preview-controls-grid.d-flex(onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;` style="z-index: 1;")
+                                                            .d-flex.position-absolute
+                                                                if (item.meta.cached)
+                                                                    .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                                                        i.fas.fa-play
+                                                                        span.d-none.d-md-inline.pl-1 Instant Play
+                                                                #offlineReady.badge.bg-success.hidden(title='Saved Locally')
+                                                                    i.fas.fa-bookmark
+                                                                    span.d-none.d-md-inline.pl-1 Offline
+                                                                #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
+                                                                    i.fas.fa-clock
+                                                                    span.pl-1 Expiring
+                                                            .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
+                                                                i.fas.fa-play
+                                                        .p-1.d-flex.pb-3.episodes-controls-options
+                                                            if (user && user.source < 900)
+                                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                                i.btn-links.fas.fa-archive
+                                                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
+                                                                i.btn-links.fas.fa-info-circle
+                                                            a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                                                i.btn-links.fas.fa-bookmark
+                                                            a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
+                                                                if (item.media.watched)
+                                                                    i.btn-links.fas.fa-eye-slash
+                                                                else
+                                                                    i.btn-links.fas.fa-check
+                                                .episode-number.position-absolute
+                                                    span #{item.media.meta.number}
+                                                #postImage.episode-preview-image-grid.h-100(style=`background-image : url(${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.full});`)
+                        else
+                            h2.accordion-header.d-flex.text-gray-500
+                                i.fas.fa-square-question.pr-2
+                                if (season.number !== 0)
+                                    if (`Season ${season.number}`.toLowerCase() !== season.name.toLowerCase())
+                                        | Season #{season.number} (#{season.name})
+                                    else
+                                        | #{season.name}
+                                else
+                                    | Special Features
+        else if (params.has('show_id') && params.getAll('show_id')[0] === 'unmatched')
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url('/static/img/loading_bg.jpeg');
+                }
+
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+            each item, indexImage in results
+                - fileURL = item.entities.full
+                - previewURL = item.entities.preview;
+                if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                    - fileURL = item.entities.full
+                if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                    - fileURL = item.entities.download
+                    - previewURL = item.entities.download
+
+                - isVideo = false
+                if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                    - isVideo = true
+                - media_json = ''
+                if (item.media)
+                    - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` data-kms-progress=`${(item.media.watched !== null) ? (item.media.watched < 0.85) ? item.media.watched : 1 : 0}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
+                    .episode-preview
+                        .preview-watched.d-flex
+                            .watched-precent.mt-auto(style=`width: ${(item.media.watched !== null) ? item.media.watched * 100 : 0}%`)
+                        .preview-controls.d-flex
+                            .d-flex.position-absolute
+                                if (item.meta.cached)
+                                    .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                        i.fas.fa-play
+                                        span.d-none.d-md-inline.pl-1 Instant Play
+                                #offlineReady.badge.bg-success.hidden(title='Saved Locally')
+                                    i.fas.fa-bookmark
+                                    span.d-none.d-md-inline.pl-1 Offline
+                                #offlineExpiring.badge.bg-danger.warning.text-dark.ml-1(title='Expiring Soon')
+                                    i.fas.fa-clock
+                                    span.pl-1 Expiring
+                            .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
+                                i.fas.fa-play
+                        a(href='#_' onclick=`openPreviewUnpacking("${item.id}"); return false;`)
+                            #postImage.episode-preview-image(style=`background-image : url(${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.full});`)
+                    .episode-body
+                        - filenameparts = item.entities.filename.split(" - ")
+
+                        .episode-number.position-absolute
+                            if (filenameparts.length > 1 && (filenameparts[1].toLowerCase().includes("s") || filenameparts[1].toLowerCase().includes("x") || !isNaN(parseFloat(filenameparts[1].split('.')[0]))))
+                                span #{filenameparts[1].split('.')[0]}
+                        .episode-name.px-2
+                            if (filenameparts.length > 2)
+                                span #{filenameparts[2].split('.')[0]}
+                            else if (filenameparts.length > 1)
+                                span #{filenameparts[1].split('.')[0]}
+                            else
+                                span #{item.entities.filename}
+                        if (filenameparts.length > 1)
+                            .series-name.px-2
+                                span #{filenameparts[0]}
+                        .episode-controls.px-2.pt-2
+                            if (user && user.source < 900)
+                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                i.btn-links.fas.fa-archive
+                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
+                                i.btn-links.fas.fa-info-circle
+                            if (item.media.show && item.media.show.id)
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Go to Show` href=`#/listTheater?show_id=${item.media.show.id}`)
+                                    i.btn-links.fas.fa-arrow-right
+                            a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                i.btn-links.fas.fa-bookmark
+                            a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
+                                if (item.media.watched)
+                                    i.btn-links.fas.fa-eye-slash
+                                else
+                                    i.btn-links.fas.fa-check
+        else
+            - showData = results[0].media.show.meta
+            if (results[0].media.show.background)
+                - backgroundImg = { preview: (results[0].media.show.background) ? 'https://media.discordapp.net/attachments' + results[0].media.show.background : showData.background.pop() }
+            else
+                - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+            // Page Heading
+            style.
+                .background-image:not(.overlay) {
+                    background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+                }
+                .background-image.overlay {
+                    background-image: linear-gradient(180deg, #000000b8, #00000000);
+                    z-index: -99;
+                    opacity: 1;
+                }
+
+                .background-image.bg-blur {
+                    -webkit-filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                    filter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='2' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") brightness(.8);
+                }
+
+            .show-header.mb-3.p-3
+                .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
+                .show-preview-overlay
+                .d-none.d-sm-block.show-poster.mr-1
+                    img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
+                .show-info.px-2.w-100
+                    .show-title
+                        a(href=`https://themoviedb.org/movie/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
+                            span #{showData.originalName}
+                    .show-og-title
+                        span #{showData.name}
+                    .show-info-top.d-flex.flex-row
+                        .show-tags.mr-auto
+                            if (results[0].media.show.nsfw)
+                                .badge.bg-danger.mr-1
+                                    i.fas.fa-octagon-minus
+                                    span.pl-1 UNCENSORED
+                            if (results[0].media.show.subtitled)
+                                .badge.badge-light.mr-1
+                                    i.fas.fa-closed-captioning
+                                    span.pl-1 Subtitled
+                            if (showData.genres)
+                                each genera in showData.genres
+                                    span.badge.badge-light.mr-1
+                                        | #{genera}
+                        if (showData.date)
+                            .show-date.mt-2
+                                span #{showData.date.split('-')[0]}
+                    .show-description
+                        span #{showData.description}
+            .accordion-body(id=`seasonsAccordion-${showData.id}`)
+                each item, indexImage in results
+                    - fileURL = item.entities.full
+                    - previewURL = item.entities.preview;
+                    if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                        - fileURL = item.entities.full
+                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                        - fileURL = item.entities.download
+                        - previewURL = item.entities.download
+
+                    - isVideo = false
+                    if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                        - isVideo = true
+                    - media_json = ''
+                    if (item.media)
+                        - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                    div.row.m-0.flex-nowrap.flex-row.py-2.episode-row(id=`message-${item.id}` class=`${(item.media.watched && item.media.watched > 0.8) ? 'watched-episode' : ''}` data-kms-progress=`${(item.media.watched !== null) ? (item.media.watched < 0.85) ? item.media.watched : 1 : 0}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`true` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(item.manage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
+                        .episode-preview
+                            .preview-watched.d-flex
+                                .watched-precent.mt-auto(style=`width: ${(item.media.watched !== null) ? item.media.watched * 100 : 0}%`)
+                            .preview-controls.d-flex
+                                .d-flex.position-absolute
+                                    if (item.meta.cached)
+                                        .badge.bg-success.hide-offline(title='No unpacking required, Will instantly play the video from the server cache')
+                                            i.fas.fa-play
+                                            span.d-none.d-md-inline.pl-1 Instant Play
+                                    #offlineReady.badge.bg-success.hidden(title='Saved Locally')
+                                        i.fas.fa-bookmark
+                                        span.d-none.d-md-inline.pl-1 Offline
+                                    #offlineExpiring.badge.bg-warning.text-dark.hidden.ml-1(title='Expiring Soon')
+                                        i.fas.fa-clock
+                                        span.pl-1 Expiring
+                                .play-icon.mt-auto.mb-auto.mr-auto.ml-auto.shadow-text
+                                    i.fas.fa-play
+                            a(href='#_' onclick=`openKMSPlayer("${item.id}", "${item.media.show.meta.id}"); return false;`)
+                                #postImage.episode-preview-image(style=`background-image : url(${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.full});`)
+                        .episode-body
+                            .episode-number.position-absolute
+                                span #{indexImage + 1}
+                            .episode-name.px-2
+                                if (item.entities.filename)
+                                    span #{(item.entities.filename.split(" - ").length > 1) ? item.entities.filename.split(" - ")[1].split('.')[0] : item.entities.filename.split('.')[0]}
+                            .episode-description.px-2
+
+                            .episode-controls.px-2.pt-2
+                                if (user && user.source < 900)
+                                    a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                        i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                    i.btn-links.fas.fa-archive
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(item.manage && user && user.source < 900)}); return false;`)
+                                    i.btn-links.fas.fa-info-circle
+                                a.btn.btn-links.goto-link.toggleOffline(data-placement="top" title=`Toggle Offline Access` href='#_' onClick=`toggleEpisodeOffline('${item.id}'); return false;`)
+                                    i.btn-links.fas.fa-bookmark
+                                a.btn.btn-links.goto-link(data-placement="top" title=`Mark as watched` href='#_' onClick=`toggleWatchHistory('${item.eid}'); return false;`)
+                                    if (item.media.watched)
+                                        i.btn-links.fas.fa-eye-slash
+                                    else
+                                        i.btn-links.fas.fa-check
+
+    else
+
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpeg');
+            }
+        .alert.alert-danger(role='alert')
+            h4.alert-heading No Results
+            p
+                | Your search query or requested channel is either invalid or does not contain any gallery content
+            hr
+            p.mb-0
+                | Please go back to a valid channel or retry your search with another (maybe less specific) query
+

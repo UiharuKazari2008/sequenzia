@@ -1,10 +1,14 @@
 const global = require('../config.json')
-const config = require('../host.config.json')
+let config = require('../host.config.json')
+
+if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
+    config.system_name = process.env.SYSTEM_NAME.trim()
+
 const { printLine } = require("./logSystem");
 const { sendData } = require('./mqAccess');
-const { sqlSafe } = require('../js/sqlClient');
+const { sqlPromiseSafe } = require('../js/sqlClient');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     function sendRequest(MessageBody) {
         sendData(global.mq_discord_out, MessageBody, function (callback) {
             if (callback) {
@@ -16,179 +20,252 @@ module.exports = (req, res, next) => {
     }
     try {
         if (req.session.user && (req.session.user.source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
-            switch (req.body.action) {
-                case 'MovePost':
-                    printLine("ActionParser", `Request to Move ${req.body.messageid} from ${req.body.channelid} to ${req.body.data}`, 'info', req.body)
-                    sqlSafe(`SELECT * FROM kanmi_records
-                         WHERE id = ?
-                           AND channel = ?
-                         LIMIT 1`, [req.body.messageid, req.body.channelid], (err, results) => {
-                        if (err) {
-                            printLine("ActionParser", `Unable to complete update from ${req.body.messageid}:${req.body.channelid} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
-                            res.status(500).send('Database Error');
-                        } else if (results.length > 0) {
+            let requestResults = {}
+            await (((req.body.batch) ? [...req.body.batch] : [{...req.body}]).map(async (job, index, array) => {
+                let _return = 500;
+                switch (job.action) {
+                    case 'MovePost':
+                        printLine("ActionParser", `Request to Move ${job.messageid} from ${job.channelid} to ${job.data}`, 'info', job)
+                        const results = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE id = ? AND channel = ? LIMIT 1`, [job.messageid, job.channelid])
+                        if (results.rows.length > 0) {
                             sendRequest({
                                 fromClient: `return.Sequenzia.${config.system_name}`,
                                 messageReturn: false,
-                                messageID: req.body.messageid,
-                                messageChannelID: req.body.channelid,
-                                messageServerID: req.body.serverid,
+                                messageID: job.messageid,
+                                messageChannelID: job.channelid,
+                                messageServerID: job.serverid,
                                 messageType: 'command',
                                 messageAction: 'MovePost',
-                                messageData: req.body.data
+                                messageData: job.data
                             })
-                            res.status(200).send(`Message Moved to ${req.body.data}`);
+                            if (req.body.batch) {
+                                _return = 200
+                            } else {
+                                res.status(200).send(`Message Moved to ${job.data}`);
+                            }
                         } else {
-                            printLine("ActionParser", `No Results for ${req.body.messageid}:${req.body.channelid} to move`, 'error')
-                            res.status(404).send('Message not found');
+                            printLine("ActionParser", `No Results for ${job.messageid}:${job.channelid} to move`, 'error')
+                            if (req.body.batch) {
+                                _return = 404
+                            } else {
+                                res.status(404).send('Message not found');
+                            }
                         }
-                    });
-                    break;
-                case 'RotatePost':
-                    printLine("ActionParser", `Request to Rotate ${req.body.messageid}`, 'info', req.body)
-                    sendRequest({
-                        fromClient: `return.Sequenzia.${config.system_name}`,
-                        messageReturn: false,
-                        messageID: req.body.messageid,
-                        messageChannelID: req.body.channelid,
-                        messageServerID: req.body.serverid,
-                        messageType: 'command',
-                        messageAction: 'RotatePost',
-                        messageData: req.body.data
-                    })
-                    res.status(200).send(`Requested to Rotate Image`);
-                    break;
-                case 'ArchivePost':
-                    printLine("ActionParser", `Request to Archive ${req.body.messageid} from ${req.body.channelid}`, 'info', req.body)
-                    sendRequest({
-                        fromClient: `return.Sequenzia.${config.system_name}`,
-                        messageReturn: false,
-                        messageID: req.body.messageid,
-                        messageChannelID: req.body.channelid,
-                        messageServerID: req.body.serverid,
-                        messageType: 'command',
-                        messageAction: 'ArchivePost'
-                    })
-                    res.status(200).send(`Requested to Archive Message`);
-                    break;
-                case 'RemovePost':
-                    printLine("ActionParser", `Request to Delete ${req.body.messageid} from ${req.body.channelid}`, 'info', req.body)
-                    sendRequest({
-                        fromClient: `return.Sequenzia.${config.system_name}`,
-                        messageReturn: false,
-                        messageID: req.body.messageid,
-                        messageChannelID: req.body.channelid,
-                        messageServerID: req.body.serverid,
-                        messageType: 'command',
-                        messageAction: 'RemovePost'
-                    })
-                    res.status(200).send(`Requested to Delete Message`);
-                    break;
-                case 'Thumbnail':
-                    printLine("ActionParser", `Request to Generate Thumbnail ${req.body.messageid} from ${req.body.channelid}`, 'info', req.body)
-                    sendRequest({
-                        fromClient: `return.Sequenzia.${config.system_name}`,
-                        messageReturn: false,
-                        messageID: req.body.messageid,
-                        messageChannelID: req.body.channelid,
-                        messageServerID: req.body.serverid,
-                        messageType: 'command',
-                        messageAction: 'CacheImage'
-                    })
-                    res.status(200).send(`Requested to Cache Image`);
-                    break;
-                case 'RenamePost':
-                    printLine("ActionParser", `Request to Rename File ${req.body.messageid} to "${req.body.data}"`, 'info', req.body)
-                    sendRequest({
-                        fromClient: `return.Sequenzia.${config.system_name}`,
-                        messageReturn: false,
-                        messageID: req.body.messageid,
-                        messageChannelID: req.body.channelid,
-                        messageData: req.body.data,
-                        messageType: 'command',
-                        messageAction: 'RenamePost'
-                    })
-                    res.status(200).send(`Requested to Rename Message`);
-                    break;
-                case 'RequestFile':
-                    printLine("ActionParser", `Request to Download File ${req.body.messageid}:${req.body.channelid}"`, 'info', req.body)
-                    if (global.mq_fileworker_cds) {
-                        sqlSafe(`SELECT *
-                         FROM kanmi_records
-                         WHERE id = ?
-                           AND channel = ?
-                         LIMIt 1`, [req.body.messageid, req.body.channelid], (err, foundMessages) => {
-                            if (err) {
-                                printLine("ActionParser", `Unable to request download for ${req.body.messageid}:${req.body.channelid} : ${err.sqlMessage}`, 'error', err)
-                                res.status(500).send('Database Error');
-                            } else if (foundMessages && foundMessages.length > 0) {
+                        break;
+                    case 'RotatePost':
+                        printLine("ActionParser", `Request to Rotate ${job.messageid}`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageServerID: job.serverid,
+                            messageType: 'command',
+                            messageAction: 'RotatePost',
+                            messageData: job.data
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to Rotate Image`);
+                        }
+                        break;
+                    case 'ArchivePost':
+                        printLine("ActionParser", `Request to Archive ${job.messageid} from ${job.channelid}`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageServerID: job.serverid,
+                            messageType: 'command',
+                            messageAction: 'ArchivePost'
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to Archive Message`);
+                        }
+                        break;
+                    case 'RemovePost':
+                        printLine("ActionParser", `Request to Delete ${job.messageid} from ${job.channelid}`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageServerID: job.serverid,
+                            messageType: 'command',
+                            messageAction: 'RemovePost'
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to Delete Message`);
+                        }
+                        break;
+                    case 'Thumbnail':
+                    case 'VideoThumbnail':
+                        printLine("ActionParser", `Request to Generate Thumbnail ${job.messageid} from ${job.channelid}`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageServerID: job.serverid,
+                            messageType: 'command',
+                            messageAction: (job.action === 'Thumbnail') ? 'CacheImage' : 'CacheVideo'
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to Cache Image`);
+                        }
+                        break;
+                    case 'RenamePost':
+                        printLine("ActionParser", `Request to Rename File ${job.messageid} to "${job.data}"`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageData: job.data,
+                            messageType: 'command',
+                            messageAction: 'RenamePost'
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to Rename Message`);
+                        }
+                        break;
+                    case 'EditTextPost':
+                        printLine("ActionParser", `Request to Edit Contents ${job.messageid} to "${job.data}"`, 'info', job)
+                        sendRequest({
+                            fromClient: `return.Sequenzia.${config.system_name}`,
+                            messageReturn: false,
+                            messageID: job.messageid,
+                            messageChannelID: job.channelid,
+                            messageData: job.data.substring(0,2000),
+                            messageType: 'command',
+                            messageAction: 'EditTextPost'
+                        })
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Requested to edit Message Contenst`);
+                        }
+                        break;
+                    case 'RequestFile':
+                    case 'DeCacheFile':
+                        printLine("ActionParser", `Request to ${(job.action === 'RequestFile') ? 'Download' : 'Decache'} File ${job.messageid}:${job.channelid}"`, 'info', job)
+                        if (global.mq_fileworker_cds) {
+                            const foundMessages = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE id = ? AND channel = ? LIMIt 1`, [job.messageid, job.channelid])
+                            if (foundMessages.rows && foundMessages.rows.length > 0) {
                                 sendData(global.mq_fileworker_cds, {
                                     fromClient: `return.Sequenzia.${config.system_name}`,
-                                    fileUUID: foundMessages[0].fileid,
+                                    fileUUID: foundMessages.rows[0].fileid,
                                     messageType: 'command',
-                                    messageAction: 'CacheSpannedFile'
+                                    messageAction: (job.action === 'RequestFile') ? 'CacheSpannedFile' : 'RemoveSpannedFile'
                                 }, function (callback) {
                                     if (callback) {
                                         printLine("KanmiMQ", `Sent to ${global.mq_fileworker_cds}`, 'info')
-                                        res.status(200).send(`Request Fetch, please wait...`);
                                     } else {
                                         printLine("KanmiMQ", `Failed to send to ${global.mq_fileworker_cds}`, 'error')
-                                        res.status(500).send(`Failed to Request Fetch`);
                                     }
                                 })
+                                if (req.body.batch) {
+                                    _return = 200
+                                } else {
+                                    res.status(200).send((job.action === 'RequestFile') ? `Request Fetch, please wait...` : 'Requested to remove cache')
+                                }
                             } else {
-                                printLine("ActionParser", `Unable to request download for ${req.body.messageid}:${req.body.channelid} : Not Found`, 'error');
-                                res.status(404).send('Message not found');
+                                printLine("ActionParser", `Unable to request download for ${job.messageid}:${job.channelid} : Not Found`, 'error');
+                                if (req.body.batch) {
+                                    _return = 404
+                                } else {
+                                    res.status(404).send('Message not found');
+                                }
                             }
-                        })
-                    } else {
-                        res.status(500).send(`Server is not configured for CDS based file building`);
-                    }
-                    break;
-                case 'DownloadLink':
-                    if (!(req.session.discord.servers.download && req.session.discord.servers.download.length > 0)) {
-                        printLine("ActionParser", `Missing Static Configuration Value : Cannot "${req.body.action}", You dont have any servers that your allowed to download to`, 'error', req.body)
-                    } else {
-                        printLine("ActionParser", `Request to Download URL ${req.body.url}"`, 'info', req.body)
-                        let url = req.body.url.substring(0, 1900);
-                        if (req.body.url.includes("twitter.com") && req.body.url.includes('/photo')) {
-                            url = url.split('/photo')[0];
+                        } else {
+                            if (req.body.batch) {
+                                _return = 500
+                            } else {
+                                res.status(500).send(`Server is not configured for CDS based file building`);
+                            }
                         }
-                        let messageText = 'REQUEST ' +  url;
-                        if (req.body.channelid) {
-                            messageText += ` _DEST_ ${req.body.channelid}`
-                        }
+                        break;
+                    case 'DownloadLink':
+                        if (!(req.session.discord.servers.download && req.session.discord.servers.download.length > 0)) {
+                            printLine("ActionParser", `Missing Static Configuration Value : Cannot "${job.action}", You dont have any servers that your allowed to download to`, 'error', job);
+                            if (req.body.batch) {
+                                _return = 500
+                            } else {
+                                res.status(500).send(`Missing Static Configuration Value : Cannot "${job.action}", You dont have any servers that your allowed to download to`);
+                            }
+                        } else {
+                            printLine("ActionParser", `Request to Download URL ${job.url}"`, 'info', job)
+                            let url = job.url.substring(0, 1900);
+                            if (job.url.includes("twitter.com") && job.url.includes('/photo')) {
+                                url = url.split('/photo')[0];
+                            }
+                            let messageText = 'REQUEST ' +  url;
+                            if (job.channelid) {
+                                messageText += ` _DEST_ ${job.channelid}`
+                            }
 
+                            sendRequest({
+                                fromClient: `return.Sequenzia.${config.system_name}`,
+                                messageReturn: false,
+                                messageType: 'stext',
+                                messageChannelID: req.session.discord.servers.download.filter(e => e.serverid === job.serverid)[0].channelid,
+                                messageText: messageText
+                            })
+                            if (req.body.batch) {
+                                _return = 200
+                            } else {
+                                res.status(200).send(`Requested Download`);
+                            }
+                        }
+                        break;
+                    case 'textMessage':
+                        printLine("ActionParser", `Send Text Message to ${job.channelid}`, 'info', job)
                         sendRequest({
                             fromClient: `return.Sequenzia.${config.system_name}`,
                             messageReturn: false,
                             messageType: 'stext',
-                            messageChannelID: req.session.discord.servers.download.filter(e => e.serverid === req.body.serverid)[0].channelid,
-                            messageText: messageText
+                            messageChannelID: job.channelid,
+                            messageUserID: req.session.discord.user.id,
+                            messageText: job.text.substring(0, 1900)
                         })
-                        res.status(200).send(`Requested Download`);
-                    }
-                    break;
-                case 'textMessage':
-                    printLine("ActionParser", `Send Text Message to ${req.body.channelid}`, 'info', req.body)
-                    sendRequest({
-                        fromClient: `return.Sequenzia.${config.system_name}`,
-                        messageReturn: false,
-                        messageType: 'stext',
-                        messageChannelID: req.body.channelid,
-                        messageUserID: req.session.discord.user.id,
-                        messageText: req.body.text.substring(0, 1900)
-                    })
-                    res.status(200).send(`Text Message Sent`);
-                    break;
-                default:
-                    printLine("ActionParser", `Unknown Action : "${req.body.action}"`, 'error', req.body)
-                    res.status(400).send(`Invalid Request`);
-                    break;
+                        if (req.body.batch) {
+                            _return = 200
+                        } else {
+                            res.status(200).send(`Text Message Sent`);
+                        }
+                        break;
+                    default:
+                        printLine("ActionParser", `Unknown Action : "${job.action}"`, 'error', job)
+                        if (req.body.batch) {
+                            _return = 400
+                        } else {
+                            res.status(400).send(`Invalid Request`);
+                        }
+                        break;
+                }
+                requestResults[job.messageid + ''] = _return
+                return false;
+            }))
+            if (req.body.batch) {
+                const failed = Object.values(requestResults).filter(e => e >= 400)
+                res.status(202).json({
+                    results: requestResults,
+                    status: `Completed ${req.body.batch.length} Requests${(failed.length > 0) ? ', ' + failed.length + ' Actions Failed' : ''}`
+                })
             }
         } else {
             printLine("ActionParser", `Insecure Session attempted to access API by ${req.session.user.username}`, 'critical');
-            res.status(401).send('Session was not authenticated securely! You CAN NOT use a Static Login Key or Blind Token to preform enhanced actions! Logout and Login with a secure login meathod.');
+            res.status(401).send('Session was not authenticated securely! You CAN NOT use a Static Login Key or Blind Token to preform enhanced actions! Logout and Login with a externally verified login method.');
         }
     } catch (err) {
         printLine("ActionParser", `Caught Error in Action Parser : ${err.message}`, 'error', err)

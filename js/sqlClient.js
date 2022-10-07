@@ -1,4 +1,12 @@
-const config = require('../host.config.json');
+let config = require('../host.config.json');
+if (process.env.DATABASE_HOST && process.env.DATABASE_HOST.trim().length > 0)
+    config.sql_host = process.env.DATABASE_HOST.trim()
+if (process.env.DATABASE_NAME && process.env.DATABASE_NAME.trim().length > 0)
+    config.sql_database  = process.env.DATABASE_NAME.trim()
+if (process.env.DATABASE_USERNAME && process.env.DATABASE_USERNAME.trim().length > 0)
+    config.sql_user = process.env.DATABASE_USERNAME.trim()
+if (process.env.DATABASE_PASSWORD && process.env.DATABASE_PASSWORD.trim().length > 0)
+    config.sql_pass = process.env.DATABASE_PASSWORD.trim()
 
 const mysql = require('mysql2');
 const { printLine } = require('./logSystem');
@@ -9,14 +17,15 @@ const sqlConnection = mysql.createPool({
     database: config.sql_database,
     charset : 'utf8mb4',
     waitForConnections: true,
-    connectionLimit: 1,
-    queueLimit: 0
+    connectionLimit: 10,
+    queueLimit: 0,
+    debug: false
 });
 
 const sqlPromise = sqlConnection.promise();
 
 function sqlSimple(sql_q, callback, nolog) {
-    if (!nolog && !config.no_log_sql_console)
+    if (!nolog && config.log_sql_console)
         console.log(sql_q)
     sqlConnection.query(sql_q, function (err, rows) {
         if (err) { printLine("SQL", err.sqlMessage, "error", err); console.error(sql_q);}
@@ -24,7 +33,7 @@ function sqlSimple(sql_q, callback, nolog) {
     });
 }
 function sqlSafe(sql_q, inputs, callback, nolog) {
-    if (!nolog && !config.no_log_sql_console)
+    if (!nolog && config.log_sql_console)
         console.log(mysql.format(sql_q, inputs))
     sqlConnection.query(mysql.format(sql_q, inputs), function (err, rows) {
         if (err) { printLine("SQL", err.sqlMessage, "error", err); console.error(sql_q); console.error(inputs); }
@@ -32,7 +41,7 @@ function sqlSafe(sql_q, inputs, callback, nolog) {
     });
 }
 async function sqlPromiseSimple(sql_q, nolog) {
-    if (!nolog && !config.no_log_sql_console)
+    if (!nolog && config.log_sql_console)
         console.log(sql_q)
     try {
         const [rows,fields] = await sqlPromise.query(sql_q);
@@ -49,7 +58,7 @@ async function sqlPromiseSimple(sql_q, nolog) {
     }
 }
 async function sqlPromiseSafe(sql_q, inputs, nolog) {
-    if (!nolog && !config.no_log_sql_console)
+    if (!nolog && config.log_sql_console)
         console.log(mysql.format(sql_q, inputs))
     try {
         const [rows,fields] = await sqlPromise.query(sql_q, inputs);

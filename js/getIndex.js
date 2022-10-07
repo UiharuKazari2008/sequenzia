@@ -20,6 +20,10 @@ module.exports = async (req, res, next) => {
             write_channels: req.session.discord.channels.write,
             discord: req.session.discord,
             user: req.session.user,
+            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+            next_episode: req.session.kongou_next_episode,
+            applications_list: req.session.applications_list,
             device: ua
         };
         next();
@@ -70,9 +74,10 @@ module.exports = async (req, res, next) => {
 
         // Search
         if (req.query.search !== undefined && req.query.search !== '' ) {
-            if (req.query.search.includes(' OR ')) {
+            search_prev = decodeURIComponent(req.query.search)
+            if (search_prev.includes(' OR ')) {
                 let _orOptions = []
-                req.query.search.split(' OR ').forEach((or) => {
+                search_prev.split(' OR ').forEach((or) => {
                     or.split(' ').forEach((queryString) => {
                         _orOptions.push('(' + [
                             `sequenzia_index_artists.artist LIKE '%${queryString}%'`,
@@ -82,14 +87,13 @@ module.exports = async (req, res, next) => {
                 })
                 sqlquery.push('(' + _orOptions.join(' OR ') + ')');
             } else {
-                req.query.search.split(' ').forEach((queryString) => {
+                search_prev.split(' ').forEach((queryString) => {
                     sqlquery.push('(' + [
                         `sequenzia_index_artists.artist LIKE '%${queryString}%'`,
                         `sequenzia_index_artists.name LIKE '%${queryString}%'`
                     ].join(' OR ') + ')');
                 });
             }
-            search_prev = decodeURIComponent(req.query.search)
         }
 
         // Main Query
@@ -340,7 +344,7 @@ module.exports = async (req, res, next) => {
                         req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
                         pageList: pageList,
                         currentPage: currentPage,
-                        resultsCount: count,
+                        resultsCount: (count > 2048) ? ((count)/1000).toFixed(0) + "K" : count,
                     })
                 } else {
                     res.end();
@@ -364,15 +368,7 @@ module.exports = async (req, res, next) => {
                 let folderInfo;
                 let _req_uri = req.protocol + '://' + req.get('host') + req.originalUrl;
 
-                if (req.query.title && req.query.title !== '') {
-                    page_title = req.query.title
-                    full_title = req.query.title
-                    if (req.query.channel) {
-                        folderInfo = `${results[0].server_short_name}:${results[0].classification}:${results[0].channel}`
-                    } else if (req.query.folder) {
-                        folderInfo = decodeURIComponent(req.query.folder);
-                    }
-                } else if (multiChannelBase) {
+                if (multiChannelBase) {
                     page_title = `${results[0].class_name}`
                     full_title = `${results[0].class_name}`
                     folderInfo = `${results[0].server_short_name}:${results[0].class_name}:*`
@@ -418,6 +414,10 @@ module.exports = async (req, res, next) => {
                     page_title = ''
                     full_title = ''
                 }
+                if (req.query.title && req.query.title !== '') {
+                    page_title = req.query.title
+                    full_title = req.query.title
+                }
 
                 results.forEach(item => {
                     let advColor = [];
@@ -435,7 +435,7 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
-                    } else {
+                    } else if (item.attachment_hash && item.attachment_name) {
                         function getimageSizeParam() {
                             if (item.sizeH && item.sizeW && (item.sizeH > 512 || item.sizeW > 512)) {
                                 let ih = 512;
@@ -528,6 +528,10 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+                    next_episode: req.session.kongou_next_episode,
+                    applications_list: req.session.applications_list,
                     device: ua,
                     folderInfo
                 }
@@ -552,6 +556,10 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+                    next_episode: req.session.kongou_next_episode,
+                    applications_list: req.session.applications_list,
                     device: ua,
                     folderInfo
                 })
@@ -574,6 +582,10 @@ module.exports = async (req, res, next) => {
                     write_channels: req.session.discord.channels.write,
                     discord: req.session.discord,
                     user: req.session.user,
+                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+                    next_episode: req.session.kongou_next_episode,
+                    applications_list: req.session.applications_list,
                     device: ua,
                 }
                 next();

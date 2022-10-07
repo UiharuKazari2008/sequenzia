@@ -1,0 +1,879 @@
+html
+    head
+        script.
+            console.log('Waiting for microJuneOS to boot...');
+            const offlinePage = true;
+        title=`${webconf.site_name}`
+
+        link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
+        link(rel='preload', href="/static/img/bootlogo-inner.jpeg" as='image')
+        link(rel='preload', href="/static/img/kongoumedialogo-menu.png" as='image')
+        link(rel='preload', href="/static/img/acr-logo.png" as='image')
+        link(rel='preload', href="/static/img/kongou-group.png" as='image')
+        link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
+        if (user && user.banner)
+            link(rel='preload', href=`${user.banner}` as='image')
+        if (user && user.avatar)
+            link(rel='preload', href=`${user.avatar}` as='image')
+        each thisServer, thisIndex in discord.servers.list
+            link(rel='preload', href=`${thisServer.icon}` as='image')
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge')
+        meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
+        meta(name='description', content='Sequenzia')
+        meta(name='author', content='Yukimi Kazari')
+        meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="pple-mobile-web-app-title" content="Sequenzia")
+        meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
+        meta(content="Sequenzia" property="og:title")
+        meta(content="Image Gallery and File Manager" property="og:description")
+        meta(content="Sequenzia" property="og:site_name")
+        script(type='text/javascript' src="/static/vendor/jquery/jquery.min.js")
+        script(type='text/javascript' src="/static/js/jquery.history.min.js")
+        script(type='text/javascript' src='/static/js/moment.min.js')
+        script(type='text/javascript' src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
+        script(type='text/javascript' src="/static/vendor/jquery-easing/jquery.easing.min.js")
+        link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
+        link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
+        link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
+
+        link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone6_splash.png' media='screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone6_splash_landscape.png' media='screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphoneplus_splash.png' media='screen and (device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphoneplus_splash_landscape.png' media='screen and (device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonex_splash.png' media='screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonex_splash_landscape.png' media='screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexr_splash.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexr_splash_landscape.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexsmax_splash.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexsmax_splash_landscape.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11pro_splash.png' media='screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11pro_splash_landscape.png' media='screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11promax_splash.png' media='screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11promax_splash_landscape.png' media='screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipad_splash.png' media='screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipad_splash_landscape.png' media='screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro1_splash.png' media='screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro1_splash_landscape.png' media='screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro3_splash.png' media='screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro3_splash_landscape.png' media='screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro2_splash.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro2_splash_landscape.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+
+        link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel="stylesheet", href="/static/css/jquery.fancybox.min.css")
+        link(rel='stylesheet' type='text/css' href='/static/css/bootstrap-slider.min.css')
+        link(rel='stylesheet', href='/static/css/fluid-gallery.min.css')
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
+        link(rel='stylesheet' type='text/css' href='/static/css/daterangepicker.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
+        link(rel="stylesheet", href="/css/custom.min.css")
+        //link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
+
+        script(type='text/javascript' src="/static/js/toast.min.js")
+        script(type='text/javascript' src="/static/js/daterangepicker.min.js")
+        script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
+        script(type='text/javascript' src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js")
+        script(type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js")
+
+        script(type='text/javascript' src="/js/client/sideloader-layout.min.js")
+        script(type='text/javascript' src="/js/client/sideloader.min.js")
+        script(type='text/javascript' src="/js/client/displayHistory.min.js")
+        script.
+            let inReviewMode = false;
+            let initalPageLoad = true;
+            let _originalURL = '';
+            let IPHL = history.length;
+            function isFirstPage() {
+                if (history.length <= IPHL && !initalPageLoad) {
+                    document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
+                }
+            }
+        if (user && user.banner)
+            style.
+                .user-info-bg, #topbarUserBackground {
+                    background-image: url('#{user.banner}');
+                }
+        else if (user && user.avatar)
+            style.
+                .user-info-bg, #topbarUserBackground {
+                    background-color: transparent;
+                }
+                #topbarUserBackground {
+                    display: none!important;
+                }
+
+    body(id="page-top").sidebar-toggled
+        script.
+            if (performaceMode) {
+                document.querySelector('body').classList.add('performance-mode');
+                console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
+            }
+        #bootBackdrop.boot-logo-overlay
+            #bootBackdropSunrise
+        #kmsBootDisplay.boot-logo-overlay(style="display: none;")
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder Kongou Media Project v9
+                        .mt-1.boot-icons-holder.d-none
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        #bootUpDisplay.boot-logo-overlay
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1;")
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span#bootLoaderStatus.boot-status-holder.font-weight-bolder Waiting for core...
+                        .mt-1.boot-icons-holder#bootStatusIcons
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        script.
+            if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
+                document.getElementById('bootUpDisplay').style.display = 'none';
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.add('d-none');
+
+                document.getElementById('kmsBootDisplay').style.display = 'flex';
+                document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+            } else if (location.hash.startsWith('#/app')) {
+                document.getElementById('bootUpDisplay').style.display = 'none';
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.add('d-none');
+
+                document.getElementById('appBootDisplay').style.display = 'flex';
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+            }
+        div.background-image.overlay
+        div.background-image.bg-blur
+
+        div(id="wrapper")
+            div(id="content-wrapper", class="d-flex flex-column")
+                div(id="content")
+                    div#mainMenuBar.top-padding-safety
+                        div#topBarPWA
+                        div#userMenu.collapsed.collapse
+                            div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
+                                div#menuAccordion.w-100
+                                    div.main-menu-items.w-100(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
+                                        div.user-info-bg.rounded
+                                            div.user-info-backdrop.rounded
+                                            div.user-info-overlay.position-absolute.rounded
+                                            div.user-infocard-holder.d-flex.flex-column
+                                                .row.p-0.m-2.shadow-text(style="padding: 0.25em 0.5em;")
+                                                    span.sidebar-brand-logo.sequenzia-logo(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                                    span.ml-auto(style="z-index: 1;") Member
+
+
+                                                .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                    .col-auto.p-0
+                                                        img.rounded.user-infocard-icon(src=user.avatar)
+                                                    .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                        div.text-center.text-ellipsis.align-middle.mr-auto
+                                                            if (user && user.source === 900)
+                                                                span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                            else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                                i.pr-1.fas.fa-check-circle
+                                                                span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                                //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                        div.text-ellipsis.shadow-text.user-infocard-info
+                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .row.w-100.ml-0.mr-0
+                                                .d-flex.w-100.align-items-center
+                                                    h4.text-primary.ml-auto.mb-0
+                                                        span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
+                                            .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
+                                                .menu-grid
+                                                    a.user-menu-item(title="Offline Pages" href='#_' onclick="getOfflinePages();")
+                                                        i.fa-light.fa-fw.fa-window-restore
+                                                        | Pages
+                                                    //a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                        i.fa-light.fa-fw.fa-archive
+                                                        | Albums
+                                                    a.user-menu-item(title="Theater Media" href='#/tvTheater?')
+                                                        i.fa-light.fa-fw.fa-ticket
+                                                        | Theater
+                                                    a.user-menu-item(title="Offline Media" href='#/gallery?')
+                                                        i.fa-light.fa-fw.fa-photo-video
+                                                        | Gallery
+                                                    a.user-menu-item(title="Offline Music" href=`#/files?`)
+                                                        i.fa-light.fa-fw.fa-music
+                                                        | Music
+                                                    a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                        i.fa-light.fa-fw.fa-cog
+                                                        | Settings
+                                                    a.user-menu-item(title="Try to go online" href='#_' onclick="transitionToOOBPage('/'); return false;")
+                                                        i.fa-light.fa-plug
+                                                        | Connect
+                                    div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-cog.mr-2
+                                                    | Settings
+                                            .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                .menu-grid
+                                                    a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
+                                                        i.fa-light.fa-sliders-h
+                                                        | Display
+                                                    //a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
+                                                        i.fa-light.fa-tv
+                                                        | Photo Frame
+                                                    a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
+                                                        i.fa-light.fa-sd-card
+                                                        | Storage
+                                                    a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
+                                                        i.fa-light.fa-info-circle
+                                                        | About
+                                    div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-sliders-h.mr-2
+                                                    span.d-none.d-sm-inline Display
+                                            .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                .menu-grid
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(3); return false;`)
+                                                        i.fa-light.fa-grid-5
+                                                        | Thumbs
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(2); return false;`)
+                                                        i.fa-light.fa-grid-4
+                                                        | Small
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(); return false;`)
+                                                        i.fa-light.fa-grid
+                                                        | Default
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setImageLayout(1); return false;`)
+                                                        i.fa-light.fa-grid-2
+                                                        | Large
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setPageLayout(true); return false;`)
+                                                        i.fa-light.fa-distribute-spacing-horizontal
+                                                        | Full Width
+                                                    a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
+                                                        i.fa-light.fa-arrow-up-arrow-down
+                                                        | Menubar
+                                    div#menuItemAlbums.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-globe-americas
+                                                    span.d-none.d-md-inline Directory
+                                                a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                    i.fas.fa-cog.fa-fw.mr-md-1
+                                                    span.d-none.d-md-inline Manage
+                                                h4.text-primary.ml-auto
+                                                    i.fas.fa-archive.mr-2
+                                                    | Albums
+                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                if (albums && albums.length > 0)
+                                                    div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                        each thisAlbum in albums
+                                                            div.album-item.position-relative
+                                                                div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                    //x.uri, x.privacy
+                                                                    div.album-icon
+                                                                        if (thisAlbum.uri === 'gallery')
+                                                                            i.far.fa-photo-video.pr-1
+                                                                        else if (thisAlbum.uri === 'files')
+                                                                            i.far.fa-folder.pr-1
+                                                                        else if (thisAlbum.uri === 'cards')
+                                                                            i.far.fa-sticky-note.pr-1
+                                                                        else
+                                                                            i.far.fa-archive.pr-1
+
+                                                                        if (thisAlbum.privacy === 0)
+                                                                            i.far.fa-globe-americas.pr-1
+                                                                        else if (thisAlbum.privacy === 1)
+                                                                            i.far.fa-lock.pr-1
+                                                                        else if (thisAlbum.privacy === 2)
+                                                                            i.far.fa-link.pr-1
+                                                                div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0;")
+                                                                    span #{thisAlbum.name}
+                                                                a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                    if (thisAlbum.image)
+                                                                        div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
+                                                                    else
+                                                                        div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+
+                                                else
+                                                    h2 No Albums!
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
+                            #titleBarContents(style="display: contents").col.p-0
+                                ul.navbar-nav.text-primary.text-ellipsis
+                                    li#topAddressBarInfo.nav-item.text-right.page-title.text-primary.mr-1
+                                        i.far.fa-folder-bookmark.mr-2
+                                        span Local Files
+                            .mr-auto
+                            ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
+                                li.nav-item.no-arrow
+                                    i.fas.fa-spinner.fa-spin-pulse
+                            ul.navbar-nav.text-primary.text-ellipsis.ml-2.mr-1
+                                li.nav-item.no-arrow
+                                    i.fas.fa-wifi-slash
+                            .col-auto.p-0.d-flex
+                                ul.navbar-nav.text-primary.text-ellipsis.w-100
+                                    li.nav-item.no-arrow.kms-pip-icons.align-items-center
+                                        .badge.d-none.d-flex.align-items-center.ml-1.my-1
+                                            a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kongouPIPVideo(); return false;")
+                                                i.fas.fa-ticket
+                                            a.navbar-item.btn.btn-ice.px-1.py-0.d-none.d-sm-block(data-toggle='collapse' href='#_' role='button' onclick="getNewContent([],[], kongouMediaActiveURL); return false;")
+                                                i.fas.fa-list
+                                            a.navbar-item.btn.btn-ice.px-1.py-0.d-none.d-sm-block(data-toggle='collapse' href='#_' role='button' onclick="kmsSeek(false, 15); return false;")
+                                                i.fas.fa-arrow-rotate-right
+                                            a.navbar-item.btn.btn-ice.px-1.py-0(data-toggle='collapse' href='#_' role='button' onclick="kmsPlayNext(); return false;")
+                                                i.fas.fa-forward-fast
+                                    li.nav-item.no-arrow.align-items-center.ml-1.performance-mode-icon
+                                        a.align-items-center.d-flex(title="Disable Performance Mode" href='#_' onClick=`disablePerformanceMode(); return false;`)
+                                            i.fas.fa-bolt
+                                    li.nav-item.no-arrow.d-flex.align-items-center
+                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                            i.far.fa-bars.pl-2
+                                            img.img-profile.rounded-circle(src=user.avatar)
+
+                        div#topbarUserBackground.show-menu-open.hidden
+                            div.user-info-backdrop
+                        div#topbarIcon.show-menu-open.d-none.hidden
+                        div#topbarBackground
+                            //(style="display: none;")
+                    style.
+                        .background-image:not(.overlay) {
+                            background-image: url('/static/img/loading_bg.jpeg');
+                        }
+
+                        .background-image.overlay {
+                            background-image: linear-gradient(180deg, #000000b8, #ffffff00);
+                            z-index: -99;
+                            opacity: 0.7;
+                        }
+                    .container-fluid.max-resize
+                        #offlinePages.d-flex.align-items-center.flex-column.hidden
+                            div.bg-darker.p-3.w-100.mb-3.rounded
+                                table.table.table-borderless.mb-0
+                                    thead.table-header
+                                        tr
+                                            th(scope="col")
+                                            th(scope="col") Page
+                                            th(scope="col") Items
+                                    tbody#offlinePageList
+                        #contentFiles
+
+                        #contentBlock
+                            .tz-gallery
+                                div.row
+
+                            script.
+                                console.log('Welcome to microJuneOS for Sequenzia! Version 0.1\n' + '\n' +
+                                    '       __                 ____  _____' + '\n' +
+                                    '      / /_  ______  ___  / __ \\/ ___/' + '\n' +
+                                    ' __  / / / / / __ \\/ _ \\/ / / /\\__ \\'  + '\n' +
+                                    '/ /_/ / /_/ / / / /  __/ /_/ /___/ /'  + '\n' +
+                                    '\\____/\\__,_/_/ /_/\\___/\\____//____/'   + '\n\n');
+                                let currentContext = false;
+                                let nextContext = 'seq';
+                                $(document).ready(function () {
+                                    if (window.location.hash.substring(1).length < 2) {
+                                        console.log(`No Navigation, Ready when you are`);
+                                        //$('#bootUpDisplay').fadeOut(500);
+                                        getOfflinePages();
+                                        document.getElementById('bootUpDisplay').style.display = 'none';
+                                        document.getElementById('kmsBootDisplay').style.display = 'none';
+                                        $('#bootBackdrop').fadeOut(500);
+                                    } else {
+                                        $('#loadingLogo').fadeIn();
+                                        console.log(`Navigating to requested page JOS:/${window.location.hash.substring(1)}...`);
+                                        getNewContent([], []);
+                                    }
+                                })
+                            script(type='text/javascript' src="/js/client/onload.min.js")
+
+                    // Music Player Enabler
+                    script(type='text/javascript' src="/js/client/media-enabler.min.js")
+                #finalLoad
+                    #pageNav.btn-group.d-block.page-navigator
+                footer.sticky-footer.bg-transparent
+                    .container.my-auto
+                        .copyright.text-center.my-auto
+                            div.mb-2
+                                span.sidebar-brand-logo.sequenzia-logo(class=showlogo1 style='font-size: 2.8em;') sequenzia
+                            div
+                                strong Sequenzia™ JulyOS - The Micro JuneOS
+                            div
+                                span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
+        a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='display: none;' href='#_' onclick="scrollToTop(); return false;")
+            i.fa.fa-arrow-up
+        div#musicplayer.fixed-bottom.music-player(role="alert" style="display: none;")
+            .row.d-flex
+                audio( controls id='audioplayerobject' preload="false" style="width: 100%").col
+                button.align-self-center.btn.btn-circle(type='button' onclick='CloseMusic(); return false;' style='background: #f1f3f4;')
+                    i.fas.fa-times
+        #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='logoutModelLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            i.fas.fa-sign-out-alt.pr-2
+                            | Ready to Leave?
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body Select &quot;Logout&quot; below if you are ready to end your current session.
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                        a.btn.btn-danger(title="Logout" href='/discord/destroy') Logout
+        #cacheModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            i.fas.fa-sd-card.pr-2
+                            | Storage Manager
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        #accordionFlushExample.accordion.accordion-flush
+                            .accordion-item
+                                h4#cacheList-pagesHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-pagesBody' aria-expanded='false' aria-controls='cacheList-pagesBody')
+                                        i.fas.fa-window-restore.pr-2
+                                        | Pages
+                                        span#cachePagesCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-pagesBody.accordion-collapse.collapse.show(aria-labelledby='cacheList-pagesHeading' data-parent='#accordionFlushExample')
+                                    #cachePagesManager.accordion-body.mb-2
+                                        span No Offline Pages
+                            .accordion-item
+                                h4#cacheList-itemsHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-itemsBody' aria-expanded='false' aria-controls='cacheList-itemsBody')
+                                        i.fas.fa-photo-film-music.pr-2
+                                        | Media
+                                        span#cacheItemsCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-itemsBody.accordion-collapse.collapse(aria-labelledby='cacheList-itemsHeading' data-parent='#accordionFlushExample')
+                                    #cacheItemsManager.accordion-body.mb-2
+                                        span No Offline Items
+                            .accordion-item
+                                h4#cacheList-tempHeading.accordion-header
+                                    a.accordion-button.collapsed.d-flex(href='#_' data-toggle='collapse' data-target='#cacheList-tempBody' aria-expanded='false' aria-controls='cacheList-tempBody')
+                                        i.fas.fa-clock.pr-2
+                                        | Temp
+                                        span#cacheFilesCount.pl-2
+                                        i.fas.fa-chevron-down.ml-auto
+                                #cacheList-tempBody.accordion-collapse.collapse(aria-labelledby='cacheList-tempHeading' data-parent='#accordionFlushExample')
+                                    #cacheFilesManager.accordion-body.mb-2
+                                        span No Temporary Items
+                        div.row.px-2
+                            h4 Storage
+                        div.row.mb-2.d-flex.flex-column.px-2
+                            h5#storageFreeText Free Space Waiting...
+                            .storage-usage-holder.d-flex
+                                #storageDBUsed.storage-usage-db-used
+                                #storageCacheUsed.storage-usage-cache-used
+                                #storageOtherUsed.storage-usage-other-used
+                            .d-flex.mt-1
+                                #textSpannedUsed.badge.text-light.storage-usage-spanned-used.mr-1
+                                    i.fas.fa-box-open.pr-1
+                                    span NaN
+                                #textDataUsed.badge.text-light.storage-usage-files-used.mr-1
+                                    i.fas.fa-file.pr-1
+                                    span NaN
+                                #textCacheUsed.badge.text-light.storage-usage-cache-used.mr-1
+                                    i.fas.fa-microchip.pr-1
+                                    span NaN
+                                #textOtherUsed.badge.text-light.storage-usage-other-used
+                                    i.fas.fa-question-circle.pr-1
+                                    span NaN
+        #aboutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='aboutModalLabel' aria-hidden='true')
+            .modal-dialog(role='document').about-dialog
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            i.fas.fa-circle-info.pr-2
+                            | About
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body.d-flex.p-0.flex-column.flex-md-row(style="max-height: 75vh;height: 650px;")
+                        div.d-flex.flex-column.about-left-panel(style="background-color: #d07300;background-image: url('/static/img/about-bg.jpeg');background-position: center;background-size: cover;background-repeat: no-repeat;border-top: #ff8d00 10px solid;")
+                            div.d-flex.mt-auto.mb-auto.flex-column
+                                div.ml-auto.mr-auto.mt-4.mb-1.d-none.d-md-block(style="max-width: 50%;")
+                                    img(src="/static/img/sequenzia-logo-mini-2.png" style="filter: drop-shadow(0px 0px 20px black);").img-fluid
+                                div.ml-auto.mr-auto.mt-4.mb-4(style="text-shadow: 0 0 20px black; max-width: 75%;").d-flex.justify-content-center
+                                    img(src="/static/img/sequenzia-logo-nav.png" style="filter: drop-shadow(0px 0px 20px black); width: 280px; height: auto;").d-md-none.img-fluid
+                                    i.px-2.fas.fa-image.d-none.d-md-inline.fa-2x
+                                    i.px-2.fas.fa-film.d-none.d-md-inline.fa-2x
+                                    i.px-2.fas.fa-music.d-none.d-md-inline.fa-2x
+                                    i.px-2.fas.fa-folder.d-none.d-md-inline.fa-2x
+                                    i.px-2.fas.fa-archive.d-none.d-md-inline.fa-2x
+
+                        div.col.overflow-auto
+                            div.row.pl-3.pr-3.pt-2.justify-content-center
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | Sequenzia v20
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | JuneFS™ v1.7
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | JuneOS™ v2.5
+                                span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-microchip.pr-1
+                                    | JulyOS™ v0.5
+
+                            div.row.pl-3.pr-3.pt-2.justify-content-center
+                                p.mb-1 Sequenzia™ II - Image and Data Manager
+                                p Copyright &copy; Academy City Research #{moment(Date.now()).format('YYYY')}
+                                p.mb-1 Developed and Maintained by Academy City Research (acr.moe)
+                                p.mb-1 Proudly Developed in the United States of America 🇺🇸
+                            div.row.pl-3.pr-3.pt-2
+                                h3
+                                    i.fas.fa-monitor-waveform.pr-2
+                                    | Application Status
+                            div.row.pl-3.pr-3.mb-3.justify-content-center
+                                span#serviceWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
+                                    i.fas.fa-block-brick-fire.pr-1
+                                    | NetKernel OK
+                                span#serviceWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Communications")
+                                    i.fas.fa-right-left.pr-1
+                                    | NetKernel I/O
+                                span#serviceWorkerSync.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Background Sync")
+                                    i.fas.fa-arrows-rotate.pr-1
+                                    | NetKernel Sync
+                                span#webWorkerStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
+                                    i.fas.fa-microchip.pr-1
+                                    | TLHWP OK
+                                span#webWorkerComms.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS Top-Level Heavy Worker Processor Communications")
+                                    i.fas.fa-right-left.pr-1
+                                    | TLHWP I/O
+                                span#storageStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JulyOS Storage Backend")
+                                    i.fas.fa-sd-card.pr-1
+                                    | Storage
+                                //span#xrStatus.badge.badge-danger.mx-1.mt-1(data-placement="top" title="JuneOS XR Framework")
+                                    i.fas.fa-vr-cardboard.pr-1
+                                    | XR
+                            div.row.pl-3.pr-3.pt-2
+                                h3
+                                    i.fas.fa-puzzle.pr-2
+                                    | Extensions
+                            div.row.pl-3.pr-3.pt-2.mb-2
+                                p.mb-1
+                                    img(src="/static/img/kongoumedialogo-wide.png" style="width: 400px; height: auto;").img-fluid
+                                p.mb-1
+                                    img(src="/static/img/awatsukidps.png" style="width: 280px; height: auto;").img-fluid
+                                p.mb-1 Sequenzia Content Distribution and Auditing System (CDS)
+
+                            div.row.pl-3.pr-3.pt-2
+                                h3
+                                    i.fas.fa-server.pr-2
+                                    | Storage Servers
+                            each thisServer, thisIndex in discord.servers.list
+                                .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
+                                    div.mr-3
+                                        img.rounded-pill(src=thisServer.icon style='height: 8em;')
+                                    div
+                                        h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                        if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
+                                            h5 #{thisServer.name}
+                                        div.d-inline.text-lg
+                                            if (thisServer.login === 1)
+                                                i.fas.fa-key.pr-2.pl-1
+                                                span Login
+                                            else
+                                                i.fas.fa-database.pr-2.pl-1
+                                                span Storage
+                            div.row.pl-3.pr-3.pt-2.mb-3
+                                span.font-weight-bold Thank you to all that have helped test and report issues. Special Thanks to Emmy!
+        #searchModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-body(style='z-index: 1; overflow: clip;').pt-2
+                        div.row.px-3
+                            div#authorData.mt-1.w-100.d-flex.flex-row.align-items-start
+                                img(style='height: 48px;').rounded-circle.pr-2.shadow-blk
+                                span(style='font-size: 1.5em;').text-ellipsis.align-self-center.shadow-text
+                                button.close.text-white(type='button' data-dismiss='modal' aria-label='Close').align-self-center.shadow-text.ml-auto
+                                    span(aria-hidden='true') &times;
+                        div.row.px-2.flex-nowrap.mb-1.mt-2(style='display: flex; justify-content: space-evenly; align-content: center; flex-direction: row; align-items: center;')
+                            a#toggleFavoritePost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                                i.fas.fa-star.shadow-text
+                            a#manageAlbumPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                                i.fas.fa-archive.shadow-text
+                            a#addFlagPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                                i.fas.fa-flag.shadow-text
+                            a#goToPostLocation.btn.text-white.d-none(href='#_' role='button')
+                                i.fas.fa-directions.shadow-text
+                            a#goToPostSource.btn.text-white(href='#_' role='button').hidden
+                                i.fas.fa-link.shadow-text
+                            a#goToHistoryDisplay.btn.text-white.d-none(href='#_' role='button')
+                                i.fas.fa-history.shadow-text
+                            a#goToPlay.btn.text-white(href='#_' role='button')
+                                i.fas.fa-play.shadow-text
+                            a#goToDownload.btn.text-white(href='#_' role='button' target="_blank" rel="noopener noreferrer")
+                                i.fas.fa-download.shadow-text
+                            a#makeOffline.btn.text-white(href='#_' role='button')
+                                i.fas.fa-bookmark.shadow-text
+                        #keepExpireingFile.row.pl-3.pr-3.hidden
+                            a.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                i.fas.fa-clock.pr-2
+                                span Keep Offline File
+                        div.row.px-3
+                            div#kmsContent.mb-2.text-center.w-100
+                                div.d-flex
+                                    div.mr-2
+                                        img#kmsInfoPoster
+                                    div.d-flex.flex-column.text-ellipsis.w-100
+                                        div
+                                            span.episode-number#kmsInfoNumber
+                                        span#kmsInfoShowName.font-weight-bold.text-ellipsis.text-left
+                                        span#kmsInfoEpisodeName.text-ellipsis.text-left
+                                div.mt-2
+                                    span#kmsInfoEpisodeDescription
+                        div.row.px-3
+                            span#infoFilename.text-center.w-100.font-italic.text-lg.shadow-text
+                        div.row.px-3
+                            div#rawInfoContent.mt-2.text-center.w-100
+                        div.row.px-3.mb-2
+                            div#rawBodyContent.mt-1.text-center.w-100
+                                div.card-ui(style='max-height: 200px; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere')
+                        div#manageButtons.px-2.d-none
+                            .row.flex-nowrap
+                                a#infoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-cut.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Move
+                                a#infoEditText.btn.btn-danger.mx-1.mb-2(title="Edit Item Contents" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-square-quote.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Edit
+                                a#infoRename.btn.btn-danger.mx-1.mb-2(title="Rename Item" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-input-text.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Rename
+                                a#infoRotae.btn.btn-danger.mx-1.mb-2(title="Rotate Image" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-undo.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Rotate
+                            .row.flex-nowrap
+                                a#infoRepair.btn.btn-danger.mx-1.mb-2(title="Repair Thumbnail" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-image-slash.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Thumb
+                                a#infoCompile.btn.btn-danger.mx-1.mb-2(title="Compile Spanned File" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-cloud-check.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Cache
+                                a#infoDecompile.btn.btn-danger.mx-1.mb-2(title="Remove Cached Spanned File" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-cloud-xmark.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline DeCache
+                                a#infoDelete.btn.btn-danger.mx-1.mb-2(title="Archive or Delete Item(s)" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-trash.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Delete
+                                a#infoReport.btn.btn-danger.mx-1.mb-2(title="Clear Reported Item(s)" href='#_').w-100.text-ellipsis
+                                    i.fas.fa-flag.pr-0.pr-sm-2
+                                    span.d-none.d-sm-inline Clear
+                        div.row.pl-3.pr-3.mt-2.d-none
+                            h3 Search
+                        div.row.pl-3.pr-3.d-none
+                            a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                i.fas.fa-level-up-alt.pr-2
+                                span Parent Post
+                        div.row.pl-3.pr-3.d-none
+                            a#searchByUser.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                i.fas.fa-user.pr-2
+                                span Artist
+                        div.row.pl-3.pr-3.d-none
+                            a#searchByColor.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                i.fas.fa-swatchbook.pr-2
+                                span Similar Color
+                        div.row.pl-3.pr-3.d-none
+                            a#searchByID.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                i.fas.fa-asterisk.pr-2
+                                span Related IDs
+                        div.row.pl-3.pr-3.d-none
+                            a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                i.fas.fa-i-cursor.pr-2
+                                span Selected Text
+                        div.row.pl-3.pr-3.d-none
+                            div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
+                                label#searchFilterPost.btn.btn-info.w-100.active
+                                    input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                    span  Post
+                                label#searchFilterCurrent.btn.btn-info.w-100
+                                    input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                    span  Current
+                                label#searchFilterEverywhere.btn.btn-info.w-100
+                                    input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                    span  Everywhere
+                        div.row.pl-3.pr-3.mt-2.d-flex.flex-column
+                            a#AdvancedInfoCollapseButton.btn.btn-primary.collapsed(href='#_' data-toggle='collapse' data-target=`#AdvancedInfoCollapse`)
+                                i.fas.pr-2.fa-info-circle
+                                span.text-capitalize Debug
+                                i.fas.fa-chevron-down.pl-2
+                            div#AdvancedInfoCollapse.collapse(aria-labelledby='#AdvancedInfoCollapseButton')
+                                div#advancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
+                        .modal-background.blur-this
+                        .modal-gradient
+        #videoBuilderModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='videoBuilderModal' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header.text-ellipsis
+                        h5.modal-title.text-ellipsis Video Preview
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            video(preload="true" volume="0.5" loop controls playsinline webkit-playsinline style="background: black; background-clip: content-box;").w-100.hidden
+                            img().w-100.hidden
+                        div.row.pl-3.pr-3.mt-2.d-block
+                            .progress.mb-1(style="height: 30px;")
+                                .progress-bar.progress-bar-striped.progress-bar-animated.bg-success(role='progressbar' style='width: 0%' aria-valuenow='0' aria-valuemin='0' aria-valuemax='100')
+                        div.row.pl-3.pr-3.d-block.text-ellipsis
+                            span.status-text Ready
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal' onclick='cancelPendingUnpack(); return false;') Cancel
+                        a.btn.btn-success(title="Load File" href='#_' onclick='startPendingUnpack(); return false;')
+                            i.fas.pr-2.fa-box-open
+                            span Play
+        #kongouMediaPlayer.kms-media-container.animated--grow-in
+            .kms-background
+                .kms-logo-center
+            .kms-media-inner
+                #kongouStage.kms-stage
+                    .kms-player-video.d-flex
+                        .kms-progress.d-flex
+                            .kms-progress-bar.hidden(style='width: 100%')
+                        .kms-title-bar.d-flex
+                            .kms-progress-bar.hidden(style='width: 100%')
+                            .kms-current-number
+                                span#kongouMediaPlayerCurrentNumber
+                            .kms-info-bar
+                                .kms-current-name.text-ellipsis.mr-auto
+                                    span#kongouMediaPlayerCurrent(style="color: #ff7300; font-size: 1.75em;")
+                                .kms-status-bar.pr-2.text-ellipsis
+                                    span
+                                a.px-2(href='#_' style="font-size: 2em; line-height: 1;" onclick=`closeKMSPlayer(); return false;`)
+                                    i.fas.fa-times
+                            .kms-player-controls.px-2.mt-2
+
+                        .kms-center-bar.d-flex.flex-row.h-100.mt-auto.mb-auto.disabled-pointer
+                            div.mt-auto.mb-auto.ml-auto.mr-auto
+                                a#kongouControlsPlay.d-flex.align-items-baseline.justify-content-start(href='#_').p-5
+                                    i.fas.fa-pause.fa-3x
+                        .kms-center-bar.d-flex.flex-row.h-100.mt-auto.mb-auto.disabled-pointer
+                            div.mr-auto.mt-auto.mb-auto
+                                a#kongouMediaPlayerPrev.d-flex.align-items-baseline.justify-content-start.mr-auto(href='#_' onclick=`kmsPlayPrev(); return false;` style="pointer-events: initial;").p-5.pl-4
+                                    i.fas.fa-backward-fast.fa-2x
+                            div.ml-auto.mt-auto.mb-auto
+                                a#kongouMediaPlayerNext.d-flex.align-items-baseline.justify-content-end.ml-auto(href='#_' onclick=`kmsPlayNext(); return false;` style="pointer-events: initial;").p-5.pr-4
+                                    i.fas.fa-forward-fast.fa-2x
+                        .kms-bottom-bar.d-flex.px-2
+                            #kongouScreenshotContainer.kms-screenshot-contaner.hidden.mb-3.flex-row
+                                #kongouScreenShots.kms-screenshot-images
+                                .kms-screenshot-options.d-flex.flex-column
+                                    a.btn.btn-primary(href='#_' onclick=`kmsClearScreenshots(); return false;`)
+                                        i.fas.fa-trash-alt
+                                    a.btn.btn-primary(href='#_' onclick=`kmsSaveScreenshots(); return false;`)
+                                        i.fas.fa-download
+                            #kongouAdvancedControls.kms-player-playback-advanced.align-items-center.mb-3.flex-column.flex-md-row
+                                div.d-flex
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsScreenshot(); return false;`).pl-4.pr-2.d-flex.align-items-center
+                                            i.fas.fa-camera-viewfinder
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`kmsSeek(true, -1); return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-backward-step
+                                        a(href='#_' onclick=`kmsSeek(false, -1); return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-backward
+                                        div.kongou-frameer.d-inline
+                                            input#kongouControlsMiniFrame(data-slider-id='kongouControlsMiniFrame' type='text' data-slider-min='-1' data-slider-max='1' data-slider-step='0.001' data-slider-value='0' data-slider-ticks='[-1, 0, 1]')
+                                        a(href='#_' onclick=`kmsSeek(false, 1); return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-forward
+                                        a(href='#_' onclick=`kmsSeek(true, 1); return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-forward-step
+                                div.d-flex
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-timer
+                                    div.kongou-frameer.d-flex.align-items-center.mr-md-4
+                                        input#kongouControlsJogSeek(data-slider-id='kongouControlsJogSeek' type='text' data-slider-min='-1' data-slider-max='1' data-slider-step='0.005' data-slider-value='0' data-slider-ticks='[-1, 0, 1]')
+
+                                div.d-flex
+                                    div.d-flex.align-items-center
+                                        a(href='#_' onclick=`kongouControlsSpeedSlider.setValue(1); return false;`).px-2.d-flex.align-items-center
+                                            i.fas.fa-turtle
+                                    div.kongou-frameer.d-flex.align-items-center
+                                        input#kongouControlsSpeed(data-slider-id='kongouControlsSpeed' type='text' data-slider-min='0.1' data-slider-max='2' data-slider-step='0.01' data-slider-value='1' data-slider-ticks='[0.1, 1, 2]')
+
+                            .kms-player-playback-controls.d-flex.align-items-center
+                                div#kongouTimeCode(style="text-align: end;display: flex;justify-content: flex-end;align-content: center;align-items: center;flex-wrap: nowrap;").px-3.d-flex.align-items-center
+                                    span.digital-font 00
+                                    span :
+                                    span.digital-font 00
+                                div#seekControls.no-seeking.d-flex.w-100
+                                    input#kongouControlsSeek(data-slider-id='kongouControlsSeek' type='text' data-slider-min='0' data-slider-max='1' data-slider-step='0.0001' data-slider-value='0')
+                                    span#kongouControlsSeekUnavalible.mr-auto Preparing Video...
+                                a#kongouControlsMute(href='#_').px-2.d-none.d-sm-flex
+                                    i.fas.fa-volume-high
+                                .d-none.d-sm-flex
+                                    input#kongouControlsVolume(data-slider-id='kongouControlsVolume' type='text' data-slider-min='0' data-slider-max='100' data-slider-step='1' data-slider-value='100')
+                                a#kongouPIPButton(href='#_' onclick="kongouPIPVideo(); return false;").px-3
+                                    i.fas.fa-square-arrow-up-right
+                                a#kongouControlsFullscreen(href='#_' onclick="toggleFullscreen(); return false;").pr-3
+                                    i.fas.fa-expand-wide
+                        .kms-warnings.d-flex.flex-column
+                            .mt-auto.mb-auto.ml-auto.mr-auto
+                                #kmsWarningProgress.alert.alert-warning.hidden.my-2
+                                    i.fas.fa-history.pr-2
+                                    span Video will continue at your previous position once it has been full loaded!
+                                #kmsWarningQuality.alert.alert-warning.hidden.my-2(style='opacity: 0.5;')
+                                    i.fas.fa-box-open.pr-2
+                                    span Video quality will improve once it has been full loaded!
+                        div#kongouPlayerElement.video-holder
+                            div#videoElements.position-relative
+                                img.video-logo-overlay(src='/static/img/sequenzia-logo-white.png')
+                                video#kongouMediaVideoPreview.kms-media-player(preload="true" playsinline webkit-playsinline disablePictureInPicture style="background: transparent; background-clip: content-box;")
+                                video#kongouMediaVideoFull.kms-media-player(preload="true" playsinline webkit-playsinline style="background: transparent; background-clip: content-box;" )
+                        canvas#kongouScreenshot.hidden(width="1920" height="1080")
+                        img#kongouScreenshotImage.hidden
+        script(src="/static/js/sb-admin-2.min.js")
+        // Music Manager
+        script(type='text/javascript' src="/js/client/media.min.js")
+        script.
+            _originalURL = '';

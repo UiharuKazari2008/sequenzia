@@ -1,0 +1,87 @@
+extends layout
+
+block content
+    if (results && results.length > 0 )
+        // Page Heading
+        if errors
+            ul.my-errors
+                for error in errors
+                    li= error.msg
+        - backgrounds = results.filter(e => !!e.background || !!e.cache_background).map(e => (e.cache_background) ? 'https://media.discordapp.net/attachments' + e.cache_background : e.background.pop())
+        - backgroundImg = backgrounds[Math.floor(Math.random() * backgrounds.length)]
+        style.
+            .background-image:not(.overlay) {
+                background-image: url("!{backgroundImg}");
+            }
+
+            .background-image.overlay {
+                background-image: linear-gradient(180deg, #000000b8, #00000000);
+                z-index: -99;
+                opacity: 1;
+            }
+        // Search Bar
+        div.mb-2
+            form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="get" style="width: 100%;" )
+                .input-group.w-100
+                    .input-group-prepend
+                        i.far.fa-search.align-self-center
+                    input#seriesSearch.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Search Shelf...' aria-label='Search Shelf...' onchange="searchSeriesList(this);" onkeyup="searchSeriesList(this);" onpaste="searchSeriesList(this);" oninput="searchSeriesList(this);")
+        div.tz-gallery
+            div.row
+                each item, indexImage in results
+                    div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2(id=`series-${item.id}` data-search=`${item.name}; ${item.originalName}; ${item.genres};`)
+                        .show-overlay-items.position-absolute
+                            .show-controls.px-2.py-1
+                                .show-banners
+                                    if (item.subtitled)
+                                        .badge.bg-darker.mr-1
+                                            i.fas.fa-closed-captioning
+                                    if (item.nsfw)
+                                        .badge.bg-danger.mr-1
+                                            i.fas.fa-octagon-minus
+                                            span.pl-1.no-dynamic-small.d-none.d-sm-inline UNCENSORED
+                                    .ml-auto
+                                .show-buttons
+                        a(href=`#/listTheater?show_id=${item.id}${(item.group_nsfw) ? "&nsfw=true" : ""}${(item.group_isMovie) ? "&sort=name" : ""}`)
+                            if (indexImage < 10)
+                                div#postImage.tv-poster.img.img-responsive.no-hover(style=`background-image : url("${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster + '?height=580&width=384' : item.poster[0]}"); background-size: cover!important;`)
+                            else
+                                div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster + '?height=580&width=384' : item.poster[0]}` style=`background-size: cover!important;`)
+                            .episode-background
+                if (unmatched_found && unmatched_found > 0)
+                    div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2
+                        .show-overlay-items.position-absolute
+                            .show-controls.px-2.py-1
+                                .show-banners
+                                    .badge.bg-darker.mr-1
+                                        span #{unmatched_found}
+                                    .ml-auto
+                                .show-buttons
+                        a(href=`#/listTheater?show_id=unmatched&group=${media_group}${(group_nsfw) ? "&nsfw=true" : ""}` style='padding-bottom: 50%; padding-top: 50%;').w-100.h-100.d-flex.flex-column
+                            i.fas.fa-shelves.show-item-icon-center
+                            span.no-dynamic-small.mr-auto.ml-auto.mt-2 Unmatched
+                            .episode-background
+                if (nexturl !== 'NA')
+                    #LoadNextPage.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2
+                        a(href=`#_` onclick=`getMoreContent([], [${nexturl}]); return false;` style='padding-bottom: 50%; padding-top: 50%;').w-100.h-100.d-flex.flex-column
+                            div.show-item-icon-center
+                                i.fa.fa-plus
+                                i.fa.fa-angle-right
+                            .episode-background
+        script.
+            element_list = Array.from(document.querySelectorAll('[data-search]'))
+            search_list = element_list.map(e => e.id + ' -- ' + e.getAttribute('data-search').toLowerCase())
+    else
+
+        style.
+            .background-image:not(.overlay) {
+                background-image: url('/static/img/loading_bg.jpeg');
+            }
+        .alert.alert-danger(role='alert')
+            h4.alert-heading No Results
+            p
+                | Your search query or requested channel is either invalid or does not contain any gallery content
+            hr
+            p.mb-0
+                | Please go back to a valid channel or retry your search with another (maybe less specific) query
+

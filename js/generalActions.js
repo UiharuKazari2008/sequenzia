@@ -2,11 +2,11 @@ const global = require('../config.json');
 const config = require('../host.config.json');
 const { printLine } = require("./logSystem");
 const { sendData } = require('./mqAccess');
-const { sqlSafe } = require('../js/sqlClient');
+const { sqlSafe, sqlPromiseSimple } = require('../js/sqlClient');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     try {
-        if (req.session.user && (req.session.user.source < 900 || (req.body.action && req.body.action === "Pin" && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
+        if (req.session.user && (req.session.user.source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
                 case 'Pin':
                 case 'Unpin':
@@ -54,6 +54,100 @@ module.exports = (req, res, next) => {
                                     res.status(400).send(`Unknown Request`);
                                     break;
                             }
+                        }
+                    })
+                    break;
+                case 'PinHistory':
+                case 'UnpinHistory':
+                    printLine("ActionParser", `Request to Pin History ${req.body.messageid}`, 'info', req.body)
+                    sqlSafe(`UPDATE sequenzia_navigation_history SET saved = ? WHERE \`index\` = ? AND user = ?`, [(req.body.action === 'PinHistory'), req.body.messageid, req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to update history save status for ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.affectedRows && result.affectedRows > 0) {
+                            res.status(200).send(`Favorite Saved`);
+                        } else {
+                            res.status(500).send(`Favorite Failed`);
+                        }
+                    })
+                    break;
+                case 'RemoveHistory':
+                    printLine("ActionParser", `Request to Remove History Item ${req.body.messageid}`, 'info', req.body)
+                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE \`index\` = ? AND user = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to remove history item ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.affectedRows && result.affectedRows > 0) {
+                            res.status(200).send(`Item Deleted`);
+                        } else {
+                            res.status(500).send(`Failed to delete`);
+                        }
+                    })
+                    break;
+                case 'RemoveHistoryAll':
+                    printLine("ActionParser", `Request to dump History`, 'info', req.body)
+                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE user = ? AND saved = 0`, [req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to remove all history: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.affectedRows && result.affectedRows > 0) {
+                            res.status(200).send(`History Deleted`);
+                        } else {
+                            res.status(500).send(`Failed to delete history`);
+                        }
+                    })
+                    break;
+                case 'SetWatchHistory':
+                    printLine("ActionParser", `Request to set watch History`, 'info', req.body)
+                    if (req.body.viewed === 0) {
+                        sqlSafe(`DELETE FROM kongou_watch_history WHERE usereid = ?`, [`${req.session.discord.user.id}-${req.body.eid}`], (err, result) => {
+                            if (err) {
+                                printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
+                                res.status(500).send('Database Error');
+                            } else if (result.affectedRows && result.affectedRows > 0) {
+                                res.status(200).send(`History Reset`);
+                            } else {
+                                res.status(500).send(`Failed to save history`);
+                            }
+                        })
+                    } else {
+                        sqlSafe(`INSERT INTO kongou_watch_history SET usereid = ?, user = ?, eid = ?, viewed  = ? ON DUPLICATE KEY UPDATE viewed = ?, date = NOW()`, [`${req.session.discord.user.id}-${req.body.eid}`, req.session.discord.user.id, req.body.eid, req.body.viewed, req.body.viewed], (err, result) => {
+                            if (err) {
+                                printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
+                                res.status(500).send('Database Error');
+                            } else if (result.affectedRows && result.affectedRows > 0) {
+                                res.status(200).send(`History Saved`);
+                            } else {
+                                res.status(500).send(`Failed to save history`);
+                            }
+                        })
+                    }
+                    const tempLastEpisode = await sqlPromiseSimple(`SELECT Max(y.eid) AS eid, MAX(y.show_id) AS show_id FROM (SELECT * FROM kanmi_system.kongou_watch_history WHERE user = '${req.session.discord.user.id}' ORDER BY date DESC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_episodes) y ON (x.eid = y.eid);`)
+                    if (tempLastEpisode.rows.length > 0) {
+                        const nextEpisodeView = await sqlPromiseSimple(`SELECT * FROM  (SELECT * FROM kanmi_system.kongou_episodes WHERE eid > ${tempLastEpisode.rows[0].eid} AND show_id = ${tempLastEpisode.rows[0].show_id} AND season_num > 0 ORDER BY season_num ASC, episode_num ASC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_shows) y ON (x.show_id = y.show_id);`)
+                        console.log(nextEpisodeView.rows)
+                        req.session.kongou_next_episode = nextEpisodeView.rows[0];
+                    } else {
+                        req.session.kongou_next_episode = {};
+                    }
+                    break;
+                case 'GetWatchHistory':
+                    printLine("ActionParser", `Request to get watch History`, 'info')
+                    sqlSafe(`SELECT * FROM kongou_watch_history WHERE user = ?`, [req.session.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to deliver watch history: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result && result.length > 0) {
+                            res.status(200).json({
+                                history: result.map(row => {
+                                    return {
+                                        eid: row.eid,
+                                        viewed: row.viewed,
+                                    }
+                                })
+                            });
+                        } else {
+                            res.status(500).send(`Failed to get history`);
                         }
                     })
                     break;

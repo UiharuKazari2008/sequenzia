@@ -1,5 +1,6 @@
 let options = {
     hash: false,
+    selector : '[data-fancybox=gallery]',
     infobar: true,
     smallBtn: "auto",
     toolbar: "auto",
@@ -86,6 +87,17 @@ function params(_removeParams, _addParams, _url, keep) {
 
 }
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/serviceWorker.min.js')
+            .then(reg => {
+                console.log('JulyOS Kernel Registered Successfully')
+            })
+            .catch(err => console.log(`JulyOS Kernel Registation Error: ${err}`));
+    });
+}
+
 $(document).ready(function () {
     var lazyloadImages;
     if ("IntersectionObserver" in window) {
@@ -120,37 +132,36 @@ $(document).ready(function () {
         window.addEventListener("orientationChange", lazyload);
     }
 
-    var scrollManagerThrottleTimeout;
+    $('#videoBuilderModal').on('hidden.bs.modal', cancelPendingUnpack);
+    let scrollManagerThrottleTimeout;
     function scrollManager () {
-        if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); }
+        if(scrollManagerThrottleTimeout) { clearTimeout(scrollManagerThrottleTimeout); scrollManagerThrottleTimeout = null; }
         scrollManagerThrottleTimeout = setTimeout(function() {
-            const topbar = $('#topbar')
+            const topbar = document.getElementById('topbar');
+            const menu = document.getElementById('userMenu');
             if ($(this).scrollTop() > 50) {
                 $('.scrollBtn').fadeIn();
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                }
-                $('#topbarBackground').fadeIn();
-                topbar.addClass('shadow');
             } else {
                 $('.scrollBtn').fadeOut();
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-
-                }
-                $('#topbarBackground').fadeOut();
-                topbar.removeClass('shadow');
             }
-            if (!topbar.hasClass('no-ani')) {
-                topbar.removeClass('ready-to-scroll');
+            if ($(this).scrollTop() > 50 || menu.classList.contains('show')) {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {}
+                topbar.classList.add('shadow');
+            } else {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {}
+                topbar.classList.remove('shadow');
+            }
+            if (!topbar.classList.contains('no-ani')) {
+                topbar.classList.remove('ready-to-scroll');
             };
-            if (!sidebar.hasClass("toggled")) {
+            if (sidebar.hasClass("open")) {
                 const sidebarTop = $("#accordionSidebar").offset().top; //gets offset of header
                 const sidebarHeight = $("#accordionSidebar").outerHeight(); //gets height of header
-                if ($(window).scrollTop() > (sidebarTop + sidebarHeight)) {
+                if ($(window).scrollTop() > (sidebarTop + sidebarHeight))
                     toggleMenu();
-                }
             }
-        }, 20);
+            updateApplicationThemeColor();
+        }, 250);
     }
 
     document.addEventListener("scroll", scrollManager);
@@ -161,7 +172,7 @@ $(document).ready(function () {
     //window.history.replaceState(null, "Sequenzia", '/juneOS');
 
     $.toastDefaults = {
-        position: 'top-center', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
+        position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
         dismissible: true,
         stackable: true,
         pauseDelayOnHover: true,

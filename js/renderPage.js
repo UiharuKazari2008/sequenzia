@@ -1,8 +1,11 @@
-const web = require('../web.config.json');
+const config = require('../config.json');
+let web = require('../web.config.json');
 const moment = require('moment');
 const feed = require('feed').Feed;
 const podcast = require('podcast');
 const useragent = require('express-useragent');
+if (web.Base_URL)
+    web.base_url = web.Base_URL;
 
 module.exports = async (req, res, next) => {
     function params(_removeParams, _addParams, _url, searchOnly) {
@@ -31,6 +34,11 @@ module.exports = async (req, res, next) => {
     }
 
     let results = {
+        sidebar: req.session.sidebar,
+        next_episode: req.session.kongou_next_episode,
+        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
+        applications_list: req.session.applications_list,
         ...res.locals.response,
         webconfig: web,
         query: req.query
@@ -40,7 +48,7 @@ module.exports = async (req, res, next) => {
     }
 
     if (req.query.responseType && req.query.responseType === 'podcast') {
-        const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
+        const serverIcon = (req.query.image) ? decodeURI(req.query.image) : (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
         const podcastResponse = new podcast({
             title: `${results.full_title}`,
             itunesSubtitle: web.site_name,
@@ -62,23 +70,40 @@ module.exports = async (req, res, next) => {
         });
         if (results.results) {
             results.results.forEach(item => {
+                let title = (item.content.single.length > 0) ? item.content.single : item.entities.filename
+                if (item.content.single.length === 0) {
+                    title = title.split('.')
+                    title.pop()
+                    title = title.join('.').split('(')
+                    if (title.length > 1 && title[title.length - 1].length > 0 && !isNaN(parseInt(title[title.length - 1].substring(0, 1)))) {
+                        title.pop()
+                    }
+                    title = title.join('(').split('_').join(' ')
+                }
+                if (item.pinned) {
+                    title = '⭐️ ' + title
+                }
                 let podcastItem = {
                     guid: item.id,
-                    title: (item.content.single > 0) ? item.content.single : item.entities.filename.split('.')[0].split('_').join(' '),
-                    itunesTitle: (item.content.single > 0) ? item.content.single : item.entities.filename.split('.')[0].split('_').join(' '),
+                    title,
+                    itunesTitle: title,
                     description: item.content.clean,
                     content: item.content.clean.split('\n').join('<br/>'),
                     itunesSummary: item.content.clean,
                     link: `${web.base_url}${results.call_uri}?search=eid:${item.eid}`,
                     date: moment(item.date.iso).toDate(),
                 }
-                if (item.entities.download && item.entities.download.length > 5) {
+                if (item.entities.download && item.entities.download.length > 5 && !(item.entities.download.includes('/stream/'))) {
                     podcastItem.enclosure = {
-                        url: `${item.entities.download}?blind_key=${req.session.discord.user.token_login}`
+                        url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
+                        size: item.entities.meta.filesize * 1024000,
+                        type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `${web.base_url}stream/${item.entities.meta.fileid}/${item.entities.filename}?blind_key=${req.session.discord.user.token_login}`
+                        url: `${web.base_url}/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
+                        size: item.entities.meta.filesize * 1024000,
+                        type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
                 }
                 podcastResponse.addItem(podcastItem)
@@ -128,12 +153,12 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.entities.preview || item.entities.full) {
                         if (results.call_uri === '/gallery') {
-                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`}'/>`
-                            xmlItem.image = `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`
+                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`}'/>`
+                            xmlItem.image = `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                         } else {
-                            xmlItem.content = `<a href='${item.entities.download}?blind_key=${req.session.discord.user.token_login}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
+                            xmlItem.content = `<a href='${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
                             xmlItem.enclosure = {
-                                url: `${item.entities.full}?blind_key=${req.session.discord.user.token_login}`
+                                url: `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
                             }
                         }
                     }
@@ -173,11 +198,15 @@ module.exports = async (req, res, next) => {
     } else {
         if (results.call_uri === '/gallery') {
             res.render('gallery_list', results);
+        } else if (results.call_uri === '/listTheater') {
+            res.render('episode_list', results);
         } else if (results.call_uri === '/files') {
             res.render('file_list', results);
         } else if (results.call_uri === '/cards') {
             res.render('card_list', results);
-        } else if (results.call_uri === '/home' || results.call_uri === '/') {
+        } else  if (results.call_uri === '/tvTheater') {
+            res.render('kms_shows', results);
+        } else if (results.call_uri === '/home' || results.call_uri === '/homeImage') {
             res.json(results)
         } else if (results.call_uri === '/start') {
             res.render('home_embedded', results);

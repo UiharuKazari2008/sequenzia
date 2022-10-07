@@ -8,7 +8,7 @@ div#displayHistoryResults
                 div.display-results.pt-1
                     div.display-jumbotron.pl-3.pr-3
                         .row.position-relative
-                            if (secondDisplay.length > 0)
+                            if (mainDisplay.length > 0 && secondDisplay.length > 0)
                                 a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-left: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
@@ -33,7 +33,7 @@ div#displayHistoryResults
                                         else
                                             div.half-full(style=`${nsfwFilter2}background-position: center; background-size: cover; background-image: url('${secondDisplay[0].preview}'); position: absolute; z-index: 2; border-left: black 1px solid;`)
                                         div.half-full(style=`background: linear-gradient(0deg, #000000c7, transparent 25%, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
-                            else
+                            else if (mainDisplay.length > 0)
                                 a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
@@ -46,10 +46,23 @@ div#displayHistoryResults
                                             div.wide-center(style=`${nsfwFilter1}background-position: center; background-size: fit; background-image: url('${mainDisplay[0].preview}');position: absolute; z-index: 2; filter: drop-shadow(0 1px 5px rgba(0,0,0,0.3));`)
                                             div.wide-full(style=`background-color: rgb(${mainDisplay[0].color[0]}, ${mainDisplay[0].color[1]}, ${mainDisplay[0].color[2]}); position: absolute; z-index: 1;`)
                                         div.wide-full(style=`background: linear-gradient(0deg, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
+                            else if (secondDisplay.length > 0)
+                                a(title=`Message ID: ${secondDisplay[0].eid}\nShown on ${secondDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                    div.wide
+                                        - nsfwFilter1 = ""
+                                        if (secondDisplay[0].nsfw && secondDisplay[0].nsfw === 1)
+                                            - nsfwFilter1 = nsfwFilter
+
+                                        if (secondDisplay[0].ratio <= 0.95 )
+                                            div.wide-full(style=`${nsfwFilter1}background-position: center; background-size: cover; background-image: url('${secondDisplay[0].preview}'); position: absolute; z-index: 2;`)
+                                        else
+                                            div.wide-center(style=`${nsfwFilter1}background-position: center; background-size: fit; background-image: url('${secondDisplay[0].preview}');position: absolute; z-index: 2; filter: drop-shadow(0 1px 5px rgba(0,0,0,0.3));`)
+                                            div.wide-full(style=`background-color: rgb(${secondDisplay[0].color[0]}, ${secondDisplay[0].color[1]}, ${secondDisplay[0].color[2]}); position: absolute; z-index: 1;`)
+                                        div.wide-full(style=`background: linear-gradient(0deg, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
                             div(style='position: absolute; z-index: 4;').row.m-2.h5
                                 if ( display.display === 'Untitled' )
                                     i.fas.fa-tv.pr-2.align-self-center
-                                    | Ambient
+                                    | Frame
                                 else if ( display.display === 'Homepage' )
                                     i.fas.fa-home.pr-2.align-self-center
                                     | Homepage
@@ -83,7 +96,7 @@ div#displayHistoryResults
                                 else
                                     i.fas.fa-tv.pr-2.align-self-center
                                     | #{display.name}
-                            if (secondDisplay.length > 0)
+                            if (mainDisplay.length > 0 && secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
                                     if (user && user.source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
@@ -101,12 +114,8 @@ div#displayHistoryResults
                                         else
                                             | Master
                                     if (user && user.source < 900)
-                                        if (mainDisplay[0].fav)
-                                            a(title="Unpin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Unpin", true);return false;`).text-white.pr-2.h5
-                                                i#button.fas.fa-star.favorited
-                                        else
-                                            a(title="Pin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Pin", true);return false;`).text-white.pr-2.h5
-                                                i#button.fas.fa-star
+                                        a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
+                                            i.fas.fa-star(class=`${(mainDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=mainDisplay[0].full).text-white.h5
                                         i.fas.fa-download
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0 0.5em 0.5em; bottom: 0; right: 0; width: 50%; padding-left: 0.5em; padding-right: 0.8em;').row
@@ -119,24 +128,29 @@ div#displayHistoryResults
                                         else
                                             | Slave
                                     if (user && user.source < 900)
-                                        if (secondDisplay[0].fav)
-                                            a(title="Unpin Message" href='#_' id=`fav-${secondDisplay[0].eid}` onclick=`sendBasic("${secondDisplay[0].channel}", "${secondDisplay[0].eid}", "Unpin", true);return false;`).text-white.pr-2.h5
-                                                i#button.fas.fa-star.favorited
-                                        else
-                                            a(title="Pin Message" href='#_' id=`fav-${secondDisplay[0].eid}` onclick=`sendBasic("${secondDisplay[0].channel}", "${secondDisplay[0].eid}", "Pin", true);return false;`).text-white.pr-2.h5
-                                                i#button.fas.fa-star
+                                        a(data-placement="top" id=`fav-${secondDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${secondDisplay[0].channel}", "${secondDisplay[0].eid}"); return false;`).text-white.pr-2.h5
+                                            i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=secondDisplay[0].full).text-white.h5
                                         i.fas.fa-download
-                            else
+                            else if (mainDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
                                     if (user && user.source < 900)
-                                        if (mainDisplay[0].fav)
-                                            a(title="Unpin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Unpin", true);return false;`).text-white.pr-2.h5
-                                                i#button.fas.fa-star.favorited
-                                        else
-                                            a(title="Pin Message" href='#_' id=`fav-${mainDisplay[0].eid}` onclick=`sendBasic("${mainDisplay[0].channel}", "${mainDisplay[0].eid}", "Pin", true);return false;`).text-white.pr-2.h5
-                                                i#button.fas.fa-star
+                                        a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
+                                            i.fas.fa-star(class=`${(mainDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=mainDisplay[0].full).text-white.pr-2.h5
+                                        i.fas.fa-download
+                                    if (user && user.source < 900)
+                                        if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
+                                            a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
+                                                i.fas.fa-cog
+                                        a(title="Delete Display" href='#_' onclick=`$('#erase-${displayIndex}').slideToggle(); return false;`).text-white.h5
+                                            i.fas.fa-trash
+                            else if (secondDisplay.length > 0)
+                                div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
+                                    if (user && user.source < 900)
+                                        a(data-placement="top" id=`fav-${secondDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${secondDisplay[0].channel}", "${secondDisplay[0].eid}"); return false;`).text-white.pr-2.h5
+                                            i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
+                                    a(title="Download Image" href=secondDisplay[0].full).text-white.pr-2.h5
                                         i.fas.fa-download
                                     if (user && user.source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')

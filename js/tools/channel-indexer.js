@@ -254,7 +254,7 @@ async function generateArtistIndex () {
                                                                                                    name       = ?,
                                                                                                    last       = ?,
                                                                                                    source     = ?,
-                                                                                                   confidence = ?`, [_key, ch.channelid, _artist, _name, _atc, _search, _url, _ati, _ats, _atcn, _atc, _artist, _name, _ati, _ats, _atcn], true);
+                                                                                                   confidence = ?`, [_key, ch.channelid, _artist, _name, _atc, encodeURIComponent(_search), _url, _ati, _ats, _atcn, _atc, _artist, _name, _ati, _ats, _atcn], true);
                                 if (!addedArtists) {
                                     console.error(`Failed to write artist data for ${_artist} // ${_name}!`);
                                 }

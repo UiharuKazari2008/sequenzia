@@ -7,22 +7,30 @@ block content
             ul.my-errors
                 for error in errors
                     li= error.msg
-        - backgroundImg = results[Math.floor(Math.random() * results.length)].entities.preview
+        - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
+        -backgroundImgColor = 'rgba(' + ((backgroundImg.meta.color) ? `${backgroundImg.meta.color[0]}, ${backgroundImg.meta.color[1]}, ${backgroundImg.meta.color[2]}` : `0,0,0`) + ', 0.72)'
         style.
             .background-image:not(.overlay) {
-                background-image: url(!{backgroundImg});
+                background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
             }
+
             .background-image.overlay {
-                background-image: linear-gradient( 45deg, #481d04, #000000ab);
+                background-image: linear-gradient(180deg, !{backgroundImgColor}, #00000000);
                 z-index: -99;
-                opacity: 0.7;
+                opacity: 1;
             }
         div.tz-gallery
             if (results && results.length === 1 && search_prev && search_prev !== '')
                 - item = results[0];
                 - showNSFW = "['nsfw', 'true'], "
                 - showNSFWString = "&nsfw=true"
-                div.row(style="background-color: #000000c7").rounded-top.pt-2.pl-2.pr-2
+                - isVideo = false
+                if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                    - isVideo = true
+                - media_json = ''
+                if (item.media)
+                    - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                div.row(style="background-color: #000000c7" id=`message-${item.id}` data-msg-isaudio=`false` data-msg-isvideo=`${isVideo}` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`).rounded-top.pt-2.pl-2.pr-2
                     div.col-auto.mr-2.icon-col-single
                         if (item.user.avatar)
                             img.rounded-circle(src=item.user.avatar style='height: 48px; width: 48px;')
@@ -41,52 +49,17 @@ block content
                             span #{item.date.pretty}
                     div.col-auto.controls-col-single.text-center
                         if (user && user.source < 900)
-                            if (item.pinned)
-                                a.btn(data-placement="top" id='fav-' + item.eid title="Remove Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
-                                    i#button.fas.fa-star.favorited
-                            else
-                                a.btn(data-placement="top" id='fav-' + item.eid title="Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
-                                    i#button.fas.fa-star
+                            a.btn(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                i.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                         else
                             a.btn(href='#_')
-                                i#button.fas.fa-star.favorited
+                                i.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                         a.btn(data-placement="top" title="Download this image" href=`${item.entities.download}` download=item.entities.filename target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                             i.fas.fa-download
                         a.btn(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                             i.fas.fa-archive
-                        if (item.meta.urls && item.meta.urls.length > 0)
-                            a.btn(data-placement="top" title=`Source URL: "${item.meta.urls[0].split("%60").join("")}"` href=item.meta.urls[0].split("%60").join("") target="_blank" rel="noopener noreferrer")
-                                i.fas.fa-globe-americas
-                        a.btn(data-placement="top" title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
-                            i.fas.fa-directions
-                        if (item.meta.search)
-                            a.btn(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
-                                i.fas.fa-user
-                        if (item.meta.parent_search)
-                            a.btn(data-placement="top" title=`Search for Parent "${item.meta.parent_search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.parent_search)}${showNSFWString}`)
-                                i.fas.fa-level-up-alt
-                        if (item.id)
-                            a.btn(data-placement="top" title=`Search Content Related to "${item.id}"` href=`#/gallery?search=${encodeURIComponent("id:st:" + item.id.substring(0, 6))}${showNSFWString}`)
-                                i.fas.fa-asterisk
-                        if (item.entities.meta.color && item.entities.meta.color.length >= 3)
-                            a.btn(data-placement="top" title=`Search for similar Colour` href=`#/gallery?color=${encodeURIComponent(item.entities.meta.color.join(':'))}${showNSFWString}`)
-                                i.fas.fa-swatchbook
-                        if (item.manage && user && user.source < 900)
-                            if (item.flagged)
-                                a.btn(data-placement="top" title="Remove Message Report" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "RemoveReport", true); return false;` )
-                                    i.fas.fa-flag-checkered.text-danger
-                            else
-                                a.btn(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
-                                    i.fas.fa-flag
-                        else if (user && user.source < 900 && !item.flagged)
-                            a.btn(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
-                                i.fas.fa-flag
-                        else if (item.flagged)
-                            a.btn(data-placement="top" title="Image was reported" href='#_')
-                                i.fas.fa-flag.text-danger
-                        if (item.manage && user && user.source < 900)
-                            a.btn(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
-                                i.fas.fa-paste
+                        a.btn(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}'); return false;`)
+                            i.fas.fa-info-circle
                 if (item.content.clean && item.content.clean.length > 0)
                     div.row(style="background-color: #000000c7").row.justify-content-center.p-2.contents-col-single
                         span.font-italic.text-center(style="font-size: large;") "#{item.content.clean}"
@@ -96,12 +69,22 @@ block content
             else
                 div.row
                     each item, indexImage in results
-                        - thisImageManage = false
-                        - if (item.manage) { thisImageManage = true }
-                        - isVideo = false;
+                        - thisImageManage = (item.manage)
+                        - fileURL = item.entities.full
+                        - previewURL = item.entities.preview;
                         if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                            - fileURL = item.entities.full
+                        if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                            - fileURL = item.entities.download
+                            - previewURL = item.entities.download
+
+                        - isVideo = false
+                        if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
                             - isVideo = true
-                        div.col-image.col-dynamic.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(id=`message-${item.id}`)
+                        - media_json = ''
+                        if (item.media)
+                            - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                        div.col-image.col-dynamic.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3(id=`message-${item.id}` data-msg-url-extpreview=item.entities.ext_preview data-msg-isaudio=`false` data-msg-isvideo=`${isVideo}` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
                             if(item.entities.meta.ratio)
                                 if(item.entities.meta.ratio >= 1)
                                     - res = item.entities.meta.height
@@ -110,123 +93,38 @@ block content
                             else
                                 - res = item.entities.meta.height
                             div.overlay-icons
-                                div.icon-container
-                                    p.status-icons.left-links
-                                        if (res >= 5500)
-                                            img(title="Greater then 5500px" src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
-                                        else if (res >= 5000)
-                                            img(title="Greater then 5000px" src="/static/img/icons/status/baseline_5k_white_24dp.png").status-icons
-                                        else if (res >= 4000)
-                                            img(title="Greater then 4000px" src="/static/img/icons/status/baseline_4k_white_24dp.png").status-icons
-                                        else if (res >= 3000)
-                                            img(title="Greater then 3000px" src="/static/img/icons/status/baseline_3k_white_24dp.png").status-icons
-                                        else if (res >= 2000)
-                                            img(title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
-                                        else if (res >= 1080)
-                                            img(title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
-                                        else if (res >= 720)
-                                            img(title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
-                                        else if (res >= 640)
-                                            img(title="Greater then 640px" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else if (res >= 480)
-                                            img(title="Greater then 480px" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else
-                                            img(title="Low Quality" src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-
-                                        if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
-                                            img(title="Portrait Image" src="/static/img/icons/status/twotone_stay_primary_portrait_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
-                                            img(title="Square Image" src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio <= 0.9)
-                                            img(title="Widescreen Image" src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
-                                    if (isVideo)
-                                        p.status-icons.center-icons(style='height: 64px;').text-center
-                                            i.fas.fa-4x.fa-film(style='color: #838383c9;')
-                                    if (item.history.name)
-                                        p.status-icons.left-links.history-name.shadow-text
-                                            if (item.history.type === 'ads-lite')
-                                                i.fas.fa-tv.pr-1
-                                            else if (item.history.type === 'ads-micro')
-                                                i.fas.fa-laptop.pr-1
-                                            else if (item.history.type === 'ads-widget')
-                                                i.pr-1.fab.fa-app-store-ios
-                                            else if (item.history.type === 'ads-mobile')
-                                                i.fas.fa-mobile-alt.pr-1.pl-1
-                                            else if (item.history.type === 'ads-embed')
-                                                i.fas.fa-dice-five.pr-1.pl-1
-                                            else if (item.history.type === 'homepage')
-                                                i.fas.fa-home.pr-1
-                                            else if (item.history.type === 'webextention')
-                                                i.fas.fa-edge.pr-1
-                                            else if (item.history.type === 'pagehistory')
-                                                i.fas.fa-history.pr-1
-                                            span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
-                                        p.status-icons.left-links.history-date.shadow-text
-                                            span #{item.history.date}
-                                    p.status-icons.right-links
-                                        if (item.pinned)
-                                            img(title="Image is pinned" src="/static/img/icons/status/baseline_star_white_24dp.png").status-icons
-                                        if (item.flagged)
-                                            img(title="Image was reported" src="/static/img/icons/status/baseline_flag_white_24dp.png").status-icons
-                                div.links-container.text-primary
-                                    div.links
-                                        div.left-links.row-1
-                                            if (user && user.source < 900)
-                                                if (item.pinned)
-                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Remove Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
-                                                        i#button.btn-links.fas.fa-star.favorited
-                                                else
-                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Favorite" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
-                                                        i#button.btn-links.fas.fa-star
-                                            a.btn.btn-links(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
-                                                i.btn-links.fas.fa-archive
-                                            if (item.meta.urls && item.meta.urls.length > 0)
-                                                a.btn.btn-links.no-dynamic-small(data-placement="top" title=`Source URL: "${item.meta.urls[0].split("%60").join("")}"` href=item.meta.urls[0].split("%60").join("") target="_blank" rel="noopener noreferrer")
-                                                    i.btn-links.fas.fa-globe-americas
-                                            if (item.content.clean)
-                                                if ((item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1) || (item.content.clean.length > 75))
-                                                    a.btn.btn-links.no-dynamic-small(tabindex="0" role='button' data-toggle='popover' title='Message Contents' data-html="true" data-content=item.content.raw.split("\n").join('<br/>'))
-                                                        i.btn-links.fas.fa-info-circle
-                                            if (thisImageManage && user && user.source < 900)
-                                                a.btn.btn-links(data-placement="top" title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''}); openActionMenu(); return false;` )
-                                                    i.btn-links.fas.fa-paste
-                                            else if (user && user.source < 900)
-                                                if (item.flagged)
-                                                    a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Image Reported" href='#_')
-                                                        i.btn-links.fas.fa-flag.reported
-                                                else
-                                                    a.btn.btn-links.report-link.no-dynamic-small(data-placement="top" title="Report Image" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.id}", "Report", true); return false;` )
-                                                        i.btn-links.fas.fa-flag
-                                        div.right-links.row-1
-                                            a.btn.btn-links.goto-link(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
-                                                i.btn-links.fas.fa-download
-                            div.internal-lightbox.animated--fade-in
-                                - showNSFW = ''
-                                - showNSFWString = ''
-                                if (req_uri && req_uri.includes('nsfw=true') || req_uri.includes('album='))
-                                    - showNSFW = "['nsfw', 'true'], "
-                                    - showNSFWString = "&nsfw=true"
-                                if (thisImageManage && user && user.source < 900)
-                                    div#selectItemCheck.select-item.hidden
-                                        a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
-                                            i.fas.fa-check-circle.text-gray-600.shadow-text(style="font-size: 3em;" id='select-' + item.id)
-                                        a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
-                                            i.fas.fa-check-circle.text-success.shadow-text(style="font-size: 3em;" id='select-' + item.id)
-                                div.text-container.shadow-text
-                                    if (!(item.content.single && item.content.single.length > 1) && isVideo)
-                                        p.text.p-start #{item.entities.filename}
-                                    else
-                                        p.text.p-start #{item.content.single}
-                                    p.date.p-mid #{item.date.pretty}
-                                    if (item.entities.meta.filesize && item.entities.meta.fileid !== null)
-                                        p.text.p-mid #{item.entities.meta.filesize} MB
-                                    if (multiChannel && item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
-                                        p.channel.p-mid #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
-                                    if (item.user.name)
-                                        p.date.p-mid #{item.user.name}
-                                    if (item.history.name)
-                                        .history-icons-container.pt-start
-                                            p.history-name.shadow-text.text.m-0.history-item
+                                div.icon-container.no-dynamic-tiny
+                                    div.status-icons.left-links.d-flex.w-100
+                                        div.d-inline-flex.size-indictor.shadow-text
+                                            if (res >= 2000)
+                                                each number in (res/1000).toFixed().split('')
+                                                    i.fas.pr-1(class=`fa-${number}`)
+                                                i.fas.fa-k
+                                                //img(title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
+                                            else if (res >= 1080)
+                                                i.fas.fa-f.pr-1
+                                                i.fas.fa-h.pr-1
+                                                i.fas.fa-d
+                                                //img(title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
+                                            else if (res >= 720)
+                                                i.fas.fa-h.pr-1
+                                                i.fas.fa-d
+                                                //img(title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
+                                            else if (res >= 480)
+                                                i.fas.fa-s.pr-1
+                                                i.fas.fa-d
+                                            else
+                                                i.fas.fa-l.pr-1
+                                                i.fas.fa-q
+                                        div.d-inline-flex.ratio-indictor.ml-1.shadow-text
+                                            if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
+                                                i.fas.fa-image-portrait
+                                            else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
+                                                i.fas.fa-image
+                                            else if (item.entities.meta.ratio && item.entities.meta.ratio <= 0.9)
+                                                i.fas.fa-image-landscape
+                                        div.d-inline-flex.ml-1.shadow-text
+                                            if (item.history.name)
                                                 if (item.history.type === 'ads-lite')
                                                     i.fas.fa-tv.pr-1
                                                 else if (item.history.type === 'ads-widget')
@@ -234,101 +132,170 @@ block content
                                                 else if (item.history.type === 'ads-micro')
                                                     i.fas.fa-laptop.pr-1
                                                 else if (item.history.type === 'ads-mobile')
-                                                    i.fas.fa-mobile-alt.pl-1pr-1
+                                                    i.fas.fa-mobile-alt.pl-1.pr-2
                                                 else if (item.history.type === 'ads-embed')
                                                     i.fas.fa-dice-five.pr-1.pl-1
                                                 else if (item.history.type === 'homepage')
                                                     i.fas.fa-home.pr-1
                                                 else if (item.history.type === 'webextention')
-                                                    i.fas.fa-edge.pr-1
+                                                    i.fab.fa-edge.pr-1
                                                 else if (item.history.type === 'pagehistory')
                                                     i.fas.fa-history.pr-1
-                                                span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
-                                            p.history-date.shadow-text.text.m-0.history-item
-                                                span #{item.history.date}
-                                    .status-icons-container.pt-start
-                                        if (res >= 5500)
-                                            img(title=`Greater then 5500px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_5k_plus_white_24dp.png").status-icons
-                                        else if (res >= 5000)
-                                            img(title=`Greater then 5000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_5k_white_24dp.png").status-icons
-                                        else if (res >= 4000)
-                                            img(title=`Greater then 4000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_4k_white_24dp.png").status-icons
-                                        else if (res >= 3000)
-                                            img(title=`Greater then 3000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_3k_white_24dp.png").status-icons
-                                        else if (res >= 2000)
-                                            img(title=`Greater then 2000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
-                                        else if (res >= 1080)
-                                            img(title=`Greater then 1000px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
-                                        else if (res >= 720)
-                                            img(title=`Greater then 720px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
-                                        else if (res >= 640)
-                                            img(title=`Greater then 640px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else if (res >= 480)
-                                            img(title=`Greater then 480px\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        else
-                                            img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/icons/status/baseline_sd_white_24dp.png").status-icons
-                                        if (item.flagged)
-                                            img(title="Image was reported" src="/static/img/icons/status/baseline_flag_white_24dp.png").status-icons
-
-                                        if (item.entities.meta.ratio && item.entities.meta.ratio > 1.15)
-                                            img(title=`Portrait Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_portrait_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
-                                            img(title=`Square Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_primary_square_white_24dp.png").status-icons
-                                        else if (item.entities.meta.ratio && item.entities.meta.ratio < 0.9)
-                                            img(title=`Widescreen Image (${item.entities.meta.ratio})` src="/static/img/icons/status/twotone_stay_current_landscape_white_24dp.png").status-icons
-                                div.image-container
-                                    if (item.user.avatar)
-                                        img.server.rounded-circle(src=item.user.avatar)
-                                    else if (item.server.icon)
-                                        img.server.rounded-circle(src=item.server.icon)
+                                                //span.pr-1.text-ellipsis.no-dynamic-tiny(style='line-height: 1.1;') #{(item.history.name.startsWith('ADS')) ? item.history.name.split('-').splice(1).join('-') : item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
+                                            if (item.flagged)
+                                                i.fas.fa-flag.text-danger
+                                            i#offlineReady.fas.fa-bookmark.text-success.hidden
+                                            i#offlineExpiring.fas.fa-clock.text-warning.hidden.ml-1
+                                        div.d-inline-flex.ml-auto.shadow-text
+                                            i.fas(class=`${item.channel.icon}`).pr-1
+                                    if (isVideo)
+                                        div.status-icons.left-links.d-flex.w-100.no-dynamic-tiny(style='padding-top: 1.4em;')
+                                            div.d-flex.shadow-text.text-ellipsis
+                                                span.text-ellipsis(style='line-height: 1.1; text-weight: bold;') #{item.entities.filename}
+                                        p.status-icons.center-icons(style='height: 64px;').text-center
+                                            i.fas.fa-4x.fa-film(style='color: #838383c9;')
                                 div.links-container.text-primary
                                     div.links
-                                        div.left-links.row-2
-                                            if (user && user.source < 900 && item.entities.meta.fileid !== null && isVideo)
-                                                a.btn.btn-links.btn-switchmode.goto-link(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
-                                                    i.btn-links.fas.fa-play
-                                            if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
-                                                a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
-                                                    i.btn-links.fas.fa-directions
-                                            if (req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name)
-                                                a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Go to ${item.history.name}` href=`#/gallery?sort=history&history=only&nsfw=true&displayname=${item.history.real_name}`)
-                                                    i.btn-links.fas.fa-history
-                                            if (item.id)
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search Content Related to "${item.id}"` href=`#/gallery?search=${encodeURIComponent("id:st:" + item.id.substring(0, 6))}${showNSFWString}`)
-                                                    i.btn-links.fas.fa-asterisk
-                                            if (item.entities.meta.color && item.entities.meta.color.length >= 3)
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for similar Colour` href=`#/gallery?color=${encodeURIComponent(item.entities.meta.color.join(":"))}${showNSFWString}`)
-                                                    i.btn-links.fas.fa-swatchbook
-                                            if (item.meta.search)
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search for Author "${item.meta.search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.search)}${showNSFWString}`)
-                                                    i.btn-links.fas.fa-user
-                                            if (item.meta.parent_search)
-                                                a.btn.btn-links.goto-link.no-dynamic-small(data-placement="top" title=`Search for Parent "${item.meta.parent_search}"` href=`#/gallery?search=${encodeURIComponent("text:" + item.meta.parent_search)}${showNSFWString}`)
-                                                    i.btn-links.fas.fa-level-up-alt
-                                        div.right-links.row-2
-                                            if (item.permalink)
-                                                a.btn.btn-links.goto-link(data-placement="top" title="Permalink (Copy this Link)" href=item.permalink)
-                                                    i.btn-links.fas.fa-link
+                                        div.left-links.row-1
+                                            if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
+                                                if (user && user.source < 900)
+                                                    a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                        i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                    i.btn-links.fas.fa-archive
+                                            a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
+                                                i.btn-links.fas.fa-info-circle
+                                        div.right-links.row-1
+                                            //if (isVideo && item.entities.meta.fileid)
+                                                if (item.meta.cached)
+                                                    a.btn.btn-links.btn-switchmode.goto-link.no-dynamic-tiny(data-placement="top" title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}", "${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}/${item.entities.filename} (${item.entities.meta.filesize})");`)
+                                                        i.btn-links.fas.fa-play
+                                                else
+                                                    a.btn.btn-links.btn-switchmode.goto-link.no-dynamic-tiny(data-placement="top" title="Play Video" href='#_' onclick=`openUnpackingFiles("${item.id}", "video");`)
+                                                        i.btn-links.fas.fa-play
+                                            if (item.entities.meta.fileid)
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-download
+                                            else
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                                    i.btn-links.fas.fa-download
+                            div.internal-lightbox
+                                - showNSFW = ''
+                                - showNSFWString = ''
+                                if (req_uri && req_uri.includes('nsfw=true') || req_uri.includes('album='))
+                                    - showNSFW = "['nsfw', 'true'], "
+                                    - showNSFWString = "&nsfw=true"
+                                div(id=`imageAccordion-${item.id}` style=`height: 100%`)
+                                    div(class="collapse show" id=`imageCover-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").main-panel.panel-height
+                                        //div.text-container.shadow-text.no-dynamic-tiny
+                                            if (!(item.content.single && item.content.single.length > 1) && isVideo)
+                                                p.text #{item.entities.filename}
+                                            else
+                                                p.text #{item.content.single}
+                                            p.date #{item.date.pretty}
+                                            if (item.entities.meta.filesize && item.entities.meta.fileid !== null)
+                                                p.text #{item.entities.meta.filesize} MB
+                                            if (multiChannel && item.server && item.channel && item.server.name && item.channel.class_name && item.channel.name)
+                                                p.channel
+                                                    i.fas(class=`${item.channel.icon}`).mr-1
+                                                    span #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
+                                            if (item.user.name)
+                                                p.date #{item.user.name}
+                                            p.date #{item.entities.meta.height}x#{item.entities.meta.width}
+                                            if (item.history.name)
+                                                .history-icons-container
+                                                    p.history-name.shadow-text.text.m-0.history-item
+                                                        if (item.history.type === 'ads-lite')
+                                                            i.fas.fa-image-landscape.pr-1
+                                                        else if (item.history.type === 'ads-widget')
+                                                            i.pr-1.fab.fa-app-store-ios
+                                                        else if (item.history.type === 'ads-micro')
+                                                            i.fas.fa-laptop.pr-1
+                                                        else if (item.history.type === 'ads-mobile')
+                                                            i.fas.fa-mobile-alt.pl-1pr-1
+                                                        else if (item.history.type === 'ads-embed')
+                                                            i.fas.fa-dice-five.pr-1.pl-1
+                                                        else if (item.history.type === 'homepage')
+                                                            i.fas.fa-home.pr-1
+                                                        else if (item.history.type === 'webextention')
+                                                            i.fab.fa-edge.pr-1
+                                                        else if (item.history.type === 'pagehistory')
+                                                            i.fas.fa-history.pr-1
+                                                        span #{item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
+                                                    p.history-date.shadow-text.text.m-0.history-item
+                                                        span #{item.history.date}
+                                        //div.image-container.no-dynamic-tiny
+                                            if (item.user.avatar)
+                                                img.server.rounded-circle(src=item.user.avatar)
+                                            else if (item.server.icon)
+                                                img.server.rounded-circle(src=item.server.icon)
+                                        div.links-container.text-primary.no-dynamic-tiny
+                                            div.links
+                                                div.left-links.row-2
+                                                div.right-links.row-2
+                                    div(class="collapse" id=`imageCheckBox-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").select-panel.panel-height
+                                        div.shadow-text
+                                            a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)
+                                                i.fas.fa-check-circle.text-gray-600(style="font-size: 3em;" id='select-' + item.id)
+                                            a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
+                                                i.fas.fa-check-circle.text-success(style="font-size: 3em;" id='select-' + item.id)
+                                    div(class="collapse" id=`imageMove-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").panel-height
+                                        div.shadow-text.d-flex.flex-column.review-item
+                                            .m-0.align-items-center.review-menu-move.move-content.rounded(style="width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;")
+                                            .m-0.row.align-items-center.review-menu-move.mt-2(style="width: inherit;overflow-x: clip;")
+                                                a.reviewReject.btn-links.mr-auto(title="Cancel" href='#_' onclick=`exitPanel("${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-times(style="font-size: 2em;")
+                                                a.reviewReject.btn-links(title="Move" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-folder-plus(style="font-size: 2em;")
 
-                            - fileURL = item.entities.full
-                            - previewURL = item.entities.preview;
-                            if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
-                                - fileURL = item.entities.download
-                            if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
-                                - fileURL = item.entities.download
-                                - previewURL = item.entities.download
-                            a.lightbox(href=fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + item.content.single + ' (' + item.date.pretty + ')', data-fancybox="gallery")
+                                    div(class="collapse" id=`imageFastReview-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").review-item-panel.panel-height
+                                        div.shadow-text.d-flex.flex-column.review-item
+                                            .row.m-0.align-items-center.review-menu-main(style="width: inherit;")
+                                                if (user && user.source < 900)
+                                                    a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                        i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                                    a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
+                                                        i.btn-links.fas.fa-info-circle
+
+
+                                            .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
+                                                .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
+                                                    a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
+                                                        i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
+
+                                                .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
+                                                    a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector("[data-fancybox=gallery]").click()` style="position: absolute;top: 40%;")
+                                                        i.btn-links.fas.fa-search(style="font-size: 2em;")
+
+                                                .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
+                                                    a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
+                                                        i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ff90a8;")
+
+
+
+                                            .row.m-0.review-menu-main(style="width: inherit;")
+                                                a.reviewAccept.btn-links.p-3.mr-auto(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-check(style="font-size: 2em; color: #bfffbf;")
+                                                a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-cut(style="font-size: 2em;")
+                                                a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
+                            a.lightbox(href=(isVideo && item.entities.meta.fileid) ? '#_' : fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox=(isVideo && item.entities.meta.fileid) ? undefined : "gallery", onclick=(isVideo && item.entities.meta.fileid) ? `openPreviewUnpacking("${item.id}"); return false;` : undefined)
                                 - positionImage = ''
                                 - noHoverClass = ''
                                 if (!isVideo)
                                     if (item.entities.meta.ratio && item.entities.meta.ratio > 1.2)
                                         - positionImage = 'background-position: top;'
-                                    if (item.entities.meta.ratio && (item.entities.meta.ratio >= 1.7 ||item.entities.meta.ratio <= 0.6))
+                                    if (item.entities.meta.ratio && (item.entities.meta.ratio >= 1.7 || item.entities.meta.ratio <= 0.6))
                                         - positionImage = 'background-size: contain!important; background-position: center!important; background-repeat: no-repeat;'
                                         - noHoverClass = 'no-hover'
                                     else if (item.entities.meta.ratio && item.entities.meta.ratio >= 0.9 && item.entities.meta.ratio <= 1.15)
                                         - noHoverClass = 'no-hover'
-                                if (indexImage < 10)
+                                if ((indexImage < 10 || (params.has('responseType') && params.getAll('responseType')[0] === 'offline')) && item.entities.ext_preview)
+                                    div#postImage.square.img.img-responsive(style=`background-image : url("${item.entities.ext_preview}"); ${positionImage}`)
+                                else if (item.entities.ext_preview)
+                                    div#postImage.square.img.img-responsive.lazy(data-src=`${item.entities.ext_preview}` style=`${positionImage}`)
+                                else if (indexImage < 10 || (params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
                                     div#postImage.square.img.img-responsive(style=`background-image : url("${previewURL}"); ${positionImage}` class=`${noHoverClass}`)
                                 else
                                     div#postImage.square.img.img-responsive.lazy(data-src=`${previewURL}` style=`${positionImage}` class=`${noHoverClass}`)
@@ -351,12 +318,14 @@ block content
                         #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
                             .square.bottomBtn(style='border: 0;' onclick=`getMoreContent([], [${nexturl}]); return false;`)
                                 .internal-button.center-block
-                                    i.fa.fa-arrow-right
+                                    div
+                                        i.fa.fa-plus
+                                        i.fa.fa-angle-right
     else
 
         style.
             .background-image:not(.overlay) {
-                background-image: url('/static/img/loading_bg.jpg');
+                background-image: url('/static/img/loading_bg.jpeg');
             }
         .alert.alert-danger(role='alert')
             h4.alert-heading No Results

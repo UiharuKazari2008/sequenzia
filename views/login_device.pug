@@ -7,6 +7,7 @@ html
         meta(name='description', content='Sequenzia')
         meta(name='author', content='Yukimi Kazari')
         meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="pple-mobile-web-app-title" content="Sequenzia")
         meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
@@ -14,7 +15,7 @@ html
         link(rel='manifest' href='/static/manifest.json')
         title= `${webconf.site_name}`
         link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
-        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel='stylesheet', href="/static/vendor/fontawesomecss/all.min.css")
         link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Yantramanav:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
         link(rel="stylesheet", href="/css/custom.min.css")
         style.
@@ -50,7 +51,7 @@ html
         script(src="/js/client/ambient.min.js")
     body
         .background-image.overlay
-        - loginImage = (webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpg"
+        - loginImage = (webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/loading_bg.jpeg"
         #bg1.background-image(style=`opacity: 1; z-index: -101!important; background-image: url('!{loginImage}');`)
 
         #content-wrapper.container.p-4

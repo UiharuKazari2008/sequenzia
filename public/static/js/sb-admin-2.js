@@ -2,11 +2,18 @@ const sidebar = $(".sidebar")
 const body = $("body")
 
 function toggleMenu() {
-  body.toggleClass("sidebar-toggled");
+  sidebar.toggleClass('open');
+  $('#userMenu').collapse('hide');
+  if ($(window).width() <= 767) {
+    body.toggleClass("sidebar-toggled");
+    $(".music-player").toggleClass("toggled");
+  }
   sidebar.toggleClass("toggled");
-  $(".music-player").toggleClass("toggled");
   if (sidebar.hasClass("toggled")) {
     $('.sidebar .collapse').collapse('hide');
+    if (window.location.hash.substring(1).length <= 1) {
+      $('#userMenu').collapse('show');
+    }
   }
 }
 
@@ -34,19 +41,23 @@ function toggleLightboxOverlay() {
   let cachedWidth = $(window).width();
 
   // Close any open menu accordions when window is resized below 768px
-  $(document).ready(function () {
+ /* $(document).ready(function () {
     if ($(window).width() >= 1700) {
       body.removeClass("sidebar-toggled");
       sidebar.removeClass("toggled");
       $(".music-player").removeClass("toggled");
     }
-  });
+  });*/
   $(window).resize(function() {
     const newWidth = $(window).width();
+    const tw = $('#titleExtra').width() + 10
+    if (tw > 20) {
+      $('#titleExtraStyleAdjustment').html(`<style>@keyframes slidetextextraout { from {max-width: 0;} to {max-width: ${tw}px;} }; @keyframes slidetextextrain { from {max-width: ${tw}px; to {max-width: 0;}} };</style>`);
+    }
     if(newWidth !== cachedWidth){
       if ($(window).width() >= 1700) {
-        body.removeClass("sidebar-toggled");
-        sidebar.removeClass("toggled");
+        //body.removeClass("sidebar-toggled");
+        //sidebar.removeClass("toggled");
         $(".music-player").removeClass("toggled");
       } else if ($(window).width() <= 769) {
         if (cachedWidth >= 1700) {
@@ -60,11 +71,14 @@ function toggleLightboxOverlay() {
       }
 
       // Toggle the side navigation when window is resized below 480px
-      if ($(window).width() < 800 && !$(".sidebar").hasClass("toggled")) {
+      /*if ($(window).width() < 800 && !$(".sidebar").hasClass("toggled")) {
         body.addClass("sidebar-toggled");
         sidebar.addClass("toggled");
         $('.sidebar .collapse').collapse('hide');
         $(".music-player").removeClass("toggled");
+      }*/
+      if (typeof calculateTitleWidthPage !== 'undefined') {
+        calculateTitleWidthPage();
       }
       cachedWidth = newWidth;
     }
@@ -80,5 +94,15 @@ function toggleLightboxOverlay() {
       e.preventDefault();
     }
   });
+  if (typeof menuBarLocation !== 'undefined') {
+    switch (menuBarLocation) {
+      case 'bottom':
+        $('body').addClass('bottom-bar');
+        break;
+      default:
+        $('body').removeClass('bottom-bar');
+        break;
+    }
+  }
 
 })(jQuery); // End of use strict

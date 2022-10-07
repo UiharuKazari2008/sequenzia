@@ -7,7 +7,7 @@
     const TOAST_CONTAINER_HTML = `<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>`;
 
     $.toastDefaults = {
-        position: 'top-right',
+        position: 'top-center',
         dismissible: true,
         stackable: true,
         pauseDelayOnHover: true,

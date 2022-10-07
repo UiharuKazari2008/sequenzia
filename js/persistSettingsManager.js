@@ -18,6 +18,9 @@ module.exports = async (req, res, next) => {
                     });
                 }
             }
+            if (req.body.user_profile) {
+
+            }
             res.status(200).json({});
         } else {
             res.status(400).json({ error: 'No Data Received' })

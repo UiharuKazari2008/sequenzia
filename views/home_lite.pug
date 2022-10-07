@@ -9,14 +9,58 @@ html
         meta(name='description', content='Sequenzia')
         meta(name='author', content='Yukimi Kazari')
         meta(name="apple-mobile-web-app-capable" content="yes")
+        meta(name="pple-mobile-web-app-title" content="Sequenzia")
         meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
         meta(content="Sequenzia" property="og:title")
         meta(content="Image Gallery and File Manager" property="og:description")
         meta(content="Sequenzia" property="og:site_name")
+        if (user && user.banner)
+            link(rel='preload', href=`${user.banner}` as='image')
+        if (user && user.avatar)
+            link(rel='preload', href=`${user.avatar}` as='image')
+        if (discord && discord.servers)
+            each thisServer, thisIndex in discord.servers.list
+                link(rel='preload', href=`${thisServer.icon}` as='image')
+        if (applications_list && applications_list.length > 0)
+            each app in applications_list
+                if (app.images)
+                    each image in Array.from(Object.entries(app.images))
+                        meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
+                        link(rel='preload', href=`${image[1]}` as='image')
+
+        link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone6_splash.png' media='screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone6_splash_landscape.png' media='screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphoneplus_splash.png' media='screen and (device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphoneplus_splash_landscape.png' media='screen and (device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonex_splash.png' media='screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonex_splash_landscape.png' media='screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexr_splash.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexr_splash_landscape.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexsmax_splash.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphonexsmax_splash_landscape.png' media='screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11pro_splash.png' media='screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11pro_splash_landscape.png' media='screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11promax_splash.png' media='screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/iphone11promax_splash_landscape.png' media='screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)' rel='apple-touch-startup-image')
+
+        link(href='/static/img/splash/apple/ipad_splash.png' media='screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipad_splash_landscape.png' media='screen and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro1_splash.png' media='screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro1_splash_landscape.png' media='screen and (device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro3_splash.png' media='screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro3_splash_landscape.png' media='screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro2_splash.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
+        link(href='/static/img/splash/apple/ipadpro2_splash_landscape.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
+
         link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href="/static/vendor/fontawesome-free/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
-        link(rel='preload', href="static/vendor/fontawesome-free/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-light-300.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-thin-100.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
+        link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         //meta(name="theme-color" content="#4285f4")
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
@@ -24,7 +68,8 @@ html
         link(rel='manifest' href='/static/manifest.json')
         title= `${webconf.site_name}`
 
-        link(rel='preload', href="/static/vendor/fontawesome-free/css/all.min.css" as='style')
+        link(rel='preload', href="/static/vendor/fontawesome/css/fontawesome.min.css" as='style')
+        link(rel='preload', href="/static/vendor/fontawesome/css/all.min.css" as='style')
         link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
         link(rel='preload', href="/css/custom-lite.min.css" as='style')
         link(rel='preload', href="/css/home-lite.min.css" as='style')
@@ -34,216 +79,373 @@ html
         link(rel='preload', href='/static/vendor/bootstrap/js/bootstrap.bundle.min.js' as='script')
         //link(rel='preload', href='/static/vendor/jquery-easing/jquery.easing.min.js' as='script')
 
-        link(rel='stylesheet', href="/static/vendor/fontawesome-free/css/all.min.css")
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
+        link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
         link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
         link(rel='stylesheet', href="/css/custom-lite.min.css")
         link(rel='stylesheet', href="/css/home-lite.min.css")
-        link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
 
         script(src="/static/vendor/jquery/jquery.min.js")
         script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
         script(type='text/javascript' src="/static/js/toast.min.js")
         script(type='text/javascript' src="/js/client/home-lite.min.js")
+        link(rel='preload', href="/static/img/boot-logo.png" as='image')
 
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
     body
+        div#topBarPWA
+        script.
+            if (performaceMode) {
+                document.querySelector('body').classList.add('performance-mode');
+                console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
+            }
+        #bootBackdrop.boot-logo-overlay(style="display: none;")
+            #bootBackdropSunrise
+        #kmsBootDisplay.boot-logo-overlay.animated--grow-in.d-none
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder Kongou Media Project v9
+                        .mt-1.boot-icons-holder
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        #appBootDisplay.boot-logo-overlay.animated--grow-in.d-none
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div#appBootBackground.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/app-background.jpg);")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            img#appBootLogo(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                    div#appBootAccent.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder JuneApp Platform v1
+                        .mt-1.boot-icons-holder
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img#appBootPublisher(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        #bootUpDisplay.boot-logo-overlay.animated--grow-in.d-none
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1;")
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span#bootLoaderStatus.boot-status-holder.font-weight-bolder JuneOS Platform v20
+                        .mt-1.boot-icons-holder#bootStatusIcons
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         if (discord)
-            #homeBg.background-image.overlay.animated--fade-in
-            #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpg'); display: none;`)
-            #fullBG.background-image.full-image-holder(style=`z-index: -101!important; background-image: url('/static/img/loading_bg.jpg'); display: none;`)
-            img#portraitBG.portait-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpg')
-            img#landscapeBG.landscape-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpg')
+            #homeBg.background-image.overlay
+            #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
+            #fullBG.background-image.full-image-holder(style=`z-index: -101!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
+            img#portraitBG.portait-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpeg')
+            img#landscapeBG.landscape-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpeg')
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
         else
-            #homeBg.background-image.overlay.animated--fade-in
-            #fullBG.background-image(style=`z-index: -101!important; display: none;`)
+            #homeBg.background-image
+            #fullBG.background-image.full-image-holder(style=`z-index: -101!important; display: none;`)
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
             script.
                 function preventDefault(e) {
                     e.preventDefault();
                 }
                 document.body.addEventListener('touchmove', preventDefault, {passive: false});
-                const images = [
-                    "https://cdn.discordapp.com/attachments/731362512288743474/794177778727387146/himanemuitoma-EqkKCaRVoAE-ye_.jpg",
-                    "https://cdn.discordapp.com/attachments/716529641808199690/781596429759152128/niku_kueyo-Emts0IsVQAIhjEF.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/731655888401727590/02123_IMG_0426.JPG",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/731655902360240209/00053_IMG_0242.JPG",
-                    "https://cdn.discordapp.com/attachments/731357998693220393/731362671760506941/00198_illu_kamo-957204765783474177-20180127_055254-img1.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/784619426099626004/xroom8x-D4RWoYYUcAAzMfS.jpg", ,
-                    "https://cdn.discordapp.com/attachments/716529641808199690/794738820821942282/77959814_p0.png",
-                    "https://cdn.discordapp.com/attachments/716529641808199690/791378394393739294/luto_gray000-Epod4rhU0AAri0d.jpg",
-                    "https://cdn.discordapp.com/attachments/716529641808199690/793449761742913546/soji_____0o0-EqZpYG7VEAApe6R.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/785291479505043486/lm7__-En-y68ZUcAAmxPj.jpg",
-                    "https://cdn.discordapp.com/attachments/731622192701243473/731655894408101928/00011_IMG_0731.JPG"
-                ];
-                document.getElementById('homeBg').style.backgroundImage = 'url(' + images[Math.floor(Math.random() * images.length)] + ')';
+                document.getElementById('homeBg').style.backgroundImage = 'url("/static/img/loading_bg.jpeg")';
                 document.getElementById('cover').classList.add('fadeOut');
-        ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled
+        ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
-                script.
-                    getSidebar();
-        .container.p-4
-            .fixed-top.m-sm-5.m-3.d-flex.d-md-none.dimmed(style='z-index: 1; padding-top: env(safe-area-inset-top)!important;')
-                a(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Go to Sequenzia', href='/')
-                    span.sidebar-brand-logo.sequenzia-logo( style="font-size: 2.4em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-            if (discord)
-                .fixed-top.m-sm-5.m-3.no-short(style='padding-top: env(safe-area-inset-top)!important;')
-                    .d-flex.justify-content-end(style='opacity: 0.8;')
-                        span.align-self-center.d-none.d-sm-inline(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;') #{user.username}
-                        a#userDropdown.pr-0(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title="User Account and Settings" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                            img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 8px black; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;' src=user.avatar)
-                        // Dropdown - User Information
-                        .dropdown-menu.dropdown-menu-tas.shadow(aria-labelledby='userDropdown')
-                            .input-group(style="width: 13rem;").pr-2.pl-2.pb-2
-                                .input-group-prepend
-                                    span.input-group-text(style="background: #ad400059!important; border: 1px solid #9c5b3e; border-right: none;")
-                                        i.fas.fa-key.fa-sm.align-middle.text-primary
-                                input#expressLoginCode(type='text' placeholder='123ABC' style="background: #ad400059!important; border: 1px solid #9c5b3e;" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
-                                .input-group-append
-                                    a.btn.btn-success(title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`)
-                                        span Login
-                            a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
-                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                | Restart App
-                            a.dropdown-item(title="Refresh Session" href='#_' onclick='getSidebar(true, true); return false;')
-                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                | Update Sidebar
-                            a.dropdown-item(title="Refresh Session" href='/discord/refresh')
-                                i.fas.fa-sync.fa-sm.fa-fw.mr-2
-                                | Update Account
-                            a.dropdown-item(href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
-                                | Logout
-                #midSearch.mid-center-block
-                    .animated--grow-in.shadow-blk-wide
-                        .dimmed.d-flex
-                            .flex-grow-1
-                                span.sidebar-brand-logo.sequenzia-logo.d-none.d-md-inline-block.d-sm-none( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-                                a#btnShowNavigator.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_').d-md-none
-                                    i.shadow-blk.fas.fa-compass
-                                a.pr-2.d-inline.hover-color.top-icon(title='Ambient System', style='text-decoration: none;', href=`/gallery?sort=history&history=only&displayname=*&nsfw=true`).d-md-none
-                                    i.shadow-blk.fas.fa-history
+        .fixed-bottom.ambient-items.p4-safty(style="display: none;")
+            .menu-container.rounded.animated--fade-in.text-center.ml-auto.p-4.bottom-time-info
+                div
+                    #time
+                div
+                    i.fas.fa-star.d-none.ajax-imageFav.pr-2
+                    span.ajax-imageLocation.text-capitalize ...
+                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
+                        i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                    span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
 
-                            .d-flex.flex-column.justify-content-end.top-icon
+        .container.position-fixed.top-center.h-100.w-100.flex-column
+            #pushUp.ml-auto.mr-auto.mt-auto
+                a(href='#_' onclick='setMenuLocation("top"); return false;')
+                    i.fas.fa-chevron-up.fa-2x.py-2.px-5
+            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
+                .menu-container.w-100.p-3.rounded.position-relative
+                    .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
+                    div#menuAccordion(style='display: contents').w-100.menu-glow
+                        div#menuItemMain(class="collapse show" data-parent="#menuAccordion").w-100
+                            .d-flex.pb-1.w-100
+                                .d-flex.flex-grow-1.align-items-center
+                                    span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                    div#statusPanel(style='display: contents;')
+                                        .dropdown
+                                            a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
+                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
+                                                div#statusMenuProgress
+                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
+                                                span.dropdown-header
+                                                    | Syncing Offline Pages...
                                 div
-                                    a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Photo Stream', href='/gallery?numdays=60&sort=eid')
-                                        i.shadow-blk.fas.fa-stream
-                                    a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='File Stream', href=`/files?numdays=60&sort=eid&filesonly=true`)
-                                        i.shadow-blk.fas.fa-folder
-                                    a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title='Recent Images', href='/gallery?numdays=60')
-                                        i.shadow-blk.fas.fa-clock
-                                    a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Your Favorites", href='/gallery?sort=fav&pins=true')
-                                        i.shadow-blk.fas.fa-star
-                                    a.pr-2.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="I'm Feeling Lucky", href='/gallery?sort=random')
-                                        i.shadow-blk.fas.fa-dice
-                        if (url)
-                            if (url.includes('search=true'))
-                                form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
-                                    .input-group
-                                        input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                        input(type="submit" style="visibility:hidden;position:absolute")
-                                        .input-group-append
-                                            a#btnSearch.btn.input-group-text.bg-home-search.btn-search(title='Search Internet', href='#_')
-                                                i.i.fas.fa-search.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                                            a#btnSearchGallery.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Images', href='#_')
-                                                i.i.fas.fa-image.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                                            a#btnSearchFiles.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Files', href='#_')
-                                                i.i.fas.fa-folder.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                            else
-                                form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='/gallery', target='_self', method='get')
-                                    .input-group
-                                        input#search.form-control(name='search', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                        input(type="hidden" name="channel" value="random")
-                                        input(type="hidden" name="pageinator" value="true")
-                                        input(type="submit" style="visibility:hidden;position:absolute")
-                                        .input-group-append
-                                            a#btnSearchGallery.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Images', href='#_')
-                                                i.i.fas.fa-image.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                                            a#btnSearchFiles.btn.input-group-text.bg-home-search.btn-search(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Search Files', href='#_')
-                                                i.i.fas.fa-folder.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                    .animated--grow-in(style="max-width: 600px; width: 80vw;")
-                        .dimmed.d-none.d-sm-flex
-                            div(style='font-size: 1.3rem; font-weight: 100; min-width: 0; overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap;')
-                                .d-inline(style='white-space: nowrap;  flex: 1;')
-                                    a.ajax-imageLink(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='View this background photo')
-                                        .d-inline-block(style='padding: 0 0.25rem 0 0')
-                                            i.fas.fa-star.shadow-text.ajax-imageFav.d-none(style='font-size: 16px; vertical-align: middle; padding-bottom: 8px;')
-                                        span.ajax-imageLocation.text-capitalize.shadow-text ...
-                                        div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
-                                            i.fas.fa-circle.shadow-text(style='font-size: 8px; vertical-align: middle;')
-                                        span.ajax-imageDate.shadow-text
-                            .d-flex.flex-column.justify-content-center.bottom-icon.ml-2(style="flex: 0 0 auto;")
-                                div(style='font-size: 1.3rem; font-weight: 100;')
-                                    a.d-none.d-md-inline.hover-color.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Image History', style='text-decoration: none;', href='/gallery?sort=history&history_numdays=60&history=only&displayname=*&nsfw=true')
-                                        i.i.fas.fa-history.fa-sm.shadow-blk
-                                    a.d-inline.hover-color.pr-2(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(); return false;')
-                                        i.i.fas.fa-sync.fa-sm.shadow-blk
-                                    a.ajax-downloadLink.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
-                                        i.i.fas.fa-download.fa-sm.shadow-blk
+                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.querySelector('.container').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
+                                        if (discord)
+                                            span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
+                                            img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
+                                        else
+                                            span Login Required
+                            #mainUserButtons.d-flex(class=`${(!discord) ? 'hidden':''}`).flex-column
+                                div#mainButtonsAccordion(style='display: contents').w-100
+                                    div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
+                                        .menu-grid.main-menu-grid.menu-icons.py-1
+                                            a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
+                                                i.fa-light.fa-compass
+                                            a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
+                                                i.fa-light.fa-photo-video
+                                            a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                i.fa-light.fa-files
+                                            a.hover-color(data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
+                                                i.fa-light.fa-ticket
+                                            a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
+                                                i.fa-light.fa-star
+                                            a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                i.fa-light.fa-archive
+                                            a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
+                                                i.fa-light.fa-compass
+                                            a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
+                                                i.fa-light.fa-rectangle-history
+                                            a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
+                                                i.fa-light.fa-bookmark
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                                i.fa-light.fa-browsers
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2")
+                                                i.fa-light.fa-ellipsis-stroke
+                                    div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
+                                        .menu-grid.main-menu-grid.menu-icons.py-1
+                                            a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
+                                                i.fa-light.fa-dice
+                                            a.hover-color(data-placement="top" title="Artists", href='#/artists?')
+                                                i.fa-light.fa-address-book
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
+                                                i.fa-light.fa-chevron-down
 
+                            #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
+                                span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
+                                .login-options.menu-grid
+                                    a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
+                                        i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
+                                        span.align-self-center.pt-1 Login
+                            .d-flex.justify-content-between.align-items-center.image-description
+                                div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;')
+                                    .d-inline(style='white-space: nowrap;  flex: 1;')
+                                        i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
+                                        a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                                            .d-inline-block
+                                                span.ajax-imageLocation.text-capitalize ...
+                                                div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
+                                                    i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                                                span.ajax-imageDate.d-sm-inline.d-none
+                                div.d-flex.justify-content-center.ml-2.align-items-center
+                                    a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;').mr-3
+                                        i.i.fas.fa-download.fa-sm
+                                    a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
+                                        i.i.fas.fa-fast-forward.fa-sm
+                            if (pageError)
+                                .d-flex.justify-content-between.align-items-center(style="font-size: 1.25em;").text-center.w-100.text-danger
+                                    span.text-capitalize.shadow-text Internal Server Error
+
+                        if (discord)
+                            div#menuItemAlbums.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-archive.pr-2
+                                            span Albums
+                                .d-flex.w-100.mb-3
+                                    if (albums && albums.length > 0)
+                                        div.album-list
+                                            each thisAlbum in albums
+                                                div.album-item.position-relative
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                        //x.uri, x.privacy
+                                                        div.album-icon
+                                                            if (thisAlbum.uri === 'gallery')
+                                                                i.far.fa-photo-video.pr-1
+                                                            else if (thisAlbum.uri === 'files')
+                                                                i.far.fa-folder.pr-1
+                                                            else if (thisAlbum.uri === 'cards')
+                                                                i.far.fa-sticky-note.pr-1
+                                                            else
+                                                                i.far.fa-archive.pr-1
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                        span #{thisAlbum.name}
+                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                        if (thisAlbum.image)
+                                                            div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
+                                                        else
+                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                    else
+                                        span No Albums!
+                            div#menuItemImageHistory.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+                                        #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
+                                            i.fas.fa-spin-pulse.fa-spinner
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-rectangle-history.pr-2
+                                            span History
+                                .d-flex.w-100.mb-3
+                                    div.album-list
+                                        div.album-item.position-relative(style="height: 7.125em;")
+                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                div.album-icon
+                                                    i.far.fa-history.pr-1
+                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                span Show All
+                                            a.position-absolute.text-capitalize(style='width: 100%' title="Show All Displays" href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`)
+                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #02289f, #1cccf7); padding-bottom: 62%`)
+                                        #menuBodyImageHistory.ready(style="display: contents;")
+                            div#menuItemApps.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-browsers.pr-2
+                                            span Apps
+                                .d-flex.w-100.mb-3
+                                    div.menu-grid.user-menu-small
+                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                            i.fas.fa-tv
+                                            | Photo Frame
+                                        if (applications_list && applications_list.length > 0)
+                                            each thisApp in applications_list
+                                                if (thisApp.type == 0)
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
+                                                        i.fas(class=`${thisApp.icon}`)
+                                                        | #{thisApp.name}
+                                                else
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                        i.fas(class=`${thisApp.icon}`)
+                                                        | #{thisApp.name}
+                            div#menuItemLibrary.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            img.kms-menu-logo(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.4em;")
+                                            //i.fas.fa-ticket.pr-2.d-sm-none
+                                            //span.d-sm-none Theater
+                                .d-flex.w-100.mb-3
+                                    .d-flex.w-100
+                                        if (next_episode)
+                                            div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
+                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
+                                        div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
+                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                                i.fas.fa-forward
+                                                | Up Next
+                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                                i.fas.fa-fw.fa-books
+                                                | Shelves
+                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                i.fas.fa-certificate
+                                                | Newest
+                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                i.fas.fa-star
+                                                | Favorites
+
+
+                            div#menuItemMediaGroups.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-books.pr-2
+                                            span Shelves
+                                .d-flex.w-100.mb-3
+                                    div.menu-grid.user-menu-small
+                                        if (theaters && theaters.length > 0)
+                                            each thisTheater in theaters
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                    i.fas(class=`${thisTheater.icon}`)
+                                                    | #{thisTheater.name}
+                        div#menuItemAccount.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            .d-flex
+                                .d-flex.flex-grow-1
+                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.querySelector('.container').classList.remove('show-menu-buttons'); return false;")
+                                        i.fas.fa-arrow-left.fa-fw
+                                    if (user)
+                                        .input-group(style="width: 13rem;").h-25
+                                            input#expressLoginCode.bg-darker(type='text' placeholder='123ABC' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="height: 1.8em;").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
+                                            .input-group-append
+                                                a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`).py-0
+                                                    span Login
+                                .d-flex.top-icon.align-items-center
+                                    i.fas.fa-key.pr-sm-2
+                                    span.d-none.d-sm-inline User Account
+                            div.menu-grid.user-menu-small
+                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
+                                    i.fas.fa-sync
+                                    | Refresh
+                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                    i.fas.fa-sign-out-alt
+                                    | Log Out
+            #pushDown.ml-auto.mr-auto.mb-auto
+                a(href='#_' onclick='setMenuLocation("bottom"); return false;')
+                    i.fas.fa-chevron-down.fa-2x.py-2.px-5
+            //.d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
                 if (discord && discord.servers.list)
-                    div.mid-center-block.server-list.dimmed
-                        div
-                            for thisServer in discord.servers.list
-                                img.server-icon.rounded-circle.shadow-blk(data-tooltip="tooltip" data-trigger="hover" data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
+                    div.shadow-blk
+                        for thisServer in discord.servers.list
+                            img.server-icon.rounded-circle(data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
 
-                .fixed-bottom.d-flex.d-sm-none.dimmed.m-3(style='z-index: 1; padding-bottom: env(safe-area-inset-bottom)!important;')
-                    div(style='min-width: 0; overflow: hidden; flex: 1; text-overflow: ellipsis; white-space: nowrap;')
-                        .d-inline(style='white-space: nowrap;  flex: 1;')
-                            a.ajax-imageLink(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='View the background photo')
-                                .d-inline-block(style='padding: 0 0.25rem 0 0')
-                                    i.fas.fa-star.shadow-text.d-none.ajax-imageFav(style='font-size: 16px; vertical-align: middle; padding-bottom: 8px;')
-                                span.ajax-imageLocation.text-capitalize.shadow-text ...
-                                div(style='padding: 0 0.5rem; display: inline;').middle-indicator.d-none
-                                    i.fas.fa-circle.shadow-text(style='font-size: 8px; vertical-align: middle;')
-                                span.ajax-imageDate.shadow-text
-                    .d-flex.flex-column.justify-content-center.ml-2(style="flex: 0 0 auto;")
-                        a.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='window.location.reload(true); return false;')
-                            i.i.fas.fa-sync.fa-sm.shadow-blk
-                    .d-flex.flex-column.justify-content-center.ml-2(style="flex: 0 0 auto;")
-                        a.ajax-downloadLink.d-inline.hover-color(data-tooltip="tooltip" data-trigger="hover" data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
-                            i.i.fas.fa-download.fa-sm.shadow-blk
-
-            else if (pageError)
-                #midSearch.mid-center-block
-                    .animated--grow-in.shadow-blk-wide
-                        .dimmed.d-flex
-                            .flex-grow-1
-                                span.sidebar-brand-logo.sequenzia-logo.d-none.d-md-inline-block( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-                        form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
-                            .input-group
-                                input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                input(type="submit" style="visibility:hidden;position:absolute")
-                                .input-group-append
-                                    a#btnSearch.btn.input-group-text.bg-home-search.btn-search(title='Search Internet', href='#_')
-                                        i.i.fas.fa-search.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                    .animated--grow-in.shadow-blk-wide
-                        .d-flex
-                            .flex-grow-1(style='font-size: 1.3rem; font-weight: 100;')
-                                span.text-capitalize.shadow-text Internal Server Error
-            else
-                #midSearch.mid-center-block
-                    .animated--grow-in.shadow-blk-wide
-                        .dimmed.d-flex
-                            .flex-grow-1
-                                span.sidebar-brand-logo.sequenzia-logo.d-none.d-md-inline-block( style="font-size: 2.6em;line-height: 0.9em;padding-left: .3rem; text-shadow: 1px 1px 19px #000;") sequenzia
-                        form#srchfrm.shadow-blk.search-box(spellcheck='false', role='search', action='https://www.bing.com/search?scope=web', target='_self', method='get')
-                            .input-group
-                                input#q.form-control(name='q', placeholder='Search', title='Enter your search term', autocomplete='off', maxlength='250', aria-label='Enter your search term', accesskey='S', type='search', style='font-size: larger; padding: 1.25em;')
-                                input(type="submit" style="visibility:hidden;position:absolute")
-                                .input-group-append
-                                    a#btnSearch.btn.input-group-text.bg-home-search.btn-search(title='Search Internet', href='#_')
-                                        i.i.fas.fa-search.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
-                    .animated--grow-in.shadow-blk-wide
-                        .d-flex
-                            .flex-grow-1(style='font-size: 1.3rem; font-weight: 100;')
-                                a(title="Login to Sequenzia" href='/discord/login')
-                                    span.text-capitalize.shadow-text Login Required
-                            .d-flex.flex-column.justify-content-center.bottom-icon
-                                div(style='font-size: 1.3rem; font-weight: 100;')
-                                    a.d-inline.hover-color(title="Login to Sequenzia" style='text-decoration: none;' href='/discord/login')
-                                        i.fas.fa-sign-in-alt.fa-sm.shadow-blk
         // Logout Modal
         #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
@@ -256,7 +458,7 @@ html
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(href='/discord/destroy') Logout
-        div#loadingLogo.center-block(style='display: none;')
+        //div#loadingLogo.center-block(style='display: none;')
             .lds-spinner
                 div
                 div
@@ -271,155 +473,3 @@ html
                 div
                 div
         script(src="/static/js/sb-admin-2.min.js")
-        #appModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
-            .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
-                .modal-content
-                    .modal-header
-                        h5.modal-title
-                            span Setup Wallpaper Services
-                        button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
-                            span(aria-hidden='true') &times;
-                    .modal-body
-                        div.row.pl-3.pr-3
-                            span.align-self-center Go to a results page to import to app
-                        div.row.pl-3.pr-3.pt-2
-                            a.btn.btn-success(title="Android APK Download" href="/static/applications/ads-mobile-release.apk" role='button' target="_blank" rel="noopener noreferrer" download).mb-2.w-100
-                                i.fas.fa-download.pr-2
-                                | Android APK
-                        div.row.pl-3.pr-3
-                            a.btn.btn-success(title="Desktop Service Setup" href="https://www.npmjs.com/package/sequenzia-ads-micro" role='button' target="_blank" rel="noopener noreferrer" download).mb-2.w-100
-                                i.fas.fa-download.pr-2
-                                | Desktop Setup
-                        div.row.pl-3.pr-3
-                            a.btn.btn-info(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#MacOSSetup').mb-2.w-100
-                                i.fas.fa-info-circle.pr-2
-                                | macOS Setup
-                        div.row.pl-3.pr-3
-                            a.btn.btn-info(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#iOSShortcutSetup').mb-2.w-100
-                                i.fas.fa-info-circle.pr-2
-                                | Apple Shortcut
-                        #MacOSSetup.collapse
-                            div.row.pl-3.pr-3.pt-2
-                                a.btn.btn-success(href='https://apps.apple.com/us/app/plash/id1494023538?mt=12' role='button' target="_blank" rel="noopener noreferrer").mb-2.w-100
-                                    i.fas.fa-download.pr-2
-                                    | Plash (App Store)
-                            div.row.pl-3.pr-3.pt-2
-                                .col
-                                    .row
-                                        | 1. Install the "Plash" for macOS
-                                    .row
-                                        | 2. Click the menu bar icon
-                                    .row
-                                        | 3. Click "Add Website"
-                                    .row
-                                        | 4. Enter the ADS Lite URL with your displayname and other settings
-                                    .row
-                                        | 5. Set name to "Sequenzia ADS"
-                                    .row
-                                        | 6. Click "Add"
-                                    .row
-                                        | 7. Go to Settings and enable "Launch at Logon"
-                                    .row
-                                        | If text looks to large add this CSS rule (adjust as needed):
-                                    .row
-                                        | "body { font-size: 0.85rem!important; }"
-                        #iOSShortcutSetup.collapse
-                            div.row.pl-3.pr-3.pt-2
-                                a.btn.btn-success(href='https://www.icloud.com/shortcuts/41b037c5fcb34954b4bd95fff833adce' role='button' target="_blank" rel="noopener noreferrer").mb-2.w-100
-                                    i.fas.fa-download.pr-2
-                                    | Apple Wallpaper Services
-                            div.row.pl-3.pr-3.pt-2
-                                .col
-                                    .row
-                                        | 1. Install the "Sequenzia Wallpaper Services" Shortcut from above
-                                    .row
-                                        | 2. Paste your Static Login Key
-                                    .row
-                                        | 3. In the automations tab, Click [+], Select "Personal Automation", and choose a type (Typically Time of day)
-                            div.row.pl-3.pr-3.pt-2
-                                .col
-                                    .row
-                                        img(src="/static/img/ios-shortcut-1.jpg").img-fluid
-                                    .row
-                                        | 4. Add Action from Search: "Text"
-                                    .row
-                                        | 5. Add Action from Search: "Run Shortcut"
-                                    .row
-                                        | 6. Select "Sequenzia Wallpaper Services"
-                                    .row
-                                        | 7. Expand Show More, Verify that the "Text" has automatically been filled
-                                        span.text-info If you see "Choose Variable", tap it then 'Select Magic Variable", and Tap "Text" under the text block
-                                    .row
-                                        | 8. Copy the text from the "iOS" Button for the wallpaper
-                                    .row
-                                        | 9. Paste the text into the "Text" block
-                                    .row
-                                        | 10. Click Play to make sure it works
-                                    .row
-                                        img(src="/static/img/ios-shortcut-2.jpg").img-fluid
-                                    .row
-                                        | 11. Click Next
-                                    .row
-                                        | 12. Uncheck "Ask Before Running" and Accept the warning
-                                    .row
-                                        | 13. Click Done
-                                    .row
-                                        | 14. Reopen Automation, and Run the Shortcut and accept all privacy warnings
-                                    .row
-                                        img(src="/static/img/ios-shortcut-3.jpg").img-fluid
-                                    .row
-                                        | When your automation runs you will get a notification, the set wallpapers will appear in the Ambient Manager
-        #albumItemModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
-            .modal-dialog.modal-dialog-scrollable(role='document')
-                .modal-content
-                    .modal-header
-                        h5.modal-title.flex-grow-1 Albums
-                        a.align-self-center(href='#_' onclick='refreshAlbumsList(); return false;' role='button').text-white
-                            i.fas.fa-sync-alt
-                        button.close.align-self-center(type='button' data-dismiss='modal' aria-label='Close').text-danger
-                            i.fas.fa-times
-                    .modal-body
-                        div.pb-2
-                            a.btn.btn-lucky(href='#_' target="_blank" rel="noopener noreferrer" type="button" data-toggle="collapse" data-target="#newAlbumForm")
-                                i.pr-2.fas.fa-folder-plus
-                                | Create New Album
-                            #newAlbumForm.collapse
-                                .card.card-body
-                                    div.form-row
-                                        div.form-group.col.col-md-6
-                                            input#albumNameText.form-control(type="text" placeholder="My Wallpapers")
-                                        div.form-group.col.col-md-3
-                                            select#albumTypeSelect.form-control
-                                                option(value='0' selected) Gallery
-                                                option(value='1') Files
-                                                option(value='2') Cards
-                                        div.form-group.col.col-md-3
-                                            select#albumPrivacySelect.form-control
-                                                option(value='1' selected) Private
-                                                option(value='0') Public
-                                                option(value='2' disabled) Link Only
-                                    div.form-row
-                                        a#albumCreateButton.btn.btn-success.ml-auto.mr-1(href='#_' target="_blank" rel="noopener noreferrer" onclick='createNewAlbum(); return false;' )
-                                            i.pr-2.fas.fa-folder-plus
-                                            | Create
-                        #albumItemBody Loading List of Albums...
-
-        if (url.includes('search=true'))
-            script.
-                document.getElementById("btnSearch").addEventListener("click", () => { $("#srchfrm").submit(); });
-                document.getElementById("btnSearchGallery").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/gallery');
-                });
-                document.getElementById("btnSearchFiles").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/files');
-                });
-        else
-            script.
-                document.getElementById("btnSearchGallery").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/gallery');
-                });
-                document.getElementById("btnSearchFiles").addEventListener("click", () => {
-                    getNewContent([], [['search', `${document.getElementById('q').value}`]], '/files');
-                });
-        script.
-            document.getElementById("btnShowNavigator").addEventListener("click", toggleMenu);

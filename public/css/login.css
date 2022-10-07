@@ -1,43 +1,23 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat:400,600,700|Work+Sans:300,400,700,900");
+html {
+    height: 100vh;
+    width: 100vw;
+}
 body {
     padding: 0;
     margin: 0;
     outline-width: 0;
     font-family: "Montserrat";
     background: black;
-    background: black;
-    height: -webkit-fill-available;
-    height: 100vh;
-}
-
-@media (max-width: 640px) {
-    .logoContainer {
-        display: none!important;
-    }
-    #inviteContainer .acceptContainer {
-        max-width: 320px!important;
-    }
-    .mini-logo {
-        width: 260px;
-        padding-bottom: 2.4em;
-        display: block!important;
-    }
-}
-
-@media (max-width: 320px) {
-    #inviteContainer .acceptContainer {
-        max-width: 290px!important;
-    }
-    .mini-logo {
-        width: 230px;
-        padding-bottom: 2em;
-        display: block!important;
-    }
+    background-size: cover !important;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 .login-code span {
     letter-spacing: 0.6rem;
     color: white;
     font-size: 48px;
+    margin-right: -0.6rem;
 }
 .mini-logo {
     display: none;
@@ -48,21 +28,25 @@ body {
 
 #container {
     height: 100vh;
-    height: -webkit-fill-available;
-    background-size: cover !important;
+    width: 100vw;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding-bottom: 4.5em;
+    align-items: end;
     flex-direction: column;
 }
 
 #headerContainer {
     margin-bottom: 1em;
 }
-
+.logo-container {
+    padding-bottom: 1em;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
 .top-logo {
     max-height: 3.5em;
+    width: 16em;
 }
 
 .top-logo.banner-shadow {
@@ -74,24 +58,21 @@ body {
     display: flex;
     overflow: hidden;
     position: relative;
-    border-radius: 15px;
-    box-shadow: 0px 6px 20px 0px #000000c2;
+    border-radius: 0;
+    height: 100%;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.94);
+    max-width: 4.5in;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background: #000000ad;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,0,0,0.25);
 }
 #inviteContainer .acceptContainer {
-    padding: 45px 30px;
     box-sizing: border-box;
-    width: 350px;
-}
-#inviteContainer .acceptContainer:before {
-    content: "";
-    background-size: cover !important;
-    box-shadow: inset 0 0 0 3000px #545454bf;
-    filter: blur(10px);
-    position: absolute;
-    width: 150%;
-    height: 150%;
-    top: -50px;
-    left: -50px;
+    padding: 2em;
 }
 
 form {
@@ -119,7 +100,7 @@ form h1 {
     margin-bottom: 30px;
 }
 .formContainer .formDiv:last-child {
-    padding-top: 10px;
+    padding-top: 1em;
     margin-bottom: 0;
 }
 .formContainer p {
@@ -163,7 +144,7 @@ i.fas, i.fab {
 }
 
 .logoContainer {
-    padding: 45px 35px;
+    padding: 1em;
     box-sizing: border-box;
     position: relative;
     z-index: 2;
@@ -174,10 +155,9 @@ i.fas, i.fab {
     justify-content: center;
     flex-direction: column;
 }
-.logoContainer img {
+.logoContainer .logo {
     width: 150px;
     margin-bottom: -5px;
-    display: block;
     position: relative;
 }
 .logoContainer img:first-child {
@@ -212,7 +192,6 @@ i.fas, i.fab {
     opacity: 1;
     color: #fff;
 }
-
 .acceptBtn {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -221,20 +200,42 @@ i.fas, i.fab {
     text-decoration: none;
     width: 100%;
     box-sizing: border-box;
-    background: #7679f9;
+    background: #d0814e;
+    border: 1px solid #eca176;
     color: #ffffff;
     padding: 9px 21px 9px;
-    border-radius: 20px;
+    border-radius: 5px;
     cursor: pointer;
     transition: .2s ease;
     font-size: 16px;
-    border: none;
-}
+    margin: 0.5em auto;
+    max-width: 14em;
+    align-content: center;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    display: flex;
 }
 .acceptBtn:hover {
     background: #ff9600;
+    border: 1px solid #ffc97d;
 }
-
+.acceptBtn.discord {
+    background: #7679f9;
+    border: 1px solid #a2a4fa;
+    color: #ffffff;
+}
+.acceptBtn.discord:hover {
+    background: #7679f9;
+    border: 1px solid #a2a4fa;
+    color: #ffffff;
+}
+.login-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
 .register {
     color: #aaa;
     font-size: 12px;
@@ -254,4 +255,36 @@ i.fas, i.fab {
 }
 .register a:hover {
     box-shadow: inset 0 -2px 0 #fff;
+}
+@media (max-width: 640px) {
+    #container {
+        align-items: center;
+    }
+    #inviteContainer {
+        height: auto;
+        width: auto;
+    }
+    .logoContainer {
+        display: none!important;
+    }
+    .mini-logo {
+        width: 260px;
+        padding-bottom: 2.4em;
+        display: block!important;
+    }
+}
+
+@media (max-width: 320px) {
+    .top-logo {
+        width: 12em;
+    }
+    .acceptBtn {
+        max-width: 10em;
+    }
+    .login-code span {
+        font-size: 32px;
+    }
+    #inviteContainer .acceptContainer {
+        padding: 1em;
+    }
 }

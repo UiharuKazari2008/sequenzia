@@ -25,7 +25,7 @@ block content
             }
         style.
             .background-image.bg-blur {
-                background-image: url("/static/img/bg.webp");
+                background-image: url("/static/img/loading_bg.jpeg");
             }
         .table-responsive.p-lg-3.rounded.bg-translucent-lg
             - thisImageManage = false
@@ -41,10 +41,19 @@ block content
 
                 tbody
                     each item, index in results
-                        tr.dense-table(id=`message-${item.id}`)
+                        - isVideo = false
+                        if (item.entities.filename.toLowerCase().endsWith('.mp4') || item.entities.filename.toLowerCase().endsWith('.mov') || item.entities.filename.toLowerCase().endsWith('.m4v') || item.entities.filename.toLowerCase().endsWith('.ts') || item.entities.filename.toLowerCase().endsWith('.mkv'))
+                            - isVideo = true
+                        - isAudio = false
+                        if (item.entities.filename.toLowerCase().endsWith('.mp3') || item.entities.filename.toLowerCase().endsWith('.m4a') || item.entities.filename.toLowerCase().endsWith('.ogg') || item.entities.filename.toLowerCase().endsWith('.wav'))
+                            - isAudio = true
+                        - media_json = ''
+                        if (item.media)
+                            - try { media_json = JSON.stringify(item.media) } catch (e) { console.error(e); }
+                        tr.dense-table(id=`message-${item.id}` data-msg-isaudio=`${isAudio}` data-msg-isvideo=`${isVideo}` data-msg-url-preview=item.entities.preview data-msg-url-full=item.entities.full data-msg-channel-string=`${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}` data-msg-server=item.server.id data-msg-channel=item.channel.id data-msg-id=item.id data-msg-eid=item.eid data-search-user=`${(item.meta.search) ? encodeURIComponent(item.meta.search) : ''}` data-search-parent=`${(item.meta.parent_search) ? encodeURIComponent(item.meta.parent_search) : ''}` data-search-color=`${(item.entities.meta.color && item.entities.meta.color.length >= 3) ? encodeURIComponent(item.entities.meta.color.join(':')) : ''}` data-nsfw-string=`${(showNSFWString) ? showNSFWString : ''}` data-search-source=`${(item.meta.urls && item.meta.urls.length > 0) ? item.meta.urls[0].split("%60").join("") : ''}` data-msg-filesize=`${(item.entities.meta.filesize) ? item.entities.meta.filesize : ''}` data-msg-permalink=`${(item.permalink) ? item.permalink : ''}` data-msg-res=`${(item.entities.meta.height) ? item.entities.meta.height + 'x' + item.entities.meta.width + ':' + item.entities.meta.ratio : ''}` data-msg-author=`${(item.user.name) ? item.user.name : ''}` data-msg-author-img=`${(item.user.avatar) ? item.user.avatar : (item.server.icon) ? item.server.icon : ''}` data-msg-channel-icon=`${(item.channel.icon) ? item.channel.icon : ''}` data-msg-flagged=`${(item.flagged)}` data-msg-date=`${item.date.pretty}` data-msg-displayname=`${(req_uri && (req_uri.includes('displayname=*') || !req_uri.includes('displayname=')) && item.history.real_name) ? item.history.real_name : ''}` data-msg-download=`${(item.entities.download && item.entities.download.length > 5) ? item.entities.download : ''}` data-msg-filecached=`${(item.meta.cached)}` data-msg-filename=`${(item.entities.filename) ? item.entities.filename : ''}` data-msg-fileid=`${(item.entities.meta.fileid && item.entities.meta.fileid.length > 2) ? item.entities.meta.fileid : ''}` data-msg-manage=`${(thisImageManage) ? 'true' : 'false'}` data-msg-bodyraw=`${(item.content.raw && item.content.raw.length > 0) ? item.content.raw.split("\n").join('<br/>') : ''}` data-kms-json=`${media_json}`)
                             if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.jp') || item.entities.preview.toLowerCase().includes('.jfif') || item.entities.preview.toLowerCase().includes('.png') || item.entities.preview.toLowerCase().includes('.gif') || item.entities.preview.toLowerCase().includes('.web')))
                                 td.preview-holder
-                                    div.preview-image.align-content-start(style=`background-image: url("${item.entities.preview}")`)
+                                    div.preview-image.align-content-start(style=`background-image: url("${(item.entities.ext_preview) ? item.entities.ext_preview : item.entities.preview}")`)
                                         if (item.meta.message_type === 'image')
                                             i.fas.fa-image.fa-2x
                                         else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp3') || item.entities.preview.toLowerCase().includes('.m4a') || item.entities.preview.toLowerCase().includes('.flac') || item.entities.preview.toLowerCase().includes('.ogg')))
@@ -127,16 +136,16 @@ block content
 
                             td
                                 span.align-middle #{item.entities.filename}
-                                div.text-primary
+                                div.text-primary.d-flex
                                     if (thisImageManage)
                                         .file-select.d-inline-block.hidden
-                                            a#checkItem.btn.selectPostToMode.file-CheckItem(title="Select Item" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                            a#checkItem.btn.selectPostToMode.file-CheckItem(title="Select Item" href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)
                                                 i.fas.fa-check-circle.text-white(id='select-' + item.id)
                                             a#unCheckItem.btn.deselectPostToMode.file-unCheckItem.hidden(title="Deselect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                                 i.fas.fa-check-circle(id='select-' + item.id)
                                     .btn-group.d-inline-block
-                                        if (item.entities.meta.fileid && item.entities.filename && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp3') || item.entities.filename.toLowerCase().includes('.m4a') || item.entities.filename.toLowerCase().includes('.ogg') || item.entities.filename.toLowerCase().includes('.wav')))
-                                            a.btn(title="Play Audio" href='#_' onclick=`PlayTrack("/stream/${item.entities.meta.fileid}/${item.entities.filename}"); return false;` id=`play-${item.id}` class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
+                                        if (item.entities.meta.fileid && item.entities.filename && !item.meta.cached && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp3') || item.entities.filename.toLowerCase().includes('.m4a') || item.entities.filename.toLowerCase().includes('.ogg') || item.entities.filename.toLowerCase().includes('.wav')))
+                                            a.btn.btn-switchmode(title="Play Audio" href='#_' onclick=`openUnpackingFiles("${item.id}", "audio"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp3') || item.entities.download.toLowerCase().includes('.m4a') || item.entities.download.toLowerCase().includes('.ogg') || item.entities.download.toLowerCase().includes('.wav')))
                                             a.btn.btn-switchmode(title="Play Audio" href='#_' onclick=`PlayTrack("${item.entities.download}"); return false;` id=`play-${item.id}`)
@@ -147,50 +156,41 @@ block content
                                         else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp3') || item.entities.preview.toLowerCase().includes('.m4a') || item.entities.preview.toLowerCase().includes('.ogg') || item.entities.preview.toLowerCase().includes('.wav')))
                                             a.btn.btn-switchmode(title="Play Audio" href='#_'  onclick=`PlayTrack("${item.entities.preview}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
-                                        else if (item.entities.meta.fileid && item.entities.filename && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.webm') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v')))
-                                            a.btn(title="Play Video" href='#_'  onclick=`PlayVideo("/stream/${item.entities.meta.fileid}/${item.entities.filename}"); return false;` id=`play-${item.id}` class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
+                                        else if (item.entities.meta.fileid && item.entities.filename && !item.meta.cached && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.webm') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v')))
+                                            a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`openPreviewUnpacking("${item.id}"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.download && item.entities.download.length > 5 && (item.entities.download.toLowerCase().includes('.mp4') || item.entities.download.toLowerCase().includes('.webm') || item.entities.download.toLowerCase().includes('.webm') || item.entities.download.toLowerCase().includes('.m4v')))
-                                            a.btn.btn-switchmode(title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}"); return false;` id=`play-${item.id}`)
+                                            a.btn.btn-switchmode(title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.download}", "${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}/${item.entities.filename} (${item.entities.meta.filesize})"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.full && item.entities.full.length > 5 && (item.entities.full.toLowerCase().includes('.mp4') || item.entities.full.toLowerCase().includes('.webm') || item.entities.full.toLowerCase().includes('.webm') || item.entities.full.toLowerCase().includes('.m4v')))
-                                            a.btn.btn-switchmode(title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.full}"); return false;` id=`play-${item.id}`)
+                                            a.btn.btn-switchmode(title="Play Video" href='#_' onclick=`PlayVideo("${item.entities.full}", "${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}/${item.entities.filename} (${item.entities.meta.filesize})"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
                                         else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp4') || item.entities.preview.toLowerCase().includes('.webm') || item.entities.preview.toLowerCase().includes('.mov') || item.entities.preview.toLowerCase().includes('.m4v')))
-                                            a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`PlayVideo("${item.entities.preview}"); return false;` id=`play-${item.id}`)
+                                            a.btn.btn-switchmode(title="Play Video" href='#_'  onclick=`PlayVideo("${item.entities.preview}", "${item.server.name.toUpperCase()}:/${item.channel.class}/${item.channel.name}/${item.entities.filename} (${item.entities.meta.filesize})"); return false;` id=`play-${item.id}`)
                                                 i.fas.fa-play
-                                        if (item.entities.download && item.entities.download.length > 5)
+                                        if (item.entities.meta.fileid && !item.meta.cached)
+                                            a.btn.btn-switchmode(title="Download File" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
+                                                i.fas.fa-download
+                                        else if (item.entities.download && item.entities.download.length > 5)
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
-                                        if (item.content.clean)
-                                            if (item.content.clean !== item.entities.filename && item.content.clean !== item.content.short && item.content.clean !== '' && item.content.clean.length > 1)
-                                                a.btn.btn-fav(tabindex="0" role='button' data-toggle='popover' title='Message Contents' data-html="true" data-content=item.content.raw.split("\n").join('<br/>'))
-                                                    i.fas.fa-info-circle
-                                        if (item.permalink)
-                                            a.btn.btn-fav(title="Permalink" href=item.permalink)
-                                                i.fas.fa-link
-                                        if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
-                                            a.btn.btn-fav(title="Go to folder" href=`#/files?channel=${item.channel.id}&nsfw=true`)
-                                                i.fas.fa-directions
-
+                                        a.btn.btn-fav.toggleOffline(title=`Toggle Offline Access` href='#_' onClick=`toggleFileOffline('${item.id}'); return false;`)
+                                            i.fas.fa-bookmark
                                     .btn-group.file-tools.d-inline-block
                                         if (user && user.source < 900)
-                                            if (item.pinned)
-                                                a.btn.btn-fav(id='fav-' + item.eid title="Unpin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Unpin", true);return false;`)
-                                                    i#button.fas.fa-star.favorited
-                                            else
-                                                a.btn.btn-fav(id='fav-' + item.eid title="Pin Message" href='#_' onclick=`sendBasic("${item.channel.id}", "${item.eid}", "Pin", true);return false;`)
-                                                    i#button.fas.fa-star
-                                            if (thisImageManage)
-                                                a.btn.btn-admin(title="Manage Message" href='#_' onclick=`selectPostToMode("${item.server.id}", "${item.channel.id}", "${item.id}", false${(item.entities.meta.fileid) ? ', true' : ''});  openActionMenu(); return false;` )
-                                                    i#button.fas.fa-paste
+                                            a.btn.btn-fav(id='fav-' + item.eid data-placement="top" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                i.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
+                                            a.btn.btn-fav(data-placement="top" title="Add or Remove from Album" href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                i.fas.fa-archive
+                                            a.btn.btn-fav(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && user && user.source < 900)}); return false;`)
+                                                i.fas.fa-info-circle
                             td.d-none.d-sm-table-cell #{item.date.pretty}
-                            td.d-none.d-sm-table-cell #{item.entities.meta.filesize} MB
+                            td.d-none.d-sm-table-cell #{item.entities.meta.filesize}
     else
 
         style.
             .background-image:not(.overlay) {
-                background-image: url('/static/img/loading_bg.jpg');
+                background-image: url('/static/img/loading_bg.jpeg');
             }
         .alert.alert-danger(role='alert')
             h4.alert-heading No Results

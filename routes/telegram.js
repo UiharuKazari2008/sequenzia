@@ -117,7 +117,7 @@ router.get('/remove', sessionVerification, async (req, res) => {
                         id: req.session.discord.user.id,
                         source: 100,
                         username: req.session.discord.user.username,
-                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}` : `https://cdn.discordapp.com/embed/avatars/0.png`,
+                        avatar: (req.session.discord.user.avatar) ? `https://cdn.discordapp.com/avatars/${req.session.discord.user.id}/${req.session.discord.user.avatar}.${(req.session.discord.user.avatar && req.session.discord.user.avatar.startsWith('a_')) ? 'gif' : 'jpg'}?size=4096` : `https://cdn.discordapp.com/embed/avatars/0.png?size=4096`,
                     };
                 }
                 res.redirect('/');

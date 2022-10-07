@@ -13,9 +13,9 @@ block content
                 background-image: url(!{backgroundImg});
             }
             .background-image.overlay {
-                background-image: linear-gradient( 45deg, #481d04, #000000ab);
+                background-image: linear-gradient( 180deg, #000000, #00000000);
                 z-index: -99;
-                opacity: 0.7;
+                opacity: 1;
             }
         div.tz-gallery
             - rows = [ results.filter(e => e.pinned === true), results.filter(e => e.pinned === false)];
@@ -64,12 +64,8 @@ block content
                                     div.links-container.text-primary
                                         div.links
                                             div.left-links.row-1
-                                                if (item.pinned)
-                                                    a.btn.btn-links(id='fav-' + item.id title="Unpin Artist" href='#_' onclick=`sendBasic(null, "${item.id}", "UnpinUser", true);return false;`)
-                                                        i#button.btn-links.fas.fa-star.favorited
-                                                else
-                                                    a.btn.btn-links(id='fav-' + item.id title="Pin Artist" href='#_' onclick=`sendBasic(null, "${item.id}", "PinUser", true);return false;`)
-                                                        i#button.btn-links.fas.fa-star
+                                                a.btn.btn-links(data-placement="top" id='fav-' + item.id title="Toggle Favorite" href='#_' onclick=`toggleFavorite(null, "${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                                 if (item.artist.search)
                                                     a.btn.btn-links.goto-link(title=`Search Artists Images` href=`#/gallery?channel=${item.channel.id}&nsfw=true&search=${encodeURIComponent(item.artist.search)}`)
                                                         i.btn-links.fas.fa-search
@@ -108,12 +104,14 @@ block content
                                 #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
                                     .artist-box.bottomBtn(style='border: 0;')
                                         .internal-button.center-block(title="Next Page" onclick=`getMoreContent([], [${nexturl}]); return false;`)
-                                            i.fa.fa-arrow-right(style='padding: 7.5rem')
+                                            div
+                                                i.fa.fa-plus
+                                                i.fa.fa-angle-right
     else
 
         style.
             .background-image:not(.overlay) {
-                background-image: url('/static/img/loading_bg.jpg');
+                background-image: url('/static/img/loading_bg.jpeg');
             }
         .alert.alert-danger(role='alert')
             h4.alert-heading No Results
