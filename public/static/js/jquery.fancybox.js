@@ -713,7 +713,7 @@
         // ==============================================================
 
         type = obj.type || obj.opts.type;
-        src = obj.src || "";
+        src = obj.src.toLowerCase() || "";
 
         if (!type && src) {
           if ((found = src.match(/\.(mp4|mov|ogv|webm)((\?|#).*)?$/i))) {
