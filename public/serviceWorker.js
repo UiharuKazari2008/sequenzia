@@ -2398,7 +2398,7 @@ async function unpackFile() {
                                     activeSpannedJob.progress = `100%`;
                                     let blobType = {}
                                     if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'video/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
+                                        blobType.type = 'video/' + (activeSpannedJob.filename.toLowerCase().includes('.mov') ? "mp4" : activeSpannedJob.filename.split('.').pop().toLowerCase().trim());
                                     if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
                                         blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
 
