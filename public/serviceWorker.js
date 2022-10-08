@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-9-12-2022-BUGWATCH-P4';
+const cacheName = 'PRODUCTION-v20-10-8-2022-BUGWATCH-P1';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -119,7 +119,7 @@ const cacheOptions = {
         "/static/vendor/fontawesome/webfonts/fa-thin-100.woff2",
         "/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2",
         "/static/manifest.json",
-        "https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js",
+        "/static/js/jquery.fancybox.min.js",
         'https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2',
         'https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js',
         'https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i',
