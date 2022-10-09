@@ -720,7 +720,7 @@
             type = "video";
 
             if (!obj.opts.video.format) {
-              obj.opts.video.format = "video/" + (found[1] === "ogv" ? "ogg" : (found[1] === "mov" || found[1] === "m4v") ? "mp4" : found[1]);
+              obj.opts.video.format = "video/" + (found[1].toLowerCase() === "ogv" ? "ogg" : (found[1].toLowerCase() === "mov" || found[1].toLowerCase() === "m4v") ? "mp4" : found[1].toLowerCase());
             }
           } else if (src.match(/(^data:image\/[a-z0-9+\/=]*,)|(\.(jp(e|g|eg)|gif|png|bmp|webp|svg|ico)((\?|#).*)?$)/i)) {
             type = "image";
