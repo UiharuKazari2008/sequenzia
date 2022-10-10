@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-10-8-2022-BUGWATCH-P2';
+const cacheName = 'PRODUCTION-v20-10-9-2022-BUGWATCH-P2';
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -2398,9 +2398,9 @@ async function unpackFile() {
                                     activeSpannedJob.progress = `100%`;
                                     let blobType = {}
                                     if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'video/' + ((activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'mov' || activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJob.filename.split('.').pop().toLowerCase().trim());
+                                        blobType.type = `video/${((activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'mov' || activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJob.filename.split('.').pop().toLowerCase().trim())}`;
                                     if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'audio/' + activeSpannedJob.filename.split('.').pop().toLowerCase().trim();
+                                        blobType.type = `audio/${activeSpannedJob.filename.split('.').pop().toLowerCase().trim()}`;
 
                                     const finalBlock = new Blob(blobs, blobType);
                                     if (browserStorageAvailable) {
