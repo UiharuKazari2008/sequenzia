@@ -32,6 +32,7 @@ const morgan = require('morgan');
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
+const fs = require("fs");
 let activeRequests = new Map();
 let fileIDCache = new Map();
 if (web.Base_URL)
@@ -336,6 +337,17 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
         loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
     }
 }));
+app.get('/static/*', (req, res, next) => {
+    const fileUrl = req.url.split('/').slice(2).join('/').split('../').join('')
+    if (fs.existsSync(`./custom/${fileUrl}`)) {
+        res.sendFile(fileUrl, { root: 'custom/' })
+    } else if (fs.existsSync(`./public/static/${fileUrl}`)) {
+        res.sendFile(fileUrl, { root: 'public/static/' })
+    } else {
+        res.status(404).send('')
+    }
+
+})
 app.use('/', express.static('public'));
 app.get('*', function(req, res){
     if (req.session && req.session.loggedin) {
