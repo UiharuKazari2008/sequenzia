@@ -338,7 +338,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
     }
 }));
 app.get('/static/*', (req, res, next) => {
-    const fileUrl = req.url.split('/').slice(-1).join('/').split('../').join('')
+    const fileUrl = req.url.split('/').slice(2).join('/').split('../').join('')
     if (fs.existsSync(`./custom/${fileUrl}`)) {
         res.sendFile(fileUrl, { root: 'custom/' })
     } else if (fs.existsSync(`./public/static/${fileUrl}`)) {
