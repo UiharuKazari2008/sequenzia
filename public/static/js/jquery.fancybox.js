@@ -2166,9 +2166,11 @@
         $(content).addClass("fancybox-video");
 
         let vid = $(content)[0];
-        
+
+        let volumeAdjustTimout = null;
         $(content)[0].onvolumechange = function() {
-          setCookie("userVolume", vid.volume)
+          clearTimeout(volumeAdjustTimout);
+          volumeAdjustTimout = setTimeout(() => {setCookie("userVolume", vid.volume)}, 500);
         }
         
         $(content)[0].volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
