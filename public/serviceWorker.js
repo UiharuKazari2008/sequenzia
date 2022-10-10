@@ -459,6 +459,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', event => {
     event.respondWith(async function() {
+        // Bypass for Uploads
+        if (event.request.url.includes('/upload/'))
+            return;
         if (event.request.url.startsWith('chrome-extension'))
             return new Response(undefined, {status: 401});
         const clonedBody = await event.request.clone();
