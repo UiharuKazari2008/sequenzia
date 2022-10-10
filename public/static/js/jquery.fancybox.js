@@ -2165,6 +2165,14 @@
       if ($(content).is("video,audio")) {
         $(content).addClass("fancybox-video");
 
+        let vid = $(content)[0];
+        
+        $(content)[0].onvolumechange = function() {
+          setCookie("userVolume", vid.volume)
+        }
+        
+        $(content)[0].volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
+
         $(content).wrap("<div></div>");
 
         slide.contentType = "video";
