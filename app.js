@@ -32,6 +32,7 @@ const morgan = require('morgan');
 const {catchAsync} = require("./utils");
 const sessionSQL = require('express-mysql-session')(session);
 const rateLimit = require("express-rate-limit");
+const fs = require("fs");
 let activeRequests = new Map();
 let fileIDCache = new Map();
 if (web.Base_URL)
@@ -249,7 +250,8 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                     loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
                 } else {
                     let passURL = undefined
-                    if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
+                    /* Session Transfer aka GoTo Urls are removed until its be fixed for rare issues */
+                    /*if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
                         passURL = session1.goto
                     }
                     if (req.query.type === '1' && !passURL) {
@@ -257,7 +259,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                         if (session1 && session1.goto && session1.goto !== '' && session1.goto.includes('ambient')) {
                             passURL = session1.goto
                         }
-                    }
+                    }*/
 
                     sessionStore.set(device, {
                         cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null },
@@ -292,7 +294,8 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                         res.status(401).send(`Transfer session failed - Could not read session`)
                     } else {
                         let passURL = undefined
-                        if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
+                        /* Session Transfer aka GoTo Urls are removed until its be fixed for rare issues */
+                        /*if (session1 && session1.goto && session1.goto !== '/' && noSessionTrandferURL.filter(e => session1.goto.startsWith(e)).length === 0) {
                             passURL = session1.goto
                         }
                         if (req.query.type === '1' && !passURL) {
@@ -300,7 +303,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
                             if (session1 && session1.goto && session1.goto !== '' && session1.goto.includes('ambient')) {
                                 passURL = session1.goto
                             }
-                        }
+                        }*/
 
                         sessionStore.set(device, {
                             cookie: {path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},
@@ -334,6 +337,17 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
         loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
     }
 }));
+app.get('/static/*', (req, res, next) => {
+    const fileUrl = req.url.split('/').slice(2).join('/').split('../').join('')
+    if (fs.existsSync(`./custom/${fileUrl}`)) {
+        res.sendFile(fileUrl, { root: 'custom/' })
+    } else if (fs.existsSync(`./public/static/${fileUrl}`)) {
+        res.sendFile(fileUrl, { root: 'public/static/' })
+    } else {
+        res.status(404).send('')
+    }
+
+})
 app.use('/', express.static('public'));
 app.get('*', function(req, res){
     if (req.session && req.session.loggedin) {
