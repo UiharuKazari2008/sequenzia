@@ -227,9 +227,9 @@ async function unpackFile(_requestedJob) {
                                     activeSpannedJobs[activeID].progress = `100%`;
                                     let blobType = {}
                                     if (activeSpannedJobs[activeID].play === 'video' || activeSpannedJobs[activeID].play === 'kms-video' || videoFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'video/' + ((activeSpannedJob[activeID].split('.').pop().toLowerCase().trim() === 'mov' || activeSpannedJob[activeID].split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJob[activeID].filename.split('.').pop().toLowerCase().trim());
+                                        blobType.type = `video/${((activeSpannedJob[activeID].split('.').pop().toLowerCase().trim() === 'mov' || activeSpannedJob[activeID].split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJob[activeID].filename.split('.').pop().toLowerCase().trim())}`;
                                     if (activeSpannedJobs[activeID].play === 'audio' || audioFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = 'audio/' + activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim();
+                                        blobType.type = `audio/${activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()}`;
 
                                     const finalBlock = new Blob(blobs, blobType);
                                     blobs = null;
