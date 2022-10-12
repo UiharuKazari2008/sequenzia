@@ -981,14 +981,14 @@ html
                                                                         a.dropdown-item(title="Sort by message content" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'content']]); return false;` role='button')
                                                                             i.fas.fa-envelope.pr-2
                                                                             | Full Text
-                                                                    if (params.getAll('sort')[0] !== 'name')
+                                                                    if (params.getAll('sort')[0] !== 'name' && params.getAll('sort')[0] !== 'file')
                                                                         a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
                                                                             i.fas.fa-input-text.pr-2
                                                                             | File Name
-                                                                    if (params.getAll('sort')[0] !== 'file')
-                                                                        a.dropdown-item(title="Sort by Real File Name for Spanned Files" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'file']]); return false;` role='button')
-                                                                            i.fas.fa-file.pr-2
-                                                                            | Real File Name
+                                                                    if (params.getAll('sort')[0] !== 'ext')
+                                                                        a.dropdown-item(title="Sort by File Extension" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'ext']]); return false;` role='button')
+                                                                            i.fas.fa-photo-film-music.pr-2
+                                                                            | File Extension
                                                                     if (params.getAll('sort')[0] !== 'size')
                                                                         a.dropdown-item(title="Sort by File Size" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'size']]); return false;` role='button')
                                                                             i.fas.fa-hdd.pr-2

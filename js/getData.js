@@ -327,6 +327,8 @@ module.exports = async (req, res, next) => {
                 sqlorder.push(`RAND()`)
             } else if (req.query.sort === 'name' || req.query.sort === 'file') {
                 sqlorder.push('filename')
+            } else if (req.query.sort === 'ext') {
+                sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content')
             } else if (req.query.sort === 'date') {
@@ -864,6 +866,7 @@ module.exports = async (req, res, next) => {
         sqlFields = [
             'kanmi_records.*',
             'IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename',
+            `IFNULL(SUBSTRING_INDEX(IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)), '.', -1),NULL) AS fileext`,
             'CONVERT(kanmi_records.id,SIGNED) AS num_id',
             `${req.session.cache.channels_view}.*`
         ];
