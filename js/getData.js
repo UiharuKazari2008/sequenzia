@@ -325,10 +325,10 @@ module.exports = async (req, res, next) => {
             let sortPreset = false;
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
-            } else if (req.query.sort === 'name') {
-                sqlorder.push('attachment_name')
-            } else if (req.query.sort === 'file') {
-                sqlorder.push('real_filename')
+            } else if (req.query.sort === 'name' || req.query.sort === 'file') {
+                sqlorder.push('filename')
+            } else if (req.query.sort === 'ext') {
+                sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content')
             } else if (req.query.sort === 'date') {
@@ -347,7 +347,7 @@ module.exports = async (req, res, next) => {
             } else if (req.query.sort === 'size') {
                 sqlorder.push('filesize')
             } else if (req.query.sort === 'id') {
-                sqlorder.push('id')
+                sqlorder.push('num_id')
             } else if (req.query.sort === 'eid') {
                 sqlorder.push('eid')
             } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
@@ -356,7 +356,7 @@ module.exports = async (req, res, next) => {
                 if (req.query.watch_history === 'only') {
                     sqlorder.push('watched_date DESC');
                 } else if (req.query.show_id === 'unmatched') {
-                    sqlorder.push('real_filename ASC, attachment_name ASC');
+                    sqlorder.push('filename ASC');
                 } else {
                     sqlorder.push('season_num ASC, episode_num ASC');
                 }
@@ -865,6 +865,9 @@ module.exports = async (req, res, next) => {
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
             'kanmi_records.*',
+            'IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename',
+            `IFNULL(SUBSTRING_INDEX(IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)), '.', -1),NULL) AS fileext`,
+            'CONVERT(kanmi_records.id,SIGNED) AS num_id',
             `${req.session.cache.channels_view}.*`
         ];
         const sqlAlbumFields = [

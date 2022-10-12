@@ -94,6 +94,20 @@ html
 
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
+        if (user && user.banner)
+            style.
+                .user-info-bg, #topbarUserBackground {
+                    background-image: url('#{user.banner}');
+                }
+        else if (user && user.avatar)
+            style.
+                .user-info-bg, #topbarUserBackground {
+                    background-color: transparent;
+                }
+
+                #topbarUserBackground {
+                    display: none !important;
+                }
     body
         div#topBarPWA
         script.
@@ -430,13 +444,49 @@ html
                                 .d-flex.top-icon.align-items-center
                                     i.fas.fa-key.pr-sm-2
                                     span.d-none.d-sm-inline User Account
-                            div.menu-grid.user-menu-small
-                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
-                                    i.fas.fa-sync
-                                    | Refresh
-                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
-                                    i.fas.fa-sign-out-alt
-                                    | Log Out
+                            div.d-flex.align-items-center.user-info-container
+                                div.user-info-bg.rounded
+                                    div.user-info-border.rounded
+                                    div.user-info-backdrop.rounded
+                                    div.user-info-overlay.position-absolute.rounded
+                                    div.user-infocard-holder.d-flex.flex-column
+                                        .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                            span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                            if (discord.user.membership)
+                                                if (discord.user.membership.background)
+                                                    div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                        if (discord.user.membership.icon)
+                                                            i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                        span(style="z-index: 1;") #{discord.user.membership.text}
+                                                else
+                                                    div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                        if (discord.user.membership.icon)
+                                                            i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                        span(style="z-index: 1;") #{discord.user.membership.text}
+                                            else
+                                                span.ml-auto.shadow-text(style="z-index: 1;") Member
+
+
+                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                            .col-auto.p-0
+                                                img.rounded.user-infocard-icon(src=user.avatar)
+                                            .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                div.text-center.text-ellipsis.align-middle.mr-auto
+                                                    if (user && user.source === 900)
+                                                        span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                    else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                        i.pr-1.fas.fa-check-circle
+                                                        span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                        //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                div.text-ellipsis.shadow-text.user-infocard-info
+                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                div.menu-grid.user-menu-small
+                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
+                                        i.fas.fa-sync
+                                        | Refresh
+                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                        i.fas.fa-sign-out-alt
+                                        | Log Out
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5

@@ -147,6 +147,8 @@ function sendFileData() {
     $("#uploadingSection").removeClass('hidden');
     uploadModel.querySelector("#postButton").classList.add('disabled');
     let percentComplete = uploadModel.querySelector("#progressBar")
+    percentComplete.classList.add('bg-success')
+    percentComplete.classList.remove('bg-danger')
     uploadModel.querySelector("#uploadText").innerText = 'Uploading Content...'
 
     $.ajax({async: true,

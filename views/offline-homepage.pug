@@ -199,11 +199,24 @@ html
                                     div.main-menu-items.w-100(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
                                         div.user-info-bg.rounded
                                             div.user-info-backdrop.rounded
+                                            div.user-info-border.rounded
                                             div.user-info-overlay.position-absolute.rounded
                                             div.user-infocard-holder.d-flex.flex-column
-                                                .row.p-0.m-2.shadow-text(style="padding: 0.25em 0.5em;")
-                                                    span.sidebar-brand-logo.sequenzia-logo(style="font-size: 1.5em; z-index: 1;") sequenzia
-                                                    span.ml-auto(style="z-index: 1;") Member
+                                                .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                    span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                                    if (discord.user.membership)
+                                                        if (discord.user.membership.background)
+                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                                if (discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                                        else
+                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                                if (discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                                    else
+                                                        span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')

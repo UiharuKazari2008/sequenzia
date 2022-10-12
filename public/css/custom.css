@@ -1988,7 +1988,7 @@ div.collapse-divider {
     margin-top: .3em;
 }
 
-.user-infocard-holder, .user-info-overlay {
+.user-infocard-holder, .user-info-overlay, .user-info-border {
     /*background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);*/
     height: inherit;
 }
@@ -2036,8 +2036,13 @@ div.collapse-divider {
 .user-info-bg {
     margin: calc(env(safe-area-inset-top, 0px) + 0.75em) 0 0.75em 0.75em;
 }
-.user-info-bg, .user-info-backdrop, .user-info-overlay {
+.user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
     min-width: 400px;
+}
+.user-info-border {
+    z-index: 2;
+    border: 1px solid #ffa55433;
+    position: absolute;
 }
 #topbarUserBackground .user-info-backdrop {
     min-width: 100%!important;
@@ -3032,7 +3037,7 @@ div#bootBackdropSunrise {
     }
 }
 @media (max-width:1645px) {
-    .user-info-bg, .user-info-backdrop, .user-info-overlay {
+    .user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
         min-width: 300px;
     }
 }
@@ -3053,7 +3058,7 @@ div#bootBackdropSunrise {
     .shown-user-menu, .user-info-backdrop, .user-info-bg {
         height: 135px;
     }
-    .user-info-bg, .user-info-backdrop, .user-info-overlay {
+    .user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
         min-width: 300px;
     }
     .user-menu-height {
@@ -3947,6 +3952,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     #titleBarContents i.text-danger {
         color: #ff7568!important;
+    }
+    .user-info-border {
+        border: 1px solid #da7c28;
     }
     .sidebar-dark .nav-item .nav-link:active, .sidebar-dark .nav-item .nav-link:focus, .sidebar-dark .nav-item .nav-link:hover {
         color: white;

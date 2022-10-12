@@ -152,6 +152,64 @@ input.middle:focus {
     background: linear-gradient(180deg, transparent 50%, #000000c7);
     box-shadow: none;
 }
+
+.user-info-bg, .user-info-backdrop {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.user-infocard-holder, .user-info-overlay, .user-info-border {
+    /*background: linear-gradient(0deg, rgba(0,0,0,0.3), transparent);*/
+    height: inherit;
+}
+.user-info-overlay {
+    background-image: linear-gradient(0deg, #00000070, transparent);
+}
+.user-infocard-icon {
+    width: 64px;
+    box-shadow: 0 0 17px #000000;
+}
+.user-infocard-info {
+    font-size: 1.5em;
+    max-width: 480px;
+}
+
+.user-infocard-username {
+    font-size: 1em;
+    color: white;
+}
+.user-infocard-row1 {
+    margin-top: auto;
+    margin-left: 0.5em;
+    margin-bottom: 0.5rem;
+}
+.user-infocard-row2 {
+    margin-right: 1em;
+}
+.shown-user-menu, .user-info-bg, .user-info-backdrop {
+    height: 152px;
+}
+.user-info-backdrop {
+    position: absolute;
+    background-image: url("/static/img/user-card-background.png");
+    z-index: -1;
+}
+.user-info-bg .sequenzia-logo {
+    color: #f9c8a7;
+}
+.user-info-bg {
+    /*margin: calc(env(safe-area-inset-top, 0px) + 0.75em) 0 0.75em 0.75em;*/
+    color: white;
+}
+
+.user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
+    min-width: 400px;
+}
+.user-info-border {
+    z-index: 2;
+    border: 1px solid #ffa55433;
+    position: absolute;
+}
 @supports (-webkit-touch-callout: initial) {
 .blur-this {
     filter: blur(5px) saturate(1.6) brightness(0.9) contrast(0.8);
@@ -162,6 +220,9 @@ input.middle:focus {
 @media (prefers-color-scheme: light) {
     .kms-menu-logo {
         content:url("/static/img/kongoumedialogo-menu-black.png");
+    }
+    .user-info-border {
+        border: 1px solid #ffffffc7;
     }
     .dropdown-menu {
         color: #000000;
@@ -239,4 +300,8 @@ input.middle:focus {
 }
 .disabled-pointer {
     pointer-events: none!important;
+}
+.user-info-bg i, .user-info-bg span {
+    color: revert;
+    text-shadow: none;
 }

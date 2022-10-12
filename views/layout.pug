@@ -116,11 +116,24 @@ html
                                     div.main-menu-items.w-100(class=`collapse ${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? '' : 'show'}` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                         div.user-info-bg.rounded
                                             div.user-info-backdrop.rounded
+                                            div.user-info-border.rounded
                                             div.user-info-overlay.position-absolute.rounded
                                             div.user-infocard-holder.d-flex.flex-column
-                                                .row.p-0.m-2.shadow-text(style="padding: 0.25em 0.5em;")
-                                                    span.sidebar-brand-logo.sequenzia-logo(style="font-size: 1.5em; z-index: 1;") sequenzia
-                                                    span.ml-auto(style="z-index: 1;") Member
+                                                .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                    span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                                    if (discord.user.membership)
+                                                        if (discord.user.membership.background)
+                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                                if (discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                                        else
+                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                                if (discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                                    else
+                                                        span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
@@ -897,15 +910,15 @@ html
                                                             else
                                                                 span.dropdown-header
                                                                     | Sort
-                                                                if (params.getAll('reverse')[0] === 'true')
+                                                                if (params.getAll('sort')[0] === 'random')
+                                                                    a.dropdown-item(title="Show All" href='#_' onclick=`getNewContent(['offset'], [['sort', 'eid']])`  role='button')
+                                                                        i.fas.fa-empty-set.pr-2
+                                                                        | Enable Sorting
+                                                                else if (params.getAll('reverse')[0] === 'true')
                                                                     a.dropdown-item(title="Sort Descending" href='#_' onclick=`getNewContent(['offset', 'reverse'${(params.getAll('sort')[0] === 'random') ? ', \'sort\'' : ''}], []); return false;` role='button')
                                                                         i.fas.fa-sort-amount-down.pr-2
                                                                         | Descending (A-Z)
                                                                 else
-                                                                    if (params.getAll('sort')[0] === 'random')
-                                                                        a.dropdown-item(title="Sort Descending" href='#_' onclick=`getNewContent(['offset', 'reverse'${(params.getAll('sort')[0] === 'random') ? ', \'sort\'' : ''}], []); return false;` role='button')
-                                                                            i.fas.fa-sort-amount-down.pr-2
-                                                                            | Descending (A-Z)
                                                                     a.dropdown-item(title="Sort Ascending" href='#_' onclick=`getNewContent(['offset'${(params.getAll('sort')[0] === 'random') ? ', \'sort\'' : ''}], [['reverse', 'true']]); return false;` role='button')
                                                                         i.fas.fa-sort-amount-up.pr-2
                                                                         | Ascending (Z-A)
@@ -968,14 +981,14 @@ html
                                                                         a.dropdown-item(title="Sort by message content" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'content']]); return false;` role='button')
                                                                             i.fas.fa-envelope.pr-2
                                                                             | Full Text
-                                                                    if (params.getAll('sort')[0] !== 'name')
+                                                                    if (params.getAll('sort')[0] !== 'name' && params.getAll('sort')[0] !== 'file')
                                                                         a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
                                                                             i.fas.fa-input-text.pr-2
                                                                             | File Name
-                                                                    if (params.getAll('sort')[0] !== 'file')
-                                                                        a.dropdown-item(title="Sort by Real File Name for Spanned Files" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'file']]); return false;` role='button')
-                                                                            i.fas.fa-file.pr-2
-                                                                            | Real File Name
+                                                                    if (params.getAll('sort')[0] !== 'ext')
+                                                                        a.dropdown-item(title="Sort by File Extension" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'ext']]); return false;` role='button')
+                                                                            i.fas.fa-photo-film-music.pr-2
+                                                                            | File Extension
                                                                     if (params.getAll('sort')[0] !== 'size')
                                                                         a.dropdown-item(title="Sort by File Size" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'size']]); return false;` role='button')
                                                                             i.fas.fa-hdd.pr-2
@@ -1104,225 +1117,226 @@ html
                                                                                                 i.fas.fa-calendar-day
                                                                                             div
                                                                                                 span#dateText
-                                                                    span.dropdown-header
-                                                                        | Resolution
-                                                                        if (params.has('minres'))
-                                                                            span.pl-1 (#{params.getAll('minres')[0]}px)
-                                                                    if (params.has('minhres') || params.has('minwres') || params.has('minres'))
-                                                                        a.dropdown-item(title="Show all image resolutions" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], []); return false;`)
-                                                                            i.fas.fa-empty-set.pr-2
-                                                                            | Reset Filter
-                                                                    form#resolution2Collapse.accordion.dropdown-item.p-0
-                                                                        .div
-                                                                            #resolution2WidthHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#resolution2WidthBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-ruler-horizontal.align-self-center
-                                                                                        | Horizontal
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #resolution2WidthBody.collapse(aria-labelledby=`resolution2WidthHeader` data-parent=`#resolution2Collapse`)
-                                                                                div.ml-2
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '720']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | HQ (720px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '900']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | HQ (900px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '1000']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | HD (1000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '2000']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | 2K (2000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '3000']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | 3K (3000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '4000']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | 4K (4000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '5000']]); return false;`)
-                                                                                        i.fas.fa-ruler-horizontal.pr-2
-                                                                                        | 5K (5000px+)
-                                                                        .div
-                                                                            #resolution2HeightHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#resolution2HeightBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-ruler-vertical.align-self-center
-                                                                                        | Vertical
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #resolution2HeightBody.collapse(aria-labelledby=`resolution2HeightHeader` data-parent=`#resolution2Collapse`)
-                                                                                div.ml-2
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '720']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | HQ (720px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '900']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | HQ (900px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '1000']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | HD (1000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '2000']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | 2K (2000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '3000']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | 3K (3000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '4000']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | 4K (4000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '5000']]); return false;`)
-                                                                                        i.fas.fa-ruler-vertical.pr-2
-                                                                                        | 5K (5000px+)
-                                                                        .div
-                                                                            #resolution2CombindedHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#resolution2CombindedBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-ruler-combined.align-self-center
-                                                                                        | Loose
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #resolution2CombindedBody.collapse(aria-labelledby=`resolution2CombindedHeader` data-parent=`#resolution2Collapse`)
-                                                                                div.ml-2
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '720']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | HQ (720px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '900']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | HQ (900px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '1000']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | HD (1000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '2000']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | 2K (2000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '3000']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | 3K (3000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '4000']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | 4K (4000px+)
-                                                                                    a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '5000']]); return false;`)
-                                                                                        i.fas.fa-ruler-combined.pr-2
-                                                                                        | 5K (5000px+)
-                                                                    span.dropdown-header
-                                                                        | Aspect Ratio
+                                                                    if (params && (path === '/gallery' || path === '/cards'))
+                                                                        span.dropdown-header
+                                                                            | Resolution
+                                                                            if (params.has('minres'))
+                                                                                span.pl-1 (#{params.getAll('minres')[0]}px)
+                                                                        if (params.has('minhres') || params.has('minwres') || params.has('minres'))
+                                                                            a.dropdown-item(title="Show all image resolutions" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], []); return false;`)
+                                                                                i.fas.fa-empty-set.pr-2
+                                                                                | Reset Filter
+                                                                        form#resolution2Collapse.accordion.dropdown-item.p-0
+                                                                            .div
+                                                                                #resolution2WidthHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#resolution2WidthBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-ruler-horizontal.align-self-center
+                                                                                            | Horizontal
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #resolution2WidthBody.collapse(aria-labelledby=`resolution2WidthHeader` data-parent=`#resolution2Collapse`)
+                                                                                    div.ml-2
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '720']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | HQ (720px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '900']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | HQ (900px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '1000']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | HD (1000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '2000']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | 2K (2000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '3000']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | 3K (3000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '4000']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | 4K (4000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '5000']]); return false;`)
+                                                                                            i.fas.fa-ruler-horizontal.pr-2
+                                                                                            | 5K (5000px+)
+                                                                            .div
+                                                                                #resolution2HeightHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#resolution2HeightBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-ruler-vertical.align-self-center
+                                                                                            | Vertical
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #resolution2HeightBody.collapse(aria-labelledby=`resolution2HeightHeader` data-parent=`#resolution2Collapse`)
+                                                                                    div.ml-2
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '720']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | HQ (720px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '900']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | HQ (900px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '1000']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | HD (1000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '2000']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | 2K (2000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '3000']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | 3K (3000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '4000']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | 4K (4000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '5000']]); return false;`)
+                                                                                            i.fas.fa-ruler-vertical.pr-2
+                                                                                            | 5K (5000px+)
+                                                                            .div
+                                                                                #resolution2CombindedHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#resolution2CombindedBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-ruler-combined.align-self-center
+                                                                                            | Loose
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #resolution2CombindedBody.collapse(aria-labelledby=`resolution2CombindedHeader` data-parent=`#resolution2Collapse`)
+                                                                                    div.ml-2
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '720']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | HQ (720px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '900']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | HQ (900px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '1000']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | HD (1000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '2000']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | 2K (2000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '3000']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | 3K (3000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '4000']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | 4K (4000px+)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '5000']]); return false;`)
+                                                                                            i.fas.fa-ruler-combined.pr-2
+                                                                                            | 5K (5000px+)
+                                                                        span.dropdown-header
+                                                                            | Aspect Ratio
+                                                                            if (params.has('ratio'))
+                                                                                span.pl-1 (#{params.getAll('ratio')[0]})
                                                                         if (params.has('ratio'))
-                                                                            span.pl-1 (#{params.getAll('ratio')[0]})
-                                                                    if (params.has('ratio'))
-                                                                        a.dropdown-item(title="Show all Aspect Ratios" href='#_' onclick=`getNewContent(['offset', 'ratio'], []); return false;`)
-                                                                            i.fas.fa-empty-set.pr-2
-                                                                            | Remove
-                                                                    form#ratio2Collapse.accordion.dropdown-item.p-0
-                                                                        .div
-                                                                            #ratio2LooseHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#ratio2LooseBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-expand-arrows-alt.align-self-center
-                                                                                        | Loose
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #ratio2LooseBody.collapse(aria-labelledby=`ratio2LooseHeader` data-parent=`#ratio2Collapse`)
-                                                                                div.ml-2
-                                                                                    a.dropdown-item.pr-1(title="Show only Portrait Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.85-2.1']]); return false;`)
-                                                                                        | Portrait
-                                                                                    a.dropdown-item.pr-1(title="Show only Square Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.8-1.2']]); return false;`)
-                                                                                        | Square
-                                                                                    a.dropdown-item.pr-1(title="Show only Widescreen Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.01-1']]); return false;`)
-                                                                                        | Widescreen
-                                                                        .div
-                                                                            #ratio2StrictHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#ratio2StrictBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-expand-arrows-alt.align-self-center
-                                                                                        | Strict
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #ratio2StrictBody.collapse(aria-labelledby=`ratio2StrictHeader` data-parent=`#ratio2Collapse`)
-                                                                                div.ml-2
-                                                                                    a.dropdown-item.pr-1(title="Show only Portrait Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '1.1-2.1']]); return false;`)
-                                                                                        | Portrait
-                                                                                    a.dropdown-item.pr-1(title="Show only 3:4 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '1.32-1.34']]); return false;`)
-                                                                                        | Photo (3:4)
-                                                                                    a.dropdown-item.pr-1(title="Show only 9:16 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '1.76-1.78']]); return false;`)
-                                                                                        | Wallpaper (9:16)
-                                                                                    .dropdown-divider.mt-1.mb-1
-                                                                                    a.dropdown-item.pr-1(title="Show only Square Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.90-1.15']]); return false;`)
-                                                                                        | Square
-                                                                                    .dropdown-divider.mt-1.mb-1
-                                                                                    a.dropdown-item.pr-1(title="Show only Widescreen Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.01-0.9']]); return false;`)
-                                                                                        | Widescreen
-                                                                                    a.dropdown-item.pr-1(title="Show only 4:3 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', (3/4).toString()]]); return false;`)
-                                                                                        | Photo (4:3)
-                                                                                    a.dropdown-item.pr-1(title="Show only 16:9 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', (9/16).toString()]]); return false;`)
-                                                                                        | Wallpaper (16:9)
-                                                                        .div
-                                                                            #ratio2CustomHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#ratio2CustomBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-expand-arrows-alt.align-self-center
-                                                                                        | Custom
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #ratio2CustomBody.collapse(aria-labelledby=`ratio2CustomHeader` data-parent=`#ratio2Collapse`)
-                                                                                div.dropdown-item
-                                                                                    input#ratio2Slider.span2(type='text' value='' data-slider-min='0' data-slider-mid='1' data-slider-max='3' data-slider-step='0.01' data-slider-range='true' data-slider-value=sliderDefaults data-slider-reversed="true" data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="0.01" data-slider-ticks="[0, 1, 3]")
-                                                                                    div.d-flex.pt-2
-                                                                                        span P
-                                                                                        span.mr-auto.ml-auto S
-                                                                                        span L
-                                                                                    div.d-flex
-                                                                                        a(type='button' title="Apply Range" href='#_' onclick=`applyRangeSelection2(); return false;`)
-                                                                                            i.fas.fa-check.pr-2
-                                                                                            | Apply
-                                                                                    script.
-                                                                                        $("#ratio2Slider").slider({id: 'rangeSlider'});
-                                                                                        function applyRangeSelection2() {
-                                                                                            const _rI = $('#ratio2Slider').slider()[0].value.split(',')
-                                                                                            getNewContent(['offset', 'ratio'], [['ratio', `${_rI.join('-')}`]])
-                                                                                        }
+                                                                            a.dropdown-item(title="Show all Aspect Ratios" href='#_' onclick=`getNewContent(['offset', 'ratio'], []); return false;`)
+                                                                                i.fas.fa-empty-set.pr-2
+                                                                                | Remove
+                                                                        form#ratio2Collapse.accordion.dropdown-item.p-0
+                                                                            .div
+                                                                                #ratio2LooseHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#ratio2LooseBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-expand-arrows-alt.align-self-center
+                                                                                            | Loose
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #ratio2LooseBody.collapse(aria-labelledby=`ratio2LooseHeader` data-parent=`#ratio2Collapse`)
+                                                                                    div.ml-2
+                                                                                        a.dropdown-item.pr-1(title="Show only Portrait Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.85-2.1']]); return false;`)
+                                                                                            | Portrait
+                                                                                        a.dropdown-item.pr-1(title="Show only Square Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.8-1.2']]); return false;`)
+                                                                                            | Square
+                                                                                        a.dropdown-item.pr-1(title="Show only Widescreen Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.01-1']]); return false;`)
+                                                                                            | Widescreen
+                                                                            .div
+                                                                                #ratio2StrictHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#ratio2StrictBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-expand-arrows-alt.align-self-center
+                                                                                            | Strict
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #ratio2StrictBody.collapse(aria-labelledby=`ratio2StrictHeader` data-parent=`#ratio2Collapse`)
+                                                                                    div.ml-2
+                                                                                        a.dropdown-item.pr-1(title="Show only Portrait Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '1.1-2.1']]); return false;`)
+                                                                                            | Portrait
+                                                                                        a.dropdown-item.pr-1(title="Show only 3:4 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '1.32-1.34']]); return false;`)
+                                                                                            | Photo (3:4)
+                                                                                        a.dropdown-item.pr-1(title="Show only 9:16 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '1.76-1.78']]); return false;`)
+                                                                                            | Wallpaper (9:16)
+                                                                                        .dropdown-divider.mt-1.mb-1
+                                                                                        a.dropdown-item.pr-1(title="Show only Square Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.90-1.15']]); return false;`)
+                                                                                            | Square
+                                                                                        .dropdown-divider.mt-1.mb-1
+                                                                                        a.dropdown-item.pr-1(title="Show only Widescreen Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', '0.01-0.9']]); return false;`)
+                                                                                            | Widescreen
+                                                                                        a.dropdown-item.pr-1(title="Show only 4:3 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', (3/4).toString()]]); return false;`)
+                                                                                            | Photo (4:3)
+                                                                                        a.dropdown-item.pr-1(title="Show only 16:9 Images" href='#_' onclick=`getNewContent(['offset', 'ratio'], [['ratio', (9/16).toString()]]); return false;`)
+                                                                                            | Wallpaper (16:9)
+                                                                            .div
+                                                                                #ratio2CustomHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#ratio2CustomBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-expand-arrows-alt.align-self-center
+                                                                                            | Custom
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #ratio2CustomBody.collapse(aria-labelledby=`ratio2CustomHeader` data-parent=`#ratio2Collapse`)
+                                                                                    div.dropdown-item
+                                                                                        input#ratio2Slider.span2(type='text' value='' data-slider-min='0' data-slider-mid='1' data-slider-max='3' data-slider-step='0.01' data-slider-range='true' data-slider-value=sliderDefaults data-slider-reversed="true" data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="0.01" data-slider-ticks="[0, 1, 3]")
+                                                                                        div.d-flex.pt-2
+                                                                                            span P
+                                                                                            span.mr-auto.ml-auto S
+                                                                                            span L
+                                                                                        div.d-flex
+                                                                                            a(type='button' title="Apply Range" href='#_' onclick=`applyRangeSelection2(); return false;`)
+                                                                                                i.fas.fa-check.pr-2
+                                                                                                | Apply
+                                                                                        script.
+                                                                                            $("#ratio2Slider").slider({id: 'rangeSlider'});
+                                                                                            function applyRangeSelection2() {
+                                                                                                const _rI = $('#ratio2Slider').slider()[0].value.split(',')
+                                                                                                getNewContent(['offset', 'ratio'], [['ratio', `${_rI.join('-')}`]])
+                                                                                            }
 
-                                                                    span.dropdown-header
-                                                                        | Colour
-                                                                    if (params.has('dark'))
-                                                                        a.dropdown-item(title="Show both light and dark images" href='#_' onclick=`getNewContent(['offset', 'dark'], []); return false;`)
-                                                                            i.fas.fa-empty-set.pr-2
-                                                                            | Reset Filter
-                                                                    if (params.getAll('dark')[0] !== 'false')
-                                                                        a.dropdown-item(title="Show only bright images" href='#_' onclick=`getNewContent(['offset'], [['dark', 'false']]); return false;`)
-                                                                            i.fas.fa-sun.pr-2
-                                                                            | Light
-                                                                    if (params.getAll('dark')[0] !== 'true')
-                                                                        a.dropdown-item(title="Show only dark images" href='#_' onclick=`getNewContent(['offset'], [['dark', 'true']]); return false;`)
-                                                                            i.fas.fa-moon.pr-2
-                                                                            | Dark
-                                                                    form#colorCollapse.accordion.dropdown-item.p-0
-                                                                        .div
-                                                                            #colorLooseHeader.collapsed
-                                                                                .mb-0.mr-auto
-                                                                                    button.dropdown-item(type='button' data-toggle='collapse' data-target=`#colorLooseBody`).d-inline-flex
-                                                                                        i.fas.pr-2.fa-swatchbook.align-self-center
-                                                                                        | Colour Range
-                                                                                        i.fas.fa-chevron-right.ml-auto.align-self-center
-                                                                            #colorLooseBody.collapse(aria-labelledby=`colorLooseHeader` data-parent=`#colorCollapse`)
-                                                                                .dropdown-item
-                                                                                    input#colorRSlider.span2(type='text' value='' data-slider-min='0' data-slider-mid='128' data-slider-max='255' data-slider-step='1' data-slider-range='true' data-slider-value=sliderColorsDefaults[0] data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="15" data-slider-ticks="[0, 128, 255]")
-                                                                                    input#colorGSlider.span2(type='text' value='' data-slider-min='0' data-slider-mid='128' data-slider-max='255' data-slider-step='1' data-slider-range='true' data-slider-value=sliderColorsDefaults[1] data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="15" data-slider-ticks="[0, 128, 255]")
-                                                                                    input#colorBSlider.span2(type='text' value='' data-slider-min='0' data-slider-mid='128' data-slider-max='255' data-slider-step='1' data-slider-range='true' data-slider-value=sliderColorsDefaults[2] data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="15" data-slider-ticks="[0, 128, 255]")
-                                                                                    div.d-flex
-                                                                                        a(type='button' title="Apply Range" href='#_' onclick=`applyColorRangeSelection(); return false;`)
-                                                                                            i.fas.fa-check.pr-2
-                                                                                            | Apply
-                                                                                    script.
-                                                                                        $("#colorRSlider").slider({id: "colorSliderR"});
-                                                                                        $("#colorGSlider").slider({id: "colorSliderG"});
-                                                                                        $("#colorBSlider").slider({id: "colorSliderB"});
-                                                                                        function applyColorRangeSelection() {
-                                                                                            const _cR = $('#colorRSlider').slider()[0].value.split(',').join('-')
-                                                                                            const _cG = $('#colorGSlider').slider()[0].value.split(',').join('-')
-                                                                                            const _cB = $('#colorBSlider').slider()[0].value.split(',').join('-')
-                                                                                            getNewContent(['offset', 'ratio'], [['color', `${_cR}:${_cG}:${_cB}`]])
-                                                                                        }
-                                                                    span.dropdown-header
-                                                                        | Advanced
-                                                                    a.dropdown-item(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`)
-                                                                        i.fas.fa-address-book.pr-2
-                                                                        | Artists
+                                                                        span.dropdown-header
+                                                                            | Colour
+                                                                        if (params.has('dark'))
+                                                                            a.dropdown-item(title="Show both light and dark images" href='#_' onclick=`getNewContent(['offset', 'dark'], []); return false;`)
+                                                                                i.fas.fa-empty-set.pr-2
+                                                                                | Reset Filter
+                                                                        if (params.getAll('dark')[0] !== 'false')
+                                                                            a.dropdown-item(title="Show only bright images" href='#_' onclick=`getNewContent(['offset'], [['dark', 'false']]); return false;`)
+                                                                                i.fas.fa-sun.pr-2
+                                                                                | Light
+                                                                        if (params.getAll('dark')[0] !== 'true')
+                                                                            a.dropdown-item(title="Show only dark images" href='#_' onclick=`getNewContent(['offset'], [['dark', 'true']]); return false;`)
+                                                                                i.fas.fa-moon.pr-2
+                                                                                | Dark
+                                                                        form#colorCollapse.accordion.dropdown-item.p-0
+                                                                            .div
+                                                                                #colorLooseHeader.collapsed
+                                                                                    .mb-0.mr-auto
+                                                                                        button.dropdown-item(type='button' data-toggle='collapse' data-target=`#colorLooseBody`).d-inline-flex
+                                                                                            i.fas.pr-2.fa-swatchbook.align-self-center
+                                                                                            | Colour Range
+                                                                                            i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                #colorLooseBody.collapse(aria-labelledby=`colorLooseHeader` data-parent=`#colorCollapse`)
+                                                                                    .dropdown-item
+                                                                                        input#colorRSlider.span2(type='text' value='' data-slider-min='0' data-slider-mid='128' data-slider-max='255' data-slider-step='1' data-slider-range='true' data-slider-value=sliderColorsDefaults[0] data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="15" data-slider-ticks="[0, 128, 255]")
+                                                                                        input#colorGSlider.span2(type='text' value='' data-slider-min='0' data-slider-mid='128' data-slider-max='255' data-slider-step='1' data-slider-range='true' data-slider-value=sliderColorsDefaults[1] data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="15" data-slider-ticks="[0, 128, 255]")
+                                                                                        input#colorBSlider.span2(type='text' value='' data-slider-min='0' data-slider-mid='128' data-slider-max='255' data-slider-step='1' data-slider-range='true' data-slider-value=sliderColorsDefaults[2] data-tooltip='show' data-slider-lock-to-ticks="false" data-slider-ticks-snap-bounds="15" data-slider-ticks="[0, 128, 255]")
+                                                                                        div.d-flex
+                                                                                            a(type='button' title="Apply Range" href='#_' onclick=`applyColorRangeSelection(); return false;`)
+                                                                                                i.fas.fa-check.pr-2
+                                                                                                | Apply
+                                                                                        script.
+                                                                                            $("#colorRSlider").slider({id: "colorSliderR"});
+                                                                                            $("#colorGSlider").slider({id: "colorSliderG"});
+                                                                                            $("#colorBSlider").slider({id: "colorSliderB"});
+                                                                                            function applyColorRangeSelection() {
+                                                                                                const _cR = $('#colorRSlider').slider()[0].value.split(',').join('-')
+                                                                                                const _cG = $('#colorGSlider').slider()[0].value.split(',').join('-')
+                                                                                                const _cB = $('#colorBSlider').slider()[0].value.split(',').join('-')
+                                                                                                getNewContent(['offset', 'ratio'], [['color', `${_cR}:${_cG}:${_cB}`]])
+                                                                                            }
+                                                                        span.dropdown-header
+                                                                            | Advanced
+                                                                        a.dropdown-item(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`)
+                                                                            i.fas.fa-address-book.pr-2
+                                                                            | Artists
                                             if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
                                                 a.navbar-item.btn.btn-ice.py-0.px-2.show-menu-open.hidden(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
                                                     i.far.fa-info-circle
