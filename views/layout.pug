@@ -972,10 +972,10 @@ html
                                                                         a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
                                                                             i.fas.fa-input-text.pr-2
                                                                             | File Name
-                                                                    if (params.getAll('sort')[0] !== 'file')
-                                                                        a.dropdown-item(title="Sort by Real File Name for Spanned Files" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'file']]); return false;` role='button')
+                                                                    if (params.getAll('sort')[0] !== 'ext')
+                                                                        a.dropdown-item(title="Sort by File Extension for Spanned Files" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'ext']]); return false;` role='button')
                                                                             i.fas.fa-file.pr-2
-                                                                            | Real File Name
+                                                                            | File Extension
                                                                     if (params.getAll('sort')[0] !== 'size')
                                                                         a.dropdown-item(title="Sort by File Size" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'size']]); return false;` role='button')
                                                                             i.fas.fa-hdd.pr-2
