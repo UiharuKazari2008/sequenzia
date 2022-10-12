@@ -325,10 +325,8 @@ module.exports = async (req, res, next) => {
             let sortPreset = false;
             if (req.query.sort === 'random') {
                 sqlorder.push(`RAND()`)
-            } else if (req.query.sort === 'name') {
-                sqlorder.push('attachment_name')
-            } else if (req.query.sort === 'file') {
-                sqlorder.push('real_filename')
+            } else if (req.query.sort === 'name' || req.query.sort === 'file') {
+                sqlorder.push('filename')
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content')
             } else if (req.query.sort === 'date') {
@@ -356,7 +354,7 @@ module.exports = async (req, res, next) => {
                 if (req.query.watch_history === 'only') {
                     sqlorder.push('watched_date DESC');
                 } else if (req.query.show_id === 'unmatched') {
-                    sqlorder.push('real_filename ASC, attachment_name ASC');
+                    sqlorder.push('filename ASC');
                 } else {
                     sqlorder.push('season_num ASC, episode_num ASC');
                 }
@@ -410,10 +408,8 @@ module.exports = async (req, res, next) => {
             } else if (i.startsWith('artist:')) {
                 _id = i.split('artist:')[1];
                 return '('+ [
-                    `kanmi_records.attachment_name LIKE  '%${_id}-%'`,
-                    `kanmi_records.real_filename LIKE  '%${_id}-%'`,
-                    `kanmi_records.attachment_name LIKE  '%${_id}_%'`,
-                    `kanmi_records.real_filename LIKE  '%${_id}_%'`,
+                    `filename LIKE  '%${_id}-%'`,
+                    `filename LIKE  '%${_id}_%'`,
                     `kanmi_records.content_full LIKE '%${_id}%'`
                 ].join(' OR ') + ')';
             } else if (i.startsWith('text:')) {
@@ -442,25 +438,23 @@ module.exports = async (req, res, next) => {
                 _id = i.split('name:')[1];
                 if (_id.startsWith('st:')) {
                     _id = _id.split('st:')[1]
-                    return `(kanmi_records.attachment_name LIKE '${_id}%' OR kanmi_records.real_filename LIKE '${_id}%')`
+                    return `filename LIKE '${_id}%'`
                 } else if (_id.startsWith('ed:')) {
                     _id = _id.split('ed:')[1]
-                    return `(kanmi_records.attachment_name LIKE '%${_id}' OR kanmi_records.real_filename LIKE '%${_id}')`
+                    return `filename LIKE '%${_id}'`
                 } else {
-                    return `(kanmi_records.attachment_name LIKE '%${_id}%' OR kanmi_records.real_filename LIKE '%${_id}%')`
+                    return `filename LIKE '%${_id}%'`
                 }
             } else if (i.startsWith('full:')) {
                 _id = _id.split('full:')[1];
                 return [ `kanmi_records.content_full LIKE '%${_id}%'`,
-                        `kanmi_records.attachment_name LIKE '%${_id}%'`,
-                        `kanmi_records.real_filename LIKE '%${_id}%'`,
+                        `filename LIKE '%${_id}%'`,
                         `kanmi_records.id LIKE '${_id}%'`].join(' OR ')
             } else {
                 let _sh = []
                 _id.split(' ').forEach(e =>
                     _sh.push('(' + [ `kanmi_records.content_full LIKE '%${e}%'`,
-                        `kanmi_records.attachment_name LIKE '%${e}%'`,
-                        `kanmi_records.real_filename LIKE '%${e}%'`,
+                        `filename LIKE '%${e}%'`,
                         `kanmi_records.id LIKE '${e}%'`].join(' OR ') + ')')
                 )
                 return _sh.join(' OR ')
@@ -782,31 +776,18 @@ module.exports = async (req, res, next) => {
                             "cache_proxy LIKE '%-t9-preview-video.gifv'"
                         ].join(' OR ') + ')',
                         '(' + [
-                            "real_filename LIKE '%.mp4'",
-                            "real_filename LIKE '%.mov'",
-                            "real_filename LIKE '%.m4v'",
+                            "filename LIKE '%.mp4'",
+                            "filename LIKE '%.mov'",
+                            "filename LIKE '%.m4v'",
                         ].join(' OR ') + ')',
                         "attachment_extra IS NULL"
                     ].join(' AND ') + ')',
-                    '(' + [
-                        '(' + [
-                            "cache_proxy LIKE '%-t9-preview-video.jp%_'",
-                            "cache_proxy LIKE '%-t9-preview-video.gif'",
-                            "cache_proxy LIKE '%-t9-preview-video.gifv'"
-                        ].join(' OR ') + ')',
-                        '(' + [
-                            "attachment_name LIKE '%.mp4'",
-                            "attachment_name LIKE '%.mov'",
-                            "attachment_name LIKE '%.m4v'",
-                        ].join(' OR ') + ')',
-                        "attachment_extra IS NULL"
-                    ].join(' AND ') + ')',
-                    "attachment_name LIKE '%.jp%_'",
-                    "attachment_name LIKE '%.jfif'",
-                    "attachment_name LIKE '%.png'",
-                    "attachment_name LIKE '%.gif'",
-                    "attachment_name LIKE '%.web%_'",
-                    "attachment_name = 'multi'",
+                    "filename LIKE '%.jp%_'",
+                    "filename LIKE '%.jfif'",
+                    "filename LIKE '%.png'",
+                    "filename LIKE '%.gif'",
+                    "filename LIKE '%.web%_'",
+                    "filename = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
         } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
@@ -814,11 +795,11 @@ module.exports = async (req, res, next) => {
             execute = '(' + [
                 channelFilter,
                 `(${[
-                    "attachment_name LIKE '%.jp%_'",
-                    "attachment_name LIKE '%.jfif'",
-                    "attachment_name LIKE '%.png'",
-                    "attachment_name LIKE '%.gif'",
-                    "attachment_name LIKE '%.web%_'",
+                    "filename LIKE '%.jp%_'",
+                    "filename LIKE '%.jfif'",
+                    "filename LIKE '%.png'",
+                    "filename LIKE '%.gif'",
+                    "filename LIKE '%.web%_'",
                 ].join(' OR ')})`
             ].join(' AND ')
         } else if (page_uri === '/files') {
@@ -826,24 +807,11 @@ module.exports = async (req, res, next) => {
                 execute = '(' + [
                     channelFilter,
                     '(' + [
-                        '(' + [
-                            "fileid IS NULL",
-                            "attachment_name IS NOT NULL",
-                            "attachment_name NOT LIKE '%.jp%_'",
-                            "attachment_name NOT LIKE '%.jfif'",
-                            "attachment_name NOT LIKE '%.png'",
-                            "attachment_name NOT LIKE '%.gif'",
-                            "attachment_name NOT LIKE '%.web%_'",
-                            "attachment_name != 'multi'"
-                        ].join(' AND ') + ')',
-                        '(' + [
-                            "fileid IS NOT NULL",
-                            "real_filename NOT LIKE '%.jp%_'",
-                            "real_filename NOT LIKE '%.jfif'",
-                            "real_filename NOT LIKE '%.png'",
-                            "real_filename NOT LIKE '%.gif'",
-                            "real_filename NOT LIKE '%.web%_'",
-                        ].join(' AND ') + ')'
+                        "filename NOT LIKE '%.jp%_'",
+                        "filename NOT LIKE '%.jfif'",
+                        "filename NOT LIKE '%.png'",
+                        "filename NOT LIKE '%.gif'",
+                        "filename NOT LIKE '%.web%_'",
                     ].join(' OR ') + ')'
                 ].join(' AND ')
 
@@ -865,6 +833,7 @@ module.exports = async (req, res, next) => {
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
             'kanmi_records.*',
+            'IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename',
             `${req.session.cache.channels_view}.*`
         ];
         const sqlAlbumFields = [
@@ -930,7 +899,6 @@ module.exports = async (req, res, next) => {
             }
         }
 
-        enablePrelimit = false;
         const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
