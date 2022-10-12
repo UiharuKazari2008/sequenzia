@@ -409,6 +409,21 @@ async function roleGeneration(id, res, req, authToken) {
                 let _manage_channels = [];
                 let _server_download = [];
                 let _server_list = [];
+
+                let membership = {
+                    text: 'Member'
+                };
+
+                if (webconfig.user_card_membership) {
+                    const _ms = webconfig.user_card_membership.filter(m => (readPermissions.indexOf(m.role) !== -1 || writePermissions.indexOf(m.role) !== -1 || specialPermissions.indexOf(m.role) !== -1))
+                    if (_ms.length > 0) {
+                        membership = {
+                            ...membership,
+                            ..._ms.pop()
+                        }
+                    }
+                }
+
                 await allChannels.forEach(u => {
                     if (readPermissions.indexOf(u.role) !== -1 || specialPermissions.indexOf(u.role) !== -1) {
                         _roles_channels.push(u.channelid)
@@ -465,6 +480,7 @@ async function roleGeneration(id, res, req, authToken) {
                         avatar: users[0].avatar,
                         banner: users[0].banner,
                         known: true,
+                        membership,
                         auth_token: _authToken,
                         token: users[0].token,
                         token_login: users[0].blind_token,
