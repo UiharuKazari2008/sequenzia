@@ -408,8 +408,10 @@ module.exports = async (req, res, next) => {
             } else if (i.startsWith('artist:')) {
                 _id = i.split('artist:')[1];
                 return '('+ [
-                    `filename LIKE  '%${_id}-%'`,
-                    `filename LIKE  '%${_id}_%'`,
+                    `kanmi_records.attachment_name LIKE  '%${_id}-%'`,
+                    `kanmi_records.real_filename LIKE  '%${_id}-%'`,
+                    `kanmi_records.attachment_name LIKE  '%${_id}_%'`,
+                    `kanmi_records.real_filename LIKE  '%${_id}_%'`,
                     `kanmi_records.content_full LIKE '%${_id}%'`
                 ].join(' OR ') + ')';
             } else if (i.startsWith('text:')) {
@@ -438,23 +440,25 @@ module.exports = async (req, res, next) => {
                 _id = i.split('name:')[1];
                 if (_id.startsWith('st:')) {
                     _id = _id.split('st:')[1]
-                    return `filename LIKE '${_id}%'`
+                    return `(kanmi_records.attachment_name LIKE '${_id}%' OR kanmi_records.real_filename LIKE '${_id}%')`
                 } else if (_id.startsWith('ed:')) {
                     _id = _id.split('ed:')[1]
-                    return `filename LIKE '%${_id}'`
+                    return `(kanmi_records.attachment_name LIKE '%${_id}' OR kanmi_records.real_filename LIKE '%${_id}')`
                 } else {
-                    return `filename LIKE '%${_id}%'`
+                    return `(kanmi_records.attachment_name LIKE '%${_id}%' OR kanmi_records.real_filename LIKE '%${_id}%')`
                 }
             } else if (i.startsWith('full:')) {
                 _id = _id.split('full:')[1];
                 return [ `kanmi_records.content_full LIKE '%${_id}%'`,
-                        `filename LIKE '%${_id}%'`,
+                        `kanmi_records.attachment_name LIKE '%${_id}%'`,
+                        `kanmi_records.real_filename LIKE '%${_id}%'`,
                         `kanmi_records.id LIKE '${_id}%'`].join(' OR ')
             } else {
                 let _sh = []
                 _id.split(' ').forEach(e =>
                     _sh.push('(' + [ `kanmi_records.content_full LIKE '%${e}%'`,
-                        `filename LIKE '%${e}%'`,
+                        `kanmi_records.attachment_name LIKE '%${e}%'`,
+                        `kanmi_records.real_filename LIKE '%${e}%'`,
                         `kanmi_records.id LIKE '${e}%'`].join(' OR ') + ')')
                 )
                 return _sh.join(' OR ')
