@@ -968,7 +968,7 @@ html
                                                                         a.dropdown-item(title="Sort by message content" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'content']]); return false;` role='button')
                                                                             i.fas.fa-envelope.pr-2
                                                                             | Full Text
-                                                                    if (params.getAll('sort')[0] !== 'name')
+                                                                    if (params.getAll('sort')[0] !== 'name' && params.getAll('sort')[0] !== 'file')
                                                                         a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
                                                                             i.fas.fa-input-text.pr-2
                                                                             | File Name
