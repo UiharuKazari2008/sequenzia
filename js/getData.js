@@ -345,7 +345,7 @@ module.exports = async (req, res, next) => {
             } else if (req.query.sort === 'size') {
                 sqlorder.push('filesize')
             } else if (req.query.sort === 'id') {
-                sqlorder.push('id')
+                sqlorder.push('num_id')
             } else if (req.query.sort === 'eid') {
                 sqlorder.push('eid')
             } else if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
@@ -780,18 +780,31 @@ module.exports = async (req, res, next) => {
                             "cache_proxy LIKE '%-t9-preview-video.gifv'"
                         ].join(' OR ') + ')',
                         '(' + [
-                            "filename LIKE '%.mp4'",
-                            "filename LIKE '%.mov'",
-                            "filename LIKE '%.m4v'",
+                            "real_filename LIKE '%.mp4'",
+                            "real_filename LIKE '%.mov'",
+                            "real_filename LIKE '%.m4v'",
                         ].join(' OR ') + ')',
                         "attachment_extra IS NULL"
                     ].join(' AND ') + ')',
-                    "filename LIKE '%.jp%_'",
-                    "filename LIKE '%.jfif'",
-                    "filename LIKE '%.png'",
-                    "filename LIKE '%.gif'",
-                    "filename LIKE '%.web%_'",
-                    "filename = 'multi'",
+                    '(' + [
+                        '(' + [
+                            "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                            "cache_proxy LIKE '%-t9-preview-video.gif'",
+                            "cache_proxy LIKE '%-t9-preview-video.gifv'"
+                        ].join(' OR ') + ')',
+                        '(' + [
+                            "attachment_name LIKE '%.mp4'",
+                            "attachment_name LIKE '%.mov'",
+                            "attachment_name LIKE '%.m4v'",
+                        ].join(' OR ') + ')',
+                        "attachment_extra IS NULL"
+                    ].join(' AND ') + ')',
+                    "attachment_name LIKE '%.jp%_'",
+                    "attachment_name LIKE '%.jfif'",
+                    "attachment_name LIKE '%.png'",
+                    "attachment_name LIKE '%.gif'",
+                    "attachment_name LIKE '%.web%_'",
+                    "attachment_name = 'multi'",
                 ].join(' OR ')})`
             ].join(' AND ')
         } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/home' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
@@ -799,11 +812,11 @@ module.exports = async (req, res, next) => {
             execute = '(' + [
                 channelFilter,
                 `(${[
-                    "filename LIKE '%.jp%_'",
-                    "filename LIKE '%.jfif'",
-                    "filename LIKE '%.png'",
-                    "filename LIKE '%.gif'",
-                    "filename LIKE '%.web%_'",
+                    "attachment_name LIKE '%.jp%_'",
+                    "attachment_name LIKE '%.jfif'",
+                    "attachment_name LIKE '%.png'",
+                    "attachment_name LIKE '%.gif'",
+                    "attachment_name LIKE '%.web%_'",
                 ].join(' OR ')})`
             ].join(' AND ')
         } else if (page_uri === '/files') {
@@ -811,11 +824,24 @@ module.exports = async (req, res, next) => {
                 execute = '(' + [
                     channelFilter,
                     '(' + [
-                        "filename NOT LIKE '%.jp%_'",
-                        "filename NOT LIKE '%.jfif'",
-                        "filename NOT LIKE '%.png'",
-                        "filename NOT LIKE '%.gif'",
-                        "filename NOT LIKE '%.web%_'",
+                        '(' + [
+                            "fileid IS NULL",
+                            "attachment_name IS NOT NULL",
+                            "attachment_name NOT LIKE '%.jp%_'",
+                            "attachment_name NOT LIKE '%.jfif'",
+                            "attachment_name NOT LIKE '%.png'",
+                            "attachment_name NOT LIKE '%.gif'",
+                            "attachment_name NOT LIKE '%.web%_'",
+                            "attachment_name != 'multi'"
+                        ].join(' AND ') + ')',
+                        '(' + [
+                            "fileid IS NOT NULL",
+                            "real_filename NOT LIKE '%.jp%_'",
+                            "real_filename NOT LIKE '%.jfif'",
+                            "real_filename NOT LIKE '%.png'",
+                            "real_filename NOT LIKE '%.gif'",
+                            "real_filename NOT LIKE '%.web%_'",
+                        ].join(' AND ') + ')'
                     ].join(' OR ') + ')'
                 ].join(' AND ')
 
@@ -838,6 +864,7 @@ module.exports = async (req, res, next) => {
         sqlFields = [
             'kanmi_records.*',
             'IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename',
+            'CONVERT(kanmi_records.id,SIGNED) AS num_id',
             `${req.session.cache.channels_view}.*`
         ];
         const sqlAlbumFields = [
