@@ -54,6 +54,10 @@ html
             body {
                 background: url("!{loginImage}") center fixed
             }
+        if (banner)
+            div(style="display: block; position: fixed; left: 0; width: 100vw; z-index: 100000;")
+                div(style="color: white;background: #930000;font-size: 1.35em;text-align: center;")
+                    span !{banner}
         #container
             #inviteContainer
                 .acceptContainer

@@ -721,6 +721,8 @@ async function loginPage(req, res, obj) {
         _obj.telegramCallback = host.telegram_callback_url;
         _obj.telegramName = host.telegram_bot_name;
     }
+    if (webconfig.system_banner)
+        _obj.banner = webconfig.system_banner;
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
         if (obj && obj.keepSession) {
