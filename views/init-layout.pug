@@ -19,6 +19,7 @@ html
         link(rel='preload', href="/static/img/kongou-group.png" as='image')
         link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
         link(rel='preload', href="/static/img/kongou-group.png" as='image')
+        link(rel='preload', href="/static/img/seq-mascot.png" as='image')
         if (user && user.banner)
             link(rel='preload', href=`${user.banner}` as='image')
         if (user && user.avatar)
@@ -217,7 +218,9 @@ html
                         div.boot-logo-holder.d-flex(style="z-index: 1;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
-                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                            img(src="/static/img/seq-mascot.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
                             i.px-2.fas.fa-image
                             i.px-2.fas.fa-film
                             i.px-2.fas.fa-music
@@ -835,6 +838,8 @@ html
                                     img(src="/static/img/kongoumedialogo-wide.png" style="width: 400px; height: auto;").img-fluid
                                 p.mb-1
                                     img(src="/static/img/awatsukidps.png" style="width: 280px; height: auto;").img-fluid
+                                p.mb-1
+                                    img(src="/static/img/firestorm-ex.png" style="width: 415px; height: auto;").img-fluid
                                 p.mb-1 Sequenzia Content Distribution and Auditing System (CDS)
 
                             div.row.pl-3.pr-3.pt-2
