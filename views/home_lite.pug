@@ -452,7 +452,7 @@ html
                                     div.user-infocard-holder.d-flex.flex-column
                                         .row.p-0.m-2(style="padding: 0.25em 0.5em;")
                                             span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
-                                            if (discord & discord.user && discord.user.membership)
+                                            if (discord && discord.user && discord.user.membership)
                                                 if (discord.user.membership.background)
                                                     div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
                                                         if (discord.user.membership.icon)
