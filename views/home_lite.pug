@@ -277,6 +277,9 @@ html
                             #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
                                 span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
                                 .login-options.menu-grid
+                                    a.hover-color(data-placement="top" title='Access Local Files', href='#_' onclick="transitionToOOBPage('/offline'); return false").d-flex.flex-column
+                                        i.fa-light.fa-bookmark.fa-2x.align-self-center
+                                        span.align-self-center.pt-1 Local Files
                                     a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
                                         i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
                                         span.align-self-center.pt-1 Login
@@ -468,18 +471,18 @@ html
 
 
                                         .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                            .col-auto.p-0
-                                                img.rounded.user-infocard-icon(src=user.avatar)
-                                            .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                                div.text-center.text-ellipsis.align-middle.mr-auto
-                                                    if (user && user.source === 900)
-                                                        span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
-                                                    else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
-                                                        i.pr-1.fas.fa-check-circle
-                                                        span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
-                                                        //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                                div.text-ellipsis.shadow-text.user-infocard-info
-                                                    if (user)
+                                            if (user)
+                                                .col-auto.p-0
+                                                    img.rounded.user-infocard-icon(src=user.avatar)
+                                                .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                    div.text-center.text-ellipsis.align-middle.mr-auto
+                                                        if (user && user.source === 900)
+                                                            span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                        else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                            i.pr-1.fas.fa-check-circle
+                                                            span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                            //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                    div.text-ellipsis.shadow-text.user-infocard-info
                                                         span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
                                 div.menu-grid.user-menu-small
                                     a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
