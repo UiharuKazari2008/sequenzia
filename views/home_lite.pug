@@ -234,7 +234,7 @@ html
                                                     | Syncing Offline Pages...
                                 div
                                     a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.querySelector('.container').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
-                                        if (discord)
+                                        if (user)
                                             span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
                                             img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
                                         else
@@ -479,7 +479,8 @@ html
                                                         span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
                                                         //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                                 div.text-ellipsis.shadow-text.user-infocard-info
-                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                                    if (user)
+                                                        span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
                                 div.menu-grid.user-menu-small
                                     a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
                                         i.fas.fa-sync
