@@ -141,7 +141,7 @@ html
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-logo-holder.d-flex(style="z-index: 1;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                         div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
@@ -206,7 +206,7 @@ html
                                             div.user-info-overlay.position-absolute.rounded
                                             div.user-infocard-holder.d-flex.flex-column
                                                 .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                    span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                                    img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
                                                     if (discord.user.membership)
                                                         if (discord.user.membership.background)
                                                             div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
@@ -313,7 +313,7 @@ html
                                                     a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
                                                         i.fa-light.fa-arrow-up-arrow-down
                                                         | Menubar
-                                    div#menuItemAlbums.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemAlbums.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -567,6 +567,8 @@ html
                                     i.px-2.fas.fa-archive.d-none.d-md-inline.fa-2x
 
                         div.col.overflow-auto
+                            div.row.pl-3.pr-3.pt-2.justify-content-center
+                                span.sidebar-brand-logo.sequenzia-logo(style='font-size: 3em;') sequenzia
                             div.row.pl-3.pr-3.pt-2.justify-content-center
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1

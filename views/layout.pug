@@ -120,7 +120,7 @@ html
                                             div.user-info-overlay.position-absolute.rounded
                                             div.user-infocard-holder.d-flex.flex-column
                                                 .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                    span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                                    img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
                                                     if (discord.user.membership)
                                                         if (discord.user.membership.background)
                                                             div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
@@ -149,6 +149,9 @@ html
                                                                 //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                                         div.text-ellipsis.shadow-text.user-infocard-info
                                                             span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                        if (next_episode)
+                                            div.outer-menu-next-episode(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
+                                                img.border-left-warning.rounded.kongou-next-episode-image(style="height: 152px" src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .row.w-100.ml-0.mr-0
                                                 .col-auto.p-0
@@ -194,12 +197,12 @@ html
                                                         a.user-menu-item(title="Return to Sequenzia Menu" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                             i.fa-light.fa-fw.fa-browser
                                                             | App Menu
+                                                    a.user-menu-item(class=`user-menu-overlow-icon-1${(next_episode) ? '-nep' : ''}` title="Return to Homescreen" href='/')
+                                                        i.fa-light.fa-fw.fa-home
+                                                        | Home
                                                     a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                         i.fa-light.fa-compass.fa-fw
                                                         | Directory
-                                                    //a.user-menu-item(title="Homepage" href='/')
-                                                        i.fa-light.fa-fw.fa-home
-                                                        | Home
                                                     a.user-menu-item(title="Recently Uploaded Media" href='#/gallery?numdays=60&sort=eid')
                                                         i.fa-light.fa-fw.fa-photo-video
                                                         | Gallery
@@ -215,12 +218,20 @@ html
                                                     a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
                                                         i.fa-light.fa-fw.fa-archive
                                                         | Albums
+                                                    if (artists && artists.length > 0)
+                                                        a.user-menu-item(title="Artists" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
+                                                            i.fa-light.fa-fw.fa-address-book
+                                                            | Artists
+                                                    else
+                                                        a.user-menu-item(title="Index" href='#/artists?')
+                                                            i.fa-light.fa-fw.fa-address-book
+                                                            | Artists
+                                                    a.user-menu-item(class=`user-menu-overlow-icon-2${(next_episode) ? '-nep' : ''}`  title="Show History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemHistory" onClick='getHistory(); return false;')
+                                                        i.fa-light.fa-fw.fa-history
+                                                        | History
                                                     a.user-menu-item(title="I'm feeling lucky!" href='#/gallery?sort=random')
                                                         i.fa-light.fa-fw.fa-dice
                                                         | Random
-                                                    a.user-menu-item(title="Index" href='#/artists?')
-                                                        i.fa-light.fa-fw.fa-address-book
-                                                        | Artists
                                                     if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards' || path === '/listTheater' || path === '/tvTheater')))
                                                         if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
                                                             if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
@@ -244,6 +255,7 @@ html
                                                     a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                         i.fa-light.fa-fw.fa-cog
                                                         | Settings
+
                                     if (appData)
                                         div.w-100(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
@@ -313,9 +325,6 @@ html
                                                         a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
                                                             i.fa-light.fa-sliders-h
                                                             | Display
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;')
-                                                        i.fa-light.fa-tv
-                                                        | Photo Frame
                                                     a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Offline Pages" href='#_' onclick="requestSyncPages(); return false;")
                                                         i.fa-light.fa-sync
                                                         | Sync
@@ -366,12 +375,9 @@ html
                                                         a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display or Photo Frame" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); loadADSDisplays(); return false;")
                                                             i.fa-light.fa-image-landscape
                                                             | Set Frame
-                                                    a.user-menu-item(title="Show Image History" href='#_' onclick="getNewContent([], [['sort','history'], ['history_numdays','60'], ['history','only'], ['displayname','*'], ['nsfw', 'true']], '/gallery'); $('#historyModel').modal('hide'); return false;")
-                                                        i.fa-light.fa-fw.fa-rectangle-history
-                                                        | Image History
-                                                    a.user-menu-item(title="Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
+                                                    a.user-menu-item(class=`user-menu-overlow-icon-2${(next_episode) ? '-nep' : ''}` title="Show Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemHistory" onClick='getHistory(); return false;')
                                                         i.fa-light.fa-fw.fa-history
-                                                        | Page History
+                                                        | History
                                     div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -485,7 +491,7 @@ html
                                                                 i.fa-light.fa-cloud-download-alt.pr-2
                                                                 | Download URL
 
-                                    div#menuItemAlbums.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemAlbums.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -532,6 +538,81 @@ html
 
                                                 else
                                                     h2 No Albums!
+                                    div#menuItemArtists.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                a(class="btn btn-primary" title="Artist Index" href='#/artists?').ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-grid-2
+                                                    span.d-none.d-md-inline Index
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-address-book.mr-2
+                                                    | Artists
+                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                if (artists && artists.length > 0)
+                                                    div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                        each thisArtist in artists
+                                                            div.album-item.position-relative
+                                                                div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                                    //x.uri, x.privacy
+                                                                    div.album-icon
+                                                                        if (thisArtist.artist_source && thisArtist.artist_source === 1)
+                                                                            i.fab.fa-twitter.pr-1
+                                                                        else if (thisArtist.artist_source && thisArtist.artist_source === 2)
+                                                                            i.fas.fa-palette.pr-1
+                                                                        else if (thisArtist.artist_source && thisArtist.artist_source === 3)
+                                                                            i.fab.fa-flickr.pr-1
+                                                                        else if (thisArtist.artist_source && thisArtist.artist_source === 4)
+                                                                            i.fas.fa-download.pr-1
+
+                                                                        if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
+                                                                            i.fas.fa-check-circle.ml-1.pr-1
+
+                                                                        if (thisArtist.artist_rating)
+                                                                            if (thisArtist.artist_rating >= 0.9)
+                                                                                i.fas.fa-face-smile.ml-1.pr-1
+                                                                            else if (thisArtist.artist_rating >= 0.75)
+                                                                                i.fas.fa-face-meh.ml-1.pr-1
+                                                                            else if (thisArtist.artist_rating >= 0.50)
+                                                                                i.fas.fa-face-frown.ml-1.pr-1
+                                                                            else
+                                                                                i.fas.fa-face-meh-blank.ml-1.pr-1
+                                                                            span #{(thisArtist.artist_rating * 100).toFixed(0)}%
+
+                                                                div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
+                                                                    span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
+                                                                a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
+                                                                    if (thisArtist.image)
+                                                                        div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
+                                                                    else
+                                                                        div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+
+                                                else
+                                                    h2 No Favorite Artists!
+                                    div#menuItemHistory.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
+                                        div.position-relative.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`).ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-grid-2
+                                                    span.d-none.d-md-inline Show All
+                                                a(class="btn btn-primary" title="Show Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;").ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-browser
+                                                    span.d-none.d-md-inline Page History
+                                                a(class="btn btn-primary" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;').ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-cog
+                                                    span.d-none.d-md-inline Manage
+                                                #menuLoaderImageHistory.d-inline.ml-2
+                                                    i.fas.fa-spin-pulse.fa-spinner
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-history.mr-2
+                                                    | History
+                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                    #menuBodyImageHistory.ready(style="display: contents;")
+                                                        span Loading...
                                     div#menuItemApps.w-100(class="collapse" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -899,6 +980,10 @@ html
                                                                     a.dropdown-item(title="Sort by Artist Name" href='#_' onclick=`getNewContent(['offset'], [['sort', 'name']]); return false;` role='button')
                                                                         i.fas.pr-2.fa-user
                                                                         | Artist Name
+                                                                if (params.getAll('sort')[0] !== 'rating')
+                                                                    a.dropdown-item(title="Sort by Artist Rating" href='#_' onclick=`getNewContent(['offset'], [['sort', 'rating']]); return false;` role='button')
+                                                                        i.fas.pr-2.fa-face-smile
+                                                                        | Artist Rating
                                                                 if (params.getAll('sort')[0] !== 'eid')
                                                                     a.dropdown-item(title="Sort by most recent contribution" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'eid']]); return false;` role='button')
                                                                         i.fas.fa-stream.pr-2
@@ -907,6 +992,19 @@ html
                                                                     a.dropdown-item(title="Randomize" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'random']]); return false;` role='button')
                                                                         i.fas.fa-dice.pr-2
                                                                         | Random
+                                                                span.dropdown-header
+                                                                    | Rating
+                                                                if (!params.has('rating'))
+                                                                    a.dropdown-item(title="High Artist Rating" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['rating', '0.9']]); return false;` role='button')
+                                                                        i.fas.pr-2.fa-face-smile
+                                                                        | High
+                                                                    a.dropdown-item(title="Medium Artist Rating" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['rating', '0.75']]); return false;` role='button')
+                                                                        i.fas.pr-2.fa-face-meh
+                                                                        | Medium
+                                                                    a.dropdown-item(title="Low Artist Rating" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['rating', '0.5']]); return false;` role='button')
+                                                                        i.fas.pr-2.fa-face-frown
+                                                                        | Low
+
                                                             else
                                                                 span.dropdown-header
                                                                     | Sort
@@ -1890,7 +1988,7 @@ html
                     footer.sticky-footer.bg-transparent
                         .container.my-auto
                             .copyright.text-center.my-auto
-                                div.mb-2.hide-1700
+                                div.mb-2
                                     span.sidebar-brand-logo.sequenzia-logo(class=showlogo1 style='font-size: 2.8em;') sequenzia
                                 div
                                     strong The Kanmi x Sequenzia II Project

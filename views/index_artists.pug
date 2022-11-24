@@ -59,6 +59,16 @@ block content
                                             else
                                                 i.fas.fa-question-circle.ml-1.pr-1
                                                 span Unknown
+                                            if (item.artist.rating)
+                                                if (item.artist.rating >= 0.9)
+                                                    i.fas.fa-face-smile.ml-1.pr-1
+                                                else if (item.artist.rating >= 0.75)
+                                                    i.fas.fa-face-meh.ml-1.pr-1
+                                                else if (item.artist.rating >= 0.50)
+                                                    i.fas.fa-face-frown.ml-1.pr-1
+                                                else
+                                                    i.fas.fa-face-meh-blank.ml-1.pr-1
+                                                span #{(item.artist.rating * 100).toFixed(0)}%
                                         if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
                                             p.channel.p-end #{item.server.name.toUpperCase()}:/#{item.channel.class_name}/#{item.channel.name}
                                     div.links-container.text-primary

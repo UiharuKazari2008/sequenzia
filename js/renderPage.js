@@ -37,6 +37,7 @@ module.exports = async (req, res, next) => {
         sidebar: req.session.sidebar,
         next_episode: req.session.kongou_next_episode,
         albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+        artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
         theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
         applications_list: req.session.applications_list,
         ...res.locals.response,

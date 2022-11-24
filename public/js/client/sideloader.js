@@ -635,7 +635,7 @@ async function getNewContent(remove, add, url, keep) {
                 if (_params.has(e[0])) {
                     _params.delete(e[0])
                 }
-                _params.set(e[0], e[1])
+                _params.set(e[0], decodeURLRecursively(e[1]))
             }
             if (_params.has('nsfw') &&
                 (_params.getAll('nsfw').pop() === 'true' && _params.getAll('nsfw').pop() === 'only') &&
@@ -1052,6 +1052,27 @@ function getPaginator(url) {
         }
     });
     return false;
+}
+function getHistory() {
+    document.getElementById('menuLoaderImageHistory').classList.remove('hidden');
+    $.ajax({async: true,
+        url: `/ambient-history?command=getAll`,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR',
+            'X-Requested-Page': 'SeqHistoryFromHome'
+        },
+        success: function (response, textStatus, xhr) {
+            document.getElementById('menuBodyImageHistory').innerHTML = response
+            document.getElementById('menuLoaderImageHistory').classList.add('hidden');
+        },
+        error: function (xhr) {
+            document.getElementById('menuBodyImageHistory').innerHTML = `<div class='align-content-center ml-1'><i class="fas fa-times mr-2"></i><span>Failed to load history data</span>`
+            document.getElementById('menuLoaderImageHistory').classList.add('hidden');
+        }
+    });
 }
 function launchContent(remove, add, url) {
     setupReq(undefined, _url)

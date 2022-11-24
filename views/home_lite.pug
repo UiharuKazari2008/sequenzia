@@ -161,7 +161,7 @@ html
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-logo-holder.d-flex(style="z-index: 1;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                         div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
@@ -202,7 +202,7 @@ html
             #sidebar
         .fixed-bottom.ambient-items.p4-safty(style="display: none;")
             .menu-container.rounded.animated--fade-in.text-center.ml-auto.p-4.bottom-time-info
-                div
+                div(style="margin-top: -0.75em;")
                     #time
                 div
                     i.fas.fa-star.d-none.ajax-imageFav.pr-2
@@ -258,20 +258,24 @@ html
                                             a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
                                                 i.fa-light.fa-compass
                                             a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
-                                                i.fa-light.fa-rectangle-history
+                                                i.fa-light.fa-history
+                                            a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
+                                                i.fa-light.fa-address-book
                                             a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
                                                 i.fa-light.fa-bookmark
+                                            a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random').user-menu-overlow-show-icon-1
+                                                i.fa-light.fa-dice
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                 i.fa-light.fa-browsers
-                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2")
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2").user-menu-overlow-hide-icon-1
                                                 i.fa-light.fa-ellipsis-stroke
                                     div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
                                         .menu-grid.main-menu-grid.menu-icons.py-1
                                             a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
                                                 i.fa-light.fa-dice
-                                            a.hover-color(data-placement="top" title="Artists", href='#/artists?')
+                                            a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
                                                 i.fa-light.fa-address-book
-                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
+                                            a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
                                                 i.fa-light.fa-chevron-down
 
                             #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
@@ -303,7 +307,7 @@ html
                                     span.text-capitalize.shadow-text Internal Server Error
 
                         if (discord)
-                            div#menuItemAlbums.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemAlbums.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -338,27 +342,73 @@ html
                                                             div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
                                         span No Albums!
-                            div#menuItemImageHistory.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
                                             i.fas.fa-arrow-left.fa-fw
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#/artists?')
+                                            i.fas.fa-grid-2.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-address-book.pr-2
+                                            span Artists
+                                .d-flex.w-100.mb-3
+                                    if (artists && artists.length > 0)
+                                        div.album-list
+                                            each thisArtist in artists
+                                                div.album-item.position-relative
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                        //x.uri, x.privacy
+                                                        div.album-icon
+                                                            if (thisArtist.artist_source && thisArtist.artist_source === 1)
+                                                                i.fab.fa-twitter.pr-1
+                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 2)
+                                                                i.fas.fa-palette.pr-1
+                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 3)
+                                                                i.fab.fa-flickr.pr-1
+                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 4)
+                                                                i.fas.fa-download.pr-1
+
+                                                            if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
+                                                                i.fas.fa-check-circle.ml-1.pr-1
+
+                                                            if (thisArtist.artist_rating)
+                                                                if (thisArtist.artist_rating >= 0.9)
+                                                                    i.fas.fa-face-smile.ml-1.pr-1
+                                                                else if (thisArtist.artist_rating >= 0.75)
+                                                                    i.fas.fa-face-meh.ml-1.pr-1
+                                                                else if (thisArtist.artist_rating >= 0.50)
+                                                                    i.fas.fa-face-frown.ml-1.pr-1
+                                                                else
+                                                                    i.fas.fa-face-meh-blank.ml-1.pr-1
+                                                                span #{(thisArtist.artist_rating * 100).toFixed(0)}%
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                        span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
+                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
+                                                        if (thisArtist.image)
+                                                            div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
+                                                        else
+                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                    else
+                                        span No Favorite Artists!
+
+                            div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show All History', href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`)
+                                            i.fas.fa-grid-2.fa-fw
                                         #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
                                             i.fas.fa-spin-pulse.fa-spinner
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.fas.fa-rectangle-history.pr-2
+                                            i.fas.fa-history.pr-2
                                             span History
                                 .d-flex.w-100.mb-3
                                     div.album-list
-                                        div.album-item.position-relative(style="height: 7.125em;")
-                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
-                                                div.album-icon
-                                                    i.far.fa-history.pr-1
-                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
-                                                span Show All
-                                            a.position-absolute.text-capitalize(style='width: 100%' title="Show All Displays" href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`)
-                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #02289f, #1cccf7); padding-bottom: 62%`)
                                         #menuBodyImageHistory.ready(style="display: contents;")
                             div#menuItemApps.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
@@ -454,7 +504,7 @@ html
                                     div.user-info-overlay.position-absolute.rounded
                                     div.user-infocard-holder.d-flex.flex-column
                                         .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                            span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                            img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
                                             if (discord && discord.user && discord.user.membership)
                                                 if (discord.user.membership.background)
                                                     div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)

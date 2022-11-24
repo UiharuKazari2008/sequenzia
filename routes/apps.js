@@ -60,6 +60,7 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
             user: req.session.user,
             webconfig: web,
             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+            artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
             theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
             next_episode: req.session.kongou_next_episode,
             applications_list: req.session.applications_list,

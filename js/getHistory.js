@@ -71,8 +71,8 @@ module.exports = async (req, res) => {
                                 }
 
                                 displayHistory.push({
-                                    preview: (x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`),
-                                    full: (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` : `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`),
+                                    preview: ((x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`)),
+                                    full: (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` :( `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`)),
                                     id: x.id,
                                     eid: x.eid,
                                     screen: x.screen_id,

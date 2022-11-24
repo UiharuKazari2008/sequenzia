@@ -2144,11 +2144,11 @@ body:not(.menu-open):not(.bottom-bar) .topbar {
     margin-bottom: 0.25rem;
 }
 @media (min-width: 941px) {
-    #mainMenuBar #menuItemAlbums > div {
+    #mainMenuBar .scroll-list > div {
         margin-right: 0!important;
         margin-left: 0!important;
     }
-    #mainMenuBar #menuItemAlbums > div > div:first-child {
+    #mainMenuBar .scroll-list > div > div:first-child {
         padding-left: calc(env(safe-area-inset-left,0) + 1em);
         padding-right: calc(env(safe-area-inset-right,0) + 1em);
     }
@@ -3373,14 +3373,14 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .user-menu-height {
         height: 200px
     }
-    #mainMenuBar #menuItemAlbums .user-menu-height {
+    #mainMenuBar .scroll-list .user-menu-height {
         height: 355px;
     }
     #mainMenuBar .album-list {
         height: 300px;
     }
 
-    #mainMenuBar .album-item {
+    #mainMenuBar .album-item,  #mainMenuBar #menuBodyImageHistory .album-item {
         min-height: 100px;
         min-width: calc(20% - 0.5rem);
         margin-bottom: 0.5rem;
@@ -3850,7 +3850,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 250px;
     }
 
-    #menuItemAlbums .album-item {
+    .scroll-list .album-item {
         min-height: 75px;
         min-width: calc(50% - 0.5rem);
     }
@@ -4203,4 +4203,45 @@ footer .sequenzia-logo {
 
 @media (vertical-viewport-segments: 2) {
 
+}
+
+
+
+@media (max-width:1943px) {
+    #menuItemMain .user-menu-overlow-icon-1-nep, #menuItemMainSeq .user-menu-overlow-icon-1-nep {
+        display: none;
+    }
+}
+
+@media (max-width:1848px) {
+    #menuItemMain .user-menu-overlow-icon-2-nep, #menuItemMainSeq .user-menu-overlow-icon-2-nep {
+        display: none;
+    }
+}
+@media (min-width:1849px) {
+    #menuItemTools .user-menu-overlow-icon-2-nep {
+        display: none;
+    }
+}
+@media (max-width:1753px) {
+    #menuItemMain .outer-menu-next-episode, #menuItemMainSeq .outer-menu-next-episode {
+        display: none;
+    }
+}
+
+@media (max-width:1824px) {
+    #menuItemMain .user-menu-overlow-icon-1, #menuItemMainSeq .user-menu-overlow-icon-1 {
+        display: none;
+    }
+}
+
+@media (max-width:1728px) {
+    #menuItemMain .user-menu-overlow-icon-2, #menuItemMainSeq .user-menu-overlow-icon-2 {
+        display: none;
+    }
+}
+@media (min-width:1729px) {
+    #menuItemTools .user-menu-overlow-icon-2 {
+        display: none;
+    }
 }

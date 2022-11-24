@@ -2141,3 +2141,17 @@ ul#accordionSidebar * {
 .hidden-default:not(.active) {
     display: none!important;
 }
+
+@media (max-width:882px) {
+    .user-menu-overlow-show-icon-1 {
+        display: none!important;
+    }
+}
+@media (min-width:883px) {
+    #midSearch {
+        width: 848px;
+    }
+    .user-menu-overlow-hide-icon-1 {
+        display: none!important;
+    }
+}

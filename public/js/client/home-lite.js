@@ -167,7 +167,7 @@ function getNewContent(remove, add, url) {
                     if (_params.has(e[0])) {
                         _params.delete(e[0])
                     }
-                    _params.set(e[0], e[1])
+                    _params.set(e[0], decodeURLRecursively(e[1]))
                 }
                 _url = `${_pathname}?${_params.toString()}`
             }

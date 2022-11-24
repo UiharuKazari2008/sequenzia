@@ -21,6 +21,7 @@ module.exports = async (req, res, next) => {
             discord: req.session.discord,
             user: req.session.user,
             albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+            artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
             theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
             next_episode: req.session.kongou_next_episode,
             applications_list: req.session.applications_list,
@@ -62,6 +63,8 @@ module.exports = async (req, res, next) => {
             sqlorder =  `RAND()`
         } else if (req.query.sort === 'count') {
             sqlorder = `x.artist_count ${(sqlrevered) ? 'ASC' : 'DESC'}`
+        } else if (req.query.sort === 'rating') {
+            sqlorder = `x.artist_rating ${(sqlrevered) ? 'ASC' : 'DESC'}`
         } else if (req.query.sort === 'name') {
             sqlorder = `x.artist ${(sqlrevered) ? 'DESC' : 'ASC'}`
         } else if (req.query.sort === 'fav') {
@@ -70,6 +73,11 @@ module.exports = async (req, res, next) => {
             sqlorder = `x.artist_last ${(sqlrevered) ? 'ASC' : 'DESC'}`
         } else {
             sqlorder = `y.fav_date ${(sqlrevered) ? 'ASC' : 'DESC'}, x.artist_count DESC, x.artist_full_name, x.artist`
+        }
+
+        // Artist Rating
+        if (req.query.rating && !isNaN(req.query.rating)) {
+            sqlquery.push(`sequenzia_index_artists.rating >= ${req.query.rating}`)
         }
 
         // Search
@@ -277,6 +285,7 @@ module.exports = async (req, res, next) => {
             `sequenzia_index_artists.last AS artist_last`,
             `sequenzia_index_artists.source AS artist_source`,
             `sequenzia_index_artists.confidence AS artist_confidence`,
+            `sequenzia_index_artists.rating AS artist_rating`,
             `${req.session.cache.channels_view}.*`,
         ].join(', ');
         sqlTables = [
@@ -476,7 +485,8 @@ module.exports = async (req, res, next) => {
                             search: item.artist_search,
                             count: item.artist_count,
                             source: item.artist_source,
-                            confidence: item.artist_confidence
+                            confidence: item.artist_confidence,
+                            rating: item.artist_rating
                         },
                         channel: {
                             id: item.channelid,
@@ -529,6 +539,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
                     theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     next_episode: req.session.kongou_next_episode,
                     applications_list: req.session.applications_list,
@@ -557,6 +568,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
                     theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     next_episode: req.session.kongou_next_episode,
                     applications_list: req.session.applications_list,
@@ -583,6 +595,7 @@ module.exports = async (req, res, next) => {
                     discord: req.session.discord,
                     user: req.session.user,
                     albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
+                    artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
                     theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
                     next_episode: req.session.kongou_next_episode,
                     applications_list: req.session.applications_list,
