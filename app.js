@@ -218,7 +218,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.locals.databaseCache = new Map();
 
 async function cacheDatabase() {
-    const users = await sqlPromiseSafe(`SELECT * FROM discord_users`)
+    const users = await sqlPromiseSafe(`SELECT x.* FROM (SELECT * FROM discord_users) x LEFT JOIN (SELECT discord_servers.position, discord_servers.authware_enabled, discord_servers.name, discord_servers.serverid FROM discord_servers) y ON x.server = y.serverid ORDER BY y.authware_enabled, y.position, x.id`)
     const extraLinks = await sqlPromiseSafe(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
     const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type, userid, serverid FROM discord_users_permissons")
     const allChannels = await sqlPromiseSafe("SELECT x.*, y.chid_download FROM ( SELECT DISTINCT kanmi_channels.channelid, kanmi_channels.serverid, kanmi_channels.role, kanmi_channels.role_write, kanmi_channels.role_manage FROM kanmi_channels, sequenzia_class WHERE kanmi_channels.role IS NOT NULL AND kanmi_channels.classification = sequenzia_class.class) x LEFT OUTER JOIN (SELECT chid_download, serverid FROM discord_servers) y ON (x.serverid = y.serverid AND x.channelid = y.chid_download)");
