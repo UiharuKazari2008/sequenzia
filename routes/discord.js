@@ -451,7 +451,9 @@ async function roleGeneration(id, res, req, authToken) {
                             nice_name: e.nice_name,
                             short_name: e.short_name,
                             icon: `https://cdn.discordapp.com/icons/${e.serverid}/${e.avatar}.png?size=4096`,
-                            login: (e.authware_enabled)
+                            login: (e.authware_enabled),
+                            usage: e.total_data,
+                            count: e.total_count
                         })
                     })
                 }

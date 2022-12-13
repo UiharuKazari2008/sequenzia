@@ -856,13 +856,21 @@ html
                                         h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
                                         if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
                                             h5 #{thisServer.name}
-                                        div.d-inline.text-lg
+                                        div.d-inline.text-lg.mb-1
                                             if (thisServer.login === 1)
                                                 i.fas.fa-key.pr-2.pl-1
                                                 span Login
+                                            //else
+                                            //    i.fas.fa-database.pr-2.pl-1
+                                            //    span Storage
+                                        h5.mb-1
+                                            i.fas.fa-database.pr-2.pl-1
+                                            if (thisServer.usage > 1000000)
+                                                span #{(thisServer.usage / 1000000).toFixed(2)} TB (#{thisServer.count} Files)
+                                            else if (thisServer.usage > 1000)
+                                                span #{(thisServer.usage / 1000).toFixed(2)} GB (#{thisServer.count} Files)
                                             else
-                                                i.fas.fa-database.pr-2.pl-1
-                                                span Storage
+                                                span #{(thisServer.usage).toFixed(2)} MB (#{thisServer.count} Files)
                             div.row.pl-3.pr-3.pt-2
                                 h3
                                     i.fas.fa-code.pr-2
@@ -878,6 +886,12 @@ html
                                     img.rounded-pill(src="static/img/profiles/emmy.gif" style='height: 8em;')
                                 div
                                     h2.mb-1 EmmyHeart
+                            div.row.pl-3.pr-3.pt-2
+                                div.mr-3
+                                    img.rounded-pill(src="static/img/profiles/sala.jpg" style='height: 8em;')
+                                div
+                                    h2.mb-1 Sala
+                                    h5 NYTI
                             div.row.pl-3.pr-3.pt-2.mb-3
                                 span.font-weight-bold Thank you to all that have helped test and report issues. Special Thanks to Emmy!
         #searchHelpModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
