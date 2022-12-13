@@ -865,12 +865,13 @@ html
                                             //    span Storage
                                         h5.mb-1
                                             i.fas.fa-database.pr-2.pl-1
-                                            if (thisServer.usage > 1000000)
-                                                span #{(thisServer.usage / 1000000).toFixed(2)} TB (#{thisServer.count} Files)
-                                            else if (thisServer.usage > 1000)
-                                                span #{(thisServer.usage / 1000).toFixed(2)} GB (#{thisServer.count} Files)
-                                            else
-                                                span #{(thisServer.usage).toFixed(2)} MB (#{thisServer.count} Files)
+                                            if (thisServer.usage)
+                                                if (thisServer.usage > 1000000)
+                                                    span #{(thisServer.usage / 1000000).toFixed(2)} TB (#{thisServer.count} Files)
+                                                else if (thisServer.usage > 1000)
+                                                    span #{(thisServer.usage / 1000).toFixed(2)} GB (#{thisServer.count} Files)
+                                                else
+                                                    span #{(thisServer.usage).toFixed(2)} MB (#{thisServer.count} Files)
                             div.row.pl-3.pr-3.pt-2
                                 h3
                                     i.fas.fa-code.pr-2
