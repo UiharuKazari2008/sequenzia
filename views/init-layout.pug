@@ -856,16 +856,16 @@ html
                                         h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
                                         if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
                                             h5 #{thisServer.name}
-                                        div.d-inline.text-lg.mb-1
+                                        div.d-inline.text-lg
                                             if (thisServer.login === 1)
                                                 i.fas.fa-key.pr-2.pl-1
                                                 span Login
                                             //else
                                             //    i.fas.fa-database.pr-2.pl-1
                                             //    span Storage
-                                        h5.mb-1
-                                            i.fas.fa-database.pr-2.pl-1
-                                            if (thisServer.usage)
+                                        if (thisServer.usage)
+                                            h5.mt-1
+                                                i.fas.fa-database.pr-2.pl-1
                                                 if (thisServer.usage > 1000000)
                                                     span #{(thisServer.usage / 1000000).toFixed(2)} TB (#{thisServer.count} Files)
                                                 else if (thisServer.usage > 1000)
