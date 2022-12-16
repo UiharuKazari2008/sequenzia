@@ -34,10 +34,10 @@ module.exports = async (req, res, next) => {
 
         if (global.web_applications) {
             const perms = [
-                req.session.discord.permissions.read,
-                req.session.discord.permissions.write,
-                req.session.discord.permissions.manage,
-                req.session.discord.permissions.specialPermissions
+                ...req.session.discord.permissions.read,
+                ...req.session.discord.permissions.write,
+                ...req.session.discord.permissions.manage,
+                ...req.session.discord.permissions.specialPermissions
             ]
             req.session.applications_list.push(...Object.keys(global.web_applications).filter(k =>
                 perms.filter(p => global.web_applications[k].read_roles.indexOf(p) !== -1).length > 0
@@ -78,7 +78,7 @@ module.exports = async (req, res, next) => {
         const userAlbums = await sqlPromiseSafe('SELECT x.aid, x.name, x.uri, x.owner, x.privacy, y.* FROM (SELECT x.*, y.eid FROM (SELECT DISTINCT * FROM sequenzia_albums WHERE owner = ? ORDER BY name ASC) AS x LEFT JOIN (SELECT *, ROW_NUMBER() OVER(PARTITION BY aid ORDER BY RAND()) AS RowNo FROM sequenzia_album_items) AS y ON x.aid = y.aid AND y.RowNo=1) x LEFT JOIN (SELECT eid, channel, attachment_hash, attachment_name, cache_proxy FROM kanmi_records) y ON y.eid = x.eid ORDER BY name ASC', [req.session.discord.user.id])
         const userArtists = await sqlPromiseSafe(`SELECT * FROM (SELECT kanmi_records.attachment_hash, kanmi_records.attachment_name, kanmi_records.cache_proxy, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, sequenzia_index_artists.id AS artist_id, sequenzia_index_artists.artist, sequenzia_index_artists.name AS artist_full_name, sequenzia_index_artists.url AS artist_url, sequenzia_index_artists.search AS artist_search, sequenzia_index_artists.count AS artist_count, sequenzia_index_artists.last AS artist_last, sequenzia_index_artists.source AS artist_source, sequenzia_index_artists.confidence AS artist_confidence, sequenzia_index_artists.rating AS artist_rating, ${req.session.cache.channels_view}.* FROM kanmi_records,${req.session.cache.channels_view}, sequenzia_index_artists  WHERE (sequenzia_index_artists.channelid = ${req.session.cache.channels_view}.channelid AND kanmi_records.eid = sequenzia_index_artists.last AND kanmi_records.channel = ${req.session.cache.channels_view}.channelid)) x INNER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${req.session.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY x.artist_last DESC`)
 
-        const libraryLists = await sqlPromiseSimple(`SELECT g.* FROM (SELECT * FROM kongou_media_groups) g LEFT JOIN (SELECT media_group FROM ${req.session.cache.channels_view}) a ON (g.media_group = a.media_group) GROUP BY g.media_group`)
+        const libraryLists = await sqlPromiseSimple(`SELECT g.* FROM (SELECT * FROM kongou_media_groups) g INNER JOIN (SELECT media_group FROM ${req.session.cache.channels_view}) a ON (g.media_group = a.media_group) GROUP BY g.media_group`)
 
         if (sidebarObject && sidebarObject.rows.length > 0) {
             const superClasses = (e => {
@@ -263,6 +263,8 @@ module.exports = async (req, res, next) => {
             }
             if (libraryLists && libraryLists.rows.length > 0) {
                 req.session.media_groups = libraryLists.rows
+            } else {
+                req.session.media_groups = []
             }
 
 

@@ -289,22 +289,27 @@ html
                                                     if (next_episode)
                                                         div.inner-menu-next-episode(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                             img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                                    .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
-                                                        a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
-                                                            i.fa-light.fa-forward
-                                                            | Up Next
-                                                        a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
-                                                            i.fa-light.fa-fw.fa-books
-                                                            | Shelves
-                                                        a.user-menu-item.user-menu-small(title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
-                                                            i.fa-light.fa-certificate
-                                                            | Newest
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
-                                                            i.fa-light.fa-star
-                                                            | Favorites
-                                                        a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
-                                                            i.fa-light.fa-clock-rotate-left
-                                                            | History
+                                                    if (theaters && theaters.length > 0)
+                                                        .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
+                                                            a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                                                i.fa-light.fa-forward
+                                                                | Up Next
+                                                            a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                                                i.fa-light.fa-fw.fa-books
+                                                                | Shelves
+                                                            a.user-menu-item.user-menu-small(title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                                i.fa-light.fa-certificate
+                                                                | Newest
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                                i.fa-light.fa-star
+                                                                | Favorites
+                                                            a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href='#/listTheater?watch_history=only')
+                                                                i.fa-light.fa-clock-rotate-left
+                                                                | History
+                                                    else
+                                                        div.mt-auto.ml-auto.mr-auto.h3
+                                                            i.fas.fa-shelves-empty.pr-2
+                                                            span No Library Access
                                     div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -537,7 +542,9 @@ html
                                                                         div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
 
                                                 else
-                                                    h2 No Albums!
+                                                    div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
+                                                        i.fas.fa-empty-set.pr-2
+                                                        span No Albums
                                     div#menuItemArtists.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center

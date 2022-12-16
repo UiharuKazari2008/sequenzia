@@ -341,7 +341,9 @@ html
                                                         else
                                                             div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
-                                        span No Albums!
+                                        div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
+                                            i.fas.fa-empty-set.pr-2
+                                            span No Albums
                             div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
@@ -451,19 +453,26 @@ html
                                         if (next_episode)
                                             div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                        div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
-                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
-                                                i.fas.fa-forward
-                                                | Up Next
-                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
-                                                i.fas.fa-fw.fa-books
-                                                | Shelves
-                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
-                                                i.fas.fa-certificate
-                                                | Newest
-                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
-                                                i.fas.fa-star
-                                                | Favorites
+                                        if (theaters && theaters.length > 0)
+                                            div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                                    i.fas.fa-forward
+                                                    | Up Next
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                                    i.fas.fa-fw.fa-books
+                                                    | Shelves
+                                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                    i.fas.fa-certificate
+                                                    | Newest
+                                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                    i.fas.fa-star
+                                                    | Favorites
+                                        else
+                                            div.mt-auto.mb-auto.ml-auto.mr-auto.h3
+                                                i.fas.fa-shelves-empty.pr-2
+                                                span No Library Access
+
+
 
 
                             div#menuItemMediaGroups.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100

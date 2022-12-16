@@ -40,10 +40,10 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
     console.log(id)
 
     const perms = [
-        req.session.discord.permissions.read,
-        req.session.discord.permissions.write,
-        req.session.discord.permissions.manage,
-        req.session.discord.permissions.specialPermissions
+        ...req.session.discord.permissions.read,
+        ...req.session.discord.permissions.write,
+        ...req.session.discord.permissions.manage,
+        ...req.session.discord.permissions.specialPermissions
     ]
     if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) !== -1).length > 0) {
         res.status(200).render('app_holder', {
@@ -78,10 +78,10 @@ router.use('/web/*', sessionVerification, (req, res, next) => {
     console.log(`${id} - ${req.method} - ${url}`)
 
     const perms = [
-        req.session.discord.permissions.read,
-        req.session.discord.permissions.write,
-        req.session.discord.permissions.manage,
-        req.session.discord.permissions.specialPermissions
+        ...req.session.discord.permissions.read,
+        ...req.session.discord.permissions.write,
+        ...req.session.discord.permissions.manage,
+        ...req.session.discord.permissions.specialPermissions
     ]
     if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) !== -1).length > 0) {
         const base_url = global.web_applications[id].url;
