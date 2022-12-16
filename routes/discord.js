@@ -156,6 +156,24 @@ if (config.enable_impersonation) {
             });
         }
     }));
+    router.get('/users', catchAsync(async (req, res) => {
+        try {
+            res.status(200).send([
+                "<h1>Authorised Users</h1>",
+                "<ul>",
+                app.get('users').rows.map(e => `<li><a href="/discord/impersonate/${e.id}"><img src="https://cdn.discordapp.com/avatars/${e.id}/${e.avatar}.png?size=32"/>${e.username} @ ${e.server}</a></li>`).join('\n'),
+                "</ul>",
+                "<h2><a href='/discord/session'>View Current Session</a></h2>",
+                "<h2><a href='/discord/destroy'>Burn Current Session</a></h2>",
+            ].join('<br/>\n'));
+        } catch (err) {
+            res.status(500).json({
+                state: 'HALTED',
+                message: err.message,
+            });
+        }
+    }));
+
 }
 router.get('/refresh', async (req, res) => {
     try {
@@ -391,10 +409,15 @@ async function roleGeneration(id, res, req, authToken) {
         const disabledChannels = app.get('disabledChannels').rows.filter(user => user.user === id);
         const allServers = app.get('allServers').rows
 
-        const readPermissions = userPermissions.filter(e => e.type === 1).map(e => e.role);
-        const writePermissions = userPermissions.filter(e => e.type === 2).map(e => e.role);
-        const managePermissions = userPermissions.filter(e => e.type === 3).map(e => e.role);
-        const specialPermissions = userPermissions.filter(e => e.type === 4).map(e => e.role);
+        const readPermissionsRows = userPermissions.filter(e => e.type === 1);
+        const writePermissionsRows = userPermissions.filter(e => e.type === 2);
+        const managePermissionsRows = userPermissions.filter(e => e.type === 3);
+        const specialPermissionsRows = userPermissions.filter(e => e.type === 4);
+
+        const readPermissions = readPermissionsRows.map(e => e.role);
+        const writePermissions = writePermissionsRows.map(e => e.role);
+        const managePermissions = managePermissionsRows.map(e => e.role);
+        const specialPermissions = specialPermissionsRows.map(e => e.role);
 
         if (disabledChannels) {
             req.session.disabled_channels = disabledChannels.map(e => e.cid);
@@ -415,7 +438,13 @@ async function roleGeneration(id, res, req, authToken) {
                 };
 
                 if (webconfig.user_card_membership) {
-                    const _ms = webconfig.user_card_membership.filter(m => (readPermissions.indexOf(m.role) !== -1 || writePermissions.indexOf(m.role) !== -1 || specialPermissions.indexOf(m.role) !== -1))
+                    const _ms = webconfig.user_card_membership.filter(m => (readPermissions.indexOf(m.role) !== -1 || writePermissions.indexOf(m.role) !== -1 || specialPermissions.indexOf(m.role) !== -1)).map(e => {
+                        return {
+                            text: (e.text) ? e.text : (readPermissions.indexOf(e.role) !== -1 && readPermissionsRows[readPermissions.indexOf(e.role)].text) ? readPermissionsRows[readPermissions.indexOf(e.role)].text : (writePermissions.indexOf(e.role) !== -1 && writePermissionsRows[writePermissions.indexOf(e.role)].text) ? writePermissionsRows[writePermissions.indexOf(e.role)].text : (specialPermissions.indexOf(e.role) !== -1 && specialPermissionsRows[specialPermissions.indexOf(e.role)].text) ? specialPermissionsRows[specialPermissions.indexOf(e.role)].text : undefined,
+                            background: (e.background) ? e.background : (readPermissions.indexOf(e.role) !== -1 && readPermissionsRows[readPermissions.indexOf(e.role)].color) ? readPermissionsRows[readPermissions.indexOf(e.role)].color : (writePermissions.indexOf(e.role) !== -1 && writePermissionsRows[writePermissions.indexOf(e.role)].color) ? writePermissionsRows[writePermissions.indexOf(e.role)].color : (specialPermissions.indexOf(e.role) !== -1 && specialPermissionsRows[specialPermissions.indexOf(e.role)].color) ? specialPermissionsRows[specialPermissions.indexOf(e.role)].color : undefined,
+                            ...e
+                        }
+                    })
                     if (_ms.length > 0) {
                         membership = {
                             ...membership,
@@ -725,6 +754,8 @@ async function loginPage(req, res, obj) {
     }
     if (webconfig.system_banner)
         _obj.banner = webconfig.system_banner;
+    if (config.enable_impersonation)
+        _obj.show_user_list = true
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
         if (obj && obj.keepSession) {

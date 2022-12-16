@@ -45,7 +45,7 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
         req.session.discord.permissions.manage,
         req.session.discord.permissions.specialPermissions
     ]
-    if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) === -1).length > 0) {
+    if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) !== -1).length > 0) {
         res.status(200).render('app_holder', {
             title: global.web_applications[id].name,
             full_title: global.web_applications[id].name,
@@ -83,7 +83,7 @@ router.use('/web/*', sessionVerification, (req, res, next) => {
         req.session.discord.permissions.manage,
         req.session.discord.permissions.specialPermissions
     ]
-    if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) === -1).length > 0) {
+    if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) !== -1).length > 0) {
         const base_url = global.web_applications[id].url;
         const base_query = (global.web_applications[id].query) ? global.web_applications[id].query : [];
 

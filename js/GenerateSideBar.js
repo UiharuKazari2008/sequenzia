@@ -40,7 +40,7 @@ module.exports = async (req, res, next) => {
                 req.session.discord.permissions.specialPermissions
             ]
             req.session.applications_list.push(...Object.keys(global.web_applications).filter(k =>
-                perms.filter(p => global.web_applications[k].read_roles.indexOf(p) === -1).length > 0
+                perms.filter(p => global.web_applications[k].read_roles.indexOf(p) !== -1).length > 0
             ).map(k => {
                 const app = global.web_applications[k];
                 if (app.embedded) {

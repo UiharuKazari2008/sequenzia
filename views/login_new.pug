@@ -161,10 +161,15 @@ html
                                         a.acceptBtn.discord(href='/discord/login')
                                             i.fab.fa-discord
                                             span Discord
+                                        if (show_user_list)
+                                            a.acceptBtn.discord(href='/discord/users')
+                                                i.fas.fa-key
+                                                span Login As
                                         if (login_image)
                                             a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
                                                 i.fas.fa-qrcode
                                                 span QR Code
+
                                     if (joinLink)
                                         span.register
                                             a(href=joinLink) Requires a valid membership
