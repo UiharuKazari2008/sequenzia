@@ -43,10 +43,11 @@ block content
                                     .ml-auto
                                 .show-buttons
                         a(href=`#/listTheater?show_id=${item.id}${(item.group_nsfw) ? "&nsfw=true" : ""}${(item.group_isMovie) ? "&sort=name" : ""}`)
-                            if (indexImage < 10)
-                                div#postImage.tv-poster.img.img-responsive.no-hover(style=`background-image : url("${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster + '?height=580&width=384' : item.poster[0]}"); background-size: cover!important;`)
-                            else
-                                div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster + '?height=580&width=384' : item.poster[0]}` style=`background-size: cover!important;`)
+                            if ((item.poster && item.poster.length > 0) || item.cache_poster)
+                                if (indexImage < 10)
+                                    div#postImage.tv-poster.img.img-responsive.no-hover(style=`background-image : url("${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster + '?height=580&width=384' : item.poster[0]}"); background-size: cover!important;`)
+                                else
+                                    div#postImage.tv-poster.img.img-responsive.no-hover.lazy(data-src=`${(item.cache_poster) ? 'https://media.discordapp.net/attachments' + item.cache_poster + '?height=580&width=384' : item.poster[0]}` style=`background-size: cover!important;`)
                             .episode-background
                 if (unmatched_found && unmatched_found > 0)
                     div.col-image.col-dynamic.col-6.col-sm-6.col-md-4.col-lg-3.col-xl-2
