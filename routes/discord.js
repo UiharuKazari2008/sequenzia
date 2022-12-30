@@ -167,7 +167,7 @@ if (config.enable_impersonation) {
     }));
 
 }
-router.get('/refresh', sessionVerification)
+router.get('/refresh', sessionVerification, (req, res) => { res.status(200).send("Deprecated Endpoint") })
 router.get('/session', (req, res) => {
     try {
         const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
