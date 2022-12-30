@@ -479,7 +479,13 @@ function getRandomImage() {
                             refreshLayout();
                         });
                     }
-                    setTimeout(() => {document.getElementById('midSearch').classList.add('shine-effect-go');}, 3000);
+                    setTimeout(() => {
+                        document.getElementById('midSearch').classList.remove('d-none');
+                        document.getElementById('bootUpLogo').classList.add('d-none');
+                    }, 1000)
+                    setTimeout(() => {
+                        document.getElementById('midSearch').classList.add('shine-effect-go');
+                    }, 3000);
                 } else if (xhr.status >= 403) {
                     $.toast({
                         type: 'error',

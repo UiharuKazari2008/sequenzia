@@ -199,7 +199,7 @@ html
                         div#userMenu.collapsed.collapse
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
                                 div#menuAccordion.w-100
-                                    div.main-menu-items.w-100(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
+                                    div.main-menu-items.w-100(class=`collapse show animated--grow-in` data-parent="#menuAccordion" id=`menuItemMain`)
                                         div.user-info-bg.rounded
                                             div.user-info-backdrop.rounded
                                             div.user-info-border.rounded
@@ -263,7 +263,7 @@ html
                                                     a.user-menu-item(title="Try to go online" href='#_' onclick="transitionToOOBPage('/'); return false;")
                                                         i.fa-light.fa-plug
                                                         | Connect
-                                    div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -285,7 +285,7 @@ html
                                                     a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                         i.fa-light.fa-info-circle
                                                         | About
-                                    div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemDisplay.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
@@ -313,7 +313,7 @@ html
                                                     a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
                                                         i.fa-light.fa-arrow-up-arrow-down
                                                         | Menubar
-                                    div#menuItemAlbums.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemAlbums.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -420,7 +420,7 @@ html
                                     tbody#offlinePageList
                         #contentFiles
 
-                        #contentBlock
+                        #contentBlock.animated--grow-in
                             .tz-gallery
                                 div.row
 

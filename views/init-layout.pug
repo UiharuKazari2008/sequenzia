@@ -345,7 +345,7 @@ html
                         div#userMenu.collapsed.collapse.show
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%")
                                 div#menuAccordion.user-infocard-row2
-                                    div#menuItemMain(class="collapse show" data-parent="#menuAccordion")
+                                    div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion")
                                         div.user-info-bg
                                             div.user-info-backdrop
                                             div.user-infocard-holder.d-flex.flex-column
@@ -451,7 +451,7 @@ html
                                                     a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                         i.fa-light.fa-fw.fa-cog
                                                         | Settings
-                                    div#menuItemSettings(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemSettings(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
@@ -493,7 +493,7 @@ html
                                                     a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
                                                         i.fa-light.fa-sign-out-alt
                                                         | Logout
-                                    div#menuItemTools(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemTools(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
@@ -506,7 +506,7 @@ html
                                                     a.user-menu-item(title="History" href='#_' onclick="$('#historyModel').modal('show'); return false;")
                                                         i.fa-light.fa-fw.fa-history
                                                         | History
-                                    div#menuItemAlbums.scroll-list(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemAlbums.scroll-list(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
@@ -553,7 +553,7 @@ html
 
                                                 else
                                                     h2 No Albums!
-                                    div#menuItemApps(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemApps(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
@@ -583,7 +583,7 @@ html
                                                                     a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
-                                    div#menuItemTheater(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemTheater(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pt-3.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMain")
@@ -623,7 +623,7 @@ html
                         div#topbarIcon
                         div#topbarBackground
                     .container-fluid.max-resize
-                        #contentBlock
+                        #contentBlock.animated--grow-in
                             //div.tz-gallery
                                 div.row
                                     - var n = 0;

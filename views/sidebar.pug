@@ -334,7 +334,8 @@ html
                     const deletePostBtn = actionModel.querySelector('a#deleteButton');
                     const timerText = actionModel.querySelector("a#postButton #CountDownTimer");
                     if (postsDestination !== '') {
-                        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+                        if (actionModel.querySelector("#destination-" + postsDestination))
+                            actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
                         actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
                         actionModel.querySelector("#channelSelector").classList.add('btn-success')
                         actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')

@@ -1630,6 +1630,11 @@ div#time {
 }
 
 
+.bootup-logo {
+    font-size: 5em;
+    text-shadow: 0 0 15px #ff5100d6;
+}
+
 @media (min-width:356px) {
     .card-columns {
         column-count: 1;
@@ -1652,7 +1657,7 @@ div#time {
     }
 }
 @media (max-width:575px) {
-    .user-info-bg {
+    .user-info-bg, .server-row {
         display: none;
     }
     .kongou-next-episode-image {
@@ -1862,6 +1867,10 @@ div#time {
     }*/
 }
 @media (max-width: 767px) {
+    .bootup-logo {
+        font-size: 4em;
+        text-shadow: 0 0 8px #ff5100d6;
+    }
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/

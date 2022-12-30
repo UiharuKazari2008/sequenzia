@@ -305,3 +305,28 @@ input.middle:focus {
     color: revert;
     text-shadow: none;
 }
+
+
+.server-grid-parent {
+    display: grid;
+    grid-template-columns: repeat(4,  minmax(45px, 40px));
+    grid-template-rows: 4.25rem 1fr;
+    align-content: space-evenly;
+    max-width: 11.5em;
+    margin-right: 20px;
+}
+.server-grid-child > img {
+    box-shadow: 6px 2px 11px 0 #00000054;
+}
+
+.settings-menu-col {
+    flex-direction: column;
+}
+.settings-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    align-items: center;
+}
+

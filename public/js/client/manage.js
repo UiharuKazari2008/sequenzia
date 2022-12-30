@@ -646,7 +646,8 @@ async function acceptAllItems(direction, id) {
 }
 async function moveAllItems() {
     if (postsDestination !== '') {
-        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+        if (actionModel.querySelector("#destination-" + postsDestination))
+            actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
         actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
         actionModel.querySelector("#channelSelector").classList.add('btn-success')
         actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')

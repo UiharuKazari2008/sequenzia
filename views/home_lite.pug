@@ -215,11 +215,16 @@ html
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
-            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
+
+            #bootUpLogo.center-block.animated--fade-in
+                .d-flex.pb-1.w-100
+                    .d-flex.flex-grow-1.align-items-center
+                        span.sidebar-brand-logo.sequenzia-logo.bootup-logo.ml-auto.mr-auto sequenzia
+            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column.d-none
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                     div#menuAccordion(style='display: contents').w-100.menu-glow
-                        div#menuItemMain(class="collapse show" data-parent="#menuAccordion").w-100
+                        div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").w-100
                             .d-flex.pb-1.w-100
                                 .d-flex.flex-grow-1.align-items-center
                                     span.sidebar-brand-logo.sequenzia-logo sequenzia
@@ -307,7 +312,7 @@ html
                                     span.text-capitalize.shadow-text Internal Server Error
 
                         if (discord)
-                            div#menuItemAlbums.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemAlbums.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -344,7 +349,7 @@ html
                                         div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
                                             i.fas.fa-empty-set.pr-2
                                             span No Albums
-                            div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -396,7 +401,7 @@ html
                                     else
                                         span No Favorite Artists!
 
-                            div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -412,7 +417,7 @@ html
                                 .d-flex.w-100.mb-3
                                     div.album-list
                                         #menuBodyImageHistory.ready(style="display: contents;")
-                            div#menuItemApps.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemApps.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -437,7 +442,7 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
-                            div#menuItemLibrary.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemLibrary.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -475,7 +480,7 @@ html
 
 
 
-                            div#menuItemMediaGroups.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemMediaGroups.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
@@ -492,7 +497,7 @@ html
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                     i.fas(class=`${thisTheater.icon}`)
                                                     | #{thisTheater.name}
-                        div#menuItemAccount.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                        div#menuItemAccount.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                             .d-flex
                                 .d-flex.flex-grow-1
                                     a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.querySelector('.container').classList.remove('show-menu-buttons'); return false;")
@@ -504,52 +509,57 @@ html
                                                 a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`).py-0
                                                     span Login
                                 .d-flex.top-icon.align-items-center
-                                    i.fas.fa-key.pr-sm-2
-                                    span.d-none.d-sm-inline User Account
-                            div.d-flex.align-items-center.user-info-container
-                                div.user-info-bg.rounded
-                                    div.user-info-border.rounded
-                                    div.user-info-backdrop.rounded
-                                    div.user-info-overlay.position-absolute.rounded
-                                    div.user-infocard-holder.d-flex.flex-column
-                                        .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                            img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                            if (discord && discord.user && discord.user.membership)
-                                                if (discord.user.membership.background)
-                                                    div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
-                                                        if (discord.user.membership.icon)
-                                                            i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
-                                                        span(style="z-index: 1;") #{discord.user.membership.text}
+                                    i.fas.fa-cog.pr-sm-2
+                                    span.d-none.d-sm-inline Settings
+                            div.d-flex.align-items-center.user-info-container.settings-menu-col
+                                div.settings-row
+                                    div.user-info-bg.rounded
+                                        div.user-info-border.rounded
+                                        div.user-info-backdrop.rounded
+                                        div.user-info-overlay.position-absolute.rounded
+                                        div.user-infocard-holder.d-flex.flex-column
+                                            .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                if (discord && discord.user && discord.user.membership)
+                                                    if (discord.user.membership.background)
+                                                        div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                            if (discord.user.membership.icon)
+                                                                i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                            span(style="z-index: 1;") #{discord.user.membership.text}
+                                                    else
+                                                        div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                            if (discord.user.membership.icon)
+                                                                i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                            span(style="z-index: 1;") #{discord.user.membership.text}
                                                 else
-                                                    div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
-                                                        if (discord.user.membership.icon)
-                                                            i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
-                                                        span(style="z-index: 1;") #{discord.user.membership.text}
-                                            else
-                                                span.ml-auto.shadow-text(style="z-index: 1;") Member
+                                                    span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
-                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                            if (user)
-                                                .col-auto.p-0
-                                                    img.rounded-circle.user-infocard-icon(src=user.avatar)
-                                                .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                                    div.text-center.text-ellipsis.align-middle.mr-auto
-                                                        if (login_source && login_source === 900)
-                                                            span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
-                                                        else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
-                                                            i.pr-1.fas.fa-check-circle
-                                                            span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
-                                                            //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                                    div.text-ellipsis.shadow-text.user-infocard-info
-                                                        span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-                                div.menu-grid.user-menu-small
-                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
-                                        i.fas.fa-sync
-                                        | Refresh
-                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
-                                        i.fas.fa-sign-out-alt
-                                        | Log Out
+                                            .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                if (user)
+                                                    .col-auto.p-0
+                                                        img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                                    .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                        div.text-center.text-ellipsis.align-middle.mr-auto
+                                                            if (login_source && login_source === 900)
+                                                                span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                            else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                                i.pr-1.fas.fa-check-circle
+                                                                span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                                //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                        div.text-ellipsis.shadow-text.user-infocard-info
+                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                    div.menu-grid.user-menu-small
+                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                            i.fas.fa-sign-out-alt
+                                            | Log Out
+                                div.settings-row
+                                div.settings-row.mt-2.w-auto.server-row
+                                    .server-grid.d-inline-block
+                                        .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,8).length}, minmax(45px, 40px));`)
+                                            for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
+                                                .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
+                                                    img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5

@@ -113,7 +113,7 @@ html
                         div#userMenu.collapsed.collapse
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
                                 div#menuAccordion.w-100
-                                    div.main-menu-items.w-100(class=`collapse ${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? '' : 'show'}` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                    div.main-menu-items.w-100(class=`collapse ${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? '' : 'show'}` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`).animated--grow-in
                                         div.user-info-bg.rounded
                                             div.user-info-backdrop.rounded
                                             div.user-info-border.rounded
@@ -257,7 +257,7 @@ html
                                                         | Settings
 
                                     if (appData)
-                                        div.w-100(class="collapse show" data-parent="#menuAccordion" id=`menuItemMain`)
+                                        div.w-100(class="collapse show animated--grow-in" data-parent="#menuAccordion" id=`menuItemMain`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100#appMenuRow1.align-items-center
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemMainSeq").d-flex.align-items-center.py-0
@@ -269,7 +269,7 @@ html
 
                                                 .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0; left: 0;').d-flex.justify-content-center#appMenuRow2
                                                     .menu-grid#appMenuRow2Grid
-                                    div.w-100(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu
+                                    div.w-100(class=`collapse ${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater' }`).kms-main-menu.animated--grow-in
                                         .d-flex.w-100
                                             if (next_episode)
                                                 div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]':''}${(!next_episode.data.seasons) ? ',["sort","name"]':''}],'/listTheater')`)
@@ -310,7 +310,7 @@ html
                                                         div.mt-auto.ml-auto.mr-auto.h3
                                                             i.fas.fa-shelves-empty.pr-2
                                                             span No Library Access
-                                    div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -353,7 +353,7 @@ html
                                                     a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
                                                         i.fa-light.fa-sign-out-alt
                                                         | Logout
-                                    div#menuItemTools.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemTools.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -383,7 +383,7 @@ html
                                                     a.user-menu-item(class=`user-menu-overlow-icon-2${(next_episode) ? '-nep' : ''}` title="Show Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemHistory" onClick='getHistory(); return false;')
                                                         i.fa-light.fa-fw.fa-history
                                                         | History
-                                    div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemDisplay.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
@@ -458,7 +458,7 @@ html
                                                             a.user-menu-item.user-menu-small(title="Show only Flagged Content" href='#_' onclick=`getNewContent(['offset'], [['flagged','true']]); return false;`)
                                                                 i.fa-light.fa-flag
                                                                 | Only Flagged
-                                    div#menuItemUpload.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemUpload.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -496,7 +496,7 @@ html
                                                                 i.fa-light.fa-cloud-download-alt.pr-2
                                                                 | Download URL
 
-                                    div#menuItemAlbums.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemAlbums.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -545,7 +545,7 @@ html
                                                     div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
                                                         i.fas.fa-empty-set.pr-2
                                                         span No Albums
-                                    div#menuItemArtists.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemArtists.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -597,7 +597,7 @@ html
 
                                                 else
                                                     h2 No Favorite Artists!
-                                    div#menuItemHistory.scroll-list.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemHistory.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -620,7 +620,7 @@ html
                                                 div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                     #menuBodyImageHistory.ready(style="display: contents;")
                                                         span Loading...
-                                    div#menuItemApps.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemApps.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -650,7 +650,7 @@ html
                                                                     a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
-                                    div#menuItemMediaGroups.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemMediaGroups.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}`)
@@ -1841,7 +1841,7 @@ html
                                         i.fas.fa-cog
                                     a.btn.btn-primary.ml-1.w-100(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
                                         i.fas.fa-times
-                        #contentBlock
+                        #contentBlock.animated--grow-in
                             block content
                             script(type='text/javascript' src="/js/client/onload.min.js")
                         #pageinator
