@@ -221,20 +221,10 @@ app.locals.databaseCache = new Map();
 
 app.cacheDatabase = async function cacheDatabase() {
     const users = await sqlPromiseSafe(`SELECT x.* FROM (SELECT * FROM discord_users) x LEFT JOIN (SELECT discord_servers.position, discord_servers.authware_enabled, discord_servers.name, discord_servers.serverid FROM discord_servers) y ON x.server = y.serverid ORDER BY y.authware_enabled, y.position, x.id`)
-    const extraLinks = await sqlPromiseSafe(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
-    const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type, userid, color, text, serverid FROM discord_users_permissons")
-    const allChannels = await sqlPromiseSafe("SELECT x.*, y.chid_download FROM ( SELECT DISTINCT kanmi_channels.channelid, kanmi_channels.serverid, kanmi_channels.role, kanmi_channels.role_write, kanmi_channels.role_manage FROM kanmi_channels, sequenzia_class WHERE kanmi_channels.role IS NOT NULL AND kanmi_channels.classification = sequenzia_class.class) x LEFT OUTER JOIN (SELECT chid_download, serverid FROM discord_servers) y ON (x.serverid = y.serverid AND x.channelid = y.chid_download)");
-    const disabledChannels = await sqlPromiseSafe(`SELECT DISTINCT user, cid FROM sequenzia_hidden_channels`)
-    const allServers = await sqlPromiseSafe(`SELECT x.total_data, total_count, y.* FROM (SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count, server FROM kanmi_records WHERE fileid is not null OR attachment_hash is not null GROUP BY server) x LEFT JOIN (SELECT DISTINCT * FROM discord_servers) y ON x.server = y.serverid  ORDER BY position`);
     const userCache = await sqlPromiseSafe(`SELECT * FROM sequenzia_user_cache`);
 
     app.set('users', users)
     app.set('userCache', userCache)
-    app.set('extraLinks', extraLinks)
-    app.set('userPermissions', userPermissions)
-    app.set('allChannels', allChannels)
-    app.set('disabledChannels', disabledChannels)
-    app.set('allServers', allServers)
     if (!ready)
         printLine("Init", `Initial System Cacahe Complete, Server is now available!`, 'info');
     ready = true;
