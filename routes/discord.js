@@ -313,7 +313,7 @@ async function roleGeneration(id, res, req, authToken) {
         req.session.loggedin = true;
         req.session.userid = thisUser.discord.user.id;
         res.locals.thisUser = thisUser;
-        printLine("PassportImpersonation", `User ${thisUser.user.username} (${thisUser.user.id}) logged in!`, 'info');
+        printLine("Passport", `User ${thisUser.user.username} (${thisUser.user.id}) logged in!`, 'info');
     } else {
         printLine("AuthorizationGenerator", `User ${id} is not known! No roles will be returned!`, 'warn');
         loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
