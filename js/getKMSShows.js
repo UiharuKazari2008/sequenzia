@@ -32,7 +32,7 @@ module.exports = async (req, res, next) => {
             write_channels: thisUser.discord.channels.write,
             discord: thisUser.discord,
             user: thisUser.user,
-            login_source: req.session.source,
+            login_source: req.session.login_source,
             device: ua
         };
         console.error('No Session Data')
@@ -227,7 +227,7 @@ module.exports = async (req, res, next) => {
                             write_channels: thisUser.discord.channels.write,
                             discord: thisUser.discord,
                             user: thisUser.user,
-                            login_source: req.session.source,
+                            login_source: req.session.login_source,
                             albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
                             artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
                             theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
@@ -284,7 +284,7 @@ module.exports = async (req, res, next) => {
                             write_channels: thisUser.discord.channels.write,
                             discord: thisUser.discord,
                             user: thisUser.user,
-                            login_source: req.session.source,
+                            login_source: req.session.login_source,
                             albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
                             artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
                             theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
@@ -308,7 +308,7 @@ module.exports = async (req, res, next) => {
                     write_channels: thisUser.discord.channels.write,
                     discord: thisUser.discord,
                     user: thisUser.user,
-                    login_source: req.session.source,
+                    login_source: req.session.login_source,
                     albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
                     artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
                     theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],

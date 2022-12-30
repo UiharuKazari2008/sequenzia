@@ -65,7 +65,7 @@ router.get('/offline', sessionVerification, (req, res, next) => {
         write_channels: thisUser.discord.channels.write,
         discord: thisUser.discord,
         user: thisUser.user,
-        login_source: req.session.source,
+        login_source: req.session.login_source,
         webconfig: web,
         albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
         artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
@@ -187,7 +187,7 @@ router.get('/ping', sessionVerification, ((req, res) => {
         res.json({
             loggedin: true,
             user: thisUser.user,
-            login_source: req.session.source,
+            login_source: req.session.login_source,
             session: req.sessionID
         })
     } else {
@@ -748,7 +748,7 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
         res.render('ambient', {
             discord: thisUser.discord,
             user: thisUser.user,
-            login_source: req.session.source,
+            login_source: req.session.login_source,
         })
     } catch {
         res.render('failed_device')

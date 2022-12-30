@@ -21,7 +21,7 @@ module.exports = async (req, res, next) => {
     try {
         const thisUser = res.locals.thisUser
 
-        if (thisUser.user && (req.session.source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
+        if (thisUser.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
             let requestResults = {}
             await (((req.body.batch) ? [...req.body.batch] : [{...req.body}]).map(async (job, index, array) => {
                 let _return = 500;

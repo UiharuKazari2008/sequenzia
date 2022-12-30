@@ -29,10 +29,10 @@ module.exports = async (req, res) => {
                             image: ranImage
                         }
                     });
-                    res.render('album_directory', { albums: rows, manageMode: false, user: thisUser.user, login_source: req.session.source, });
+                    res.render('album_directory', { albums: rows, manageMode: false, user: thisUser.user, login_source: req.session.login_source, });
                 }
             } else {
-                res.render('album_directory', { noResults: true, user: thisUser.user, login_source: req.session.source, } );
+                res.render('album_directory', { noResults: true, user: thisUser.user, login_source: req.session.login_source, } );
             }
         } else if (req.query.command === 'getAll') {
             let sqlQuery = `SELECT * FROM sequenzia_albums WHERE owner = '${thisUser.discord.user.id}'`
@@ -46,10 +46,10 @@ module.exports = async (req, res) => {
                 if (req.query.json && req.query.json === 'true') {
                     res.json({ albums: query.rows });
                 } else {
-                    res.render('album_list', { albums: query.rows, manageMode: (req.query.manage), id: (req.query.messageid) ? req.query.messageid : undefined, user: thisUser.user, login_source: req.session.source, });
+                    res.render('album_list', { albums: query.rows, manageMode: (req.query.manage), id: (req.query.messageid) ? req.query.messageid : undefined, user: thisUser.user, login_source: req.session.login_source, });
                 }
             } else {
-                res.render('album_list', { noResults: true, user: thisUser.user, login_source: req.session.source, } );
+                res.render('album_list', { noResults: true, user: thisUser.user, login_source: req.session.login_source, } );
             }
         } else if (req.query.command === 'get' && req.query.displayname) {
 

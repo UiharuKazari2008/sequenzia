@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
     try {
         const thisUser = res.locals.thisUser
 
-        if (thisUser.user && (req.session.source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
+        if (thisUser.user && (req.session.login_source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
                 case 'Pin':
                 case 'Unpin':

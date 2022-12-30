@@ -136,7 +136,7 @@ if (config.enable_impersonation) {
             await roleGeneration(req.params.userId, res, req)
                 .then((config) => {
                     if (config) {
-                        req.session.source = 100;
+                        req.session.login_source = 100;
                         printLine("PassportImpersonation", `User ${req.params.userId} logged in via impersonation!`, 'warn');
                         res.redirect('/');
                     }
@@ -359,7 +359,7 @@ async function checkAccessToken(token, req, res, redirect, next) {
             await roleGeneration(user_response_json.id, res, req, token)
                     .then((thisUser) => {
                         if (thisUser) {
-                            req.session.source = 100;
+                            req.session.login_source = 100;
                             printLine("PassportCheck", `User ${user_response_json.username}#${user_response_json.discriminator} (${user_response_json.id}) logged in!`, 'info', user_response_json);
                             if (redirect === true) {
                                 if (req.session.goto && req.session.goto !== '') {
@@ -520,7 +520,7 @@ async function sessionVerification(req, res, next) {
                 loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
             }
         } else {
-            req.session.source = 900;
+            req.session.login_source = 900;
             await roleGeneration(user[0].id, res, req)
                 .then((thisUser) => {
                     if (thisUser) {
@@ -549,7 +549,7 @@ async function sessionVerification(req, res, next) {
             await roleGeneration(user[0].id, res, req)
                 .then((thisUser) => {
                     if (thisUser) {
-                        req.session.source = 100;
+                        req.session.login_source = 100;
                         next();
                     } else {
                         printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
@@ -575,8 +575,8 @@ async function sessionVerification(req, res, next) {
             await roleGeneration(user[0].id, res, req)
                 .then((thisUser) => {
                     if (thisUser) {
-                        if (!req.session.source) {
-                            req.session.source = 100;
+                        if (!req.session.login_source) {
+                            req.session.login_source = 100;
                         }
                         next();
                     } else {
@@ -696,7 +696,7 @@ function downloadValidation(req, res, next) {
 function writeValidation(req, res, next) {
     const thisUser = res.locals.thisUser
     if (req.session && req.session.loggedin && thisUser.discord && thisUser.discord.user.id && thisUser.discord.user.known === true && thisUser.discord.channels.write && thisUser.discord.channels.write.length > 0) {
-        if (thisUser.user && (req.session.source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
+        if (thisUser.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
             if (req.query && req.query.channelid) {
                 if (thisUser.discord.channels.write.indexOf(req.query.channelid) !== -1) {
                     next();

@@ -24,7 +24,7 @@ module.exports = async (req, res, next) => {
                 disabled_channels: thisUser.disabled_channels,
                 discord: thisUser.discord,
                 user: thisUser.user,
-                login_source: req.session.source,
+                login_source: req.session.login_source,
                 webconfig: webconfig
             })
         } else {

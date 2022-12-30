@@ -52,7 +52,7 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
             write_channels: thisUser.discord.channels.write,
             discord: thisUser.discord,
             user: thisUser.user,
-            login_source: req.session.source,
+            login_source: req.session.login_source,
             webconfig: web,
             albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
             artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
