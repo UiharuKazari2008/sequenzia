@@ -359,6 +359,7 @@ async function checkAccessToken(token, req, res, redirect, next) {
             await roleGeneration(user_response_json.id, res, req, token)
                     .then((thisUser) => {
                         if (thisUser) {
+                            req.session.source = 100;
                             printLine("PassportCheck", `User ${user_response_json.username}#${user_response_json.discriminator} (${user_response_json.id}) logged in!`, 'info', user_response_json);
                             if (redirect === true) {
                                 if (req.session.goto && req.session.goto !== '') {
@@ -545,10 +546,10 @@ async function sessionVerification(req, res, next) {
                 loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
             }
         } else {
-            req.session.source = 100;
             await roleGeneration(user[0].id, res, req)
                 .then((thisUser) => {
                     if (thisUser) {
+                        req.session.source = 100;
                         next();
                     } else {
                         printLine('PassportCheck', `Session Launch Failed using Blind Token, redirecting to login`, 'warn');
@@ -571,12 +572,12 @@ async function sessionVerification(req, res, next) {
                 loginPage(req, res);
             }
         } else {
-            if (!req.session.source) {
-                req.session.source = 100;
-            }
             await roleGeneration(user[0].id, res, req)
                 .then((thisUser) => {
                     if (thisUser) {
+                        if (!req.session.source) {
+                            req.session.source = 100;
+                        }
                         next();
                     } else {
                         printLine('PassportCheck', `Session Launch Failed when using Cookie Login, redirecting to login`, 'warn');
