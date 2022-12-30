@@ -13,18 +13,21 @@ module.exports = async (req, res, next) => {
     const page_uri = `/${req.originalUrl.split('/')[1].split('?')[0]}`
     let search_prev = ''
 
-    if (!req.session.discord) {
+    const thisUser = res.locals.thisUser
+
+    if (!thisUser) {
         res.locals.response = {
             search_prev: search_prev,
-            manage_channels: req.session.discord.channels.manage,
-            write_channels: req.session.discord.channels.write,
-            discord: req.session.discord,
-            user: req.session.user,
-            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-            artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
-            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-            next_episode: req.session.kongou_next_episode,
-            applications_list: req.session.applications_list,
+            manage_channels: thisUser.discord.channels.manage,
+            write_channels: thisUser.discord.channels.write,
+            discord: thisUser.discord,
+            user: thisUser.user,
+            login_source: req.session.source,
+            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+            next_episode: thisUser.kongou_next_episode,
+            applications_list: thisUser.applications_list,
             device: ua
         };
         next();
@@ -114,23 +117,23 @@ module.exports = async (req, res, next) => {
             if (_ch.length > 1) {
                 let _andStat = []
                 _ch.forEach((c) => {
-                    _andStat.push(`${req.session.cache.channels_view}.virtual_channel_eid = '${c}'`)
+                    _andStat.push(`${thisUser.cache.channels_view}.virtual_channel_eid = '${c}'`)
                 })
                 baseQ += `(${_andStat.join(' OR ')}) AND`;
             } else {
-                baseQ += `${req.session.cache.channels_view}.virtual_channel_eid = ${req.query.vchannel} AND `;
+                baseQ += `${thisUser.cache.channels_view}.virtual_channel_eid = ${req.query.vchannel} AND `;
             }
         } else if (req.query.channel && req.query.channel !== 'random') {
             let _ch = req.query.channel.split(' ')
             if (_ch.length > 1) {
                 let _andStat = []
                 _ch.forEach((c) => {
-                    _andStat.push(`${req.session.cache.channels_view}.channelid = '${c}'`)
+                    _andStat.push(`${thisUser.cache.channels_view}.channelid = '${c}'`)
                 })
                 baseQ += `(${_andStat.join(' OR ')}) AND`;
                 multiChannel = true;
             } else {
-                baseQ += `${req.session.cache.channels_view}.channelid = ${req.query.channel} AND `;
+                baseQ += `${thisUser.cache.channels_view}.channelid = ${req.query.channel} AND `;
             }
         } else if (req.query.folder) {
             const _ch = req.query.folder.trim().split(' ').filter(e => e.length > 0)
@@ -251,7 +254,7 @@ module.exports = async (req, res, next) => {
             req.session.nsfwEnabled = false
         }
         let channelFilter = `${baseQ}`
-        if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true)) {
+        if ((req.query.nsfw && req.query.nsfw === 'true') || (thisUser.nsfwEnabled && thisUser.nsfwEnabled === true)) {
             channelFilter += `( channel_nsfw = 0 OR channel_nsfw = 1 )`;
         } else if (req.query.nsfw && req.query.nsfw === 'only') {
             channelFilter += `( channel_nsfw = 1 )`;
@@ -286,20 +289,20 @@ module.exports = async (req, res, next) => {
             `sequenzia_index_artists.source AS artist_source`,
             `sequenzia_index_artists.confidence AS artist_confidence`,
             `sequenzia_index_artists.rating AS artist_rating`,
-            `${req.session.cache.channels_view}.*`,
+            `${thisUser.cache.channels_view}.*`,
         ].join(', ');
         sqlTables = [
             'kanmi_records',
-            req.session.cache.channels_view,
+            thisUser.cache.channels_view,
             'sequenzia_index_artists'
         ].join(', ');
         sqlWhere = [
-            `sequenzia_index_artists.channelid = ${req.session.cache.channels_view}.channelid`,
+            `sequenzia_index_artists.channelid = ${thisUser.cache.channels_view}.channelid`,
             'kanmi_records.eid = sequenzia_index_artists.last',
-            `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
+            `kanmi_records.channel = ${thisUser.cache.channels_view}.channelid`
         ].join(' AND ');
 
-        const sqlCall = `SELECT * FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))) x LEFT OUTER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${req.session.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY ${sqlorder}`
+        const sqlCall = `SELECT * FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))) x LEFT OUTER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${thisUser.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY ${sqlorder}`
 
         if (req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqPaginator' ) {
             if (req.session.pageinatorEnable && req.session.pageinatorEnable === true) {
@@ -532,21 +535,22 @@ module.exports = async (req, res, next) => {
                     active_pt: currentClassification,
                     nsfwEnabled: req.session.nsfwEnabled,
                     pageinatorEnable: req.session.pageinatorEnable,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                     folderInfo
                 }
-                printLine('GetIndex', `"${req.session.discord.user.username}" => "${page_title}" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
+                printLine('GetIndex', `"${thisUser.discord.user.username}" => "${page_title}" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
                     ttitle: page_title,
                     full_title: full_title,
                     description: description,
@@ -561,17 +565,18 @@ module.exports = async (req, res, next) => {
                     active_pt: currentClassification,
                     nsfwEnabled: req.session.nsfwEnabled,
                     pageinatorEnable: req.session.pageinatorEnable,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                     folderInfo
                 })
@@ -587,18 +592,19 @@ module.exports = async (req, res, next) => {
                     call_uri: page_uri,
                     search_prev: search_prev,
                     multiChannel: multiChannel,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
                     req_uri: req.originalUrl,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                 }
                 next();

@@ -6,11 +6,13 @@ const { sqlSafe, sqlPromiseSimple } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {
     try {
-        if (req.session.user && (req.session.user.source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
+        const thisUser = res.locals.thisUser
+
+        if (thisUser.user && (req.session.source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
                 case 'Pin':
                 case 'Unpin':
-                    sqlSafe(`SELECT * FROM sequenzia_favorites WHERE eid = ? AND userid = ? LIMIT 1`, [req.body.messageid, req.session.discord.user.id], (err, found) => {
+                    sqlSafe(`SELECT * FROM sequenzia_favorites WHERE eid = ? AND userid = ? LIMIT 1`, [req.body.messageid, thisUser.discord.user.id], (err, found) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -19,9 +21,9 @@ module.exports = async (req, res, next) => {
                                 case 'Pin':
                                     printLine("ActionParser", `Request to Pin ${req.body.messageid}`, 'info', req.body)
                                     if (found.length === 0) {
-                                        sqlSafe(`INSERT INTO sequenzia_favorites SET eid = ?, userid = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                                        sqlSafe(`INSERT INTO sequenzia_favorites SET eid = ?, userid = ?`, [req.body.messageid, thisUser.discord.user.id], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Favorite Saved`);
@@ -36,9 +38,9 @@ module.exports = async (req, res, next) => {
                                 case 'Unpin':
                                     printLine("ActionParser", `Request to UnPin ${req.body.messageid}`, 'info', req.body)
                                     if (found.length !== 0) {
-                                        sqlSafe(`DELETE FROM sequenzia_favorites WHERE eid = ? AND userid = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                                        sqlSafe(`DELETE FROM sequenzia_favorites WHERE eid = ? AND userid = ?`, [req.body.messageid, thisUser.discord.user.id], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Favorite Deleted`);
@@ -60,7 +62,7 @@ module.exports = async (req, res, next) => {
                 case 'PinHistory':
                 case 'UnpinHistory':
                     printLine("ActionParser", `Request to Pin History ${req.body.messageid}`, 'info', req.body)
-                    sqlSafe(`UPDATE sequenzia_navigation_history SET saved = ? WHERE \`index\` = ? AND user = ?`, [(req.body.action === 'PinHistory'), req.body.messageid, req.session.discord.user.id], (err, result) => {
+                    sqlSafe(`UPDATE sequenzia_navigation_history SET saved = ? WHERE \`index\` = ? AND user = ?`, [(req.body.action === 'PinHistory'), req.body.messageid, thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update history save status for ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -73,7 +75,7 @@ module.exports = async (req, res, next) => {
                     break;
                 case 'RemoveHistory':
                     printLine("ActionParser", `Request to Remove History Item ${req.body.messageid}`, 'info', req.body)
-                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE \`index\` = ? AND user = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE \`index\` = ? AND user = ?`, [req.body.messageid, thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             printLine("ActionParser", `Unable to remove history item ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -86,7 +88,7 @@ module.exports = async (req, res, next) => {
                     break;
                 case 'RemoveHistoryAll':
                     printLine("ActionParser", `Request to dump History`, 'info', req.body)
-                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE user = ? AND saved = 0`, [req.session.discord.user.id], (err, result) => {
+                    sqlSafe(`DELETE FROM sequenzia_navigation_history WHERE user = ? AND saved = 0`, [thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             printLine("ActionParser", `Unable to remove all history: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -100,7 +102,7 @@ module.exports = async (req, res, next) => {
                 case 'SetWatchHistory':
                     printLine("ActionParser", `Request to set watch History`, 'info', req.body)
                     if (req.body.viewed === 0) {
-                        sqlSafe(`DELETE FROM kongou_watch_history WHERE usereid = ?`, [`${req.session.discord.user.id}-${req.body.eid}`], (err, result) => {
+                        sqlSafe(`DELETE FROM kongou_watch_history WHERE usereid = ?`, [`${thisUser.discord.user.id}-${req.body.eid}`], (err, result) => {
                             if (err) {
                                 printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
                                 res.status(500).send('Database Error');
@@ -111,7 +113,7 @@ module.exports = async (req, res, next) => {
                             }
                         })
                     } else {
-                        sqlSafe(`INSERT INTO kongou_watch_history SET usereid = ?, user = ?, eid = ?, viewed  = ? ON DUPLICATE KEY UPDATE viewed = ?, date = NOW()`, [`${req.session.discord.user.id}-${req.body.eid}`, req.session.discord.user.id, req.body.eid, req.body.viewed, req.body.viewed], (err, result) => {
+                        sqlSafe(`INSERT INTO kongou_watch_history SET usereid = ?, user = ?, eid = ?, viewed  = ? ON DUPLICATE KEY UPDATE viewed = ?, date = NOW()`, [`${thisUser.discord.user.id}-${req.body.eid}`, thisUser.discord.user.id, req.body.eid, req.body.viewed, req.body.viewed], (err, result) => {
                             if (err) {
                                 printLine("ActionParser", `Unable to update watch history: ${err.sqlMessage}`, 'error', err)
                                 res.status(500).send('Database Error');
@@ -122,18 +124,18 @@ module.exports = async (req, res, next) => {
                             }
                         })
                     }
-                    const tempLastEpisode = await sqlPromiseSimple(`SELECT Max(y.eid) AS eid, MAX(y.show_id) AS show_id FROM (SELECT * FROM kanmi_system.kongou_watch_history WHERE user = '${req.session.discord.user.id}' ORDER BY date DESC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_episodes) y ON (x.eid = y.eid);`)
+                    const tempLastEpisode = await sqlPromiseSimple(`SELECT Max(y.eid) AS eid, MAX(y.show_id) AS show_id FROM (SELECT * FROM kanmi_system.kongou_watch_history WHERE user = '${thisUser.discord.user.id}' ORDER BY date DESC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_episodes) y ON (x.eid = y.eid);`)
                     if (tempLastEpisode.rows.length > 0) {
                         const nextEpisodeView = await sqlPromiseSimple(`SELECT * FROM  (SELECT * FROM kanmi_system.kongou_episodes WHERE eid > ${tempLastEpisode.rows[0].eid} AND show_id = ${tempLastEpisode.rows[0].show_id} AND season_num > 0 ORDER BY season_num ASC, episode_num ASC LIMIT 1) x LEFT JOIN (SELECT * FROM kanmi_system.kongou_shows) y ON (x.show_id = y.show_id);`)
                         console.log(nextEpisodeView.rows)
-                        req.session.kongou_next_episode = nextEpisodeView.rows[0];
+                        thisUser.kongou_next_episode = nextEpisodeView.rows[0];
                     } else {
-                        req.session.kongou_next_episode = {};
+                        thisUser.kongou_next_episode = {};
                     }
                     break;
                 case 'GetWatchHistory':
                     printLine("ActionParser", `Request to get watch History`, 'info')
-                    sqlSafe(`SELECT * FROM kongou_watch_history WHERE user = ?`, [req.session.discord.user.id], (err, result) => {
+                    sqlSafe(`SELECT * FROM kongou_watch_history WHERE user = ?`, [thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             printLine("ActionParser", `Unable to deliver watch history: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -153,7 +155,7 @@ module.exports = async (req, res, next) => {
                     break;
                 case 'PinUser':
                 case 'UnpinUser':
-                    sqlSafe(`SELECT * FROM sequenzia_artists_favorites WHERE id = ? AND userid = ? LIMIT 1`, [req.body.messageid, req.session.discord.user.id], (err, found) => {
+                    sqlSafe(`SELECT * FROM sequenzia_artists_favorites WHERE id = ? AND userid = ? LIMIT 1`, [req.body.messageid, thisUser.discord.user.id], (err, found) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update ${req.body.messageid} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -162,9 +164,9 @@ module.exports = async (req, res, next) => {
                                 case 'PinUser':
                                     printLine("ActionParser", `Request to Pin ${req.body.messageid}`, 'info', req.body)
                                     if (found.length === 0) {
-                                        sqlSafe(`INSERT INTO sequenzia_artists_favorites SET id = ?, userid = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                                        sqlSafe(`INSERT INTO sequenzia_artists_favorites SET id = ?, userid = ?`, [req.body.messageid, thisUser.discord.user.id], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Favorite Saved`);
@@ -179,9 +181,9 @@ module.exports = async (req, res, next) => {
                                 case 'UnpinUser':
                                     printLine("ActionParser", `Request to UnPin ${req.body.messageid}`, 'info', req.body)
                                     if (found.length !== 0) {
-                                        sqlSafe(`DELETE FROM sequenzia_artists_favorites WHERE id = ? AND userid = ?`, [req.body.messageid, req.session.discord.user.id], (err, result) => {
+                                        sqlSafe(`DELETE FROM sequenzia_artists_favorites WHERE id = ? AND userid = ?`, [req.body.messageid, thisUser.discord.user.id], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Favorite Deleted`);
@@ -231,7 +233,7 @@ module.exports = async (req, res, next) => {
                 case 'CollItemAdd':
                 case 'CollItemRemove':
                 case 'CollItemToggle':
-                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_album_items, sequenzia_albums WHERE sequenzia_album_items.eid = ? AND sequenzia_album_items.aid = ?  AND sequenzia_albums.aid = sequenzia_album_items.aid AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.messageid, req.body.albumid, req.session.discord.user.id], (err, found) => {
+                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_album_items, sequenzia_albums WHERE sequenzia_album_items.eid = ? AND sequenzia_album_items.aid = ?  AND sequenzia_albums.aid = sequenzia_album_items.aid AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.messageid, req.body.albumid, thisUser.discord.user.id], (err, found) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
@@ -242,7 +244,7 @@ module.exports = async (req, res, next) => {
                                     if (found.length === 0) {
                                         sqlSafe(`INSERT INTO sequenzia_album_items SET eid = ?, aid = ?`, [req.body.messageid, req.body.albumid], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Added to album`);
@@ -259,7 +261,7 @@ module.exports = async (req, res, next) => {
                                     if (found.length !== 0) {
                                         sqlSafe(`DELETE FROM sequenzia_album_items WHERE eid = ? AND aid = ?`, [req.body.messageid,  req.body.albumid], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Removed from Album`);
@@ -276,7 +278,7 @@ module.exports = async (req, res, next) => {
                                     if (found.length !== 0) {
                                         sqlSafe(`DELETE FROM sequenzia_album_items WHERE eid = ? AND aid = ?`, [req.body.messageid,  req.body.albumid], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Removed from Album`);
@@ -287,7 +289,7 @@ module.exports = async (req, res, next) => {
                                     } else {
                                         sqlSafe(`INSERT INTO sequenzia_album_items SET eid = ?, aid = ?`, [req.body.messageid, req.body.albumid], (err, result) => {
                                             if (err) {
-                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${req.session.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                                                printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
                                             } else if (result.affectedRows && result.affectedRows > 0) {
                                                 res.status(200).send(`Added to album`);
@@ -305,7 +307,7 @@ module.exports = async (req, res, next) => {
                     })
                     break;
                 case 'CollUpdate':
-                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_albums WHERE sequenzia_albums.aid = ? AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.albumid, req.session.discord.user.id], (err, found) => {
+                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_albums WHERE sequenzia_albums.aid = ? AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.albumid, thisUser.discord.user.id], (err, found) => {
                         if (err) {
                             res.status(500).send('Database Error');
                         } else {
@@ -324,7 +326,7 @@ module.exports = async (req, res, next) => {
                                     break;
                             }
                             if (found.length !== 0) {
-                                sqlSafe(`UPDATE sequenzia_albums SET name = ?, uri = ?, privacy = ?, owner = ? WHERE aid = ?`, [req.body.album_name, uri,  req.body.album_privacy, req.session.discord.user.id, req.body.albumid], (err, result) => {
+                                sqlSafe(`UPDATE sequenzia_albums SET name = ?, uri = ?, privacy = ?, owner = ? WHERE aid = ?`, [req.body.album_name, uri,  req.body.album_privacy, thisUser.discord.user.id, req.body.albumid], (err, result) => {
                                     if (err) {
                                         res.status(500).send('Database Error');
                                     } else if (result.affectedRows && result.affectedRows > 0) {
@@ -340,7 +342,7 @@ module.exports = async (req, res, next) => {
                     })
                     break;
                 case 'CollCreate':
-                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_albums WHERE sequenzia_albums.name = ? AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.album_name, req.session.discord.user.id], (err, found) => {
+                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_albums WHERE sequenzia_albums.name = ? AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.album_name, thisUser.discord.user.id], (err, found) => {
                         if (err) {
                             res.status(500).send('Database Error');
                         } else {
@@ -359,7 +361,7 @@ module.exports = async (req, res, next) => {
                                     break;
                             }
                             if (found.length === 0) {
-                                sqlSafe(`INSERT INTO sequenzia_albums SET name = ?, uri = ?, privacy = ?, owner = ?`, [req.body.album_name, uri,  req.body.album_privacy, req.session.discord.user.id], (err, result) => {
+                                sqlSafe(`INSERT INTO sequenzia_albums SET name = ?, uri = ?, privacy = ?, owner = ?`, [req.body.album_name, uri,  req.body.album_privacy, thisUser.discord.user.id], (err, result) => {
                                     if (err) {
                                         res.status(500).send('Database Error');
                                     } else if (result.affectedRows && result.affectedRows > 0) {
@@ -375,12 +377,12 @@ module.exports = async (req, res, next) => {
                     })
                     break;
                 case 'CollDelete':
-                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_albums WHERE aid = ? AND owner = ? LIMIT 1`, [req.body.albumid, req.session.discord.user.id], (err, found) => {
+                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_albums WHERE aid = ? AND owner = ? LIMIT 1`, [req.body.albumid, thisUser.discord.user.id], (err, found) => {
                         if (err) {
                             res.status(500).send('Database Error');
                         } else {
                             if (found.length !== 0) {
-                                sqlSafe(`DELETE FROM sequenzia_albums WHERE aid = ? AND owner = ?`, [req.body.albumid, req.session.discord.user.id], (err, result) => {
+                                sqlSafe(`DELETE FROM sequenzia_albums WHERE aid = ? AND owner = ?`, [req.body.albumid, thisUser.discord.user.id], (err, result) => {
                                     if (err) {
                                         res.status(500).send('Database Error');
                                     } else if (result.affectedRows && result.affectedRows > 0) {
@@ -401,7 +403,7 @@ module.exports = async (req, res, next) => {
                     break;
             }
         } else {
-            printLine("GeneralActionParser", `Insecure Session attempted to access API by ${req.session.user.username}`, 'critical');
+            printLine("GeneralActionParser", `Insecure Session attempted to access API by ${thisUser.user.username}`, 'critical');
             res.status(401).send('Session was not authenticated securely! You CAN NOT use a Static Login Key or Blind Token o preform enhanced actions! Logout and Login with a secure login meathod.');
         }
     } catch (err) {

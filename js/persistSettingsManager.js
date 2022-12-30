@@ -2,19 +2,19 @@ const { sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {
     try {
+        const thisUser = res.locals.thisUser
         if (req.body) {
             console.log(req.body)
             if (req.body.disabled_channels) {
-                req.session.disabled_channels = req.body.disabled_channels.map(e => parseInt(e));
                 await sqlPromiseSafe(`DELETE
                                       FROM sequenzia_hidden_channels
                                       WHERE user = ?
-                                        AND user IS NOT NULL`, [req.session.discord.user.id]);
+                                        AND user IS NOT NULL`, [thisUser.discord.user.id]);
 
                 if (req.body.disabled_channels.length > 0) {
                     await req.body.disabled_channels.forEach(async e => {
                         await sqlPromiseSafe(`INSERT INTO sequenzia_hidden_channels
-                                            SET user = ?, cid = ?`, [req.session.discord.user.id, e]);
+                                            SET user = ?, cid = ?`, [thisUser.discord.user.id, e]);
                     });
                 }
             }

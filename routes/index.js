@@ -18,7 +18,7 @@ const generateConfiguration = require('../js/generateADSRequest')
 const ajaxChecker = require('../js/ajaxChecker');
 const ajaxOnly = require('../js/ajaxOnly');
 const { printLine } = require('../js/logSystem');
-const { sessionVerification, sessionVerificationWithReload, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
+const { sessionVerification, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
 const router = express.Router();
 const qrcode = require('qrcode');
 const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
@@ -49,7 +49,7 @@ if (web.Base_URL)
     web.base_url = web.Base_URL;
 
 router.get(['/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
-router.get(['/home', '/'], sessionVerificationWithReload, generateSidebar, ajaxChecker);
+router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
 router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, renderResults);
 router.get('/homeImage', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
@@ -57,20 +57,22 @@ router.get('/artists', sessionVerification, ajaxChecker, getIndex, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
 router.get('/offline', sessionVerification, (req, res, next) => {
+    const thisUser = res.locals.thisUser
     res.render('offline-homepage', {
-        server: req.session.server_list,
-        download: req.session.discord.servers.download,
-        manage_channels: req.session.discord.channels.manage,
-        write_channels: req.session.discord.channels.write,
-        discord: req.session.discord,
-        user: req.session.user,
+        server: thisUser.server_list,
+        download: thisUser.discord.servers.download,
+        manage_channels: thisUser.discord.channels.manage,
+        write_channels: thisUser.discord.channels.write,
+        discord: thisUser.discord,
+        user: thisUser.user,
+        login_source: req.session.source,
         webconfig: web,
-        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-        artists: (req.session.artists && req.session.artists.length > 0) ? req.session.artists : [],
-        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-        next_episode: req.session.kongou_next_episode,
-        sidebar: req.session.sidebar,
-        applications_list: req.session.applications_list,
+        albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+        artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+        theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+        next_episode: thisUser.kongou_next_episode,
+        sidebar: thisUser.sidebar,
+        applications_list: thisUser.applications_list,
     })
 });
 
@@ -83,11 +85,7 @@ router.get('/lite', sessionVerification, (req,res) => {
 router.get('/login', (req, res) => {
     try {
         if (req.signedCookies.user_token !== undefined && req.signedCookies.user_token.length > 64) {
-            if (req.session && req.session.discord && req.session.discord.user.token) {
-                res.redirect('/discord/refresh');
-            } else {
-                loginPage(req, res);
-            }
+            res.redirect('/discord/refresh');
         } else {
             req.session.loggedin = false;
             res.redirect('/');
@@ -139,13 +137,14 @@ router.get('/status', sessionVerification, async (req, res) => {
 });
 router.use('/parity', sessionVerification, readValidation, async (req, res) => {
     try {
+        const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length > 0) {
             const results = await (() => {
                 if (global.bypass_cds_check) {
                     return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
                 } else {
-                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
                 }
             })()
             if (results.error) {
@@ -184,9 +183,11 @@ router.use('/parity', sessionVerification, readValidation, async (req, res) => {
 });
 router.get('/ping', sessionVerification, ((req, res) => {
     if (req.query && req.query.json && req.query.json === 'true') {
+        const thisUser = res.locals.thisUser
         res.json({
             loggedin: true,
-            user: req.session.user,
+            user: thisUser.user,
+            login_source: req.session.source,
             session: req.sessionID
         })
     } else {
@@ -196,13 +197,14 @@ router.get('/ping', sessionVerification, ((req, res) => {
 
 router.use('/stream', sessionVerification, readValidation, async (req, res) => {
     try {
+        const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length > 0) {
             const results = await (() => {
                 if (global.bypass_cds_check) {
                     return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
                 } else {
-                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${req.session.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
                 }
             })()
             if (results.error) {
@@ -742,9 +744,11 @@ router.use('/media_attachments', async function (req, res) {
 // Ambient Mode
 router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
     try {
+        const thisUser = res.locals.thisUser
         res.render('ambient', {
-            discord: req.session.discord,
-            user: req.session.user
+            discord: thisUser.discord,
+            user: thisUser.user,
+            login_source: req.session.source,
         })
     } catch {
         res.render('failed_device')
@@ -770,18 +774,10 @@ router.post('/ambient-history', sessionVerification, async (req, res) => {
 });
 router.get('/device-login', (req, res) => {
     try {
-        if (req.session && req.session.discord && (req.session.discord.user.id || req.session.discord.user.token)) {
-            req.session.loggedin = true;
+        if (req.session && req.session.loggedin) {
             if (req.query && req.query.checklogin === 'true') {
                 res.status(200).send('true');
             } else {
-                if (req.session.discord.user.token) {
-                    res.cookie('user_token', req.session.discord.user.token, {
-                        maxAge: (new Date(req.session.discord.user.token_rotation).getTime() - new Date(Date.now()).getTime()).toFixed(0),
-                        httpOnly: true,
-                        signed: true
-                    });
-                }
                 res.redirect('/discord/refresh');
             }
         } else {

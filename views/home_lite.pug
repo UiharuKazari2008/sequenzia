@@ -535,7 +535,7 @@ html
                                                     img.rounded-circle.user-infocard-icon(src=user.avatar)
                                                 .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                     div.text-center.text-ellipsis.align-middle.mr-auto
-                                                        if (user && user.source === 900)
+                                                        if (login_source && login_source === 900)
                                                             span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
                                                         else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
                                                             i.pr-1.fas.fa-check-circle

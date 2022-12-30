@@ -5,11 +5,12 @@ const { sqlSimple, sqlSafe, sqlPromiseSimple, sqlPromiseSafe } = require('../js/
 const moment = require('moment');
 
 module.exports = async (req, res) => {
+    const thisUser = res.locals.thisUser
     if (req.query.command) {
         if (req.query.command === 'getAll') {
-            sqlSafe("SELECT * FROM (SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.screen AS screen_id, sequenzia_display_history.date AS display_date, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.filecached,  kanmi_records.fileid,  kanmi_records.real_filename, kanmi_records.cache_proxy, kanmi_records.attachment_hash, kanmi_records.attachment_name, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.name != 'PageResults' AND sequenzia_display_history.user = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_channels.channelid = kanmi_records.channel) x LEFT OUTER JOIN (SELECT name AS config_name, nice_name AS config_nice FROM sequenzia_display_config WHERE user = ?) y ON (x.display_name = y.config_name)) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC", [req.session.discord.user.id, req.session.discord.user.id, req.session.discord.user.id], (err, history) => {
+            sqlSafe("SELECT * FROM (SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.screen AS screen_id, sequenzia_display_history.date AS display_date, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.filecached,  kanmi_records.fileid,  kanmi_records.real_filename, kanmi_records.cache_proxy, kanmi_records.attachment_hash, kanmi_records.attachment_name, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.name != 'PageResults' AND sequenzia_display_history.user = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_channels.channelid = kanmi_records.channel) x LEFT OUTER JOIN (SELECT name AS config_name, nice_name AS config_nice FROM sequenzia_display_config WHERE user = ?) y ON (x.display_name = y.config_name)) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC", [thisUser.discord.user.id, thisUser.discord.user.id, thisUser.discord.user.id], (err, history) => {
                 if (err) {
-                    res.render('display_history', { user: req.session.user} );
+                    res.render('display_history', { user: thisUser.user, login_source: req.session.source, } );
                     printLine('SQL', `Fail to get display history - ${err.message}`, 'error');
                 } else if (history.length > 0) {
                     let displayNames = history.reduce(
@@ -100,19 +101,19 @@ module.exports = async (req, res) => {
                         res.json(displayResults);
                     } else if (req.headers && req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqHistoryFromHome') {
                         // SeqHistoryFromHome
-                        res.render('display_history_embedded', { displayResults, user: req.session.user });
+                        res.render('display_history_embedded', { displayResults, user: thisUser.user, login_source: req.session.source, });
                     } else {
-                        res.render('display_history', { displayResults, user: req.session.user });
+                        res.render('display_history', { displayResults, user: thisUser.user, login_source: req.session.source, });
                     }
                 } else {
-                    res.render('display_history', { noResults: true, user: req.session.user } );
+                    res.render('display_history', { noResults: true, user: thisUser.user, login_source: req.session.source, } );
                 }
             })
         } else
         if (req.query.command === 'getAllNames') {
-            sqlSafe('SELECT DISTINCT name FROM sequenzia_display_history WHERE user = ? ORDER BY name DESC', [req.session.discord.user.id], (err, history) => {
+            sqlSafe('SELECT DISTINCT name FROM sequenzia_display_history WHERE user = ? ORDER BY name DESC', [thisUser.discord.user.id], (err, history) => {
                 if (err) {
-                    res.render('display_history', { user: req.session.user} );
+                    res.render('display_history', { user: thisUser.user, login_source: req.session.source, } );
                     printLine('SQL', `Fail to get display history - ${err.message}`, 'error');
                 } else if (history.length > 0) {
                     let displayNames = history;
@@ -146,9 +147,9 @@ module.exports = async (req, res) => {
             })
         } else
         if (req.query.command === 'get' && req.query.displayname) {
-            sqlSafe('SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.date AS display_date, sequenzia_display_history.screen AS screen_id, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.cache_proxy, kanmi_records.attachment_name, kanmi_records.attachment_hash, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.user = ? AND sequenzia_display_history.name = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_records.channel = kanmi_channels.channelid) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC LIMIT 75', [req.session.discord.user.id, req.query.displayname, req.session.discord.user.id], (err, history) => {
+            sqlSafe('SELECT * FROM (SELECT sequenzia_display_history.name AS display_name, sequenzia_display_history.date AS display_date, sequenzia_display_history.screen AS screen_id, kanmi_channels.nsfw, kanmi_records.eid, kanmi_records.channel, kanmi_records.server, kanmi_records.cache_proxy, kanmi_records.attachment_name, kanmi_records.attachment_hash, kanmi_records.colorR, kanmi_records.colorG, kanmi_records.colorB, kanmi_records.sizeH, kanmi_records.sizeW, kanmi_records.sizeR FROM kanmi_records, kanmi_channels, sequenzia_display_history WHERE sequenzia_display_history.user = ? AND sequenzia_display_history.name = ? AND kanmi_records.eid = sequenzia_display_history.eid AND kanmi_records.channel = kanmi_channels.channelid) x LEFT OUTER JOIN (SELECT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = ?) y ON x.eid = y.fav_id ORDER BY display_name, display_date DESC LIMIT 75', [thisUser.discord.user.id, req.query.displayname, thisUser.discord.user.id], (err, history) => {
                 if (err) {
-                    res.render('display_history', { user: req.session.user} );
+                    res.render('display_history', { user: thisUser.user, login_source: req.session.source, } );
                     printLine('SQL', `Fail to get display history for "${req.query.displayname}" - ${err.message}`, 'error');
                 } else if (history.length > 0) {
                     let displayHistory = [];
@@ -191,16 +192,18 @@ module.exports = async (req, res) => {
                         res.json({
                             display: history[0].display_name,
                             images: displayHistory,
-                            user: req.session.user
+                            user: thisUser.user,
+                            login_source: req.session.source,
                         });
                     } else {
                         res.render('display_history', { displayResults: [{
                                 display: history[0].display_name,
                                 images: displayHistory
-                            }], user: req.session.user });
+                            }], user: thisUser.user,
+                            login_source: req.session.source,});
                     }
                 } else {
-                    res.render('display_history', { noResults: true, user: req.session.user } );
+                    res.render('display_history', { noResults: true, user: thisUser.user, login_source: req.session.source, } );
                 }
             })
         } else
@@ -213,7 +216,7 @@ module.exports = async (req, res) => {
                     screenID = req.query.screen.pop();
                 }
             }
-            sqlSafe('SELECT sequenzia_display_history.date, sequenzia_display_config.refreshTime FROM sequenzia_display_history, sequenzia_display_config WHERE sequenzia_display_history.user = ? AND sequenzia_display_config.user = ? AND sequenzia_display_history.name = ? AND sequenzia_display_config.name = ? AND sequenzia_display_history.screen = ? ORDER BY sequenzia_display_history.date DESC LIMIT 1', [req.session.discord.user.id, req.session.discord.user.id, req.query.displayname, req.query.displayname, screenID], (err, history) => {
+            sqlSafe('SELECT sequenzia_display_history.date, sequenzia_display_config.refreshTime FROM sequenzia_display_history, sequenzia_display_config WHERE sequenzia_display_history.user = ? AND sequenzia_display_config.user = ? AND sequenzia_display_history.name = ? AND sequenzia_display_config.name = ? AND sequenzia_display_history.screen = ? ORDER BY sequenzia_display_history.date DESC LIMIT 1', [thisUser.discord.user.id, thisUser.discord.user.id, req.query.displayname, req.query.displayname, screenID], (err, history) => {
                 if (err) {
                     res.status(500);
                     printLine('SQL', `Fail to get display history for "${req.query.displayname}" - ${err.message}`, 'error');
@@ -239,12 +242,12 @@ module.exports = async (req, res) => {
             })
         } else
         if (req.query.command === 'set' && req.query.displayname && req.query.imageid) {
-            const isExsists = await sqlPromiseSafe(`SELECT * FROM sequenzia_display_history WHERE eid = ? AND user = ?`, [req.query.imageid, req.session.discord.user.id]);
+            const isExsists = await sqlPromiseSafe(`SELECT * FROM sequenzia_display_history WHERE eid = ? AND user = ?`, [req.query.imageid, thisUser.discord.user.id]);
             if (isExsists.error) {
                 printLine('SQL', `Error adding messages to display history - ${isExsists.error.sqlMessage}`, 'error', isExsists.error)
                 res.status(500).send('FAULT');
             } else if (isExsists.rows.length > 0) {
-                const updateHistoryItem = await sqlPromiseSafe(`UPDATE sequenzia_display_history SET screen = ?, name = ?, date = ? WHERE eid = ? AND user = ?`, [(req.query.screen) ? parseInt(req.query.screen) : 0, req.query.displayname, moment().format('YYYY-MM-DD HH:mm:ss'), req.query.imageid, req.session.discord.user.id])
+                const updateHistoryItem = await sqlPromiseSafe(`UPDATE sequenzia_display_history SET screen = ?, name = ?, date = ? WHERE eid = ? AND user = ?`, [(req.query.screen) ? parseInt(req.query.screen) : 0, req.query.displayname, moment().format('YYYY-MM-DD HH:mm:ss'), req.query.imageid, thisUser.discord.user.id])
                 if (updateHistoryItem.error) {
                     printLine('SQL', `Error updating messages in display history - ${updateHistoryItem.error.sqlMessage}`, 'error', updateHistoryItem.error)
                     res.status(500).send('FAULT');
@@ -253,7 +256,7 @@ module.exports = async (req, res) => {
                     res.status(200).send('OK');
                 }
             } else {
-                const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET eid = ?, name = ?, screen = ?, user = ?, date = ?`, [req.query.imageid, req.query.displayname, (req.query.screen) ? parseInt(req.query.screen) : 0, req.session.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
+                const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET eid = ?, name = ?, screen = ?, user = ?, date = ?`, [req.query.imageid, req.query.displayname, (req.query.screen) ? parseInt(req.query.screen) : 0, thisUser.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
                 if (updateHistoryItem.error) {
                     printLine('SQL', `Error adding messages to display history - ${updateHistoryItem.error.sqlMessage}`, 'error', updateHistoryItem.error)
                     res.status(500).send('FAULT');
@@ -263,14 +266,14 @@ module.exports = async (req, res) => {
                 }
             }
             let deleteCount = 250
-            sqlSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, req.query.displayname, deleteCount, req.session.discord.user.id, req.query.displayname], (err, completed) => {
+            sqlSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [thisUser.discord.user.id, req.query.displayname, deleteCount, thisUser.discord.user.id, req.query.displayname], (err, completed) => {
                 if (err) {
                     printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
                 }
             })
         } else
         if (req.query.command === 'getConfig' && req.query.displayname) {
-            sqlSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [req.session.discord.user.id, req.query.displayname], (err, displayConfig) => {
+            sqlSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.discord.user.id, req.query.displayname], (err, displayConfig) => {
                 if (err) {
                     res.status(500).send('Internal server error');
                     printLine('SQL', `Fail to get display configuration for "${req.query.displayname}" - ${err.message}`, 'error');
@@ -282,27 +285,27 @@ module.exports = async (req, res) => {
                         })
                     } else {
                         res.render('display_config', {
-                            configuration: _configuration, user: req.session.user
+                            configuration: _configuration, user: thisUser.user, login_source: req.session.source,
                         })
                     }
                 } else {
                     if (req.query.json && req.query.json === 'true') {
                         res.json({
-                            configuration: {name: req.query.displayname, refreshTime: null}, user: req.session.user
+                            configuration: {name: req.query.displayname, refreshTime: null}, user: thisUser.user, login_source: req.session.source,
                         })
                     } else {
                         res.render('display_config', {
-                            configuration: {name: req.query.displayname, refreshTime: null}, user: req.session.user
+                            configuration: {name: req.query.displayname, refreshTime: null}, user: thisUser.user, login_source: req.session.source,
                         })
                     }
                 }
             })
         } else
         if (req.query.command === 'setConfig' && req.query.displayname) {
-            req.body.user = req.session.discord.user.id;
+            req.body.user = thisUser.discord.user.id;
             req.body.name = req.query.displayname;
             if (req.query.update && req.query.update === 'true') {
-                sqlSafe('INSERT INTO sequenzia_display_config SET ? ON DUPLICATE KEY UPDATE ?', [{ uid: `${req.session.discord.user.id}-${req.query.displayname}`, ...req.body}, req.body], (err, displayConfig) => {
+                sqlSafe('INSERT INTO sequenzia_display_config SET ? ON DUPLICATE KEY UPDATE ?', [{ uid: `${thisUser.discord.user.id}-${req.query.displayname}`, ...req.body}, req.body], (err, displayConfig) => {
                     if (err) {
                         res.status(500).send('Internal server error');
                         printLine('SQL', `Fail to update display configuration for "${req.query.displayname}" - ${err.message}`, 'error');
@@ -317,7 +320,7 @@ module.exports = async (req, res) => {
                     }
                 })
             } else {
-                req.body.uid = `${req.session.discord.user.id}-${req.query.displayname}`;
+                req.body.uid = `${thisUser.discord.user.id}-${req.query.displayname}`;
                 sqlSafe('REPLACE INTO sequenzia_display_config SET ?', [req.body], (err, displayConfig) => {
                     if (err) {
                         res.status(500).send('Internal server error');
@@ -336,33 +339,33 @@ module.exports = async (req, res) => {
         } else
         if (req.query.command === 'delete') {
             if (req.query.displayname) {
-                sqlSafe('DELETE FROM sequenzia_display_history WHERE user = ? AND name = ?', [req.session.discord.user.id, req.query.displayname], (err, completed) => {
+                sqlSafe('DELETE FROM sequenzia_display_history WHERE user = ? AND name = ?', [thisUser.discord.user.id, req.query.displayname], (err, completed) => {
                     if (err) {
-                        res.render('display_history', {user: req.session.user} );
+                        res.render('display_history', {user: thisUser.user, login_source: req.session.source, } );
                         printLine('SQL', `Fail to delete display history for "${req.query.displayname}" - ${err.message}`, 'error');
                     } else if (completed.affectedRows > 0) {
-                        res.render('display_history', { deleted: completed.affectedRows, user: req.session.user } );
+                        res.render('display_history', { deleted: completed.affectedRows, user: thisUser.user, login_source: req.session.source,  } );
                     } else {
-                        res.render('display_history', { nothingDeleted: true, user: req.session.user } );
+                        res.render('display_history', { nothingDeleted: true, user: thisUser.user, login_source: req.session.source, } );
                     }
                 })
-                sqlSafe('DELETE FROM sequenzia_display_config WHERE user = ? AND name = ?', [req.session.discord.user.id, req.query.displayname], (err, completed) => {
+                sqlSafe('DELETE FROM sequenzia_display_config WHERE user = ? AND name = ?', [thisUser.discord.user.id, req.query.displayname], (err, completed) => {
                     if (err) {
                         printLine('SQL', `Fail to delete display configuration for "${req.query.displayname}" - ${err.message}`, 'error');
                     }
                 })
             } else {
-                sqlSafe('DELETE FROM sequenzia_display_history WHERE user = ?', [req.session.discord.user.id], (err, completed) => {
+                sqlSafe('DELETE FROM sequenzia_display_history WHERE user = ?', [thisUser.discord.user.id], (err, completed) => {
                     if (err) {
                         res.render('display_history', {} );
                         printLine('SQL', `Fail to delete display all history - ${err.message}`, 'error');
                     } else if (completed.affectedRows > 0) {
-                        res.render('display_history', { deleted: completed.affectedRows, user: req.session.user } );
+                        res.render('display_history', { deleted: completed.affectedRows, user: thisUser.user, login_source: req.session.source, } );
                     } else {
-                        res.render('display_history', { nothingDeleted: true, user: req.session.user } );
+                        res.render('display_history', { nothingDeleted: true, user: thisUser.user, login_source: req.session.source, } );
                     }
                 })
-                sqlSafe('DELETE FROM sequenzia_display_config WHERE user = ?', [req.session.discord.user.id], (err, completed) => {
+                sqlSafe('DELETE FROM sequenzia_display_config WHERE user = ?', [thisUser.discord.user.id], (err, completed) => {
                     if (err) {
                         printLine('SQL', `Fail to delete all display configurations - ${err.message}`, 'error');
                     }

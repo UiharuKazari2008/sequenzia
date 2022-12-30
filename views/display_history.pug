@@ -98,7 +98,7 @@ div#displayHistoryResults
                                     | #{display.name}
                             if (mainDisplay.length > 0 && secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
                                             a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
                                                 i.fas.fa-cog
@@ -113,7 +113,7 @@ div#displayHistoryResults
                                             span.d-inline.d-sm-none Home
                                         else
                                             | Master
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(mainDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=mainDisplay[0].full).text-white.h5
@@ -127,19 +127,19 @@ div#displayHistoryResults
                                             span.d-inline.d-sm-none Lock
                                         else
                                             | Slave
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${secondDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${secondDisplay[0].channel}", "${secondDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=secondDisplay[0].full).text-white.h5
                                         i.fas.fa-download
                             else if (mainDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(mainDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=mainDisplay[0].full).text-white.pr-2.h5
                                         i.fas.fa-download
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
                                             a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
                                                 i.fas.fa-cog
@@ -147,12 +147,12 @@ div#displayHistoryResults
                                             i.fas.fa-trash
                             else if (secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${secondDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${secondDisplay[0].channel}", "${secondDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=secondDisplay[0].full).text-white.pr-2.h5
                                         i.fas.fa-download
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
                                             a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
                                                 i.fas.fa-cog

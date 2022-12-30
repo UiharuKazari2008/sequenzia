@@ -350,7 +350,7 @@ html
                                             div.user-info-backdrop
                                             div.user-infocard-holder.d-flex.flex-column
                                                 .row.p-0.ml-0.mr-0
-                                                    if (user && user.source === 900)
+                                                    if (login_source && login_source === 900)
                                                         div.text-center.text-ellipsis.align-middle.p-2
                                                             span.font-weight-bold.text-uppercase.text-danger Insecure Login Method
                                                 .row.p-0.user-infocard-row1
@@ -358,7 +358,7 @@ html
                                                         img.rounded-circle.user-infocard-icon(src=user.avatar)
                                                     .col.p-0.position-relative.pl-2(style="min-height: 75px;")
                                                         div.text-ellipsis.position-absolute.shadow-text.user-infocard-info
-                                                            //if (user && user.source || user && user.source === 0)
+                                                            //if (login_source && login_source || login_source && login_source === 0)
                                                                 if (user.source === 0)
                                                                     // Logged in with Discord
                                                                     i.fas.fa-check-circle.pr-2.text-success(title='Verified with Discord')
@@ -486,7 +486,7 @@ html
                                                     a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                         i.fa-light.fa-info-circle
                                                         | About
-                                                    if (user && user.source < 900)
+                                                    if (login_source && login_source < 900)
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
                                                             i.fa-light.fa-key
                                                             | Security
@@ -789,7 +789,7 @@ html
                             div.row.pl-3.pr-3.pt-2.justify-content-center
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1
-                                    | Sequenzia v20
+                                    | Sequenzia v20.1
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1
                                     | JuneFS™ v1.8
@@ -1383,7 +1383,7 @@ html
         div#dataModels
         script.
             getSidebar();
-        if (user && user.source < 900)
+        if (login_source && login_source < 900)
             #authenticationModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                 .modal-dialog.modal-dialog-scrollable(role='document')
                     .modal-content

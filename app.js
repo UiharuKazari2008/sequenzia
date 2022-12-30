@@ -49,6 +49,7 @@ const noSessionTrandferURL = [
     '/device-login',
     '/ping',
 ];
+let ready = false;
 
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
@@ -147,11 +148,12 @@ app.use(function (req, res, next) {
 app.use(cors());
 app.use(compression());
 app.use(morgan(function(tokens, req, res) {
+    const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session && req.session.userid === e.userid).map(e => e.data)[0];
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
     let ipaddress = (req.headers['x-real-ip']) ? req.headers['x-real-ip'] : (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'] : 'Unknown'
-    if (req.session && req.session.user && req.session.user.username) {
-        username = req.session.user.username;
+    if (req.session && thisUser && thisUser.user && thisUser.user.username) {
+        username = thisUser.user.username;
     }
     if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
         if (res.statusCode !== 304 && res.method === 'GET') {
@@ -217,7 +219,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.locals.databaseCache = new Map();
 
-async function cacheDatabase() {
+app.cacheDatabase = async function cacheDatabase() {
     const users = await sqlPromiseSafe(`SELECT x.* FROM (SELECT * FROM discord_users) x LEFT JOIN (SELECT discord_servers.position, discord_servers.authware_enabled, discord_servers.name, discord_servers.serverid FROM discord_servers) y ON x.server = y.serverid ORDER BY y.authware_enabled, y.position, x.id`)
     const extraLinks = await sqlPromiseSafe(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
     const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type, userid, color, text, serverid FROM discord_users_permissons")
@@ -227,16 +229,17 @@ async function cacheDatabase() {
     const userCache = await sqlPromiseSafe(`SELECT * FROM sequenzia_user_cache`);
 
     app.set('users', users)
-    app.set('userCache', users)
+    app.set('userCache', userCache)
     app.set('extraLinks', extraLinks)
     app.set('userPermissions', userPermissions)
     app.set('allChannels', allChannels)
     app.set('disabledChannels', disabledChannels)
     app.set('allServers', allServers)
+    if (!ready)
+        printLine("Init", `Initial System Cacahe Complete, Server is now available!`, 'info');
+    ready = true;
 }
-app.locals.updateMasterCache = cacheDatabase;
-setInterval(cacheDatabase, 60000)
-cacheDatabase();
+setInterval(app.cacheDatabase, 60000)
 
 app.use('/', routes);
 app.use('/app', apps);
@@ -245,8 +248,11 @@ app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
     if (req.query.deviceID) {
+        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        if (!thisUser)
+            res.status(403).send('User account can not correlated to a valid user!')
         const device = req.query.deviceID
-        if (req.session && req.session.discord && req.session.discord.user.token) {
+        if (req.session && thisUser.discord && thisUser.discord.user.token) {
             sessionStore.get(device, (error, session1) => {
                 if (error) {
                     printLine('SessionTransfer', `Transfer session failed, Can't get active session data- ${error.message}`, 'debug');
@@ -266,8 +272,9 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                     sessionStore.set(device, {
                         cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null },
-                        discord: req.session.discord,
-                        user: req.session.user,
+                        discord: thisUser.discord,
+                        user: thisUser.user,
+                        login_source: req.session.source,
                         device: 'notInteractive',
                         goto: passURL,
                         loggedin: true,
@@ -286,7 +293,10 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
         }
     } else if (req.query.code) {
-        if (req.session && req.session.discord && req.session.discord.user.token) {
+        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        if (!thisUser)
+            res.status(403).send('User account can not correlated to a valid user!')
+        if (req.session && thisUser.discord && thisUser.discord.user.token) {
             const code = (typeof req.query.code === 'string') ? req.query.code.toUpperCase() : req.query.code[0].toUpperCase();
             const IDfromCode = await sqlPromiseSafe(`SELECT session FROM sequenzia_login_codes WHERE code = ? LIMIT 1`, [code])
             if (IDfromCode && IDfromCode.rows.length > 0) {
@@ -310,8 +320,9 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                         sessionStore.set(device, {
                             cookie: {path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},
-                            discord: req.session.discord,
-                            user: req.session.user,
+                            discord: thisUser.discord,
+                            user: thisUser.user,
+                            login_source: req.session.source,
                             device: 'notInteractive',
                             goto: passURL,
                             loggedin: true,
