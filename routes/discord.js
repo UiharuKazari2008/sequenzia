@@ -497,9 +497,8 @@ async function sessionVerification(req, res, next) {
         }
     }
     if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content'))) {
-        printLine('PassportCheck', `CDS Checks are bypassed`, 'warn');
         next()
-    } else if (req.session && req.session.userid && req.session.loggedin === true && thisUser && thisUser.discord && thisUser.discord.user.id) {
+    } else if (req.session && req.session.userid && thisUser && thisUser.discord && thisUser.discord.user.id) {
         if (thisUser.discord.channels.read && thisUser.discord.channels.read.length > 0) {
             next();
         } else if (req.originalUrl && req.originalUrl === '/home') {

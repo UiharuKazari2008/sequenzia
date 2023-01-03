@@ -29,31 +29,33 @@ module.exports = async (req, res, next) => {
     const thisUser = res.locals.thisUser
 
     async function writeHistory(title) {
-        function params(_removeParams, _addParams, _url, searchOnly) {
-            let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
-            _removeParams.forEach(param => {
-                if (_params.has(param)) {
-                    _params.delete(param);
-                }
-            })
-            _addParams.forEach(param => {
-                if (_params.has(param[0])) {
-                    _params.delete(param[0]);
-                }
-                _params.append(param[0], param[1]);
-            })
-            return req.originalUrl.split('?')[0] + `?${_params.toString()}`
+        let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
+        if (!_params.has('responseType')) {
+            function params(_removeParams, _addParams, _url, searchOnly) {
+                _removeParams.forEach(param => {
+                    if (_params.has(param)) {
+                        _params.delete(param);
+                    }
+                })
+                _addParams.forEach(param => {
+                    if (_params.has(param[0])) {
+                        _params.delete(param[0]);
+                    }
+                    _params.append(param[0], param[1]);
+                })
+                return req.originalUrl.split('?')[0] + `?${_params.toString()}`
 
+            }
+
+            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
+            await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
+                index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
+                uri: cleanURL,
+                title: title,
+                user: thisUser.discord.user.id,
+            })
+            await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
         }
-
-        const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
-        await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
-            index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
-            uri: cleanURL,
-            title: title,
-            user: thisUser.discord.user.id,
-        })
-        await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
     }
 
     console.log(req.query);

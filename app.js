@@ -51,6 +51,24 @@ const noSessionTrandferURL = [
 ];
 let ready = false;
 
+app.use(async function (req, res, next) {
+    res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
+    res.setHeader('X-Site-Name', web.site_name || 'Sequenzia');
+    res.setHeader('X-Site-Owner', web.company_name || 'Undisclosed Operator Name');
+    res.setHeader('X-Eiga-Node', config.system_name || 'Anonymous Server Name');
+    res.setHeader('X-Validator', web.domain_validation || 'SequenziaOK');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.locals.ua = req.get('User-Agent');
+    if (res.locals.ua.toLowerCase().includes("pocketcasts") || (res.locals.ua.toLowerCase().includes("bot") && !res.locals.ua.toLowerCase().includes("discord"))) {
+        res.status(444).end();
+    } else {
+        if (typeof req.session !== 'undefined' && req.session.userid)
+            res.locals.thisUser = await app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        next()
+    }
+})
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -133,26 +151,11 @@ const sessionStore = new sessionSQL({
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(function (req, res, next) {
-    res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
-    res.setHeader('X-Site-Name', web.site_name || 'Sequenzia');
-    res.setHeader('X-Site-Owner', web.company_name || 'Undisclosed Operator Name');
-    res.setHeader('X-Eiga-Node', config.system_name || 'Anonymous Server Name');
-    res.setHeader('X-Validator', web.domain_validation || 'SequenziaOK');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.locals.ua = req.get('User-Agent');
-    if (res.locals.ua.toLowerCase().includes("pocketcasts") || (res.locals.ua.toLowerCase().includes("bot") && !res.locals.ua.toLowerCase().includes("discord"))) {
-        res.status(444).end();
-    } else {
-        next()
-    }
-})
+
 app.use(cors());
 app.use(compression());
 app.use(morgan(function(tokens, req, res) {
-    const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session && req.session.userid === e.userid).map(e => e.data)[0];
+    const thisUser = res.locals.thisUser;
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
     let ipaddress = (req.headers['x-real-ip']) ? req.headers['x-real-ip'] : (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'] : 'Unknown'
@@ -358,7 +361,7 @@ app.get('/static/*', (req, res, next) => {
 })
 app.use('/', express.static('public'));
 app.get('*', function(req, res){
-    if (req.session && req.session.loggedin) {
+    if (req.session && req.session.userid) {
         res.sendStatus(404);
         console.error(`Not Routed - ${req.path}`)
     } else {

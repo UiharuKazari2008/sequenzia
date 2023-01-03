@@ -494,6 +494,11 @@ function getRandomImage() {
                         content: `No Results Found`,
                         delay: 5000,
                     });
+                    document.getElementById('midSearch').classList.remove('d-none');
+                    document.getElementById('bootUpLogo').classList.add('d-none');
+                    setTimeout(() => {
+                        document.getElementById('midSearch').classList.add('shine-effect-go');
+                    }, 3000)
                 }
             },
             error: function (xhr) {
@@ -506,6 +511,11 @@ function getRandomImage() {
                         delay: 5000,
                     });
                 }
+                document.getElementById('midSearch').classList.remove('d-none');
+                document.getElementById('bootUpLogo').classList.add('d-none');
+                setTimeout(() => {
+                    document.getElementById('midSearch').classList.add('shine-effect-go');
+                }, 3000);
             }
         });
     // } catch (e) {
