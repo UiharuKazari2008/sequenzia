@@ -142,9 +142,13 @@ app.use(function (req, res, next) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    next()
+    res.locals.ua = req.get('User-Agent');
+    if (res.locals.ua.toLowerCase().includes("pocketcasts") || (res.locals.ua.toLowerCase().includes("bot") && !res.locals.ua.toLowerCase().includes("discord"))) {
+        res.status(444).end();
+    } else {
+        next()
+    }
 })
-
 app.use(cors());
 app.use(compression());
 app.use(morgan(function(tokens, req, res) {
