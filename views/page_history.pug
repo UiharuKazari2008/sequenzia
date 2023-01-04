@@ -57,7 +57,6 @@ html
                                                                 span Related Items
                                                             else
                                                                 span Search
-                                                            span  (#{decodeURIComponent(params.getAll('search')[0])})
                                                         else if (params && path === '/artists')
                                                             span Artists
                                                         else if (params && params.getAll('sort')[0] === 'random')
@@ -77,7 +76,10 @@ html
                                                 else
                                                     span #{historyItem.title}
                                             div.text-ellipsis
-                                                span #{historyItem.uri}
+                                                if (params && params.has('search'))
+                                                    span #{decodeURIComponent(params.getAll('search')[0])}
+                                                else
+                                                    span #{historyItem.uri}
                                 div
                                     a(title="Keep Item at Top" href='#_' onclick=`toggleStarHistoryItem("${historyItem.index}"); return false;` id=`#favHistory-${historyItem.index}`).ml-2
                                         i.fas.fa-star.btn-fav(class=`${(historyItem.saved) ? 'favorited' : ''}`)

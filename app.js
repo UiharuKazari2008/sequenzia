@@ -269,8 +269,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                     sessionStore.set(device, {
                         cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null },
-                        discord: thisUser.discord,
-                        user: thisUser.user,
+                        userid: thisUser.discord.user.id,
                         login_source: req.session.login_source,
                         device: 'notInteractive',
                         goto: passURL,
@@ -317,8 +316,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                         sessionStore.set(device, {
                             cookie: {path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},
-                            discord: thisUser.discord,
-                            user: thisUser.user,
+                            userid: thisUser.discord.user.id,
                             login_source: req.session.login_source,
                             device: 'notInteractive',
                             goto: passURL,
