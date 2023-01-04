@@ -30,7 +30,11 @@ module.exports = async (req, res, next) => {
 
     async function writeHistory(title) {
         let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
-        if (!_params.has('responseType') && !_params.has('setscreen')) {
+        if (!_params.has('responseType') && !_params.has('setscreen') &&
+            (_params.has('channel') || _params.has('folder') || _params.has('search') || _params.has('vchannel')
+                || _params.has('album') || _params.has('history') || _params.has('history_screen')
+                || _params.has('datestart') || _params.has('dateend') || _params.has('history_numdays')
+                || _params.has('color') || _params.has('group') || _params.has('show_id'))) {
             function params(_removeParams, _addParams) {
                 _removeParams.forEach(param => {
                     if (_params.has(param)) {
@@ -47,14 +51,14 @@ module.exports = async (req, res, next) => {
 
             }
 
-            const accessURL = params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
-            const cleanURL = params(['limit', 'offset'], [])
-            await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
+            const accessURL = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [])).toString()
+            const cleanURL = (params(['limit', 'offset'], [])).toString()
+            await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP, uri = ?`, [{
                 index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
                 uri: accessURL,
                 title: title,
                 user: thisUser.discord.user.id,
-            })
+            }, accessURL])
             await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
         }
     }

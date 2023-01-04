@@ -481,6 +481,7 @@ function getRandomImage() {
                     }
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.remove('d-none');
+                        document.getElementById('naviResume').classList.remove('d-none');
                         document.getElementById('bootUpLogo').classList.add('d-none');
                     }, 1000)
                     setTimeout(() => {
@@ -495,6 +496,7 @@ function getRandomImage() {
                         delay: 5000,
                     });
                     document.getElementById('midSearch').classList.remove('d-none');
+                    document.getElementById('naviResume').classList.remove('d-none');
                     document.getElementById('bootUpLogo').classList.add('d-none');
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.add('shine-effect-go');
@@ -512,6 +514,7 @@ function getRandomImage() {
                     });
                 }
                 document.getElementById('midSearch').classList.remove('d-none');
+                document.getElementById('naviResume').classList.remove('d-none');
                 document.getElementById('bootUpLogo').classList.add('d-none');
                 setTimeout(() => {
                     document.getElementById('midSearch').classList.add('shine-effect-go');
@@ -529,44 +532,60 @@ function getRandomImage() {
     // }
 }
 function verifyNetworkAccess() {
-    $.ajax({async: true,
-        url: '/ping?json=true',
-        type: "GET", data: '',
-        processData: false,
-        contentType: false,
-        json: true,
-        headers: {
-            'X-Requested-With': 'SequenziaXHR'
-        },
-        timeout: 5000,
-        success: function (res, txt, xhr) {
-            if (xhr.status === 200 && !res.loggedin) {
-                document.getElementById('loginUserButtons').classList.remove('hidden');
-                document.getElementById('mainUserButtons').classList.add('hidden');
-                document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
-                noAmbientTimer = true;
-                setInterval(function () {
-                    $.ajax({async: true,
-                        url: '/device-login?checklogin=true',
-                        type: "GET",
-                        processData: false,
-                        contentType: false,
-                        success: function (response) {
-                            if (response === 'true') {
-                                location.href = '/discord/refresh'
+    return new Promise((ok) => {
+        $.ajax({async: true,
+            url: '/ping?json=true',
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            json: true,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            timeout: 5000,
+            success: function (res, txt, xhr) {
+                if (xhr.status === 200 && !res.loggedin) {
+                    document.getElementById('loginUserButtons').classList.remove('hidden');
+                    document.getElementById('mainUserButtons').classList.add('hidden');
+                    document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
+                    noAmbientTimer = true;
+                    setInterval(function () {
+                        $.ajax({async: true,
+                            url: '/device-login?checklogin=true',
+                            type: "GET",
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                if (response === 'true') {
+                                    location.href = '/discord/refresh'
+                                }
+                            },
+                            error: function (response) {
                             }
-                        },
-                        error: function (response) {
-                        }
+                        });
+                    }, 60000);
+                    /*$.toast({
+                        type: 'error',
+                        title: 'Login Required',
+                        subtitle: '',
+                        content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/discord/login'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
+                    });*/
+                    ok(false);
+                } else if (xhr.status !== 200) {
+                    $.toast({
+                        type: 'error',
+                        title: 'Network Error',
+                        subtitle: '',
+                        content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                        delay: 30000,
                     });
-                }, 60000);
-                /*$.toast({
-                    type: 'error',
-                    title: 'Login Required',
-                    subtitle: '',
-                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/discord/login'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
-                });*/
-            } else if (xhr.status !== 200) {
+                    ok(false);
+                } else {
+                    ok(true);
+                }
+            },
+            error: function (error) {
+                console.log(error);
                 $.toast({
                     type: 'error',
                     title: 'Network Error',
@@ -574,21 +593,45 @@ function verifyNetworkAccess() {
                     content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                     delay: 30000,
                 });
+                ok(false);
+            }
+        });
+    })
+}
+
+function getLastNaviPage() {
+    $(`#albumItemModal`).modal('show');
+    $.ajax({async: true,
+        url: `/actions/v1`,
+        type: "POST",
+        data: {
+            'action': 'GetLastHistoryPage',
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (response, textStatus, xhr) {
+            if (xhr.status < 400) {
+                $(`#naviResume .navi-last`).html(response);
+                $(`#naviResume`).removeClass('hidden')
+            } else {
+                $(`#naviResume`).addClass('hidden')
             }
         },
-        error: function (error) {
-            console.log(error);
-            $.toast({
-                type: 'error',
-                title: 'Network Error',
-                subtitle: '',
-                content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
-                delay: 30000,
-            });
+        error: function (xhr) {
+            if (xhr.status !== 404) {
+                $.toast({
+                    type: 'error',
+                    title: 'Page Failed',
+                    subtitle: 'Now',
+                    content: `Failed to load navigation history!`,
+                    delay: 5000,
+                });
+            }
         }
     });
 }
-
 let lastMessageAlbum
 function refreshAlbumsList(messageid) {
     lastMessageAlbum = messageid
@@ -1155,38 +1198,48 @@ $(document).ready(function () {
             document.querySelector('.container').classList.add('menu-top');
         }
     }
-    verifyNetworkAccess();
+    verifyNetworkAccess()
+        .then(async ok => {
+            if (ok) {
+                getLastNaviPage();
+                if (!navigator.serviceWorker.controller) {
+                    if (window.location.protocol !== 'https:') {
+                        $.snack('error', `Application not secure!`, 1500);
+                    } else {
+                        $.snack('error', `Application not ready!`, 1500);
+                    }
+                    updateNotficationsPanel();
+                } else {
+                    kernelRequestData({
+                        type: 'CACHE_URLS',
+                        urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))
+                    });
+                    kernelRequestData({type: 'GET_ALL_ACTIVE_JOBS'})
+                        .then(async data => {
+                            if (data && data.activeSpannedJobs) {
+                                data.activeSpannedJobs.map(job => {
+                                    if (job && job.id) {
+                                        unpackingJobs.set(job.id, job);
+                                    }
+                                })
+                            }
+                            const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+                            console.log(updateOfflinePages);
+                            updateNotficationsPanel();
+                        })
+                        .catch(error => {
+                            console.error('Failed to get active jobs', error)
+                        })
+                }
+                setTimeout(() => {
+                    if (!noAmbientTimer) {
+                        setupAmbientTimers();
+                    }
+                }, 30000)
+            }
+        });
     getRandomImage();
     getSidebar();
-    if (!navigator.serviceWorker.controller) {
-        if (window.location.protocol !== 'https:') {
-            $.snack('error', `Application not secure!`, 1500);
-        } else {
-            $.snack('error', `Application not ready!`, 1500);
-        }
-        updateNotficationsPanel();
-    } else {
-        kernelRequestData({
-            type: 'CACHE_URLS',
-            urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))
-        });
-        kernelRequestData({type: 'GET_ALL_ACTIVE_JOBS'})
-            .then(async data => {
-                if (data && data.activeSpannedJobs) {
-                    data.activeSpannedJobs.map(job => {
-                        if (job && job.id) {
-                            unpackingJobs.set(job.id, job);
-                        }
-                    })
-                }
-                const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
-                console.log(updateOfflinePages);
-                updateNotficationsPanel();
-            })
-            .catch(error => {
-                console.error('Failed to get active jobs', error)
-            })
-    }
     $('.popover').popover('hide');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice() === false) {
@@ -1196,11 +1249,6 @@ $(document).ready(function () {
     document.addEventListener("scroll", refreshLayout);
     window.addEventListener("resize", refreshLayout);
     window.addEventListener("orientationChange", refreshLayout);
-    setTimeout(() => {
-        if (!noAmbientTimer) {
-            setupAmbientTimers();
-        }
-    }, 30000)
     //dd();
     //ddw();
 })

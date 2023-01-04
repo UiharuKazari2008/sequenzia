@@ -651,6 +651,11 @@ a.btn.btn-links, div.btn.btn-links {
     opacity: 1;
 }
 
+div.favoritedhistory {
+    background-color: #ff780061;
+}
+
+.favoritedhistory > div > a > i.fas.fa-star,
 i.fas.fa-star.favorited {
     color: #ffb000;
 }

@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
     try {
         const thisUser = res.locals.thisUser
 
-        if (thisUser.user && (req.session.login_source < 900 || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory" || req.body.action === "GetLastHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
+        if (thisUser.user && (req.session.login_source < 900 || req.body.action === "GetLastHistoryPage" || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
                 case 'Pin':
                 case 'Unpin':
@@ -59,15 +59,17 @@ module.exports = async (req, res, next) => {
                         }
                     })
                     break;
-                case 'GetLastHistory':
+                case 'GetLastHistoryPage':
                     sqlSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY date DESC LIMIT 5`, [thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update history save status for ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
                         } else if (result && result.length > 0) {
-                            res.status(200).json(result);
+                            res.status(200).render('page_history_homelast', {
+                                history: result
+                            });
                         } else {
-                            res.status(500).json([]);
+                            res.status(404).send('No History');
                         }
                     })
                     break;

@@ -4358,10 +4358,10 @@ async function setWatchHistory(eid, viewed) {
     return false;
 }
 async function toggleStarHistoryItem(index) {
-    const star = document.querySelector(`#favHistory-${index} > i.fas.fa-star`)
+    const star = document.querySelector(`#pageHistory-${index}`)
     let isFavorite = false;
     if (star)
-        isFavorite = star.classList.contains('favorited');
+        isFavorite = star.classList.contains('favoritedhistory');
 
     sendBasic(undefined, index, (isFavorite) ? `UnpinHistory`: `PinHistory`, true);
 

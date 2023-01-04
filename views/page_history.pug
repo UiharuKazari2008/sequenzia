@@ -1,90 +1,73 @@
 html
     head
         body
-            div#wrapper
-                li#totalCount.nav-item.text-right.page-title.text-primary.push-up(style="display: contents;")
-                    if (pageList && pageList.length > 1)
-                        a.btn.dropdown.no-arrow.p-0.d-block(title="Page List" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                            span.results-number.badge.badge-primary.p-1 #{resultsCount}
-                        .dropdown-menu.dropdown-menu-left.shadow.animated--grow-in(style='min-width: fit-content;').text-center.ml-3
-                            each page, index in pageList
-                                if ((pageList.length === index + 1 && page.page >= 10) || (index === 1 && page.page > 1))
-                                    span.text-gray-400
-                                        i.fas.fa-ellipsis-v.pt-1.pb-1
-
-                                if (currentPage && currentPage.page === page.page)
-                                    a.dropdown-item(title=`Page ${page.page + 1}` href='#_').active.disabled #{page.page + 1}
-                                else
-                                    a.dropdown-item(title=`Page ${page.page + 1}` href='#_' onclick=`getNewContent([], [${page.url}]); return false;`) #{page.page + 1}
-                    else
-                        span.results-number.badge.badge-primary.p-1.push-up #{resultsCount}
-                div#history
-                    if (history && history.length > 0)
-                        each historyItem in history
-                            .list-group-item.d-flex
-                                div.col.p-0(style='width: 80%;')
-                                    a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`)
-                                        - path = historyItem.uri.split('?')[0]
-                                        - params = new URLSearchParams(historyItem.uri.split('?')[1])
-                                        .d-flex.flex-column
-                                            div
-                                                if (params && params.has('search'))
-                                                    i.far.fa-search.mr-2
-                                                else if (params.has('displayname'))
-                                                    i.far.mr-2.fa-history
-                                                else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.far.fa-star.mr-2
-                                                else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                    i.far.fa-star.mr-2
-                                                else if (params && params.has('album'))
-                                                    i.far.fa-archive.mr-2
-                                                else if (path === '/gallery')
-                                                    i.far.fa-photo-vide.mr-2
-                                                else if (path === '/files')
-                                                    i.far.fa-folder.mr-2
-                                                else if (path === '/cards')
-                                                    i.far.fa-sticky-note.mr-2
-                                                else if (path === '/artists')
-                                                    i.far.fa-atlas.mr-2
-                                                else
-                                                    i.far.fa-question.mr-2
-                                                if (!historyItem.title || historyItem.title === '')
-                                                    if (params && (!(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) || params.getAll('sort')[0] === 'random')
-                                                        if (params && params.has('search'))
-                                                            if (path === '/artists')
-                                                                span Artist Search
-                                                            else if (params && params.getAll('search')[0].startsWith('id:st'))
-                                                                span Related Items
-                                                            else
-                                                                span Search
-                                                        else if (params && path === '/artists')
-                                                            span Artists
-                                                        else if (params && params.getAll('sort')[0] === 'random')
-                                                            span I'm Feeling Lucky
-                                                        else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid') && path === '/files')
-                                                            span Latest Files
-                                                        else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
-                                                            span Latest Media
-                                                        else if (params.has('color'))
-                                                            span Colour Search
-                                                        else if (params.has('displayname'))
-                                                            span History
-                                                        else
-                                                            span Recent
+            div#history
+                if (history && history.length > 0)
+                    each historyItem in history
+                        .list-group-item.d-flex(id=`pageHistory-${historyItem.index}` class=`${(historyItem.saved) ? 'favoritedhistory' : ''}`)
+                            div.col.p-0(style='width: 80%;')
+                                a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`)
+                                    - path = historyItem.uri.split('?')[0]
+                                    - params = new URLSearchParams(historyItem.uri.split('?')[1])
+                                    .d-flex.flex-column
+                                        div.text-ellipsis
+                                            if (params && params.has('search') && params.getAll('search')[0].startsWith('id:st'))
+                                                i.far.fa-asterisk.mr-2
+                                            else if (params.has('color'))
+                                                i.fas.fa-swatchbook
+                                            else if (params && params.has('search'))
+                                                i.far.fa-search.mr-2
+                                            else if (params.has('displayname'))
+                                                i.far.mr-2.fa-history
+                                            else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                i.far.fa-star.mr-2
+                                            else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                i.far.fa-star.mr-2
+                                            else if (params && params.has('album'))
+                                                i.far.fa-archive.mr-2
+                                            else if (path === '/gallery')
+                                                i.far.fa-photo-video.mr-2
+                                            else if (path === '/files')
+                                                i.far.fa-folder.mr-2
+                                            else if (path === '/cards')
+                                                i.far.fa-sticky-note.mr-2
+                                            else if (path === '/artists')
+                                                i.far.fa-atlas.mr-2
+                                            else
+                                                i.far.fa-question.mr-2
+                                            if (!historyItem.title || historyItem.title === '')
+                                                if (params && (!(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) || params.getAll('sort')[0] === 'random')
+                                                    if (params && params.has('search'))
+                                                        span #{decodeURIComponent(params.getAll('search')[0])}
+                                                    else if (params && path === '/artists')
+                                                        span Artists
+                                                    else if (params && params.getAll('sort')[0] === 'random')
+                                                        span I'm Feeling Lucky
+                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid') && path === '/files')
+                                                        span Files
+                                                    else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                        span Media
+                                                    else if (params.has('color'))
+                                                        span Colour
+                                                    else if (params.has('displayname'))
+                                                        span History
                                                     else
-                                                        span
+                                                        span Recent
                                                 else
-                                                    span #{historyItem.title}
-                                            div.text-ellipsis
+                                                    span Unknown
+                                            else
+                                                span #{historyItem.title}
                                                 if (params && params.has('search'))
-                                                    span #{decodeURIComponent(params.getAll('search')[0])}
-                                                else
-                                                    span #{historyItem.uri}
-                                div
-                                    a(title="Keep Item at Top" href='#_' onclick=`toggleStarHistoryItem("${historyItem.index}"); return false;` id=`#favHistory-${historyItem.index}`).ml-2
-                                        i.fas.fa-star.btn-fav(class=`${(historyItem.saved) ? 'favorited' : ''}`)
-                                    a(title="Keep Item at Top" href='#_' onclick=`removeHistoryItem("${historyItem.index}"); return false;`).ml-2
-                                        i.fas.fa-trash-alt
+                                                    span  (#{decodeURIComponent(params.getAll('search')[0])})
+                            div
+                                if (params && params.has('offset'))
+                                    a(title="Go to first page" href='#_' onclick=`getNewContent(["limit", "offset"], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).ml-2
+                                        i.fas.fa-turn-up
+                                a(title="Keep Item at Top" href='#_' onclick=`toggleStarHistoryItem("${historyItem.index}"); return false;`).ml-2
+                                    i.fas.fa-star.btn-fav
+                                a(title="Keep Item at Top" href='#_' onclick=`removeHistoryItem("${historyItem.index}"); return false;`).ml-2
+                                    i.fas.fa-trash-alt
 
-                    else
-                        h2 No History
+                else
+                    h2 No History
+

@@ -554,19 +554,16 @@ html
                                             i.fas.fa-sign-out-alt
                                             | Log Out
                                 div.settings-row
-                                if (discord)
-                                    div.settings-row.mt-2.w-auto.server-row
-                                        .server-grid.d-inline-block
-                                            .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,8).length}, minmax(45px, 40px));`)
-                                                for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
-                                                    .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
-                                                        img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5
-            //.d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
-                if (discord && discord.servers.list)
+            #naviResume.ml-auto.mr-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.d-none.hidden
+                .menu-container.w-100.p-2.px-3.rounded.position-relative
+                    .navi-last.d-flex.align-items-center
+            if (discord)
+                #serverIconsList.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in.d-none
                     div.shadow-blk
+                        //.server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,8).length}, minmax(45px, 40px));`)
                         for thisServer in discord.servers.list
                             img.server-icon.rounded-circle(data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
 

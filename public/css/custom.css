@@ -772,6 +772,11 @@ padding: 0 0.2rem;
     display: none;
 }
 
+div.favoritedhistory {
+    background-color: #ff780061;
+}
+
+.favoritedhistory > div > a > i.fas.fa-star,
 i.fas.fa-star.favorited {
     color: #ffb000;
 }

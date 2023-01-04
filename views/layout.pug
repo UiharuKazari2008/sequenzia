@@ -606,15 +606,15 @@ html
                                                     i.fas.fa-fw.mr-md-1.fa-grid-2
                                                     span.d-none.d-md-inline Show All
                                                 a(class="btn btn-primary" title="Show Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;").ml-2
-                                                    i.fas.fa-fw.mr-md-1.fa-browser
-                                                    span.d-none.d-md-inline Page History
+                                                    i.fas.fa-fw.mr-md-1.fa-history
+                                                    span.d-none.d-md-inline Navi History
                                                 a(class="btn btn-primary" title="Manage Photo Frames" href='#_' onclick='showDisplayHistory(); return false;').ml-2
                                                     i.fas.fa-fw.mr-md-1.fa-cog
                                                     span.d-none.d-md-inline Manage
                                                 #menuLoaderImageHistory.d-inline.ml-2
                                                     i.fas.fa-spin-pulse.fa-spinner
                                                 h4.text-primary.ml-auto.mb-0
-                                                    i.fas.fa-history.mr-2
+                                                    i.fas.fa-rectangle-history.mr-2
                                                     | History
                                             .w-100.position-absolute(style="justify-content: left; top: 3em;")
                                                 div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
@@ -689,7 +689,7 @@ html
                                             span.text-uppercase #{appData.name}
 
                                 else
-                                    ul.navbar-nav.text-primary.text-ellipsis
+                                    ul.navbar-nav.text-primary.text-ellipsis(onclick="$('#historyModel').modal('show'); return false;")
                                         li#topAddressBarInfo.nav-item.text-right.page-title.text-primary.mr-1
                                             if (!title || title === '')
                                                 if (params && (params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
