@@ -855,7 +855,7 @@ html
                                     div.mr-3
                                         img.rounded-pill(src=thisServer.icon style='height: 8em;')
                                     div
-                                        h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                        h2.mb-1 #{(thisServer.nice_name) ? thisServer.nice_name : (thisServer.name.length > 17 ? (thisServer.name.slice(0, 17) + "...") : thisServer.name)} (#{thisServer.short_name.toUpperCase()})
                                         if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
                                             h5 #{thisServer.name}
                                         div.d-inline.text-lg
