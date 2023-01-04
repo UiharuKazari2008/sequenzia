@@ -202,8 +202,10 @@ html
                 document.getElementById('cover').classList.add('fadeOut');
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
-        .fixed-bottom.ambient-items.p4-safty(style="display: none;")
-            .menu-container.rounded.animated--fade-in.text-center.ml-auto.p-4.bottom-time-info
+        .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row
+            .animated--fade-in.text-center.pb-4.bottom-time-info.d-none.align-items-end.d-md-flex
+                img(src="/static/img/sequenzia-logo-nav.png" style='height: 4em').pl-4
+            .animated--fade-in.text-center.ml-auto.pb-4.bottom-time-info
                 div(style="margin-top: -0.75em;")
                     #time
                 div
@@ -219,9 +221,44 @@ html
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
 
             #bootUpLogo.center-block.animated--fade-in
-                .d-flex.pb-1.w-100
-                    .d-flex.flex-grow-1.align-items-center
-                        span.sidebar-brand-logo.sequenzia-logo.bootup-logo.ml-auto.mr-auto sequenzia
+                .d-flex.pb-1.w-100.flex-column
+                    .d-flex.flex-grow-1.align-items-center.boot-card-holder
+                        div.user-info-bg.rounded
+                            div.user-info-border.rounded
+                            div.user-info-backdrop.rounded
+                            div.user-info-overlay.position-absolute.rounded
+                            div.user-infocard-holder.d-flex.flex-column
+                                .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                    img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                    if (discord && discord.user && discord.user.membership)
+                                        if (discord.user.membership.background)
+                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                if (discord.user.membership.icon)
+                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                        else
+                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                if (discord.user.membership.icon)
+                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                    else
+                                        span.ml-auto.shadow-text(style="z-index: 1;") Member
+
+
+                                .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                    if (user)
+                                        .col-auto.p-0
+                                            img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                            div.text-center.text-ellipsis.align-middle.mr-auto
+                                                if (login_source && login_source === 900)
+                                                    span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                    i.pr-1.fas.fa-check-circle
+                                                    span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                    //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                            div.text-ellipsis.shadow-text.user-infocard-info
+                                                span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
             #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column.d-none
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer

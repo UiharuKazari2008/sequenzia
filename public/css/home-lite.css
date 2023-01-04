@@ -4,15 +4,23 @@ body {
     font-family: "Product Sans", "Yantramanav", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
-.container a, .ambient-items a,
-.ambient-items a:active, .container a:active,
-.ambient-items a:hover, .container a:hover,
-.ambient-items, .container,
-.ambient-items i, .container i {
+.container a,
+.container a:active,
+.container a:hover,
+.container,
+.container i {
     color: #ffa554;
     text-shadow: 0 0 4px #ff5100d6;
     text-decoration: none;
     cursor: default;
+}
+.ambient-items {
+    display: flex;
+}
+.ambient-items, .ambient-items a, .ambient-items a:active, .ambient-items a:hover, .ambient-items i {
+    color: #ffffff;
+    text-shadow: 0 0 4px #0000008f;
+    opacity: 0.65;
 }
 .no-homepage {
     display: none !important;

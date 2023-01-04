@@ -1640,6 +1640,9 @@ div#time {
     color: #f19064;
     text-shadow: 0 0 15px #ff5100d6;
 }
+.boot-card-holder {
+    scale: 1.5;
+}
 
 @media (min-width:356px) {
     .card-columns {
@@ -1663,7 +1666,7 @@ div#time {
     }
 }
 @media (max-width:575px) {
-    .user-info-bg, .server-row {
+    :not(.boot-card-holder) > .user-info-bg, .server-row {
         display: none;
     }
     .kongou-next-episode-image {
@@ -1876,6 +1879,9 @@ div#time {
     .bootup-logo {
         font-size: 4em;
         text-shadow: 0 0 8px #ff5100d6;
+    }
+    .boot-card-holder {
+        scale: 1;
     }
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
@@ -2171,5 +2177,10 @@ ul#accordionSidebar * {
     }
     .user-menu-overlow-hide-icon-1 {
         display: none!important;
+    }
+}
+@media (max-width:575px) {
+    .boot-card-holder {
+        scale: 0.75;
     }
 }
