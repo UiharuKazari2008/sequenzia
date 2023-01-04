@@ -129,5 +129,5 @@ html
                                             if (params && params.has('search'))
                                                 span  (#{decodeURIComponent(params.getAll('search')[0])})
                             if (params && params.has('offset'))
-                            a(title="Go to first page" href='#_' onclick=`getNewContent(["limit", "offset"], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).ml-2.align-self-center
-                                i.fas.fa-turn-up
+                                a(title="Go to first page" href='#_' onclick=`getNewContent(["limit", "offset"], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).ml-2.align-self-center
+                                    i.fas.fa-turn-up
