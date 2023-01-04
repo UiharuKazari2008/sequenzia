@@ -59,6 +59,18 @@ module.exports = async (req, res, next) => {
                         }
                     })
                     break;
+                case 'GetLastHistory':
+                    sqlSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY date DESC LIMIT 5`, [thisUser.discord.user.id], (err, result) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to update history save status for ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (result.rows && result.rows > 0) {
+                            res.status(200).json(result.rows);
+                        } else {
+                            res.status(500).json([]);
+                        }
+                    })
+                    break;
                 case 'PinHistory':
                 case 'UnpinHistory':
                     printLine("ActionParser", `Request to Pin History ${req.body.messageid}`, 'info', req.body)

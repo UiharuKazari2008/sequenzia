@@ -30,8 +30,8 @@ module.exports = async (req, res, next) => {
 
     async function writeHistory(title) {
         let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
-        if (!_params.has('responseType')) {
-            function params(_removeParams, _addParams, _url, searchOnly) {
+        if (!_params.has('responseType') && !_params.has('setscreen')) {
+            function params(_removeParams, _addParams) {
                 _removeParams.forEach(param => {
                     if (_params.has(param)) {
                         _params.delete(param);
@@ -47,10 +47,11 @@ module.exports = async (req, res, next) => {
 
             }
 
-            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
+            const accessURL = params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
+            const cleanURL = params(['limit', 'offset'], [])
             await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
                 index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
-                uri: cleanURL,
+                uri: accessURL,
                 title: title,
                 user: thisUser.discord.user.id,
             })

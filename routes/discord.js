@@ -191,68 +191,37 @@ router.get('/session', (req, res) => {
 router.get('/token', sessionVerification, (req, res) => {
     try {
         const thisUser = res.locals.thisUser
-        if (req.query && req.query.action) {
+        if (req.query && req.query.action && thisUser.discord) {
             switch (req.query.action) {
                 case 'get':
-                    sqlSafe(`SELECT * FROM discord_users WHERE (id = ? AND token IS NOT NULL) LIMIT 1`, [thisUser.discord.user.id], async (err, user) => {
-                        if (err) {
-                            res.status(500).send('Internal Server Error')
-                            printLine("StaticTokenSystem", `SQL Get Error`, 'error', err)
-                        } else if (user.length === 0 || !user) {
-                            res.status(401).send('Invalid User Token')
-                            printLine("StaticTokenSystem", `Invalid User Token`, 'error')
-                        } else {
-                            if (user[0].token_static) {
-                                res.status(200).send(user[0].token_static);
-                            } else {
-                                res.status(200).send('NO STATIC LOGIN TOKEN')
-                            }
-                        }
-                    })
+                    if (thisUser.discord.user.token_static) {
+                        res.status(200).send(thisUser.discord.user.token_static);
+                    } else {
+                        res.status(200).send('NO STATIC LOGIN TOKEN')
+                    }
                     break;
                 case 'renew':
-                    sqlSafe(`SELECT * FROM discord_users WHERE (id = ? AND token IS NOT NULL) LIMIT 1`, [thisUser.discord.user.id], async (err, user) => {
+                    const token = crypto.randomBytes(54).toString("hex");
+                    sqlSafe(`UPDATE discord_users SET token_static = ? WHERE (id = ?)`, [token, thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             res.status(500).send('Internal Server Error')
-                            printLine("StaticTokenSystem", `SQL Get Error`, 'error', err)
-                        } else if (user.length === 0 || !user) {
-                            res.status(401).send('Invalid User Token')
-                            printLine("StaticTokenSystem", `Invalid Request Sent`, 'error')
+                            printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
+                        } else if (result.affectedRows && result.affectedRows > 0 ) {
+                            res.status(200).json(token);
                         } else {
-                            const token = crypto.randomBytes(54).toString("hex");
-                            sqlSafe(`UPDATE discord_users SET token_static = ? WHERE (id = ? AND token IS NOT NULL)`, [token, thisUser.discord.user.id], (err, result) => {
-                                if (err) {
-                                    res.status(500).send('Internal Server Error')
-                                    printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
-                                } else if (result.affectedRows && result.affectedRows > 0 ) {
-                                    res.status(200).json(token);
-                                } else {
-                                    res.status(501).send('Internal Server Fault')
-                                }
-                            })
+                            res.status(501).send('Internal Server Fault')
                         }
                     })
                     break;
                 case 'erase':
-                    sqlSafe(`SELECT * FROM discord_users WHERE (id = ? AND token IS NOT NULL) LIMIT 1`, [thisUser.discord.user.id], async (err, user) => {
+                    sqlSafe(`UPDATE discord_users SET token_static = null WHERE (id = ?)`, [thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             res.status(500).send('Internal Server Error')
-                            printLine("StaticTokenSystem", `SQL Get Error`, 'error', err)
-                        } else if (user.length === 0 || !user) {
-                            res.status(401).send('Invalid User Token')
-                            printLine("StaticTokenSystem", `Invalid Request Sent`, 'error')
+                            printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
+                        } else if (result.affectedRows && result.affectedRows > 0 ) {
+                            res.status(200).send('Erased');
                         } else {
-                            const token = crypto.randomBytes(54).toString("hex");
-                            sqlSafe(`UPDATE discord_users SET token_static = null WHERE (id = ? AND token IS NOT NULL)`, [thisUser.discord.user.id], (err, result) => {
-                                if (err) {
-                                    res.status(500).send('Internal Server Error')
-                                    printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
-                                } else if (result.affectedRows && result.affectedRows > 0 ) {
-                                    res.status(200).send('Erased');
-                                } else {
-                                    res.status(501).send('Internal Server Fault')
-                                }
-                            })
+                            res.status(501).send('Internal Server Fault')
                         }
                     })
                     break;
