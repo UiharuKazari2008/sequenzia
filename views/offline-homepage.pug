@@ -118,7 +118,7 @@ html
             #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay(style="display: none;")
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : '/static/img/kms-background.jpeg'});`)
                     div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                     div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto

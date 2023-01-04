@@ -2,9 +2,9 @@ html
     head
         body
             if (history && history.length > 0)
-                - historyItem = history[0]
-                div
-                    a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`)
+                div.d-flex.flex-row
+                    - historyItem = history[0]
+                    a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).text-ellipsis.mr-auto
                         - path = historyItem.uri.split('?')[0]
                         - params = new URLSearchParams(historyItem.uri.split('?')[1])
                         .d-flex.flex-column
@@ -31,6 +31,10 @@ html
                                     i.far.fa-sticky-note.mr-2
                                 else if (path === '/artists')
                                     i.far.fa-atlas.mr-2
+                                else if (path === '/listTheater')
+                                    i.far.fa-ticket.mr-2
+                                else if (path === '/tvTheater')
+                                    i.far.fa-books.mr-2
                                 else
                                     i.far.fa-question.mr-2
                                 if (!historyItem.title || historyItem.title === '')
@@ -57,7 +61,73 @@ html
                                     span #{historyItem.title}
                                     if (params && params.has('search'))
                                         span  (#{decodeURIComponent(params.getAll('search')[0])})
-                div
                     if (params && params.has('offset'))
-                        a(title="Go to first page" href='#_' onclick=`getNewContent(["limit", "offset"], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).ml-2
+                        a(title="Go to first page" href='#_' onclick=`getNewContent(["limit", "offset"], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).ml-2.align-self-center
                             i.fas.fa-turn-up
+                    a(title="Go to first page" href='#_' data-toggle='collapse' data-target='#recentNaviHistory').ml-2.align-self-center
+                        i.fas.fa-ellipsis
+
+                div#recentNaviHistory.flex-column.collapse.collapsed
+                    span.dropdown-header.px-0.text-ellipsis Recent Navigation History
+                    each historyItem in history.slice(1)
+                        div.flex-row.d-flex
+                            a(title=historyItem.title href='#_' onclick=`getNewContent([], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).text-ellipsis.mr-auto
+                                - path = historyItem.uri.split('?')[0]
+                                - params = new URLSearchParams(historyItem.uri.split('?')[1])
+                                .d-flex.flex-column
+                                    div.text-ellipsis
+                                        if (params && params.has('search') && params.getAll('search')[0].startsWith('id:st'))
+                                            i.far.fa-asterisk.mr-2
+                                        else if (params.has('color'))
+                                            i.fas.fa-swatchbook
+                                        else if (params && params.has('search'))
+                                            i.far.fa-search.mr-2
+                                        else if (params.has('displayname'))
+                                            i.far.mr-2.fa-history
+                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                            i.far.fa-star.mr-2
+                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                            i.far.fa-star.mr-2
+                                        else if (params && params.has('album'))
+                                            i.far.fa-archive.mr-2
+                                        else if (path === '/gallery')
+                                            i.far.fa-photo-video.mr-2
+                                        else if (path === '/files')
+                                            i.far.fa-folder.mr-2
+                                        else if (path === '/cards')
+                                            i.far.fa-sticky-note.mr-2
+                                        else if (path === '/artists')
+                                            i.far.fa-atlas.mr-2
+                                        else if (path === '/listTheater')
+                                            i.far.fa-ticket.mr-2
+                                        else if (path === '/tvTheater')
+                                            i.far.fa-books.mr-2
+                                        else
+                                            i.far.fa-question.mr-2
+                                        if (!historyItem.title || historyItem.title === '')
+                                            if (params && (!(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) || params.getAll('sort')[0] === 'random')
+                                                if (params && params.has('search'))
+                                                    span #{decodeURIComponent(params.getAll('search')[0])}
+                                                else if (params && path === '/artists')
+                                                    span Artists
+                                                else if (params && params.getAll('sort')[0] === 'random')
+                                                    span I'm Feeling Lucky
+                                                else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid') && path === '/files')
+                                                    span Files
+                                                else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
+                                                    span Media
+                                                else if (params.has('color'))
+                                                    span Colour
+                                                else if (params.has('displayname'))
+                                                    span History
+                                                else
+                                                    span Recent
+                                            else
+                                                span Unknown
+                                        else
+                                            span #{historyItem.title}
+                                            if (params && params.has('search'))
+                                                span  (#{decodeURIComponent(params.getAll('search')[0])})
+                            if (params && params.has('offset'))
+                            a(title="Go to first page" href='#_' onclick=`getNewContent(["limit", "offset"], [], "${historyItem.uri}"); $('#historyModel').modal('hide'); return false;`).ml-2.align-self-center
+                                i.fas.fa-turn-up

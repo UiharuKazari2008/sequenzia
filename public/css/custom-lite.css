@@ -1991,7 +1991,7 @@ ul#accordionSidebar * {
         max-width: 11.1%;
     }
 }
-#midSearch {
+#midSearch, #naviResume {
     display: flex;
     width: 100%;
 }
@@ -2012,6 +2012,9 @@ ul#accordionSidebar * {
 @media (min-width:850px) {
     #midSearch {
         width: 800px;
+    }
+    #naviResume {
+        max-width: 400px;
     }
 }
 

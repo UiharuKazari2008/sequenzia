@@ -27,6 +27,8 @@ html
                     each image in Array.from(Object.entries(app.images))
                         meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
                         link(rel='preload', href=`${image[1]}` as='image')
+        if (next_episode)
+            link(rel='preload', href=`${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : ''}` as='image')
 
         link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
@@ -119,7 +121,7 @@ html
             #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay.animated--grow-in.d-none
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : '/static/img/kms-background.jpeg'});`)
                     div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                     div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
@@ -456,8 +458,8 @@ html
                                 .d-flex.w-100.mb-3
                                     .d-flex.w-100
                                         if (next_episode)
-                                            div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
-                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
+                                            div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
+                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? '/media_attachments' + next_episode.poster : next_episode.data.poster[0]}`)
                                         if (theaters && theaters.length > 0)
                                             div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
@@ -557,9 +559,9 @@ html
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5
-            #naviResume.ml-auto.mr-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.d-none.hidden
-                .menu-container.w-100.p-2.px-3.rounded.position-relative
-                    .navi-last.d-flex.align-items-center
+            #naviResume.ml-auto.mr-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.d-none.hidden.mt-3(style="margin-bottom: calc(env(safe-area-inset-bottom) + 2.125em * -1);")
+                .menu-container.w-100.p-2.px-3.rounded.position-relative(style="border-bottom-left-radius: 0!important;border-bottom-right-radius: 0!important;padding-bottom: calc(env(safe-area-inset-bottom) + 1.75em)!important;")
+                    .navi-last.w-100
             if (discord)
                 #serverIconsList.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in.d-none
                     div.shadow-blk
