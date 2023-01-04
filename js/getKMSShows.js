@@ -39,7 +39,7 @@ module.exports = async (req, res, next) => {
         next();
     } else {
         let execute = '';
-        let limit = 5˚00;
+        let limit = 500;
         let offset = 0;
         let realoffset = 0;
 
