@@ -227,6 +227,216 @@ function disablePerformanceMode() {
     setCookie("performaceMode", "false");
 }
 
+let bannerCropper
+let bannerEID
+function startBannerCropper(eid) {
+    bannerEID = eid;
+    const image = document.getElementById('bannerCropperModal').querySelector('img');
+    const href = '/full_attachments/' + document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.split('attachments/').pop()
+    image.src = href;
+    $('#bannerCropperModal').modal('show');
+    bannerCropper = new Cropper(image, {
+        aspectRatio: 16 / 9,
+        viewMode: 1,
+        responsive: true,
+        checkOrientation: true,
+        rotatable: false,
+        scalable: false,
+    });
+}
+function cancelBannerCropper() {
+    bannerCropper.destroy();
+    bannerCropper = null;
+    bannerEID = null;
+    $('#bannerCropperModal').modal('hide');
+    $("#bannerCropperModal .cropper-container").html("<img></img>")
+}
+function completeBannerCropper() {
+    if (bannerCropper && bannerEID) {
+        const croppedImage = bannerCropper.getData(true);
+        $.ajax({async: true,
+            type: "post",
+            url: "/actions/v1",
+            data: {
+                'action': 'SetUserBanner',
+                'eid': bannerEID,
+                crop: [
+                    croppedImage.y.toFixed(),
+                    croppedImage.x.toFixed(),
+                    croppedImage.height.toFixed(),
+                    croppedImage.width.toFixed(),
+                ]
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    console.log(res);
+                    if (confirm) { $.snack('success', `${res}`, 5000) };
+                } else {
+                    if (confirm) { $.snack('error', `${res}`, 5000) };
+                }
+                bannerCropper.destroy();
+                bannerCropper = null;
+                bannerEID = null;
+                $('#bannerCropperModal').modal('hide');
+                $("#bannerCropperModal .cropper-container").html("<img></img>")
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                bannerCropper.destroy();
+                bannerCropper = null;
+                bannerEID = null;
+                $('#bannerCropperModal').modal('hide');
+                $("#bannerCropperModal .cropper-container").html("<img></img>")
+            }
+        });
+    }
+}
+let avatarCropper
+let avatarEID
+function startAvatarCropper(eid) {
+    avatarEID = eid;
+    const image = document.getElementById('avatarCropperModal').querySelector('img');
+    const href = '/full_attachments/' + document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.split('attachments/').pop()
+    image.src = href;
+    $('#avatarCropperModal').modal('show');
+    avatarCropper = new Cropper(image, {
+        aspectRatio: 1 / 1,
+        viewMode: 1,
+        responsive: true,
+        checkOrientation: true,
+        rotatable: false,
+        scalable: false,
+    });
+}
+function cancelAvatarCropper() {
+    avatarCropper.destroy();
+    avatarCropper = null;
+    avatarEID = null;
+    $('#avatarCropperModal').modal('hide');
+    $("#avatarCropperModal .cropper-container").html("<img></img>")
+}
+function completeAvatarCropper() {
+    if (avatarCropper && avatarEID) {
+        const croppedImage = avatarCropper.getData(true);
+        $.ajax({async: true,
+            type: "post",
+            url: "/actions/v1",
+            data: {
+                'action': 'SetUserIcon',
+                'eid': avatarEID,
+                crop: [
+                    croppedImage.y.toFixed(),
+                    croppedImage.x.toFixed(),
+                    croppedImage.height.toFixed(),
+                    croppedImage.width.toFixed(),
+                ]
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    console.log(res);
+                    if (confirm) { $.snack('success', `${res}`, 5000) };
+                } else {
+                    if (confirm) { $.snack('error', `${res}`, 5000) };
+                }
+                avatarCropper.destroy();
+                avatarCropper = null;
+                avatarEID = null;
+                $('#avatarCropperModal').modal('hide');
+                $("#avatarCropperModal .cropper-container").html("<img></img>")
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                avatarCropper.destroy();
+                avatarCropper = null;
+                avatarEID = null;
+                $('#avatarCropperModal').modal('hide');
+                $("#avatarCropperModal .cropper-container").html("<img></img>")
+            }
+        });
+    }
+}
+
+function removeUserAvatar() {
+    $.ajax({async: true,
+        type: "post",
+        url: "/actions/v1",
+        data: {
+            'action': 'RemoveUserIcon'
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                console.log(res);
+                if (confirm) { $.snack('success', `${res}`, 5000) };
+            } else {
+                if (confirm) { $.snack('error', `${res}`, 5000) };
+            }
+        },
+        error: function (xhr) {
+            $.toast({
+                type: 'error',
+                title: 'Failed to complete action',
+                subtitle: 'Now',
+                content: `${xhr.responseText}`,
+                delay: 5000,
+            });
+        }
+    });
+}
+function removeUserBanner() {
+    $.ajax({async: true,
+        type: "post",
+        url: "/actions/v1",
+        data: {
+            'action': 'RemoveUserBanner'
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                console.log(res);
+                if (confirm) { $.snack('success', `${res}`, 5000) };
+            } else {
+                if (confirm) { $.snack('error', `${res}`, 5000) };
+            }
+        },
+        error: function (xhr) {
+            $.toast({
+                type: 'error',
+                title: 'Failed to complete action',
+                subtitle: 'Now',
+                content: `${xhr.responseText}`,
+                delay: 5000,
+            });
+        }
+    });
+}
+
 async function writeLoadingBar(){
     if (responseComplete === false) {
         setTimeout(writeLoadingBar, 250)
@@ -3289,6 +3499,8 @@ async function showSearchOptions(post) {
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
     const modalRepair = document.getElementById(`infoRepair`);
+    const modalSetAvatar = document.getElementById(`setAsAvatar`);
+    const modalSetBanner = document.getElementById(`setAsBanner`);
 
     const modelKMSRow = document.getElementById(`kmsContent`);
     const modelKMSPoster = document.getElementById(`kmsInfoPoster`);
@@ -3586,6 +3798,14 @@ async function showSearchOptions(post) {
     }
     modalAddFlag.onclick = function() {
         sendBasic(postChannel, postID, "Report", true);
+        return false;
+    }
+    modalSetAvatar.onclick = function() {
+        startAvatarCropper(postEID);
+        return false;
+    }
+    modalSetBanner.onclick = function() {
+        startBannerCropper(postEID);
         return false;
     }
     if (postChannelString && postChannelString.length > 0) {

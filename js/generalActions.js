@@ -2,12 +2,22 @@ const global = require('../config.json');
 const config = require('../host.config.json');
 const { printLine } = require("./logSystem");
 const { sendData } = require('./mqAccess');
-const { sqlSafe, sqlPromiseSimple } = require('../js/sqlClient');
+const { sqlSafe, sqlPromiseSimple, sqlPromiseSafe } = require('./sqlClient');
 
 module.exports = async (req, res, next) => {
     try {
         const thisUser = res.locals.thisUser
+        function sendRequest(MessageBody) {
+            sendData(global.mq_discord_out, MessageBody, function (callback) {
+                if (callback) {
+                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info', MessageBody)
+                } else {
+                    printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error', MessageBody)
+                }
+            })
+        }
 
+        console.log(req.body)
         if (thisUser.user && (req.session.login_source < 900 || req.body.action === "GetLastHistoryPage" || (req.body.action && (req.body.action === "Pin" || req.body.action === "SetWatchHistory") && req.body && req.body.bypass && req.body.bypass === "appIntent"))) {
             switch (req.body.action) {
                 case 'Pin':
@@ -407,6 +417,90 @@ module.exports = async (req, res, next) => {
                                 })
                             } else {
                                 res.status(404).send(`Album Not does not exist!`);
+                            }
+                        }
+                    })
+                    break;
+                case 'SetUserBanner':
+                    if (req.body.eid && req.body.crop) {
+                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE eid = ? LIMIt 1`, [req.body.eid])
+                        if (foundMessages.rows && foundMessages.rows.length > 0) {
+                            console.log(foundMessages.rows[0])
+                            sendData(global.mq_discord_out + '.priority', {
+                                fromClient: `return.Sequenzia.${config.system_name}`,
+                                imageURL: ( foundMessages.rows[0].cache_proxy) ? foundMessages.rows[0].cache_proxy.startsWith('http') ? foundMessages.rows[0].cache_proxy : `https://cdn.discordapp.com/attachments${foundMessages.rows[0].cache_proxy}` : (foundMessages.rows[0].attachment_hash && foundMessages.rows[0].attachment_name) ? `https://cdn.discordapp.com/attachments/` + ((foundMessages.rows[0].attachment_hash.includes('/')) ? foundMessages.rows[0].attachment_hash : `${foundMessages.rows[0].channel}/${foundMessages.rows[0].attachment_hash}/${foundMessages.rows[0].attachment_name}`) : undefined,
+                                imageCrop: req.body.crop,
+                                userId: thisUser.discord.user.id,
+                                messageChannelID: "0",
+                                messageType: 'command',
+                                messageAction: 'SetUserBanner'
+                            }, function (callback) {
+                                if (callback) {
+                                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info')
+                                    res.status(200).send('User banner has been sent, please wait for changes to process');
+                                } else {
+                                    printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error')
+                                    res.status(500).send('Inner Communication Failure');
+                                }
+                            })
+                        } else {
+                            res.status(404).send('Image Not Found');
+                        }
+                    } else {
+                        res.status(400).send('Invalid Request');
+                    }
+                    break;
+                case 'RemoveUserBanner':
+                    sqlSafe(`UPDATE discord_users_extended SET banner_custom = null WHERE id = ?`, [thisUser.discord.user.id], (err, result) => {
+                        if (err) {
+                            res.status(500).send('Database Error');
+                        } else {
+                            if (result.affectedRows && result.affectedRows > 0) {
+                                res.status(200).send('User banner has been removed')
+                            } else {
+                                res.status(404).send(`User banner was not set!`);
+                            }
+                        }
+                    })
+                    break;
+                case 'SetUserIcon':
+                    if (req.body.eid && req.body.crop) {
+                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE eid = ? LIMIt 1`, [req.body.eid])
+                        if (foundMessages.rows && foundMessages.rows.length > 0) {
+                            console.log(foundMessages.rows[0])
+                            sendData(global.mq_discord_out + '.priority', {
+                                fromClient: `return.Sequenzia.${config.system_name}`,
+                                imageURL: ( foundMessages.rows[0].cache_proxy) ? foundMessages.rows[0].cache_proxy.startsWith('http') ? foundMessages.rows[0].cache_proxy : `https://cdn.discordapp.com/attachments${foundMessages.rows[0].cache_proxy}` : (foundMessages.rows[0].attachment_hash && foundMessages.rows[0].attachment_name) ? `https://cdn.discordapp.com/attachments/` + ((foundMessages.rows[0].attachment_hash.includes('/')) ? foundMessages.rows[0].attachment_hash : `${foundMessages.rows[0].channel}/${foundMessages.rows[0].attachment_hash}/${foundMessages.rows[0].attachment_name}`) : undefined,
+                                imageCrop: req.body.crop,
+                                userId: thisUser.discord.user.id,
+                                messageChannelID: "0",
+                                messageType: 'command',
+                                messageAction: 'SetUserAvatar'
+                            }, function (callback) {
+                                if (callback) {
+                                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info')
+                                    res.status(200).send('User avatar has been sent, please wait for changes to process');
+                                } else {
+                                    printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error')
+                                    res.status(500).send('Inner Communication Failure');
+                                }
+                            })
+                        } else {
+                            res.status(404).send('Image Not Found');
+                        }
+                    } else {
+                        res.status(400).send('Invalid Request');
+                    }
+                    break;
+                case 'RemoveUserIcon':
+                    sqlSafe(`UPDATE discord_users_extended SET avatar_custom = null WHERE id = ?`, [thisUser.discord.user.id], (err, result) => {
+                        if (err) {
+                            res.status(500).send('Database Error');
+                        } else {
+                            if (result.affectedRows && result.affectedRows > 0) {
+                                res.status(200).send('User avatar has been removed')
+                            } else {
+                                res.status(404).send(`User avatar was not set!`);
                             }
                         }
                     })

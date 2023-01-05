@@ -6,15 +6,11 @@ module.exports = async (req, res, next) => {
         if (req.body) {
             console.log(req.body)
             if (req.body.disabled_channels) {
-                await sqlPromiseSafe(`DELETE
-                                      FROM sequenzia_hidden_channels
-                                      WHERE user = ?
-                                        AND user IS NOT NULL`, [thisUser.discord.user.id]);
+                await sqlPromiseSafe(`DELETE FROM sequenzia_hidden_channels WHERE user = ? AND user IS NOT NULL`, [thisUser.discord.user.id]);
 
                 if (req.body.disabled_channels.length > 0) {
                     await req.body.disabled_channels.forEach(async e => {
-                        await sqlPromiseSafe(`INSERT INTO sequenzia_hidden_channels
-                                            SET user = ?, cid = ?`, [thisUser.discord.user.id, e]);
+                        await sqlPromiseSafe(`INSERT INTO sequenzia_hidden_channels SET user = ?, cid = ?`, [thisUser.discord.user.id, e]);
                     });
                 }
             }

@@ -272,11 +272,11 @@ input.middle:focus {
     .performance-mode .menu-container {
         background: white;
     }
-    .container a, .ambient-items a,
-    .ambient-items a:active, .container a:active,
-    .ambient-items a:hover, .container a:hover,
-    .ambient-items, .container,
-    .ambient-items i, .container i {
+    .container a,
+    .container a:active,
+    .container a:hover,
+    .container,
+    .container i {
         color: #000000;
         text-shadow: 0 0 4px #9d320066;
     }

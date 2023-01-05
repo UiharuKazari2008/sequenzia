@@ -2983,6 +2983,11 @@ div#bootBackdropSunrise {
     display: block;
 }
 
+.cropper-container > img {
+    display: block;
+    max-width: 100%;
+}
+
 @keyframes animateBg {
     0% {
         background-position: 0 0;

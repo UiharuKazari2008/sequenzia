@@ -202,7 +202,7 @@ router.get('/token', sessionVerification, (req, res) => {
                     break;
                 case 'renew':
                     const token = crypto.randomBytes(54).toString("hex");
-                    sqlSafe(`UPDATE discord_users SET token_static = ? WHERE (id = ?)`, [token, thisUser.discord.user.id], (err, result) => {
+                    sqlSafe(`UPDATE discord_users_extended SET token_static = ? WHERE (id = ?)`, [token, thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             res.status(500).send('Internal Server Error')
                             printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
@@ -214,7 +214,7 @@ router.get('/token', sessionVerification, (req, res) => {
                     })
                     break;
                 case 'erase':
-                    sqlSafe(`UPDATE discord_users SET token_static = null WHERE (id = ?)`, [thisUser.discord.user.id], (err, result) => {
+                    sqlSafe(`UPDATE discord_users_extended SET token_static = null WHERE (id = ?)`, [thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             res.status(500).send('Internal Server Error')
                             printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
@@ -240,26 +240,24 @@ router.get('/token', sessionVerification, (req, res) => {
 });
 router.post('/update', sessionVerification, async (req, res) => {
     try {
+        console.log(req.body)
         const thisUser = res.locals.thisUser
         if (req.body && thisUser) {
             delete req.body.id;
             delete req.body.server;
             delete req.body.serveruserid;
-            delete req.body.roles;
-            delete req.body.write_roles;
-            delete req.body.manage_roles;
-            delete req.body.manager;
             delete req.body.token;
             delete req.body.token_expires;
             delete req.body.token_static;
 
-            await sqlPromiseSafe(`UPDATE discord_users SET ? WHERE id = ?`, [req.body, thisUser.discord.user.id])
+            await sqlPromiseSafe(`UPDATE discord_users_extended SET ? WHERE id = ?`, [req.body, thisUser.discord.user.id])
             res.status(200).send('Updated Account');
         } else {
             res.status(400).send('Invalid Request')
             printLine("AccountUpdate", `Invalid Request Sent (Missing Body)`, 'error')
         }
     } catch (e) {
+        console.error(e);
         res.status(500).send(e.message)
     }
 });

@@ -82,6 +82,7 @@ html
         link(rel='preload', href='/static/js/jquery.history.min.js' as='script')
         link(rel='preload', href="/static/css/jquery.fancybox.min.css" as='style')
         link(rel='preload', href="/static/css/daterangepicker.min.css" as='style')
+        link(rel='preload', href="/static/vendor/cropper/cropper.min.css" as='style')
         script(type='text/javascript' src="/static/vendor/jquery/jquery.min.js")
         script(type='text/javascript' src="/static/js/jquery.history.min.js")
         script(type='text/javascript' src='/static/js/moment.min.js')
@@ -97,6 +98,7 @@ html
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="/static/js/jquery.fancybox.min.js" as='script')
         link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
+        link(rel='preload', href='/static/vendor/cropper/cropper.min.js' as='script')
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
         link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
@@ -129,6 +131,7 @@ html
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
         link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
         link(rel='stylesheet' type='text/css' href='/static/css/daterangepicker.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/vendor/cropper/cropper.min.css')
         link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
         link(rel="stylesheet", href="/css/custom.min.css")
         //link(rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons")
@@ -138,6 +141,7 @@ html
         script(type='text/javascript' src="/static/js/bootstrap-slider.min.js")
         script(type='text/javascript' src="/static/js/jquery.fancybox.min.js")
         script(type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js")
+        script(type='text/javascript' src="/static/vendor/cropper/cropper.min.js")
 
         script(type='text/javascript' src="/js/client/sideloader-layout.min.js")
         script(type='text/javascript' src="/js/client/sideloader.min.js")
@@ -491,7 +495,7 @@ html
                                                     if (login_source && login_source < 900)
                                                         a.user-menu-item.user-menu-small(data-placement="left" title="Authentication Manager" href='#_' onclick='showAuthManager(); return false;')
                                                             i.fa-light.fa-key
-                                                            | Security
+                                                            | Account
                                                     a.user-menu-item.user-menu-small(title="Logout" href='#_' data-toggle='modal' data-target='#logoutModal')
                                                         i.fa-light.fa-sign-out-alt
                                                         | Logout
@@ -729,6 +733,42 @@ html
                         p.mb-0(style="font-size: 1.5em;")
                             i.fas.fa-laptop-arrow-down.fa-fade.mr-2
                             span File is preparing for offline access...
+        #bannerCropperModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header.text-ellipsis
+                        h5.modal-title.text-ellipsis
+                            i.fas.fa-crop.pr-2
+                            | Custom Banner
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            span Changes only apply to Sequenzia
+                        div.row.pl-3.pr-3
+                            div.cropper-container.w-100
+                                img(src="").w-100
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal' onclick='cancelBannerCropper(); return false;') Cancel
+                        a.btn.btn-success(title="Apply Banner Image" href='#_' onclick='completeBannerCropper(); return false;')
+                            i.fas.pr-2.fa-save
+                            span Apply
+        #avatarCropperModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header.text-ellipsis
+                        h5.modal-title.text-ellipsis
+                            i.fas.fa-crop.pr-2
+                            | Custom Avatar
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            span Changes only apply to Sequenzia
+                        div.row.pl-3.pr-3
+                            div.cropper-container.w-100
+                                img(src="").w-100
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal' onclick='cancelAvatarCropper(); return false;') Cancel
+                        a.btn.btn-success(title="Apply Avatar Image" href='#_' onclick='completeAvatarCropper(); return false;')
+                            i.fas.pr-2.fa-save
+                            span Apply
         #videoBuilderModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='videoBuilderModal' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
@@ -1388,7 +1428,7 @@ html
                         .modal-header
                             h5.modal-title
                                 i.fas.fa-key.pr-2
-                                | Security
+                                | Account
                             button.close.text-white(type='button' data-dismiss='modal' aria-label='Close')
                                 span(aria-hidden='true') &times;
                         .modal-body
@@ -1398,7 +1438,7 @@ html
                                         h5.mb-0
                                             button.btn.btn-link(type='button' data-toggle='collapse' data-target='#accountCollapse' aria-expanded='true' aria-controls='accountCollapse')
                                                 i.fas.pr-2.fa-user
-                                                | My Account
+                                                | User Profile
                                     #accountCollapse.collapse(aria-labelledby='accountHeading' data-parent='#authManagerMenus')
                                         .card-body
                                             div.form-row
@@ -1410,6 +1450,16 @@ html
                                                     a.btn.btn-success(title="Update Account Settings" href='#_' onClick=`saveAccountSettings(); return false;`).w-100
                                                         i.fas.fa-check.pr-2
                                                         span Save
+                                            div.form-row
+                                                div.col
+                                                    a.btn.btn-danger(title="Remove Avatar" href='#_' onClick=`removeUserAvatar(); return false;`).w-100
+                                                        i.fas.fa-trash.pr-2
+                                                        span Remove Custom Avatar
+                                            div.form-row.mt-2
+                                                div.col
+                                                    a.btn.btn-danger(title="Remove Banner" href='#_' onClick=`removeUserBanner(); return false;`).w-100
+                                                        i.fas.fa-trash.pr-2
+                                                        span Remove Custom Banner
                                 .card
                                     #headingTwo.card-header.collapsed
                                         h5.mb-0
