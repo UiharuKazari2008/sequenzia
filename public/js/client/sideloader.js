@@ -1070,9 +1070,10 @@ function getMoreContent(remove, add, url, keep) {
     });
     return false;
 }
-function getSearchContent(element, url) {
+function getSearchContent(element, tagsElement, url) {
     const searchText = document.getElementById(element).value;
-    if (searchText !== null && searchText !== '') {
+    const searchTags = (tagsElement) ? document.getElementById(tagsElement).value : undefined;
+    if ((searchText !== null && searchText !== '') || (searchTags && searchTags !== '')) {
         if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
         let _url = (() => {
             try {
@@ -1112,7 +1113,10 @@ function getSearchContent(element, url) {
                 (_currentURL.startsWith('/artists') || _params.getAll('search').length > 0)) {
                 _params.set('nsfw', 'true')
             }
-            _params.set('search', searchText);
+            if (searchText !== null && searchText !== '')
+                _params.set('search', searchText);
+            if (searchTags && searchTags !== '')
+                _params.set('tags', searchTags);
             if (_params.has('channel') && _params.getAll('channel').pop() === 'random') {
                 _params.delete('channel');
             }
@@ -3440,6 +3444,7 @@ async function showSearchOptions(post) {
     const postPreviewImage = _post.getAttribute('data-msg-url-preview');
     const postFullImage = _post.getAttribute('data-msg-url-full');
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
+    const postTags = _post.getAttribute('data-tags');
     const postKMSJSON = (() => {
         const _data = _post.getAttribute('data-kms-json');
         if (_data && _data.length > 2) {
@@ -3501,6 +3506,8 @@ async function showSearchOptions(post) {
     const modalRepair = document.getElementById(`infoRepair`);
     const modalSetAvatar = document.getElementById(`setAsAvatar`);
     const modalSetBanner = document.getElementById(`setAsBanner`);
+    const modelTagsHeader = document.getElementById(`tagsHeader`);
+    const modelTagsHolder = document.getElementById(`tagsHolder`);
 
     const modelKMSRow = document.getElementById(`kmsContent`);
     const modelKMSPoster = document.getElementById(`kmsInfoPoster`);
@@ -4072,6 +4079,32 @@ async function showSearchOptions(post) {
     } else {
         modalBodyRaw.querySelector('div').innerHTML = ''
         modalBodyRaw.classList.add('hidden')
+    }
+    if (postTags && postTags.length > 0) {
+        modelTagsHeader.classList.remove('hidden');
+        modelTagsHolder.innerHTML = postTags.split('; ').map(e => {
+            const type = ((t) => {
+                switch (t) {
+                    case 3:
+                        return ['fa-file-circle-info','System','bg-warning']
+                    case 2:
+                        return ['fa-person','Character','bg-success']
+                    default:
+                        return ['fa-tag','General','bg-gray-100']
+                }
+            })(parseInt(e.split('_')[0]))
+            const rating = parseFloat(e.split('_')[1]) * 100
+            const name = e.split('_').slice(2).join('_')
+            let tagObj = [`<a class="${type[2]} text-gray-900 badge mx-1 mb-1" href="#_" onclick="getNewContent([], [['tags', '${name}']]); return false;" title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
+            tagObj.push(`<i class="fas ${type[0]} pr-1"></i><span>${name}</span>`)
+            tagObj.push("</a>")
+            return tagObj.join("")
+        }).join('\n');
+        modelTagsHolder.classList.remove('hidden');
+    } else {
+        modelTagsHolder.innerHTML = '';
+        modelTagsHeader.classList.add('hidden');
+        modelTagsHolder.classList.add('hidden');
     }
 
     advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);

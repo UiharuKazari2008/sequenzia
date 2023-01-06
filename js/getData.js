@@ -25,6 +25,7 @@ module.exports = async (req, res, next) => {
     const page_uri = `/${req.originalUrl.split('/')[1].split('?')[0]}`
     let android_uri = [`server_hostname=${req.headers.host}`]
     let search_prev = ''
+    let tags_prev = ''
 
     const thisUser = res.locals.thisUser
 
@@ -68,6 +69,7 @@ module.exports = async (req, res, next) => {
     if (!thisUser.sidebar) {
         res.locals.response = {
             search_prev: search_prev,
+            tags_prev: tags_prev,
             banners: ['noRights'],
             manage_channels: thisUser.discord.channels.manage,
             write_channels: thisUser.discord.channels.write,
@@ -103,6 +105,7 @@ module.exports = async (req, res, next) => {
         let sqlAlbumQueryEnd = '';
         let limit = 1;
         let offset = 0;
+        let tagSearch = [];
 
         let _dn = 'Untitled'
         if (req.query.displayname) {
@@ -387,6 +390,34 @@ module.exports = async (req, res, next) => {
         function getOR(i) {
             return i.split(' OR ')
         }
+        function getTags(_id) {
+            let ts = [];
+            if (_id.split(':').length > 1 &&
+                !isNaN(parseInt(_id.split(':')[0]))) {
+                ts.push(`sequenzia_index_matches.rating >= ${parseInt(_id.split(':')[0]) / 100}`)
+                _id = _id.split(':').slice(1).join(':');
+            }
+            if (_id.startsWith('id:')) {
+                _id = _id.split('id:')[1]
+                ts.push(`sequenzia_index_tags.id = '${_id}'`)
+            } else if (_id.startsWith('st:')) {
+                _id = _id.split('st:')[1]
+                ts.push(`sequenzia_index_tags.name LIKE '${_id}%'`)
+            } else if (_id.startsWith('ed:')) {
+                _id = _id.split('ed:')[1]
+                ts.push(`sequenzia_index_tags.name LIKE '%${_id}'`)
+            } else if (_id.startsWith('lk:')) {
+                _id = _id.split('lk:')[1]
+                ts.push(`sequenzia_index_tags.name LIKE '%${_id}%'`)
+            } else if (_id.length > 0) {
+                ts.push(`sequenzia_index_tags.name = '${_id}'`)
+            }
+            if (ts.length > 1) {
+                return `(${ts.join(' AND ')})`
+            } else {
+                return ts[0]
+            }
+        }
         function getType(i) {
             let _id = i;
             if (_id.startsWith('id:')) {
@@ -492,6 +523,17 @@ module.exports = async (req, res, next) => {
                 sqlquery.push('( ' + getType(search_prev) + ' )')
             }
             android_uri.push(`search=${req.query.search}`);
+        }
+        if ( req.query.tags !== undefined && req.query.tags !== '' ) {
+            tags_prev = req.query.tags.toLowerCase()
+            if ( tags_prev.includes(' AND ') ) {
+                tagSearch.push('( ' + getAND(tags_prev).map(a => '( ' + getOR(a).map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
+            } else if ( tags_prev.includes(' OR ') ) {
+                tagSearch.push('( ' + getOR(tags_prev).map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )')
+            } else {
+                tagSearch.push('( ' + getTags(tags_prev) + ' )')
+            }
+            android_uri.push(`tags=${req.query.search}`);
         }
         // Flagged
         if (req.query.flagged === 'true') {
@@ -948,8 +990,16 @@ module.exports = async (req, res, next) => {
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.user.id}'`;
+        const searchTags = `SELECT eid FROM sequenzia_index_matches, sequenzia_index_tags WHERE sequenzia_index_tags.id = sequenzia_index_matches.tag AND ${tagSearch.join(' AND ')} GROUP BY eid`;
+        const selectTags = `SELECT eid, GROUP_CONCAT(type,'_',rating,'_',name ORDER BY type DESC, rating DESC, name ASC SEPARATOR '; ') AS tags FROM sequenzia_index_matches, sequenzia_index_tags WHERE (sequenzia_index_tags.id = sequenzia_index_matches.tag AND rating >= 0.5) GROUP BY eid`
 
-        let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
+        let sqlCall = (() => {
+            if (tagSearch.length > 0 && tagSearch[0] !== '(  )') {
+                return `SELECT * FROM (SELECT bf.*, t.tags FROM (SELECT base.* FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base INNER JOIN (${searchTags}) t ON base.eid = t.eid) bf LEFT JOIN (${selectTags}) t ON bf.eid = t.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
+            } else {
+                return `SELECT * FROM (SELECT base.*, t.tags FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base LEFT JOIN (${selectTags}) t ON base.eid = t.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
+            }
+        })()
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
@@ -1073,6 +1123,7 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     masterCount: countOfEverything,
                     masterData: sumOfEVerything,
                     randomImage: images,
@@ -1100,6 +1151,7 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     masterCount: countOfEverything,
                     masterData: sumOfEVerything,
                     server: thisUser.server_list,
@@ -1288,6 +1340,7 @@ module.exports = async (req, res, next) => {
                     res.locals.response = {
                         url: req.url,
                         search_prev: search_prev,
+                        tags_prev: tags_prev,
                         randomImage: images,
                         randomImagev2: imagesArray,
                         configuration: (_configuration.rows.length > 0) ? _configuration.rows.pop() : undefined,
@@ -1311,6 +1364,7 @@ module.exports = async (req, res, next) => {
                     res.locals.response = {
                         url: req.url,
                         search_prev: search_prev,
+                        tags_prev: tags_prev,
                         randomImage: images,
                         randomImagev2: imagesArray,
                         server: thisUser.server_list,
@@ -1404,6 +1458,7 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     randomImage: [],
                     randomImagev2: [],
                     server: thisUser.server_list,
@@ -1869,6 +1924,7 @@ module.exports = async (req, res, next) => {
                                                     urls: content_urls,
                                                     search: user_search,
                                                     parent_search: parent_search,
+                                                    tags: (item.tags) ? item.tags : []
                                                 },
                                                 media: {
                                                     season: item.season_num,
@@ -2017,6 +2073,7 @@ module.exports = async (req, res, next) => {
                                             parent_search: parent_search,
                                             cached: isCached,
                                             proccessing: inprogress,
+                                            tags: (item.tags) ? item.tags : []
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2280,6 +2337,7 @@ module.exports = async (req, res, next) => {
                                                 message_type: _message_type,
                                                 message_extra: _message_extra,
                                                 message_header: _message_header,
+                                                tags: (item.tags) ? item.tags : []
                                             },
                                             media: {
                                                 season: item.season_num,
@@ -2404,6 +2462,7 @@ module.exports = async (req, res, next) => {
                                             message_type: _message_type,
                                             message_extra: _message_extra,
                                             message_header: _message_header,
+                                            tags: (item.tags) ? item.tags : []
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2496,6 +2555,7 @@ module.exports = async (req, res, next) => {
                                             message_type: _message_type,
                                             message_extra: _message_extra,
                                             message_header: _message_header,
+                                            tags: (item.tags) ? item.tags : []
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2570,6 +2630,7 @@ module.exports = async (req, res, next) => {
                             android_uri: android_uri.join("&"),
                             req_uri: _req_uri,
                             search_prev: search_prev,
+                            tags_prev: tags_prev,
                             multiChannel: multiChannel,
                             active_ch: currentChannelId,
                             active_svr: currentServerId,
@@ -2606,6 +2667,7 @@ module.exports = async (req, res, next) => {
                             req_uri: _req_uri.split('?').pop(),
                             call_uri: page_uri,
                             search_prev: search_prev,
+                            tags_prev: tags_prev,
                             multiChannel: multiChannel,
                             active_ch: currentChannelId,
                             active_svr: currentServerId,
@@ -2621,6 +2683,7 @@ module.exports = async (req, res, next) => {
                         printLine('GetImages', `No Results were returned`, 'warn');
                         res.locals.response = {
                             search_prev: search_prev,
+                            tags_prev: tags_prev,
                             multiChannel: multiChannel,
                             active_ch: currentChannelId,
                             active_svr: currentServerId,
@@ -2651,6 +2714,7 @@ module.exports = async (req, res, next) => {
                 printLine('GetImages', `No Results were returned`, 'warn');
                 res.locals.response = {
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     multiChannel: multiChannel,
                     server: thisUser.server_list,
                     download: thisUser.discord.servers.download,
