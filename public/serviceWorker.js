@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-040123-PATCH2'
+const cacheName = 'PRODUCTION-v20-060123'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -128,7 +128,7 @@ const cacheOptions = {
         'https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap',
     ]
 };
-let swDebugMode = (origin && origin.includes('localhost:3000'));
+let swDebugMode = (origin && origin.includes('localhost:3500'));
 let swUseInternalUnpacker = false;
 let browserStorageAvailable = false;
 let offlineContent;
