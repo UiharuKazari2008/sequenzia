@@ -690,7 +690,7 @@ html
                                                     else
                                                         h2 No Theaters Available
                                     div#appPanels.w-100(style=`display: contents;`)
-                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll(class=`#{(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'border-bottom-danger' : ''}`)
                             //ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
                                     img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.8em; opacity: 0.78;')
@@ -873,11 +873,6 @@ html
                                             li#totalCount.nav-item.text-right.page-title.text-primary(style="display: contents;")
                                                 span.badge.badge-danger.push-up.p-1
                                                     i.far.fa-calculator
-
-                                    if (nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true'))
-                                        ul.navbar-nav.text-primary
-                                            li.nav-item.mr-1
-                                                i.fas.fa-circle.text-danger
                                 ul.navbar-nav.text-primary(style="font-size: 1.4rem;")
                                     li#pageIsOffline.nav-item.mr-1.d-none
                                         i.fas.fa-bookmark
