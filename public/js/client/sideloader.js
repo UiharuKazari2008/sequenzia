@@ -4087,8 +4087,8 @@ async function showSearchOptions(post) {
     if (postTags && postTags.length > 0) {
         modelTagsHeader.classList.remove('hidden');
         modelTagsHolder.innerHTML = postTags.split('; ').map(e => {
-            const rating = parseFloat(e.split('_')[1]) * 100;
-            const name = e.split('_').slice(2).join('_');
+            const rating = parseFloat(e.split('/')[1]) * 100;
+            const name = e.split('/').slice(2).join('/');
             const type = ((t) => {
                 switch (t) {
                     case 3:

@@ -393,25 +393,23 @@ module.exports = async (req, res, next) => {
         }
         function getTags(_id) {
             let ts = [];
-            if (_id.split(':').length > 1 &&
+            let ra = null;
+            /*if (_id.split(':').length > 1 &&
                 !isNaN(parseInt(_id.split(':')[0]))) {
-                ts.push(`sequenzia_index_matches.rating >= ${parseInt(_id.split(':')[0]) / 100}`)
+                ts.push(`tags LIKE ${parseInt(_id.split(':')[0]) / 100}`)
                 _id = _id.split(':').slice(1).join(':');
-            }
-            if (_id.startsWith('id:')) {
-                _id = _id.split('id:')[1]
-                ts.push(`sequenzia_index_tags.id = '${_id}'`)
-            } else if (_id.startsWith('st:')) {
+            }*/
+            if (_id.startsWith('st:')) {
                 _id = _id.split('st:')[1]
-                ts.push(`sequenzia_index_tags.name LIKE '${_id}%'`)
+                ts.push(`kanmi_records.tags LIKE '%/${_id}%;%'`)
             } else if (_id.startsWith('ed:')) {
                 _id = _id.split('ed:')[1]
-                ts.push(`sequenzia_index_tags.name LIKE '%${_id}'`)
+                ts.push(`kanmi_records.tags LIKE '%/%${_id};%'`)
             } else if (_id.startsWith('lk:')) {
                 _id = _id.split('lk:')[1]
-                ts.push(`sequenzia_index_tags.name LIKE '%${_id}%'`)
+                ts.push(`kanmi_records.tags LIKE '%/%${_id}%;%'`)
             } else if (_id.length > 0) {
-                ts.push(`sequenzia_index_tags.name = '${_id}'`)
+                ts.push(`kanmi_records.tags LIKE '%/${_id};%'`)
             }
             tag_list.push(_id);
             if (ts.length > 1) {
@@ -529,13 +527,14 @@ module.exports = async (req, res, next) => {
         if ( req.query.tags !== undefined && req.query.tags !== '' ) {
             enablePrelimit = false;
             tags_prev = req.query.tags.toLowerCase()
-            /*if ( tags_prev.includes(' + ') ) {
-                tagSearch.push('( ' + tags_prev.split(' + ').map(a => '( ' + a.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
-            } else*/
-            if ( tags_prev.includes(' ') ) {
-                tagSearch.push('( ' + tags_prev.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )')
+            if (sqlquery.length > 0)
+                sqlquery.push(' AND ')
+            if ( tags_prev.includes(' + ') ) {
+                sqlquery.push('( ' + tags_prev.split(' + ').map(a => '( ' + a.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
+            } else if ( tags_prev.includes(' ') ) {
+                sqlquery.push('( ' + tags_prev.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )')
             } else  {
-                tagSearch.push('( ' + getTags(tags_prev) + ' )')
+                sqlquery.push('( ' + getTags(tags_prev) + ' )')
             }
             android_uri.push(`tags=${req.query.tags}`);
         }
@@ -994,16 +993,8 @@ module.exports = async (req, res, next) => {
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.user.id}'`;
-        const searchTags = `SELECT eid FROM sequenzia_index_matches, sequenzia_index_tags WHERE sequenzia_index_tags.id = sequenzia_index_matches.tag AND ${tagSearch.join(' AND ')} GROUP BY eid`;
-        const selectTags = `SELECT eid, GROUP_CONCAT(type,'_',rating,'_',name ORDER BY type DESC, rating DESC, name ASC SEPARATOR '; ') AS tags FROM sequenzia_index_matches, sequenzia_index_tags WHERE (sequenzia_index_tags.id = sequenzia_index_matches.tag) GROUP BY eid`
 
-        let sqlCall = (() => {
-            if (tagSearch.length > 0 && tagSearch[0] !== '(  )') {
-                return `SELECT * FROM (SELECT bf.*, t.tags FROM (SELECT base.* FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base INNER JOIN (${searchTags}) t ON base.eid = t.eid) bf LEFT JOIN (${selectTags}) t ON bf.eid = t.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
-            } else {
-                return `SELECT * FROM (SELECT full_base.*, post_tags.tags FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) full_base LEFT JOIN (${selectTags}) post_tags ON full_base.eid = post_tags.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
-            }
-        })()
+        let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
