@@ -816,11 +816,14 @@ module.exports = async (req, res, next) => {
             baseQ += `( ${thisUser.cache.channels_view}.media_group IS NULL ) AND `
         }
         let channelFilter = `${baseQ}`
+
         if (req.query.album) {
             enablePrelimit = false;
             sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
             android_uri.push(`album=${req.query.album}`);
+            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
         } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true) || bypassNSFWFilter) {
+            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
             android_uri.push('nsfw=true');
         } else if (req.query.nsfw && req.query.nsfw === 'only') {
             channelFilter += `( channel_nsfw = 1 )`;
@@ -1677,7 +1680,6 @@ module.exports = async (req, res, next) => {
                         if (!multiChannel) {
                             currentChannelId = messages[0].channel;
                             currentServerId = messages[0].server;
-                            currentNsfw = (messages[0].channel_nsfw === 1);
                         }
                         if (req.query.vchannel) {
                             currentChannelId = `vc_${messages[0].virtual_channel_eid}`;
@@ -1722,6 +1724,7 @@ module.exports = async (req, res, next) => {
                             currentChannelId = messages[0].channel;
                         }
                     }
+                    currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                     if (page_uri === '/gallery' || page_uri === '/listTheater') {
                         messages.forEach(function (item, index) {
                             if (index + 1 <= limit) {
@@ -2642,6 +2645,7 @@ module.exports = async (req, res, next) => {
                             active_pt: currentClassification,
                             active_icon: currentClassIcon,
                             nsfwEnabled: req.session.nsfwEnabled,
+                            nsfwContent: currentNsfw,
                             pageinatorEnable: req.session.pageinatorEnable,
                             server: thisUser.server_list,
                             download: thisUser.discord.servers.download,
@@ -2697,6 +2701,7 @@ module.exports = async (req, res, next) => {
                             server: thisUser.server_list,
                             download: thisUser.discord.servers.download,
                             nsfwEnabled: req.session.nsfwEnabled,
+                            nsfwContent: currentNsfw,
                             pageinatorEnable: req.session.pageinatorEnable,
                             req_uri: req.originalUrl,
                             call_uri: page_uri,

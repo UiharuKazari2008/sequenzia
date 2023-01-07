@@ -690,7 +690,7 @@ html
                                                     else
                                                         h2 No Theaters Available
                                     div#appPanels.w-100(style=`display: contents;`)
-                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll(class=`#{(nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true')) ? 'border-bottom-danger' : ''}`)
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll(class=`#{(nsfwEnabled || nsfwContent || (params && params.getAll('nsfw')[0] === 'true')) ? 'border-bottom-danger' : ''}`)
                             //ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
                                     img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.8em; opacity: 0.78;')
@@ -1834,7 +1834,7 @@ html
                                                             i.fas.fa-eye-dropper
                                                         a.align-self-end.alert-btn(href='#_' onclick=`getNewContent(['offset'], [['color', '${simularColorCommand}:${colorStep}:9']]); return false;` style='background-color: rgb(255 0 255); border-color: #790048db; color: #880a8a;').mr-1
                                                             i.fas.fa-eye-dropper
-                                if (nsfwEnabled || (params && params.getAll('nsfw')[0] === 'true'))
+                                if (nsfwEnabled || nsfwContent || (params && params.getAll('nsfw')[0] === 'true'))
                                     .alert.alert-danger-transparent(role="alert")
                                         .row
                                             .col-auto.align-self-start.align-self-center
