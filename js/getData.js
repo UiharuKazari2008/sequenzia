@@ -85,6 +85,7 @@ module.exports = async (req, res, next) => {
         let multiClass = false;
         let multiChannelBase = false;
         let hideChannels = true;
+        let bypassNSFWFilter = false;
         let selectedServer = 0;
         let selectedChannel = 0;
 
@@ -421,6 +422,7 @@ module.exports = async (req, res, next) => {
         function getType(i) {
             let _id = i;
             if (_id.startsWith('id:')) {
+                bypassNSFWFilter = true;
                 _id = i.split('id:')[1];
                 if (_id.startsWith('st:')) {
                     _id = _id.split('st:')[1]
@@ -432,6 +434,7 @@ module.exports = async (req, res, next) => {
                     return `kanmi_records.id LIKE '%${_id}%'`
                 }
             } else if (i.startsWith('eid:')) {
+                bypassNSFWFilter = true;
                 _id = i.split('eid:')[1];
                 if (_id.startsWith('st:')) {
                     _id = _id.split('st:')[1]
@@ -755,9 +758,11 @@ module.exports = async (req, res, next) => {
             android_uri.push(`brightness=0`);
         }
         if (req.query.show_id && !isNaN(parseInt(req.query.show_id))) {
+            bypassNSFWFilter = true;
             sqlquery.push(`kongou_shows.show_id = ${parseInt(req.query.show_id)}`)
         }
         if (req.query.group) {
+            bypassNSFWFilter = true;
             sqlquery.push(`${thisUser.cache.channels_view}.media_group = '${req.query.group}' AND ${thisUser.cache.channels_view}.media_group = kongou_media_groups.media_group`)
         }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
@@ -815,9 +820,7 @@ module.exports = async (req, res, next) => {
             enablePrelimit = false;
             sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
             android_uri.push(`album=${req.query.album}`);
-            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true) || req.query.group) {
-            channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
+        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true) || bypassNSFWFilter) {
             android_uri.push('nsfw=true');
         } else if (req.query.nsfw && req.query.nsfw === 'only') {
             channelFilter += `( channel_nsfw = 1 )`;

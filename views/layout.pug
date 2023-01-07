@@ -343,13 +343,6 @@ html
                                                     span.d-none.d-sm-inline Settings
                                             .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                 .menu-grid
-                                                    if (params && path !== '/artists')
-                                                        a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
-                                                            i.fa-light.fa-sliders-h
-                                                            | Display
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Offline Pages" href='#_' onclick="requestSyncPages(); return false;")
-                                                        i.fa-light.fa-sync
-                                                        | Sync
                                                     a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
                                                         i.fa-light.fa-sd-card
                                                         | Storage
@@ -380,9 +373,16 @@ html
                                                     | Tools
                                             .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                 .menu-grid
+                                                    if (params && path !== '/artists')
+                                                        a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
+                                                            i.fa-light.fa-sliders-h
+                                                            | Display
                                                     a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`$('#cachePageModal').modal('show'); return false;`)
                                                         i.fa-light.fa-bookmark
                                                         | Offline
+                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Offline Pages" href='#_' onclick="requestSyncPages(); return false;")
+                                                        i.fa-light.fa-sync
+                                                        | Sync
                                                     if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                         a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                             i.fa-light.fa-download
