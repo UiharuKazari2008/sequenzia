@@ -106,6 +106,7 @@ module.exports = async (req, res, next) => {
         let limit = 1;
         let offset = 0;
         let tagSearch = [];
+        let tag_list = [];
 
         let _dn = 'Untitled'
         if (req.query.displayname) {
@@ -412,6 +413,7 @@ module.exports = async (req, res, next) => {
             } else if (_id.length > 0) {
                 ts.push(`sequenzia_index_tags.name = '${_id}'`)
             }
+            tag_list.push(_id);
             if (ts.length > 1) {
                 return `(${ts.join(' AND ')})`
             } else {
@@ -525,15 +527,17 @@ module.exports = async (req, res, next) => {
             android_uri.push(`search=${req.query.search}`);
         }
         if ( req.query.tags !== undefined && req.query.tags !== '' ) {
+            enablePrelimit = false;
             tags_prev = req.query.tags.toLowerCase()
-            if ( tags_prev.includes(' AND ') ) {
-                tagSearch.push('( ' + getAND(tags_prev).map(a => '( ' + getOR(a).map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
-            } else if ( tags_prev.includes(' OR ') ) {
-                tagSearch.push('( ' + getOR(tags_prev).map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )')
-            } else {
+            /*if ( tags_prev.includes(' + ') ) {
+                tagSearch.push('( ' + tags_prev.split(' + ').map(a => '( ' + a.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
+            } else*/
+            if ( tags_prev.includes(' ') ) {
+                tagSearch.push('( ' + tags_prev.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )')
+            } else  {
                 tagSearch.push('( ' + getTags(tags_prev) + ' )')
             }
-            android_uri.push(`tags=${req.query.search}`);
+            android_uri.push(`tags=${req.query.tags}`);
         }
         // Flagged
         if (req.query.flagged === 'true') {
@@ -991,13 +995,13 @@ module.exports = async (req, res, next) => {
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.user.id}'`;
         const searchTags = `SELECT eid FROM sequenzia_index_matches, sequenzia_index_tags WHERE sequenzia_index_tags.id = sequenzia_index_matches.tag AND ${tagSearch.join(' AND ')} GROUP BY eid`;
-        const selectTags = `SELECT eid, GROUP_CONCAT(type,'_',rating,'_',name ORDER BY type DESC, rating DESC, name ASC SEPARATOR '; ') AS tags FROM sequenzia_index_matches, sequenzia_index_tags WHERE (sequenzia_index_tags.id = sequenzia_index_matches.tag AND rating >= 0.5) GROUP BY eid`
+        const selectTags = `SELECT eid, GROUP_CONCAT(type,'_',rating,'_',name ORDER BY type DESC, rating DESC, name ASC SEPARATOR '; ') AS tags FROM sequenzia_index_matches, sequenzia_index_tags WHERE (sequenzia_index_tags.id = sequenzia_index_matches.tag) GROUP BY eid`
 
         let sqlCall = (() => {
             if (tagSearch.length > 0 && tagSearch[0] !== '(  )') {
                 return `SELECT * FROM (SELECT bf.*, t.tags FROM (SELECT base.* FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base INNER JOIN (${searchTags}) t ON base.eid = t.eid) bf LEFT JOIN (${selectTags}) t ON bf.eid = t.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
             } else {
-                return `SELECT * FROM (SELECT base.*, t.tags FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base LEFT JOIN (${selectTags}) t ON base.eid = t.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
+                return `SELECT * FROM (SELECT full_base.*, post_tags.tags FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) full_base LEFT JOIN (${selectTags}) post_tags ON full_base.eid = post_tags.eid) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
             }
         })()
         if (sqlAlbumWhere.length > 0) {
@@ -1662,6 +1666,13 @@ module.exports = async (req, res, next) => {
                                 }
                             })
                             full_title = page_title;
+                        }
+                        if (tag_list.length > 0) {
+                            if (full_title !== '') {
+                                full_title += ' / ' + tag_list.join(' ');
+                            } else {
+                                full_title = tag_list.join(' ');
+                            }
                         }
                         if (messages[0].virtual_channel_description && messages[0].virtual_channel_description.length > 1) {
                             description = messages[0].virtual_channel_description

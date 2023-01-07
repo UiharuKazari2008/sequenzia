@@ -3519,9 +3519,13 @@ async function showSearchOptions(post) {
     let normalInfo = [];
     let advancedInfo = [];
 
-    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'tags', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
     document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
+
+    document.getElementById('tagFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'tags', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('tagFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+    document.getElementById('tagFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
@@ -4083,19 +4087,36 @@ async function showSearchOptions(post) {
     if (postTags && postTags.length > 0) {
         modelTagsHeader.classList.remove('hidden');
         modelTagsHolder.innerHTML = postTags.split('; ').map(e => {
+            const rating = parseFloat(e.split('_')[1]) * 100;
+            const name = e.split('_').slice(2).join('_');
             const type = ((t) => {
                 switch (t) {
                     case 3:
-                        return ['fa-file-circle-info','System','bg-warning']
+                        return ['fa-file-circle-info','System','bg-warning','text-gray-900']
                     case 2:
-                        return ['fa-person','Character','bg-success']
+                        return ['fa-person','Character','bg-success','text-gray-900']
                     default:
-                        return ['fa-tag','General','bg-gray-100']
+                        if (rating >= 90) {
+                            return ['fa-tag','General','bg-gray-100','text-gray-900']
+                        } else if (rating >= 80 ) {
+                            return ['fa-tag','General','bg-gray-200','text-gray-900']
+                        } else if (rating >= 70 ) {
+                            return ['fa-tag','General','bg-gray-300','text-gray-900']
+                        } else if (rating >= 60 ) {
+                            return ['fa-tag','General','bg-gray-400','text-gray-900']
+                        } else if (rating >= 50 ) {
+                            return ['fa-tag','General','bg-gray-500','text-black-50']
+                        } else if (rating >= 40 ) {
+                            return ['fa-tag','General','bg-gray-600','text-black-50']
+                        } else if (rating >= 30 ) {
+                            return ['fa-tag','General','bg-gray-700','text-white']
+                        } else {
+                            return ['fa-tag','General','bg-gray-800','text-white']
+                        }
                 }
             })(parseInt(e.split('_')[0]))
-            const rating = parseFloat(e.split('_')[1]) * 100
-            const name = e.split('_').slice(2).join('_')
-            let tagObj = [`<a class="${type[2]} text-gray-900 badge mx-1 mb-1" href="#_" onclick="getNewContent([], [['tags', '${name}']]); return false;" title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
+
+            let tagObj = [`<a class="${type[2]} ${type[3]} badge mx-1 mb-1" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(name) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + ` title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
             tagObj.push(`<i class="fas ${type[0]} pr-1"></i><span>${name}</span>`)
             tagObj.push("</a>")
             return tagObj.join("")
@@ -4116,8 +4137,8 @@ async function showSearchOptions(post) {
     $('#searchModal').modal('show');
     return false;
 }
-function getLocation(url) {
-    const l = document.getElementById('searchLocationSelection').querySelector('.active').getAttribute('data-search-location')
+function getLocation(url, tags) {
+    const l = document.getElementById(((tags) ? 'tag' : 'search') + 'LocationSelection').querySelector('.active').getAttribute('data-search-location')
     return (l.split('?').pop().length > 0) ? l + '&' : l
 }
 
