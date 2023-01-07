@@ -80,6 +80,8 @@ html
                                             i.far.fa-asterisk.mr-2
                                         else if (params.has('color'))
                                             i.fas.fa-swatchbook
+                                        else if (params && params.has('tags'))
+                                            i.far.fa-tags.mr-2
                                         else if (params && params.has('search'))
                                             i.far.fa-search.mr-2
                                         else if (params.has('displayname'))
@@ -106,7 +108,9 @@ html
                                             i.far.fa-question.mr-2
                                         if (!historyItem.title || historyItem.title === '')
                                             if (params && (!(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))) || params.getAll('sort')[0] === 'random')
-                                                if (params && params.has('search'))
+                                                if (params && params.has('tags'))
+                                                    span #{decodeURIComponent(params.getAll('tags')[0])}
+                                                else if (params && params.has('search'))
                                                     span #{decodeURIComponent(params.getAll('search')[0])}
                                                 else if (params && path === '/artists')
                                                     span Artists
