@@ -51,6 +51,8 @@ html
                         title= `${webconf.site_name} - Latest Files`
                     else if (params && (params.getAll('sort')[0] === 'id' || params.getAll('sort')[0] === 'eid'))
                         title= `${webconf.site_name} - Latest Media`
+                    else if (params && (params.getAll('sort')[0] === 'rating'))
+                        title= `${webconf.site_name} - MIITS Score`
                     else if (path === '/tvTheater' || path === '/listTheater')
                         title= `${webconf.site_name} - Theater`
                     else
@@ -802,6 +804,9 @@ html
                                                             else
                                                                 i.far.fa-photo-video.mr-2
                                                                 span(title='Images in order of upload').text-uppercase Latest Media
+                                                    else if (params && (params.getAll('sort')[0] === 'rating'))
+                                                        i.far.fa-hundred-points.mr-2
+                                                        span(title='MIITS Score based on overall tags rating').text-uppercase MIITS Score
                                                     else
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
@@ -1098,6 +1103,10 @@ html
                                                                         a.dropdown-item(title="Sort by date Favoured" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'fav']]); return false;` role='button')
                                                                             i.fas.fa-star.pr-2
                                                                             | Favoured
+                                                                    if (!(params.getAll('sort')[0] === 'rating'))
+                                                                        a.dropdown-item(title="Sort by MIITS Tag Score" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'rating']]); return false;` role='button')
+                                                                            i.fas.fa-hundred-points.pr-2
+                                                                            | MIITS Score
                                                                     if (!(params.getAll('sort')[0] === 'history') && (params.has('displayname') || params.getAll('history')[0] === 'only'))
                                                                         a.dropdown-item(title="Sort by date last displayed" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'history']]); return false;` role='button')
                                                                             i.fas.fa-history.pr-2
@@ -2153,7 +2162,9 @@ html
                                                             i.fas.fa-chevron-right.pl-2
                                                 #tagCollapse.collapse.show(data-parent='#findMenus').w-100
                                                     div.mt-1
-                                                        div#tagsHolder.d-flex.flex-wrap.justify-content-center
+                                                        div#tagsHolder.d-flex.flex-wrap.justify-content-center(style="font-size: 1.2em;")
+                                                        div
+                                                            span.text-success Powered by Mugino MIITS Project
                                                     div#tagLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
                                                         label#tagFilterPost.btn.btn-info.w-100.active
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
