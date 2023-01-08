@@ -501,6 +501,10 @@ function getRandomImage() {
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.add('shine-effect-go');
                     }, 3000)
+                } else {
+                    document.getElementById('midSearch').classList.remove('d-none');
+                    document.getElementById('naviResume').classList.remove('d-none');
+                    document.getElementById('bootUpLogo').classList.add('d-none');
                 }
             },
             error: function (xhr) {

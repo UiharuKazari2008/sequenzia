@@ -70,7 +70,7 @@ module.exports = async (req, res, next) => {
                     })
                     break;
                 case 'GetLastHistoryPage':
-                    sqlSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY date DESC LIMIT 5`, [thisUser.discord.user.id], (err, result) => {
+                    sqlSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY date DESC LIMIT 10`, [thisUser.discord.user.id], (err, result) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update history save status for ${req.body.messageid}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
