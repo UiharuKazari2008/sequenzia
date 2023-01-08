@@ -1073,6 +1073,14 @@ html
                                                                     a.dropdown-item(title="Show only favorites" href='#_' onclick=`getNewContent(['offset'], [['pins', 'true']])` role='button')
                                                                         i.fas.fa-star.pr-2
                                                                         | Favorites
+                                                                if (params.getAll('require_score')[0] === 'true')
+                                                                    a.dropdown-item(title="Show All regardless of if tagged or scored" href='#_' onclick=`getNewContent(['offset', 'require_score'], [])`  role='button')
+                                                                        i.fas.fa-empty-set.pr-2
+                                                                        | Show All (MIITS)
+                                                                else
+                                                                    a.dropdown-item(title="Show only items that have a MITTS Score and Tags" href='#_' onclick=`getNewContent(['offset'], [['require_score', 'true']])` role='button')
+                                                                        i.fas.fa-chart-waterfall.pr-2
+                                                                        | Require MIITS
                                                                 if (params.getAll('cached')[0] === 'true')
                                                                     a.dropdown-item(title="Show All regardless of accessibility" href='#_' onclick=`getNewContent(['offset', 'cached'], [])`  role='button')
                                                                         i.fas.fa-cloud.pr-2
