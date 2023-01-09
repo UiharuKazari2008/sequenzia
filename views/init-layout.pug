@@ -1052,6 +1052,67 @@ html
                             div
                                 code (name:ed:.fbx OR name:ed:.blend) AND name:st:MyProjects_
 
+        #searchHelp2Modal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            i.fas.fa-magnifying-glass.pr-2
+                            | Tag Search Help
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        div.row.pl-3.pr-3
+                            h3 Fields
+                        div.row.pl-3.pr-3.flex-column
+                            div
+                                span.pr-2 Starting With
+                                code st:
+                            div
+                                span.pr-2 Ending With
+                                code ed:
+                            div
+                                span.pr-2 Like
+                                code lk:
+
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                span.pr-2 Does Not Start With
+                                code !:st:
+                            div
+                                span.pr-2 Does not End With
+                                code !:ed:
+                            div
+                                span.pr-2 Not like
+                                code !:lk:
+                            div
+                                span.pr-2 Does not have this tag
+                                code !:
+
+                        div.row.pl-3.pr-3.pt-2
+                            h3 Operators
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 AND
+                                code +
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                code solo + male_focus + white_hair
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 OR
+                                code " " (use a space to separate)
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                code red_hair blue_eyes
+                        div.row.pl-3.pr-3.pt-2
+                            h4
+                                span.pr-2 Groups
+                                code ()
+                        div.row.pl-3.pr-3.pt-1.flex-column
+                            div
+                                code (red_hair blue_eyes) + solo
+
         #offlineSwotchModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content
@@ -1067,6 +1128,21 @@ html
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
                         a.btn.btn-danger(href='#_' onclick="transitionToOOBPage('/offline'); return false;") Offline
+        #emiitsWarning.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
+            .modal-dialog(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            i.fas.fa-exclamation.pr-2
+                            | Enhanced MIITS Data
+                        button.close(type='button' data-dismiss='modal' aria-label='Close')
+                            span(aria-hidden='true') &times;
+                    .modal-body
+                        p Using "Enhanced MIITS" data will results in much slower results
+                        p You should only enable this if you know how to use it!
+                    .modal-footer
+                        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+                        a.btn.btn-danger(href='#_' onclick="getNewContent(['offset', 'reverse'], [['sort', 'rating']]); return false;") Enable
         #cachePageModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='cacheModalLabel' aria-hidden='true')
             .modal-dialog(role='document' style="max-width: 300px;")
                 .modal-content

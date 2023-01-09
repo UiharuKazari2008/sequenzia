@@ -398,12 +398,27 @@ module.exports = async (req, res, next) => {
         function getTags(_id) {
             let ts = [];
             let ra = null;
+            // No way to sort by rating with out using enhanced MIITS data
+            // Currently this is extremely query intensive and results in
+            // a request that will process 64 quadtillion rows....
             /*if (_id.split(':').length > 1 &&
                 !isNaN(parseInt(_id.split(':')[0]))) {
                 ts.push(`tags LIKE ${parseInt(_id.split(':')[0]) / 100}`)
                 _id = _id.split(':').slice(1).join(':');
             }*/
-            if (_id.startsWith('st:')) {
+            if (_id.startsWith('!st:')) {
+                _id = _id.split('!st:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/${_id}%;%'`)
+            } else if (_id.startsWith('!ed:')) {
+                _id = _id.split('!ed:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/%${_id};%'`)
+            } else if (_id.startsWith('lk:')) {
+                _id = _id.split('!lk:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/%${_id}%;%'`)
+            } else if (_id.startsWith('!:')) {
+                _id = _id.split('!:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/${_id};%'`)
+            } else if (_id.startsWith('st:')) {
                 _id = _id.split('st:')[1]
                 ts.push(`kanmi_records.tags LIKE '%/${_id}%;%'`)
             } else if (_id.startsWith('ed:')) {
