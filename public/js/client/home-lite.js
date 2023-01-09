@@ -394,25 +394,25 @@ function refreshLayout() {
                 const ratio = (window.innerHeight / window.innerWidth);
                 console.log(_Size[2])
                 console.log(ratio)
-                document.querySelector('.container').classList.remove('backdrop-wide');
-                document.querySelector('.container').classList.remove('backdrop-neutral');
-                document.querySelector('.container').classList.remove('backdrop-portait');
+                document.getElementById('mainContainer').classList.remove('backdrop-wide');
+                document.getElementById('mainContainer').classList.remove('backdrop-neutral');
+                document.getElementById('mainContainer').classList.remove('backdrop-portait');
                 if ((ratio <= 0.88 && _Size[2] < 0.97) || (ratio >= 1.2 && ratio <= 2.5 && _Size[2] >= 1)) {
                     document.getElementById('fullBG').style.display = 'initial';
                     document.getElementById('previewBG').style.display = 'none';
                     document.getElementById('portraitBG').style.display = 'none';
                     document.getElementById('landscapeBG').style.display = 'none';
-                    document.querySelector('.container').classList.add('backdrop-neutral');
+                    document.getElementById('mainContainer').classList.add('backdrop-neutral');
                 } else {
                     document.getElementById('fullBG').style.display = 'none';
                     if (_Size[2] < 0.97) {
                         // Widescreen Image
                         document.getElementById('portraitBG').style.display = 'none';
                         document.getElementById('landscapeBG').style.display = 'initial';
-                        document.querySelector('.container').classList.add('backdrop-wide');
+                        document.getElementById('mainContainer').classList.add('backdrop-wide');
                     } else {
                         // Portrait Image
-                        document.querySelector('.container').classList.add('backdrop-portait');
+                        document.getElementById('mainContainer').classList.add('backdrop-portait');
                         document.getElementById('portraitBG').style.display = 'initial';
                         document.getElementById('landscapeBG').style.display = 'none';
                     }
@@ -452,7 +452,7 @@ function getRandomImage() {
                         $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                         $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                         $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                        $('.middle-indicator').removeClass('hidden');
+                        $('.middle-indicator, #photoInfo').removeClass('hidden');
                         if (json.randomImagev2[0].pinned) {
                             $('.ajax-imageFav').removeClass('d-none');
                         } else {
@@ -469,7 +469,7 @@ function getRandomImage() {
                             $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                             $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                             $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                            $('.middle-indicator').removeClass('hidden');
+                            $('.middle-indicator, #photoInfo').removeClass('hidden');
                             if (json.randomImagev2[0].pinned) {
                                 $('.ajax-imageFav').removeClass('d-none');
                             } else {
@@ -482,6 +482,7 @@ function getRandomImage() {
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.remove('d-none');
                         document.getElementById('naviResume').classList.remove('d-none');
+                        document.getElementById('photoInfo').classList.remove('d-none');
                         document.getElementById('bootUpLogo').classList.add('d-none');
                     }, 1000)
                     setTimeout(() => {
@@ -497,6 +498,7 @@ function getRandomImage() {
                     });
                     document.getElementById('midSearch').classList.remove('d-none');
                     document.getElementById('naviResume').classList.remove('d-none');
+                    document.getElementById('photoInfo').classList.remove('d-none');
                     document.getElementById('bootUpLogo').classList.add('d-none');
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.add('shine-effect-go');
@@ -826,8 +828,8 @@ function setupAmbientTimers () {
 }
 function startAmbientTimer() {
     if (!ambientTimeout) {
-        $.when($('.container, #homeBg').fadeIn(500)).done(() => {
-            document.querySelector('.container').classList.remove('disabled-pointer')
+        $.when($('#mainContainer, #homeBg, #photoInfo').fadeIn(500)).done(() => {
+            document.getElementById('mainContainer').classList.remove('disabled-pointer')
         })
         $('.ambient-items').fadeOut(500);
         document.getElementById('midSearch').classList.remove('shine-effect-go');
@@ -841,9 +843,8 @@ function resetAmbientTimer() {
 }
 function switchToAmbientMode() {
     if (!noAmbientTimer) {
-        document.querySelector('.container').classList.add('disabled-pointer')
-        $('.container').fadeOut(500);
-        $('#homeBg').fadeOut(1000);
+        document.getElementById('mainContainer').classList.add('disabled-pointer')
+        $('#mainContainer, #homeBg, #photoInfo').fadeOut(500);
         $('.ambient-items').fadeIn(500);
     }
     window.clearTimeout(ambientTimeout);
@@ -998,22 +999,22 @@ function kernelRequestData(message) {
 async function setMenuLocation(location) {
     menuLocation = location;
     if (location === 'bottom') {
-        if (document.querySelector('.container').classList.contains('menu-top')) {
-            document.querySelector('.container').classList.remove('menu-top');
+        if (document.getElementById('mainContainer').classList.contains('menu-top')) {
+            document.getElementById('mainContainer').classList.remove('menu-top');
             menuLocation = 'null';
         } else {
-            document.querySelector('.container').classList.add('menu-bottom');
+            document.getElementById('mainContainer').classList.add('menu-bottom');
         }
     } else if (location === 'top') {
-        if (document.querySelector('.container').classList.contains('menu-bottom')) {
-            document.querySelector('.container').classList.remove('menu-bottom');
+        if (document.getElementById('mainContainer').classList.contains('menu-bottom')) {
+            document.getElementById('mainContainer').classList.remove('menu-bottom');
             menuLocation = 'null';
         } else {
-            document.querySelector('.container').classList.add('menu-top');
+            document.getElementById('mainContainer').classList.add('menu-top');
         }
     } else {
-        document.querySelector('.container').classList.remove('menu-bottom');
-        document.querySelector('.container').classList.remove('menu-top');
+        document.getElementById('mainContainer').classList.remove('menu-bottom');
+        document.getElementById('mainContainer').classList.remove('menu-top');
         menuLocation = 'null';
     }
     setCookie("menuLocation", menuLocation);
@@ -1197,9 +1198,9 @@ if ('serviceWorker' in navigator) {
 $(document).ready(function () {
     if (menuLocation) {
         if (menuLocation === 'bottom') {
-            document.querySelector('.container').classList.add('menu-bottom');
+            document.getElementById('mainContainer').classList.add('menu-bottom');
         } else if (menuLocation === 'top') {
-            document.querySelector('.container').classList.add('menu-top');
+            document.getElementById('mainContainer').classList.add('menu-top');
         }
     }
     verifyNetworkAccess()

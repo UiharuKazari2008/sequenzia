@@ -205,21 +205,36 @@ html
         .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row
             .animated--fade-in.text-center.pb-4.bottom-time-info.d-none.align-items-end.d-md-flex
                 img(src="/static/img/sequenzia-logo-nav.png" style='height: 4em').pl-4
-            .animated--fade-in.text-center.ml-auto.pb-4.bottom-time-info
+            .animated--fade-in.text-center.ml-auto.bottom-time-info
                 div(style="margin-top: -0.75em;")
                     #time
-                div
+                //div
                     i.fas.fa-star.d-none.ajax-imageFav.pr-2
                     span.ajax-imageLocation.text-capitalize ...
                     div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
                         i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
                     span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
 
-        .container.position-fixed.top-center.h-100.w-100.flex-column
+        .container.position-fixed.top-center.w-100.p4-safty(style="z-index: 2")
+            //.animated--fade-in.text-center.align-items-start.d-none.d-md-flex
+                img(src="/static/img/sequenzia-logo-nav.png" style='height: 4em')
+            #photoInfo.ml-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.mr-auto.mr-md-0.hidden.d-none
+                .menu-container.w-100.p-2.px-3.rounded.position-relative
+                    div
+                        a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                            .align-items-center.d-flex.flex-column
+                                span.ajax-imageLocation.text-capitalize ...
+                                span.ajax-imageDate.d-sm-inline.d-none(style="font-size: .8em;")
+                    div.align-items-center.d-flex.justify-content-between.pb-1.pt-2.px-3
+                        i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
+                        a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;').mr-3
+                            i.i.fas.fa-download.fa-sm
+                        a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
+                            i.i.fas.fa-fast-forward.fa-sm
+        #mainContainer.container.position-fixed.top-center.h-100.w-100.flex-column
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
-
             #bootUpLogo.center-block.animated--fade-in
                 .d-flex.pb-1.w-100.flex-column
                     .d-flex.flex-grow-1.align-items-center.boot-card-holder
@@ -277,7 +292,7 @@ html
                                                 span.dropdown-header
                                                     | Syncing Offline Pages...
                                 div
-                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.querySelector('.container').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
+                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
                                         if (user)
                                             span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
                                             img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
@@ -332,7 +347,7 @@ html
                                         i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
                                         span.align-self-center.pt-1 Login
                             .d-flex.justify-content-between.align-items-center.image-description
-                                div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;')
+                                div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;').hidden
                                     .d-inline(style='white-space: nowrap;  flex: 1;')
                                         i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
                                         a.ajax-imageLink(data-placement="bottom" title='View the background photo')
@@ -539,7 +554,7 @@ html
                         div#menuItemAccount.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                             .d-flex
                                 .d-flex.flex-grow-1
-                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.querySelector('.container').classList.remove('show-menu-buttons'); return false;")
+                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.getElementById('mainContainer').classList.remove('show-menu-buttons'); return false;")
                                         i.fas.fa-arrow-left.fa-fw
                                     if (user)
                                         .input-group(style="width: 13rem;").h-25
