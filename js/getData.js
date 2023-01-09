@@ -536,9 +536,9 @@ module.exports = async (req, res, next) => {
             if (sqlquery.length > 0)
                 sqlquery.push(' AND ')
             if ( tags_prev.includes(' + ') ) {
-                sqlquery.push('( ' + tags_prev.split(' + ').map(a => '( ' + a.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )' ).join(' AND ') + ' )')
+                sqlquery.push('( ' + tags_prev.split(' + ').filter(x => x.trim().length > 0).map(a => '( ' + a.split(' ').filter(x => x.trim().length > 0).map( b => '( ' + getTags(b) + ' )' ).filter(x => !!x).join(' OR ') + ' )' ).filter(x => !!x).join(' AND ') + ' )')
             } else if ( tags_prev.includes(' ') ) {
-                sqlquery.push('( ' + tags_prev.split(' ').map( b => '( ' + getTags(b) + ' )' ).join(' OR ') + ' )')
+                sqlquery.push('( ' + tags_prev.split(' ').filter(x => x.trim().length > 0).map( b => '( ' + getTags(b) + ' )' ).filter(x => !!x).join(' OR ') + ' )')
             } else  {
                 sqlquery.push('( ' + getTags(tags_prev) + ' )')
             }
