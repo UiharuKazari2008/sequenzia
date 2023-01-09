@@ -4137,7 +4137,7 @@ async function showSearchOptions(post) {
                 tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + ' + ' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
                 tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
                 tagObj.push("</a>")
-                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + ' ' + encodeURIComponent(name).trim() + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + ' ' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
                 tagObj.push(`<i class="fas fa-circle-plus"></i>`)
                 tagObj.push("</a>")
             }
