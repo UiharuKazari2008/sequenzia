@@ -1605,8 +1605,8 @@ module.exports = async (req, res, next) => {
                 }
                 debugTimes.sql_query_1 = new Date();
                 const countResults = await (async () => {
-                    if (app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
-                        return { rows: [{ total_count: app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`).count } ] };
+                    if (app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`))
+                        return { rows: [{ total_count: app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`).count } ] };
                     return await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
                 })()
                 debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
@@ -1678,14 +1678,20 @@ module.exports = async (req, res, next) => {
             }
         } else {
             debugTimes.sql_query = new Date();
+
+            // Ultra Cache
             const messageResults = await (async () => {
                 const cacheEnabled = (!req.query || (req.query && req.query.sort !== 'random' && !req.query.watch_history))
+                const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) ||
+                    (app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
+                    Date.now().valueOf() - (app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)).time >= 1800000))
                 let _return
-                if (cacheEnabled) {
+                if (cacheEnabled && app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)) {
+                    const meta = app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
                     _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
                     if (_return) {
-                        if (cacheEnabled && _return && Date.now().valueOf() - _return.time <= 300000)
-                            return {rows: _return.rows.slice(offset, limit + offset)};
+                        if (cacheEnabled && _return && !reCache)
+                            return {rows: _return.rows.slice(offset, limit + offset), cache: (Date.now().valueOf() - meta.time)};
                         app.delete(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
                         console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                     }
@@ -1694,13 +1700,15 @@ module.exports = async (req, res, next) => {
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 if (cacheEnabled && !(
                     !app.get(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
-                    app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
-                    Date.now().valueOf() - (app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)).time <= 300000
+                    app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
+                    reCache
                 )) {
                     if (_return.rows.length < sqllimit + 10) {
                         app.set(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
-                            time: Date.now().valueOf(),
                             rows: _return.rows,
+                        });
+                        app.set(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                            time: Date.now().valueOf(),
                             count: _return.rows.length
                         });
                         console.log(`Cache PreOK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
@@ -1712,9 +1720,11 @@ module.exports = async (req, res, next) => {
                             const _r = await sqlPromiseSimple(`${sqlCallNoPreLimit}`);
                             if (_r && _r.rows.length > 0) {
                                 app.set(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
-                                    time: Date.now().valueOf(),
                                     rows: _r.rows,
-                                    count: _r.rows.length
+                                });
+                                app.set(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    time: Date.now().valueOf(),
+                                    count: _return.rows.length
                                 });
                             }
                         })().then(() =>{
@@ -2817,6 +2827,7 @@ module.exports = async (req, res, next) => {
                             theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
                             next_episode: thisUser.kongou_next_episode,
                             applications_list: thisUser.applications_list,
+                            ultraCache: messageResults.cache,
                             device: ua,
                             folderInfo
                         }
@@ -2840,6 +2851,7 @@ module.exports = async (req, res, next) => {
                             active_svr: currentServerId,
                             active_pt: currentClassification,
                             active_icon: currentClassIcon,
+                            ultraCache: messageResults.cache,
                             username: thisUser.discord.user.username,
                             folderInfo
                         })
@@ -2868,6 +2880,7 @@ module.exports = async (req, res, next) => {
                             write_channels: thisUser.discord.channels.write,
                             discord: thisUser.discord,
                             user: thisUser.user,
+                            ultraCache: messageResults.cache,
                             login_source: req.session.login_source,
                             albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
                             artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],

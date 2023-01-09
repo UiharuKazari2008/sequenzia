@@ -766,7 +766,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
                 addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0}`]);
             }
-            const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
+            const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit', 'refresh'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
             $(".container-fluid").fadeTo(500, 1);
             $(".container-fluid").removeClass('disabled-pointer');
@@ -1113,10 +1113,16 @@ function getSearchContent(element, tagsElement, url) {
                 (_currentURL.startsWith('/artists') || _params.getAll('search').length > 0)) {
                 _params.set('nsfw', 'true')
             }
-            if (searchText !== null && searchText !== '')
+            if (searchText !== null && searchText !== '') {
                 _params.set('search', searchText);
-            if (searchTags && searchTags !== '')
+            } else {
+                _params.delete('search')
+            }
+            if (searchTags && searchTags !== '') {
                 _params.set('tags', searchTags);
+            } else {
+                _params.delete('tags')
+            }
             if (_params.has('channel') && _params.getAll('channel').pop() === 'random') {
                 _params.delete('channel');
             }

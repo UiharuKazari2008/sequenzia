@@ -1514,6 +1514,79 @@ html
                                     ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
                                         li.nav-item.no-arrow
                                             i.fas.fa-spinner.fa-spin-pulse
+                                ul.navbar-nav.text-primary.ml-1.d-none.d-sm-block
+                                    li#infoHolder.nav-item.text-right.page-title.text-primary
+                                        span.badge.bg-translucent.push-up.px-1
+                                            if (path === '/artists')
+                                                if (params.getAll('reverse')[0] === 'true')
+                                                    i.fas.fa-sort-amount-up.px-1
+                                                if (params.getAll('sort')[0] === 'count')
+                                                    i.fas.px-1.fa-calculator
+                                                if (params.getAll('sort')[0] === 'name')
+                                                    i.fas.px-1.fa-user
+                                                if (params.getAll('sort')[0] === 'rating')
+                                                    i.fas.px-1.fa-face-smile
+                                                if (params.getAll('sort')[0] === 'eid')
+                                                    i.fas.fa-stream.px-1
+                                                if ((params.getAll('sort')[0] === 'random'))
+                                                    i.fas.fa-dice.px-1
+                                                if (params.has('rating'))
+                                                    i.fas.px-1.fa-face-smile
+                                            else
+                                                if (params.getAll('pins')[0] === 'false')
+                                                    i.far.fa-star.px-1
+                                                if (params.getAll('pins')[0] === 'true')
+                                                    i.fas.fa-star.px-1
+                                                if (params.getAll('require_score')[0] === 'true')
+                                                    i.fas.fa-binary.px-1
+                                                if (params.getAll('cached')[0] === 'true')
+                                                    i.fas.fa-cloud-check.px-1
+                                                if (params.getAll('reverse')[0] === 'true')
+                                                    i.fas.fa-sort-amount-up.px-1
+                                                if (params.getAll('sort')[0] === 'eid')
+                                                    i.fas.fa-stream.px-1
+                                                if (params.getAll('sort')[0] === 'id')
+                                                    i.fas.fa-pencil.px-1
+                                                if (params.getAll('sort')[0] === 'date')
+                                                    i.fas.fa-file.px-1
+                                                if (params.getAll('sort')[0] === 'album')
+                                                    i.fas.fa-archive.px-1
+                                                if (!(params.getAll('sort')[0] === 'fav') && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                    i.fas.fa-star.px-1
+                                                if (params.getAll('sort')[0] === 'rating')
+                                                    i.fas.fa-hundred-points.px-1
+                                                if (params.getAll('sort')[0] === 'history' && (params.has('displayname') || params.getAll('history')[0] === 'only'))
+                                                    i.fas.fa-history.px-1
+                                                if (params.getAll('sort')[0] === 'content')
+                                                    i.fas.fa-envelope.px-1
+                                                if (params.getAll('sort')[0] === 'name' || params.getAll('sort')[0] === 'file')
+                                                    i.fas.fa-input-text.px-1
+                                                if (params.getAll('sort')[0] === 'ext')
+                                                    i.fas.fa-photo-film-music.px-1
+                                                if (params.getAll('sort')[0] === 'size')
+                                                    i.fas.fa-hdd.px-1
+                                                if (req_uri)
+                                                    if (params && (path === '/gallery' || path === '/files' || path === '/cards'))
+                                                        if (params.has('numdays') || params.has('history_numdays') || params.has('fav_numdays') || params.has('datestart') || params.has('dateend'))
+                                                            i.fas.px-1.fa-calendar-week
+                                                    if (params && (path === '/gallery' || path === '/cards'))
+                                                        if (params.has('minhres') || params.has('minwres') || params.has('minres'))
+                                                            i.fas.px-1.fa-ruler-combined
+                                                        if (params.has('ratio'))
+                                                            i.fas.px-1.fa-expand-arrows-alt
+                                                        if (params.getAll('dark')[0] === 'false')
+                                                            i.fas.fa-sun.px-1
+                                                        if (params.getAll('dark')[0] === 'true')
+                                                            i.fas.fa-moon.px-1
+                                                        if (params.has('color'))
+                                                            .fas.px-1.fa-swatchbook
+                                            if (params.has('nsfw'))
+                                                i.fas.fa-exclamation-triangle.px-1(title=`NSFW Results Enabled`)
+                                            if (ultraCache)
+                                                i.fas.fa-bolt.px-1(title=`UltraCache - ${ultraCache / 60000}m`)
+                                            else
+                                                i.fas.fa-wave-triangle.px-1(title="UltraCache is processing...")
+
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow.kms-pip-icons.align-items-center
@@ -1900,7 +1973,7 @@ html
                                 a.bottomBtn.btn.btn-lg.btn-circle.red(title="Go Back" href='#_' role='button' accesskey="," onClick="history.go(-1); return false;")
                                     i.fa.fa-chevron-left
                                     i.fa.fa-arrow-left
-                                a#nextPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Reload Page" href='#_' onClick="getNewContent([],[]); return false;")
+                                a#nextPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Reload Page" href='#_' onClick="getNewContent([],[['refresh','true']]); return false;")
                                     if (params && params.getAll('sort')[0] === 'random')
                                         i.fa.fa-dice
                                     else
@@ -1916,7 +1989,7 @@ html
                                     a.bottomBtn.btn.btn-lg.btn-circle.red(title="Go Back" href='#_' role='button' accesskey="," onClick="history.go(-1); return false;")
                                         i.fa.fa-chevron-left
                                         i.fa.fa-arrow-left
-                                a#refreshPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Refresh Page" href='#_' onClick=`getNewContent([], []); return false;`)
+                                a#refreshPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Refresh Page" href='#_' onClick=`getNewContent([], [['refresh','true']]); return false;`)
                                     i.fa.fa-sync
                                 if (nexturl !== 'NA')
                                     a#nextPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Next Page" href='#_' onclick=`getNewContent([], [${nexturl}]); return false;`)
@@ -1925,7 +1998,7 @@ html
                                 a.bottomBtn.btn.btn-lg.btn-circle.red(title="Go Back" href='#_' role='button' accesskey="," onClick="history.go(-1); return false;")
                                     i.fa.fa-chevron-left
                                     i.fa.fa-arrow-left
-                                a#refreshPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Refresh Page" href='#_' onClick="getNewContent([], []); return false;")
+                                a#refreshPage.bottomBtn.btn.btn-lg.btn-circle.red(title="Refresh Page" href='#_' onClick="getNewContent([], [['refresh','true']]); return false;")
                                     i.fa.fa-sync
                             // On Load Scripts
                         script(type='text/javascript' src="/js/client/onload.min.js")

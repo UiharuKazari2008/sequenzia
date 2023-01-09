@@ -312,7 +312,7 @@ block content
                                         a(title="Randomize" href='#_' onClick="getNewContent([], []);")
                                             i.fa.fa-dice
                                     else
-                                        a(title="Refresh" href='#_' onClick="getNewContent([], []);")
+                                        a(title="Refresh" href='#_' onClick="getNewContent([], [['refresh','true']]);")
                                             i.fa.fa-sync
                     else if (nexturl !== 'NA')
                         #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
