@@ -4130,11 +4130,11 @@ async function showSearchOptions(post) {
             })(parseInt(e.split('_')[0]))
 
             let tagObj = [`<div class="${type[2]} badge mx-1 mb-1" title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
-            tagObj.push(`<a class="${type[3]}" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(name).trim() + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+            tagObj.push(`<a class="${type[3]}" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
             tagObj.push(`<i class="fas ${type[0]} pr-1"></i><span>${name}</span>`)
             tagObj.push("</a>")
             if (cur.has('tags')) {
-                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + ' + ' + encodeURIComponent(name).trim() + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + ' + ' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
                 tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
                 tagObj.push("</a>")
                 tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + ' ' + encodeURIComponent(name).trim() + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
