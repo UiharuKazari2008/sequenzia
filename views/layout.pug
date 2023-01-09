@@ -164,7 +164,7 @@ html
                                                             i.far.fa-fw.fa-browser
                                                 .col.p-0
                                                     div#locationAccordion.w-100
-                                                        div#locationSearch(class=`collapse ${(!(search_prev && search_prev !== '')) ? '' : 'show'}` data-parent="#locationAccordion")
+                                                        div#locationSearch(class=`collapse ${((search_prev && search_prev !== '')) ? '' : 'show'}` data-parent="#locationAccordion")
                                                             form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                 .input-group.w-100
                                                                     .input-group-prepend
@@ -185,7 +185,7 @@ html
                                                                             i.far.fa-folder.fa-sm.align-middle.nav-item
                                                                         a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/artists"); return false;`)
                                                                             i.far.fa-sm.align-middle.nav-item.fa-address-book
-                                                        div#locationTags(class=`collapse ${(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
+                                                        div#locationTags(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
                                                             form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                 .input-group.w-100
                                                                     .input-group-prepend
