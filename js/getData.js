@@ -1724,7 +1724,7 @@ module.exports = async (req, res, next) => {
                                 });
                                 app.set(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                     time: Date.now().valueOf(),
-                                    count: _return.rows.length
+                                    count: _r.rows.length
                                 });
                             }
                         })().then(() =>{
