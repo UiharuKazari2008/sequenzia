@@ -77,17 +77,17 @@ block content
                                                 a.btn.btn-links(data-placement="top" id='fav-' + item.id title="Toggle Favorite" href='#_' onclick=`toggleFavorite(null, "${item.id}"); return false;`)
                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                                 if (item.artist.search)
-                                                    a.btn.btn-links.goto-link(title=`Search Artists Images` href=`#/gallery?channel=${item.channel.id}&nsfw=true&search=${encodeURIComponent(item.artist.search)}`)
+                                                    a.btn.btn-links.goto-link(title=`Search Artists Images` href=`#/gallery?channel=${item.channel.id}&search=${encodeURIComponent(item.artist.search)}`)
                                                         i.btn-links.fas.fa-search
                                                 if (item.artist.url)
                                                     a.btn.btn-links.goto-link(title=`Go to "${item.artist.url}"` href=item.artist.url target="_blank" rel="noopener noreferrer")
                                                         i.btn-links.fas.fa-globe-americas
                                                 if (multiChannel || (req_uri && !(req_uri.includes('channel') || req_uri.includes('folder'))))
-                                                    a.btn.btn-links.goto-link(title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class_name}/${item.channel.name}` href=href=`#/gallery?channel=${item.channel.id}&nsfw=true`)
+                                                    a.btn.btn-links.goto-link(title=`Go to ${item.server.name.toUpperCase()}:/${item.channel.class_name}/${item.channel.name}` href=href=`#/gallery?channel=${item.channel.id}`)
                                                         i.btn-links.fas.fa-directions
                                             div.right-links.row-1
                                                 p.text.artist-count.shadow-text #{(item.artist.count >= 1000) ? `${(item.artist.count / 1000).toFixed(0)}k` : item.artist.count}
-                                a.lightbox.d-flex(href=href=`#/gallery?channel=${item.channel.id}&nsfw=true&search=${encodeURIComponent(item.artist.search)}`)
+                                a.lightbox.d-flex(href=href=`#/gallery?channel=${item.channel.id}&search=${encodeURIComponent(item.artist.search)}`)
                                     if (item.entities.meta.ratio && item.entities.meta.ratio > 1)
                                         - positionImage = 'background-position: top'
                                     if (indexImage < 10)

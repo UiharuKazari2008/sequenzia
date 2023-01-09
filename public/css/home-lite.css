@@ -14,6 +14,10 @@ body {
     text-decoration: none;
     cursor: default;
 }
+
+.container img.img-profile.img-button {
+    box-shadow: 0 0 4px #ff5100d6;
+}
 .ambient-items {
     display: flex;
 }
@@ -279,6 +283,9 @@ input.middle:focus {
     .container i {
         color: #000000;
         text-shadow: 0 0 4px #9d320066;
+    }
+    .container img.img-profile.img-button {
+        box-shadow: 0 0 4px #9d320066;
     }
     .shine-effect-go .animation-application {
         background: linear-gradient(235deg,transparent 0,transparent 54%, rgba(255, 255, 255, 78%) 75%, rgba(255, 255, 255, 89%) 78%,transparent 82%,transparent 100%) 0 0/500% 100%;

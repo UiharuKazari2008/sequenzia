@@ -3521,11 +3521,11 @@ async function showSearchOptions(post) {
     let normalInfo = [];
     let advancedInfo = [];
 
-    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'tags', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
     document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
-    document.getElementById('tagFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'tags', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('tagFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
     document.getElementById('tagFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
     document.getElementById('tagFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
@@ -3798,7 +3798,7 @@ async function showSearchOptions(post) {
     }
     modalGoToPostLocation.onclick = function() {
         $('#searchModal').modal('hide');
-        window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], `/${pageType}`));
+        window.location.assign("#" + params([], [['channel', `${postChannel}`]], `/${pageType}`));
         return false;
     }
     modalToggleFav.onclick = function() {
@@ -4002,7 +4002,7 @@ async function showSearchOptions(post) {
         modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
         modalGoToHistoryDisplay.onclick = function() {
             $('#searchModal').modal('hide');
-            window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
+            window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`]], '/gallery'));
             return false;
         }
         modalGoToHistoryDisplay.classList.remove('hidden')

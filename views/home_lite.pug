@@ -214,24 +214,23 @@ html
                     div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
                         i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
                     span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
-
-        .container.position-fixed.top-center.w-100.p4-safty(style="z-index: 2")
-            //.animated--fade-in.text-center.align-items-start.d-none.d-md-flex
-                img(src="/static/img/sequenzia-logo-nav.png" style='height: 4em')
-            #photoInfo.ml-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.mr-auto.mr-md-0.hidden.d-none
-                .menu-container.w-100.p-2.px-3.rounded.position-relative
-                    div
-                        a.ajax-imageLink(data-placement="bottom" title='View the background photo')
-                            .align-items-center.d-flex.flex-column
-                                span.ajax-imageLocation.text-capitalize ...
-                                span.ajax-imageDate.d-sm-inline.d-none(style="font-size: .8em;")
-                    div.align-items-center.d-flex.justify-content-between.pb-1.pt-2.px-3
-                        i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
-                        a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;').mr-3
-                            i.i.fas.fa-download.fa-sm
-                        a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
-                            i.i.fas.fa-fast-forward.fa-sm
         #mainContainer.container.position-fixed.top-center.h-100.w-100.flex-column
+            #photoInfo.hidden.d-none.w-100.d-flex.p-2.pb-0
+                .animated--fade-in.text-center.align-items-start.d-none.d-md-flex
+                    img(src="/static/img/sequenzia-logo-nav.png" style='height: 3.5em').shadow-blk
+                .ml-auto.justify-content-between.align-items-center.animated--fade-in.mr-auto.mr-md-0
+                    .menu-container.w-100.p-2.px-3.rounded.position-relative.d-flex.flex-column.flex-md-row
+                        div
+                            a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                                .align-items-center.d-flex.flex-column
+                                    span.ajax-imageLocation.text-capitalize ...
+                                    span.ajax-imageDate(style="font-size: .8em;")
+                        div.align-items-center.d-flex.justify-content-between.py-md-0.pl-md-2.pr-md-0.pt-2.px-3.pb-1
+                            i.fas.fa-star.d-none.ajax-imageFav.px-md-2.px-0(onclick="toggleFavorite(); return false;")
+                            a.ajax-downloadLink.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
+                                i.i.fas.fa-download.fa-sm
+                            a.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
+                                i.i.fas.fa-fast-forward.fa-sm
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
@@ -281,7 +280,7 @@ html
                         div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").w-100
                             .d-flex.pb-1.w-100
                                 .d-flex.flex-grow-1.align-items-center
-                                    span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                    //span.sidebar-brand-logo.sequenzia-logo sequenzia
                                     div#statusPanel(style='display: contents;')
                                         .dropdown
                                             a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
@@ -292,12 +291,7 @@ html
                                                 span.dropdown-header
                                                     | Syncing Offline Pages...
                                 div
-                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
-                                        if (user)
-                                            span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
-                                            img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
-                                        else
-                                            span Login Required
+
                             #mainUserButtons.d-flex(class=`${(!discord) ? 'hidden':''}`).flex-column
                                 div#mainButtonsAccordion(style='display: contents').w-100
                                     div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
@@ -326,6 +320,11 @@ html
                                                 i.fa-light.fa-dice
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                 i.fa-light.fa-browsers
+                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
+                                                if (user)
+                                                    img.img-profile.rounded-circle.img-button(src=user.avatar)
+                                                else
+                                                    i.fa-light.fa-login
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2").user-menu-overlow-hide-icon-1
                                                 i.fa-light.fa-ellipsis-stroke
                                     div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
@@ -460,7 +459,7 @@ html
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
                                             i.fas.fa-arrow-left.fa-fw
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show All History', href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`)
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show All History', href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`)
                                             i.fas.fa-grid-2.fa-fw
                                         #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
                                             i.fas.fa-spin-pulse.fa-spinner

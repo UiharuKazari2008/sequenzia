@@ -2988,6 +2988,19 @@ div#bootBackdropSunrise {
     max-width: 100%;
 }
 
+#mainMenuBar.menu-nsfw nav#topbar {
+    border-bottom: .25rem solid #e74a3b!important;
+}
+#mainMenuBar.menu-nsfw .user-menu-buttons {
+    background-image: linear-gradient(180deg,#7f0000,transparent);
+}
+#mainMenuBar.menu-nsfw #topbarBackground {
+    background: #760f0f;
+}
+.menu-open #mainMenuBar.menu-nsfw #topbarBackground {
+    background: #000000a1;
+}
+
 @keyframes animateBg {
     0% {
         background-position: 0 0;
@@ -3380,6 +3393,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 960px) {
+    .dual-search.user-menu-height {
+        height: 225px;
+    }
     .user-menu-height {
         height: 200px
     }
@@ -3735,6 +3751,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     display: none;
 }
 @media (max-width: 509px) {
+    .dual-search.user-menu-height {
+        height: 275px;
+    }
     .inner-menu-next-episode {
         display: block;
     }
@@ -3800,6 +3819,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 350px) {
+    .dual-search.user-menu-height {
+        height: 325px;
+    }
     .show-poster img {
         height: 84px;
     }
@@ -3945,6 +3967,21 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
 }
 
 @media (prefers-color-scheme: light) {
+    #mainMenuBar.menu-nsfw .user-menu-buttons {
+        background-image: linear-gradient(180deg,#d00000,transparent);
+    }
+    #mainMenuBar.menu-nsfw #topbarBackground {
+        background: #cc1212;
+    }
+    .menu-open #mainMenuBar.menu-nsfw #topbarBackground {
+        background: #d00000a1;
+    }
+    #mainMenuBar.menu-nsfw nav#topbar {
+        border-bottom: .25rem solid #ff5f4a !important;
+    }
+    .badge-primary {
+        color: #d00000;
+    }
     #topBarPWABottomBar, .menu-open:not(.bottom-bar) #topBarPWA {
         background: #d07300;
     }

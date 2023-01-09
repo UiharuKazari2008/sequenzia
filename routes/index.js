@@ -592,7 +592,7 @@ router.use('/content', downloadValidation, async function (req, res) {
                                             sqlSafe(`SELECT * FROM sequenzia_superclass WHERE super = ?`, [classInfo.super], (err, _superInfo) => {
                                                 const superInfo = _superInfo[0];
                                                 if (_superInfo)
-                                                    json.author_url = `/${superInfo.uri}?channel=${message.channel}&nsfw=true`
+                                                    json.author_url = `/${superInfo.uri}?channel=${message.channel}`
                                                 let channelName = `${classInfo.name}`
                                                 if (channelInfo.nice_name) {
                                                     channelName += ' / '

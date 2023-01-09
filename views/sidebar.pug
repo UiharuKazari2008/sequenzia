@@ -25,7 +25,7 @@ html
                                 div.collapse(aria-labelledby=thisClass.id + 'Menu' data-parent='#accordionSidebar' id=`${thisClass.id}Menu` class=isVisible)
                                     .bg-white.py-2.collapse-inner.rounded
                                         if (thisClass.entities.length > 1)
-                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*&nsfw=true`) Everything
+                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*`) Everything
                                                 div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
                                                     if (thisClass.uri === 'gallery')
                                                         i.fas.fa-photo-video.ml-1

@@ -26,45 +26,69 @@ module.exports = async (req, res, next) => {
     let android_uri = [`server_hostname=${req.headers.host}`]
     let search_prev = ''
     let tags_prev = ''
+    const page_params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
+    function params(_removeParams, _addParams, _params) {
+        _removeParams.forEach(param => {
+            if (_params.has(param)) {
+                _params.delete(param);
+            }
+        })
+        _addParams.forEach(param => {
+            if (_params.has(param[0])) {
+                _params.delete(param[0]);
+            }
+            _params.append(param[0], param[1]);
+        })
+        return req.originalUrl.split('?')[0] + `?${_params.toString()}`
+
+    }
 
     const thisUser = res.locals.thisUser
 
-    async function writeHistory(title) {
-        let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
-        if (!_params.has('responseType') && !_params.has('setscreen') &&
-            (_params.has('channel') || _params.has('folder') || _params.has('search') || _params.has('vchannel')
-                || _params.has('album') || _params.has('history') || _params.has('history_screen')
-                || _params.has('datestart') || _params.has('dateend') || _params.has('history_numdays')
-                || _params.has('color') || _params.has('group') || _params.has('show_id'))) {
-            function params(_removeParams, _addParams) {
-                _removeParams.forEach(param => {
-                    if (_params.has(param)) {
-                        _params.delete(param);
-                    }
-                })
-                _addParams.forEach(param => {
-                    if (_params.has(param[0])) {
-                        _params.delete(param[0]);
-                    }
-                    _params.append(param[0], param[1]);
-                })
-                return req.originalUrl.split('?')[0] + `?${_params.toString()}`
-
+    async function writeHistory(title, times) {
+        let current_params = page_params;
+        if (!current_params.has('responseType') && !current_params.has('setscreen') &&
+            (current_params.has('channel') || current_params.has('folder') || current_params.has('search') || current_params.has('vchannel')
+                || current_params.has('album') || current_params.has('history') || current_params.has('history_screen') || current_params.has('tags')
+                || current_params.has('datestart') || current_params.has('dateend') || current_params.has('history_numdays')
+                || current_params.has('color') || current_params.has('group') || current_params.has('show_id'))) {
+            const accessURL = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [], current_params)).toString()
+            const cleanURL = (params(['limit', 'offset'], [], current_params)).toString()
+            const last = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE (user = ? AND date >= NOW() - INTERVAL 3 MINUTE) ORDER BY date DESC`, [thisUser.discord.user.id])
+            if (last.rows.length > 0) {
+                const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
+                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
+                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
+                console.log(noLastTags)
+                console.log(noTags)
+                if (noLastTags === noTags) {
+                    await sqlPromiseSafe(`UPDATE sequenzia_navigation_history SET uri = ?, title = ?, date = CURRENT_TIMESTAMP, times = ?  WHERE \`index\` = ?`, [accessURL, title, times, last.rows[0].index])
+                } else {
+                    await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP, uri = ?, times = ?`, [{
+                        index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
+                        uri: accessURL,
+                        title,
+                        user: thisUser.discord.user.id,
+                        times
+                    }, accessURL, times])
+                }
+            } else {
+                await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP, uri = ?, times = ?`, [{
+                    index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
+                    uri: accessURL,
+                    title: title,
+                    user: thisUser.discord.user.id,
+                    times
+                }, accessURL, times])
             }
 
-            const accessURL = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [])).toString()
-            const cleanURL = (params(['limit', 'offset'], [])).toString()
-            await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP, uri = ?`, [{
-                index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
-                uri: accessURL,
-                title: title,
-                user: thisUser.discord.user.id,
-            }, accessURL])
             await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
         }
     }
 
     console.log(req.query);
+
+
 
     if (!thisUser.sidebar) {
         res.locals.response = {
@@ -150,7 +174,9 @@ module.exports = async (req, res, next) => {
                 baseQ += `channelid = ${req.query.channel} AND `;
             }
             hideChannels = false;
+            bypassNSFWFilter = true;
         } else if (req.query.folder) {
+            bypassNSFWFilter = true;
             const _ch = req.query.folder.trim().split(' ').filter(e => e.length > 0)
             let _andStat = []
             _ch.forEach((_c) => {
@@ -322,6 +348,7 @@ module.exports = async (req, res, next) => {
         }
         if (req.query && req.query.history_screen) {
             sqlHistoryWhere.push( `screen = '${req.query.history_screen.replace(/'/g, '\\\'')}'`)
+            bypassNSFWFilter = true;
         }
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
@@ -406,7 +433,41 @@ module.exports = async (req, res, next) => {
                 ts.push(`tags LIKE ${parseInt(_id.split(':')[0]) / 100}`)
                 _id = _id.split(':').slice(1).join(':');
             }*/
-            if (_id.startsWith('!st:')) {
+            if (_id === 's') {
+                ts.push(`kanmi_records.tags LIKE '%/rating:safe;%'`)
+            } else if (_id === 'q') {
+                ts.push(`kanmi_records.tags LIKE '%/rating:questionable;%'`)
+            } else if (_id === 'e') {
+                ts.push(`kanmi_records.tags LIKE '%/rating:explicit;%'`)
+            } else if (_id === '!s') {
+                ts.push(`kanmi_records.tags NOT LIKE '%/rating:safe;%'`)
+            } else if (_id === '!q') {
+                ts.push(`kanmi_records.tags NOT LIKE '%/rating:questionable;%'`)
+            } else if (_id === '!e') {
+                ts.push(`kanmi_records.tags NOT LIKE '%/rating:explicit;%'`)
+            } else if (_id.startsWith('rating:')) {
+                _id = _id.split('rating:')[1]
+                if (_id.startsWith('s')) {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:safe;%'`)
+                } else if (_id.startsWith('q')) {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:questionable;%'`)
+                } else if (_id.startsWith('e')) {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:explicit;%'`)
+                } else {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:${_id};%'`)
+                }
+            } else if (_id.startsWith('!rating:')) {
+                _id = _id.split('!rating:')[1]
+                if (_id.startsWith('s')) {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:safe;%'`)
+                } else if (_id.startsWith('q')) {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:questionable;%'`)
+                } else if (_id.startsWith('e')) {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:explicit;%'`)
+                } else {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:${_id};%'`)
+                }
+            } else if (_id.startsWith('!st:')) {
                 _id = _id.split('!st:')[1]
                 ts.push(`kanmi_records.tags NOT LIKE '%/${_id}%;%'`)
             } else if (_id.startsWith('!ed:')) {
@@ -548,8 +609,6 @@ module.exports = async (req, res, next) => {
         if ( req.query.tags !== undefined && req.query.tags !== '' ) {
             enablePrelimit = false;
             tags_prev = req.query.tags.toLowerCase()
-            if (sqlquery.length > 0)
-                sqlquery.push(' AND ')
             if ( tags_prev.includes(' + ') ) {
                 sqlquery.push('( ' + tags_prev.split(' + ').filter(x => x.trim().length > 0).map(a => '( ' + a.split(' ').filter(x => x.trim().length > 0).map( b => '( ' + getTags(b) + ' )' ).filter(x => !!x).join(' OR ') + ' )' ).filter(x => !!x).join(' AND ') + ' )')
             } else if ( tags_prev.includes(' ') ) {
@@ -788,6 +847,7 @@ module.exports = async (req, res, next) => {
             sqlquery.push(`${thisUser.cache.channels_view}.media_group = '${req.query.group}' AND ${thisUser.cache.channels_view}.media_group = kongou_media_groups.media_group`)
         }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+            bypassNSFWFilter = true;
             multiChannel = true;
             hideChannels = false;
         }
@@ -1015,7 +1075,6 @@ module.exports = async (req, res, next) => {
                 ])
             }
         }
-
         const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0))`
@@ -1044,6 +1103,8 @@ module.exports = async (req, res, next) => {
         debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
         let countOfEverything, sumOfEVerything
+
+
         if (page_uri === '/start') {
             debugTimes.sql_query = new Date();
             const totalCountsResults = await sqlPromiseSimple(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE (attachment_hash IS NOT NULL OR fileid IS NOT NULL)`)
@@ -1533,7 +1594,11 @@ module.exports = async (req, res, next) => {
                     sqlCountFeild = 'kongou_episodes.eid';
                 }
                 debugTimes.sql_query_1 = new Date();
-                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
+                const countResults = await (async () => {
+                    if (app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
+                        return { rows: [{ total_count: app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`).count } ] };
+                    return await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
+                })()
                 debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
                 debugTimes.sql_query_2 = new Date();
                 const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ thisUser.discord.user.id ]);
@@ -1603,8 +1668,32 @@ module.exports = async (req, res, next) => {
             }
         } else {
             debugTimes.sql_query = new Date();
-            console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
-            const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
+            const messageResults = await (async () => {
+                let _return
+                if ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
+                    _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`);
+                if ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && Date.now().valueOf() - _return.time <= 300000)
+                    return { rows: _return.rows.slice(offset, limit + offset)};
+                console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
+                _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
+                console.log(_return.rows.length)
+                if ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && _return.rows.length > 0  && !(app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))) {
+                    (async () => {
+                        const _r = await sqlPromiseSimple(`${sqlCall}`);
+                        if (_r && _r.rows.length > 0) {
+                            app.set(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`, {
+                                time: Date.now().valueOf(),
+                                rows: _r.rows,
+                                count: _r.rows.length
+                            });
+                            console.log(`Cache OK - ${md5(sqlCall)}`)
+                        }
+                    })()
+                }
+                return _return;
+            })()
+
+
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
             const users = app.get('users').rows
             const user_index = users.map(e => e.id)
@@ -1632,9 +1721,11 @@ module.exports = async (req, res, next) => {
                     if (messages[0].album_name && messages[0].album_name !== null) {
                         page_title = `${messages[0].album_name}`
                         full_title = `${messages[0].album_name}`
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                     } else if (multiChannelBase) {
                         page_title = `${messages[0].class_name}`
                         full_title = `${messages[0].class_name}`
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         if (req.query.folder) {
                             folderInfo = req.query.folder;
                             android_uri.push('folder=' + folderInfo);
@@ -1649,6 +1740,7 @@ module.exports = async (req, res, next) => {
                         page_title = ''
                         full_title = ''
 
+                        currentNsfw = (messages[0].channel_nsfw === 1);
                         if (messages[0].class_name) {
                             page_title += `${messages[0].class_name} / `
                             full_title += `${messages[0].class_name} / `
@@ -1719,9 +1811,11 @@ module.exports = async (req, res, next) => {
                             android_uri.push('folder=' + folderInfo);
                         }
                     } else if (req.query && req.query.displayname && req.query.displayname !== '*' && req.query.history  && req.query.history === 'only') {
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         page_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                         full_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                     } else if (page_uri === '/listTheater') {
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         if (req.query && req.query.show_id && messages[0].show_name) {
                             page_title = messages[0].show_name
                             full_title = `Theater / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
@@ -1731,6 +1825,7 @@ module.exports = async (req, res, next) => {
                         }
                         currentClassIcon = messages[0].group_icon
                     } else {
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         page_title = ''
                         full_title = ''
                     }
@@ -1750,7 +1845,6 @@ module.exports = async (req, res, next) => {
                             currentChannelId = messages[0].channel;
                         }
                     }
-                    currentNsfw = (messages.find(j => j.channel_nsfw === 1));
                     if (page_uri === '/gallery' || page_uri === '/listTheater') {
                         messages.forEach(function (item, index) {
                             if (index + 1 <= limit) {
@@ -2637,7 +2731,6 @@ module.exports = async (req, res, next) => {
                         })
                     }
                     if (resultsArray.length > 0) {
-                        writeHistory((full_title) ? full_title : page_title)
                         let prevurl = 'NA'
                         let nexturl = 'NA'
                         if (offset >= limit) {
@@ -2716,6 +2809,7 @@ module.exports = async (req, res, next) => {
                             username: thisUser.discord.user.username,
                             folderInfo
                         })
+                        writeHistory((full_title) ? full_title : page_title, JSON.stringify(debugTimes))
                         console.log(debugTimes);
                         res.locals.debugTimes = debugTimes;
                         next();

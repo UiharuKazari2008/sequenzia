@@ -112,7 +112,7 @@ html
                             - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     else
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
-                    div#mainMenuBar.top-padding-safety
+                    div#mainMenuBar.top-padding-safety(class=(nsfwEnabled || nsfwContent || (params && params.getAll('nsfw')[0] === 'true')) ? 'menu-nsfw' : '')
                         div#topBarPWA
                         div#userMenu.collapsed.collapse
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
@@ -156,7 +156,7 @@ html
                                         if (next_episode)
                                             div.outer-menu-next-episode(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                 img.border-left-warning.rounded.kongou-next-episode-image(style="height: 152px" src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                        div.position-relative.user-menu-height(style="width: 100%;")
+                                        div.position-relative.user-menu-height(style="width: 100%;" class=`${((search_prev && search_prev !== '')) ? 'dual-search' : ''}`)
                                             .row.w-100.ml-0.mr-0
                                                 .col-auto.p-0
                                                     if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
@@ -166,34 +166,40 @@ html
                                                     div#locationAccordion.w-100
                                                         div#locationSearch(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent="#locationAccordion")
                                                             form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
-                                                                .input-group.w-100
-                                                                    .input-group-prepend
+                                                                .input-group.w-100.flex-nowrap
+                                                                    .input-group-prepend.flex-column.flex-sm-row.justify-content-center
                                                                         a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationDirect" onclick='showAddressInput(); return false;')
                                                                             i.far.fa-map.align-middle
-                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags")
-                                                                            i.far.fa-tags.align-middle
-                                                                    input#dropdownSearch2.form-control.top-menu-search-bar.border-0(type='text' placeholder='Search by SDQ...' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
-                                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick="$('#menuItemMain .user-menu-height').removeClass('dual-search'); return false;")
+                                                                            i.far.fa-chevron-up.align-middle
+                                                                    div.d-flex.flex-column.w-100.justify-content-between.flex-md-row
+                                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                            input#dropdownSearch4.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                            i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                            input#dropdownSearch2.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                                            i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4"); return false;`)
                                                                     .input-group-append
-                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelpModal')
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelpModal').d-none.d-sm-flex
                                                                             i.far.fa-question-circle.align-middle
-                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
+                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4"); return false;`)
                                                                             i.far.fa-square-arrow-right.fa-sm.align-middle.nav-item
-                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
+                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
                                                                             i.far.fa-image.fa-sm.align-middle.nav-item
-                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/files"); return false;`)
+                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/files"); return false;`)
                                                                             i.far.fa-folder.fa-sm.align-middle.nav-item
-                                                                        a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/artists"); return false;`)
-                                                                            i.far.fa-sm.align-middle.nav-item.fa-address-book
                                                         div#locationTags(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
                                                             form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
-                                                                .input-group.w-100
+                                                                .input-group.w-100.flex-nowrap
                                                                     .input-group-prepend
                                                                         a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationDirect" onclick='showAddressInput(); return false;')
                                                                             i.far.fa-map.align-middle
-                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Generic Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch")
-                                                                            i.far.fa-search.align-middle
-                                                                    input#dropdownSearch3.form-control.top-menu-search-bar.border-0(type='text' placeholder='Search by Tags...' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Generic Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
+                                                                            i.far.fa-chevron-down.align-middle
+                                                                    div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                        input#dropdownSearch3.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                        i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
                                                                     input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
                                                                     .input-group-append
                                                                         a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelp2Modal')
@@ -206,10 +212,8 @@ html
                                                             form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                 .input-group.w-100
                                                                     .input-group-prepend
-                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Search Mode" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick='hideAddressInput(); return false;')
+                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick='hideAddressInput(); $(\'#menuItemMain .user-menu-height\').removeClass(\'dual-search\'); return false;')
                                                                             i.far.fa-search.align-middle
-                                                                        a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick='hideAddressInput(); return false;')
-                                                                            i.far.fa-tags.align-middle
                                                                     input#directURI.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Go to Location' aria-label='Go to Location')
                                                                     input(type="submit" style="display: none" onclick=`getNewURIContent("directURI"); return false;`)
                                                                     .input-group-append
@@ -627,7 +631,7 @@ html
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
-                                                a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`).ml-2
+                                                a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`).ml-2
                                                     i.fas.fa-fw.mr-md-1.fa-grid-2
                                                     span.d-none.d-md-inline Show All
                                                 a(class="btn btn-primary" title="Show Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;").ml-2
@@ -698,7 +702,7 @@ html
                                                     else
                                                         h2 No Theaters Available
                                     div#appPanels.w-100(style=`display: contents;`)
-                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll(class=(nsfwEnabled || nsfwContent || (params && params.getAll('nsfw')[0] === 'true')) ? 'border-bottom-danger' : '')
+                        nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             //ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
                                     img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.8em; opacity: 0.78;')
@@ -2180,12 +2184,12 @@ html
                                                         div
                                                             span.text-success.text-xs Powered by Mugino MIITS
                                                     div#tagLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
-                                                        label#tagFilterPost.btn.btn-info.w-100.active
+                                                        label#tagFilterPost.btn.btn-info.w-100
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
                                                             span  Post
-                                                        label#tagFilterCurrent.btn.btn-info.w-100
+                                                        label#tagFilterCurrent.btn.btn-info.w-100.active
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='')
-                                                            span  Current
+                                                            span  Session
                                                         label#tagFilterEverywhere.btn.btn-info.w-100
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='')
                                                             span  Everywhere
@@ -2218,12 +2222,12 @@ html
                                                             i.fas.fa-i-cursor.pr-2
                                                             span Selected Text
                                                     div#searchLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
-                                                        label#searchFilterPost.btn.btn-info.w-100.active
+                                                        label#searchFilterPost.btn.btn-info.w-100
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
                                                             span  Post
-                                                        label#searchFilterCurrent.btn.btn-info.w-100
+                                                        label#searchFilterCurrent.btn.btn-info.w-100.active
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='')
-                                                            span  Current
+                                                            span  Session
                                                         label#searchFilterEverywhere.btn.btn-info.w-100
                                                             input(type='radio' name='options' autocomplete='off' data-search-location='')
                                                             span  Everywhere
