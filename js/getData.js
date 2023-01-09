@@ -1027,7 +1027,6 @@ module.exports = async (req, res, next) => {
         sqlWhere = [
             `kanmi_records.channel = ${thisUser.cache.channels_view}.channelid`
         ];
-        enablePrelimit = false;
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
@@ -1077,6 +1076,7 @@ module.exports = async (req, res, next) => {
             }
         }
         const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
+        const selectBaseNoPreLimit = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
@@ -1087,18 +1087,27 @@ module.exports = async (req, res, next) => {
                 return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             return `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
         })();
+        let sqlCallNoPreLimit = (() => {
+            if (req.query.sort === 'rating')
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            return `SELECT * FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+        })();
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
+            sqlCallNoPreLimit = `SELECT * FROM (${sqlCallNoPreLimit}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
         if (page_uri === '/listTheater') {
             if (req.query.show_id !== 'unmatched') {
                 sqlCall = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
+                sqlCallNoPreLimit = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCallNoPreLimit}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
             } else {
                 sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
+                sqlCallNoPreLimit = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCallNoPreLimit}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
             }
         }
         if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
+            sqlCallNoPreLimit += ` ORDER BY ${sqlorder}`
         }
 
         debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
@@ -1670,28 +1679,50 @@ module.exports = async (req, res, next) => {
         } else {
             debugTimes.sql_query = new Date();
             const messageResults = await (async () => {
-                const cacheEnabled = (req.query && req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))))
+                const cacheEnabled = (!req.query || (req.query && req.query.sort !== 'random' && !req.query.watch_history))
                 let _return
-                if (cacheEnabled && app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
-                    _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`);
-                if (cacheEnabled)
-                    app.delete(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`);
-                if (req.query && req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && Date.now().valueOf() - _return.time <= 300000)
-                    return { rows: _return.rows.slice(offset, limit + offset)};
+                if (cacheEnabled) {
+                    _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
+                    if (_return) {
+                        if (cacheEnabled && _return && Date.now().valueOf() - _return.time <= 300000)
+                            return {rows: _return.rows.slice(offset, limit + offset)};
+                        app.delete(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
+                        console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                    }
+                }
                 console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
-                if (cacheEnabled && !(app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))) {
-                    (async () => {
-                        const _r = await sqlPromiseSimple(`${sqlCall}`);
-                        if (_r && _r.rows.length > 0) {
-                            app.set(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`, {
-                                time: Date.now().valueOf(),
-                                rows: _r.rows,
-                                count: _r.rows.length
-                            });
-                            console.log(`Cache OK - ${md5(sqlCall)}`)
-                        }
-                    })()
+                if (cacheEnabled && !(
+                    !app.get(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
+                    app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
+                    Date.now().valueOf() - (app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)).time <= 300000
+                )) {
+                    if (_return.rows.length < sqllimit + 10) {
+                        app.set(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                            time: Date.now().valueOf(),
+                            rows: _return.rows,
+                            count: _return.rows.length
+                        });
+                        console.log(`Cache PreOK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                        app.delete(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
+                    } else {
+                        (async () => {
+                            app.set(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
+                            console.log(`Cache Lock - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`);
+                            const _r = await sqlPromiseSimple(`${sqlCallNoPreLimit}`);
+                            if (_r && _r.rows.length > 0) {
+                                app.set(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    time: Date.now().valueOf(),
+                                    rows: _r.rows,
+                                    count: _r.rows.length
+                                });
+                            }
+                        })().then(() =>{
+                            console.log(`Cache OK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                            app.delete(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
+                        })
+                    }
+
                 }
                 return _return;
             })()
