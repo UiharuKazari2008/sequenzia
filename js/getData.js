@@ -1670,14 +1670,14 @@ module.exports = async (req, res, next) => {
             debugTimes.sql_query = new Date();
             const messageResults = await (async () => {
                 let _return
-                if ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
+                if (req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
                     _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`);
-                if ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && Date.now().valueOf() - _return.time <= 300000)
+                if (req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && Date.now().valueOf() - _return.time <= 300000)
                     return { rows: _return.rows.slice(offset, limit + offset)};
                 console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 console.log(_return.rows.length)
-                if ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && _return.rows.length > 0  && !(app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))) {
+                if (req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && _return.rows.length > 0  && !(app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))) {
                     (async () => {
                         const _r = await sqlPromiseSimple(`${sqlCall}`);
                         if (_r && _r.rows.length > 0) {
