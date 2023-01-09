@@ -1027,6 +1027,7 @@ module.exports = async (req, res, next) => {
         sqlWhere = [
             `kanmi_records.channel = ${thisUser.cache.channels_view}.channelid`
         ];
+        enablePrelimit = false;
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
@@ -1670,14 +1671,14 @@ module.exports = async (req, res, next) => {
             debugTimes.sql_query = new Date();
             const messageResults = await (async () => {
                 let _return
-                if (req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
+                if (req.query && req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))
                     _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`);
-                if (req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && Date.now().valueOf() - _return.time <= 300000)
+                if (req.query && req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && Date.now().valueOf() - _return.time <= 300000)
                     return { rows: _return.rows.slice(offset, limit + offset)};
                 console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 console.log(_return.rows.length)
-                if (req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && _return.rows.length > 0  && !(app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))) {
+                if (req.query && req.query.sort !== 'random' && (!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) && _return && _return.rows.length > 0  && !(app.get(`query-${thisUser.discord.user.id}-${md5(sqlCall)}`))) {
                     (async () => {
                         const _r = await sqlPromiseSimple(`${sqlCall}`);
                         if (_r && _r.rows.length > 0) {
