@@ -1093,6 +1093,45 @@ async function toggleAlbumItem(aid, eid) {
         }
     });
 }
+async function bumpAlbumItem(aid, eid) {
+    $.ajax({async: true,
+        url: `/actions/v1`,
+        type: "post",
+        data: {
+            'albumid': aid,
+            'messageid': eid,
+            'action': 'CollItemBump'
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (response, textStatus, xhr) {
+            if (xhr.status < 400) {
+                $(`#albumItemModal`).modal('hide');
+            } else {
+                $(`#albumItemModal`).modal('hide');
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to manage album',
+                    subtitle: 'Now',
+                    content: `Failed to add manage album due to error`,
+                    delay: 5000,
+                });
+            }
+        },
+        error: function (xhr) {
+            $(`#albumItemModal`).modal('hide');
+            $.toast({
+                type: 'error',
+                title: 'Failed to manage album',
+                subtitle: 'Now',
+                content: `Server Error: ${xhr.responseText}`,
+                delay: 5000,
+            });
+        }
+    });
+}
 
 // Channel Visibility Management
 function recalculateChannelFilter() {

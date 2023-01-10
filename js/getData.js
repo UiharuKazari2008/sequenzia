@@ -7,6 +7,7 @@ if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
 let web = require('../web.config.json');
 const { printLine } = require("./logSystem");
 const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
+const { redisRetrieve, redisStore, redisDelete } = require('../js/redisClient');
 const { sendData } = require('./mqAccess');
 const getUrls = require('get-urls');
 const moment = require('moment');
@@ -84,6 +85,23 @@ module.exports = async (req, res, next) => {
 
             await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
         }
+    }
+    async function getCacheData(key, isJson) {
+        if (global.shared_cache) {
+            const result = await redisRetrieve(key)
+            return (isJson) ? JSON.parse(result) : result
+        }
+        return app.get(key)
+    }
+    async function setCacheData(key, value, isJson) {
+        if (global.shared_cache)
+            return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+        return app.set(key, value)
+    }
+    async function deleteCacheData(key) {
+        if (global.shared_cache)
+            return await redisDelete(key)
+        return app.delete(key)
     }
 
     console.log(req.query);
@@ -1605,8 +1623,8 @@ module.exports = async (req, res, next) => {
                 }
                 debugTimes.sql_query_1 = new Date();
                 const countResults = await (async () => {
-                    if (app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`))
-                        return { rows: [{ total_count: app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`).count } ] };
+                    if ((await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)))
+                        return { rows: [{ total_count: (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)).count } ] };
                     return await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
                 })()
                 debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
@@ -1682,54 +1700,59 @@ module.exports = async (req, res, next) => {
             // Ultra Cache
             const messageResults = await (async () => {
                 const cacheEnabled = (!req.query || (req.query && req.query.sort !== 'random' && !req.query.watch_history))
+                const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)
                 const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) ||
-                    (app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
-                    Date.now().valueOf() - (app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)).time >= 1800000))
+                    (meta && Date.now().valueOf() >= meta.expires))
                 let _return
-                if (cacheEnabled && app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)) {
-                    const meta = app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
-                    _return = app.get(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
-                    if (_return) {
-                        if (cacheEnabled && _return && !reCache)
-                            return {rows: _return.rows.slice(offset, limit + offset), cache: (Date.now().valueOf() - meta.time)};
-                        app.delete(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
-                        console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                if (cacheEnabled && (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
+                    const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
+                    if (meta) {
+                        _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
+                        if (_return) {
+                            console.log(meta)
+                            if (cacheEnabled && _return && !reCache)
+                                return { rows: _return.rows.slice(offset, limit + offset), cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0) };
+                            deleteCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
+                            console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                        }
                     }
                 }
                 console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 if (cacheEnabled && !(
-                    !app.get(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
-                    app.get(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
-                    reCache
-                )) {
+                    !(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)) &&
+                    (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`))) && reCache) {
                     if (_return.rows.length < sqllimit + 10) {
-                        app.set(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                        await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                             rows: _return.rows,
-                        });
-                        app.set(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
-                            time: Date.now().valueOf(),
+                        }, true);
+                        await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                            time: 300000,
+                            expires: (Date.now().valueOf() + 300000),
                             count: _return.rows.length
-                        });
+                        }, true);
                         console.log(`Cache PreOK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
-                        app.delete(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
+                        deleteCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
                     } else {
                         (async () => {
-                            app.set(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
+                            const startTime = new Date;
+                            await setCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, (new Date().valueOf()));
                             console.log(`Cache Lock - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`);
                             const _r = await sqlPromiseSimple(`${sqlCallNoPreLimit}`);
+                            const expireTime = ((((new Date() - startTime) / 1000) + 3) * 60000);
                             if (_r && _r.rows.length > 0) {
-                                app.set(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                     rows: _r.rows,
-                                });
-                                app.set(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
-                                    time: Date.now().valueOf(),
+                                }, true);
+                                await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    time: expireTime,
+                                    expires: (Date.now().valueOf() + expireTime),
                                     count: _r.rows.length
-                                });
+                                }, true);
                             }
                         })().then(() =>{
                             console.log(`Cache OK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
-                            app.delete(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
+                            deleteCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
                         })
                     }
 

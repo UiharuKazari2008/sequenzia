@@ -257,16 +257,20 @@ module.exports = async (req, res, next) => {
                 case 'CollItemAdd':
                 case 'CollItemRemove':
                 case 'CollItemToggle':
-                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_album_items, sequenzia_albums WHERE sequenzia_album_items.eid = ? AND sequenzia_album_items.aid = ?  AND sequenzia_albums.aid = sequenzia_album_items.aid AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.messageid, req.body.albumid, thisUser.discord.user.id], (err, found) => {
+                case 'CollItemBump':
+                    sqlSafe(`SELECT DISTINCT * FROM sequenzia_album_items, sequenzia_albums WHERE sequenzia_album_items.eid = ? AND sequenzia_album_items.aid = ?  AND sequenzia_albums.aid = sequenzia_album_items.aid AND sequenzia_albums.owner = ? LIMIT 1`, [req.body.messageid, req.body.albumid, thisUser.discord.user.id], async (err, found) => {
                         if (err) {
                             printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                             res.status(500).send('Database Error');
                         } else {
                             switch (req.body.action) {
+                                case 'CollItemBump':
                                 case 'CollItemAdd':
                                     printLine("ActionParser", `Request to Add ${req.body.messageid} to Album ${req.body.albumid}`, 'info', req.body)
-                                    if (found.length === 0) {
-                                        sqlSafe(`INSERT INTO sequenzia_album_items SET eid = ?, aid = ?`, [req.body.messageid, req.body.albumid], (err, result) => {
+                                    if (found.length !== 0)
+                                        await sqlPromiseSafe(`DELETE FROM sequenzia_album_items WHERE eid = ? AND aid = ?`, [req.body.messageid,  req.body.albumid])
+                                    if (found.length === 0 || req.body.action === 'CollItemBump') {
+                                        sqlSafe(`INSERT INTO sequenzia_album_items SET eid = ?, aid = ?, date = CURRENT_TIMESTAMP`, [req.body.messageid, req.body.albumid], (err, result) => {
                                             if (err) {
                                                 printLine("ActionParser", `Unable to update ${req.body.messageid}:${req.body.channelid}:${thisUser.discord.user.id} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
                                                 res.status(500).send('Database Error');
