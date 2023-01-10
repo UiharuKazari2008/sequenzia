@@ -94,7 +94,7 @@ module.exports = async (req, res, next) => {
             const result = await redisRetrieve(key)
             const parsed = (isJson) ? JSON.parse(result) : result
             if (local)
-                return app.set(local, parsed)
+                app.set(local, parsed)
             return parsed
         }
         return app.get(key)
@@ -1714,6 +1714,7 @@ module.exports = async (req, res, next) => {
                     const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {
                         _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
+                        console.log(_return)
                         if (_return) {
                             console.log(meta)
                             if (cacheEnabled && _return && !reCache) {
