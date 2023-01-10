@@ -15,6 +15,7 @@ const useragent = require('express-useragent');
 const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 const app = require("../app");
+const crypto = require("crypto");
 if (web.Base_URL)
     web.base_url = web.Base_URL;
 
@@ -86,10 +87,15 @@ module.exports = async (req, res, next) => {
             await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
         }
     }
-    async function getCacheData(key, isJson) {
+    async function getCacheData(key, isJson, local) {
         if (global.shared_cache) {
+            if (local && app.get(local))
+                return app.get(local)
             const result = await redisRetrieve(key)
-            return (isJson) ? JSON.parse(result) : result
+            const parsed = (isJson) ? JSON.parse(result) : result
+            if (local)
+                return app.set(local, parsed)
+            return parsed
         }
         return app.get(key)
     }
@@ -1707,7 +1713,7 @@ module.exports = async (req, res, next) => {
                 if (cacheEnabled && (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
                     const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {
-                        _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
+                        _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
                         if (_return) {
                             console.log(meta)
                             if (cacheEnabled && _return && !reCache) {
@@ -1737,7 +1743,8 @@ module.exports = async (req, res, next) => {
                         await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                             time: 300000,
                             expires: (Date.now().valueOf() + 300000),
-                            count: _return.rows.length
+                            count: _return.rows.length,
+                            key: `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
                         }, true);
                         console.log(`Cache PreOK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                         deleteCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
@@ -1755,7 +1762,8 @@ module.exports = async (req, res, next) => {
                                 await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                     time: expireTime,
                                     expires: (Date.now().valueOf() + expireTime),
-                                    count: _r.rows.length
+                                    count: _r.rows.length,
+                                    key: `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
                                 }, true);
                             }
                         })().then(() =>{
