@@ -99,9 +99,12 @@ module.exports = async (req, res, next) => {
         }
         return app.get(key)
     }
-    async function setCacheData(key, value, isJson) {
-        if (global.shared_cache)
+    async function setCacheData(key, value, isJson, local) {
+        if (global.shared_cache) {
+            if (local)
+                app.set(local, value)
             return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+        }
         return app.set(key, value)
     }
     async function deleteCacheData(key, local) {
@@ -1740,14 +1743,15 @@ module.exports = async (req, res, next) => {
                 if ((((new Date() - initQuery) / 1000) >= 1.5) && cacheEnabled && reCache &&
                     !(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`))) {
                     if (_return.rows.length < sqllimit + 10) {
+                        const localKey = `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
                         await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                             rows: _return.rows,
-                        }, true);
+                        }, true, localKey);
                         await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                             time: 300000,
                             expires: (Date.now().valueOf() + 300000),
                             count: _return.rows.length,
-                            key: `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
+                            key: localKey
                         }, true);
                         console.log(`Cache PreOK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                         deleteCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
@@ -1759,14 +1763,15 @@ module.exports = async (req, res, next) => {
                             const _r = await sqlPromiseSimple(`${sqlCallNoPreLimit}`);
                             const expireTime = ((((new Date() - startTime) / 1000) + 3) * 60000);
                             if (_r && _r.rows.length > 0) {
+                                const localKey = `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
                                 await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                     rows: _r.rows,
-                                }, true);
+                                }, true, localKey);
                                 await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                     time: expireTime,
                                     expires: (Date.now().valueOf() + expireTime),
                                     count: _r.rows.length,
-                                    key: `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
+                                    key: localKey
                                 }, true);
                             }
                         })().then(() =>{
