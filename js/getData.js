@@ -1714,7 +1714,6 @@ module.exports = async (req, res, next) => {
                     const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {
                         _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
-                        console.log(_return)
                         if (_return) {
                             console.log(meta)
                             if (cacheEnabled && _return && !reCache) {
