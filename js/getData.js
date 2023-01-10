@@ -1701,7 +1701,7 @@ module.exports = async (req, res, next) => {
             const messageResults = await (async () => {
                 const cacheEnabled = (!req.query || (req.query && req.query.sort !== 'random' && !req.query.watch_history))
                 const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)
-                const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) ||
+                const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) || !meta ||
                     (meta && Date.now().valueOf() >= meta.expires))
                 let _return
                 if (cacheEnabled && (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
