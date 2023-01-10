@@ -1710,8 +1710,16 @@ module.exports = async (req, res, next) => {
                         _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                         if (_return) {
                             console.log(meta)
-                            if (cacheEnabled && _return && !reCache)
-                                return { rows: _return.rows.slice(offset, limit + offset), cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0) };
+                            if (cacheEnabled && _return && !reCache) {
+                                await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    ...meta,
+                                    expires: (Date.now().valueOf() + meta.time)
+                                }, true);
+                                return {
+                                    rows: _return.rows.slice(offset, limit + offset),
+                                    cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0)
+                                };
+                            }
                             deleteCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
                             console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                         }
