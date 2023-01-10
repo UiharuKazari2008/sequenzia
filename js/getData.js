@@ -1720,7 +1720,9 @@ module.exports = async (req, res, next) => {
                 console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 if (cacheEnabled && !(
-                    !(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)) &&
+                    (!(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)) ||
+                        await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`) &&
+                        (Date.now() - (parseInt(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)))) >= 300000) &&
                     (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`))) && reCache) {
                     if (_return.rows.length < sqllimit + 10) {
                         await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
