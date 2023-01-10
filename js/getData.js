@@ -1718,7 +1718,7 @@ module.exports = async (req, res, next) => {
                     }
                 }
                 console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
-                const initQuery = new Date;
+                const initQuery = new Date();
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 if ((((new Date() - initQuery) / 1000) >= 1.5) && cacheEnabled && !(
                     (!(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)) ||
