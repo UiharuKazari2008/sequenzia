@@ -1565,6 +1565,8 @@ html
                                                     i.fas.fa-photo-film-music.px-1
                                                 if (params.getAll('sort')[0] === 'size')
                                                     i.fas.fa-hdd.px-1
+                                                if (params.has('filesonly'))
+                                                    i.fas.fa-file.px-1
                                                 if (req_uri)
                                                     if (params && (path === '/gallery' || path === '/files' || path === '/cards'))
                                                         if (params.has('numdays') || params.has('history_numdays') || params.has('fav_numdays') || params.has('datestart') || params.has('dateend'))
