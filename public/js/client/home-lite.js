@@ -452,7 +452,7 @@ function getRandomImage() {
                         $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                         $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                         $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                        $('.middle-indicator').removeClass('hidden');
+                        $('.middle-indicator, #photoInfo').removeClass('hidden');
                         if (json.randomImagev2[0].pinned) {
                             $('.ajax-imageFav').removeClass('d-none');
                         } else {
