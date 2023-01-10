@@ -104,9 +104,12 @@ module.exports = async (req, res, next) => {
             return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
         return app.set(key, value)
     }
-    async function deleteCacheData(key) {
-        if (global.shared_cache)
+    async function deleteCacheData(key, local) {
+        if (global.shared_cache) {
+            if (local)
+                await app.delete(local)
             return await redisDelete(key)
+        }
         return app.delete(key)
     }
 

@@ -215,8 +215,8 @@ html
                         i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
                     span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
         #mainContainer.container.position-fixed.top-center.h-100.w-100.flex-column
-            #photoInfo.hidden.d-none.w-100.d-flex.p-2.pb-0
-                .animated--fade-in.text-center.align-items-start.d-none.d-md-flex
+            #photoInfo.animated--fade-in.hidden.d-none.w-100.d-flex.p-2.pb-0
+                .text-center.align-items-start.d-none.d-md-flex
                     img(src="/static/img/sequenzia-logo-nav.png" style='height: 3.5em').shadow-blk
                 .ml-auto.justify-content-between.align-items-center.animated--fade-in.mr-auto.mr-md-0
                     .menu-container.w-100.p-2.px-3.rounded.position-relative.d-flex.flex-column.flex-md-row
@@ -234,7 +234,7 @@ html
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
-            #bootUpLogo.center-block.animated--fade-in
+            #bootUpLogo.center-block.animated--fade-in(class=(user) ? '' : 'd-none')
                 .d-flex.pb-1.w-100.flex-column
                     .d-flex.flex-grow-1.align-items-center.boot-card-holder
                         div.user-info-bg.rounded
@@ -273,7 +273,7 @@ html
                                                     //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                             div.text-ellipsis.shadow-text.user-infocard-info
                                                 span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column.d-none
+            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column(class=(!user) ? '' : 'd-none')
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                     div#menuAccordion(style='display: contents').w-100.menu-glow
