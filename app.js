@@ -227,7 +227,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.locals.databaseCache = new Map();
 
 app.cacheDatabase = async function cacheDatabase() {
-    const users = await sqlPromiseSafe(`SELECT x.* FROM (SELECT * FROM discord_users) x LEFT JOIN (SELECT discord_servers.position, discord_servers.authware_enabled, discord_servers.name, discord_servers.serverid FROM discord_servers) y ON x.server = y.serverid ORDER BY y.authware_enabled, y.position, x.id`)
+    const users = await sqlPromiseSafe(`SELECT x.* FROM (SELECT u.*, e.avatar_custom, e.banner_custom, e.nice_name, e.token, e.blind_token, e.token_static, e.token_expires FROM (SELECT * FROM discord_users) u LEFT JOIN (SELECT * FROM discord_users_extended) e ON u.id = e.id) x LEFT JOIN (SELECT discord_servers.position, discord_servers.authware_enabled, discord_servers.name, discord_servers.serverid FROM discord_servers) y ON x.server = y.serverid ORDER BY y.authware_enabled, y.position, x.id`)
     const userCache = await sqlPromiseSafe(`SELECT * FROM sequenzia_user_cache`);
 
     app.set('users', users)
