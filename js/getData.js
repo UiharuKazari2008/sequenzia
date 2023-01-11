@@ -1732,7 +1732,7 @@ module.exports = async (req, res, next) => {
                                     cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0)
                                 };
                             }
-                            deleteCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
+                            deleteCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, meta.key);
                             console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                         }
                     }
