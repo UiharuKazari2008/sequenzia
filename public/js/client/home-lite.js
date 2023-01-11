@@ -186,6 +186,19 @@ function getNewContent(remove, add, url) {
         window.location.href = `/juneOS#${_url}`;
     })
 }
+function getSearchContent(element, tagsElement, url) {
+    const searchText = document.getElementById(element).value;
+    const searchTags = (tagsElement) ? document.getElementById(tagsElement).value : undefined;
+    if ((searchText !== null && searchText !== '') || (searchTags && searchTags !== '')) {
+        _params = [];
+        if (searchText !== null && searchText !== '')
+            _params.push(['search', searchText]);
+        if (searchTags && searchTags !== '')
+            _params.push(['tags', searchTags]);
+        getNewContent([],_params,url || '/gallery');
+    }
+    return false;
+}
 $.toastDefaults = {
     position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
     dismissible: true,

@@ -222,6 +222,22 @@ input.middle:focus {
     border: 1px solid #ffa55433;
     position: absolute;
 }
+
+.menu-container #locationAccordion {
+    background: #0000006e;
+    /* border: 1px solid #ffffffa3;
+    box-shadow: 0px 0px 3px 0px #00000069; */
+}
+
+.top-menu-search-bar.form-control::-webkit-input-placeholder,
+.top-menu-search-bar.form-control::-moz-placeholder,
+.top-menu-search-bar.form-control:-ms-input-placeholder,
+.top-menu-search-bar.form-control::-ms-input-placeholder,
+.top-menu-search-bar.form-control::placeholder {
+    color: #f9c8a7!important;
+    opacity: 0.5;
+}
+
 @supports (-webkit-touch-callout: initial) {
 .blur-this {
     filter: blur(5px) saturate(1.6) brightness(0.9) contrast(0.8);
@@ -272,6 +288,11 @@ input.middle:focus {
         background: #ffffff9c;
         box-shadow: 0 0 20px #4e4e4e;
         border: solid 1px #ffffff87;
+    }
+    .menu-container #locationAccordion {
+        background: #ffffff63;
+        /* border: 1px solid #ffffffa3;
+        box-shadow: 0px 0px 3px 0px #00000069; */
     }
     .performance-mode .menu-container {
         background: white;

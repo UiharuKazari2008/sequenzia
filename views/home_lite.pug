@@ -278,20 +278,6 @@ html
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                     div#menuAccordion(style='display: contents').w-100.menu-glow
                         div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").w-100
-                            .d-flex.pb-1.w-100
-                                .d-flex.flex-grow-1.align-items-center
-                                    //span.sidebar-brand-logo.sequenzia-logo sequenzia
-                                    div#statusPanel(style='display: contents;')
-                                        .dropdown
-                                            a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
-                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
-                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
-                                                div#statusMenuProgress
-                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
-                                                span.dropdown-header
-                                                    | Syncing Offline Pages...
-                                div
-
                             #mainUserButtons.d-flex(class=`${(!discord) ? 'hidden':''}`).flex-column
                                 div#mainButtonsAccordion(style='display: contents').w-100
                                     div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
@@ -320,7 +306,7 @@ html
                                                 i.fa-light.fa-dice
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                 i.fa-light.fa-browsers
-                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
+                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0.desktop-only
                                                 if (user)
                                                     img.img-profile.rounded-circle.img-button(src=user.avatar)
                                                 else
@@ -333,8 +319,59 @@ html
                                                 i.fa-light.fa-dice
                                             a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
                                                 i.fa-light.fa-address-book
+                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
+                                                if (user)
+                                                    img.img-profile.rounded-circle.img-button(src=user.avatar)
+                                                else
+                                                    i.fa-light.fa-login
                                             a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
                                                 i.fa-light.fa-chevron-down
+
+                            #menuSearchActivity.d-flex.pt-2.w-100(class=`${(!user) ? 'd-none' : ''}`)
+                                .d-flex.align-items-center
+                                    //span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                    div#statusPanel(style='display: contents;')
+                                        .dropdown
+                                            a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
+                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
+                                                div#statusMenuProgress
+                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
+                                                span.dropdown-header
+                                                    | Syncing Offline Pages...
+                                .w-100.align-items-center
+                                    div#locationAccordion.w-100.rounded
+                                        div#locationSearch(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent="#locationAccordion")
+                                            form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                .input-group.w-100.flex-nowrap
+                                                    div.d-flex.flex-column.w-100.justify-content-between.flex-md-row.pl-2
+                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                            input#dropdownSearch4.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                            i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                            input#dropdownSearch2.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                            i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
+                                                    .input-group-append
+                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
+                                                            i.far.fa-image.fa-sm.align-middle.nav-item
+                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/files"); return false;`)
+                                                            i.far.fa-folder.fa-sm.align-middle.nav-item
+                                                        a.btn.input-group-text.bg-transparent.border-0.bg-transparent(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick="$('#menuItemMain .user-menu-height').removeClass('dual-search'); return false;")
+                                                            i.far.fa-chevron-up.align-middle
+
+                                        div#locationTags(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
+                                            form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                .input-group.w-100.flex-nowrap
+                                                    div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative.pl-2
+                                                        input#dropdownSearch3.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                        i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
+                                                    .input-group-append
+                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
+                                                            i.far.fa-search.fa-sm.align-middle.nav-item.input-group-append
+                                                        a.btn.input-group-text.bg-transparent.border-0(title="Advanced Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
+                                                            i.far.fa-chevron-down.align-middle
 
                             #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
                                 span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
