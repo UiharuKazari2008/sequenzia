@@ -186,7 +186,7 @@ html
                         div.d-flex(style="z-index: 1;")
                             img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                         span.boot-status-holder.font-weight-bolder Kongou Media Project v9
                         .mt-1.boot-icons-holder.d-none
@@ -205,7 +205,7 @@ html
                         div.d-flex(style="z-index: 1;")
                             img#appBootLogo(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div#appBootAccent.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                         span.boot-status-holder.font-weight-bolder JuneApp Platform v1
                         .mt-1.boot-icons-holder.d-none
