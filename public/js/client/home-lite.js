@@ -564,6 +564,7 @@ function verifyNetworkAccess() {
             timeout: 5000,
             success: function (res, txt, xhr) {
                 if (xhr.status === 200 && !res.loggedin) {
+                    document.getElementById('menuSearchActivity').classList.add('hidden');
                     document.getElementById('loginUserButtons').classList.remove('hidden');
                     document.getElementById('mainUserButtons').classList.add('hidden');
                     document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
