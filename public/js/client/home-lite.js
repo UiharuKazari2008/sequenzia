@@ -167,7 +167,7 @@ function getNewContent(remove, add, url) {
                     if (_params.has(e[0])) {
                         _params.delete(e[0])
                     }
-                    _params.set(e[0], e[1])
+                    _params.set(e[0], decodeURLRecursively(e[1]))
                 }
                 _url = `${_pathname}?${_params.toString()}`
             }
@@ -185,6 +185,19 @@ function getNewContent(remove, add, url) {
         console.log(_url);
         window.location.href = `/juneOS#${_url}`;
     })
+}
+function getSearchContent(element, tagsElement, url) {
+    const searchText = document.getElementById(element).value;
+    const searchTags = (tagsElement) ? document.getElementById(tagsElement).value : undefined;
+    if ((searchText !== null && searchText !== '') || (searchTags && searchTags !== '')) {
+        _params = [];
+        if (searchText !== null && searchText !== '')
+            _params.push(['search', searchText]);
+        if (searchTags && searchTags !== '')
+            _params.push(['tags', searchTags]);
+        getNewContent([],_params,url || '/gallery');
+    }
+    return false;
 }
 $.toastDefaults = {
     position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
@@ -394,25 +407,25 @@ function refreshLayout() {
                 const ratio = (window.innerHeight / window.innerWidth);
                 console.log(_Size[2])
                 console.log(ratio)
-                document.querySelector('.container').classList.remove('backdrop-wide');
-                document.querySelector('.container').classList.remove('backdrop-neutral');
-                document.querySelector('.container').classList.remove('backdrop-portait');
+                document.getElementById('mainContainer').classList.remove('backdrop-wide');
+                document.getElementById('mainContainer').classList.remove('backdrop-neutral');
+                document.getElementById('mainContainer').classList.remove('backdrop-portait');
                 if ((ratio <= 0.88 && _Size[2] < 0.97) || (ratio >= 1.2 && ratio <= 2.5 && _Size[2] >= 1)) {
                     document.getElementById('fullBG').style.display = 'initial';
                     document.getElementById('previewBG').style.display = 'none';
                     document.getElementById('portraitBG').style.display = 'none';
                     document.getElementById('landscapeBG').style.display = 'none';
-                    document.querySelector('.container').classList.add('backdrop-neutral');
+                    document.getElementById('mainContainer').classList.add('backdrop-neutral');
                 } else {
                     document.getElementById('fullBG').style.display = 'none';
                     if (_Size[2] < 0.97) {
                         // Widescreen Image
                         document.getElementById('portraitBG').style.display = 'none';
                         document.getElementById('landscapeBG').style.display = 'initial';
-                        document.querySelector('.container').classList.add('backdrop-wide');
+                        document.getElementById('mainContainer').classList.add('backdrop-wide');
                     } else {
                         // Portrait Image
-                        document.querySelector('.container').classList.add('backdrop-portait');
+                        document.getElementById('mainContainer').classList.add('backdrop-portait');
                         document.getElementById('portraitBG').style.display = 'initial';
                         document.getElementById('landscapeBG').style.display = 'none';
                     }
@@ -452,7 +465,7 @@ function getRandomImage() {
                         $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                         $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                         $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                        $('.middle-indicator').removeClass('hidden');
+                        $('.middle-indicator, #photoInfo').removeClass('hidden');
                         if (json.randomImagev2[0].pinned) {
                             $('.ajax-imageFav').removeClass('d-none');
                         } else {
@@ -469,7 +482,7 @@ function getRandomImage() {
                             $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                             $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                             $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                            $('.middle-indicator').removeClass('hidden');
+                            $('.middle-indicator, #photoInfo').removeClass('hidden');
                             if (json.randomImagev2[0].pinned) {
                                 $('.ajax-imageFav').removeClass('d-none');
                             } else {
@@ -479,7 +492,15 @@ function getRandomImage() {
                             refreshLayout();
                         });
                     }
-                    setTimeout(() => {document.getElementById('midSearch').classList.add('shine-effect-go');}, 3000);
+                    setTimeout(() => {
+                        document.getElementById('midSearch').classList.remove('d-none');
+                        document.getElementById('naviResume').classList.remove('d-none');
+                        document.getElementById('photoInfo').classList.remove('d-none');
+                        document.getElementById('bootUpLogo').classList.add('d-none');
+                    }, 1000)
+                    setTimeout(() => {
+                        document.getElementById('midSearch').classList.add('shine-effect-go');
+                    }, 3000);
                 } else if (xhr.status >= 403) {
                     $.toast({
                         type: 'error',
@@ -488,6 +509,17 @@ function getRandomImage() {
                         content: `No Results Found`,
                         delay: 5000,
                     });
+                    document.getElementById('midSearch').classList.remove('d-none');
+                    document.getElementById('naviResume').classList.remove('d-none');
+                    document.getElementById('photoInfo').classList.remove('d-none');
+                    document.getElementById('bootUpLogo').classList.add('d-none');
+                    setTimeout(() => {
+                        document.getElementById('midSearch').classList.add('shine-effect-go');
+                    }, 3000)
+                } else {
+                    document.getElementById('midSearch').classList.remove('d-none');
+                    document.getElementById('naviResume').classList.remove('d-none');
+                    document.getElementById('bootUpLogo').classList.add('d-none');
                 }
             },
             error: function (xhr) {
@@ -500,6 +532,12 @@ function getRandomImage() {
                         delay: 5000,
                     });
                 }
+                document.getElementById('midSearch').classList.remove('d-none');
+                document.getElementById('naviResume').classList.remove('d-none');
+                document.getElementById('bootUpLogo').classList.add('d-none');
+                setTimeout(() => {
+                    document.getElementById('midSearch').classList.add('shine-effect-go');
+                }, 3000);
             }
         });
     // } catch (e) {
@@ -513,44 +551,61 @@ function getRandomImage() {
     // }
 }
 function verifyNetworkAccess() {
-    $.ajax({async: true,
-        url: '/ping?json=true',
-        type: "GET", data: '',
-        processData: false,
-        contentType: false,
-        json: true,
-        headers: {
-            'X-Requested-With': 'SequenziaXHR'
-        },
-        timeout: 5000,
-        success: function (res, txt, xhr) {
-            if (xhr.status === 200 && !res.loggedin) {
-                document.getElementById('loginUserButtons').classList.remove('hidden');
-                document.getElementById('mainUserButtons').classList.add('hidden');
-                document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
-                noAmbientTimer = true;
-                setInterval(function () {
-                    $.ajax({async: true,
-                        url: '/device-login?checklogin=true',
-                        type: "GET",
-                        processData: false,
-                        contentType: false,
-                        success: function (response) {
-                            if (response === 'true') {
-                                location.href = '/discord/refresh'
+    return new Promise((ok) => {
+        $.ajax({async: true,
+            url: '/ping?json=true',
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            json: true,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            timeout: 5000,
+            success: function (res, txt, xhr) {
+                if (xhr.status === 200 && !res.loggedin) {
+                    document.getElementById('menuSearchActivity').classList.add('hidden');
+                    document.getElementById('loginUserButtons').classList.remove('hidden');
+                    document.getElementById('mainUserButtons').classList.add('hidden');
+                    document.getElementById('loginCodeDisplay').innerHTML = res.code || 'XXXXXX'
+                    noAmbientTimer = true;
+                    setInterval(function () {
+                        $.ajax({async: true,
+                            url: '/device-login?checklogin=true',
+                            type: "GET",
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                if (response === 'true') {
+                                    location.href = '/discord/refresh'
+                                }
+                            },
+                            error: function (response) {
                             }
-                        },
-                        error: function (response) {
-                        }
+                        });
+                    }, 60000);
+                    /*$.toast({
+                        type: 'error',
+                        title: 'Login Required',
+                        subtitle: '',
+                        content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/discord/login'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
+                    });*/
+                    ok(false);
+                } else if (xhr.status !== 200) {
+                    $.toast({
+                        type: 'error',
+                        title: 'Network Error',
+                        subtitle: '',
+                        content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                        delay: 30000,
                     });
-                }, 60000);
-                /*$.toast({
-                    type: 'error',
-                    title: 'Login Required',
-                    subtitle: '',
-                    content: `<p>You need to login to continue!</p>${(res.code) ? '<p>Express Login: <b>' + res.code + '</b></p>' : ''}<a class="btn btn-success w-100 mb-2" href="/"><i class="fas fa-sign-in-alt pr-2"></i>Login</a><br/><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/discord/login'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`
-                });*/
-            } else if (xhr.status !== 200) {
+                    ok(false);
+                } else {
+                    ok(true);
+                }
+            },
+            error: function (error) {
+                console.log(error);
                 $.toast({
                     type: 'error',
                     title: 'Network Error',
@@ -558,21 +613,45 @@ function verifyNetworkAccess() {
                     content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                     delay: 30000,
                 });
+                ok(false);
+            }
+        });
+    })
+}
+
+function getLastNaviPage() {
+    $(`#albumItemModal`).modal('show');
+    $.ajax({async: true,
+        url: `/actions/v1`,
+        type: "POST",
+        data: {
+            'action': 'GetLastHistoryPage',
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (response, textStatus, xhr) {
+            if (xhr.status < 400) {
+                $(`#naviResume .navi-last`).html(response);
+                $(`#naviResume`).removeClass('hidden')
+            } else {
+                $(`#naviResume`).addClass('hidden')
             }
         },
-        error: function (error) {
-            console.log(error);
-            $.toast({
-                type: 'error',
-                title: 'Network Error',
-                subtitle: '',
-                content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
-                delay: 30000,
-            });
+        error: function (xhr) {
+            if (xhr.status !== 404) {
+                $.toast({
+                    type: 'error',
+                    title: 'Page Failed',
+                    subtitle: 'Now',
+                    content: `Failed to load navigation history!`,
+                    delay: 5000,
+                });
+            }
         }
     });
 }
-
 let lastMessageAlbum
 function refreshAlbumsList(messageid) {
     lastMessageAlbum = messageid
@@ -763,8 +842,8 @@ function setupAmbientTimers () {
 }
 function startAmbientTimer() {
     if (!ambientTimeout) {
-        $.when($('.container, #homeBg').fadeIn(500)).done(() => {
-            document.querySelector('.container').classList.remove('disabled-pointer')
+        $.when($('#mainContainer, #homeBg, #photoInfo').fadeIn(500)).done(() => {
+            document.getElementById('mainContainer').classList.remove('disabled-pointer')
         })
         $('.ambient-items').fadeOut(500);
         document.getElementById('midSearch').classList.remove('shine-effect-go');
@@ -778,9 +857,8 @@ function resetAmbientTimer() {
 }
 function switchToAmbientMode() {
     if (!noAmbientTimer) {
-        document.querySelector('.container').classList.add('disabled-pointer')
-        $('.container').fadeOut(500);
-        $('#homeBg').fadeOut(1000);
+        document.getElementById('mainContainer').classList.add('disabled-pointer')
+        $('#mainContainer, #homeBg, #photoInfo').fadeOut(500);
         $('.ambient-items').fadeIn(500);
     }
     window.clearTimeout(ambientTimeout);
@@ -935,22 +1013,22 @@ function kernelRequestData(message) {
 async function setMenuLocation(location) {
     menuLocation = location;
     if (location === 'bottom') {
-        if (document.querySelector('.container').classList.contains('menu-top')) {
-            document.querySelector('.container').classList.remove('menu-top');
+        if (document.getElementById('mainContainer').classList.contains('menu-top')) {
+            document.getElementById('mainContainer').classList.remove('menu-top');
             menuLocation = 'null';
         } else {
-            document.querySelector('.container').classList.add('menu-bottom');
+            document.getElementById('mainContainer').classList.add('menu-bottom');
         }
     } else if (location === 'top') {
-        if (document.querySelector('.container').classList.contains('menu-bottom')) {
-            document.querySelector('.container').classList.remove('menu-bottom');
+        if (document.getElementById('mainContainer').classList.contains('menu-bottom')) {
+            document.getElementById('mainContainer').classList.remove('menu-bottom');
             menuLocation = 'null';
         } else {
-            document.querySelector('.container').classList.add('menu-top');
+            document.getElementById('mainContainer').classList.add('menu-top');
         }
     } else {
-        document.querySelector('.container').classList.remove('menu-bottom');
-        document.querySelector('.container').classList.remove('menu-top');
+        document.getElementById('mainContainer').classList.remove('menu-bottom');
+        document.getElementById('mainContainer').classList.remove('menu-top');
         menuLocation = 'null';
     }
     setCookie("menuLocation", menuLocation);
@@ -1134,43 +1212,53 @@ if ('serviceWorker' in navigator) {
 $(document).ready(function () {
     if (menuLocation) {
         if (menuLocation === 'bottom') {
-            document.querySelector('.container').classList.add('menu-bottom');
+            document.getElementById('mainContainer').classList.add('menu-bottom');
         } else if (menuLocation === 'top') {
-            document.querySelector('.container').classList.add('menu-top');
+            document.getElementById('mainContainer').classList.add('menu-top');
         }
     }
-    verifyNetworkAccess();
+    verifyNetworkAccess()
+        .then(async ok => {
+            if (ok) {
+                getLastNaviPage();
+                if (!navigator.serviceWorker.controller) {
+                    if (window.location.protocol !== 'https:') {
+                        $.snack('error', `Application not secure!`, 1500);
+                    } else {
+                        $.snack('error', `Application not ready!`, 1500);
+                    }
+                    updateNotficationsPanel();
+                } else {
+                    kernelRequestData({
+                        type: 'CACHE_URLS',
+                        urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))
+                    });
+                    kernelRequestData({type: 'GET_ALL_ACTIVE_JOBS'})
+                        .then(async data => {
+                            if (data && data.activeSpannedJobs) {
+                                data.activeSpannedJobs.map(job => {
+                                    if (job && job.id) {
+                                        unpackingJobs.set(job.id, job);
+                                    }
+                                })
+                            }
+                            const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+                            console.log(updateOfflinePages);
+                            updateNotficationsPanel();
+                        })
+                        .catch(error => {
+                            console.error('Failed to get active jobs', error)
+                        })
+                }
+                setTimeout(() => {
+                    if (!noAmbientTimer) {
+                        setupAmbientTimers();
+                    }
+                }, 30000)
+            }
+        });
     getRandomImage();
     getSidebar();
-    if (!navigator.serviceWorker.controller) {
-        if (window.location.protocol !== 'https:') {
-            $.snack('error', `Application not secure!`, 1500);
-        } else {
-            $.snack('error', `Application not ready!`, 1500);
-        }
-        updateNotficationsPanel();
-    } else {
-        kernelRequestData({
-            type: 'CACHE_URLS',
-            urls: Array.from(document.querySelectorAll('meta[name^="seq-app-meta-"]')).map(item => item.getAttribute('content'))
-        });
-        kernelRequestData({type: 'GET_ALL_ACTIVE_JOBS'})
-            .then(async data => {
-                if (data && data.activeSpannedJobs) {
-                    data.activeSpannedJobs.map(job => {
-                        if (job && job.id) {
-                            unpackingJobs.set(job.id, job);
-                        }
-                    })
-                }
-                const updateOfflinePages = await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
-                console.log(updateOfflinePages);
-                updateNotficationsPanel();
-            })
-            .catch(error => {
-                console.error('Failed to get active jobs', error)
-            })
-    }
     $('.popover').popover('hide');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice() === false) {
@@ -1180,11 +1268,6 @@ $(document).ready(function () {
     document.addEventListener("scroll", refreshLayout);
     window.addEventListener("resize", refreshLayout);
     window.addEventListener("orientationChange", refreshLayout);
-    setTimeout(() => {
-        if (!noAmbientTimer) {
-            setupAmbientTimers();
-        }
-    }, 30000)
     //dd();
     //ddw();
 })

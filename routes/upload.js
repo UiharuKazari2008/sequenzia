@@ -31,6 +31,7 @@ const ActiveMQ = true
 
 router.post('/files', sessionVerification, writeValidation, upload.array('files'), async (req, res) => {
     try {
+        const thisUser = res.locals.thisUser
         const files = req.files;
         if (!files) {
             res.status(400).send(`No Files`);
@@ -82,7 +83,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                                                     const MessageBody = {
                                                                         Type: 'Remote',
                                                                         ChannelID: req.query.channelid,
-                                                                        UserID: req.session.discord.user.id,
+                                                                        UserID: thisUser.discord.user.id,
                                                                         MessageText: '',
                                                                         FileName: real_filename,
                                                                         FilePath: `${global.fw_path}${local_filename}`
@@ -145,7 +146,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                             const MessageBody = {
                                                 Type: 'Remote',
                                                 ChannelID: req.query.channelid,
-                                                UserID: req.session.discord.user.id,
+                                                UserID: thisUser.discord.user.id,
                                                 MessageText: '',
                                                 FileName: p.originalname,
                                                 FilePath: `${global.fw_path}${p.filename}`

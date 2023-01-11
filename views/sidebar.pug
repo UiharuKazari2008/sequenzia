@@ -25,7 +25,7 @@ html
                                 div.collapse(aria-labelledby=thisClass.id + 'Menu' data-parent='#accordionSidebar' id=`${thisClass.id}Menu` class=isVisible)
                                     .bg-white.py-2.collapse-inner.rounded
                                         if (thisClass.entities.length > 1)
-                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*&nsfw=true`) Everything
+                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*`) Everything
                                                 div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
                                                     if (thisClass.uri === 'gallery')
                                                         i.fas.fa-photo-video.ml-1
@@ -241,10 +241,10 @@ html
                                         a#actionModelRename.btn.btn-primary.w-100.mb-1(title="Rename Item" href='#_' onClick=`selectedActionMenu("RenamePost"); return false;`).d-none
                                             i.fas.fa-input-text.pr-2.align-self-center
                                             span Rename File
-                                        a#actionModelCompile.btn.btn-primary.w-100.mb-1(title="Compile Spanned File" href='#_' onClick=`selectedActionMenu("CompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none
+                                        a#actionModelCompile.btn.btn-primary.w-100.mb-1(title="Compile Spanned File" href='#_' onClick=`selectedActionMenu("CompileSF"); return false;` class=(login_source && login_source < 900) ? '' : 'disabled').d-none
                                             i.fas.fa-cloud-check.pr-2.align-self-center
                                             span Compile Cache
-                                        a#actionModelDeCompile.btn.btn-primary.w-100.mb-1(title="Remove the compiled Cache of Spanned File(s)" href='#_' onClick=`selectedActionMenu("DecompileSF"); return false;` class=(user && user.source < 900) ? '' : 'disabled').d-none
+                                        a#actionModelDeCompile.btn.btn-primary.w-100.mb-1(title="Remove the compiled Cache of Spanned File(s)" href='#_' onClick=`selectedActionMenu("DecompileSF"); return false;` class=(login_source && login_source < 900) ? '' : 'disabled').d-none
                                             i.fas.fa-cloud-xmark.pr-2.align-self-center
                                             span Remove Cache
                                         a#actionModelRotate.btn.btn-primary.w-100.mb-1(title="Rotate Image" href='#_' onClick=`selectedActionMenu("RotatePost"); return false;`).d-none
@@ -334,7 +334,8 @@ html
                     const deletePostBtn = actionModel.querySelector('a#deleteButton');
                     const timerText = actionModel.querySelector("a#postButton #CountDownTimer");
                     if (postsDestination !== '') {
-                        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+                        if (actionModel.querySelector("#destination-" + postsDestination))
+                            actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
                         actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
                         actionModel.querySelector("#channelSelector").classList.add('btn-success')
                         actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')

@@ -374,7 +374,7 @@ async function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
-    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
         enableReviewMode();
     } else {
@@ -395,7 +395,7 @@ async function setupReviewMode(bypass) {
     return false;
 }
 async function enableReviewMode(setFromDialog) {
-    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
         setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
     if (reviewDestination && reviewDestination.length > 1) {
@@ -646,7 +646,8 @@ async function acceptAllItems(direction, id) {
 }
 async function moveAllItems() {
     if (postsDestination !== '') {
-        actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
+        if (actionModel.querySelector("#destination-" + postsDestination))
+            actionModel.querySelector("#destination-" + postsDestination).classList.add('active')
         actionModel.querySelector("#channelSelector").classList.remove('btn-secondary')
         actionModel.querySelector("#channelSelector").classList.add('btn-success')
         actionModel.querySelector("#selectedChannel").innerText = actionModel.querySelector("#destination-" + postsDestination).getAttribute('data-ch-name')
@@ -721,7 +722,7 @@ async function setReviewChannel(chid, noSave) {
     }
     if (!noSave) {
         try {
-            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+            const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
             reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
             setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
         } catch (e) {
@@ -1061,6 +1062,45 @@ async function toggleAlbumItem(aid, eid) {
             'albumid': aid,
             'messageid': eid,
             'action': 'CollItemToggle'
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (response, textStatus, xhr) {
+            if (xhr.status < 400) {
+                $(`#albumItemModal`).modal('hide');
+            } else {
+                $(`#albumItemModal`).modal('hide');
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to manage album',
+                    subtitle: 'Now',
+                    content: `Failed to add manage album due to error`,
+                    delay: 5000,
+                });
+            }
+        },
+        error: function (xhr) {
+            $(`#albumItemModal`).modal('hide');
+            $.toast({
+                type: 'error',
+                title: 'Failed to manage album',
+                subtitle: 'Now',
+                content: `Server Error: ${xhr.responseText}`,
+                delay: 5000,
+            });
+        }
+    });
+}
+async function bumpAlbumItem(aid, eid) {
+    $.ajax({async: true,
+        url: `/actions/v1`,
+        type: "post",
+        data: {
+            'albumid': aid,
+            'messageid': eid,
+            'action': 'CollItemBump'
         },
         cache: false,
         headers: {

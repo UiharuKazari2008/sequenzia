@@ -11,6 +11,7 @@ html
         link(rel='preload', href="/static/img/acr-logo.png" as='image')
         link(rel='preload', href="/static/img/kongou-group.png" as='image')
         link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
+        link(rel='preload', href="/static/img/seq-mascot.png" as='image')
         if (user && user.banner)
             link(rel='preload', href=`${user.banner}` as='image')
         if (user && user.avatar)
@@ -117,14 +118,14 @@ html
             #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay(style="display: none;")
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : '/static/img/kms-background.jpeg'});`)
                     div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                     div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.d-flex(style="z-index: 1;")
                             img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                         span.boot-status-holder.font-weight-bolder Kongou Media Project v9
                         .mt-1.boot-icons-holder.d-none
@@ -136,14 +137,16 @@ html
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         #bootUpDisplay.boot-logo-overlay
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(user.banner) ? user.banner : '/static/img/bootlogo-inner.jpeg'})`)
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-logo-holder.d-flex(style="z-index: 1;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
-                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
+                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                            img(src="/static/img/seq-mascot.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
                             i.px-2.fas.fa-image
                             i.px-2.fas.fa-film
                             i.px-2.fas.fa-music
@@ -196,14 +199,14 @@ html
                         div#userMenu.collapsed.collapse
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
                                 div#menuAccordion.w-100
-                                    div.main-menu-items.w-100(class=`collapse show` data-parent="#menuAccordion" id=`menuItemMain`)
+                                    div.main-menu-items.w-100(class=`collapse show animated--grow-in` data-parent="#menuAccordion" id=`menuItemMain`)
                                         div.user-info-bg.rounded
                                             div.user-info-backdrop.rounded
                                             div.user-info-border.rounded
                                             div.user-info-overlay.position-absolute.rounded
                                             div.user-infocard-holder.d-flex.flex-column
                                                 .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                    span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
+                                                    img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
                                                     if (discord.user.membership)
                                                         if (discord.user.membership.background)
                                                             div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
@@ -221,10 +224,10 @@ html
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                     .col-auto.p-0
-                                                        img.rounded.user-infocard-icon(src=user.avatar)
+                                                        img.rounded-circle.user-infocard-icon(src=user.avatar)
                                                     .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                         div.text-center.text-ellipsis.align-middle.mr-auto
-                                                            if (user && user.source === 900)
+                                                            if (login_source && login_source === 900)
                                                                 span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
                                                             else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
                                                                 i.pr-1.fas.fa-check-circle
@@ -254,20 +257,20 @@ html
                                                     a.user-menu-item(title="Offline Music" href=`#/files?`)
                                                         i.fa-light.fa-fw.fa-music
                                                         | Music
-                                                    a#userOptionsDropdown.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
-                                                        i.fa-light.fa-fw.fa-cog
-                                                        | Settings
+                                                    a#userOptionsDropdown.user-menu-item(title="Tools and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
+                                                        i.fa-light.fa-fw.fa-toolbox
+                                                        | Tools
                                                     a.user-menu-item(title="Try to go online" href='#_' onclick="transitionToOOBPage('/'); return false;")
                                                         i.fa-light.fa-plug
                                                         | Connect
-                                    div#menuItemSettings.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
                                                 h4.text-primary.ml-auto.mb-0
-                                                    i.fas.fa-cog.mr-2
-                                                    | Settings
+                                                    i.fas.fa-toolbox.mr-2
+                                                    | Tools
                                             .row.w-100.position-absolute.pb-3(style='bottom: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                 .menu-grid
                                                     a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
@@ -282,7 +285,7 @@ html
                                                     a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
                                                         i.fa-light.fa-info-circle
                                                         | About
-                                    div#menuItemDisplay.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemDisplay.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
@@ -310,7 +313,7 @@ html
                                                     a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
                                                         i.fa-light.fa-arrow-up-arrow-down
                                                         | Menubar
-                                    div#menuItemAlbums.w-100(class="collapse" data-parent="#menuAccordion")
+                                    div#menuItemAlbums.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
@@ -417,7 +420,7 @@ html
                                     tbody#offlinePageList
                         #contentFiles
 
-                        #contentBlock
+                        #contentBlock.animated--grow-in
                             .tz-gallery
                                 div.row
 
@@ -565,18 +568,20 @@ html
 
                         div.col.overflow-auto
                             div.row.pl-3.pr-3.pt-2.justify-content-center
+                                span.sidebar-brand-logo.sequenzia-logo(style='font-size: 3em;') sequenzia
+                            div.row.pl-3.pr-3.pt-2.justify-content-center
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1
-                                    | Sequenzia v20
+                                    | Sequenzia v20.1
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1
-                                    | JuneFS™ v1.7
+                                    | JuneFS™ v1.8
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1
-                                    | JuneOS™ v2.5
+                                    | JuneOS™ v2.10
                                 span.badge.badge-light.mx-1.mt-1(data-placement="top" title="JulyOS Network Kernel Ready")
                                     i.fas.fa-microchip.pr-1
-                                    | JulyOS™ v0.5
+                                    | JulyOS™ v0.6
 
                             div.row.pl-3.pr-3.pt-2.justify-content-center
                                 p.mb-1 Sequenzia™ II - Image and Data Manager
@@ -615,9 +620,13 @@ html
                                     | Extensions
                             div.row.pl-3.pr-3.pt-2.mb-2
                                 p.mb-1
+                                    img(src="/static/img/mugino-idex.png" style="width: 400px; height: auto;").img-fluid
+                                p.mb-1
                                     img(src="/static/img/kongoumedialogo-wide.png" style="width: 400px; height: auto;").img-fluid
                                 p.mb-1
                                     img(src="/static/img/awatsukidps.png" style="width: 280px; height: auto;").img-fluid
+                                p.mb-1
+                                    img(src="/static/img/firestorm-ex.png" style="width: 415px; height: auto;").img-fluid
                                 p.mb-1 Sequenzia Content Distribution and Auditing System (CDS)
 
                             div.row.pl-3.pr-3.pt-2
@@ -652,11 +661,11 @@ html
                                 button.close.text-white(type='button' data-dismiss='modal' aria-label='Close').align-self-center.shadow-text.ml-auto
                                     span(aria-hidden='true') &times;
                         div.row.px-2.flex-nowrap.mb-1.mt-2(style='display: flex; justify-content: space-evenly; align-content: center; flex-direction: row; align-items: center;')
-                            a#toggleFavoritePost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                            a#toggleFavoritePost.btn.text-white.d-none(role="button" href='#_' class=`${(login_source && login_source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-star.shadow-text
-                            a#manageAlbumPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                            a#manageAlbumPost.btn.text-white.d-none(role="button" href='#_' class=`${(login_source && login_source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-archive.shadow-text
-                            a#addFlagPost.btn.text-white.d-none(role="button" href='#_' class=`${(user && user.source >= 900) ? 'hidden' : ''}`)
+                            a#addFlagPost.btn.text-white.d-none(role="button" href='#_' class=`${(login_source && login_source >= 900) ? 'hidden' : ''}`)
                                 i.fas.fa-flag.shadow-text
                             a#goToPostLocation.btn.text-white.d-none(href='#_' role='button')
                                 i.fas.fa-directions.shadow-text
@@ -693,76 +702,123 @@ html
                         div.row.px-3.mb-2
                             div#rawBodyContent.mt-1.text-center.w-100
                                 div.card-ui(style='max-height: 200px; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere')
-                        div#manageButtons.px-2.d-none
-                            .row.flex-nowrap
-                                a#infoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-cut.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Move
-                                a#infoEditText.btn.btn-danger.mx-1.mb-2(title="Edit Item Contents" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-square-quote.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Edit
-                                a#infoRename.btn.btn-danger.mx-1.mb-2(title="Rename Item" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-input-text.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Rename
-                                a#infoRotae.btn.btn-danger.mx-1.mb-2(title="Rotate Image" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-undo.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Rotate
-                            .row.flex-nowrap
-                                a#infoRepair.btn.btn-danger.mx-1.mb-2(title="Repair Thumbnail" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-image-slash.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Thumb
-                                a#infoCompile.btn.btn-danger.mx-1.mb-2(title="Compile Spanned File" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-cloud-check.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Cache
-                                a#infoDecompile.btn.btn-danger.mx-1.mb-2(title="Remove Cached Spanned File" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-cloud-xmark.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline DeCache
-                                a#infoDelete.btn.btn-danger.mx-1.mb-2(title="Archive or Delete Item(s)" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-trash.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Delete
-                                a#infoReport.btn.btn-danger.mx-1.mb-2(title="Clear Reported Item(s)" href='#_').w-100.text-ellipsis
-                                    i.fas.fa-flag.pr-0.pr-sm-2
-                                    span.d-none.d-sm-inline Clear
-                        div.row.pl-3.pr-3.mt-2.d-none
-                            h3 Search
-                        div.row.pl-3.pr-3.d-none
-                            a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
-                                i.fas.fa-level-up-alt.pr-2
-                                span Parent Post
-                        div.row.pl-3.pr-3.d-none
-                            a#searchByUser.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
-                                i.fas.fa-user.pr-2
-                                span Artist
-                        div.row.pl-3.pr-3.d-none
-                            a#searchByColor.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
-                                i.fas.fa-swatchbook.pr-2
-                                span Similar Color
-                        div.row.pl-3.pr-3.d-none
-                            a#searchByID.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
-                                i.fas.fa-asterisk.pr-2
-                                span Related IDs
-                        div.row.pl-3.pr-3.d-none
-                            a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
-                                i.fas.fa-i-cursor.pr-2
-                                span Selected Text
-                        div.row.pl-3.pr-3.d-none
-                            div#searchLocationSelection.btn-group.btn-group-toggle.mb-3.w-100(data-toggle='buttons')
-                                label#searchFilterPost.btn.btn-info.w-100.active
-                                    input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
-                                    span  Post
-                                label#searchFilterCurrent.btn.btn-info.w-100
-                                    input(type='radio' name='options' autocomplete='off' data-search-location='')
-                                    span  Current
-                                label#searchFilterEverywhere.btn.btn-info.w-100
-                                    input(type='radio' name='options' autocomplete='off' data-search-location='')
-                                    span  Everywhere
-                        div.row.pl-3.pr-3.mt-2.d-flex.flex-column
-                            a#AdvancedInfoCollapseButton.btn.btn-primary.collapsed(href='#_' data-toggle='collapse' data-target=`#AdvancedInfoCollapse`)
-                                i.fas.pr-2.fa-info-circle
-                                span.text-capitalize Debug
-                                i.fas.fa-chevron-down.pl-2
-                            div#AdvancedInfoCollapse.collapse(aria-labelledby='#AdvancedInfoCollapseButton')
-                                div#advancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
+                        #findMenus.accordion.row.pl-3.pr-3.mt-2
+                            div#tagsHeader.w-100
+                                #tagHeader
+                                    h3.mb-0
+                                        button.btn.btn-link(type='button' data-toggle='collapse' data-target='#tagCollapse')
+                                            i.fas.pr-2.fa-tags
+                                            | Tags
+                                            i.fas.fa-chevron-right.pl-2
+                                #tagCollapse.collapse.show(data-parent='#findMenus').w-100
+                                    div.mt-1
+                                        div#tagsHolder.d-flex.flex-wrap.justify-content-center
+                                    div#tagLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
+                                        label#tagFilterPost.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                            span  Post
+                                        label#tagFilterCurrent.btn.btn-info.w-100.active
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Session
+                                        label#tagFilterEverywhere.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Everywhere
+                            div.w-100
+                                #searchHeader
+                                    h3.mb-0
+                                        button.btn.btn-link(type='button' data-toggle='collapse' data-target='#searchCollapse')
+                                            i.fas.pr-2.fa-search
+                                            | Search
+                                            i.fas.fa-chevron-right.pl-2
+                                #searchCollapse.collapse(data-parent='#findMenus').w-100
+                                    div.mt-1
+                                        a#searchByParent.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                            i.fas.fa-level-up-alt.pr-2
+                                            span Parent Post
+                                        a#searchByUser.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                            i.fas.fa-user.pr-2
+                                            span Artist
+                                        a#searchByColor.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                            i.fas.fa-swatchbook.pr-2
+                                            span Similar Color
+                                        a#searchByID.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100.hidden
+                                            i.fas.fa-asterisk.pr-2
+                                            span Related IDs
+                                        a#searchSelectedText.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                            i.fas.fa-i-cursor.pr-2
+                                            span Selected Text
+                                    div#searchLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
+                                        label#searchFilterPost.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                            span  Post
+                                        label#searchFilterCurrent.btn.btn-info.w-100.active
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Session
+                                        label#searchFilterEverywhere.btn.btn-info.w-100
+                                            input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                            span  Everywhere
+                            div.w-100
+                                #customizeHeader
+                                    h3.mb-0
+                                        button.btn.btn-link(type='button' data-toggle='collapse' data-target='#customizeCollapse')
+                                            i.fas.pr-2.fa-swatchbook
+                                            | Customize
+                                            i.fas.fa-chevron-right.pl-2
+                                #customizeCollapse.collapse(data-parent='#findMenus').w-100
+                                    div.mt-1
+                                        a#setAsAvatar.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                            i.fas.fa-crop-alt.pr-2
+                                            span Set as Avatar
+                                        a#setAsBanner.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
+                                            i.fas.fa-crop-alt.pr-2
+                                            span Set as Banner
+                            div#manageButtons.w-100
+                                #toolboxHeader
+                                    h3.mb-0
+                                        button.btn.btn-link(type='button' data-toggle='collapse' data-target='#toolboxCollapse')
+                                            i.fas.pr-2.fa-toolbox
+                                            | Manage
+                                            i.fas.fa-chevron-right.pl-2
+                                #toolboxCollapse.collapse(data-parent='#findMenus').w-100.px-2
+                                    .row.flex-nowrap.mt-1
+                                        a#infoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-cut.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Move
+                                        a#infoEditText.btn.btn-danger.mx-1.mb-2(title="Edit Item Contents" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-square-quote.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Edit
+                                        a#infoRename.btn.btn-danger.mx-1.mb-2(title="Rename Item" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-input-text.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Rename
+                                        a#infoRotae.btn.btn-danger.mx-1.mb-2(title="Rotate Image" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-undo.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Rotate
+                                    .row.flex-nowrap
+                                        a#infoRepair.btn.btn-danger.mx-1.mb-2(title="Repair Thumbnail" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-image-slash.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Thumb
+                                        a#infoCompile.btn.btn-danger.mx-1.mb-2(title="Compile Spanned File" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-cloud-check.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Cache
+                                        a#infoDecompile.btn.btn-danger.mx-1.mb-2(title="Remove Cached Spanned File" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-cloud-xmark.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline DeCache
+                                        a#infoDelete.btn.btn-danger.mx-1.mb-2(title="Archive or Delete Item(s)" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-trash.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Delete
+                                        a#infoReport.btn.btn-danger.mx-1.mb-2(title="Clear Reported Item(s)" href='#_').w-100.text-ellipsis
+                                            i.fas.fa-flag.pr-0.pr-sm-2
+                                            span.d-none.d-sm-inline Clear
+                            div.w-100
+                                #debugHeader
+                                    h3.mb-0
+                                        button.btn.btn-link(type='button' data-toggle='collapse' data-target='#debugCollapse')
+                                            i.fas.pr-2.fa-info-circle
+                                            | Debug
+                                            i.fas.fa-chevron-right.pl-2
+                                #debugCollapse.collapse(data-parent='#findMenus').w-100
+                                    div.mt-1
+                                        div#advancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
                         .modal-background.blur-this
                         .modal-gradient
         #videoBuilderModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='videoBuilderModal' aria-hidden='true')

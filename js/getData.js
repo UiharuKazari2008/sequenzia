@@ -7,6 +7,7 @@ if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
 let web = require('../web.config.json');
 const { printLine } = require("./logSystem");
 const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
+const { redisRetrieve, redisStore, redisDelete } = require('../js/redisClient');
 const { sendData } = require('./mqAccess');
 const getUrls = require('get-urls');
 const moment = require('moment');
@@ -14,6 +15,7 @@ const useragent = require('express-useragent');
 const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 const app = require("../app");
+const crypto = require("crypto");
 if (web.Base_URL)
     web.base_url = web.Base_URL;
 
@@ -25,45 +27,109 @@ module.exports = async (req, res, next) => {
     const page_uri = `/${req.originalUrl.split('/')[1].split('?')[0]}`
     let android_uri = [`server_hostname=${req.headers.host}`]
     let search_prev = ''
-
-    async function writeHistory(title) {
-        function params(_removeParams, _addParams, _url, searchOnly) {
-            let _params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
-            _removeParams.forEach(param => {
-                if (_params.has(param)) {
-                    _params.delete(param);
-                }
-            })
-            _addParams.forEach(param => {
-                if (_params.has(param[0])) {
-                    _params.delete(param[0]);
-                }
-                _params.append(param[0], param[1]);
-            })
-            return req.originalUrl.split('?')[0] + `?${_params.toString()}`
-
-        }
-
-        const cleanURL = params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'nocds', 'setscreen','reqCount', '_', '_h'], [])
-        await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP`, {
-            index: `${req.session.discord.user.id}-${md5(cleanURL)}`,
-            uri: cleanURL,
-            title: title,
-            user: req.session.discord.user.id
+    let tags_prev = ''
+    const page_params = new URLSearchParams((new URL(req.protocol + '://' + req.get('host') + req.originalUrl)).search);
+    function params(_removeParams, _addParams, _params) {
+        _removeParams.forEach(param => {
+            if (_params.has(param)) {
+                _params.delete(param);
+            }
         })
-        await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [req.session.discord.user.id, 50, req.session.discord.user.id])
+        _addParams.forEach(param => {
+            if (_params.has(param[0])) {
+                _params.delete(param[0]);
+            }
+            _params.append(param[0], param[1]);
+        })
+        return req.originalUrl.split('?')[0] + `?${_params.toString()}`
+
+    }
+
+    const thisUser = res.locals.thisUser
+
+    async function writeHistory(title, times) {
+        let current_params = page_params;
+        if (!current_params.has('responseType') && !current_params.has('setscreen') &&
+            (current_params.has('channel') || current_params.has('folder') || current_params.has('search') || current_params.has('vchannel')
+                || current_params.has('album') || current_params.has('history') || current_params.has('history_screen') || current_params.has('tags')
+                || current_params.has('datestart') || current_params.has('dateend') || current_params.has('history_numdays')
+                || current_params.has('color') || current_params.has('group') || current_params.has('show_id'))) {
+            const accessURL = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [], current_params)).toString()
+            const cleanURL = (params(['limit', 'offset'], [], current_params)).toString()
+            const last = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE (user = ? AND date >= NOW() - INTERVAL 3 MINUTE) ORDER BY date DESC`, [thisUser.discord.user.id])
+            if (last.rows.length > 0) {
+                const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
+                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
+                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
+                console.log(noLastTags)
+                console.log(noTags)
+                if (noLastTags === noTags) {
+                    await sqlPromiseSafe(`UPDATE sequenzia_navigation_history SET uri = ?, title = ?, date = CURRENT_TIMESTAMP, times = ?  WHERE \`index\` = ?`, [accessURL, title, times, last.rows[0].index])
+                } else {
+                    await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP, uri = ?, times = ?`, [{
+                        index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
+                        uri: accessURL,
+                        title,
+                        user: thisUser.discord.user.id,
+                        times
+                    }, accessURL, times])
+                }
+            } else {
+                await sqlPromiseSafe(`INSERT INTO sequenzia_navigation_history SET ? ON DUPLICATE KEY UPDATE date = CURRENT_TIMESTAMP, uri = ?, times = ?`, [{
+                    index: `${thisUser.discord.user.id}-${md5(cleanURL)}`,
+                    uri: accessURL,
+                    title: title,
+                    user: thisUser.discord.user.id,
+                    times
+                }, accessURL, times])
+            }
+
+            await sqlPromiseSafe(`DELETE a FROM sequenzia_navigation_history a LEFT JOIN (SELECT \`index\` AS keep_index, date FROM sequenzia_navigation_history WHERE user = ? AND saved = 0 ORDER BY date DESC LIMIT ?) b ON (a.index = b.keep_index) WHERE b.keep_index IS NULL AND a.user = ? AND saved = 0;`, [thisUser.discord.user.id, 50, thisUser.discord.user.id])
+        }
+    }
+    async function getCacheData(key, isJson, local) {
+        if (global.shared_cache) {
+            if (local && app.get(local))
+                return app.get(local)
+            const result = await redisRetrieve(key)
+            const parsed = (isJson) ? JSON.parse(result) : result
+            if (local)
+                app.set(local, parsed)
+            return parsed
+        }
+        return app.get(key)
+    }
+    async function setCacheData(key, value, isJson, local) {
+        if (global.shared_cache) {
+            if (local)
+                app.set(local, value)
+            return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+        }
+        return app.set(key, value)
+    }
+    async function deleteCacheData(key, local) {
+        if (global.shared_cache) {
+            if (local)
+                await app.delete(local)
+            return await redisDelete(key)
+        }
+        return app.delete(key)
     }
 
     console.log(req.query);
 
-    if (!req.session.discord) {
+
+
+    if (!thisUser.sidebar) {
         res.locals.response = {
             search_prev: search_prev,
+            tags_prev: tags_prev,
             banners: ['noRights'],
-            manage_channels: req.session.discord.channels.manage,
-            write_channels: req.session.discord.channels.write,
-            discord: req.session.discord,
-            user: req.session.user,
+            manage_channels: thisUser.discord.channels.manage,
+            write_channels: thisUser.discord.channels.write,
+            discord: thisUser.discord,
+            user: thisUser.user,
+            login_source: req.session.login_source,
             device: ua
         };
         console.error('No Session Data')
@@ -73,6 +139,7 @@ module.exports = async (req, res, next) => {
         let multiClass = false;
         let multiChannelBase = false;
         let hideChannels = true;
+        let bypassNSFWFilter = false;
         let selectedServer = 0;
         let selectedChannel = 0;
 
@@ -83,7 +150,7 @@ module.exports = async (req, res, next) => {
         let sqlFavWhere = [];
         let sqlHistoryJoin = 'LEFT OUTER JOIN';
         let sqlHistoryWhere = [
-            `user = '${req.session.discord.user.id}'`
+            `user = '${thisUser.discord.user.id}'`
         ];
         let sqlHistorySort = 'eid';
         let sqlHistoryWherePost = '';
@@ -93,6 +160,8 @@ module.exports = async (req, res, next) => {
         let sqlAlbumQueryEnd = '';
         let limit = 1;
         let offset = 0;
+        let tagSearch = [];
+        let tag_list = [];
 
         let _dn = 'Untitled'
         if (req.query.displayname) {
@@ -135,7 +204,9 @@ module.exports = async (req, res, next) => {
                 baseQ += `channelid = ${req.query.channel} AND `;
             }
             hideChannels = false;
+            bypassNSFWFilter = true;
         } else if (req.query.folder) {
+            bypassNSFWFilter = true;
             const _ch = req.query.folder.trim().split(' ').filter(e => e.length > 0)
             let _andStat = []
             _ch.forEach((_c) => {
@@ -268,7 +339,7 @@ module.exports = async (req, res, next) => {
         }
 
         // Pinned
-        let pinsUser = `${req.session.discord.user.id}`
+        let pinsUser = `${thisUser.discord.user.id}`
         if (req.query && req.query.pins && req.query.pins === 'true') {
             sqlFavJoin = 'INNER JOIN'
             android_uri.push('pins=true');
@@ -307,6 +378,7 @@ module.exports = async (req, res, next) => {
         }
         if (req.query && req.query.history_screen) {
             sqlHistoryWhere.push( `screen = '${req.query.history_screen.replace(/'/g, '\\\'')}'`)
+            bypassNSFWFilter = true;
         }
         // Sorting
         if (req.query && req.query.newest && req.query.newest === 'true') {
@@ -331,7 +403,10 @@ module.exports = async (req, res, next) => {
                 sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content')
-            } else if (req.query.sort === 'date') {
+            } else if (req.query.sort === 'rating') {
+                sqlorder.push('tag_count')
+                enablePrelimit = false;
+            } else  if (req.query.sort === 'date') {
                 sqlorder.push('date')
             } else if (req.query.sort === 'fav') {
                 sqlorder.push('fav_date');
@@ -377,9 +452,86 @@ module.exports = async (req, res, next) => {
         function getOR(i) {
             return i.split(' OR ')
         }
+        function getTags(_id) {
+            let ts = [];
+            let ra = null;
+            // No way to sort by rating with out using enhanced MIITS data
+            // Currently this is extremely query intensive and results in
+            // a request that will process 64 quadtillion rows....
+            /*if (_id.split(':').length > 1 &&
+                !isNaN(parseInt(_id.split(':')[0]))) {
+                ts.push(`tags LIKE ${parseInt(_id.split(':')[0]) / 100}`)
+                _id = _id.split(':').slice(1).join(':');
+            }*/
+            if (_id === 's') {
+                ts.push(`kanmi_records.tags LIKE '%/rating:safe;%'`)
+            } else if (_id === 'q') {
+                ts.push(`kanmi_records.tags LIKE '%/rating:questionable;%'`)
+            } else if (_id === 'e') {
+                ts.push(`kanmi_records.tags LIKE '%/rating:explicit;%'`)
+            } else if (_id === '!s') {
+                ts.push(`kanmi_records.tags NOT LIKE '%/rating:safe;%'`)
+            } else if (_id === '!q') {
+                ts.push(`kanmi_records.tags NOT LIKE '%/rating:questionable;%'`)
+            } else if (_id === '!e') {
+                ts.push(`kanmi_records.tags NOT LIKE '%/rating:explicit;%'`)
+            } else if (_id.startsWith('rating:')) {
+                _id = _id.split('rating:')[1]
+                if (_id.startsWith('s')) {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:safe;%'`)
+                } else if (_id.startsWith('q')) {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:questionable;%'`)
+                } else if (_id.startsWith('e')) {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:explicit;%'`)
+                } else {
+                    ts.push(`kanmi_records.tags LIKE '%/rating:${_id};%'`)
+                }
+            } else if (_id.startsWith('!rating:')) {
+                _id = _id.split('!rating:')[1]
+                if (_id.startsWith('s')) {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:safe;%'`)
+                } else if (_id.startsWith('q')) {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:questionable;%'`)
+                } else if (_id.startsWith('e')) {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:explicit;%'`)
+                } else {
+                    ts.push(`kanmi_records.tags NOT LIKE '%/rating:${_id};%'`)
+                }
+            } else if (_id.startsWith('!st:')) {
+                _id = _id.split('!st:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/${_id}%;%'`)
+            } else if (_id.startsWith('!ed:')) {
+                _id = _id.split('!ed:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/%${_id};%'`)
+            } else if (_id.startsWith('lk:')) {
+                _id = _id.split('!lk:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/%${_id}%;%'`)
+            } else if (_id.startsWith('!:')) {
+                _id = _id.split('!:')[1]
+                ts.push(`kanmi_records.tags NOT LIKE '%/${_id};%'`)
+            } else if (_id.startsWith('st:')) {
+                _id = _id.split('st:')[1]
+                ts.push(`kanmi_records.tags LIKE '%/${_id}%;%'`)
+            } else if (_id.startsWith('ed:')) {
+                _id = _id.split('ed:')[1]
+                ts.push(`kanmi_records.tags LIKE '%/%${_id};%'`)
+            } else if (_id.startsWith('lk:')) {
+                _id = _id.split('lk:')[1]
+                ts.push(`kanmi_records.tags LIKE '%/%${_id}%;%'`)
+            } else if (_id.length > 0) {
+                ts.push(`kanmi_records.tags LIKE '%/${_id};%'`)
+            }
+            tag_list.push(_id);
+            if (ts.length > 1) {
+                return `(${ts.join(' AND ')})`
+            } else {
+                return ts[0]
+            }
+        }
         function getType(i) {
             let _id = i;
             if (_id.startsWith('id:')) {
+                bypassNSFWFilter = true;
                 _id = i.split('id:')[1];
                 if (_id.startsWith('st:')) {
                     _id = _id.split('st:')[1]
@@ -391,6 +543,7 @@ module.exports = async (req, res, next) => {
                     return `kanmi_records.id LIKE '%${_id}%'`
                 }
             } else if (i.startsWith('eid:')) {
+                bypassNSFWFilter = true;
                 _id = i.split('eid:')[1];
                 if (_id.startsWith('st:')) {
                     _id = _id.split('st:')[1]
@@ -483,9 +636,25 @@ module.exports = async (req, res, next) => {
             }
             android_uri.push(`search=${req.query.search}`);
         }
+        if ( req.query.tags !== undefined && req.query.tags !== '' ) {
+            enablePrelimit = false;
+            tags_prev = req.query.tags.toLowerCase()
+            if ( tags_prev.includes(' + ') ) {
+                sqlquery.push('( ' + tags_prev.split(' + ').filter(x => x.trim().length > 0).map(a => '( ' + a.split(' ').filter(x => x.trim().length > 0).map( b => '( ' + getTags(b) + ' )' ).filter(x => !!x).join(' OR ') + ' )' ).filter(x => !!x).join(' AND ') + ' )')
+            } else if ( tags_prev.includes(' ') ) {
+                sqlquery.push('( ' + tags_prev.split(' ').filter(x => x.trim().length > 0).map( b => '( ' + getTags(b) + ' )' ).filter(x => !!x).join(' OR ') + ' )')
+            } else  {
+                sqlquery.push('( ' + getTags(tags_prev) + ' )')
+            }
+            android_uri.push(`tags=${req.query.tags}`);
+        }
         // Flagged
         if (req.query.flagged === 'true') {
             sqlquery.push(`flagged = 1`);
+        }
+        // Flagged
+        if ((req.query && req.query.require_score === 'true')) {
+            sqlquery.push(`tags IS NOT NULL`);
         }
         // Date Ranging
         if (req.query.datestart && req.query.dateend) {
@@ -700,12 +869,15 @@ module.exports = async (req, res, next) => {
             android_uri.push(`brightness=0`);
         }
         if (req.query.show_id && !isNaN(parseInt(req.query.show_id))) {
+            bypassNSFWFilter = true;
             sqlquery.push(`kongou_shows.show_id = ${parseInt(req.query.show_id)}`)
         }
         if (req.query.group) {
-            sqlquery.push(`${req.session.cache.channels_view}.media_group = '${req.query.group}' AND ${req.session.cache.channels_view}.media_group = kongou_media_groups.media_group`)
+            bypassNSFWFilter = true;
+            sqlquery.push(`${thisUser.cache.channels_view}.media_group = '${req.query.group}' AND ${thisUser.cache.channels_view}.media_group = kongou_media_groups.media_group`)
         }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
+            bypassNSFWFilter = true;
             multiChannel = true;
             hideChannels = false;
         }
@@ -750,18 +922,19 @@ module.exports = async (req, res, next) => {
             hideChannels = false;
         }
         // Where Exec
-        if (req.session.disabled_channels && req.session.disabled_channels.length > 0 && hideChannels) {
-            baseQ += '( ' + req.session.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ` ) AND ${req.session.cache.channels_view}.media_group IS NULL AND `
+        if (thisUser.disabled_channels && thisUser.disabled_channels.length > 0 && hideChannels) {
+            baseQ += '( ' + thisUser.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ` ) AND ${thisUser.cache.channels_view}.media_group IS NULL AND `
         } else if (hideChannels) {
-            baseQ += `( ${req.session.cache.channels_view}.media_group IS NULL ) AND `
+            baseQ += `( ${thisUser.cache.channels_view}.media_group IS NULL ) AND `
         }
         let channelFilter = `${baseQ}`
+
         if (req.query.album) {
             enablePrelimit = false;
             sqlAlbumWhere = req.query.album.split(' ').map(e => `sequenzia_albums.aid = '${e}'`).join(' OR ');
             android_uri.push(`album=${req.query.album}`);
             channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
-        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true) || req.query.group) {
+        } else if ((req.query.nsfw && req.query.nsfw === 'true') || (req.session.nsfwEnabled && req.session.nsfwEnabled === true) || bypassNSFWFilter) {
             channelFilter += `( channel_nsfw = 1 OR channel_nsfw = 0 )`;
             android_uri.push('nsfw=true');
         } else if (req.query.nsfw && req.query.nsfw === 'only') {
@@ -868,7 +1041,7 @@ module.exports = async (req, res, next) => {
             'IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename',
             `IFNULL(SUBSTRING_INDEX(IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)), '.', -1),NULL) AS fileext`,
             'CONVERT(kanmi_records.id,SIGNED) AS num_id',
-            `${req.session.cache.channels_view}.*`
+            `${thisUser.cache.channels_view}.*`
         ];
         const sqlAlbumFields = [
             'sequenzia_album_items.eid',
@@ -879,10 +1052,10 @@ module.exports = async (req, res, next) => {
         ].join(', ')
         sqlTables = [
             'kanmi_records',
-            req.session.cache.channels_view
+            thisUser.cache.channels_view
         ];
         sqlWhere = [
-            `kanmi_records.channel = ${req.session.cache.channels_view}.channelid`
+            `kanmi_records.channel = ${thisUser.cache.channels_view}.channelid`
         ];
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
@@ -932,31 +1105,46 @@ module.exports = async (req, res, next) => {
                 ])
             }
         }
-
         const selectBase = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
+        const selectBaseNoPreLimit = `SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
-        const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0))`
+        const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
-        const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${req.session.user.id}'`;
+        const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.user.id}'`;
 
-        let sqlCall = `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`
+        let sqlCall = (() => {
+            if (req.query.sort === 'rating')
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            return `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+        })();
+        let sqlCallNoPreLimit = (() => {
+            if (req.query.sort === 'rating')
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            return `SELECT * FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+        })();
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
+            sqlCallNoPreLimit = `SELECT * FROM (${sqlCallNoPreLimit}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
         if (page_uri === '/listTheater') {
             if (req.query.show_id !== 'unmatched') {
-                sqlCall = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
+                sqlCall = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
+                sqlCallNoPreLimit = `SELECT res_all.*, kms_series_data.show_data, kms_ep_data.episode_data FROM (SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCallNoPreLimit}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}) res_all INNER JOIN (SELECT show_id, data AS show_data FROM kongou_shows) kms_series_data ON (kms_series_data.show_id = res_all.show_id) INNER JOIN (SELECT eid, data AS episode_data FROM kongou_episodes) kms_ep_data ON (kms_ep_data.eid = res_all.eid)`;
             } else {
-                sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${req.session.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
+                sqlCall = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCall}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
+                sqlCallNoPreLimit = `SELECT res_episodes.*, watch_history.date AS watched_date, watch_history.viewed AS wathched_percent FROM (${sqlCallNoPreLimit}) res_episodes ${(req.query.watch_history === 'only') ? 'INNER JOIN' : 'LEFT JOIN'} (SELECT * FROM kongou_watch_history WHERE user = '${thisUser.user.id}' AND viewed >= 0.05) watch_history ON (watch_history.eid = res_episodes.eid)${(req.query.watch_history === 'none') ? 'WHERE watch_history.viewed IS NULL OR watch_history.viewed < 0.9' : ''}`;
             }
         }
         if (sqlorder.trim().length > 0) {
             sqlCall += ` ORDER BY ${sqlorder}`
+            sqlCallNoPreLimit += ` ORDER BY ${sqlorder}`
         }
 
         debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
         let countOfEverything, sumOfEVerything
+
+
         if (page_uri === '/start') {
             debugTimes.sql_query = new Date();
             const totalCountsResults = await sqlPromiseSimple(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE (attachment_hash IS NOT NULL OR fileid IS NOT NULL)`)
@@ -1063,20 +1251,23 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     masterCount: countOfEverything,
                     masterData: sumOfEVerything,
                     randomImage: images,
                     randomImagev2: imagesArray,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.login_source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     call_uri: page_uri,
                     device: ua,
                 }
@@ -1088,18 +1279,21 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     masterCount: countOfEverything,
                     masterData: sumOfEVerything,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.login_source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1227,24 +1421,24 @@ module.exports = async (req, res, next) => {
 
                 if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh')  && req.query.displayname) {
                     try {
-                        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname])
+                        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [thisUser.discord.user.id, req.query.displayname])
                         if (displayConfig && displayConfig.rows.length > 0) {
                             const _configuration = Object.assign({}, displayConfig.rows.pop())
                             res.json({
                                 randomImage: images,
                                 randomImagev2: imagesArray,
                                 configuration: _configuration,
-                                user_id: req.session.user.id,
-                                user_image: req.session.user.avatar,
-                                user_username: req.session.user.username
+                                user_id: thisUser.user.id,
+                                user_image: thisUser.user.avatar,
+                                user_username: thisUser.user.username
                             })
                         } else {
                             res.json({
                                 randomImage: images,
                                 randomImagev2: imagesArray,
-                                user_id: req.session.user.id,
-                                user_image: req.session.user.avatar,
-                                user_username: req.session.user.username
+                                user_id: thisUser.user.id,
+                                user_image: thisUser.user.avatar,
+                                user_username: thisUser.user.username
                             })
                         }
                     } catch (err) {
@@ -1253,40 +1447,43 @@ module.exports = async (req, res, next) => {
                         res.json({
                             randomImage: images,
                             randomImagev2: imagesArray,
-                            user_id: req.session.user.id,
-                            user_image: req.session.user.avatar,
-                            user_username: req.session.user.username
+                            user_id: thisUser.user.id,
+                            user_image: thisUser.user.avatar,
+                            user_username: thisUser.user.username
                         })
                     }
                 } else if (page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh')  {
                     res.json({
                         randomImage: images,
                         randomImagev2: imagesArray,
-                        user_id: req.session.user.id,
-                        user_image: req.session.user.avatar,
-                        user_username: req.session.user.username
+                        user_id: thisUser.user.id,
+                        user_image: thisUser.user.avatar,
+                        user_username: thisUser.user.username
                     })
                 } else if ((page_uri === '/ads-micro' || page_uri === '/ads-widget')  && req.query.displayname) {
-                    const _configuration = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [req.session.discord.user.id, req.query.displayname]);
+                    const _configuration = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [thisUser.discord.user.id, req.query.displayname]);
                     if (_configuration.error) {
                         printLine('SQL', `Error adding messages to display history - ${_configuration.error.sqlMessage}`, 'error')
                     }
                     res.locals.response = {
                         url: req.url,
                         search_prev: search_prev,
+                        tags_prev: tags_prev,
                         randomImage: images,
                         randomImagev2: imagesArray,
                         configuration: (_configuration.rows.length > 0) ? _configuration.rows.pop() : undefined,
-                        server: req.session.server_list,
-                        download: req.session.discord.servers.download,
-                        manage_channels: req.session.discord.channels.manage,
-                        write_channels: req.session.discord.channels.write,
-                        discord: req.session.discord,
-                        user: req.session.user,
-                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                        next_episode: req.session.kongou_next_episode,
-                        applications_list: req.session.applications_list,
+                        server: thisUser.server_list,
+                        download: thisUser.discord.servers.download,
+                        manage_channels: thisUser.discord.channels.manage,
+                        write_channels: thisUser.discord.channels.write,
+                        discord: thisUser.discord,
+                        user: thisUser.user,
+                        login_source: req.session.login_source,
+                        albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                        artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                        theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                        next_episode: thisUser.kongou_next_episode,
+                        applications_list: thisUser.applications_list,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1295,18 +1492,21 @@ module.exports = async (req, res, next) => {
                     res.locals.response = {
                         url: req.url,
                         search_prev: search_prev,
+                        tags_prev: tags_prev,
                         randomImage: images,
                         randomImagev2: imagesArray,
-                        server: req.session.server_list,
-                        download: req.session.discord.servers.download,
-                        manage_channels: req.session.discord.channels.manage,
-                        write_channels: req.session.discord.channels.write,
-                        discord: req.session.discord,
-                        user: req.session.user,
-                        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                        next_episode: req.session.kongou_next_episode,
-                        applications_list: req.session.applications_list,
+                        server: thisUser.server_list,
+                        download: thisUser.discord.servers.download,
+                        manage_channels: thisUser.discord.channels.manage,
+                        write_channels: thisUser.discord.channels.write,
+                        discord: thisUser.discord,
+                        user: thisUser.user,
+                        login_source: req.session.login_source,
+                        albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                        artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                        theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                        next_episode: thisUser.kongou_next_episode,
+                        applications_list: thisUser.applications_list,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1333,22 +1533,22 @@ module.exports = async (req, res, next) => {
                     screenID = parseInt(req.query.screen);
                 }
 
-                if (_dn !== "*" && (randomImage.length === 1 || (randomImage.length > 1 && req.query.nohistory && req.query.nohistory === 'false')) && req.session.discord.user.id && randomImage && !req.query.displaySlave && !(req.query.nohistory && req.query.nohistory === 'true')) {
+                if (_dn !== "*" && (randomImage.length === 1 || (randomImage.length > 1 && req.query.nohistory && req.query.nohistory === 'false')) && thisUser.discord.user.id && randomImage && !req.query.displaySlave && !(req.query.nohistory && req.query.nohistory === 'true')) {
                     for (const image of randomImage) {
                         const index = randomImage.indexOf(image);
-                        const isExsists = await sqlPromiseSafe(`SELECT * FROM sequenzia_display_history WHERE eid = ? AND user = ?`, [image.eid, req.session.discord.user.id]);
+                        const isExsists = await sqlPromiseSafe(`SELECT * FROM sequenzia_display_history WHERE eid = ? AND user = ?`, [image.eid, thisUser.discord.user.id]);
                         if (isExsists.error) {
                             printLine('SQL', `Error adding messages to display history - ${isExsists.error.sqlMessage}`, 'error', err)
                         }
                         if (isExsists.rows.length > 0) {
-                            const updateHistoryItem = await sqlPromiseSafe(`UPDATE sequenzia_display_history SET screen = ?, name = ?, date = ? WHERE eid = ? AND user = ?`, [screenID, _dn, moment().format('YYYY-MM-DD HH:mm:ss'), image.eid, req.session.discord.user.id])
+                            const updateHistoryItem = await sqlPromiseSafe(`UPDATE sequenzia_display_history SET screen = ?, name = ?, date = ? WHERE eid = ? AND user = ?`, [screenID, _dn, moment().format('YYYY-MM-DD HH:mm:ss'), image.eid, thisUser.discord.user.id])
                             if (updateHistoryItem.error) {
                                 printLine('SQL', `Error adding messages to display history - ${updateHistoryItem.error.sqlMessage}`, 'error', err)
                             } else {
                                 printLine('GetData', `Updated Image "${image.id}" to Display History for "${_dn}"`, 'debug')
                             }
                         } else {
-                            const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET eid = ?, name = ?, screen = ?, user = ?, date = ?`, [image.eid, _dn, screenID, req.session.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
+                            const updateHistoryItem = await sqlPromiseSafe(`INSERT INTO sequenzia_display_history SET eid = ?, name = ?, screen = ?, user = ?, date = ?`, [image.eid, _dn, screenID, thisUser.discord.user.id, moment().format('YYYY-MM-DD HH:mm:ss')])
                             if (updateHistoryItem.error) {
                                 printLine('SQL', `Error adding messages to display history - ${updateHistoryItem.error.sqlMessage}`, 'error', err)
                             } else {
@@ -1366,14 +1566,14 @@ module.exports = async (req, res, next) => {
                                 deleteCount = limit
                             }
                             try {
-                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, deleteCount, req.session.discord.user.id, _dn])
+                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [thisUser.discord.user.id, _dn, deleteCount, thisUser.discord.user.id, _dn])
                             } catch (err) {
                                 printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
                             }
                         } else if (req.query && req.query.history && req.query.history === 'none' && randomImage.length < limit) {
                             printLine('GetData', `Truncating Display History for "${_dn}"`, 'info')
                             try {
-                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [req.session.discord.user.id, _dn, 50, req.session.discord.user.id, _dn])
+                                sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [thisUser.discord.user.id, _dn, 50, thisUser.discord.user.id, _dn])
                             } catch (err) {
                                 printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
                             }
@@ -1386,18 +1586,21 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     url: req.url,
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     randomImage: [],
                     randomImagev2: [],
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.login_source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1415,26 +1618,30 @@ module.exports = async (req, res, next) => {
                 if (req.query && req.query.history && req.query.history === 'only') {
                     sqlTables.push('sequenzia_display_history');
                     sqlCountFeild = 'sequenzia_display_history.date';
-                    favmatch = `AND sequenzia_display_history.eid = kanmi_records.eid AND sequenzia_display_history.user = '${req.session.discord.user.id}'${(_dn !== '*') ? "  AND sequenzia_display_history.name = '" + _dn.replace(/'/g, '\\\'') + "'" : ''}`;
+                    favmatch = `AND sequenzia_display_history.eid = kanmi_records.eid AND sequenzia_display_history.user = '${thisUser.discord.user.id}'${(_dn !== '*') ? "  AND sequenzia_display_history.name = '" + _dn.replace(/'/g, '\\\'') + "'" : ''}`;
                 }
                 if (sqlAlbumWhere.length > 0) {
                     sqlTables.push('sequenzia_album_items');
                     sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
-                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
+                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 } else if (req.query.album_name) {
                     sqlTables.push('sequenzia_album_items');
                     sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
-                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${req.session.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
+                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${thisUser.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
                 } else if ((page_uri === '/listTheater' || req.query.show_id || req.query.group) && (req.query.show_id !== 'unmatched')) {
                     sqlCountFeild = 'kongou_episodes.eid';
                 }
                 debugTimes.sql_query_1 = new Date();
-                let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
+                const countResults = await (async () => {
+                    if ((await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)))
+                        return { rows: [{ total_count: (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)).count } ] };
+                    return await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM ${sqlTables.join(', ')} WHERE (${execute}${favmatch} AND (${sqlWhere.join(' AND ')}))`);
+                })()
                 debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
                 debugTimes.sql_query_2 = new Date();
-                const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
+                const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ thisUser.discord.user.id ]);
                 debugTimes.sql_query_2 = (new Date() - debugTimes.sql_query_2) / 1000;
 
                 debugTimes.post_proccessing = new Date();
@@ -1501,8 +1708,83 @@ module.exports = async (req, res, next) => {
             }
         } else {
             debugTimes.sql_query = new Date();
-            console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
-            const messageResults = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
+
+            // Ultra Cache
+            const messageResults = await (async () => {
+                const cacheEnabled = (!req.query || (req.query && req.query.sort !== 'random' && !req.query.watch_history))
+                const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true)
+                const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) || !meta ||
+                    (meta && Date.now().valueOf() >= meta.expires))
+                let _return
+                if (cacheEnabled && (await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
+                    const meta = await getCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
+                    if (meta) {
+                        _return = await getCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
+                        if (_return) {
+                            console.log(meta)
+                            if (cacheEnabled && _return && !reCache) {
+                                await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    ...meta,
+                                    expires: (Date.now().valueOf() + meta.time)
+                                }, true);
+                                return {
+                                    rows: _return.rows.slice(offset, limit + offset),
+                                    cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0)
+                                };
+                            }
+                            deleteCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
+                            console.log(`Cache Expired - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                        }
+                    }
+                }
+                console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
+                const initQuery = new Date();
+                _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
+                if ((((new Date() - initQuery) / 1000) >= 1.5) && cacheEnabled && reCache &&
+                    !(await getCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`))) {
+                    if (_return.rows.length < sqllimit + 10) {
+                        const localKey = `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
+                        await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                            rows: _return.rows,
+                        }, true, localKey);
+                        await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                            time: 300000,
+                            expires: (Date.now().valueOf() + 300000),
+                            count: _return.rows.length,
+                            key: localKey
+                        }, true);
+                        console.log(`Cache PreOK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                        deleteCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
+                    } else {
+                        (async () => {
+                            const startTime = new Date;
+                            await setCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, (new Date().valueOf()));
+                            console.log(`Cache Lock - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`);
+                            const _r = await sqlPromiseSimple(`${sqlCallNoPreLimit}`);
+                            const expireTime = ((((new Date() - startTime) / 1000) + 3) * 60000);
+                            if (_r && _r.rows.length > 0) {
+                                const localKey = `${thisUser.discord.user.id}-${crypto.randomBytes(32).toString("hex")}`
+                                await setCacheData(`query-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    rows: _r.rows,
+                                }, true, localKey);
+                                await setCacheData(`meta-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                    time: expireTime,
+                                    expires: (Date.now().valueOf() + expireTime),
+                                    count: _r.rows.length,
+                                    key: localKey
+                                }, true);
+                            }
+                        })().then(() =>{
+                            console.log(`Cache OK - ${thisUser.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                            deleteCacheData(`lock-${thisUser.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
+                        })
+                    }
+
+                }
+                return _return;
+            })()
+
+
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
             const users = app.get('users').rows
             const user_index = users.map(e => e.id)
@@ -1530,9 +1812,11 @@ module.exports = async (req, res, next) => {
                     if (messages[0].album_name && messages[0].album_name !== null) {
                         page_title = `${messages[0].album_name}`
                         full_title = `${messages[0].album_name}`
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                     } else if (multiChannelBase) {
                         page_title = `${messages[0].class_name}`
                         full_title = `${messages[0].class_name}`
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         if (req.query.folder) {
                             folderInfo = req.query.folder;
                             android_uri.push('folder=' + folderInfo);
@@ -1547,6 +1831,7 @@ module.exports = async (req, res, next) => {
                         page_title = ''
                         full_title = ''
 
+                        currentNsfw = (messages[0].channel_nsfw === 1);
                         if (messages[0].class_name) {
                             page_title += `${messages[0].class_name} / `
                             full_title += `${messages[0].class_name} / `
@@ -1588,6 +1873,13 @@ module.exports = async (req, res, next) => {
                             })
                             full_title = page_title;
                         }
+                        if (tag_list.length > 0) {
+                            if (full_title !== '') {
+                                full_title += ' / ' + tag_list.join(' ');
+                            } else {
+                                full_title = tag_list.join(' ');
+                            }
+                        }
                         if (messages[0].virtual_channel_description && messages[0].virtual_channel_description.length > 1) {
                             description = messages[0].virtual_channel_description
                         } else if (messages[0].channel_description && messages[0].channel_description.length > 1) {
@@ -1597,7 +1889,6 @@ module.exports = async (req, res, next) => {
                         if (!multiChannel) {
                             currentChannelId = messages[0].channel;
                             currentServerId = messages[0].server;
-                            currentNsfw = (messages[0].channel_nsfw === 1);
                         }
                         if (req.query.vchannel) {
                             currentChannelId = `vc_${messages[0].virtual_channel_eid}`;
@@ -1611,9 +1902,11 @@ module.exports = async (req, res, next) => {
                             android_uri.push('folder=' + folderInfo);
                         }
                     } else if (req.query && req.query.displayname && req.query.displayname !== '*' && req.query.history  && req.query.history === 'only') {
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         page_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                         full_title = `History / ${(req.query.displayname.includes('ADS')) ? req.query.displayname.split('-').pop() : req.query.displayname}`
                     } else if (page_uri === '/listTheater') {
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         if (req.query && req.query.show_id && messages[0].show_name) {
                             page_title = messages[0].show_name
                             full_title = `Theater / ${messages[0].group_name} / ${messages[0].show_name.split('-')[0].trim()}`
@@ -1623,6 +1916,7 @@ module.exports = async (req, res, next) => {
                         }
                         currentClassIcon = messages[0].group_icon
                     } else {
+                        currentNsfw = (messages.filter(j => j.channel_nsfw === 1).length > 0);
                         page_title = ''
                         full_title = ''
                     }
@@ -1849,6 +2143,8 @@ module.exports = async (req, res, next) => {
                                                     urls: content_urls,
                                                     search: user_search,
                                                     parent_search: parent_search,
+                                                    tags: (item.tags) ? item.tags : [],
+                                                    rating: (item.tag_count) ? item.tag_count : null
                                                 },
                                                 media: {
                                                     season: item.season_num,
@@ -1997,6 +2293,8 @@ module.exports = async (req, res, next) => {
                                             parent_search: parent_search,
                                             cached: isCached,
                                             proccessing: inprogress,
+                                            tags: (item.tags) ? item.tags : [],
+                                            rating: (item.tag_count) ? item.tag_count : null
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2032,7 +2330,7 @@ module.exports = async (req, res, next) => {
                                             icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
-                                        manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
+                                        manage: (thisUser.discord.channels.manage.indexOf(item.channel) !== -1)
                                     })
                                     imagesArray.push(imageurl);
                                 }
@@ -2260,6 +2558,8 @@ module.exports = async (req, res, next) => {
                                                 message_type: _message_type,
                                                 message_extra: _message_extra,
                                                 message_header: _message_header,
+                                                tags: (item.tags) ? item.tags : [],
+                                                rating: (item.tag_count) ? item.tag_count : null
                                             },
                                             media: {
                                                 season: item.season_num,
@@ -2384,6 +2684,8 @@ module.exports = async (req, res, next) => {
                                             message_type: _message_type,
                                             message_extra: _message_extra,
                                             message_header: _message_header,
+                                            tags: (item.tags) ? item.tags : [],
+                                            rating: (item.tag_count) ? item.tag_count : null
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2419,7 +2721,7 @@ module.exports = async (req, res, next) => {
                                             icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
-                                        manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
+                                        manage: (thisUser.discord.channels.manage.indexOf(item.channel) !== -1)
                                     })
                                 } else {
                                     downloadlink = `/content/link/${item.channel}/${item.id}/`
@@ -2476,6 +2778,8 @@ module.exports = async (req, res, next) => {
                                             message_type: _message_type,
                                             message_extra: _message_extra,
                                             message_header: _message_header,
+                                            tags: (item.tags) ? item.tags : [],
+                                            rating: (item.tag_count) ? item.tag_count : null
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2511,14 +2815,13 @@ module.exports = async (req, res, next) => {
                                             icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
-                                        manage: (req.session.discord.channels.manage.indexOf(item.channel) !== -1)
+                                        manage: (thisUser.discord.channels.manage.indexOf(item.channel) !== -1)
                                     })
                                 }
                             }
                         })
                     }
                     if (resultsArray.length > 0) {
-                        writeHistory((full_title) ? full_title : page_title)
                         let prevurl = 'NA'
                         let nexturl = 'NA'
                         if (offset >= limit) {
@@ -2550,27 +2853,32 @@ module.exports = async (req, res, next) => {
                             android_uri: android_uri.join("&"),
                             req_uri: _req_uri,
                             search_prev: search_prev,
+                            tags_prev: tags_prev,
                             multiChannel: multiChannel,
                             active_ch: currentChannelId,
                             active_svr: currentServerId,
                             active_pt: currentClassification,
                             active_icon: currentClassIcon,
                             nsfwEnabled: req.session.nsfwEnabled,
+                            nsfwContent: currentNsfw,
                             pageinatorEnable: req.session.pageinatorEnable,
-                            server: req.session.server_list,
-                            download: req.session.discord.servers.download,
-                            manage_channels: req.session.discord.channels.manage,
-                            write_channels: req.session.discord.channels.write,
-                            discord: req.session.discord,
-                            user: req.session.user,
-                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                            next_episode: req.session.kongou_next_episode,
-                            applications_list: req.session.applications_list,
+                            server: thisUser.server_list,
+                            download: thisUser.discord.servers.download,
+                            manage_channels: thisUser.discord.channels.manage,
+                            write_channels: thisUser.discord.channels.write,
+                            discord: thisUser.discord,
+                            user: thisUser.user,
+                            login_source: req.session.login_source,
+                            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                            next_episode: thisUser.kongou_next_episode,
+                            applications_list: thisUser.applications_list,
+                            ultraCache: messageResults.cache,
                             device: ua,
                             folderInfo
                         }
-                        printLine('GetData', `"${req.session.discord.user.username}" => "${page_title}" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
+                        printLine('GetData', `"${thisUser.discord.user.username}" => "${page_title}" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
                             title: page_title,
                             full_title: full_title,
                             page_image,
@@ -2584,14 +2892,17 @@ module.exports = async (req, res, next) => {
                             req_uri: _req_uri.split('?').pop(),
                             call_uri: page_uri,
                             search_prev: search_prev,
+                            tags_prev: tags_prev,
                             multiChannel: multiChannel,
                             active_ch: currentChannelId,
                             active_svr: currentServerId,
                             active_pt: currentClassification,
                             active_icon: currentClassIcon,
-                            username: req.session.discord.user.username,
+                            ultraCache: messageResults.cache,
+                            username: thisUser.discord.user.username,
                             folderInfo
                         })
+                        writeHistory((full_title) ? full_title : page_title, JSON.stringify(debugTimes))
                         console.log(debugTimes);
                         res.locals.debugTimes = debugTimes;
                         next();
@@ -2599,25 +2910,30 @@ module.exports = async (req, res, next) => {
                         printLine('GetImages', `No Results were returned`, 'warn');
                         res.locals.response = {
                             search_prev: search_prev,
+                            tags_prev: tags_prev,
                             multiChannel: multiChannel,
                             active_ch: currentChannelId,
                             active_svr: currentServerId,
                             active_pt: currentClassification,
                             active_icon: currentClassIcon,
-                            server: req.session.server_list,
-                            download: req.session.discord.servers.download,
+                            server: thisUser.server_list,
+                            download: thisUser.discord.servers.download,
                             nsfwEnabled: req.session.nsfwEnabled,
+                            nsfwContent: currentNsfw,
                             pageinatorEnable: req.session.pageinatorEnable,
                             req_uri: req.originalUrl,
                             call_uri: page_uri,
-                            manage_channels: req.session.discord.channels.manage,
-                            write_channels: req.session.discord.channels.write,
-                            discord: req.session.discord,
-                            user: req.session.user,
-                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                            next_episode: req.session.kongou_next_episode,
-                            applications_list: req.session.applications_list,
+                            manage_channels: thisUser.discord.channels.manage,
+                            write_channels: thisUser.discord.channels.write,
+                            discord: thisUser.discord,
+                            user: thisUser.user,
+                            ultraCache: messageResults.cache,
+                            login_source: req.session.login_source,
+                            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                            next_episode: thisUser.kongou_next_episode,
+                            applications_list: thisUser.applications_list,
                             device: ua,
                         }
                         next();
@@ -2627,19 +2943,22 @@ module.exports = async (req, res, next) => {
                 printLine('GetImages', `No Results were returned`, 'warn');
                 res.locals.response = {
                     search_prev: search_prev,
+                    tags_prev: tags_prev,
                     multiChannel: multiChannel,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
                     req_uri: req.originalUrl,
                     call_uri: page_uri,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.login_source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                 }
                 next();

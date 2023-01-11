@@ -68,22 +68,26 @@ div
                     - classList = ''
                     if (album.found_aid)
                         - classList = 'active'
-                    a.list-group-item.list-group-item-action.d-flex(href='#_' onclick=`toggleAlbumItem("${album.aid}", "${id}"); return false;` class=classList)
-                        div.pr-2
-                            if (album.uri === 'gallery')
-                                i.fas.fa-photo-video
-                            else if (album.uri === 'files')
-                                i.fas.fa-folder
-                            else if (album.uri === 'cards')
-                                i.fas.fa-envelope
-                            else
-                                i.fas.fa-question
-                        span.mr-auto #{album.name}
-                        if (album.found_aid)
+                    div.list-group-item.d-flex.list-group-item.list-group-item-action(class=classList).justify-content-between
+                        a.inner-item.w-100.d-flex.align-items-center(href='#_' onclick=`toggleAlbumItem("${album.aid}", "${id}"); return false;`)
+                            div.pr-2
+                                if (album.uri === 'gallery')
+                                    i.fas.fa-photo-video
+                                else if (album.uri === 'files')
+                                    i.fas.fa-folder
+                                else if (album.uri === 'cards')
+                                    i.fas.fa-envelope
+                                else
+                                    i.fas.fa-question
+                            span.mr-auto #{album.name}
+                            if (album.found_aid)
+                                div.pl-2
+                                    i.fas.fa-check-circle
                             div.pl-2
-                                i.fas.fa-check-circle
-                        div.pl-2
-                            if (album.privacy)
-                                i.fas.fa-lock
-                            else
-                                i.fas.fa-globe-americas
+                                if (album.privacy)
+                                    i.fas.fa-lock
+                                else
+                                    i.fas.fa-globe-americas
+                        if (album.found_aid)
+                            a.inner-item.d-flex.align-items-center(href='#_' onclick=`bumpAlbumItem("${album.aid}", "${id}"); return false;`)
+                                i.fas.fa-up-to-line.pl-3

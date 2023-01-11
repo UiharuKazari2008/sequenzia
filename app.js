@@ -49,7 +49,26 @@ const noSessionTrandferURL = [
     '/device-login',
     '/ping',
 ];
+let ready = false;
 
+app.use(async function (req, res, next) {
+    res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
+    res.setHeader('X-Site-Name', web.site_name || 'Sequenzia');
+    res.setHeader('X-Site-Owner', web.company_name || 'Undisclosed Operator Name');
+    res.setHeader('X-Eiga-Node', config.system_name || 'Anonymous Server Name');
+    res.setHeader('X-Validator', web.domain_validation || 'SequenziaOK');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.locals.ua = req.get('User-Agent');
+    if (res.locals.ua.toLowerCase().includes("pocketcasts") || (res.locals.ua.toLowerCase().includes("bot") && !res.locals.ua.toLowerCase().includes("discord"))) {
+        res.status(444).end();
+    } else {
+        if (typeof req.session !== 'undefined' && req.session.userid)
+            res.locals.thisUser = await app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        next()
+    }
+})
 //  Rate Limiters
 app.use(['/discord', '/telegram', '/login', '/ping', '/transfer'], rateLimit({
     windowMs: 5 * 60 * 1000, // 5 minutes
@@ -132,26 +151,16 @@ const sessionStore = new sessionSQL({
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(function (req, res, next) {
-    res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
-    res.setHeader('X-Site-Name', web.site_name || 'Sequenzia');
-    res.setHeader('X-Site-Owner', web.company_name || 'Undisclosed Operator Name');
-    res.setHeader('X-Eiga-Node', config.system_name || 'Anonymous Server Name');
-    res.setHeader('X-Validator', web.domain_validation || 'SequenziaOK');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    next()
-})
 
 app.use(cors());
 app.use(compression());
 app.use(morgan(function(tokens, req, res) {
+    const thisUser = res.locals.thisUser;
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
     let ipaddress = (req.headers['x-real-ip']) ? req.headers['x-real-ip'] : (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'] : 'Unknown'
-    if (req.session && req.session.user && req.session.user.username) {
-        username = req.session.user.username;
+    if (req.session && thisUser && thisUser.user && thisUser.user.username) {
+        username = thisUser.user.username;
     }
     if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
         if (res.statusCode !== 304 && res.method === 'GET') {
@@ -217,23 +226,17 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.locals.databaseCache = new Map();
 
-async function cacheDatabase() {
-    const users = await sqlPromiseSafe(`SELECT * FROM discord_users`)
-    const extraLinks = await sqlPromiseSafe(`SELECT * FROM sequenzia_homelinks ORDER BY position`)
-    const userPermissions = await sqlPromiseSafe("SELECT DISTINCT role, type, userid, serverid FROM discord_users_permissons")
-    const allChannels = await sqlPromiseSafe("SELECT x.*, y.chid_download FROM ( SELECT DISTINCT kanmi_channels.channelid, kanmi_channels.serverid, kanmi_channels.role, kanmi_channels.role_write, kanmi_channels.role_manage FROM kanmi_channels, sequenzia_class WHERE kanmi_channels.role IS NOT NULL AND kanmi_channels.classification = sequenzia_class.class) x LEFT OUTER JOIN (SELECT chid_download, serverid FROM discord_servers) y ON (x.serverid = y.serverid AND x.channelid = y.chid_download)");
-    const disabledChannels = await sqlPromiseSafe(`SELECT DISTINCT user, cid FROM sequenzia_hidden_channels`)
-    const allServers = await sqlPromiseSafe(`SELECT DISTINCT * FROM discord_servers ORDER BY position`);
+app.cacheDatabase = async function cacheDatabase() {
+    const users = await sqlPromiseSafe(`SELECT x.* FROM (SELECT u.*, e.avatar_custom, e.banner_custom, e.nice_name, e.token, e.blind_token, e.token_static, e.token_expires FROM (SELECT * FROM discord_users) u LEFT JOIN (SELECT * FROM discord_users_extended) e ON u.id = e.id) x LEFT JOIN (SELECT discord_servers.position, discord_servers.authware_enabled, discord_servers.name, discord_servers.serverid FROM discord_servers) y ON x.server = y.serverid ORDER BY y.authware_enabled, y.position, x.id`)
+    const userCache = await sqlPromiseSafe(`SELECT * FROM sequenzia_user_cache`);
 
     app.set('users', users)
-    app.set('extraLinks', extraLinks)
-    app.set('userPermissions', userPermissions)
-    app.set('allChannels', allChannels)
-    app.set('disabledChannels', disabledChannels)
-    app.set('allServers', allServers)
+    app.set('userCache', userCache)
+    if (!ready)
+        printLine("Init", `Initial System Cacahe Complete, Server is now available!`, 'info');
+    ready = true;
 }
-setInterval(cacheDatabase, 60000)
-cacheDatabase();
+setInterval(app.cacheDatabase, 60000)
 
 app.use('/', routes);
 app.use('/app', apps);
@@ -242,8 +245,11 @@ app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
     if (req.query.deviceID) {
+        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        if (!thisUser)
+            res.status(403).send('User account can not correlated to a valid user!')
         const device = req.query.deviceID
-        if (req.session && req.session.discord && req.session.discord.user.token) {
+        if (req.session && thisUser.discord && thisUser.discord.user.token) {
             sessionStore.get(device, (error, session1) => {
                 if (error) {
                     printLine('SessionTransfer', `Transfer session failed, Can't get active session data- ${error.message}`, 'debug');
@@ -263,8 +269,8 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                     sessionStore.set(device, {
                         cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null },
-                        discord: req.session.discord,
-                        user: req.session.user,
+                        userid: thisUser.discord.user.id,
+                        login_source: req.session.login_source,
                         device: 'notInteractive',
                         goto: passURL,
                         loggedin: true,
@@ -283,7 +289,10 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
         }
     } else if (req.query.code) {
-        if (req.session && req.session.discord && req.session.discord.user.token) {
+        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        if (!thisUser)
+            res.status(403).send('User account can not correlated to a valid user!')
+        if (req.session && thisUser.discord && thisUser.discord.user.token) {
             const code = (typeof req.query.code === 'string') ? req.query.code.toUpperCase() : req.query.code[0].toUpperCase();
             const IDfromCode = await sqlPromiseSafe(`SELECT session FROM sequenzia_login_codes WHERE code = ? LIMIT 1`, [code])
             if (IDfromCode && IDfromCode.rows.length > 0) {
@@ -307,8 +316,8 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                         sessionStore.set(device, {
                             cookie: {path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},
-                            discord: req.session.discord,
-                            user: req.session.user,
+                            userid: thisUser.discord.user.id,
+                            login_source: req.session.login_source,
                             device: 'notInteractive',
                             goto: passURL,
                             loggedin: true,
@@ -350,7 +359,7 @@ app.get('/static/*', (req, res, next) => {
 })
 app.use('/', express.static('public'));
 app.get('*', function(req, res){
-    if (req.session && req.session.loggedin) {
+    if (req.session && req.session.userid) {
         res.sendStatus(404);
         console.error(`Not Routed - ${req.path}`)
     } else {

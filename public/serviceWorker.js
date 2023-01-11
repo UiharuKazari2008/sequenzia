@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRODUCTION-v20-10-12-2022-BUGWATCH-P1'
+const cacheName = 'PRODUCTION-v20-1-110123'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -94,6 +94,8 @@ const cacheOptions = {
         "/static/img/kongoumedialogo-bg.png",
         "/static/img/kongou-group.png",
         "/static/img/awatsukidps.png",
+        "/static/img/firestorm-ex.png",
+        "/static/img/seq-mascot.png",
         "/static/js/moment.min.js",
         "/static/vendor/bootstrap/js/bootstrap.bundle.min.js",
         "/static/vendor/jquery-easing/jquery.easing.min.js",
@@ -126,7 +128,7 @@ const cacheOptions = {
         'https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap',
     ]
 };
-let swDebugMode = (origin && origin.includes('localhost:3000'));
+let swDebugMode = (origin && (origin.includes('localhost')));
 let swUseInternalUnpacker = false;
 let browserStorageAvailable = false;
 let offlineContent;

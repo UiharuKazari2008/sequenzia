@@ -22,23 +22,24 @@ module.exports = async (req, res, next) => {
     let android_uri = [`server_hostname=${req.headers.host}`]
     let search_prev = ''
 
-    console.log(req.query);
+    const thisUser = res.locals.thisUser
 
-    if (!req.session.discord) {
+    if (!thisUser) {
         res.locals.response = {
             search_prev: search_prev,
             banners: ['noRights'],
-            manage_channels: req.session.discord.channels.manage,
-            write_channels: req.session.discord.channels.write,
-            discord: req.session.discord,
-            user: req.session.user,
+            manage_channels: thisUser.discord.channels.manage,
+            write_channels: thisUser.discord.channels.write,
+            discord: thisUser.discord,
+            user: thisUser.user,
+            login_source: req.session.login_source,
             device: ua
         };
         console.error('No Session Data')
         next();
     } else {
         let execute = '';
-        let limit = 100;
+        let limit = 500;
         let offset = 0;
         let realoffset = 0;
 
@@ -58,16 +59,16 @@ module.exports = async (req, res, next) => {
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
             'kanmi_records.*',
-            `${req.session.cache.channels_view}.*`
+            `${thisUser.cache.channels_view}.*`
         ].join(', ');
         sqlTables = [
             'kanmi_records',
-            req.session.cache.channels_view
+            thisUser.cache.channels_view
         ].join(', ');
 
         const kongouShows = `SELECT kms_ep.eid, kms_show.group_name, kms_show.description, kms_show.icon, kms_show.show_id, kms_ep.episode_num, kms_ep.episode_name AS kms_episode_name, kms_ep.season_num, kms_show.name AS kms_series_name, kms_show.type AS group_type, kms_show.original_name AS kms_series_original_name, kms_show.nsfw AS series_nsfw, kms_show.group_nsfw, kms_show.subtitled AS series_subtitled, kms_show.background, kms_show.poster FROM (SELECT eid, show_id, episode_num, episode_name, season_num, background, still FROM kongou_episodes) kms_ep LEFT OUTER JOIN (SELECT * FROM (SELECT show_id, media_group, name, original_name, nsfw, subtitled, genres, background, poster FROM kongou_shows ${(media_group.length > 0) ? "WHERE media_group = '" + media_group + "'" : ''}) s LEFT JOIN (SELECT media_group AS group_id, adult AS group_nsfw, type, name AS group_name, description, icon FROM kongou_media_groups) g ON (s.media_group = g.group_id)) kms_show ON (kms_ep.show_id = kms_show.show_id)`
 
-        let sqlCall = `SELECT kms_list.*, kms_data.series_data FROM (SELECT COUNT(main_records.eid) AS ieid, kms.kms_series_name, kms.group_name, kms.icon, kms.series_nsfw, kms.group_nsfw, kms.group_type, kms.series_subtitled, kms.background, kms.poster, kms.show_id FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (kanmi_records.channel = ${req.session.cache.channels_view}.channelid${(media_group.length > 0) ? " AND " + req.session.cache.channels_view + ".media_group = '" + media_group + "'" : ''})) main_records LEFT OUTER JOIN (${kongouShows}) kms ON (kms.eid = main_records.eid) GROUP BY kms.show_id) kms_list LEFT OUTER JOIN (SELECT show_id, data AS series_data FROM kongou_shows) kms_data ON (kms_list.show_id = kms_data.show_id) ORDER BY kms_list.kms_series_name`;
+        let sqlCall = `SELECT kms_list.*, kms_data.series_data FROM (SELECT COUNT(main_records.eid) AS ieid, kms.kms_series_name, kms.group_name, kms.icon, kms.series_nsfw, kms.group_nsfw, kms.group_type, kms.series_subtitled, kms.background, kms.poster, kms.show_id FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (kanmi_records.channel = ${thisUser.cache.channels_view}.channelid${(media_group.length > 0) ? " AND " + thisUser.cache.channels_view + ".media_group = '" + media_group + "'" : ''})) main_records LEFT OUTER JOIN (${kongouShows}) kms ON (kms.eid = main_records.eid) GROUP BY kms.show_id) kms_list LEFT OUTER JOIN (SELECT show_id, data AS series_data FROM kongou_shows) kms_data ON (kms_list.show_id = kms_data.show_id) ORDER BY kms_list.kms_series_name`;
 
         debugTimes.build_query = (new Date() - debugTimes.build_query) / 1000
         // SQL Query Call and Results Rendering
@@ -78,7 +79,7 @@ module.exports = async (req, res, next) => {
                 let countResults = await sqlPromiseSimple(`SELECT COUNT(${sqlCountFeild}) AS total_count FROM (${sqlCall}) results`);
                 debugTimes.sql_query_1 = (new Date() - debugTimes.sql_query_1) / 1000;
                 debugTimes.sql_query_2 = new Date();
-                const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ req.session.discord.user.id ]);
+                const history_urls = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE user = ? ORDER BY saved DESC, date DESC`, [ thisUser.discord.user.id ]);
                 debugTimes.sql_query_2 = (new Date() - debugTimes.sql_query_2) / 1000;
 
                 debugTimes.post_proccessing = new Date();
@@ -220,20 +221,22 @@ module.exports = async (req, res, next) => {
                             active_icon: activeIcon,
                             nsfwEnabled: req.session.nsfwEnabled,
                             pageinatorEnable: req.session.pageinatorEnable,
-                            server: req.session.server_list,
-                            download: req.session.discord.servers.download,
-                            manage_channels: req.session.discord.channels.manage,
-                            write_channels: req.session.discord.channels.write,
-                            discord: req.session.discord,
-                            user: req.session.user,
-                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                            next_episode: req.session.kongou_next_episode,
-                            applications_list: req.session.applications_list,
+                            server: thisUser.server_list,
+                            download: thisUser.discord.servers.download,
+                            manage_channels: thisUser.discord.channels.manage,
+                            write_channels: thisUser.discord.channels.write,
+                            discord: thisUser.discord,
+                            user: thisUser.user,
+                            login_source: req.session.login_source,
+                            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                            next_episode: thisUser.kongou_next_episode,
+                            applications_list: thisUser.applications_list,
                             device: ua,
                             folderInfo: null
                         }
-                        printLine('GetData', `"${req.session.discord.user.username}" => "KMS Media Browser" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
+                        printLine('GetData', `"${thisUser.discord.user.username}" => "KMS Media Browser" - ${resultsArray.length} Returned (${_req_uri})`, 'info', {
                             title: pageTitle,
                             full_title: pageFullTitle,
                             page_image: null,
@@ -254,7 +257,7 @@ module.exports = async (req, res, next) => {
                             active_svr: null,
                             active_pt: null,
                             active_icon: activeIcon,
-                            username: req.session.discord.user.username,
+                            username: thisUser.discord.user.username,
                             folderInfo: null
                         })
                         console.log(debugTimes);
@@ -271,20 +274,22 @@ module.exports = async (req, res, next) => {
                             active_svr: null,
                             active_pt: null,
                             active_icon: activeIcon,
-                            server: req.session.server_list,
-                            download: req.session.discord.servers.download,
+                            server: thisUser.server_list,
+                            download: thisUser.discord.servers.download,
                             nsfwEnabled: req.session.nsfwEnabled,
                             pageinatorEnable: req.session.pageinatorEnable,
                             req_uri: req.originalUrl,
                             call_uri: page_uri,
-                            manage_channels: req.session.discord.channels.manage,
-                            write_channels: req.session.discord.channels.write,
-                            discord: req.session.discord,
-                            user: req.session.user,
-                            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                            next_episode: req.session.kongou_next_episode,
-                            applications_list: req.session.applications_list,
+                            manage_channels: thisUser.discord.channels.manage,
+                            write_channels: thisUser.discord.channels.write,
+                            discord: thisUser.discord,
+                            user: thisUser.user,
+                            login_source: req.session.login_source,
+                            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                            next_episode: thisUser.kongou_next_episode,
+                            applications_list: thisUser.applications_list,
                             device: ua,
                         }
                         next();
@@ -295,18 +300,20 @@ module.exports = async (req, res, next) => {
                 res.locals.response = {
                     search_prev: search_prev,
                     multiChannel: false,
-                    server: req.session.server_list,
-                    download: req.session.discord.servers.download,
+                    server: thisUser.server_list,
+                    download: thisUser.discord.servers.download,
                     req_uri: req.originalUrl,
                     call_uri: page_uri,
-                    manage_channels: req.session.discord.channels.manage,
-                    write_channels: req.session.discord.channels.write,
-                    discord: req.session.discord,
-                    user: req.session.user,
-                    albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-                    theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-                    next_episode: req.session.kongou_next_episode,
-                    applications_list: req.session.applications_list,
+                    manage_channels: thisUser.discord.channels.manage,
+                    write_channels: thisUser.discord.channels.write,
+                    discord: thisUser.discord,
+                    user: thisUser.user,
+                    login_source: req.session.login_source,
+                    albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+                    artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+                    theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+                    next_episode: thisUser.kongou_next_episode,
+                    applications_list: thisUser.applications_list,
                     device: ua,
                 }
                 next();

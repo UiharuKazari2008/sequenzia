@@ -227,6 +227,216 @@ function disablePerformanceMode() {
     setCookie("performaceMode", "false");
 }
 
+let bannerCropper
+let bannerEID
+function startBannerCropper(eid) {
+    bannerEID = eid;
+    const image = document.getElementById('bannerCropperModal').querySelector('img');
+    const href = '/full_attachments/' + document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.split('attachments/').pop()
+    image.src = href;
+    $('#bannerCropperModal').modal('show');
+    bannerCropper = new Cropper(image, {
+        aspectRatio: 16 / 9,
+        viewMode: 1,
+        responsive: true,
+        checkOrientation: true,
+        rotatable: false,
+        scalable: false,
+    });
+}
+function cancelBannerCropper() {
+    bannerCropper.destroy();
+    bannerCropper = null;
+    bannerEID = null;
+    $('#bannerCropperModal').modal('hide');
+    $("#bannerCropperModal .cropper-container").html("<img></img>")
+}
+function completeBannerCropper() {
+    if (bannerCropper && bannerEID) {
+        const croppedImage = bannerCropper.getData(true);
+        $.ajax({async: true,
+            type: "post",
+            url: "/actions/v1",
+            data: {
+                'action': 'SetUserBanner',
+                'eid': bannerEID,
+                crop: [
+                    croppedImage.y.toFixed(),
+                    croppedImage.x.toFixed(),
+                    croppedImage.height.toFixed(),
+                    croppedImage.width.toFixed(),
+                ]
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    console.log(res);
+                    if (confirm) { $.snack('success', `${res}`, 5000) };
+                } else {
+                    if (confirm) { $.snack('error', `${res}`, 5000) };
+                }
+                bannerCropper.destroy();
+                bannerCropper = null;
+                bannerEID = null;
+                $('#bannerCropperModal').modal('hide');
+                $("#bannerCropperModal .cropper-container").html("<img></img>")
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                bannerCropper.destroy();
+                bannerCropper = null;
+                bannerEID = null;
+                $('#bannerCropperModal').modal('hide');
+                $("#bannerCropperModal .cropper-container").html("<img></img>")
+            }
+        });
+    }
+}
+let avatarCropper
+let avatarEID
+function startAvatarCropper(eid) {
+    avatarEID = eid;
+    const image = document.getElementById('avatarCropperModal').querySelector('img');
+    const href = '/full_attachments/' + document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.split('attachments/').pop()
+    image.src = href;
+    $('#avatarCropperModal').modal('show');
+    avatarCropper = new Cropper(image, {
+        aspectRatio: 1 / 1,
+        viewMode: 1,
+        responsive: true,
+        checkOrientation: true,
+        rotatable: false,
+        scalable: false,
+    });
+}
+function cancelAvatarCropper() {
+    avatarCropper.destroy();
+    avatarCropper = null;
+    avatarEID = null;
+    $('#avatarCropperModal').modal('hide');
+    $("#avatarCropperModal .cropper-container").html("<img></img>")
+}
+function completeAvatarCropper() {
+    if (avatarCropper && avatarEID) {
+        const croppedImage = avatarCropper.getData(true);
+        $.ajax({async: true,
+            type: "post",
+            url: "/actions/v1",
+            data: {
+                'action': 'SetUserIcon',
+                'eid': avatarEID,
+                crop: [
+                    croppedImage.y.toFixed(),
+                    croppedImage.x.toFixed(),
+                    croppedImage.height.toFixed(),
+                    croppedImage.width.toFixed(),
+                ]
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    console.log(res);
+                    if (confirm) { $.snack('success', `${res}`, 5000) };
+                } else {
+                    if (confirm) { $.snack('error', `${res}`, 5000) };
+                }
+                avatarCropper.destroy();
+                avatarCropper = null;
+                avatarEID = null;
+                $('#avatarCropperModal').modal('hide');
+                $("#avatarCropperModal .cropper-container").html("<img></img>")
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                avatarCropper.destroy();
+                avatarCropper = null;
+                avatarEID = null;
+                $('#avatarCropperModal').modal('hide');
+                $("#avatarCropperModal .cropper-container").html("<img></img>")
+            }
+        });
+    }
+}
+
+function removeUserAvatar() {
+    $.ajax({async: true,
+        type: "post",
+        url: "/actions/v1",
+        data: {
+            'action': 'RemoveUserIcon'
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                console.log(res);
+                if (confirm) { $.snack('success', `${res}`, 5000) };
+            } else {
+                if (confirm) { $.snack('error', `${res}`, 5000) };
+            }
+        },
+        error: function (xhr) {
+            $.toast({
+                type: 'error',
+                title: 'Failed to complete action',
+                subtitle: 'Now',
+                content: `${xhr.responseText}`,
+                delay: 5000,
+            });
+        }
+    });
+}
+function removeUserBanner() {
+    $.ajax({async: true,
+        type: "post",
+        url: "/actions/v1",
+        data: {
+            'action': 'RemoveUserBanner'
+        },
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                console.log(res);
+                if (confirm) { $.snack('success', `${res}`, 5000) };
+            } else {
+                if (confirm) { $.snack('error', `${res}`, 5000) };
+            }
+        },
+        error: function (xhr) {
+            $.toast({
+                type: 'error',
+                title: 'Failed to complete action',
+                subtitle: 'Now',
+                content: `${xhr.responseText}`,
+                delay: 5000,
+            });
+        }
+    });
+}
+
 async function writeLoadingBar(){
     if (responseComplete === false) {
         setTimeout(writeLoadingBar, 250)
@@ -556,7 +766,7 @@ async function requestCompleted (response, url, lastURL, push) {
                 let _h = (url.includes('_h=')) ? parseInt(/_h=([^&]+)/.exec(url)[1]) : 0;
                 addOptions.push(['_h', `${(!isNaN(_h)) ? _h + 1 : 0}`]);
             }
-            const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit'], addOptions, url);
+            const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit', 'refresh'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
             $(".container-fluid").fadeTo(500, 1);
             $(".container-fluid").removeClass('disabled-pointer');
@@ -635,7 +845,7 @@ async function getNewContent(remove, add, url, keep) {
                 if (_params.has(e[0])) {
                     _params.delete(e[0])
                 }
-                _params.set(e[0], e[1])
+                _params.set(e[0], decodeURLRecursively(e[1]))
             }
             if (_params.has('nsfw') &&
                 (_params.getAll('nsfw').pop() === 'true' && _params.getAll('nsfw').pop() === 'only') &&
@@ -860,9 +1070,10 @@ function getMoreContent(remove, add, url, keep) {
     });
     return false;
 }
-function getSearchContent(element, url) {
+function getSearchContent(element, tagsElement, url) {
     const searchText = document.getElementById(element).value;
-    if (searchText !== null && searchText !== '') {
+    const searchTags = (tagsElement) ? document.getElementById(tagsElement).value : undefined;
+    if ((searchText !== null && searchText !== '') || (searchTags && searchTags !== '')) {
         if(requestInprogress) { requestInprogress.abort(); if(paginatorInprogress) { paginatorInprogress.abort(); } }
         let _url = (() => {
             try {
@@ -902,7 +1113,16 @@ function getSearchContent(element, url) {
                 (_currentURL.startsWith('/artists') || _params.getAll('search').length > 0)) {
                 _params.set('nsfw', 'true')
             }
-            _params.set('search', searchText);
+            if (searchText !== null && searchText !== '') {
+                _params.set('search', searchText);
+            } else {
+                _params.delete('search')
+            }
+            if (searchTags && searchTags !== '') {
+                _params.set('tags', searchTags);
+            } else {
+                _params.delete('tags')
+            }
             if (_params.has('channel') && _params.getAll('channel').pop() === 'random') {
                 _params.delete('channel');
             }
@@ -1052,6 +1272,27 @@ function getPaginator(url) {
         }
     });
     return false;
+}
+function getHistory() {
+    document.getElementById('menuLoaderImageHistory').classList.remove('hidden');
+    $.ajax({async: true,
+        url: `/ambient-history?command=getAll`,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR',
+            'X-Requested-Page': 'SeqHistoryFromHome'
+        },
+        success: function (response, textStatus, xhr) {
+            document.getElementById('menuBodyImageHistory').innerHTML = response
+            document.getElementById('menuLoaderImageHistory').classList.add('hidden');
+        },
+        error: function (xhr) {
+            document.getElementById('menuBodyImageHistory').innerHTML = `<div class='align-content-center ml-1'><i class="fas fa-times mr-2"></i><span>Failed to load history data</span>`
+            document.getElementById('menuLoaderImageHistory').classList.add('hidden');
+        }
+    });
 }
 function launchContent(remove, add, url) {
     setupReq(undefined, _url)
@@ -3190,6 +3431,7 @@ async function updateNotficationsPanel() {
 async function showSearchOptions(post) {
     pageType = $.history.url().split('?')[0].substring(1);
     pageType = (pageType === 'tvTheater' || pageType === 'listTheater') ? 'files' : pageType;
+    const cur = new URLSearchParams('?' + window.location.hash.split('?').pop())
     const _post = document.getElementById(`message-${post}`);
     const _model = document.getElementById('searchModal')
     const postChannel = _post.getAttribute('data-msg-channel');
@@ -3209,6 +3451,7 @@ async function showSearchOptions(post) {
     const postPreviewImage = _post.getAttribute('data-msg-url-preview');
     const postFullImage = _post.getAttribute('data-msg-url-full');
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
+    const postTags = _post.getAttribute('data-tags');
     const postKMSJSON = (() => {
         const _data = _post.getAttribute('data-kms-json');
         if (_data && _data.length > 2) {
@@ -3247,6 +3490,7 @@ async function showSearchOptions(post) {
     const modalGoToPostSource = document.getElementById(`goToPostSource`);
     const modalKeepExpireingSection = document.getElementById(`keepExpireingFile`);
     const modalKeepExpireingButton = modalKeepExpireingSection.querySelector('a');
+    const modelSearchUseChannel = document.getElementById(`searchUseChannel`);
     const modalSearchByUser = document.getElementById(`searchByUser`);
     const modalSearchByParent = document.getElementById(`searchByParent`);
     const modalSearchByColor = document.getElementById(`searchByColor`);
@@ -3268,6 +3512,10 @@ async function showSearchOptions(post) {
     const modalRotate = document.getElementById(`infoRotae`);
     const modalReport = document.getElementById(`infoReport`);
     const modalRepair = document.getElementById(`infoRepair`);
+    const modalSetAvatar = document.getElementById(`setAsAvatar`);
+    const modalSetBanner = document.getElementById(`setAsBanner`);
+    const modelTagsHeader = document.getElementById(`tagsHeader`);
+    const modelTagsHolder = document.getElementById(`tagsHolder`);
 
     const modelKMSRow = document.getElementById(`kmsContent`);
     const modelKMSPoster = document.getElementById(`kmsInfoPoster`);
@@ -3279,9 +3527,13 @@ async function showSearchOptions(post) {
     let normalInfo = [];
     let advancedInfo = [];
 
-    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])}`)
+    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
     document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
+
+    document.getElementById('tagFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
+    document.getElementById('tagFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+    document.getElementById('tagFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
@@ -3552,7 +3804,7 @@ async function showSearchOptions(post) {
     }
     modalGoToPostLocation.onclick = function() {
         $('#searchModal').modal('hide');
-        window.location.assign("#" + params([], [['channel', `${postChannel}`], ['nsfw', 'true']], `/${pageType}`));
+        window.location.assign("#" + params([], [['channel', `${postChannel}`]], `/${pageType}`));
         return false;
     }
     modalToggleFav.onclick = function() {
@@ -3565,6 +3817,14 @@ async function showSearchOptions(post) {
     }
     modalAddFlag.onclick = function() {
         sendBasic(postChannel, postID, "Report", true);
+        return false;
+    }
+    modalSetAvatar.onclick = function() {
+        startAvatarCropper(postEID);
+        return false;
+    }
+    modalSetBanner.onclick = function() {
+        startBannerCropper(postEID);
         return false;
     }
     if (postChannelString && postChannelString.length > 0) {
@@ -3748,7 +4008,7 @@ async function showSearchOptions(post) {
         modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
         modalGoToHistoryDisplay.onclick = function() {
             $('#searchModal').modal('hide');
-            window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`], ['nsfw', 'true']], '/gallery'));
+            window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`]], '/gallery'));
             return false;
         }
         modalGoToHistoryDisplay.classList.remove('hidden')
@@ -3778,6 +4038,17 @@ async function showSearchOptions(post) {
     } else {
         modalSearchByParent.onclick = function() { return false; };
         modalSearchByParent.classList.add('hidden')
+    }
+    if (!cur.has('channel')) {
+        modelSearchUseChannel.onclick = function() {
+            $('#searchModal').modal('hide');
+            getNewContent([],[['channel', postChannel]]);
+            return false;
+        }
+        modelSearchUseChannel.classList.remove('hidden')
+    } else {
+        modelSearchUseChannel.onclick = function() { return false; };
+        modelSearchUseChannel.classList.add('hidden')
     }
     if (searchColor && searchColor.length > 0) {
         modalSearchByColor.onclick = function() {
@@ -3832,6 +4103,59 @@ async function showSearchOptions(post) {
         modalBodyRaw.querySelector('div').innerHTML = ''
         modalBodyRaw.classList.add('hidden')
     }
+    if (postTags && postTags.length > 0) {
+        modelTagsHeader.classList.remove('hidden');
+        modelTagsHolder.innerHTML = postTags.split('; ').map(e => {
+            const rating = parseFloat(e.split('/')[1]) * 100;
+            const name = e.split('/').slice(2).join('/');
+            const type = ((t) => {
+                switch (t) {
+                    case 3:
+                        return ['fa-file-circle-info','System','bg-warning','text-gray-900']
+                    case 2:
+                        return ['fa-person','Character','bg-success','text-gray-900']
+                    default:
+                        if (rating >= 90) {
+                            return ['fa-tag','General','bg-gray-100','text-gray-900']
+                        } else if (rating >= 80 ) {
+                            return ['fa-tag','General','bg-gray-200','text-gray-900']
+                        } else if (rating >= 70 ) {
+                            return ['fa-tag','General','bg-gray-300','text-gray-900']
+                        } else if (rating >= 60 ) {
+                            return ['fa-tag','General','bg-gray-400','text-gray-900']
+                        } else if (rating >= 50 ) {
+                            return ['fa-tag','General','bg-gray-500','text-black-50']
+                        } else if (rating >= 40 ) {
+                            return ['fa-tag','General','bg-gray-600','text-black-50']
+                        } else if (rating >= 30 ) {
+                            return ['fa-tag','General','bg-gray-700','text-white']
+                        } else {
+                            return ['fa-tag','General','bg-gray-800','text-white']
+                        }
+                }
+            })(parseInt(e.split('_')[0]))
+
+            let tagObj = [`<div class="${type[2]} badge mx-1 mb-1" title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
+            tagObj.push(`<a class="${type[3]}" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+            tagObj.push(`<i class="fas ${type[0]} pr-1"></i><span>${name}</span>`)
+            tagObj.push("</a>")
+            if (cur.has('tags')) {
+                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
+                tagObj.push("</a>")
+                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' ' + name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                tagObj.push(`<i class="fas fa-circle-plus"></i>`)
+                tagObj.push("</a>")
+            }
+            tagObj.push("</div>")
+            return tagObj.join("")
+        }).join('\n');
+        modelTagsHolder.classList.remove('hidden');
+    } else {
+        modelTagsHolder.innerHTML = '';
+        modelTagsHeader.classList.add('hidden');
+        modelTagsHolder.classList.add('hidden');
+    }
 
     advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder pr-1"></i><span class="text-monospace" title="Discord Channel ID">${postChannel}</span></div>`);
@@ -3842,8 +4166,8 @@ async function showSearchOptions(post) {
     $('#searchModal').modal('show');
     return false;
 }
-function getLocation(url) {
-    const l = document.getElementById('searchLocationSelection').querySelector('.active').getAttribute('data-search-location')
+function getLocation(url, tags) {
+    const l = document.getElementById(((tags) ? 'tag' : 'search') + 'LocationSelection').querySelector('.active').getAttribute('data-search-location')
     return (l.split('?').pop().length > 0) ? l + '&' : l
 }
 
@@ -4337,10 +4661,10 @@ async function setWatchHistory(eid, viewed) {
     return false;
 }
 async function toggleStarHistoryItem(index) {
-    const star = document.querySelector(`#favHistory-${index} > i.fas.fa-star`)
+    const star = document.querySelector(`#pageHistory-${index}`)
     let isFavorite = false;
     if (star)
-        isFavorite = star.classList.contains('favorited');
+        isFavorite = star.classList.contains('favoritedhistory');
 
     sendBasic(undefined, index, (isFavorite) ? `UnpinHistory`: `PinHistory`, true);
 

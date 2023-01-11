@@ -4,6 +4,7 @@ const moment = require('moment');
 const feed = require('feed').Feed;
 const podcast = require('podcast');
 const useragent = require('express-useragent');
+const app = require('./../app');
 if (web.Base_URL)
     web.base_url = web.Base_URL;
 
@@ -32,13 +33,17 @@ module.exports = async (req, res, next) => {
         }
 
     }
+    const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+    if (!thisUser)
+        res.status(403).send('User account can not correlated to a valid user!')
 
     let results = {
-        sidebar: req.session.sidebar,
-        next_episode: req.session.kongou_next_episode,
-        albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-        theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-        applications_list: req.session.applications_list,
+        sidebar: thisUser.sidebar,
+        next_episode: thisUser.kongou_next_episode,
+        albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+        artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+        theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+        applications_list: thisUser.applications_list,
         ...res.locals.response,
         webconfig: web,
         query: req.query
@@ -48,7 +53,7 @@ module.exports = async (req, res, next) => {
     }
 
     if (req.query.responseType && req.query.responseType === 'podcast') {
-        const serverIcon = (req.query.image) ? decodeURI(req.query.image) : (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
+        const serverIcon = (req.query.image) ? decodeURI(req.query.image) : (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : thisUser.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
         const podcastResponse = new podcast({
             title: `${results.full_title}`,
             itunesSubtitle: web.site_name,
@@ -63,7 +68,7 @@ module.exports = async (req, res, next) => {
             itunesExplicit: false,
             itunesCategory: 'Uncategorized',
             itunesType: "episodic",
-            feedUrl: params(['blind_key'],[['responseType', 'podcast'], ['key', req.session.discord.user.token_static]]),
+            feedUrl: params(['blind_key'],[['responseType', 'podcast'], ['key', thisUser.discord.user.token_static]]),
             copyright: `Copyright (c) ${web.company_name} ${moment(Date.now()).format('YYYY')}`,
             generator: "Sequenzia Digital Media Management Server",
             language: "en"
@@ -95,13 +100,13 @@ module.exports = async (req, res, next) => {
                 }
                 if (item.entities.download && item.entities.download.length > 5 && !(item.entities.download.includes('/stream/'))) {
                     podcastItem.enclosure = {
-                        url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
+                        url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + thisUser.discord.user.token_static : ""}`,
                         size: item.entities.meta.filesize * 1024000,
                         type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
-                        url: `${web.base_url}/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`,
+                        url: `${web.base_url}/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + thisUser.discord.user.token_static : ""}`,
                         size: item.entities.meta.filesize * 1024000,
                         type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
                     }
@@ -111,8 +116,8 @@ module.exports = async (req, res, next) => {
         }
         res.header("Content-Type", "text/xml").send(podcastResponse.buildXml());
     } else if (req.query.responseType && ['xml', 'json', 'atom'].indexOf(req.query.responseType) !== -1 ) {
-        if (req.session.discord.user.token_login && req.session.discord.user.token_static) {
-            const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : req.session.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
+        if (thisUser.discord.user.token_login && thisUser.discord.user.token_static) {
+            const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : thisUser.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
             const xmlResponse = new feed({
                 title: `${results.full_title}`,
                 description: (results.description) ? results.description : 'Sequenzia Response Feed',
@@ -124,8 +129,8 @@ module.exports = async (req, res, next) => {
                 copyright: `Copyright (c) ${web.company_name} ${moment(Date.now()).format('YYYY')}`,
                 generator: "Sequenzia Digital Media Management Server",
                 feedLinks: {
-                    json: params(['blind_key'],[['responseType', 'json'], ['key', req.session.discord.user.token_static]]),
-                    atom: params(['blind_key'],[['responseType', 'atom'], ['key', req.session.discord.user.token_static]])
+                    json: params(['blind_key'],[['responseType', 'json'], ['key', thisUser.discord.user.token_static]]),
+                    atom: params(['blind_key'],[['responseType', 'atom'], ['key', thisUser.discord.user.token_static]])
                 },
                 author: {
                     name: web.site_name,
@@ -153,12 +158,12 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.entities.preview || item.entities.full) {
                         if (results.call_uri === '/gallery') {
-                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`}'/>`
-                            xmlItem.image = `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
+                            xmlItem.content = `<img src='${(item.entities.preview) ? item.entities.preview : `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + thisUser.discord.user.token_static : ""}`}'/>`
+                            xmlItem.image = `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + thisUser.discord.user.token_static : ""}`
                         } else {
-                            xmlItem.content = `<a href='${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
+                            xmlItem.content = `<a href='${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + thisUser.discord.user.token_static : ""}'>${(item.content.single > 0) ? item.content.single : item.entities.filename}</a>`
                             xmlItem.enclosure = {
-                                url: `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + req.session.discord.user.token_static : ""}`
+                                url: `${item.entities.full}${(!config.bypass_cds_check) ? "?key=" + thisUser.discord.user.token_static : ""}`
                             }
                         }
                     }

@@ -2,6 +2,8 @@ const {printLine} = require("./logSystem");
 const { sqlSimple, sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {
+    const thisUser = res.locals.thisUser
+
     if (req.query.device) {
         if (req.query.device.includes('iPad') || req.query.device.includes('Mac') || req.query.device.includes('Tablet') || req.query.device.includes('Desktop')) {
             if (!req.query.ratio) { req.query.ratio = '0.65-1'; }
@@ -18,7 +20,7 @@ module.exports = async (req, res, next) => {
         }
         next();
     } else if (req.query.displayname) {
-        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [req.session.discord.user.id, req.query.displayname]);
+        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.discord.user.id, req.query.displayname]);
         if (displayConfig && displayConfig.rows.length > 0) {
             const thisConfig = displayConfig.rows[0];
             if (thisConfig.requestOptions) {
@@ -40,7 +42,7 @@ module.exports = async (req, res, next) => {
             next();
         }
     } else if (req.path === '/' || req.path === '/homeImage') {
-        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [req.session.discord.user.id, "Homepage"]);
+        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.discord.user.id, "Homepage"]);
         if (displayConfig && displayConfig.rows.length > 0) {
             const thisConfig = displayConfig.rows[0];
             if (thisConfig.requestOptions) {

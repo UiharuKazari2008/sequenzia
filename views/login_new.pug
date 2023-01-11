@@ -76,8 +76,6 @@ html
                                                 i.fab.fa-discord
                                                 span Join Discord
                                     .formDiv.center
-                                        a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
-                                            i.fas.fa-sync(style="padding: 0;")
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
                                             span Logout
@@ -105,8 +103,6 @@ html
                                 h3 No Permission
                                 .formContainer
                                     .formDiv.center
-                                        a.acceptBtn(href='/discord/refresh' style="margin-right: .5em;")
-                                            i.fas.fa-sync
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
                                             span Cancel
@@ -115,8 +111,6 @@ html
                                 h3 No Valid Membership
                                 .formContainer
                                     .formDiv.center
-                                        a.acceptBtn.pr-2(href='/discord/refresh' style="margin-right: .5em;")
-                                            i.fas.fa-sync
                                         a.acceptBtn(href='/discord/destroy')
                                             i.fas.fa-sign-out-alt
                                             span Cancel
@@ -161,10 +155,15 @@ html
                                         a.acceptBtn.discord(href='/discord/login')
                                             i.fab.fa-discord
                                             span Discord
+                                        if (show_user_list)
+                                            a.acceptBtn.discord(href='/discord/users')
+                                                i.fas.fa-key
+                                                span Login As
                                         if (login_image)
                                             a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
                                                 i.fas.fa-qrcode
                                                 span QR Code
+
                                     if (joinLink)
                                         span.register
                                             a(href=joinLink) Requires a valid membership

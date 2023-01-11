@@ -651,6 +651,11 @@ a.btn.btn-links, div.btn.btn-links {
     opacity: 1;
 }
 
+div.favoritedhistory {
+    background-color: #ff780061;
+}
+
+.favoritedhistory > div > a > i.fas.fa-star,
 i.fas.fa-star.favorited {
     color: #ffb000;
 }
@@ -1630,6 +1635,15 @@ div#time {
 }
 
 
+.bootup-logo {
+    font-size: 5em;
+    color: #f19064;
+    text-shadow: 0 0 15px #ff5100d6;
+}
+.boot-card-holder {
+    scale: 1.5;
+}
+
 @media (min-width:356px) {
     .card-columns {
         column-count: 1;
@@ -1652,7 +1666,7 @@ div#time {
     }
 }
 @media (max-width:575px) {
-    .user-info-bg {
+    :not(.boot-card-holder) > .user-info-bg, .server-row {
         display: none;
     }
     .kongou-next-episode-image {
@@ -1862,6 +1876,13 @@ div#time {
     }*/
 }
 @media (max-width: 767px) {
+    .bootup-logo {
+        font-size: 4em;
+        text-shadow: 0 0 8px #ff5100d6;
+    }
+    .boot-card-holder {
+        scale: 1;
+    }
     /*    #wrapper {
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }*/
@@ -1924,6 +1945,10 @@ div#time {
 .menu-icons {
     font-size: 2em;
 }
+.main-menu-grid img {
+    height: 2.5rem;
+    width: 2.5rem;
+}
 .sidebar {
     position: absolute;
     top: 0;
@@ -1976,7 +2001,7 @@ ul#accordionSidebar * {
         max-width: 11.1%;
     }
 }
-#midSearch {
+#midSearch, #naviResume {
     display: flex;
     width: 100%;
 }
@@ -1997,6 +2022,9 @@ ul#accordionSidebar * {
 @media (min-width:850px) {
     #midSearch {
         width: 800px;
+    }
+    #naviResume {
+        max-width: 400px;
     }
 }
 
@@ -2052,6 +2080,10 @@ ul#accordionSidebar * {
     .menu-icons {
         font-size: 1.75em;
     }
+    .main-menu-grid img {
+        height: 2.5rem!important;
+        width: 2.5rem!important;
+    }
 }
 .mobile-only {
     display: flex!important;
@@ -2081,6 +2113,10 @@ ul#accordionSidebar * {
     .main-menu-grid a {
         min-width: 3rem;
     }
+    .main-menu-grid img {
+        height: 1.75rem!important;
+        width: 1.75rem!important;
+    }
 }
 @media (max-width:320px) {
     .main-menu-grid {
@@ -2089,6 +2125,10 @@ ul#accordionSidebar * {
     }
     .main-menu-grid a {
         min-width: 2.5rem;
+    }
+    .main-menu-grid img {
+        height: 1.75rem!important;
+        width: 1.75rem!important;
     }
 }
 
@@ -2140,4 +2180,23 @@ ul#accordionSidebar * {
 }
 .hidden-default:not(.active) {
     display: none!important;
+}
+
+@media (max-width:882px) {
+    .user-menu-overlow-show-icon-1 {
+        display: none!important;
+    }
+}
+@media (min-width:883px) {
+    #midSearch {
+        width: 848px;
+    }
+    .user-menu-overlow-hide-icon-1 {
+        display: none!important;
+    }
+}
+@media (max-width:575px) {
+    .boot-card-holder {
+        scale: 0.75;
+    }
 }

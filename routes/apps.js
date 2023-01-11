@@ -37,32 +37,28 @@ function params(_removeParams, _addParams, _url) {
 router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
     const _url = req.originalUrl.slice(12).split('?')[0].split("/");
     const id = _url.shift();
-    console.log(id)
+    const thisUser = res.locals.thisUser
+    const isAuthorised = (thisUser.applications_list.filter(e => e.id === id).length > 0)
 
-    const perms = [
-        req.session.discord.permissions.read,
-        req.session.discord.permissions.write,
-        req.session.discord.permissions.manage,
-        req.session.discord.permissions.specialPermissions
-    ]
-    if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) === -1).length > 0) {
+    if (global.web_applications[id] && global.web_applications[id].embedded && isAuthorised) {
         res.status(200).render('app_holder', {
             title: global.web_applications[id].name,
             full_title: global.web_applications[id].name,
             call_uri: `/${req.originalUrl.split('/')[1].split('?')[0]}`,
             req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
-
-            server: req.session.server_list,
-            download: req.session.discord.servers.download,
-            manage_channels: req.session.discord.channels.manage,
-            write_channels: req.session.discord.channels.write,
-            discord: req.session.discord,
-            user: req.session.user,
+            server: thisUser.server_list,
+            download: thisUser.discord.servers.download,
+            manage_channels: thisUser.discord.channels.manage,
+            write_channels: thisUser.discord.channels.write,
+            discord: thisUser.discord,
+            user: thisUser.user,
+            login_source: req.session.login_source,
             webconfig: web,
-            albums: (req.session.albums && req.session.albums.length > 0) ? req.session.albums : [],
-            theaters: (req.session.media_groups && req.session.media_groups.length > 0) ? req.session.media_groups : [],
-            next_episode: req.session.kongou_next_episode,
-            applications_list: req.session.applications_list,
+            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
+            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
+            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
+            next_episode: thisUser.kongou_next_episode,
+            applications_list: thisUser.applications_list,
             appData: global.web_applications[id],
             appUrl: `/app/web/${id}`
         })
@@ -76,20 +72,15 @@ router.use('/web/*', sessionVerification, (req, res, next) => {
     const url = '/' + _url.join('/');
     console.log(`${id} - ${req.method} - ${url}`)
 
-    const perms = [
-        req.session.discord.permissions.read,
-        req.session.discord.permissions.write,
-        req.session.discord.permissions.manage,
-        req.session.discord.permissions.specialPermissions
-    ]
-    if (global.web_applications[id] && global.web_applications[id].embedded && perms.filter(p => global.web_applications[id].read_roles.indexOf(p) === -1).length > 0) {
+    const thisUser = res.locals.thisUser
+    const isAuthorised = (thisUser.applications_list.filter(e => e.id === id).length > 0)
+
+    if (global.web_applications[id] && global.web_applications[id].embedded && isAuthorised) {
         const base_url = global.web_applications[id].url;
         const base_query = (global.web_applications[id].query) ? global.web_applications[id].query : [];
 
         const new_url = base_url + params([],base_query, `${base_url}${url}`)
 
-
-        console.log(new_url)
         request({
             method: req.method,
             url: new_url,
@@ -105,8 +96,8 @@ router.use('/web/*', sessionVerification, (req, res, next) => {
                 'sec-fetch-user': '?1',
                 'upgrade-insecure-requests': '1',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73',
-                'Seq-Perm': (JSON.stringify(req.session.discord.permissions)).toString('base64'),
-                'Seq-User': (JSON.stringify(req.session.user)).toString('base64'),
+                'Seq-Perm': (JSON.stringify(thisUser.discord.permissions)).toString('base64'),
+                'Seq-User': (JSON.stringify(thisUser.user)).toString('base64'),
                 'Seq-BaseURL': req.originalUrl.slice(0,9) + id + '/',
             }
         }, async (err, proxyRes, body) => {

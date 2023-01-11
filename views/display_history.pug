@@ -9,7 +9,7 @@ div#displayHistoryResults
                     div.display-jumbotron.pl-3.pr-3
                         .row.position-relative
                             if (mainDisplay.length > 0 && secondDisplay.length > 0)
-                                a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-left: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-left: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
                                         if (mainDisplay[0].nsfw && mainDisplay[0].nsfw === 1)
@@ -21,7 +21,7 @@ div#displayHistoryResults
                                         else
                                             div.half-full(style=`${nsfwFilter1}background-position: center; background-size: cover; background-image: url('${mainDisplay[0].preview}'); position: absolute; z-index: 2; border-right: black 1px solid;`)
                                         div.half-full(style=`background: linear-gradient(0deg, #000000c7, transparent 25%, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
-                                a(title=`Message ID: ${secondDisplay[0].eid}\nShown on ${secondDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-right: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                a(title=`Message ID: ${secondDisplay[0].eid}\nShown on ${secondDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['displayname','${display.display}']], "/gallery"); return false;` style='width: calc(50% - 1px); padding-right: 1px; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter2 = ""
                                         if (secondDisplay[0].nsfw && secondDisplay[0].nsfw === 1)
@@ -34,7 +34,7 @@ div#displayHistoryResults
                                             div.half-full(style=`${nsfwFilter2}background-position: center; background-size: cover; background-image: url('${secondDisplay[0].preview}'); position: absolute; z-index: 2; border-left: black 1px solid;`)
                                         div.half-full(style=`background: linear-gradient(0deg, #000000c7, transparent 25%, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
                             else if (mainDisplay.length > 0)
-                                a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                a(title=`Message ID: ${mainDisplay[0].eid}\nShown on ${mainDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
                                         if (mainDisplay[0].nsfw && mainDisplay[0].nsfw === 1)
@@ -47,7 +47,7 @@ div#displayHistoryResults
                                             div.wide-full(style=`background-color: rgb(${mainDisplay[0].color[0]}, ${mainDisplay[0].color[1]}, ${mainDisplay[0].color[2]}); position: absolute; z-index: 1;`)
                                         div.wide-full(style=`background: linear-gradient(0deg, transparent 50%, #000000c7); opacity: 0.5; position: absolute; z-index: 3;`)
                             else if (secondDisplay.length > 0)
-                                a(title=`Message ID: ${secondDisplay[0].eid}\nShown on ${secondDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['nsfw', 'true'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
+                                a(title=`Message ID: ${secondDisplay[0].eid}\nShown on ${secondDisplay[0].date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['sort', 'history'],['history_numdays', '90'],['history', 'only'],['displayname','${display.display}']], "/gallery"); return false;` style='width: 100%; position: relative; margin-bottom: 62%; overflow-x: clip;')
                                     div.wide
                                         - nsfwFilter1 = ""
                                         if (secondDisplay[0].nsfw && secondDisplay[0].nsfw === 1)
@@ -98,7 +98,7 @@ div#displayHistoryResults
                                     | #{display.name}
                             if (mainDisplay.length > 0 && secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
                                             a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
                                                 i.fas.fa-cog
@@ -113,7 +113,7 @@ div#displayHistoryResults
                                             span.d-inline.d-sm-none Home
                                         else
                                             | Master
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(mainDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=mainDisplay[0].full).text-white.h5
@@ -127,19 +127,19 @@ div#displayHistoryResults
                                             span.d-inline.d-sm-none Lock
                                         else
                                             | Slave
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${secondDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${secondDisplay[0].channel}", "${secondDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=secondDisplay[0].full).text-white.h5
                                         i.fas.fa-download
                             else if (mainDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${mainDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${mainDisplay[0].channel}", "${mainDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(mainDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=mainDisplay[0].full).text-white.pr-2.h5
                                         i.fas.fa-download
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
                                             a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
                                                 i.fas.fa-cog
@@ -147,12 +147,12 @@ div#displayHistoryResults
                                             i.fas.fa-trash
                             else if (secondDisplay.length > 0)
                                 div(style='position: absolute; z-index: 4; margin: 0.5em 0.8em 0.5em 0.5em; right: 0;').row
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         a(data-placement="top" id=`fav-${secondDisplay[0].eid}` title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${secondDisplay[0].channel}", "${secondDisplay[0].eid}"); return false;`).text-white.pr-2.h5
                                             i.fas.fa-star(class=`${(secondDisplay[0].fav) ? 'favorited' : ''}`)
                                     a(title="Download Image" href=secondDisplay[0].full).text-white.pr-2.h5
                                         i.fas.fa-download
-                                    if (user && user.source < 900)
+                                    if (login_source && login_source < 900)
                                         if (display.display !== 'WebExtension' && display.display !== 'ADSEmbed-Untitled' && display.display !== 'ADSMicro-Untitled' && display.display !== 'ADSMobile-Untitled')
                                             a(title="Display Settings" href='#_' onclick=`$('#history-${displayIndex}').hide(); $('#settings-${displayIndex}').slideToggle(); getDisplayConfig("${display.display}", "${displayIndex}"); return false;`).text-white.pr-2.h5
                                                 i.fas.fa-cog
@@ -198,7 +198,7 @@ div#displayHistoryResults
                     //                                        i#button.fas.fa-star
                     //                            a(title="Download Image" href=image.full).text-white.pr-2
                     //                                i.fas.fa-download
-                    //                            a(title=`Message ID: ${image.eid}\nShown on ${image.date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['nsfw', 'true'],['search', 'eid:${image.eid}']], "/gallery"); return false;`).text-white.pr-2
+                    //                            a(title=`Message ID: ${image.eid}\nShown on ${image.date}` href='#_' onclick=`$('#displayHistoryModal').modal('hide'); getNewContent([],[['search', 'eid:${image.eid}']], "/gallery"); return false;`).text-white.pr-2
                     //                                i.fas.fa-search
                     //                        div(style='position: absolute; padding: 0 0.5em; text-decoration: none;')
                     //                            span.shadow-text.text-center.text-white.text-xs #{image.date}

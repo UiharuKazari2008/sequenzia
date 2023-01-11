@@ -27,6 +27,8 @@ html
                     each image in Array.from(Object.entries(app.images))
                         meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
                         link(rel='preload', href=`${image[1]}` as='image')
+        if (next_episode)
+            link(rel='preload', href=`${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : ''}` as='image')
 
         link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
@@ -119,14 +121,14 @@ html
             #bootBackdropSunrise
         #kmsBootDisplay.boot-logo-overlay.animated--grow-in.d-none
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/kms-background.jpeg);")
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : '/static/img/kms-background.jpeg'});`)
                     div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                     div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.d-flex(style="z-index: 1;")
                             img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                         span.boot-status-holder.font-weight-bolder Kongou Media Project v9
                         .mt-1.boot-icons-holder
@@ -145,7 +147,7 @@ html
                         div.d-flex(style="z-index: 1;")
                             img#appBootLogo(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div#appBootAccent.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                         span.boot-status-holder.font-weight-bolder JuneApp Platform v1
                         .mt-1.boot-icons-holder
@@ -157,11 +159,11 @@ html
                         img#appBootPublisher(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         #bootUpDisplay.boot-logo-overlay.animated--grow-in.d-none
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(user && user.banner) ? user.banner : '/static/img/bootlogo-inner.jpeg'})`)
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-logo-holder.d-flex(style="z-index: 1;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
                             img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                         div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em;").mt-1
@@ -200,45 +202,82 @@ html
                 document.getElementById('cover').classList.add('fadeOut');
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
-        .fixed-bottom.ambient-items.p4-safty(style="display: none;")
-            .menu-container.rounded.animated--fade-in.text-center.ml-auto.p-4.bottom-time-info
-                div
+        .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row
+            .animated--fade-in.text-center.pb-4.bottom-time-info.d-none.align-items-end.d-md-flex
+                img(src="/static/img/sequenzia-logo-nav.png" style='height: 4em').pl-4
+            .animated--fade-in.text-center.ml-auto.bottom-time-info
+                div(style="margin-top: -0.75em;")
                     #time
-                div
+                //div
                     i.fas.fa-star.d-none.ajax-imageFav.pr-2
                     span.ajax-imageLocation.text-capitalize ...
                     div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
                         i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
                     span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
-
-        .container.position-fixed.top-center.h-100.w-100.flex-column
+        #mainContainer.container.position-fixed.top-center.h-100.w-100.flex-column
+            #photoInfo.animated--fade-in.hidden.d-none.w-100.d-flex.p-2.pb-0
+                .text-center.align-items-start.d-none.d-md-flex
+                    img(src="/static/img/sequenzia-logo-nav.png" style='height: 3.5em').shadow-blk
+                .ml-auto.justify-content-between.align-items-center.animated--fade-in.mr-auto.mr-md-0
+                    .menu-container.w-100.p-2.px-3.rounded.position-relative.d-flex.flex-column.flex-md-row
+                        div
+                            a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                                .align-items-center.d-flex.flex-column
+                                    span.ajax-imageLocation.text-capitalize ...
+                                    span.ajax-imageDate(style="font-size: .8em;")
+                        div.align-items-center.d-flex.justify-content-between.py-md-0.pl-md-2.pr-md-0.pt-2.px-3.pb-1
+                            i.fas.fa-star.d-none.ajax-imageFav.px-md-2.px-0(onclick="toggleFavorite(); return false;")
+                            a.ajax-downloadLink.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
+                                i.i.fas.fa-download.fa-sm
+                            a.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
+                                i.i.fas.fa-fast-forward.fa-sm
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
-            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column
+            #bootUpLogo.center-block.animated--fade-in(class=(user) ? '' : 'd-none')
+                .d-flex.pb-1.w-100.flex-column
+                    .d-flex.flex-grow-1.align-items-center.boot-card-holder
+                        div.user-info-bg.rounded
+                            div.user-info-border.rounded
+                            div.user-info-backdrop.rounded
+                            div.user-info-overlay.position-absolute.rounded
+                            div.user-infocard-holder.d-flex.flex-column
+                                .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                    img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                    if (discord && discord.user && discord.user.membership)
+                                        if (discord.user.membership.background)
+                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                if (discord.user.membership.icon)
+                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                        else
+                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                if (discord.user.membership.icon)
+                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                    else
+                                        span.ml-auto.shadow-text(style="z-index: 1;") Member
+
+
+                                .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                    if (user)
+                                        .col-auto.p-0
+                                            img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                            div.text-center.text-ellipsis.align-middle.mr-auto
+                                                if (login_source && login_source === 900)
+                                                    span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                    i.pr-1.fas.fa-check-circle
+                                                    span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                    //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                            div.text-ellipsis.shadow-text.user-infocard-info
+                                                span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+            #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column(class=(!user) ? '' : 'd-none')
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                     div#menuAccordion(style='display: contents').w-100.menu-glow
-                        div#menuItemMain(class="collapse show" data-parent="#menuAccordion").w-100
-                            .d-flex.pb-1.w-100
-                                .d-flex.flex-grow-1.align-items-center
-                                    span.sidebar-brand-logo.sequenzia-logo sequenzia
-                                    div#statusPanel(style='display: contents;')
-                                        .dropdown
-                                            a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
-                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
-                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
-                                                div#statusMenuProgress
-                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
-                                                span.dropdown-header
-                                                    | Syncing Offline Pages...
-                                div
-                                    a.pr-0(data-placement="bottom" title="User Account and Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.querySelector('.container').classList.add('show-menu-buttons'); return false;").d-flex.align-items-center
-                                        if (discord)
-                                            span.username.align-self-center.d-none.d-sm-inline.pr-2 #{user.username}
-                                            img.img-profile.rounded-circle(style='width: 2.5em; height: 2.5em; box-shadow: 0 0 4px #4f1900d6;' src=user.avatar)
-                                        else
-                                            span Login Required
+                        div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").w-100
                             #mainUserButtons.d-flex(class=`${(!discord) ? 'hidden':''}`).flex-column
                                 div#mainButtonsAccordion(style='display: contents').w-100
                                     div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
@@ -258,29 +297,92 @@ html
                                             a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
                                                 i.fa-light.fa-compass
                                             a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
-                                                i.fa-light.fa-rectangle-history
+                                                i.fa-light.fa-history
+                                            a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
+                                                i.fa-light.fa-address-book
                                             a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
                                                 i.fa-light.fa-bookmark
+                                            a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random').user-menu-overlow-show-icon-1
+                                                i.fa-light.fa-dice
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                 i.fa-light.fa-browsers
-                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2")
+                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0.desktop-only
+                                                if (user)
+                                                    img.img-profile.rounded-circle.img-button(src=user.avatar)
+                                                else
+                                                    i.fa-light.fa-login
+                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2").user-menu-overlow-hide-icon-1
                                                 i.fa-light.fa-ellipsis-stroke
                                     div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
                                         .menu-grid.main-menu-grid.menu-icons.py-1
                                             a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
                                                 i.fa-light.fa-dice
-                                            a.hover-color(data-placement="top" title="Artists", href='#/artists?')
+                                            a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
                                                 i.fa-light.fa-address-book
-                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
+                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
+                                                if (user)
+                                                    img.img-profile.rounded-circle.img-button(src=user.avatar)
+                                                else
+                                                    i.fa-light.fa-login
+                                            a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
                                                 i.fa-light.fa-chevron-down
+
+                            #menuSearchActivity.pt-2.w-100(class=`${(!discord) ? 'd-none' : 'd-flex'}`)
+                                .d-flex.align-items-center
+                                    //span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                    div#statusPanel(style='display: contents;')
+                                        .dropdown
+                                            a#statusMenu.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
+                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
+                                                div#statusMenuProgress
+                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
+                                                span.dropdown-header
+                                                    | Syncing Offline Pages...
+                                .w-100.align-items-center
+                                    div#locationAccordion.w-100.rounded
+                                        div#locationSearch(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent="#locationAccordion")
+                                            form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                .input-group.w-100.flex-nowrap
+                                                    div.d-flex.flex-column.w-100.justify-content-between.flex-md-row.pl-2
+                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                            input#dropdownSearch4.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                            i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                            input#dropdownSearch2.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                            i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
+                                                    .input-group-append
+                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
+                                                            i.far.fa-image.fa-sm.align-middle.nav-item
+                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/files"); return false;`)
+                                                            i.far.fa-folder.fa-sm.align-middle.nav-item
+                                                        a.btn.input-group-text.bg-transparent.border-0.bg-transparent(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick="$('#menuItemMain .user-menu-height').removeClass('dual-search'); return false;")
+                                                            i.far.fa-chevron-up.align-middle
+
+                                        div#locationTags(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
+                                            form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                .input-group.w-100.flex-nowrap
+                                                    div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative.pl-2
+                                                        input#dropdownSearch3.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                        i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
+                                                    .input-group-append
+                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
+                                                            i.far.fa-search.fa-sm.align-middle.nav-item.input-group-append
+                                                        a.btn.input-group-text.bg-transparent.border-0(title="Advanced Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
+                                                            i.far.fa-chevron-down.align-middle
 
                             #loginUserButtons.d-flex.py-1(class=`${(discord) ? 'hidden':''}`).flex-column.flex-sm-row
                                 span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
-                                .login-options.menu-grid
+                                .login-options.menu-grid.mt-auto.mb-auto
+                                    a.hover-color(data-placement="top" title='Access Local Files', href='#_' onclick="transitionToOOBPage('/offline'); return false").d-flex.flex-column
+                                        i.fa-light.fa-bookmark.fa-2x.align-self-center
+                                        span.align-self-center.pt-1 Local Files
                                     a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
                                         i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
                                         span.align-self-center.pt-1 Login
-                            .d-flex.justify-content-between.align-items-center.image-description
+                            .d-flex.justify-content-between.align-items-center.image-description.hidden
                                 div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;')
                                     .d-inline(style='white-space: nowrap;  flex: 1;')
                                         i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
@@ -300,7 +402,7 @@ html
                                     span.text-capitalize.shadow-text Internal Server Error
 
                         if (discord)
-                            div#menuItemAlbums.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemAlbums.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -334,30 +436,78 @@ html
                                                         else
                                                             div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                     else
-                                        span No Albums!
-                            div#menuItemImageHistory.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                                        div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
+                                            i.fas.fa-empty-set.pr-2
+                                            span No Albums
+                            div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
                                             i.fas.fa-arrow-left.fa-fw
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#/artists?')
+                                            i.fas.fa-grid-2.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-address-book.pr-2
+                                            span Artists
+                                .d-flex.w-100.mb-3
+                                    if (artists && artists.length > 0)
+                                        div.album-list
+                                            each thisArtist in artists
+                                                div.album-item.position-relative
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                        //x.uri, x.privacy
+                                                        div.album-icon
+                                                            if (thisArtist.artist_source && thisArtist.artist_source === 1)
+                                                                i.fab.fa-twitter.pr-1
+                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 2)
+                                                                i.fas.fa-palette.pr-1
+                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 3)
+                                                                i.fab.fa-flickr.pr-1
+                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 4)
+                                                                i.fas.fa-download.pr-1
+
+                                                            if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
+                                                                i.fas.fa-check-circle.ml-1.pr-1
+
+                                                            if (thisArtist.artist_rating)
+                                                                if (thisArtist.artist_rating >= 0.9)
+                                                                    i.fas.fa-face-smile.ml-1.pr-1
+                                                                else if (thisArtist.artist_rating >= 0.75)
+                                                                    i.fas.fa-face-meh.ml-1.pr-1
+                                                                else if (thisArtist.artist_rating >= 0.50)
+                                                                    i.fas.fa-face-frown.ml-1.pr-1
+                                                                else
+                                                                    i.fas.fa-face-meh-blank.ml-1.pr-1
+                                                                span #{(thisArtist.artist_rating * 100).toFixed(0)}%
+                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                        span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
+                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
+                                                        if (thisArtist.image)
+                                                            div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
+                                                        else
+                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                    else
+                                        span No Favorite Artists!
+
+                            div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show All History', href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`)
+                                            i.fas.fa-grid-2.fa-fw
                                         #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
                                             i.fas.fa-spin-pulse.fa-spinner
                                     .d-flex.flex-column.justify-content-end.top-icon
                                         div
-                                            i.fas.fa-rectangle-history.pr-2
+                                            i.fas.fa-history.pr-2
                                             span History
                                 .d-flex.w-100.mb-3
                                     div.album-list
-                                        div.album-item.position-relative(style="height: 7.125em;")
-                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
-                                                div.album-icon
-                                                    i.far.fa-history.pr-1
-                                            div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
-                                                span Show All
-                                            a.position-absolute.text-capitalize(style='width: 100%' title="Show All Displays" href=`#/gallery?sort=history&history_numdays=90&history=only&nsfw=true&displayname=*`)
-                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #02289f, #1cccf7); padding-bottom: 62%`)
                                         #menuBodyImageHistory.ready(style="display: contents;")
-                            div#menuItemApps.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemApps.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -382,7 +532,7 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
-                            div#menuItemLibrary.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                            div#menuItemLibrary.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
@@ -396,24 +546,31 @@ html
                                 .d-flex.w-100.mb-3
                                     .d-flex.w-100
                                         if (next_episode)
-                                            div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? 'https://media.discordapp.net/attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
-                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? 'https://media.discordapp.net/attachments' + next_episode.poster : next_episode.data.poster[0]}`)
-                                        div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
-                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
-                                                i.fas.fa-forward
-                                                | Up Next
-                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
-                                                i.fas.fa-fw.fa-books
-                                                | Shelves
-                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
-                                                i.fas.fa-certificate
-                                                | Newest
-                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
-                                                i.fas.fa-star
-                                                | Favorites
+                                            div.pl-2(onclick=`getNewContent([],[["show_id","${next_episode.show_id}"]${(next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : ''}`)
+                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(next_episode.poster) ? '/media_attachments' + next_episode.poster : next_episode.data.poster[0]}`)
+                                        if (theaters && theaters.length > 0)
+                                            div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                                    i.fas.fa-forward
+                                                    | Up Next
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                                    i.fas.fa-fw.fa-books
+                                                    | Shelves
+                                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                    i.fas.fa-certificate
+                                                    | Newest
+                                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                    i.fas.fa-star
+                                                    | Favorites
+                                        else
+                                            div.mt-auto.mb-auto.ml-auto.mr-auto.h3
+                                                i.fas.fa-shelves-empty.pr-2
+                                                span No Library Access
 
 
-                            div#menuItemMediaGroups.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+
+
+                            div#menuItemMediaGroups.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex.w-100
                                     .flex-grow-1
                                         a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
@@ -430,10 +587,10 @@ html
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                     i.fas(class=`${thisTheater.icon}`)
                                                     | #{thisTheater.name}
-                        div#menuItemAccount.collapse.menu-object(class="collapse" data-parent="#menuAccordion").w-100
+                        div#menuItemAccount.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                             .d-flex
                                 .d-flex.flex-grow-1
-                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.querySelector('.container').classList.remove('show-menu-buttons'); return false;")
+                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.getElementById('mainContainer').classList.remove('show-menu-buttons'); return false;")
                                         i.fas.fa-arrow-left.fa-fw
                                     if (user)
                                         .input-group(style="width: 13rem;").h-25
@@ -442,57 +599,61 @@ html
                                                 a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`).py-0
                                                     span Login
                                 .d-flex.top-icon.align-items-center
-                                    i.fas.fa-key.pr-sm-2
-                                    span.d-none.d-sm-inline User Account
-                            div.d-flex.align-items-center.user-info-container
-                                div.user-info-bg.rounded
-                                    div.user-info-border.rounded
-                                    div.user-info-backdrop.rounded
-                                    div.user-info-overlay.position-absolute.rounded
-                                    div.user-infocard-holder.d-flex.flex-column
-                                        .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                            span.sidebar-brand-logo.sequenzia-logo.shadow-text(style="font-size: 1.5em; z-index: 1;") sequenzia
-                                            if (discord.user.membership)
-                                                if (discord.user.membership.background)
-                                                    div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
-                                                        if (discord.user.membership.icon)
-                                                            i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
-                                                        span(style="z-index: 1;") #{discord.user.membership.text}
+                                    i.fas.fa-cog.pr-sm-2
+                                    span.d-none.d-sm-inline Settings
+                            div.d-flex.align-items-center.user-info-container.settings-menu-col
+                                div.settings-row
+                                    div.user-info-bg.rounded
+                                        div.user-info-border.rounded
+                                        div.user-info-backdrop.rounded
+                                        div.user-info-overlay.position-absolute.rounded
+                                        div.user-infocard-holder.d-flex.flex-column
+                                            .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                if (discord && discord.user && discord.user.membership)
+                                                    if (discord.user.membership.background)
+                                                        div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
+                                                            if (discord.user.membership.icon)
+                                                                i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                            span(style="z-index: 1;") #{discord.user.membership.text}
+                                                    else
+                                                        div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
+                                                            if (discord.user.membership.icon)
+                                                                i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
+                                                            span(style="z-index: 1;") #{discord.user.membership.text}
                                                 else
-                                                    div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
-                                                        if (discord.user.membership.icon)
-                                                            i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
-                                                        span(style="z-index: 1;") #{discord.user.membership.text}
-                                            else
-                                                span.ml-auto.shadow-text(style="z-index: 1;") Member
+                                                    span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
-                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                            .col-auto.p-0
-                                                img.rounded.user-infocard-icon(src=user.avatar)
-                                            .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                                div.text-center.text-ellipsis.align-middle.mr-auto
-                                                    if (user && user.source === 900)
-                                                        span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
-                                                    else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
-                                                        i.pr-1.fas.fa-check-circle
-                                                        span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
-                                                        //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                                div.text-ellipsis.shadow-text.user-infocard-info
-                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
-                                div.menu-grid.user-menu-small
-                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Refresh Session" href='/discord/refresh')
-                                        i.fas.fa-sync
-                                        | Refresh
-                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
-                                        i.fas.fa-sign-out-alt
-                                        | Log Out
+                                            .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                if (user)
+                                                    .col-auto.p-0
+                                                        img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                                    .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                        div.text-center.text-ellipsis.align-middle.mr-auto
+                                                            if (login_source && login_source === 900)
+                                                                span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                            else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                                i.pr-1.fas.fa-check-circle
+                                                                span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                                //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                        div.text-ellipsis.shadow-text.user-infocard-info
+                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                    div.menu-grid.user-menu-small
+                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                            i.fas.fa-sign-out-alt
+                                            | Log Out
+                                div.settings-row
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5
-            //.d-flex.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in
-                if (discord && discord.servers.list)
+            #naviResume.ml-auto.mr-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.d-none.hidden.mt-3(style="margin-bottom: calc(calc(env(safe-area-inset-bottom) + 2.125em) * -1);!important")
+                .menu-container.w-100.p-2.px-3.rounded.position-relative(style="border-bottom-left-radius: 0!important;border-bottom-right-radius: 0!important;padding-bottom: calc(env(safe-area-inset-bottom) + 1.75em)!important;")
+                    .navi-last.w-100
+            if (discord)
+                #serverIconsList.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in.d-none
                     div.shadow-blk
+                        //.server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,8).length}, minmax(45px, 40px));`)
                         for thisServer in discord.servers.list
                             img.server-icon.rounded-circle(data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
 
