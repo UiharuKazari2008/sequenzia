@@ -910,7 +910,7 @@ html
                                     i.fas.fa-server.pr-2
                                     | Storage Servers
                             each thisServer, thisIndex in discord.servers.list
-                                .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
+                                .row.pl-3.pr-3.pt-2.flex-nowrap.d-flex(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
                                     div.mr-3
                                         img.rounded-pill(src=thisServer.icon style='height: 8em;')
                                     div
