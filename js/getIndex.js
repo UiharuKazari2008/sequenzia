@@ -499,6 +499,7 @@ module.exports = async (req, res, next) => {
                         },
                         server: {
                             id: item.server,
+                            full_name: item.server_nice_name || item.server_name,
                             name: item.server_short_name.toUpperCase()
                         },
                         pinned: (item.fav_date !== null)

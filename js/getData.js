@@ -2087,10 +2087,12 @@ module.exports = async (req, res, next) => {
                                             id: item.user,
                                             name: (_u.nice_name) ? _u.nice_name: _u.username,
                                             avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                            system_user: false
                                         }
                                     }
                                     return {
-                                        id: item.user
+                                        id: item.user,
+                                        system_user: true
                                     }
                                 })()
 
@@ -2178,6 +2180,7 @@ module.exports = async (req, res, next) => {
                                                 server: {
                                                     id: item.server,
                                                     name: item.server_short_name.toUpperCase(),
+                                                    full_name: item.server_nice_name || item.server_name,
                                                     icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                                 }
                                             })
@@ -2328,6 +2331,7 @@ module.exports = async (req, res, next) => {
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
+                                            full_name: item.server_nice_name || item.server_name,
                                             icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
@@ -2593,6 +2597,7 @@ module.exports = async (req, res, next) => {
                                             server: {
                                                 id: item.server,
                                                 name: item.server_short_name.toUpperCase(),
+                                                full_name: item.server_nice_name || item.server_name,
                                                 icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                             }
                                         })
@@ -2719,6 +2724,7 @@ module.exports = async (req, res, next) => {
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
+                                            full_name: item.server_nice_name || item.server_name,
                                             icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
@@ -2813,6 +2819,7 @@ module.exports = async (req, res, next) => {
                                         server: {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
+                                            full_name: item.server_nice_name || item.server_name,
                                             icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,

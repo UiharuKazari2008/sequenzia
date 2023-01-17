@@ -2315,16 +2315,24 @@ html
                                                     h3.mb-0
                                                         button.btn.btn-link(type='button' data-toggle='collapse' data-target='#customizeCollapse')
                                                             i.fas.pr-2.fa-swatchbook
-                                                            | Customize
+                                                            | Services
                                                             i.fas.fa-chevron-right.pl-2
                                                 #customizeCollapse.collapse(data-parent='#findMenus').w-100
                                                     div.mt-1
-                                                        a#setAsAvatar.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
-                                                            i.fas.fa-crop-alt.pr-2
-                                                            span Set as Avatar
-                                                        a#setAsBanner.btn.btn-primary(data-toggle='collapse' href='#_' role='button').mb-2.w-100
-                                                            i.fas.fa-crop-alt.pr-2
-                                                            span Set as Banner
+                                                        div.mb-2
+                                                            a#setAsAvatar.btn.btn-primary(data-toggle='collapse' href='#_' role='button').w-100.mr-1
+                                                                i.fas.fa-address-card.pr-2
+                                                                span Set Avatar
+                                                            a#setAsBanner.btn.btn-primary(data-toggle='collapse' href='#_' role='button').w-100.ml-1
+                                                                i.fas.fa-address-card.pr-2
+                                                                span Set Banner
+                                                        div
+                                                            a#upscaleRequest.btn.btn-primary(data-toggle='collapse' href='#_' role='button').w-100.mb-1
+                                                                i.fas.fa-high-definition.pr-2
+                                                                span Upscale Image
+                                                            //a.btn.btn-primary(data-toggle='collapse' href='#_' role='button').w-100.mb-1
+                                                                i.fas.fa-telescope.pr-2
+                                                                span SauceNAO
                                             div#manageButtons.w-100
                                                 #toolboxHeader
                                                     h3.mb-0

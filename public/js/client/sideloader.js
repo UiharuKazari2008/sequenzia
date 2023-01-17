@@ -3450,6 +3450,7 @@ async function showSearchOptions(post) {
     const postOffline = (postID && offlineMessages.indexOf(postID) !== -1);
     const postDate = _post.getAttribute('data-msg-date');
     const postAuthorName = _post.getAttribute('data-msg-author');
+    const postAuthorIsSystem = _post.getAttribute('data-msg-issystem');
     const postPreviewImage = _post.getAttribute('data-msg-url-preview');
     const postFullImage = _post.getAttribute('data-msg-url-full');
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
@@ -3783,7 +3784,9 @@ async function showSearchOptions(post) {
     if (postAuthorName && postAuthorName.length > 0) {
         modalAuthorData.querySelector('span').innerText = postAuthorName;
     } else {
-        modalAuthorData.querySelector('span').innerText = 'Framework';
+        modalAuthorData.querySelector('span').innerText = 'Internal';
+    }
+    if (postAuthorIsSystem && postAuthorIsSystem === 'true') {
         normalInfo.push('<div class="badge badge-light m-1 ">')
         normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
         normalInfo.push('</div>')
