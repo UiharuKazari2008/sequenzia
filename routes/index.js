@@ -147,6 +147,9 @@ router.use('/parity', sessionVerification, readValidation, async (req, res) => {
                     return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
                 }
             })()
+            if (!config.disable_esm) {
+                await sqlPromiseSafe(`INSERT INTO sequenzia_cds_audit SET esm_id = ?, fileid = ?`, [req.session.esm_key, params[0]])
+            }
             if (results.error) {
                 res.status(500)
                 console.error(results.error)
