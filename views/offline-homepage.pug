@@ -224,7 +224,7 @@ html
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                     .col-auto.p-0
-                                                        img.user-infocard-icon(class=`${(webconfig.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                                     .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                         div.text-center.text-ellipsis.align-middle.mr-auto
                                                             if (login_source && login_source === 900)
@@ -391,7 +391,7 @@ html
                                     li.nav-item.no-arrow.d-flex.align-items-center
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
-                                            img.img-profile(class=`${(webconfig.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                            img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
 
                         div#topbarUserBackground.show-menu-open.hidden
                             div.user-info-backdrop

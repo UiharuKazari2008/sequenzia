@@ -45,7 +45,7 @@ module.exports = async (req, res, next) => {
         theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
         applications_list: thisUser.applications_list,
         ...res.locals.response,
-        webconfig: web,
+        webconf: web,
         query: req.query
     };
     if (res.locals.imagedata) {

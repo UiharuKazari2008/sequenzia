@@ -262,7 +262,7 @@ html
                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                     if (user)
                                         .col-auto.p-0
-                                            img.user-infocard-icon(class=`${(webconfig.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                            img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                         .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                             div.text-center.text-ellipsis.align-middle.mr-auto
                                                 if (login_source && login_source === 900)
@@ -308,7 +308,7 @@ html
                                                 i.fa-light.fa-browsers
                                             a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0.desktop-only
                                                 if (user)
-                                                    img.img-profile.img-button(class=`${(webconfig.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                                    img.img-profile.img-button(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                                 else
                                                     i.fa-light.fa-login
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2").user-menu-overlow-hide-icon-1
@@ -321,7 +321,7 @@ html
                                                 i.fa-light.fa-address-book
                                             a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
                                                 if (user)
-                                                    img.img-profile.img-button(class=`${(webconfig.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                                    img.img-profile.img-button(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                                 else
                                                     i.fa-light.fa-login
                                             a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
@@ -628,7 +628,7 @@ html
                                             .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                 if (user)
                                                     .col-auto.p-0
-                                                        img.user-infocard-icon(class=`${(webconfig.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                                     .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                         div.text-center.text-ellipsis.align-middle.mr-auto
                                                             if (login_source && login_source === 900)
@@ -650,12 +650,12 @@ html
             #naviResume.ml-auto.mr-auto.justify-content-between.align-items-center.animated--fade-in.flex-column.d-none.hidden.mt-3(style="margin-bottom: calc(calc(env(safe-area-inset-bottom) + 2.125em) * -1);!important")
                 .menu-container.w-100.p-2.px-3.rounded.position-relative(style="border-bottom-left-radius: 0!important;border-bottom-right-radius: 0!important;padding-bottom: calc(env(safe-area-inset-bottom) + 1.75em)!important;")
                     .navi-last.w-100
-            if (discord && !webconfig.hide_server_list)
+            if (discord && !webconf.hide_server_list)
                 #serverIconsList.ml-auto.mr-auto.justify-content-between.align-items-center.server-list.dimmed.animated--grow-in.d-none
                     div.shadow-blk
                         //.server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,8).length}, minmax(45px, 40px));`)
                         for thisServer in discord.servers.list
-                            img.server-icon(class=`${(webconfig.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
+                            img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` data-placement="top"  title=thisServer.name src=thisServer.icon id=`server-${thisServer.serverid}`)
 
         // Logout Modal
         #logoutModal.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')

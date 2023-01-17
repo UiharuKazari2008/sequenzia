@@ -66,7 +66,7 @@ router.get('/offline', sessionVerification, (req, res, next) => {
         discord: thisUser.discord,
         user: thisUser.user,
         login_source: req.session.login_source,
-        webconfig: web,
+        webconf: web,
         albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
         artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
         theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],

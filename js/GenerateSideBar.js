@@ -25,7 +25,7 @@ module.exports = async (req, res, next) => {
                 discord: thisUser.discord,
                 user: thisUser.user,
                 login_source: req.session.login_source,
-                webconfig: webconfig
+                webconf: webconfig
             })
         } else {
             next();
