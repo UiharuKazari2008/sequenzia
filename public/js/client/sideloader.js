@@ -3522,6 +3522,7 @@ async function showSearchOptions(post) {
     const modalSetBanner = document.getElementById(`setAsBanner`);
     const modelTagsHeader = document.getElementById(`tagsHeader`);
     const modelTagsHolder = document.getElementById(`tagsHolder`);
+    const modelManageButtons = document.getElementById(`manageButtons`);
 
     const modelKMSRow = document.getElementById(`kmsContent`);
     const modelKMSPoster = document.getElementById(`kmsInfoPoster`);
@@ -3928,6 +3929,7 @@ async function showSearchOptions(post) {
             modalDecompile.classList.add('hidden');
             modalDecompile.onclick = null;
         }
+        modelManageButtons.classList.remove('hidden');
     } else {
         modalReport.classList.add('hidden');
         modalReport.onclick = null;
@@ -3945,8 +3947,9 @@ async function showSearchOptions(post) {
         modalCompile.onclick = null;
         modalDecompile.classList.add('hidden');
         modalDecompile.onclick = null;
-        modalEditText.classList.add('hidden');
+        modalEditText.classList.add('hidden')
         modalEditText.onclick = null;
+        modelManageButtons.classList.add('hidden');
     }
     if (searchSource && searchSource.length > 0) {
         normalInfo.push('<div class="badge text-light badge-info m-1">')
