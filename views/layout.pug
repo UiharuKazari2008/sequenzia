@@ -142,7 +142,7 @@ html
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                     .col-auto.p-0
-                                                        img.rounded-circle.user-infocard-icon(src=user.avatar)
+                                                        img.user-infocard-icon(class=`${(webconfig.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                                     .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                         div.text-center.text-ellipsis.align-middle.mr-auto
                                                             if (login_source && login_source === 900)
@@ -1605,7 +1605,7 @@ html
                                     li.nav-item.no-arrow.d-flex.align-items-center
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
-                                            img.img-profile.rounded-circle(src=user.avatar)
+                                            img.img-profile(class=`${(webconfig.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
 
                         //div#topbarAccent.show-menu-open.hidden
                         div#topbarUserBackground.show-menu-open.hidden
@@ -2121,12 +2121,13 @@ html
                                     strong The Kanmi x Sequenzia II Project
                                 div
                                     span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
-                            .server-grid-container.text-center.mt-3.hide-1700
-                                .server-grid.d-inline-block
-                                    .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0, 8).length}, minmax(45px, 40px));`)
-                                        for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
-                                            .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
-                                                img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                            if (!webconfig.hide_server_list)
+                                .server-grid-container.text-center.mt-3.hide-1700
+                                    .server-grid.d-inline-block
+                                        .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0, 8).length}, minmax(45px, 40px));`)
+                                            for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
+                                                .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
+                                                    img.server-icon(class=`${(webconfig.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                     if (!appData)
                         #downloadAll.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                             .modal-dialog(role='document')
