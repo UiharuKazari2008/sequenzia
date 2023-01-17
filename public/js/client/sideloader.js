@@ -3553,10 +3553,10 @@ async function showSearchOptions(post) {
             postPreviewImage.split('?')[0].endsWith('.webm')) {
             _model.querySelector('.modal-background').style.backgroundImage = `url("${postPreviewImage}")`
         } else {
-            _model.querySelector('.modal-background').style.backgroundImage = (postAuthorName && postAuthorName.length > 0) ? `url("${postAuthorImage}")` : undefined;
+            _model.querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
         }
     } else {
-        _model.querySelector('.modal-background').style.backgroundImage = (postAuthorName && postAuthorName.length > 0) ? `url("${postAuthorImage}")` : undefined;
+        _model.querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
     }
 
     if (resolutionRatio && resolutionRatio.length > 0) {
