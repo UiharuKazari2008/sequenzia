@@ -157,7 +157,7 @@ if (config.enable_impersonation) {
             res.status(200).send([
                 "<h1>Authorised Users</h1>",
                 "<ul>",
-                app.get('users').rows.map(e => `<li><a href="/discord/impersonate/${e.id}"><img src="https://cdn.discordapp.com/avatars/${e.id}/${e.avatar}.png?size=32"/>${e.username} @ ${e.server}</a></li>`).join('\n'),
+                app.get('users').rows.map(e => `<li><a href="/discord/impersonate/${e.id}"><img src="/avatars/${e.id}/${e.avatar}.png?size=32"/>${e.username} @ ${e.server}</a></li>`).join('\n'),
                 "</ul>",
                 "<h2><a href='/discord/session'>View Current Session</a></h2>",
                 "<h2><a href='/discord/destroy'>Burn Current Session</a></h2>",

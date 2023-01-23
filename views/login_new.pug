@@ -46,6 +46,7 @@ html
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
         link(rel="stylesheet", href="/css/login.min.css")
+        link(rel="stylesheet", href="/static/css/instance-login.css")
 
         script(src="/static/vendor/jquery/jquery.min.js")
     body
@@ -62,7 +63,7 @@ html
             #inviteContainer
                 .acceptContainer
                     .logo-container
-                        img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-white.png"}`)
+                        img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)
                     if (noLoginAvalible)
                         form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
                             if (noLoginAvalible === 'nomember')

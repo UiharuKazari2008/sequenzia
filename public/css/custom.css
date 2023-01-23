@@ -34,6 +34,9 @@
     color: white;
     background-color: #212121;
 }
+.list-group-item, .list-group-item a.inner-item {
+    padding: .75rem 1.25rem;
+}
 
 .list-group-item-action:focus,
 .list-group-item-action:hover,

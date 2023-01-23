@@ -1163,9 +1163,9 @@ module.exports = async (req, res, next) => {
                     // Get Image Preview URL
                     let ranImage = '';
                     if ( image.cache_proxy !== null) {
-                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
+                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                     } else {
-                        ranImage = `https://media.discordapp.net/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
+                        ranImage = `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                     }
 
                     // Image Description
@@ -1206,7 +1206,7 @@ module.exports = async (req, res, next) => {
                         if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
-                            ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
+                            ranfullImage = `${(req.query && req.query['lite_mode'] === 'true') ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
                     }
 
@@ -1312,9 +1312,9 @@ module.exports = async (req, res, next) => {
                     // Get Image Preview URL
                     let ranImage = '';
                     if ( image.cache_proxy !== null) {
-                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
+                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                     } else {
-                        ranImage = `https://media.discordapp.net/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
+                        ranImage = `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                     }
 
                     // Image Description
@@ -1356,7 +1356,7 @@ module.exports = async (req, res, next) => {
                         if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
-                            ranfullImage = `https://cdn.discordapp.com/attachments/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
+                            ranfullImage = `${(req.query && req.query['lite_mode'] === 'true') ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                         }
                     }
 
@@ -2086,7 +2086,7 @@ module.exports = async (req, res, next) => {
                                         return {
                                             id: item.user,
                                             name: (_u.nice_name) ? _u.nice_name: _u.username,
-                                            avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                            avatar: (_u.avatar) ? `${(req.query && req.query['lite_mode'] === 'true') ? '/avatars/' : 'https://cdn.discordapp.com/avatars/'}${item.user}/${_u.avatar}.png?size=512` : null,
                                             system_user: false
                                         }
                                     }
@@ -2106,7 +2106,7 @@ module.exports = async (req, res, next) => {
                                             if (imageurl === undefined) {
                                                 imageurl = attachment[1]
                                             }
-                                            const extended_previews = (item.data && item.data.preview_image && item.data.preview_image[index]) ? "https://media.discordapp.net" + item.data.preview_image[index] : undefined
+                                            const extended_previews = (item.data && item.data.preview_image && item.data.preview_image[index]) ? `${(req.query && req.query['lite_mode'] === 'true') ? '' : 'https://media.discordapp.net'}` + item.data.preview_image[index] : undefined
                                             const _date = moment(Date.parse(item.date))
                                             resultsArray.push({
                                                 id: item.id,
@@ -2181,7 +2181,7 @@ module.exports = async (req, res, next) => {
                                                     id: item.server,
                                                     name: item.server_short_name.toUpperCase(),
                                                     full_name: item.server_nice_name || item.server_name,
-                                                    icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
+                                                    icon: `${(req.query && req.query['lite_mode'] === 'true') ? '/icons' : 'https://cdn.discordapp.com/icons'}/${item.server}/${item.server_avatar}.png?size=4096`
                                                 }
                                             })
                                             imagesArray.push(imageurl);
@@ -2201,11 +2201,11 @@ module.exports = async (req, res, next) => {
                                     let downloadimage = null
 
                                     if (item.attachment_hash && item.attachment_name) {
-                                        fullimage = fullimage = imageurl = downloadimage = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
+                                        fullimage = fullimage = imageurl = downloadimage = `${(req.query && req.query['lite_mode'] === 'true') ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
                                     } else if (item.fileid) {
                                         fullimage = `/stream/${item.fileid}/${item.real_filename}`
                                     } else if (item.cache_proxy) {
-                                        fullimage = fullimage = imageurl = downloadimage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
+                                        fullimage = fullimage = imageurl = downloadimage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     }
                                     if (isCached) {
                                         fullimage = (fullimage) ? fullimage : `/stream/${item.fileid}/${item.real_filename}`
@@ -2214,7 +2214,7 @@ module.exports = async (req, res, next) => {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     if (item.cache_proxy) {
-                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
+                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
                                             if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
@@ -2230,7 +2230,7 @@ module.exports = async (req, res, next) => {
                                                 return ''
                                             }
                                         }
-                                        imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
+                                        imageurl = `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
                                     }
                                     let advColor = [];
                                     if (!(item.colorR === null || item.colorG === null || item.colorB === null || (item.colorR === 0 && item.colorG === 0 && item.colorB === 0))) {
@@ -2251,7 +2251,7 @@ module.exports = async (req, res, next) => {
                                         }, function (ok) { })
                                     }
                                     const _date = moment(Date.parse(item.date))
-                                    const extended_previews = (item.data && item.data.preview_image) ? "https://media.discordapp.net" + item.data.preview_image : undefined
+                                    const extended_previews = (item.data && item.data.preview_image) ? `${(req.query && req.query['lite_mode'] === 'true') ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
                                     resultsArray.push({
                                         id: item.id,
                                         eid: item.eid,
@@ -2332,7 +2332,7 @@ module.exports = async (req, res, next) => {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
                                             full_name: item.server_nice_name || item.server_name,
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
+                                            icon: `${(req.query && req.query['lite_mode'] === 'true') ? '/icons' : 'https://cdn.discordapp.com/icons'}/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (thisUser.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -2399,7 +2399,7 @@ module.exports = async (req, res, next) => {
                                         return {
                                             id: item.user,
                                             name: (_u.nice_name) ? _u.nice_name: _u.username,
-                                            avatar: (_u.avatar) ? `https://cdn.discordapp.com/avatars/${item.user}/${_u.avatar}.png?size=512` : null,
+                                            avatar: (_u.avatar) ? `${(req.query && req.query['lite_mode'] === 'true') ? '/avatars' : 'https://cdn.discordapp.com/avatars'}/${item.user}/${_u.avatar}.png?size=512` : null,
                                         }
                                     }
                                     return {
@@ -2517,7 +2517,7 @@ module.exports = async (req, res, next) => {
                                         }, function (ok) { })
                                     }
                                 }
-                                const extended_previews = (item.data && item.data.preview_image) ? "https://media.discordapp.net" + item.data.preview_image : undefined;
+                                const extended_previews = (item.data && item.data.preview_image) ? `${(req.query && req.query['lite_mode'] === 'true') ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined;
 
                                 if (item.attachment_extra !== null) {
                                     // Unpack data here
@@ -2598,7 +2598,7 @@ module.exports = async (req, res, next) => {
                                                 id: item.server,
                                                 name: item.server_short_name.toUpperCase(),
                                                 full_name: item.server_nice_name || item.server_name,
-                                                icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
+                                                icon: `${(req.query && req.query['lite_mode'] === 'true') ? '/icons' : 'https://cdn.discordapp.com/icons'}/${item.server}/${item.server_avatar}.png?size=4096`
                                             }
                                         })
                                     })
@@ -2607,10 +2607,10 @@ module.exports = async (req, res, next) => {
                                     let fullurl
                                     let downloadurl
                                     downloadlink = `/content/link/${item.channel}/${item.id}/`
-                                    fullurl = downloadurl = imageurl = `https://cdn.discordapp.com/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
+                                    fullurl = downloadurl = imageurl = `${(req.query && req.query['lite_mode'] === 'true') ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
 
                                     if (item.cache_proxy !== null) {
-                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
+                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
                                             if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
@@ -2626,7 +2626,7 @@ module.exports = async (req, res, next) => {
                                                 return ''
                                             }
                                         }
-                                        imageurl = `https://media.discordapp.net/attachments/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
+                                        imageurl = `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}${getimageSizeParam()}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}${getimageSizeParam()}`)
                                     } else if (filename && (filename.toLowerCase().includes('.mp4') || filename.toLowerCase().includes('.mov') || filename.toLowerCase().includes('.m4v') || filename.toLowerCase().includes('.mkv') || filename.toLowerCase().includes('.ts'))) {
                                         if (item.cache_proxy === null && item.cache_proxy !== 'failed' && global.enable_polyfill_proxy_request) {
                                             sendData(global.mq_discord_out, {
@@ -2640,7 +2640,7 @@ module.exports = async (req, res, next) => {
                                             }, function (ok) { })
                                         }
                                     }
-                                    const extended_previews = (item.data && item.data.preview_image) ? "https://media.discordapp.net" + item.data.preview_image : undefined
+                                    const extended_previews = (item.data && item.data.preview_image) ? `${(req.query && req.query['lite_mode'] === 'true') ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
                                     let inprogress = false
                                     if (item.fileid !== null) {
                                         downloadurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
@@ -2725,7 +2725,7 @@ module.exports = async (req, res, next) => {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
                                             full_name: item.server_nice_name || item.server_name,
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
+                                            icon: `${(req.query && req.query['lite_mode'] === 'true') ? '/icons' : 'https://cdn.discordapp.com/icons'}/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (thisUser.discord.channels.manage.indexOf(item.channel) !== -1)
@@ -2736,7 +2736,7 @@ module.exports = async (req, res, next) => {
                                     let inprogress = false
                                     let imageurl = null;
                                     if (item.cache_proxy !== null) {
-                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`
+                                        imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.query && req.query['lite_mode'] === 'true') ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     }
                                     if (item.fileid !== null) {
                                         fullurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
@@ -2820,7 +2820,7 @@ module.exports = async (req, res, next) => {
                                             id: item.server,
                                             name: item.server_short_name.toUpperCase(),
                                             full_name: item.server_nice_name || item.server_name,
-                                            icon: `https://cdn.discordapp.com/icons/${item.server}/${item.server_avatar}.png?size=4096`
+                                            icon: `${(req.query && req.query['lite_mode'] === 'true') ? '/icons' : 'https://cdn.discordapp.com/icons'}/${item.server}/${item.server_avatar}.png?size=4096`
                                         },
                                         permalink: downloadlink,
                                         manage: (thisUser.discord.channels.manage.indexOf(item.channel) !== -1)

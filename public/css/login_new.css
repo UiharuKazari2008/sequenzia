@@ -84,6 +84,7 @@ body {
 .top-logo {
     max-height: 3.5em;
     width: 16em;
+    margin-right: -1rem;
 }
 
 .top-logo.banner-shadow {

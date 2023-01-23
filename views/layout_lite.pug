@@ -29,13 +29,14 @@ html
         link(rel='preconnect' href='https://cdn.discordapp.com')
         link(rel='preconnect' href='https://media.discordapp.net')
         link(rel="stylesheet", href="/css/layout-basic.min.css")
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
     body(id="page-top")
         div.topbar-heading
             div.logo-container
-                img(src="/static/img/sequenzia-logo-orange.png")
+                img(src="/static/img/sequenzia-logo-nav.png")
             div.search-box
                 form
-                    input(type='text' placeholder='Search...' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=(search_prev) ? encodeURIComponent(search_prev) : "")
+                    input(type='text' placeholder='Search...' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=(search_prev) ? decodeURIComponent(search_prev) : "")
         div.topbar-menubar
             ul.menubar-list
                 li.menubar-item
@@ -44,8 +45,6 @@ html
                     span Gallery
                 li.menubar-item
                     span Files
-                li.menubar-item
-                    span Cards
                 li.menubar-item
                     span Favorites
                 li.menubar-item

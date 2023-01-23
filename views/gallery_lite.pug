@@ -12,31 +12,29 @@ block content
                     div.gallery-detail.image
                         span item.content.full
         else if (results && results.length > 1 )
-            div.gallery.list
+            ul.gallery.list
                 for item in results
-                    div.gallery.item
-                        div.gallery.image
+                    if(item.entities.meta.ratio)
+                        if(item.entities.meta.ratio >= 1)
+                            - res = item.entities.meta.height
+                        else
+                            - res = item.entities.meta.width
+                    else
+                        - res = item.entities.meta.height
+                    li.gallery.item
+                        div.gallery.image(class=`${(item.flagged) ? 'flagged' : (item.pinned) ? 'favorite' : ''}${(res >= 4096) ? 'uhdq' : (res >= 1080) ? 'fhdq' : ''}`)
                             - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
-                            a(href=fileURL)
+                            a(href='/item/' + item.eid)
                                 img.gallery.preview-holder(src=previewURL)
-                        div.gallery.icons
-                            if(item.entities.meta.ratio)
-                                if(item.entities.meta.ratio >= 1)
-                                    - res = item.entities.meta.height
+                        a.gallery.bottom-bar(href=fileURL)
+                            span.gallery.resolution #{item.entities.meta.height}x#{item.entities.meta.width}
+                            span.gallery.icons
+                                if (res >= 4096)
+                                    img(title=`Ultra Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl_uhd.gif").status-icons
+                                else if (res >= 1080)
+                                    img(title=`High Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl_large.gif").status-icons
                                 else
-                                    - res = item.entities.meta.width
-                            else
-                                - res = item.entities.meta.height
-                            if (res >= 4096)
-                                img(title=`Ultra Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl_uhd.gif").status-icons
-                            else if (res >= 1080)
-                                img(title=`High Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl_large.gif").status-icons
-                            else
-                                img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl.gif").status-icons
-                            if (item.pinned)
-                                img(title="Image is favorite" src="/static/img/post-star.gif").status-icons
-                            if (item.flagged)
-                                img(title="Image was reported" src="/static/img/post-star-flagged.gif").status-icons
+                                    img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl.gif").status-icons
 
         else
             span No Results
