@@ -27,6 +27,47 @@ body {
 .mini-logo {
     display: none;
 }
+.fixed-bottom {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    display: flex;
+    flex-direction: row;
+}
+div.bottom-logo {
+    padding: 2em;
+    opacity: .5;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+    cursor: pointer;
+    justify-content: end;
+    align-items: flex-start;
+}
+div.bottom-data-plate {
+    padding: 2em;
+    opacity: .5;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+    cursor: pointer;
+    justify-content: end;
+    align-items: flex-end;
+    margin-left: auto;
+}
+img.bottom-logo {
+    width: 250px;
+    margin-left: -.3em;
+    margin-bottom: -0.6em;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+}
 #container, .acceptContainer:before, .logoContainer:before {
     background-attachment: scroll;
 }
@@ -279,6 +320,12 @@ a:visited:active:hover {
         width: 260px;
         padding-bottom: 2.4em;
         display: block!important;
+    }
+    img.bottom-logo {
+        width: 150px;
+    }
+    div.bottom-data-plate, div.bottom-logo, img.bottom-logo {
+        font-size: 10pt;
     }
 }
 

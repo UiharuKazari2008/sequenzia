@@ -59,6 +59,12 @@ html
             div(style="display: block; position: fixed; left: 0; width: 100vw; z-index: 100000;")
                 div(style="color: white;background: #930000;font-size: 1.35em;text-align: center;")
                     span !{banner}
+        .fixed-bottom
+            .bottom-logo
+                span Powered by:
+                img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
+            .bottom-data-plate
+                span v20.2
         #container
             #inviteContainer
                 div.inner-container
@@ -108,12 +114,8 @@ html
                         else
                             if (login_code)
                                 div.login-code
-                                    if (show_user_list)
-                                        a(href='/discord/users')
-                                            span.text-capitalize #{login_code}
-                                    else
-                                        a(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
-                                            span.text-capitalize #{login_code}
+                                    a(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
+                                        span.text-capitalize #{login_code}
 
                             div#collapseQRCode.login-qr.collapse.center(style='display: none')
                                 if (login_image)
@@ -134,14 +136,20 @@ html
                             i.fa-light.fa-home
                             span Home
                     else
-                        a.acceptBtn.discord(href='/discord/login')
-                            i.fa-light.fa-arrow-right-to-bracket
-                            span Login
                         if (joinLink)
-                            div.seperator
                             a.acceptBtn(href=joinLink)
                                 i.fa-light.fa-signature
                                 span Join
+                            div.seperator
+                        if (show_user_list)
+                            a.acceptBtn.discord(href='/discord/users')
+                                i.fa-light.fa-user
+                                span Users
+                            div.seperator
+                        a.acceptBtn.discord(href='/discord/login')
+                            i.fa-light.fa-arrow-right-to-bracket
+                            span Login
+
     if (login_image)
         script.
             let retryCount = 0;
