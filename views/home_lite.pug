@@ -193,12 +193,13 @@ html
             #homeBg.background-image
             #fullBG.background-image.full-image-holder(style=`z-index: -101!important; display: none;`)
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
+            - loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/login-bg.jpeg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
             script.
                 function preventDefault(e) {
                     e.preventDefault();
                 }
                 document.body.addEventListener('touchmove', preventDefault, {passive: false});
-                document.getElementById('homeBg').style.backgroundImage = 'url("/static/img/loading_bg.jpeg")';
+                document.getElementById('homeBg').style.backgroundImage = 'url("!{loginImage}")';
                 document.getElementById('cover').classList.add('fadeOut');
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
