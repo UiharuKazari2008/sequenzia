@@ -195,18 +195,18 @@ router.get('/session', (req, res) => {
 router.get('/token', sessionVerification, (req, res) => {
     try {
         const thisUser = res.locals.thisUser
-        if (req.query && req.query.action && thisUser.discord) {
+        if (req.query && req.query.action && thisUser.master && thisUser.master.discord) {
             switch (req.query.action) {
                 case 'get':
-                    if (thisUser.discord.user.token_static) {
-                        res.status(200).send(thisUser.discord.user.token_static);
+                    if (thisUser.master.discord.user.token_static) {
+                        res.status(200).send(thisUser.master.discord.user.token_static);
                     } else {
                         res.status(200).send('NO STATIC LOGIN TOKEN')
                     }
                     break;
                 case 'renew':
                     const token = crypto.randomBytes(54).toString("hex");
-                    sqlSafe(`UPDATE discord_users_extended SET token_static = ? WHERE (id = ?)`, [token, thisUser.discord.user.id], (err, result) => {
+                    sqlSafe(`UPDATE discord_users_extended SET token_static = ? WHERE (id = ?)`, [token, thisUser.master.discord.user.id], (err, result) => {
                         if (err) {
                             res.status(500).send('Internal Server Error')
                             printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
@@ -218,7 +218,7 @@ router.get('/token', sessionVerification, (req, res) => {
                     })
                     break;
                 case 'erase':
-                    sqlSafe(`UPDATE discord_users_extended SET token_static = null WHERE (id = ?)`, [thisUser.discord.user.id], (err, result) => {
+                    sqlSafe(`UPDATE discord_users_extended SET token_static = null WHERE (id = ?)`, [thisUser.master.discord.user.id], (err, result) => {
                         if (err) {
                             res.status(500).send('Internal Server Error')
                             printLine("StaticTokenSystem", `SQL Write Error`, 'error', err)
@@ -254,7 +254,7 @@ router.post('/update', sessionVerification, async (req, res) => {
             delete req.body.token_expires;
             delete req.body.token_static;
 
-            await sqlPromiseSafe(`UPDATE discord_users_extended SET ? WHERE id = ?`, [req.body, thisUser.discord.user.id])
+            await sqlPromiseSafe(`UPDATE discord_users_extended SET ? WHERE id = ?`, [req.body, thisUser.master.discord.user.id])
             res.status(200).send('Updated Account');
         } else {
             res.status(400).send('Invalid Request')
@@ -310,8 +310,8 @@ async function roleGeneration(id, res, req, type, authToken) {
     function continueLogin() {
         if (authToken && authToken.length > 10)
             req.session.auth_token = authToken;
-        res.cookie('user_token', thisUser.discord.user.token, {
-            maxAge: (new Date(thisUser.discord.user.token_rotation).getTime() - new Date(Date.now()).getTime()).toFixed(0),
+        res.cookie('user_token', thisUser.master.discord.user.token, {
+            maxAge: (new Date(thisUser.master.discord.user.token_rotation).getTime() - new Date(Date.now()).getTime()).toFixed(0),
             httpOnly: true, // The cookie only accessible by the web server
             signed: true, // Indicates if the cookie should be signed
         })
@@ -320,14 +320,14 @@ async function roleGeneration(id, res, req, type, authToken) {
             req.session.login_code = undefined;
         }
         req.session.loggedin = true;
-        req.session.userid = thisUser.discord.user.id;
+        req.session.userid = thisUser.master.discord.user.id;
         res.locals.thisUser = thisUser;
     }
     function failLogin(code) {
         if (config.esm_lockout)
-            sqlPromiseSafe(`UPDATE discord_users_extended SET locked = 1 WHERE id = ?`, [thisUser.discord.user.id])
+            sqlPromiseSafe(`UPDATE discord_users_extended SET locked = 1 WHERE id = ?`, [thisUser.master.discord.user.id])
         if (config.esm_lockout && config.esm_lockout_wipe_keys)
-            sqlPromiseSafe(`UPDATE discord_users_extended SET token = null, blind_token = null, token_static = null WHERE id = ?`, [thisUser.discord.user.id])
+            sqlPromiseSafe(`UPDATE discord_users_extended SET token = null, blind_token = null, token_static = null WHERE id = ?`, [thisUser.master.discord.user.id])
         delete res.locals.thisUser;
         delete req.session.userid;
         req.session.loggedin = false;
@@ -348,7 +348,7 @@ async function roleGeneration(id, res, req, type, authToken) {
             console.log(ip_address);
             console.log(geo);
             console.log(ua);
-            if (config.esm_kick_on_jump && req.session.loggedin && req.session.esm_key && req.session.esm_key === md5(thisUser.discord.user.id + ip_address + req.sessionID)) {
+            if (config.esm_kick_on_jump && req.session.loggedin && req.session.esm_key && req.session.esm_key === md5(thisUser.master.discord.user.id + ip_address + req.sessionID)) {
                 printLine("AuthorizationGenerator", `User ${id} can not login! ${ip_address} has changed sense the last session!`, 'error');
                 failLogin('0003');
             } else if (config.esm_no_geo ||
@@ -361,19 +361,19 @@ async function roleGeneration(id, res, req, type, authToken) {
                 )
             ) {
                 req.session.esm_verified = true;
-                req.session.esm_key = md5(thisUser.discord.user.id + ip_address + req.sessionID);
+                req.session.esm_key = md5(thisUser.master.discord.user.id + ip_address + req.sessionID);
                 continueLogin();
                 sqlPromiseSafe(`INSERT INTO sequenzia_login_history SET ? ON DUPLICATE KEY UPDATE reauth_count = reauth_count + 1, reauth_time = CURRENT_TIMESTAMP`, [{
                     key: req.session.esm_key,
                     session: req.sessionID,
-                    id: thisUser.discord.user.id,
+                    id: thisUser.master.discord.user.id,
                     ip_address: ip_address,
                     geo: (geo) ? JSON.stringify(geo) : null,
                     meathod: type,
                     user_agent: (ua) ? ua : null
                 }])
 
-                printLine("Passport", `User ${thisUser.user.username} (${thisUser.user.id}) logged in!`, 'info');
+                printLine("Passport", `User ${thisUser.master.user.username} (${thisUser.master.user.id}) logged in!`, 'info');
             } else {
                 printLine("AuthorizationGenerator", `User ${id} can not login! ${ip_address} Location could not resolve!`, 'error');
                 failLogin('0002');
@@ -575,16 +575,19 @@ async function sessionVerification(req, res, next) {
             res.locals.thisUser = thisUser;
         }
     }
+    if (req.session && req.query && req.query['lite_mode'] === 'true') {
+        req.session.lite_mode = true
+    }
     if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
         next()
-    } else if (req.session && req.session.userid && thisUser && thisUser.discord && thisUser.discord.user.id && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
-        if (thisUser.discord.channels.read && thisUser.discord.channels.read.length > 0) {
+    } else if (req.session && req.session.userid && thisUser && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
+        if (thisUser.master.discord.channels.read && thisUser.master.discord.channels.read.length > 0) {
             next();
         } else if (req.originalUrl && req.originalUrl === '/home') {
-            printLine('PassportCheck', `User ${thisUser.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+            printLine('PassportCheck', `User ${thisUser.master.discord.user.username} is known but does not have rights to access anything!`, 'warn');
             res.render('home_lite', {});
         } else {
-            printLine('PassportCheck', `User ${thisUser.discord.user.username} is known but does not have rights to access anything!`, 'warn');
+            printLine('PassportCheck', `User ${thisUser.master.discord.user.username} is known but does not have rights to access anything!`, 'warn');
             loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
         }
     } else if (req.query && req.query.key) {
@@ -677,34 +680,34 @@ async function sessionVerification(req, res, next) {
 }
 function manageValidation(req, res, next) {
     const thisUser = res.locals.thisUser;
-    if (req.session && req.session.loggedin && thisUser.discord && thisUser.discord.user.id && thisUser.discord.user.known === true) {
+    if (req.session && req.session.loggedin && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && thisUser.master.discord.user.known === true) {
         if (req.body && (req.body.batch || req.body.serverid && req.body.channelid)) {
-            if (req.body.action && req.body.action === 'RequestFile' || (thisUser.discord.channels.manage && thisUser.discord.channels.manage.length > 0 && ((req.body.batch && req.body.batch.filter(e => e.action !== 'RequestFile').map(e => e.channelid).filter(e => thisUser.discord.channels.manage.indexOf(e) === -1).length === 0) || thisUser.discord.channels.manage.indexOf(req.body.channelid) !== -1))) {
+            if (req.body.action && req.body.action === 'RequestFile' || (thisUser.master.discord.channels.manage && thisUser.master.discord.channels.manage.length > 0 && ((req.body.batch && req.body.batch.filter(e => e.action !== 'RequestFile').map(e => e.channelid).filter(e => thisUser.master.discord.channels.manage.indexOf(e) === -1).length === 0) || thisUser.master.discord.channels.manage.indexOf(req.body.channelid) !== -1))) {
                 next();
             } else {
-                printLine('PassportCheck-Manage', `User ${thisUser.discord.user.username} does not have the rights to manage this channel`, 'error', req.body);
+                printLine('PassportCheck-Manage', `User ${thisUser.master.discord.user.username} does not have the rights to manage this channel`, 'error', req.body);
                 res.status(401).send('Unauthorized Channel');
             }
         } else if (req.body.action && req.body.action === 'DownloadLink' && req.body.url && req.body.serverid) {
-            if (thisUser.discord && thisUser.discord.servers.download) {
-                if (thisUser.discord.channels.write && thisUser.discord.channels.write.length > 0 && thisUser.discord.servers.download && thisUser.discord.servers.download.length > 0 && thisUser.discord.servers.download.filter(e => e.serverid === req.body.serverid).length > 0 && thisUser.discord.channels.write.indexOf(thisUser.discord.servers.download.filter(e => e.serverid === req.body.serverid)[0].channelid) !== -1) {
+            if (thisUser.master.discord && thisUser.master.discord.servers.download) {
+                if (thisUser.master.discord.channels.write && thisUser.master.discord.channels.write.length > 0 && thisUser.master.discord.servers.download && thisUser.master.discord.servers.download.length > 0 && thisUser.master.discord.servers.download.filter(e => e.serverid === req.body.serverid).length > 0 && thisUser.master.discord.channels.write.indexOf(thisUser.master.discord.servers.download.filter(e => e.serverid === req.body.serverid)[0].channelid) !== -1) {
                     next();
                 } else {
-                    printLine('PassportCheck-Manage', `User ${thisUser.discord.user.username} does not have the rights to remote download files`, 'error', req.body);
+                    printLine('PassportCheck-Manage', `User ${thisUser.master.discord.user.username} does not have the rights to remote download files`, 'error', req.body);
                     res.status(401).send('Unauthorized Channel');
                 }
             } else {
                 res.status(400).send('You need to refresh your account');
             }
         } else if (req.body.action && req.body.action === 'textMessage' && req.body.text) {
-            if (thisUser.discord && thisUser.discord.channels.write && thisUser.discord.channels.write.length > 0 && thisUser.discord.channels.write.indexOf(req.body.channelid) !== -1) {
+            if (thisUser.master.discord && thisUser.master.discord.channels.write && thisUser.master.discord.channels.write.length > 0 && thisUser.master.discord.channels.write.indexOf(req.body.channelid) !== -1) {
                 next();
             } else {
-                printLine('PassportCheck-Manage', `User ${thisUser.discord.user.username} does not have the rights to send text message`, 'error', req.body);
+                printLine('PassportCheck-Manage', `User ${thisUser.master.discord.user.username} does not have the rights to send text message`, 'error', req.body);
                 res.status(401).send('Unauthorized Channel');
             }
         } else {
-            printLine('PassportCheck-Manage', `User ${thisUser.discord.user.username} manage request was invalid`, 'error', req.body);
+            printLine('PassportCheck-Manage', `User ${thisUser.master.discord.user.username} manage request was invalid`, 'error', req.body);
             res.status(400).send('Invalid Request');
         }
     } else {
@@ -717,11 +720,11 @@ function readValidation(req, res, next) {
     if (config.bypass_cds_check) {
         printLine('PassportCheck-Read', `CDS Checks are bypassed`, 'warn');
         next()
-    } else if (req.session && req.session.loggedin && thisUser.discord && thisUser.discord.user.id && thisUser.discord.user.known === true) {
-        if ( thisUser.discord.channels.read && thisUser.discord.channels.read.length > 0 ) {
+    } else if (req.session && req.session.loggedin && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && thisUser.master.discord.user.known === true) {
+        if ( thisUser.master.discord.channels.read && thisUser.master.discord.channels.read.length > 0 ) {
             next();
         } else {
-            printLine('PassportCheck-Read', `User ${thisUser.discord.user.username} does not have the rights to access this channel`, 'error', req.body);
+            printLine('PassportCheck-Read', `User ${thisUser.master.discord.user.username} does not have the rights to access this channel`, 'error', req.body);
             res.status(401).send('Unauthorized Channel');
         }
     } else {
@@ -743,17 +746,17 @@ function downloadValidation(req, res, next) {
     } else if (req.originalUrl && (req.originalUrl.startsWith('/content/link/') || req.originalUrl.startsWith('/content/json/'))) {
         printLine('PassportCheck-Proxy', `Request Bypassed for CDS Permalink URL`, 'debug', req.body);
         next();
-    } else if (req.session && req.session.loggedin && thisUser.discord && thisUser.discord.user.id && thisUser.discord.user.known === true) {
-        if ( thisUser.discord.channels.read && thisUser.discord.channels.read.length > 0 ) {
+    } else if (req.session && req.session.loggedin && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && thisUser.master.discord.user.known === true) {
+        if ( thisUser.master.discord.channels.read && thisUser.master.discord.channels.read.length > 0 ) {
             const channel = req.path.substr(1, req.path.length - 1).split('/')[1]
-            if (thisUser.discord.channels.read.indexOf(channel) !== -1) {
+            if (thisUser.master.discord.channels.read.indexOf(channel) !== -1) {
                 next();
             } else {
-                printLine('PassportCheck-Proxy', `User ${thisUser.discord.user.username} does not have the rights to download from this channel`, 'error', req.body);
+                printLine('PassportCheck-Proxy', `User ${thisUser.master.discord.user.username} does not have the rights to download from this channel`, 'error', req.body);
                 res.status(401).send('Unauthorized Channels');
             }
         } else {
-            printLine('PassportCheck-Proxy', `User ${thisUser.discord.user.username} does not have the rights to access this channel`, 'error', req.body);
+            printLine('PassportCheck-Proxy', `User ${thisUser.master.discord.user.username} does not have the rights to access this channel`, 'error', req.body);
             res.status(401).send('Unauthorized Roles');
         }
     } else {
@@ -764,21 +767,21 @@ function downloadValidation(req, res, next) {
 }
 function writeValidation(req, res, next) {
     const thisUser = res.locals.thisUser
-    if (req.session && req.session.loggedin && thisUser.discord && thisUser.discord.user.id && thisUser.discord.user.known === true && thisUser.discord.channels.write && thisUser.discord.channels.write.length > 0) {
-        if (thisUser.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
+    if (req.session && req.session.loggedin && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && thisUser.master.discord.user.known === true && thisUser.master.discord.channels.write && thisUser.master.discord.channels.write.length > 0) {
+        if (thisUser.master.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
             if (req.query && req.query.channelid) {
-                if (thisUser.discord.channels.write.indexOf(req.query.channelid) !== -1) {
+                if (thisUser.master.discord.channels.write.indexOf(req.query.channelid) !== -1) {
                     next();
                 } else {
-                    printLine('PassportCheck-Write', `User ${thisUser.discord.user.username} does not have the rights to upload to this channel`, 'error', req.body);
+                    printLine('PassportCheck-Write', `User ${thisUser.master.discord.user.username} does not have the rights to upload to this channel`, 'error', req.body);
                     res.status(401).send('Unauthorized Channels');
                 }
             } else {
-                printLine('PassportCheck-Write', `User ${thisUser.discord.user.username} upload request was invalid`, 'error', req.body);
+                printLine('PassportCheck-Write', `User ${thisUser.master.discord.user.username} upload request was invalid`, 'error', req.body);
                 res.status(400).send('Missing Parameters');
             }
         } else {
-            printLine("PassportCheck-Write", `Insecure Session attempted to access API by ${thisUser.user.username}`, 'critical');
+            printLine("PassportCheck-Write", `Insecure Session attempted to access API by ${thisUser.master.user.username}`, 'critical');
             res.status(401).send('Session was not authenticated securely! You CAN NOT use a Static Login Key or Blind Token o preform enhanced actions! Logout and Login with a secure login meathod.');
         }
     } else {

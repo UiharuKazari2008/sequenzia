@@ -21,7 +21,7 @@ module.exports = async (req, res, next) => {
     try {
         const thisUser = res.locals.thisUser
 
-        if (thisUser.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
+        if (thisUser.master && thisUser.master.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
             let requestResults = {}
             await (((req.body.batch) ? [...req.body.batch] : [{...req.body}]).map(async (job, index, array) => {
                 let _return = 500;
@@ -198,7 +198,7 @@ module.exports = async (req, res, next) => {
                         }
                         break;
                     case 'DownloadLink':
-                        if (!(thisUser.discord.servers.download && thisUser.discord.servers.download.length > 0)) {
+                        if (!(thisUser.master.discord.servers.download && thisUser.master.discord.servers.download.length > 0)) {
                             printLine("ActionParser", `Missing Static Configuration Value : Cannot "${job.action}", You dont have any servers that your allowed to download to`, 'error', job);
                             if (req.body.batch) {
                                 _return = 500
@@ -220,7 +220,7 @@ module.exports = async (req, res, next) => {
                                 fromClient: `return.Sequenzia.${config.system_name}`,
                                 messageReturn: false,
                                 messageType: 'stext',
-                                messageChannelID: thisUser.discord.servers.download.filter(e => e.serverid === job.serverid)[0].channelid,
+                                messageChannelID: thisUser.master.discord.servers.download.filter(e => e.serverid === job.serverid)[0].channelid,
                                 messageText: messageText
                             })
                             if (req.body.batch) {
@@ -237,7 +237,7 @@ module.exports = async (req, res, next) => {
                             messageReturn: false,
                             messageType: 'stext',
                             messageChannelID: job.channelid,
-                            messageUserID: thisUser.discord.user.id,
+                            messageUserID: thisUser.master.discord.user.id,
                             messageText: job.text.substring(0, 1900)
                         })
                         if (req.body.batch) {
@@ -266,7 +266,7 @@ module.exports = async (req, res, next) => {
                 })
             }
         } else {
-            printLine("ActionParser", `Insecure Session attempted to access API by ${thisUser.user.username}`, 'critical');
+            printLine("ActionParser", `Insecure Session attempted to access API by ${thisUser.master.user.username}`, 'critical');
             res.status(401).send('Session was not authenticated securely! You CAN NOT use a Static Login Key or Blind Token to preform enhanced actions! Logout and Login with a externally verified login method.');
         }
     } catch (err) {

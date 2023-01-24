@@ -6,7 +6,7 @@ const { sqlSafe, sqlPromiseSimple, sqlPromiseSafe } = require('./sqlClient');
 
 module.exports = async (req, res, next) => {
     try {
-        const thisUser = res.locals.thisUser
+        const thisUser = res.locals.thisUser.master
         function sendRequest(MessageBody) {
             sendData(global.mq_discord_out, MessageBody, function (callback) {
                 if (callback) {

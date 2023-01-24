@@ -1,30 +1,139 @@
 extends layout_lite
 
 block content
-    div.gallery-container
-        if (results && results.length === 1 )
-            div.gallery-detail
-                div.gallery-detail.sidebar
-                div.gallery-detail.image-holder
-                    div.gallery-detail.image
-                        - fullURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.full
-                        img.gallery.preview-holder(src=fullURL)
-                    div.gallery-detail.image
-                        span item.content.full
-        else if (results && results.length > 1 )
-            ul.gallery.list
-                for item in results
-                    if(item.entities.meta.ratio)
-                        if(item.entities.meta.ratio >= 1)
-                            - res = item.entities.meta.height
-                        else
-                            - res = item.entities.meta.width
+    if (results && results.length === 1 )
+        - item = results[0]
+        - fullURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.full
+        - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
+        div.gallery-detail
+            div.gallery-detail.sidebar
+                h3 Tags (MIITS)
+                ul.sidebar.data-plate
+                    for tag in item.meta.tags.split('; ')
+                        - tag_elements = tag.split('/')
+                        li.sidebar.data-plate
+                            a(href=`/gallery?tags=${encodeURIComponent(tag_elements.slice(2).join('/'))}` class=`tag-link ${(tag_elements[0] === '2') ? 'tag-char' : (tag_elements[0] === '3') ? 'tag-sys' : 'tag-gen'}`)
+                                span.tag-name !{tag_elements.slice(2).join('/')}
+                                span.tag-rating !{(parseFloat(tag_elements[1]) * 100).toFixed(0)}%
+                h3 Metadata
+                ul.sidebar.data-plate
+                    if (item.user.system_user)
+                        li.sidebar.data-plate
+                            img(src=`${item.server.icon.split('size=')[0]}size=64`)
+                        li.sidebar.data-plate
+                            span.data-key Owner:
+                            span.data-value System
                     else
+                        li.sidebar.data-plate
+                            img(src=`${item.user.avatar.split('size=')[0]}size=64`)
+                        li.sidebar.data-plate
+                            span.data-key Owner:
+                            span.data-value !{item.user.name}
+                    li.sidebar.data-plate
+                        span.data-key Entity ID:
+                        span.data-value !{item.eid}
+                    li.sidebar.data-plate
+                        span.data-key Message ID:
+                        span.data-value !{item.id}
+                    li.sidebar.data-plate
+                        span.data-key Date:
+                        span.data-value !{item.date.pretty}
+                    if (item.entities.meta && item.entities.meta.ratio)
+                        li.sidebar.data-plate
+                            span.data-key Resolution:
+                            span.data-value !{item.entities.meta.height}x!{item.entities.meta.width}
+                    if (item.entities.meta && item.entities.meta.filesize)
+                        li.sidebar.data-plate
+                            span.data-key File Size:
+                            span.data-value !{item.entities.meta.filesize}
+                    if (item.entities.filename)
+                        li.sidebar.data-plate
+                            span.data-key File Name:
+                            span.data-value !{item.entities.filename}
+                    if (item.entities.meta && item.entities.meta.fileid)
+                        li.sidebar.data-plate
+                            span.data-key File ID:
+                            span.data-value !{item.entities.meta.fileid}
+                    if (item.meta.rating)
+                        li.sidebar.data-plate
+                            span.data-key MIITS Rating:
+                            span.data-value !{item.meta.rating}
+                ul.sidebar.data-plate
+                    li.sidebar.data-plate
+                        img(src=`${item.server.icon.split('size=')[0]}size=64`)
+                    li.sidebar.data-plate
+                        span.data-key Datastore:
+                        span.data-value !{item.server.full_name}
+                    li.sidebar.data-plate
+                        span.data-key Location:
+                        span.data-value !{item.server.name.toUpperCase()}:/!{item.channel.class}/!{item.channel.name}
+                    li.sidebar.data-plate
+                        span.data-key Class:
+                        span.data-value !{item.channel.class_name}
+                    li.sidebar.data-plate
+                        span.data-key Channel:
+                        span.data-value !{item.channel.name} (!{item.channel.eid})
+                    if (item.channel.vid)
+                        li.sidebar.data-plate
+                            span.data-key Channel Group:
+                            span.data-value !{item.channel.vname} (!{item.channel.vid})
+                ul.sidebar.data-plate
+                    if (item.meta.parent_search)
+                        li.sidebar.data-plate
+                            a(href=`/gallery?search=${encodeURIComponent('text:' + item.meta.parent_search)}`)
+                                span Search Parent
+                    if (item.meta.search)
+                        li.sidebar.data-plate
+                            a(href=`/gallery?search=${encodeURIComponent('artist:' + item.meta.search)}`)
+                                span Search Artist
+
+                    if (item.meta.urls && item.meta.urls.length > 0)
+                        li.sidebar.data-plate
+                            span.data-key Source(s):
+                            div
+                                for url in item.meta.urls
+                                    a(href=url)
+                                        span !{url}
+
+
+                ul.sidebar.data-plate
+                    li.sidebar.data-plate
+                        a(href=fullURL download target="_blank" rel="noopener noreferrer")
+                            span Download full version
+                    li.sidebar.data-plate
+                        if (item.pinned)
+                            a()
+                                span Remove from Favorites
+                        else
+                            a()
+                                span Add to Favorites
+                    li.sidebar.data-plate
+                        a()
+                            span Add/Remove from Albums
+
+
+            div.gallery-detail.image-holder
+                div.gallery-detail.image
+                    a(href=fullURL)
+                        img.gallery-getail.preview-holder(src=previewURL)
+                if (item.content.clean && item.content.clean.length > 0)
+                    div.gallery-detail.content
+                        span !{item.content.clean.split("\n").join("<br/>")}
+    else if (results && results.length > 1 )
+        ul.gallery.list
+            for item in results
+                if(item.entities.meta.ratio)
+                    if(item.entities.meta.ratio >= 1)
                         - res = item.entities.meta.height
-                    li.gallery.item
-                        div.gallery.image(class=`${(item.flagged) ? 'flagged' : (item.pinned) ? 'favorite' : ''}${(res >= 4096) ? 'uhdq' : (res >= 1080) ? 'fhdq' : ''}`)
-                            - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
-                            a(href='/item/' + item.eid)
+                    else
+                        - res = item.entities.meta.width
+                else
+                    - res = item.entities.meta.height
+                li
+                    div.gallery.item(class=`${(res >= 4096) ? 'uhdq' : (res >= 1080) ? 'fhdq' : ''} `)
+                        a.gallery.holder(href='/gallery/?search=eid:' + item.eid)
+                            div.gallery.image(class=`${(item.flagged) ? 'flagged' : (item.pinned) ? 'favorite' : ''} `)
+                                - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
                                 img.gallery.preview-holder(src=previewURL)
                         a.gallery.bottom-bar(href=fileURL)
                             span.gallery.resolution #{item.entities.meta.height}x#{item.entities.meta.width}
@@ -36,5 +145,5 @@ block content
                                 else
                                     img(title=`Low Quality\n${item.entities.meta.width}x${item.entities.meta.height}` src="/static/img/ddl.gif").status-icons
 
-        else
-            span No Results
+    else
+        span No Results

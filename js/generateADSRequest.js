@@ -20,7 +20,7 @@ module.exports = async (req, res, next) => {
         }
         next();
     } else if (req.query.displayname) {
-        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.discord.user.id, req.query.displayname]);
+        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.master.discord.user.id, req.query.displayname]);
         if (displayConfig && displayConfig.rows.length > 0) {
             const thisConfig = displayConfig.rows[0];
             if (thisConfig.requestOptions) {
@@ -42,7 +42,7 @@ module.exports = async (req, res, next) => {
             next();
         }
     } else if (req.path === '/' || req.path === '/homeImage') {
-        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.discord.user.id, "Homepage"]);
+        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.master.discord.user.id, "Homepage"]);
         if (displayConfig && displayConfig.rows.length > 0) {
             const thisConfig = displayConfig.rows[0];
             if (thisConfig.requestOptions) {

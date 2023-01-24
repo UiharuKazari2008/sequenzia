@@ -159,8 +159,8 @@ app.use(morgan(function(tokens, req, res) {
     const baseURL = req.url.split('/')[1].split('?')[0]
     let username = ''
     let ipaddress = (req.headers['x-real-ip']) ? req.headers['x-real-ip'] : (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'] : 'Unknown'
-    if (req.session && thisUser && thisUser.user && thisUser.user.username) {
-        username = thisUser.user.username;
+    if (req.session && thisUser && thisUser.master && thisUser.master.user && thisUser.master.user.username) {
+        username = thisUser.master.user.username;
     }
     if (!(req.originalUrl.startsWith('/static') || req.originalUrl.startsWith('/css') || req.originalUrl.startsWith('/js') || req.originalUrl.startsWith('/favicon') || req.originalUrl.startsWith('/serviceWorker'))) {
         if (res.statusCode !== 304 && res.method === 'GET') {
@@ -246,7 +246,7 @@ app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
     if (req.query.deviceID) {
-        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data.master)[0];
         if (!thisUser)
             res.status(403).send('User account can not correlated to a valid user!')
         const device = req.query.deviceID
@@ -290,7 +290,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
         }
     } else if (req.query.code) {
-        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
+        const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data.master)[0];
         if (!thisUser)
             res.status(403).send('User account can not correlated to a valid user!')
         if (req.session && thisUser.discord && thisUser.discord.user.token) {

@@ -38,7 +38,7 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
     const _url = req.originalUrl.slice(12).split('?')[0].split("/");
     const id = _url.shift();
     const thisUser = res.locals.thisUser
-    const isAuthorised = (thisUser.applications_list.filter(e => e.id === id).length > 0)
+    const isAuthorised = (thisUser.master.applications_list.filter(e => e.id === id).length > 0)
 
     if (global.web_applications[id] && global.web_applications[id].embedded && isAuthorised) {
         res.status(200).render('app_holder', {
@@ -46,19 +46,19 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
             full_title: global.web_applications[id].name,
             call_uri: `/${req.originalUrl.split('/')[1].split('?')[0]}`,
             req_uri: req.protocol + '://' + req.get('host') + req.originalUrl,
-            server: thisUser.server_list,
-            download: thisUser.discord.servers.download,
-            manage_channels: thisUser.discord.channels.manage,
-            write_channels: thisUser.discord.channels.write,
-            discord: thisUser.discord,
-            user: thisUser.user,
+            server: thisUser.master.server_list,
+            download: thisUser.master.discord.servers.download,
+            manage_channels: thisUser.master.discord.channels.manage,
+            write_channels: thisUser.master.discord.channels.write,
+            discord: thisUser.master.discord,
+            user: thisUser.master.user,
             login_source: req.session.login_source,
             webconf: web,
-            albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
-            artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
-            theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
-            next_episode: thisUser.kongou_next_episode,
-            applications_list: thisUser.applications_list,
+            albums: (thisUser.master.albums && thisUser.master.albums.length > 0) ? thisUser.master.albums : [],
+            artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
+            theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
+            next_episode: thisUser.master.kongou_next_episode,
+            applications_list: thisUser.master.applications_list,
             appData: global.web_applications[id],
             appUrl: `/app/web/${id}`
         })
@@ -73,7 +73,7 @@ router.use('/web/*', sessionVerification, (req, res, next) => {
     console.log(`${id} - ${req.method} - ${url}`)
 
     const thisUser = res.locals.thisUser
-    const isAuthorised = (thisUser.applications_list.filter(e => e.id === id).length > 0)
+    const isAuthorised = (thisUser.master.applications_list.filter(e => e.id === id).length > 0)
 
     if (global.web_applications[id] && global.web_applications[id].embedded && isAuthorised) {
         const base_url = global.web_applications[id].url;
@@ -96,8 +96,8 @@ router.use('/web/*', sessionVerification, (req, res, next) => {
                 'sec-fetch-user': '?1',
                 'upgrade-insecure-requests': '1',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73',
-                'Seq-Perm': (JSON.stringify(thisUser.discord.permissions)).toString('base64'),
-                'Seq-User': (JSON.stringify(thisUser.user)).toString('base64'),
+                'Seq-Perm': (JSON.stringify(thisUser.master.discord.permissions)).toString('base64'),
+                'Seq-User': (JSON.stringify(thisUser.master.user)).toString('base64'),
                 'Seq-BaseURL': req.originalUrl.slice(0,9) + id + '/',
             }
         }, async (err, proxyRes, body) => {

@@ -18,11 +18,18 @@ html {
     font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", serif;
     background: black;
     color: #d17450;
+    font-size: 11pt;
 }
 
+a, a:hover:visited:active {
+    color: #d17450;
+}
+
+.menubar-list > div {
+    display: table-cell;
+}
 .menubar-list {
-    flex-direction: row;
-    display: flex;
+    display: table;
     list-style: square;
     margin: 0;
     padding: 0 0 0 4px;
@@ -31,33 +38,57 @@ html {
     list-style: none;
 }
 .menubar-item {
-    margin-right: 28px;
+    display: table-cell;
+    padding-right: 8px;
 }
-
+.submenu {
+    padding-left: 4px;
+    font-size: 10px;
+}
 .topbar-heading {
-    display: flex;
+    height: 32px;
+    margin: 0.2em 0 0 0;
+    display: block;
+    overflow: hidden;
+    text-align: left;
+}
+.topbar-heading > div {
+    display: inline-block;
 }
 .topbar-menubar {
-    display: flex;
+    display: table;
+    margin-bottom: 8px;
 }
 
-.logo-container img {
-    width: 160px;
+.topbar-heading img {
+    float: left;
+    height: 28px;
 }
 
 .gallery.list {
-    display: inline-flex;
+    display: inline;
     flex-wrap: wrap;
     padding: 0;
 }
+.gallery.list > li {
+    display: inline;
+    float: left;
+}
 .gallery.item {
+    display: table;
     width: 160px;
     white-space: nowrap;
     overflow: hidden;
 }
-.gallery.image {
-    text-align: center;
+.gallery.holder {
+    display: table-cell;
     height: 160px;
+}
+.gallery.image {
+    display: block;
+    text-align: center;
+    height: 156px;
+    width: 156px;
     margin: 4px;
 }
 .gallery.image.favorite {
@@ -73,7 +104,7 @@ html {
 }
 .gallery.bottom-bar {
     background: #222222;
-    display: block;
+    display: table-row;
     font-size: 12px;
     height: 15px;
     margin-top: 4px;
@@ -95,19 +126,28 @@ img.status-icons {
     vertical-align: middle;
 }
 img.gallery.preview-holder {
-    max-width: 160px;
-    max-height: 160px;
+    max-width: 156px;
+    max-height: 156px;
 }
 
 .content {
     margin: 10px 7px;
 }
-
-.search-box form input::placeholder, .search-box form input:-ms-input-placeholder  {
+::-webkit-input-placeholder {color:#ffa66c;}
+:-moz-placeholder {color:#ffa66c; opacity:1;}
+::-moz-placeholder {color:#ffa66c; opacity:1;}
+:-ms-input-placeholder {color:#ffa66c;}
+input{background: #331000;border-color:#d06c2a;border-style:solid;}
+input[type=text]:focus{background:#972f0652;color:#ffa66c}
+input[type=password]:focus{background:#972f0652;color:#ffa66c}
+input[type=button]{background:#3a0404;color:#ffa66c}
+input[type=submit]{background:#631717;color:#ffa66c}
+HTML.webkit input[type=file]{background:darkred;color:#ffa66c}
+.search-box form input::placeholder, .search-box form input:-ms-input-placeholder {
     color: #ffa66c;
     opacity: .5;
 }
-.search-box form input {
+.search-box input {
     background: #972f0652;
     border-style: dotted;
     border-left: none;
@@ -115,8 +155,65 @@ img.gallery.preview-holder {
     border-top: none;
     border-color: #d06c2a;
     color: #ffa66c;
-    font-size: 15pt;
+    font-size: 13pt;
     margin-left: 9px;
     margin-top: 4px;
     width: 340px;
+}
+.gallery-detail {
+    display: block;
+}
+
+.gallery-detail.sidebar {
+    display: table-cell;
+    float: left;
+    margin-right: 1em;
+    overflow: visible;
+    width: 20em;
+}
+.gallery-detail.image-holder {
+    display: inline;
+    margin: 0;
+    float: left;
+    overflow: visible;
+}
+ul.sidebar.data-plate {
+    list-style: none;
+    padding: 0px;
+    margin: 0px 0px 1em 0em;
+}
+.data-plate .data-key {
+    font-weight: bold;
+}
+.data-plate .data-value {
+    color: #a65637;
+    display: inline;
+    padding-left: 4px;
+}
+
+.sidebar.data-plate a.tag-link {
+    text-decoration: none;
+    color: #ffa66c;
+}
+
+.sidebar.data-plate a.tag-link .tag-rating {
+    padding-left: 5px;
+    font-size: 9pt;
+    color: #a65637;
+}
+h3 {
+    margin: 0;
+    margin-bottom: 0.5em;
+}
+.sidebar.data-plate a.tag-link.tag-char {
+    color: #00ff3e;
+}
+
+.sidebar.data-plate a.tag-link.tag-sys {
+    color: #01e7e7;
+}
+.gallery-detail.content {
+    color: #ffa66c;
+    border: 1px solid #d06c2a;
+    padding: 0.5em;
 }

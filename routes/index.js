@@ -58,22 +58,26 @@ router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSid
 router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
 router.get('/offline', sessionVerification, (req, res, next) => {
     const thisUser = res.locals.thisUser
-    res.render('offline-homepage', {
-        server: thisUser.server_list,
-        download: thisUser.discord.servers.download,
-        manage_channels: thisUser.discord.channels.manage,
-        write_channels: thisUser.discord.channels.write,
-        discord: thisUser.discord,
-        user: thisUser.user,
-        login_source: req.session.login_source,
-        webconf: web,
-        albums: (thisUser.albums && thisUser.albums.length > 0) ? thisUser.albums : [],
-        artists: (thisUser.artists && thisUser.artists.length > 0) ? thisUser.artists : [],
-        theaters: (thisUser.media_groups && thisUser.media_groups.length > 0) ? thisUser.media_groups : [],
-        next_episode: thisUser.kongou_next_episode,
-        sidebar: thisUser.sidebar,
-        applications_list: thisUser.applications_list,
-    })
+    if (thisUser && thisUser.master) {
+        res.render('offline-homepage', {
+            server: thisUser.master.server_list,
+            download: thisUser.master.discord.servers.download,
+            manage_channels: thisUser.master.discord.channels.manage,
+            write_channels: thisUser.master.discord.channels.write,
+            discord: thisUser.master.discord,
+            user: thisUser.master.user,
+            login_source: req.session.login_source,
+            webconf: web,
+            albums: (thisUser.master.albums && thisUser.master.albums.length > 0) ? thisUser.master.albums : [],
+            artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
+            theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
+            next_episode: thisUser.master.kongou_next_episode,
+            sidebar: thisUser.master.sidebar,
+            applications_list: thisUser.master.applications_list,
+        })
+    } else {
+        res.status(401).end();
+    }
 });
 
 router.get('/lite', sessionVerification, (req,res) => {
@@ -144,7 +148,7 @@ router.use('/parity', sessionVerification, readValidation, async (req, res) => {
                 if (global.bypass_cds_check) {
                     return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
                 } else {
-                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.master.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
                 }
             })()
             if (!config.disable_esm)
@@ -188,7 +192,7 @@ router.get('/ping', sessionVerification, ((req, res) => {
         const thisUser = res.locals.thisUser
         res.json({
             loggedin: true,
-            user: thisUser.user,
+            user: (thisUser.master) ? thisUser.master.user : undefined,
             login_source: req.session.login_source,
             session: req.sessionID
         })
@@ -206,7 +210,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
                 if (global.bypass_cds_check) {
                     return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
                 } else {
-                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.master.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
                 }
             })()
 
@@ -843,8 +847,8 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         res.render('ambient', {
-            discord: thisUser.discord,
-            user: thisUser.user,
+            discord: thisUser.master.discord,
+            user: thisUser.master.user,
             login_source: req.session.login_source,
         })
     } catch {

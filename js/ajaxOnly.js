@@ -1,8 +1,8 @@
 module.exports = async (req, res, next) => {
     if (req.session.loggedin) {
-        if (req.session.lite_mode === "true") {
+        if (req.session.lite_mode === true) {
             next();
-        } else if (req.query && req.query['lite_mode'] === 'true') {
+        } else if (req.session && req.session.lite_mode === true) {
             req.session.lite_mode = true
             next();
         } else if (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' || (req.query && (req.query.json || req.query.responseType))) {

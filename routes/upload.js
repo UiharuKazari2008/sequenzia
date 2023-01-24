@@ -83,7 +83,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                                                     const MessageBody = {
                                                                         Type: 'Remote',
                                                                         ChannelID: req.query.channelid,
-                                                                        UserID: thisUser.discord.user.id,
+                                                                        UserID: thisUser.master.discord.user.id,
                                                                         MessageText: '',
                                                                         FileName: real_filename,
                                                                         FilePath: `${global.fw_path}${local_filename}`
@@ -146,7 +146,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                             const MessageBody = {
                                                 Type: 'Remote',
                                                 ChannelID: req.query.channelid,
-                                                UserID: thisUser.discord.user.id,
+                                                UserID: thisUser.master.discord.user.id,
                                                 MessageText: '',
                                                 FileName: p.originalname,
                                                 FilePath: `${global.fw_path}${p.filename}`
