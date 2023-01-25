@@ -812,6 +812,60 @@ async function crossSessionVerification(req, res, next) {
         next()
     }
 }
+async function handleExchange(req, res, next) {
+    const thisUser = res.locals.thisUser;
+    if (req.session.active_exchange && req.session.active_exchange !== 'master') {
+        const cookieString = await getCacheData(req.session.active_exchange + '-' + req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
+        let options = {
+            method: req.method,
+            headers: {
+                'x-sequenzia-exchange': global.This_Exchange.id,
+                'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
+                'x-sequenzia-user': thisUser.master.discord.user.id,
+                'x-sequenzia-user-source': req.session.login_source,
+                'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                'Cookie': cookieString || ''
+            }
+        }
+        if (req.body && Object.keys(req.body).length > 0)
+            options.body = req.body
+        if (res.locals.json)
+            options.json = true;
+        request(global.Connected_Exchanges[req.session.active_exchange].base_url + req.originalUrl, options, async function (error, response, body) {
+                if (!error) {
+                    try {
+                        const getCookies = response.headers['set-cookie'];
+                        if (getCookies) {
+                            await setCacheData(req.session.active_exchange + '-' + req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
+                        }
+                        if (body) {
+                            if (res.locals.is_response_json) {
+                                res.locals.response = {
+                                    ...body,
+                                    exchange_list: thisUser,
+                                    active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                                    active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
+                                }
+                                next();
+                            } else {
+                                res.status(response.statusCode).send(body)
+                            }
+                        } else {
+                            res.status(401).send('Exchange failed to return data!');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        res.status(500).send('Communication with exchange failed!');
+                    }
+                } else {
+                    console.error(error)
+                    res.status(500).send('Communication with exchange failed!');
+                }
+            });
+    } else {
+        next();
+    }
+}
 function manageValidation(req, res, next) {
     const thisUser = res.locals.thisUser;
     if (req.session && req.session.loggedin && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && thisUser.master.discord.user.known === true) {
@@ -925,8 +979,7 @@ function writeValidation(req, res, next) {
 }
 
 module.exports = {
-    sessionTransfer,
-    roleGeneration,
+    handleExchange,
     sessionVerification,
     manageValidation,
     writeValidation,

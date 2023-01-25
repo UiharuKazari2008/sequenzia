@@ -34,6 +34,9 @@ module.exports = async (req, res, next) => {
             device: ua
         };
         next();
+    } else if (req.session.active_exchange && req.session.active_exchange !== 'master') {
+        res.locals.json = true;
+        res.locals.is_response_json = true;
     } else {
         let multiChannel = false;
         let multiChannelBase = false;

@@ -1,6 +1,8 @@
 module.exports = async (req, res, next) => {
     if (req.session.loggedin) {
-        if (req.session.lite_mode === true) {
+        if (req.headers['x-sequenzia-exchange']) {
+            next();
+        } else if (req.session.lite_mode === true) {
             next();
         } else if (req.session && req.session.lite_mode === true) {
             req.session.lite_mode = true

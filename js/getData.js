@@ -122,40 +122,8 @@ module.exports = async (req, res, next) => {
 
 
     if (req.session.active_exchange && req.session.active_exchange !== 'master') {
-        const requesturl = req.originalUrl
-        const cookieString = await getCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
-        request.get(
-            global.Connected_Exchanges[req.session.active_exchange].base_url + requesturl, {
-                headers: {
-                    'x-sequenzia-exchange': global.This_Exchange.id,
-                    'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
-                    'x-sequenzia-user': thisUser.master.discord.user.id,
-                    'x-sequenzia-user-source': req.session.login_source,
-                    'User-Agent': 'Sequenzia Cross-Exchange v20.2',
-                    'Cookie': cookieString || ''
-                },
-                json: true
-            }, async function (error, response, body) {
-                if (!error) {
-                    try {
-                        const getCookies = response.headers['set-cookie'];
-                        if (getCookies) {
-                            await setCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
-                        }
-                        if (body) {
-                            res.locals.response = body
-                        } else {
-                            res.status(401).send('Exchange failed to allow login');
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        res.status(500).send('Communication with exchange failed');
-                    }
-                } else {
-                    console.error(error)
-                    res.status(500).send('Communication with exchange failed');
-                }
-            });
+        res.locals.json = true;
+        res.locals.is_response_json = true;
     } else if (!thisUser.master.sidebar) {
         res.locals.response = {
             search_prev: search_prev,

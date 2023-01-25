@@ -18,7 +18,7 @@ const generateConfiguration = require('../js/generateADSRequest')
 const ajaxChecker = require('../js/ajaxChecker');
 const ajaxOnly = require('../js/ajaxOnly');
 const { printLine } = require('../js/logSystem');
-const { sessionVerification, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
+const { sessionVerification, manageValidation, handleExchange, readValidation, downloadValidation} = require('./discord');
 const { redisRetrieve, redisStore, redisDelete } = require('../js/redisClient');
 const app = require("../app");
 const router = express.Router();
@@ -82,12 +82,12 @@ async function deleteCacheData(key, local) {
 
 router.get(['/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
-router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
-router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, renderResults);
+router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, handleExchange, renderResults);
+router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, handleExchange, renderResults);
 router.get('/homeImage', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
-router.get('/artists', sessionVerification, ajaxChecker, getIndex, renderIndex);
+router.get('/artists', sessionVerification, ajaxChecker, getIndex, handleExchange, renderIndex);
 router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
-router.get('/albums', sessionVerification, ajaxOnly, getAlbums);
+router.get('/albums', sessionVerification, ajaxOnly, handleExchange, getAlbums);
 router.get('/offline', sessionVerification, (req, res, next) => {
     const thisUser = res.locals.thisUser
     if (thisUser && thisUser.master) {
@@ -138,8 +138,8 @@ router.get('/login', (req, res) => {
     }
 });
 
-router.post('/actions/v2', sessionVerification, manageValidation, discordActions);
-router.post('/actions/v1', sessionVerification, generalActions);
+router.post('/actions/v2', sessionVerification, handleExchange, manageValidation, discordActions);
+router.post('/actions/v1', sessionVerification, handleExchange, generalActions);
 
 router.get('/status', sessionVerification, async (req, res) => {
     try {
@@ -174,7 +174,7 @@ router.get('/status', sessionVerification, async (req, res) => {
         });
     }
 });
-router.use('/parity', sessionVerification, readValidation, async (req, res) => {
+router.use('/parity', sessionVerification, handleExchange, readValidation, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
@@ -236,7 +236,7 @@ router.get('/ping', sessionVerification, ((req, res) => {
     }
 }));
 
-router.use('/stream', sessionVerification, readValidation, async (req, res) => {
+router.use('/stream', sessionVerification, handleExchange, readValidation, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
@@ -438,7 +438,7 @@ router.use('/stream', sessionVerification, readValidation, async (req, res) => {
         console.error(err)
     }
 });
-router.use('/content', downloadValidation, async function (req, res) {
+router.use('/content', handleExchange, downloadValidation, async function (req, res) {
     try {
         const source = req.headers['user-agent']
         const ua = (source) ? useragent.parse(source) : undefined
@@ -944,10 +944,10 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
         res.render('failed_device')
     }
 });
-router.get(['/ads-micro', '/ads-widget'], sessionVerification, generateConfiguration, getImages, downloadResults, renderResults);
-router.get('/ambient-refresh', sessionVerification, getImages, renderResults);
-router.get('/ambient-remote-refresh', sessionVerification, generateConfiguration, getImages, renderResults);
-router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, downloadResults);
+router.get(['/ads-micro', '/ads-widget'], sessionVerification, generateConfiguration, getImages, handleExchange, downloadResults, renderResults);
+router.get('/ambient-refresh', sessionVerification, getImages, handleExchange, renderResults);
+router.get('/ambient-remote-refresh', sessionVerification, generateConfiguration, getImages, handleExchange, renderResults);
+router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, handleExchange, downloadResults);
 router.get('/ambient-history', sessionVerification, async (req, res) => {
     try {
         await getHistory(req, res)
