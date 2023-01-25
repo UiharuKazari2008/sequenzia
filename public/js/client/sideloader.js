@@ -4220,6 +4220,32 @@ function getLocation(url, tags) {
         return l
     }
 }
+let activeExchange = 'master';
+function switchExchange(exchange_id) {
+    $.ajax({async: true,
+        type: "get",
+        url: "/discord/exchange/" + exchange_id,
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                activeExchange = exchange_id;
+                let seqMainMenu = $(`#menuItemMainSeq${exchange_id}`);
+                if (seqMainMenu.length === 0)
+                    seqMainMenu = $(`#menuItemMain${exchange_id}`);
+                seqMainMenu.collapse('show');
+            } else {
+                $.snack('error', `Failed to change exchange!`, 10000)
+                console.log(res.responseText);
+            }
+        },
+        error: function (xhr) {
+            $.snack('error', `Failed to change exchange!`, 10000)
+        }
+    });
+}
 
 function showAuthManager() {
     $('#authenticationModel').modal('show');

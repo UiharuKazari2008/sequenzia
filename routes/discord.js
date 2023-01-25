@@ -17,6 +17,10 @@ const app = require('./../app');
 const web = require("../web.config.json");
 const md5 = require('md5');
 const request = require("request");
+const global = require("../config.json");
+const https = require("https");
+const http = require("http");
+const {redisRetrieve, redisStore, redisDelete} = require("../js/redisClient");
 const RateLimiter = require('limiter').RateLimiter;
 const geoIPLookup = new RateLimiter(25, 60000);
 
@@ -27,6 +31,35 @@ function _encode(obj) {
         string += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
     }
     return string.substring(1);
+}
+
+async function getCacheData(key, isJson, local) {
+    if (global.shared_cache) {
+        if (local && app.get(local))
+            return app.get(local)
+        const result = await redisRetrieve(key)
+        const parsed = (isJson) ? JSON.parse(result) : result
+        if (local)
+            app.set(local, parsed)
+        return parsed
+    }
+    return app.get(key)
+}
+async function setCacheData(key, value, isJson, local) {
+    if (global.shared_cache) {
+        if (local)
+            app.set(local, value)
+        return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+    }
+    return app.set(key, value)
+}
+async function deleteCacheData(key, local) {
+    if (global.shared_cache) {
+        if (local)
+            await app.delete(local)
+        return await redisDelete(key)
+    }
+    return app.delete(key)
 }
 
 function cleanDeadCodes() {
@@ -266,6 +299,51 @@ router.post('/update', sessionVerification, async (req, res) => {
     }
 });
 router.post('/persistent/settings', persistSettingsManager);
+router.get('/exchange/:id', sessionVerification, async (req, res) => {
+    const thisUser = res.locals.thisUser
+    if (req.params.id === 'master') {
+        req.session.active_exchange = undefined;
+        delete req.session.active_exchange
+    } else if (thisUser[req.params.id] && config.This_Exchange && config.Connected_Exchanges[req.params.id]) {
+        const cookieString = await getCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.params.id + '-' + thisUser.master.discord.user.id)
+        request.get(global.Connected_Exchanges[req.params.id].base_url + '/ping?json=true', {
+            headers: {
+                'X-Sequenzia-Exchange': global.This_Exchange.id,
+                'X-Sequenzia-Key': global.Connected_Exchanges[req.params.id].key,
+                'X-Sequenzia-User': thisUser.master.discord.user.id,
+                'X-Sequenzia-User-Source': req.session.login_source,
+                'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                'Cookie': cookieString || ''
+            },
+            json: true
+        }, async function (error, response, body) {
+            if (!error) {
+                try {
+                    const getCookies = response.headers['set-cookie'];
+                    console.log(getCookies)
+                    if (getCookies) {
+                        await setCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.id + '-' + thisUser.master.discord.user.id)
+                    }
+                    console.log(body)
+                    if (body.loggedin) {
+                        req.session.active_exchange = req.params.id;
+                        res.status(200).send('Exchange Login OK');
+                    } else {
+                        res.status(401).send('Exchange failed to allow login');
+                    }
+                } catch (err) {
+                    console.error(err)
+                    res.status(500).send('Communication with exchange failed');
+                }
+            } else {
+                console.error(error)
+                res.status(500).send('Communication with exchange failed');
+            }
+        });
+    } else {
+        res.status(400).send('Unknown Exchange');
+    }
+})
 
 async function getGeoLocation(ip) {
     return await new Promise(async ok => {
@@ -583,6 +661,7 @@ async function sessionVerification(req, res, next) {
             res.locals.thisUser = thisUser;
             req.session.loggedin = true;
             req.session.esm_verified = true;
+            req.session.login_source = req.headers['X-Sequenzia-User-Source'] || 105;
             printLine('PassportCheck', `Cross-Instance Session created for ${thisUser.master.discord.user.username}, No ESM Checks will be done!`, 'warn');
         }
     }
@@ -693,6 +772,44 @@ async function sessionVerification(req, res, next) {
             loginPage(req, res);
         }
     }
+}
+async function crossSessionVerification(req, res, next) {
+    const thisUser = res.locals.thisUser;
+    const cookieString = await getCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.params.id + '-' + thisUser.master.discord.user.id)
+    request.get(
+        global.Connected_Exchanges[req.params.id].base_url + '/ping?json=true', {
+        headers: {
+            'X-Sequenzia-Exchange': global.This_Exchange.id,
+            'X-Sequenzia-Key': global.Connected_Exchanges[req.params.id].key,
+            'X-Sequenzia-User': thisUser.master.discord.user.id,
+            'X-Sequenzia-User-Source': req.session.login_source,
+            'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+            'Cookie': cookieString || ''
+        },
+        json: true
+    }, async function (error, response, body) {
+        if (!error) {
+            try {
+                const getCookies = response.headers['set-cookie'];
+                console.log(getCookies)
+                if (getCookies) {
+                    await setCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.id + '-' + thisUser.master.discord.user.id)
+                }
+                console.log(body)
+                if (body.loggedin) {
+                    next();
+                } else {
+                    res.status(401).send('Exchange failed to allow login');
+                }
+            } catch (err) {
+                console.error(err)
+                res.status(500).send('Communication with exchange failed');
+            }
+        } else {
+            console.error(error)
+            res.status(500).send('Communication with exchange failed');
+        }
+    });
 }
 function manageValidation(req, res, next) {
     const thisUser = res.locals.thisUser;

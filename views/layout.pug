@@ -233,16 +233,16 @@ html
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                             i.fa-light.fa-compass.fa-fw
                                                             | Directory
-                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#/gallery?numdays=60&sort=eid${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#/gallery?numdays=60&sort=eid`)
                                                             i.fa-light.fa-fw.fa-photo-video
                                                             | Gallery
-                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
                                                             i.fa-light.fa-fw.fa-files
                                                             | Files
                                                         a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`)
                                                             i.fa-light.fa-fw.fa-ticket
                                                             | Theater
-                                                        a.user-menu-item(title="Your Favorites" href=`#/gallery?sort=fav&pins=true${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                        a.user-menu-item(title="Your Favorites" href=`#/gallery?sort=fav&pins=true`)
                                                             i.fa-light.fa-fw.fa-star
                                                             | Favorites
                                                         a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
@@ -253,13 +253,13 @@ html
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
                                                         else
-                                                            a.user-menu-item(title="Index" href=`#/artists?${(exchange_id !== 'master') ? 'exchange_id=' + exchange_id :''}`)
+                                                            a.user-menu-item(title="Index" href=`#/artists?`)
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
                                                         a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory${(exchange_id !== 'master') ? exchange_id :''}` onClick=`getHistory("${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
-                                                        a.user-menu-item(title="I'm feeling lucky!" href=`#/gallery?sort=random${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                        a.user-menu-item(title="I'm feeling lucky!" href=`#/gallery?sort=random`)
                                                             i.fa-light.fa-fw.fa-dice
                                                             | Random
                                                         if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards' || path === '/listTheater' || path === '/tvTheater')) && (exchange_id === 'master'))
@@ -307,19 +307,19 @@ html
                                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                         if (theaters && theaters.length > 0)
                                                             .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
-                                                                a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href=`#/listTheater?watch_history=none${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href=`#/listTheater?watch_history=none`)
                                                                     i.fa-light.fa-forward
                                                                     | Up Next
                                                                 a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemMediaGroups${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                     i.fa-light.fa-fw.fa-books
                                                                     | Shelves
-                                                                a.user-menu-item.user-menu-small(title="Newest Episodes" href=`#/listTheater?numdays=1&sort=eid&num=25${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                a.user-menu-item.user-menu-small(title="Newest Episodes" href=`#/listTheater?numdays=1&sort=eid&num=25`)
                                                                     i.fa-light.fa-certificate
                                                                     | Newest
-                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href=`#/listTheater?pins=true${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href=`#/listTheater?pins=true`)
                                                                     i.fa-light.fa-star
                                                                     | Favorites
-                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href=`#/listTheater?watch_history=only${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href=`#/listTheater?watch_history=only`)
                                                                     i.fa-light.fa-clock-rotate-left
                                                                     | History
                                                         else
@@ -369,10 +369,10 @@ html
                                                 .d-flex.w-100.align-items-center
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
-                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick=`getAlbumDirectory("${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-globe-americas
                                                         span.d-none.d-md-inline Directory
-                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
+                                                    a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick=`refreshAlbumsList("${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`).ml-2
                                                         i.fas.fa-cog.fa-fw.mr-md-1
                                                         span.d-none.d-md-inline Manage
                                                     h4.text-primary.ml-auto.mb-0
@@ -403,7 +403,7 @@ html
                                                                                 i.far.fa-link.pr-1
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
                                                                         span #{thisAlbum.name}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
                                                                         if (thisAlbum.image)
                                                                             div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
                                                                         else
@@ -457,7 +457,7 @@ html
 
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
                                                                         span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
                                                                         if (thisArtist.image)
                                                                             div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
                                                                         else
@@ -470,7 +470,7 @@ html
                                                 .d-flex.w-100.align-items-center
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
-                                                    a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`).ml-2
+                                                    a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-grid-2
                                                         span.d-none.d-md-inline Show All
                                                     a(class="btn btn-primary" title="Show Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;").ml-2
@@ -498,7 +498,7 @@ html
                                                         | Applications
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                                        a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href=`/ambient?displayname=Untitled${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}` target="_blank" rel="noopener noreferrer")
+                                                        a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href=`/ambient?displayname=Untitled` target="_blank" rel="noopener noreferrer")
                                                             i.fa-light.fa-tv
                                                             | Photo Frame
                                                         a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
@@ -511,11 +511,11 @@ html
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 2)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemMediaGroups${(exchange_id !== 'master') ? exchange_id : ''}`)
@@ -531,7 +531,7 @@ html
                                                         if (theaters && theaters.length > 0)
                                                             each thisTheater in theaters
                                                                 //if (thisTheater.type === 2)
-                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}${(exchange_id !== 'master') ? '&exchange_id=' + exchange_id :''}`)
+                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                                     i.fa-light(class=`${thisTheater.icon}`)
                                                                     | #{thisTheater.name}
                                                                 //else if (thisTheater.type === 1)
@@ -545,7 +545,7 @@ html
                                             a.user-card-return.d-flex.align-items-center(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(params.has('exchange_id')) ? params.getAll('exchange_id')[0] : ''}`)
                                                 i.fas.fa-arrow-left.fa-fw
                                             each exchange, exchange_id in exchange_list
-                                                div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` data-toggle="collapse" data-target=`#menuItemMain${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
                                                     div.user-info-backdrop.rounded
                                                     div.user-info-border.rounded
                                                     div.user-info-overlay.position-absolute.rounded

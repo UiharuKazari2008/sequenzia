@@ -879,19 +879,15 @@ router.use('/cross-exchange/:exchnage_id', sessionVerification, async (req, res)
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
-        const cookieString = await getCacheData(req.params.exchnage_id + '-' + thisUser.master.discord.user.id, false, req.params.exchnage_id + '-' + thisUser.master.discord.user.id)
-        console.log(params)
-        console.log(req.params.exchnage_id)
-        console.log(global.Connected_Exchanges[req.params.exchnage_id])
-        console.log(global.This_Exchange)
-        console.log(cookieString)
+        const cookieString = await getCacheData(req.params.exchnage_id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.params.exchnage_id + '-' + thisUser.master.discord.user.id)
         if (thisUser[req.params.exchnage_id] !== undefined && global.This_Exchange && global.Connected_Exchanges[req.params.exchnage_id]) {
             if (params.length > 1) {
-                const request = http.get(global.Connected_Exchanges[req.params.exchnage_id].base_url + '/' + params.join('/'), {
+                const request = ((global.Connected_Exchanges[req.params.exchnage_id].base_url.startsWith('https') ? https : http)).get(global.Connected_Exchanges[req.params.exchnage_id].base_url + '/' + params.join('/'), {
                     headers: {
                         'X-Sequenzia-Exchange': global.This_Exchange.id,
                         'X-Sequenzia-Key': global.Connected_Exchanges[req.params.exchnage_id].key,
                         'X-Sequenzia-User': thisUser.master.discord.user.id,
+                        'X-Sequenzia-User-Source': req.session.login_source,
                         'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                         'Cookie': cookieString || ''
                     }
@@ -901,7 +897,7 @@ router.use('/cross-exchange/:exchnage_id', sessionVerification, async (req, res)
                         const getCookies = response.headers['set-cookie'];
                         console.log(getCookies)
                         if (getCookies) {
-                            await setCacheData(req.params.exchnage_id + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.exchnage_id + '-' + thisUser.master.discord.user.id)
+                            await setCacheData(req.params.exchnage_id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.exchnage_id + '-' + thisUser.master.discord.user.id)
                         }
                         response.headers['set-cookie'] = undefined;
                         res.setHeader('Content-Type', contentType);
