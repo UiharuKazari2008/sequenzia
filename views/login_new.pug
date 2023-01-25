@@ -140,7 +140,7 @@ html
                             h3 Login Failed, Try again.
                             .formContainer
                                 .formDiv.center
-                                    a.acceptBtn(href='/')
+                                    a.acceptBtn(href='/home')
                                         i.fas.fa-home
                                         span Go Home
                     else if (serverError)
@@ -149,7 +149,7 @@ html
                             h3 Internal Server Failure (#{serverError})
                             .formContainer
                                 .formDiv.center
-                                    a.acceptBtn(href='/')
+                                    a.acceptBtn(href='/home')
                                         i.fas.fa-home
                                         span Go Home
                     else

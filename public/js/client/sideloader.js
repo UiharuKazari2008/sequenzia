@@ -836,7 +836,7 @@ async function getNewContent(remove, add, url, keep) {
                 return null
             }
         })()
-    if (_url === null) { transitionToOOBPage('/'); return false; };
+    if (_url === null) { transitionToOOBPage('/home'); return false; };
     if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
         $.toast({
             type: 'error',
@@ -1014,7 +1014,7 @@ function getMoreContent(remove, add, url, keep) {
             return null
         }
     })()
-    if (_url === null) { transitionToOOBPage('/'); return false; };
+    if (_url === null) { transitionToOOBPage('/home'); return false; };
     if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
         $.toast({
             type: 'error',
@@ -1117,7 +1117,7 @@ async function getSearchContent(element, tagsElement, exchange, url) {
                 return null
             }
         })()
-        if (_url === null) { transitionToOOBPage('/'); return false; };
+        if (_url === null) { transitionToOOBPage('/home'); return false; };
         if (!(_url && _url.startsWith('/') && _url.substring(1).length > 2 && _url.substring(1).split('?')[0].length > 2)) {
             $.toast({
                 type: 'error',

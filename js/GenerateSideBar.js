@@ -6,7 +6,9 @@ module.exports = async (req, res, next) => {
         res.status(403).send('User account can not correlated to a valid user!')
 
     if (thisUser.master && thisUser.master.sidebar) {
-        if (req.headers['x-requested-page'] === 'SeqSidebar') {
+        if (req.url === '/') {
+            res.redirect(301, '/home')
+        } else if (req.headers['x-requested-page'] === 'SeqSidebar') {
             res.render('sidebar', {
                 url: req.url,
                 sidebar: thisUser.master.sidebar,

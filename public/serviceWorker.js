@@ -56,9 +56,9 @@ const cacheOptions = {
     ],
     updateExchangeCache: [
         '/home',
-        '/homeImage',
         '/juneOS',
-        '/sidebar'
+        '/homeImage',
+        '/sidebar',
     ],
     preloadCache: [
         offlineUrl,
@@ -231,7 +231,7 @@ async function broadcastAllMessage(message) {
 }
 function selectCache(url) {
     const uri = url.split(origin).pop().toString()
-    if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0 || uri === '/' || uri === '/home')
+    if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0 || uri === '/home')
         return cacheOptions.cacheConfig
     if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !url.includes('.discordapp.'))
         return cacheOptions.tempCacheCDN
@@ -276,7 +276,7 @@ async function handleResponse(url, response, reqType) {
     return response;
 }
 async function shouldRecache(event, response) {
-    if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.split(origin).pop().toString() === '/' || event.request.url.split(origin).pop().toString() === '/home')
+    if (cacheOptions.updateCache.filter(b => event.request.url.split(origin).pop().toString().startsWith(b)).length > 0 || event.request.url.split(origin).pop().toString() === '/home')
         reCache(event, response)
 }
 async function handleHomeImageCachesEvent(url, selectedCache, lastResponse) {
@@ -463,7 +463,7 @@ self.addEventListener('activate', e => {
                     level: 'success',
                     title: '<i class="fas fa-sync pr-2"></i>Update Successful',
                     subtitle: '',
-                    content: `<p class="text-center">The application and kernel was updated!</p><p class="text-center">Version: "${cacheName}"</p><a class="btn btn-primary w-100" href="/"><i class="fas fa-sync pr-2"></i>Restart</a>`
+                    content: `<p class="text-center">The application and kernel was updated!</p><p class="text-center">Version: "${cacheName}"</p><a class="btn btn-primary w-100" href="/home"><i class="fas fa-sync pr-2"></i>Restart</a>`
                 });
             }, 3000)
         }
@@ -493,20 +493,6 @@ self.addEventListener('fetch', event => {
                 return new Response(offlineFile, { status: 200 });
             }
 
-            if (event.request.url === '/') {
-                const cachedFile = await caches.match('/home')
-                if (cachedFile) {
-                    if (swDebugMode)
-                        console.log('JulyOS Kernel: Cache - /home');
-                    return cachedFile
-                }
-                const offlineFile = await getDataIfAvailable('/home')
-                if (offlineFile) {
-                    if (swDebugMode)
-                        console.log('JulyOS Kernel: Offline Storage - /home');
-                    return offlineFile;
-                }
-            }
             if (event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
                 const newURL = (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop();
                 const cachedFile = await caches.match(newURL)
@@ -863,7 +849,7 @@ self.addEventListener('message', async (event) => {
                     return await exchange_cache.add(u);
                 })
                 refreshCurrentExchange = null;
-            }, 10000);
+            }, 3000);
             event.ports[0].postMessage(true);
             break;
         case 'GET_ALL_ACTIVE_JOBS':
