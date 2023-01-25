@@ -27,14 +27,18 @@ html
                 link(rel='preload', href=`${exchange.user.avatar}` as='image')
             each thisServer, thisIndex in exchange.discord.servers.list
                 link(rel='preload', href=`${thisServer.icon}` as='image')
+            if (exchange.kongou_next_episode)
+                link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
         if (applications_list && applications_list.length > 0)
             each app in applications_list
                 if (app.images)
                     each image in Array.from(Object.entries(app.images))
                         meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
                         link(rel='preload', href=`${image[1]}` as='image')
-        if (next_episode)
-            link(rel='preload', href=`${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : ''}` as='image')
+        script.
+            const initalExchange = "!{active_exchange_id || 'master'}"
+            let pageExchange = "!{active_exchange_id || 'master'}"
+            let activeExchange = "!{active_exchange_id || 'master'}"
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
@@ -188,131 +192,137 @@ html
                     }
     body(id="page-top").sidebar-toggled
         script.
-            let activeExchange = "!{active_exchange_id || 'master'}"
             if (performaceMode) {
                 document.querySelector('body').classList.add('performance-mode');
                 console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
             }
         #bootBackdrop.boot-logo-overlay
             #bootBackdropSunrise
-        #kmsBootDisplay.boot-logo-overlay(style="display: none;")
-            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : '/static/img/kms-background.jpeg'});`)
-                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
-                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
-                        div.d-flex(style="z-index: 1;")
-                            img(src="/static/img/kongoumedialogo-menu.png" style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
-                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
-                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                        span.boot-status-holder.font-weight-bolder Kongou Media Project v9
-                        .mt-1.boot-icons-holder.d-none
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                    div.boot-author-loog.p-2.position-absolute.bottom-left
-                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
-        #appBootDisplay.boot-logo-overlay(style="display: none;")
-            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div#appBootBackground.boot-dialog.d-flex.flex-column.rounded.position-relative(style="background-image: url(/static/img/app-background.jpg);")
-                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
-                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
-                        div.d-flex(style="z-index: 1;")
-                            img#appBootLogo(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
-                    div#appBootAccent.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden
-                        img(src="/static/img/kongou-group.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(next_episode) ? 'd-none' : ''}`).h-100.rounded
-                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                        span.boot-status-holder.font-weight-bolder JuneApp Platform v1
-                        .mt-1.boot-icons-holder.d-none
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                    div.boot-author-loog.p-2.position-absolute.bottom-left
-                        img#appBootPublisher(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
-        #bootUpDisplay.boot-logo-overlay
-            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(user.banner) ? user.banner : '/static/img/bootlogo-inner.jpeg'})`)
-                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+        for exchange, this_exchnage in exchange_list
+            .boot-logo-overlay(style="display: none;" id=`kmsBootDisplay${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+                .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                    div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ((this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
-                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
-                            img(src="/static/img/sequenzia-logo-nav.png" style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                            div.d-flex(style="z-index: 1;")
+                                img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                         div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                            img(src="/static/img/seq-mascot.png" style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
-                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
-                            i.px-2.fas.fa-image
-                            i.px-2.fas.fa-film
-                            i.px-2.fas.fa-music
-                            i.px-2.fas.fa-folder
-                            i.px-2.fas.fa-archive
-                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                        span#bootLoaderStatus.boot-status-holder.font-weight-bolder Waiting for core...
-                        .mt-1.boot-icons-holder#bootStatusIcons
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                            i.fas.fa-circle(style="opacity: 50%").pl-2
-                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
-                    div.boot-author-loog.p-2.position-absolute.bottom-left
-                        img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                        div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                            span.boot-status-holder.font-weight-bolder Kongou Media Project v9
+                            .mt-1.boot-icons-holder.d-none
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                        div.boot-author-loog.p-2.position-absolute.bottom-left
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+            .boot-logo-overlay(style="display: none;" id=`appBootDisplay${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+                .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                    div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/app-background.jpg);` id=`appBootBackground${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                        div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                            div.d-flex(style="z-index: 1;")
+                                img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);" id=`appBootLogo${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden(id=`appBootAccent${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                        div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                            span.boot-status-holder.font-weight-bolder JuneApp Platform v1
+                            .mt-1.boot-icons-holder.d-none
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                        div.boot-author-loog.p-2.position-absolute.bottom-left
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);" id=`appBootPublisher${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+            .boot-logo-overlay(style="display: none;" id=`bootUpDisplay${(this_exchnage !== 'master') ? this_exchnage : ''}`)
+                .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                    div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.user.banner) ? exchange.user.banner : ((this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/bootlogo-inner.jpeg'})`)
+                        div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                            div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                            div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                            div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
+                                //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                                img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                            div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                                img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                            div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
+                                i.px-2.fas.fa-image
+                                i.px-2.fas.fa-film
+                                i.px-2.fas.fa-music
+                                i.px-2.fas.fa-folder
+                                i.px-2.fas.fa-archive
+                        div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                            span.boot-status-holder.font-weight-bolder Waiting for core...
+                            .mt-1.boot-icons-holder
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                                i.fas.fa-circle(style="opacity: 50%").pl-2
+                            //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                        div.boot-author-loog.p-2.position-absolute.bottom-left
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         script.
             if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
-                document.getElementById('bootUpDisplay').style.display = 'none';
-                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.add('d-none');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'none';
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.add('d-none');
 
-                document.getElementById('kmsBootDisplay').style.display = 'flex';
-                document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
-                document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
-                document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
-                document.getElementById('kmsBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
+                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
             } else if (location.hash.startsWith('#/app')) {
-                document.getElementById('bootUpDisplay').style.display = 'none';
-                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.add('d-none');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'none';
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').removeAttribute('id');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.add('d-none');
 
                 const appName = location.hash.split('/app/').pop().split('/')[1].split('app_').pop().split('?')[0].trim();
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
-                    document.getElementById('appBootLogo').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+                    document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
                 } else {
-                    document.getElementById('appBootLogo').src = "/static/img/sequenzia-logo-nav.png"
+                    document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/sequenzia-logo-nav.png"
                 }
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
-                    document.getElementById('appBootBackground').style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+                    document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
                 } else {
-                    document.getElementById('appBootBackground').style.backgroundImage = 'url(/static/img/app-background.jpg)'
+                    document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + '/static/img/app-background.jpg)'
                 }
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
-                    document.getElementById('appBootAccent').classList.remove('hidden')
-                    document.getElementById('appBootAccent').querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('hidden')
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
                 } else {
-                    document.getElementById('appBootAccent').classList.add('hidden')
-                    document.getElementById('appBootAccent').querySelector('img').src = "/static/img/kongou-group.png"
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.add('hidden')
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/kongou-group.png"
                 }
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
-                    document.getElementById('appBootPublisher').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+                    document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
                 } else {
-                    document.getElementById('appBootPublisher').src = "/static/img/acr-logo.png"
+                    document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/acr-logo.png"
                 }
 
-                document.getElementById('appBootDisplay').style.display = 'flex';
-                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
-                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').innerText = "Waiting for core..."
-                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
-                document.getElementById('appBootDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
+                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+            } else {
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
             }
         #contextSwitchIndicator.animated--fade-in(style="display: none;")
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
@@ -928,26 +938,31 @@ html
                                     h3
                                         i.fas.fa-server.pr-2
                                         | Storage Servers
-                                each thisServer, thisIndex in discord.servers.list
-                                    .row.pl-3.pr-3.pt-2.flex-nowrap.d-flex(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
-                                        div.mr-3
-                                            img(src=thisServer.icon style='height: 8em;' class=`${(webconf.square_server_icons_about) ? 'rounded' : 'rounded-circle'}`)
-                                        div.d-flex.flex-column.justify-content-center
-                                            h2.mb-1
-                                                if (thisServer.login === 1)
-                                                    i.fas.fa-key.pr-2.pl-1
-                                                span #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
-                                            if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
-                                                h5 #{thisServer.name}
-                                            if (thisServer.usage && !webconf.hide_server_usage)
-                                                h5.mt-1
-                                                    i.fas.fa-database.pr-2.pl-1
-                                                    if (thisServer.usage > 1000000)
-                                                        span #{(thisServer.usage / 1000000).toFixed(2)} TB (#{thisServer.count} Files)
-                                                    else if (thisServer.usage > 1000)
-                                                        span #{(thisServer.usage / 1000).toFixed(2)} GB (#{thisServer.count} Files)
-                                                    else
-                                                        span #{(thisServer.usage).toFixed(2)} MB (#{thisServer.count} Files)
+                                each exchange, this_exchnage in exchange_list
+                                    if (this_exchnage !== 'master')
+
+                                    each thisServer, thisIndex in exchange.discord.servers.list
+                                        .row.pl-3.pr-3.pt-2.flex-nowrap.d-flex(class=`${(thisIndex + 1 !== exchange.discord.servers.list.length) ? 'mb-2' : ''}`)
+                                            div.mr-3
+                                                img(src=thisServer.icon style='height: 8em;' class=`${(webconf.square_server_icons_about) ? 'rounded' : 'rounded-circle'}`)
+                                            div.d-flex.flex-column.justify-content-center
+                                                h2.mb-1
+                                                    if (this_exchnage !== 'master')
+                                                        i.fas.fa-globe.px-1
+                                                    if (thisServer.login === 1 )
+                                                        i.fas.fa-key.px-1
+                                                    span #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                                if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
+                                                    h5 #{thisServer.name}
+                                                if (thisServer.usage && !webconf.hide_server_usage)
+                                                    h5.mt-1
+                                                        i.fas.fa-database.pr-2.pl-1
+                                                        if (thisServer.usage > 1000000)
+                                                            span #{(thisServer.usage / 1000000).toFixed(2)} TB (#{thisServer.count} Files)
+                                                        else if (thisServer.usage > 1000)
+                                                            span #{(thisServer.usage / 1000).toFixed(2)} GB (#{thisServer.count} Files)
+                                                        else
+                                                            span #{(thisServer.usage).toFixed(2)} MB (#{thisServer.count} Files)
                             div.row.pl-3.pr-3.pt-2
                                 h3
                                     i.fas.fa-code.pr-2

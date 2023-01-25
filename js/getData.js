@@ -124,6 +124,7 @@ module.exports = async (req, res, next) => {
     if (req.session.active_exchange && req.session.active_exchange !== 'master') {
         res.locals.json = true;
         res.locals.is_response_json = true;
+        next();
     } else if (!thisUser.master.sidebar) {
         res.locals.response = {
             search_prev: search_prev,

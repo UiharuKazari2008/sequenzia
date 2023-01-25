@@ -37,6 +37,10 @@ module.exports = async (req, res, next) => {
         };
         console.error('No Session Data')
         next();
+    } else if (req.session.active_exchange && req.session.active_exchange !== 'master') {
+        res.locals.json = true;
+        res.locals.is_response_json = true;
+        next();
     } else {
         let execute = '';
         let limit = 500;

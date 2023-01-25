@@ -10,151 +10,147 @@ html
                     a.nav-link.no-homepage(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='#_' onclick='transitionToOOBPage("/"); return false;')
                         i.fas.fa-house
                         span.text-capitalize Home
-                if (sidebar && sidebar.length > 0)
-                    each thisSuperClass, superIndex in sidebar
-
-                        // Heading
-                        .sidebar-heading
-                            span #{thisSuperClass.name}
-                        // Generated Item - #{classificationType}
-                        each thisClass in thisSuperClass.entities
-                            li.nav-item(id=`${thisClass.id}`)
-                                a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisClass.name}` href='#_' data-toggle='collapse' data-target=`#${thisClass.id}Menu` id=thisClass.id)
-                                    i.fas(class=thisClass.icon)
-                                    span.text-capitalize #{thisClass.name}
-                                div.collapse(aria-labelledby=thisClass.id + 'Menu' data-parent='#accordionSidebar' id=`${thisClass.id}Menu` class=isVisible)
-                                    .bg-white.py-2.collapse-inner.rounded
-                                        if (thisClass.entities.length > 1)
-                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*`) Everything
-                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                    if (thisClass.uri === 'gallery')
-                                                        i.fas.fa-photo-video.ml-1
-                                                    else if (thisClass.uri === 'files')
-                                                        i.fas.fa-folder.ml-1
-                                                    else if (thisClass.uri === 'cards')
-                                                        i.fas.fa-sticky-note.ml-1
-                                                    else if (thisSuperClass.uri === 'gallery')
-                                                        i.fas.fa-photo-video.ml-1
-                                                    else if (thisSuperClass.uri === 'files')
-                                                        i.fas.fa-folder.ml-1
-                                                    else if (thisSuperClass.uri === 'cards')
-                                                        i.fas.fa-sticky-note.ml-1
-                                        - let nsfwIndex = ''
-                                        - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
-                                        if (_mergedChannels.length > 0)
-                                            .collapse-header
-                                                i.fas.fa-folder-tree.pr-1
-                                                | Virtual Channels
-                                            each thisVirtualChannel, indexChannel in _mergedChannels
-                                                - let nsfwSearch = ''
-                                                if (thisVirtualChannel.nsfw)
-                                                    - nsfwSearch = "&nsfw=true"
-                                                    - nsfwIndex = "&nsfw=true"
-                                                div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id="vc_" + thisVirtualChannel.id).pr-0
-                                                    a.text-capitalize(href=`#/${thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
-                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                            if (thisVirtualChannel.nsfw)
-                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                    a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#vc_c_' + thisVirtualChannel.id).px-3
-                                                        i.fas.fa-chevron-right.align-self-center
-                                                .collapse.m-0(id='vc_c_' + thisVirtualChannel.id style="position: unset;")
-                                                    each thisChannel, indexChannel in thisVirtualChannel.entities
-                                                        - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
-                                                        - let nsfwSearch = ''
-                                                        if (thisChannel.nsfw)
-                                                            - nsfwSearch = "&nsfw=true"
-                                                            - nsfwIndex = "&nsfw=true"
-                                                        a.collapse-item.text-capitalize.icon-padding.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=thisChannel.id href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
-                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                                if (thisChannel.nsfw)
-                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
-                                                                i.fas.fa-clone
-
-                                        each thisServer, indexServer in server.sort()
-                                            - _channels = thisClass.entities.filter((e) => { return e.server === thisServer.id && e.type === 0})
-                                            if (_channels.length > 0)
-                                                .collapse-header
-                                                    i.fas.fa-database.pr-1
-                                                    span #{thisServer.name}
-                                                if (_channels.length > 2)
-                                                    a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
-                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                            if (thisClass.uri === 'gallery')
-                                                                i.fas.fa-photo-video.ml-1
-                                                            else if (thisClass.uri === 'files')
-                                                                i.fas.fa-folder.ml-1
-                                                            else if (thisClass.uri === 'cards')
-                                                                i.fas.fa-sticky-note.ml-1
-                                                            else if (thisSuperClass.uri === 'gallery')
-                                                                i.fas.fa-photo-video.ml-1
-                                                            else if (thisSuperClass.uri === 'files')
-                                                                i.fas.fa-folder.ml-1
-                                                            else if (thisSuperClass.uri === 'cards')
-                                                                i.fas.fa-sticky-note.ml-1
-                                            each thisChannel, indexChannel in _channels
-                                                - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
-                                                - let nsfwSearch = ''
-                                                if (thisChannel.nsfw)
-                                                    - nsfwSearch = "&nsfw=true"
-                                                    - nsfwIndex = "&nsfw=true"
-                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=thisChannel.id href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                for exchange, this_exchnage in exchange_list
+                    if (exchange.sidebar && exchange.sidebar.length > 0)
+                        if (this_exchnage !== 'master')
+                            span.mt-2.d-block.ml-auto.mr-auto.badge #{exchange.exchange.name}
+                            hr.sidebar-divider
+                        each thisSuperClass, superIndex in exchange.sidebar
+                            // Heading
+                            .sidebar-heading
+                                span #{thisSuperClass.name}
+                            // Generated Item - #{classificationType}
+                            each thisClass in thisSuperClass.entities
+                                li.nav-item(id=`${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`)
+                                    a.nav-link.collapsed(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisClass.name}` href='#_' data-toggle='collapse' data-target=`#${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}Menu` id=`${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`)
+                                        i.fas(class=thisClass.icon)
+                                        span.text-capitalize #{thisClass.name}
+                                    div.collapse(data-parent='#accordionSidebar' id=`${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}Menu` class=isVisible)
+                                        .bg-white.py-2.collapse-inner.rounded
+                                            if (thisClass.entities.length > 1)
+                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*`) Everything
                                                     div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                        if (thisChannel.nsfw)
-                                                            i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                        if (thisChannel.uri || thisClass.uri)
-                                                            if (thisChannel.uri && thisSuperClass.uri !== thisChannel.uri)
-                                                                if (thisChannel.uri === 'gallery')
-                                                                    i.fas.fa-photo-video.ml-1
-                                                                else if (thisChannel.uri === 'files')
-                                                                    i.fas.fa-folder.ml-1
-                                                                else if (thisChannel.uri === 'cards')
-                                                                    i.fas.fa-sticky-note.ml-1
-                                                            else if (!thisChannel.uri && thisClass.uri && thisSuperClass.uri !== thisClass.uri)
+                                                        if (thisClass.uri === 'gallery')
+                                                            i.fas.fa-photo-video.ml-1
+                                                        else if (thisClass.uri === 'files')
+                                                            i.fas.fa-folder.ml-1
+                                                        else if (thisClass.uri === 'cards')
+                                                            i.fas.fa-sticky-note.ml-1
+                                                        else if (thisSuperClass.uri === 'gallery')
+                                                            i.fas.fa-photo-video.ml-1
+                                                        else if (thisSuperClass.uri === 'files')
+                                                            i.fas.fa-folder.ml-1
+                                                        else if (thisSuperClass.uri === 'cards')
+                                                            i.fas.fa-sticky-note.ml-1
+                                            - let nsfwIndex = ''
+                                            - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
+                                            if (_mergedChannels.length > 0)
+                                                .collapse-header
+                                                    i.fas.fa-folder-tree.pr-1
+                                                    | Virtual Channels
+                                                each thisVirtualChannel, indexChannel in _mergedChannels
+                                                    - let nsfwSearch = ''
+                                                    if (thisVirtualChannel.nsfw)
+                                                        - nsfwSearch = "&nsfw=true"
+                                                        - nsfwIndex = "&nsfw=true"
+                                                    div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id=`vc_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).pr-0
+                                                        a.text-capitalize(href=`#/${thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
+                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                if (thisVirtualChannel.nsfw)
+                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                        a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).px-3
+                                                            i.fas.fa-chevron-right.align-self-center
+                                                    .collapse.m-0(id=`vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` style="position: unset;")
+                                                        each thisChannel, indexChannel in thisVirtualChannel.entities
+                                                            - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
+                                                            - let nsfwSearch = ''
+                                                            if (thisChannel.nsfw)
+                                                                - nsfwSearch = "&nsfw=true"
+                                                                - nsfwIndex = "&nsfw=true"
+                                                            a.collapse-item.text-capitalize.icon-padding.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                    if (thisChannel.nsfw)
+                                                                        i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
+                                                                    i.fas.fa-clone
+
+                                            each thisServer, indexServer in exchange.server_list.sort()
+                                                - _channels = thisClass.entities.filter((e) => { return e.server === thisServer.id && e.type === 0})
+                                                if (_channels.length > 0)
+                                                    .collapse-header
+                                                        i.fas.fa-database.pr-1
+                                                        span #{thisServer.name}
+                                                    if (_channels.length > 2)
+                                                        a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
+                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
                                                                 if (thisClass.uri === 'gallery')
                                                                     i.fas.fa-photo-video.ml-1
                                                                 else if (thisClass.uri === 'files')
                                                                     i.fas.fa-folder.ml-1
                                                                 else if (thisClass.uri === 'cards')
                                                                     i.fas.fa-sticky-note.ml-1
-                                        .collapse-header
-                                            i.fas.fa-atlas.pr-1
-                                            | Indexes
-                                        a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
-                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                i.fas.fa-atlas.ml-1
-                                        - _custom_channels = thisClass.entities.filter((e) => { return e.type === 1})
-                                        if (_custom_channels.length > 0)
+                                                                else if (thisSuperClass.uri === 'gallery')
+                                                                    i.fas.fa-photo-video.ml-1
+                                                                else if (thisSuperClass.uri === 'files')
+                                                                    i.fas.fa-folder.ml-1
+                                                                else if (thisSuperClass.uri === 'cards')
+                                                                    i.fas.fa-sticky-note.ml-1
+                                                each thisChannel, indexChannel in _channels
+                                                    - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
+                                                    - let nsfwSearch = ''
+                                                    if (thisChannel.nsfw)
+                                                        - nsfwSearch = "&nsfw=true"
+                                                        - nsfwIndex = "&nsfw=true"
+                                                    a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                            if (thisChannel.nsfw)
+                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                            if (thisChannel.uri || thisClass.uri)
+                                                                if (thisChannel.uri && thisSuperClass.uri !== thisChannel.uri)
+                                                                    if (thisChannel.uri === 'gallery')
+                                                                        i.fas.fa-photo-video.ml-1
+                                                                    else if (thisChannel.uri === 'files')
+                                                                        i.fas.fa-folder.ml-1
+                                                                    else if (thisChannel.uri === 'cards')
+                                                                        i.fas.fa-sticky-note.ml-1
+                                                                else if (!thisChannel.uri && thisClass.uri && thisSuperClass.uri !== thisClass.uri)
+                                                                    if (thisClass.uri === 'gallery')
+                                                                        i.fas.fa-photo-video.ml-1
+                                                                    else if (thisClass.uri === 'files')
+                                                                        i.fas.fa-folder.ml-1
+                                                                    else if (thisClass.uri === 'cards')
+                                                                        i.fas.fa-sticky-note.ml-1
                                             .collapse-header
-                                                i.fas.fa-tags.pr-1
-                                                | Quick Access
-                                            each thisCustomChannel in _custom_channels
-                                                a.collapse-item.text-capitalize.icon-padding(title=thisCustomChannel.name id=thisCustomChannel.id href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
-                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                        if (thisCustomChannel.nsfw)
-                                                            i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
-                                                        i.fas.fa-tag.ml-1
-                    hr#seqLogoDivider.sidebar-divider.d-none.d-md-block
-                    //li#seqLogoIcon
-                        img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 2.1em; opacity: 0.78;')
-                    //li#seqLogoWide
-                        span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
-                    if (!webconf.hide_server_list)
-                        li.server-grid-container.text-center.mt-3
-                            .server-grid.d-inline-block
-                                .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0,4).length}, minmax(45px, 40px));`)
-                                    for thisServer, thisServerIndex in discord.servers.list.slice(0,4)
-                                        .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
-                                            img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                    div#sidebarbottompadding
-                else
-                    .sidebar-card.text-primary.text-center
-                        img.img-profile.rounded-circle(src=user.avatar style="width: 176px;")
-                        .sidebar-divider.mb-3
-                        strong Access Denied
-                        strong
-                            a.dropdown-item(title="Leave Now" href='#_' data-toggle='modal' data-target='#logoutModal').text-danger
-                                i.fas.fa-exclamation-triangle.fa-sm.fa-fw.mr-2.text-danger
-                                | Logout
+                                                i.fas.fa-atlas.pr-1
+                                                | Indexes
+                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
+                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                    i.fas.fa-atlas.ml-1
+                                            - _custom_channels = thisClass.entities.filter((e) => { return e.type === 1})
+                                            if (_custom_channels.length > 0)
+                                                .collapse-header
+                                                    i.fas.fa-tags.pr-1
+                                                    | Quick Access
+                                                each thisCustomChannel in _custom_channels
+                                                    a.collapse-item.text-capitalize.icon-padding(title=thisCustomChannel.name id=`${thisCustomChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
+                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                            if (thisCustomChannel.nsfw)
+                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                            i.fas.fa-tag.ml-1
+                hr#seqLogoDivider.sidebar-divider.d-none.d-md-block
+                //li#seqLogoIcon
+                    img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 2.1em; opacity: 0.78;')
+                //li#seqLogoWide
+                    span.sidebar-brand-logo.sequenzia-logo(style='font-size: 1.8rem; color: rgba(255,255,255,0.78);') sequenzia
+                if (!webconf.hide_server_list)
+                    li.server-grid-container.text-center.mt-3
+                        .server-grid.d-inline-block
+                            - full_server_list = [];
+                            - Object.values(exchange_list).map(g => full_server_list.push(...g.discord.servers.list))
+                            .server-grid-parent(style=`grid-template-columns: repeat(${full_server_list.slice(0,4).length}, minmax(45px, 40px));`)
+                                for thisServer, thisServerIndex in discord.servers.list.slice(0,4)
+                                    .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
+                                        img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon)
+                div#sidebarbottompadding
                 // Sidebar Toggler (Sidebar)
                 //.text-center.d-none.d-md-inline
                     button#sidebarToggle.rounded-circle.border-0(onclick="toggleMenu(); return false;")

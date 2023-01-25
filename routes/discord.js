@@ -827,8 +827,10 @@ async function handleExchange(req, res, next) {
                 'Cookie': cookieString || ''
             }
         }
-        if (req.body && Object.keys(req.body).length > 0)
-            options.body = req.body
+        if (req.body && Object.keys(req.body).length > 0) {
+            options.body = req.body;
+            options.json = true;
+        }
         if (res.locals.json)
             options.json = true;
         request(global.Connected_Exchanges[req.session.active_exchange].base_url + req.originalUrl, options, async function (error, response, body) {

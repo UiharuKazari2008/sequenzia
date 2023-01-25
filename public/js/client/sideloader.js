@@ -133,6 +133,7 @@ let lazyloadImages;
 let extratitlewidth = 0
 const networkKernelChannel = new MessageChannel();
 let unpackerWorker = null;
+let lastExchange = null;
 
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
@@ -457,45 +458,45 @@ async function setupReq(push, url) {
         }
         return 'question'
     })()
-    if (!currentContext || (currentContext && currentContext !== nextContext)) {
+    if (!currentContext || (currentContext && currentContext !== nextContext) || (activeExchange !== pageExchange)) {
         if (currentContext) {
             if (nextContext === 'seq') {
                 if (!initialLoad) {
                     document.getElementById('bootStatusIcons').classList.add('d-none');
                 }
-                await new Promise((animationCompleted) => { $.when($('#bootUpDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
+                await new Promise((animationCompleted) => { $.when($('#bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).fadeIn(250)).done(() => animationCompleted(true)); })
             } else if (nextContext.startsWith('app_')) {
                 const appName = nextContext.split('app_').pop().trim();
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
-                    document.getElementById('appBootLogo').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+                    document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
                 } else {
-                    document.getElementById('appBootLogo').src = "/static/img/sequenzia-logo-nav.png"
+                    document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = "/static/img/sequenzia-logo-nav.png"
                 }
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
-                    document.getElementById('appBootBackground').style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+                    document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
                 } else {
-                    document.getElementById('appBootBackground').style.backgroundImage = 'url(/static/img/app-background.jpg)'
+                    document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(/static/img/app-background.jpg)'
                 }
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
-                    document.getElementById('appBootAccent').classList.remove('hidden')
-                    document.getElementById('appBootAccent').querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('hidden')
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
                 } else {
-                    document.getElementById('appBootAccent').classList.add('hidden')
-                    document.getElementById('appBootAccent').querySelector('img').src = "/static/img/kongou-group.png"
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.add('hidden')
+                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = "/static/img/kongou-group.png"
                 }
                 if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
                     document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
-                    document.getElementById('appBootPublisher').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+                    document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
                 } else {
-                    document.getElementById('appBootPublisher').src = "/static/img/acr-logo.png"
+                    document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = "/static/img/acr-logo.png"
                 }
 
-                await new Promise((animationCompleted) => { $.when($('#appBootDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
+                await new Promise((animationCompleted) => { $.when($('#appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).fadeIn(250)).done(() => animationCompleted(true)); })
             } else if (nextContext === 'ticket') {
-                await new Promise((animationCompleted) => { $.when($('#kmsBootDisplay').fadeIn(250)).done(() => animationCompleted(true)); })
+                await new Promise((animationCompleted) => { $.when($('#kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).fadeIn(250)).done(() => animationCompleted(true)); })
             }
         }
     }
@@ -536,7 +537,7 @@ async function requestCompleted (response, url, lastURL, push) {
             type: 'error',
             title: 'No Results Found',
             subtitle: 'Error',
-            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent([],[['nsfw','true']],"/${url}"}); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],"/${url}"}); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
+            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'}); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'}); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
             delay: 10000,
         });
         responseComplete = true
@@ -785,16 +786,19 @@ async function requestCompleted (response, url, lastURL, push) {
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
     }
-    if (nextContext !== currentContext) {
+    if (nextContext !== currentContext || activeExchange !== lastExchange) {
         setTimeout(() => {
-            $.when($('#bootUpDisplay, #kmsBootDisplay, #appBootDisplay').fadeOut(500)).done(() => {
-                document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('appBootDisplay').querySelector('.boot-status-holder').innerText = "JuneApp Platform v1"
-                document.getElementById('kmsBootDisplay').querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
+            $.when($(`#bootUpDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #kmsBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #appBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}`).fadeOut(500)).done(() => {
+                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneApp Platform v1"
+                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
             });
         }, 2000);
     }
-    currentContext = nextContext;
+    if (!(pageTitle.includes(' - No Results') && !initialLoad)) {
+        currentContext = nextContext;
+        lastExchange = activeExchange;
+    }
 
     return false;
 }
@@ -924,7 +928,7 @@ async function getNewContent(remove, add, url, keep) {
         }
         if (nextContext !== currentContext) {
             setTimeout(() => {
-                $('#bootUpDisplay, #kmsBootDisplay, #appBootDisplay').fadeOut(500);
+                $(`#bootUpDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #kmsBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #appBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}`).fadeOut(500);
             }, 2000);
         }
         currentContext = nextContext;

@@ -4274,13 +4274,13 @@ footer .sequenzia-logo {
 
 
 @media (max-width:1943px) {
-    #menuItemMain .user-menu-overlow-icon-1-nep, #menuItemMainSeq .user-menu-overlow-icon-1-nep {
+    .main-menu-items .user-menu-overlow-icon-1-nep {
         display: none;
     }
 }
 
 @media (max-width:1848px) {
-    #menuItemMain .user-menu-overlow-icon-2-nep, #menuItemMainSeq .user-menu-overlow-icon-2-nep {
+    .main-menu-items .user-menu-overlow-icon-2-nep {
         display: none;
     }
 }
@@ -4290,19 +4290,19 @@ footer .sequenzia-logo {
     }
 }
 @media (max-width:1753px) {
-    #menuItemMain .outer-menu-next-episode, #menuItemMainSeq .outer-menu-next-episode {
+    .main-menu-items .outer-menu-next-episode {
         display: none;
     }
 }
 
 @media (max-width:1824px) {
-    #menuItemMain .user-menu-overlow-icon-1, #menuItemMainSeq .user-menu-overlow-icon-1 {
+    .main-menu-items .user-menu-overlow-icon-1 {
         display: none;
     }
 }
 
 @media (max-width:1728px) {
-    #menuItemMain .user-menu-overlow-icon-2, #menuItemMainSeq .user-menu-overlow-icon-2 {
+    .main-menu-items .user-menu-overlow-icon-2 {
         display: none;
     }
 }

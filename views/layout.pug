@@ -114,6 +114,7 @@ html
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     script.
                         activeExchange = "!{active_exchange_id || 'master'}"
+                        pageExchange = "!{active_exchange_id || 'master'}"
                     div#mainMenuBar.top-padding-safety(class=(nsfwEnabled || nsfwContent || (params && params.getAll('nsfw')[0] === 'true')) ? 'menu-nsfw' : '')
                         div#topBarPWA
                         div#userMenu.collapsed.collapse
