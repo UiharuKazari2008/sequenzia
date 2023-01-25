@@ -881,12 +881,12 @@ router.get('/cross-exchange/', sessionVerification, async (req, res) => {
         const exchnage_id = params[0];
         const cookieString = await getCacheData(exchnage_id + '-' + thisUser.master.discord.user.id, false, exchnage_id + '-' + thisUser.master.discord.user.id)
         console.log(cookieString)
-        if (thisUser[exchnage_id] !== undefined && config.This_Exchnage && config.Connected_Exchanges[exchnage_id]) {
+        if (thisUser[exchnage_id] !== undefined && global.This_Exchnage && global.Connected_Exchanges[exchnage_id]) {
             if (params.length > 1) {
-                const request = https.get(config.Connected_Exchanges[exchnage_id].base_url + '/' + params.slice(1).join('/'), {
+                const request = https.get(global.Connected_Exchanges[exchnage_id].base_url + '/' + params.slice(1).join('/'), {
                     headers: {
-                        'X-Sequenzia-Exchange': config.This_Exchnage.id,
-                        'X-Sequenzia-Key': config.Connected_Exchanges[exchnage_id].key,
+                        'X-Sequenzia-Exchange': global.This_Exchnage.id,
+                        'X-Sequenzia-Key': global.Connected_Exchanges[exchnage_id].key,
                         'X-Sequenzia-User': thisUser.master.discord.user.id,
                         'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                         'Cookie': cookieString

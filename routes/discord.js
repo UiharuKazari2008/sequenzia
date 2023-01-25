@@ -575,8 +575,8 @@ async function sessionVerification(req, res, next) {
             res.locals.thisUser = thisUser;
         }
     } else if (req.headers['X-Sequenzia-Exchange'] && req.headers['X-Sequenzia-Key'] && req.headers['X-Sequenzia-User'] &&
-        host.Authorized_Exchange && host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
-        host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key']) {
+        config.Authorized_Exchange && config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
+        config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key']) {
         req.session.userid = req.headers['X-Sequenzia-User'];
         thisUser = app.get('userCache').rows.filter(e => req.headers['X-Sequenzia-User'] === e.userid).map(e => e.data)[0];
         if (thisUser) {
@@ -590,8 +590,8 @@ async function sessionVerification(req, res, next) {
         req.session.lite_mode = true
     }
     if (req.headers['X-Sequenzia-Exchange'] && req.headers['X-Sequenzia-Key'] && req.headers['X-Sequenzia-User'] &&
-        host.Authorized_Exchange && host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
-        host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key'] && thisUser &&
+        config.Authorized_Exchange && config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
+        config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key'] && thisUser &&
         thisUser.master.discord.user.id === req.headers['X-Sequenzia-User']) {
         next()
     } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
