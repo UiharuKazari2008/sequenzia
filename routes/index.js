@@ -25,6 +25,7 @@ const router = express.Router();
 const qrcode = require('qrcode');
 const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
 const https = require('https');
+const http = require('http');
 const remoteSize = require('remote-file-size');
 const fs = require("fs");
 const os = require("os");
@@ -874,31 +875,35 @@ router.use('/icons', async function (req, res) {
     }
 });
 
-router.get('/cross-exchange/', sessionVerification, async (req, res) => {
+router.use('/cross-exchange/:exchnage_id', sessionVerification, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
-        const exchnage_id = params[0];
-        const cookieString = await getCacheData(exchnage_id + '-' + thisUser.master.discord.user.id, false, exchnage_id + '-' + thisUser.master.discord.user.id)
+        const cookieString = await getCacheData(req.params.exchnage_id + '-' + thisUser.master.discord.user.id, false, req.params.exchnage_id + '-' + thisUser.master.discord.user.id)
+        console.log(params)
+        console.log(req.params.exchnage_id)
+        console.log(global.Connected_Exchanges[req.params.exchnage_id])
+        console.log(global.This_Exchange)
         console.log(cookieString)
-        if (thisUser[exchnage_id] !== undefined && global.This_Exchnage && global.Connected_Exchanges[exchnage_id]) {
+        if (thisUser[req.params.exchnage_id] !== undefined && global.This_Exchange && global.Connected_Exchanges[req.params.exchnage_id]) {
             if (params.length > 1) {
-                const request = https.get(global.Connected_Exchanges[exchnage_id].base_url + '/' + params.slice(1).join('/'), {
+                const request = http.get(global.Connected_Exchanges[req.params.exchnage_id].base_url + '/' + params.join('/'), {
                     headers: {
-                        'X-Sequenzia-Exchange': global.This_Exchnage.id,
-                        'X-Sequenzia-Key': global.Connected_Exchanges[exchnage_id].key,
+                        'X-Sequenzia-Exchange': global.This_Exchange.id,
+                        'X-Sequenzia-Key': global.Connected_Exchanges[req.params.exchnage_id].key,
                         'X-Sequenzia-User': thisUser.master.discord.user.id,
                         'User-Agent': 'Sequenzia Cross-Exchange v20.2',
-                        'Cookie': cookieString
+                        'Cookie': cookieString || ''
                     }
                 }, async function (response) {
                     const contentType = response.headers['content-type'];
-                    const getCookies = response.headers['set-cookie'];
-                    console.log(getCookies)
-                    if (getCookies) {
-                        await setCacheData(exchnage_id + '-' + thisUser.master.discord.user.id, getCookies, false, exchnage_id + '-' + thisUser.master.discord.user.id)
-                    }
                     if (contentType) {
+                        const getCookies = response.headers['set-cookie'];
+                        console.log(getCookies)
+                        if (getCookies) {
+                            await setCacheData(req.params.exchnage_id + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.exchnage_id + '-' + thisUser.master.discord.user.id)
+                        }
+                        response.headers['set-cookie'] = undefined;
                         res.setHeader('Content-Type', contentType);
                         response.pipe(res);
                     } else {
@@ -913,9 +918,10 @@ router.get('/cross-exchange/', sessionVerification, async (req, res) => {
                 });
             } else {
                 res.status(400).send('Missing Parameters');
-                printLine('ExchangeDirect', `Invalid Request to proxy, missing a message ID`, 'error');
+                printLine('ExchangeDirect', `Invalid Request to proxy, missing URL`, 'error');
             }
         } else {
+            printLine('ExchangeDirect', `Invalid Request to proxy, missing a valid connected exchnage ID`, 'error');
             res.status(404).end();
         }
 

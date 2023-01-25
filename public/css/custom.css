@@ -2998,7 +2998,9 @@ div#bootBackdropSunrise {
     display: block;
     max-width: 100%;
 }
-
+.user-card-return {
+    margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;
+}
 #mainMenuBar.menu-nsfw nav#topbar {
     border-bottom: .25rem solid #e74a3b!important;
 }
