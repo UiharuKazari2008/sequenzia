@@ -874,7 +874,7 @@ router.use('/icons', async function (req, res) {
     }
 });
 
-router.get('/cross-exchnage/', sessionVerification, async (req, res) => {
+router.get('/cross-exchange/', sessionVerification, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
