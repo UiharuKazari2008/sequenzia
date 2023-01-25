@@ -128,6 +128,7 @@ html
 
     body(id="page-top").sidebar-toggled
         script.
+            let activeExchange = "master"
             if (performaceMode) {
                 document.querySelector('body').classList.add('performance-mode');
                 console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
@@ -245,8 +246,8 @@ html
                                                         img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
                                                     .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                         div.text-center.text-ellipsis.align-middle.mr-auto
-                                                            if (login_source && login_source === 900)
-                                                                span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                            if (login_source && login_source > 101)
+                                                                span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
                                                             else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
                                                                 i.pr-1.fas.fa-check-circle
                                                                 span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}

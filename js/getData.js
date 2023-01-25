@@ -16,6 +16,7 @@ const {md5} = require("request/lib/helpers");
 const Discord_CDN_Accepted_Files = ['jpg','jpeg','jfif','png','webp','gif'];
 const app = require("../app");
 const crypto = require("crypto");
+const request = require("request");
 if (web.Base_URL)
     web.base_url = web.Base_URL;
 
@@ -120,7 +121,42 @@ module.exports = async (req, res, next) => {
 
 
 
-    if (!thisUser.master.sidebar) {
+    if (req.session.active_exchange && req.session.active_exchange !== 'master') {
+        const requesturl = req.originalUrl
+        const cookieString = await getCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
+        request.get(
+            global.Connected_Exchanges[req.session.active_exchange].base_url + requesturl, {
+                headers: {
+                    'x-sequenzia-exchange': global.This_Exchange.id,
+                    'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
+                    'x-sequenzia-user': thisUser.master.discord.user.id,
+                    'x-sequenzia-user-source': req.session.login_source,
+                    'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                    'Cookie': cookieString || ''
+                },
+                json: true
+            }, async function (error, response, body) {
+                if (!error) {
+                    try {
+                        const getCookies = response.headers['set-cookie'];
+                        if (getCookies) {
+                            await setCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
+                        }
+                        if (body) {
+                            res.locals.response = body
+                        } else {
+                            res.status(401).send('Exchange failed to allow login');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        res.status(500).send('Communication with exchange failed');
+                    }
+                } else {
+                    console.error(error)
+                    res.status(500).send('Communication with exchange failed');
+                }
+            });
+    } else if (!thisUser.master.sidebar) {
         res.locals.response = {
             search_prev: search_prev,
             tags_prev: tags_prev,
@@ -1268,6 +1304,8 @@ module.exports = async (req, res, next) => {
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
                     exchange_list: thisUser,
+                    active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                    active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                     call_uri: page_uri,
                     device: ua,
                 }
@@ -1295,6 +1333,8 @@ module.exports = async (req, res, next) => {
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
                     exchange_list: thisUser,
+                    active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                    active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1486,6 +1526,8 @@ module.exports = async (req, res, next) => {
                         next_episode: thisUser.master.kongou_next_episode,
                         applications_list: thisUser.master.applications_list,
                         exchange_list: thisUser,
+                        active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                        active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1510,6 +1552,8 @@ module.exports = async (req, res, next) => {
                         next_episode: thisUser.master.kongou_next_episode,
                         applications_list: thisUser.master.applications_list,
                         exchange_list: thisUser,
+                        active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                        active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1605,6 +1649,8 @@ module.exports = async (req, res, next) => {
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
                     exchange_list: thisUser,
+                    active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                    active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -2889,6 +2935,8 @@ module.exports = async (req, res, next) => {
                             applications_list: thisUser.master.applications_list,
                             ultraCache: messageResults.cache,
                             exchange_list: thisUser,
+                            active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                            active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                             device: ua,
                             folderInfo
                         }
@@ -2949,6 +2997,8 @@ module.exports = async (req, res, next) => {
                             next_episode: thisUser.master.kongou_next_episode,
                             applications_list: thisUser.master.applications_list,
                             exchange_list: thisUser,
+                            active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                            active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                             device: ua,
                         }
                         next();
@@ -2975,6 +3025,8 @@ module.exports = async (req, res, next) => {
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
                     exchange_list: thisUser,
+                    active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                    active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                     device: ua,
                 }
                 next();

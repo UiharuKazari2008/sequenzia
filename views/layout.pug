@@ -112,13 +112,15 @@ html
                             - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
                     else
                         - sliderColorsDefaults = ['[0,255]', '[0,255]', '[0,255]']
+                    script.
+                        activeExchange = "!{active_exchange_id || 'master'}"
                     div#mainMenuBar.top-padding-safety(class=(nsfwEnabled || nsfwContent || (params && params.getAll('nsfw')[0] === 'true')) ? 'menu-nsfw' : '')
                         div#topBarPWA
                         div#userMenu.collapsed.collapse
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
                                 div#menuAccordion.w-100
                                     each exchange, exchange_id in exchange_list
-                                        div.main-menu-items.w-100(class=`collapse ${((appData || (path && (path === '/tvTheater' || path === '/listTheater')))) ? '' : ((params.has('exchange_id') && exchange_id === params.getAll('exchange_id')[0]) || (!params.has('exchange_id') && exchange_id === 'master')) ? 'show' : ''}` data-parent="#menuAccordion" id=`menuItemMain${(exchange_id !== 'master') ? exchange_id :''}${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`).animated--grow-in
+                                        div.main-menu-items.w-100(class=`collapse ${((appData || (path && (path === '/tvTheater' || path === '/listTheater')))) ? '' : ((exchange_id === active_exchange_id) || (!exchange_id === 'master')) ? 'show' : ''}` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id :''}`).animated--grow-in
                                             div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` data-toggle="collapse" data-target=`#menuItemWallet`)
                                                 div.user-info-backdrop.rounded
                                                 div.user-info-border.rounded
@@ -147,7 +149,7 @@ html
                                                         .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                             div.text-center.text-ellipsis.align-middle.mr-auto
                                                                 if (login_source && login_source > 101)
-                                                                    span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                                    span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
                                                                 else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
                                                                     i.pr-1.fas.fa-check-circle
                                                                 span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
@@ -161,7 +163,7 @@ html
                                                 .row.w-100.ml-0.mr-0
                                                     .col-auto.p-0
                                                         if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
-                                                            a(title="Return to Application Menu" class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(exchange_id !== 'master') ? exchange_id :''}`).mr-1
+                                                            a(title="Return to Application Menu" class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;').mr-1
                                                                 i.far.fa-fw.fa-browser
                                                     .col.p-0
                                                         div.w-100(id=`locationAccordion${(exchange_id !== 'master') ? exchange_id :''}`)
@@ -196,7 +198,7 @@ html
                                                                         .input-group-prepend
                                                                             a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationDirect${(exchange_id !== 'master') ? exchange_id :''}` onclick='showAddressInput(); return false;')
                                                                                 i.far.fa-map.align-middle
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Generic Search" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationSearch${(exchange_id !== 'master') ? exchange_id :''}` onclick=`$('#menuItemMain${(exchange_id !== 'master') ? exchange_id :''} .user-menu-height').addClass('dual-search'); return false;`)
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Generic Search" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationSearch${(exchange_id !== 'master') ? exchange_id :''}` onclick=`$('.main-menu-items .user-menu-height').addClass('dual-search'); return false;`)
                                                                                 i.far.fa-chevron-down.align-middle
                                                                         div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
                                                                             input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
@@ -213,7 +215,7 @@ html
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100
                                                                         .input-group-prepend
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick=`hideAddressInput(); $('#menuItemMain${(exchange_id !== 'master') ? exchange_id :''} .user-menu-height').removeClass('dual-search'); return false;`)
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick=`hideAddressInput(); $('.main-menu-items .user-menu-height').removeClass('dual-search'); return false;`)
                                                                                 i.far.fa-search.align-middle
                                                                         input.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Go to Location' aria-label='Go to Location' id=`directURI${(exchange_id !== 'master') ? exchange_id : ''}`)
                                                                         input(type="submit" style="display: none" onclick=`getNewURIContent("directURI!{(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
@@ -285,7 +287,7 @@ html
                                                         a.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemSettings${(exchange_id !== 'master') ? exchange_id :''}`)
                                                             i.fa-light.fa-fw.fa-cog
                                                             | Settings
-                                        div.w-100(class=`collapse ${((path && (path === '/tvTheater' || path === '/listTheater')) && ((params.has('exchange_id') && exchange_id === params.getAll('exchange_id')[0]) || (!params.has('exchange_id') && exchange_id === 'master'))) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`).kms-main-menu.animated--grow-in
+                                        div.w-100(class=`collapse ${((path && (path === '/tvTheater' || path === '/listTheater')) && ((exchange_id === active_exchange_id) || (!exchange_id === 'master'))) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`).kms-main-menu.animated--grow-in
                                             .d-flex.w-100
                                                 if (exchange.kongou_next_episode)
                                                     div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
@@ -293,11 +295,11 @@ html
                                                 div.position-relative.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100#appMenuRow1.align-items-center
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
-                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMainSeq${(exchange_id !== 'master') ? exchange_id :''}`).d-flex.align-items-center.py-0
+                                                            a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;').d-flex.align-items-center.py-0
                                                                 i.fas.fa-house.fa-fw.d-none
                                                                 img.my-2.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
                                                         else
-                                                            a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                                 i.fas.fa-arrow-left.fa-fw
                                                         h4.text-primary.ml-auto.mb-0
                                                             img.kms-menu-logo(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
@@ -305,7 +307,7 @@ html
                                                         if (exchange.kongou_next_episode)
                                                             div.inner-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
-                                                        if (theaters && theaters.length > 0)
+                                                        if (exchange.media_groups && exchange.media_groups.length > 0)
                                                             .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
                                                                 a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href=`#/listTheater?watch_history=none`)
                                                                     i.fa-light.fa-forward
@@ -329,7 +331,7 @@ html
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemUpload${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
                                                         i.fas.fa-upload.mr-2
@@ -367,7 +369,7 @@ html
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick=`getAlbumDirectory("${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-globe-americas
@@ -416,7 +418,7 @@ html
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemArtists${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Artist Index" href='#/artists?').ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-grid-2
@@ -468,7 +470,7 @@ html
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemHistory${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-grid-2
@@ -491,7 +493,7 @@ html
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemApps${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
                                                         i.fas.fa-browsers.mr-2
@@ -528,8 +530,8 @@ html
                                                         | Shelves
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                                        if (theaters && theaters.length > 0)
-                                                            each thisTheater in theaters
+                                                        if (exchange.media_groups && exchange.media_groups.length > 0)
+                                                            each thisTheater in exchange.media_groups
                                                                 //if (thisTheater.type === 2)
                                                                 a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                                     i.fa-light(class=`${thisTheater.icon}`)
@@ -542,10 +544,10 @@ html
                                                             h2 No Theaters Available
                                     div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
                                         div.user-card-list.pb-1.m-0(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                            a.user-card-return.d-flex.align-items-center(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(params.has('exchange_id')) ? params.getAll('exchange_id')[0] : ''}`)
+                                            a.user-card-return.d-flex.align-items-center(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                 i.fas.fa-arrow-left.fa-fw
                                             each exchange, exchange_id in exchange_list
-                                                div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
+                                                div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
                                                     div.user-info-backdrop.rounded
                                                     div.user-info-border.rounded
                                                     div.user-info-overlay.position-absolute.rounded
@@ -573,7 +575,7 @@ html
                                                             .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                                 div.text-center.text-ellipsis.align-middle.mr-auto
                                                                     if (login_source && login_source > 101)
-                                                                        span.badge.font-weight-bold.text-uppercase.badge-danger Insecure Login Method
+                                                                        span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
                                                                     else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
                                                                         i.pr-1.fas.fa-check-circle
                                                                     span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
@@ -596,7 +598,7 @@ html
                                     div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 .input-group.ml-2(style='max-width: 180px;')
                                                     input#expressLoginCode(type='text' placeholder='A1B2C3' style="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
@@ -632,7 +634,7 @@ html
                                     div#menuItemTools.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 h4.text-primary.ml-auto.mb-0
                                                     i.fas.fa-toolbox.mr-2
@@ -1643,9 +1645,9 @@ html
                                         a.align-items-center.d-flex(title="Disable Performance Mode" href='#_' onClick=`disablePerformanceMode(); return false;`)
                                             i.fas.fa-bolt
                                     li.nav-item.no-arrow.d-flex.align-items-center
-                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
+                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`goToMainMain(); $('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
-                                            img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                            img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
 
                         //div#topbarAccent.show-menu-open.hidden
                         div#topbarUserBackground.show-menu-open.hidden

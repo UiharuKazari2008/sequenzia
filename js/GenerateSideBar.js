@@ -24,6 +24,8 @@ module.exports = async (req, res, next) => {
                 disabled_channels: thisUser.master.disabled_channels,
                 discord: thisUser.master.discord,
                 exchange_list: thisUser,
+                active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                 user: thisUser.master.user,
                 login_source: req.session.login_source,
                 webconf: webconfig

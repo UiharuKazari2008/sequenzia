@@ -4220,7 +4220,14 @@ function getLocation(url, tags) {
         return l
     }
 }
-let activeExchange = 'master';
+if (!activeExchange)
+    activeExchange = 'master';
+function goToMainMain() {
+    let seqMainMenu = $(`#menuItemMainSeq${(activeExchange !== 'master') ? activeExchange : ''}`);
+    if (seqMainMenu.length === 0)
+        seqMainMenu = $(`#menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`);
+    seqMainMenu.collapse('show');
+}
 function switchExchange(exchange_id) {
     $.ajax({async: true,
         type: "get",
@@ -4232,10 +4239,7 @@ function switchExchange(exchange_id) {
         success: function (res, txt, xhr) {
             if (xhr.status < 400) {
                 activeExchange = exchange_id;
-                let seqMainMenu = $(`#menuItemMainSeq${exchange_id}`);
-                if (seqMainMenu.length === 0)
-                    seqMainMenu = $(`#menuItemMain${exchange_id}`);
-                seqMainMenu.collapse('show');
+                goToMainMain();
             } else {
                 $.snack('error', `Failed to change exchange!`, 10000)
                 console.log(res.responseText);

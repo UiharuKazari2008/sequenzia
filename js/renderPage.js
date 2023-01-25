@@ -45,6 +45,8 @@ module.exports = async (req, res, next) => {
         theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
         applications_list: thisUser.master.applications_list,
         exchange_list: thisUser,
+        active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+        active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
         ...res.locals.response,
         webconf: web,
         query: req.query
@@ -202,7 +204,9 @@ module.exports = async (req, res, next) => {
             res.render('home_lite', results);
         }
     } else {
-        if (results.call_uri === '/gallery') {
+        if (req.headers['x-sequenzia-exchange']) {
+            res.json(results);
+        } else if (results.call_uri === '/gallery') {
             res.render('gallery_list', results);
         } else if (results.call_uri === '/listTheater') {
             res.render('episode_list', results);

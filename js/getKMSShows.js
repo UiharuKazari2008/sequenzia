@@ -234,6 +234,8 @@ module.exports = async (req, res, next) => {
                             next_episode: thisUser.master.kongou_next_episode,
                             applications_list: thisUser.master.applications_list,
                             exchange_list: thisUser,
+                            active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                            active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                             device: ua,
                             folderInfo: null
                         }
@@ -292,6 +294,8 @@ module.exports = async (req, res, next) => {
                             next_episode: thisUser.master.kongou_next_episode,
                             applications_list: thisUser.master.applications_list,
                             exchange_list: thisUser,
+                            active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                            active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                             device: ua,
                         }
                         next();

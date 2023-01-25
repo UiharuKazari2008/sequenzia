@@ -304,6 +304,7 @@ router.get('/exchange/:id', sessionVerification, async (req, res) => {
     if (req.params.id === 'master') {
         req.session.active_exchange = undefined;
         delete req.session.active_exchange
+        res.status(200).send('Exchange Login to Master');
     } else if (thisUser[req.params.id] && config.This_Exchange && config.Connected_Exchanges[req.params.id]) {
         const cookieString = await getCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.params.id + '-' + thisUser.master.discord.user.id)
         request.get(global.Connected_Exchanges[req.params.id].base_url + '/ping?json=true', {
@@ -320,14 +321,12 @@ router.get('/exchange/:id', sessionVerification, async (req, res) => {
             if (!error) {
                 try {
                     const getCookies = response.headers['set-cookie'];
-                    console.log(response.headers)
                     if (getCookies) {
                         await setCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.id + '-' + thisUser.master.discord.user.id)
                     }
-                    console.log(body)
                     if (body.loggedin) {
                         req.session.active_exchange = req.params.id;
-                        res.status(200).send('Exchange Login OK');
+                        res.status(200).send('Exchange Login OK as ' + body.user.username);
                     } else {
                         res.status(401).send('Exchange failed to allow login');
                     }
@@ -647,7 +646,6 @@ function sessionTransfer(req) {
 }
 async function sessionVerification(req, res, next) {
     let thisUser = null;
-    console.log(req.headers)
     if (req.session && req.session.userid) {
         thisUser = app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
         if (thisUser) {
@@ -662,7 +660,7 @@ async function sessionVerification(req, res, next) {
             res.locals.thisUser = thisUser;
             req.session.loggedin = true;
             req.session.esm_verified = true;
-            req.session.login_source = req.headers['x-sequenzia-user-Source'] || 105;
+            req.session.login_source = req.headers['x-sequenzia-user-source'] || 105;
             printLine('PassportCheck', `Cross-Instance Session created for ${thisUser.master.discord.user.username}, No ESM Checks will be done!`, 'warn');
         }
     }
@@ -784,7 +782,7 @@ async function crossSessionVerification(req, res, next) {
                     'x-sequenzia-exchange': global.This_Exchange.id,
                     'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
                     'x-sequenzia-user': thisUser.master.discord.user.id,
-                    'x-sequenzia-user-Source': req.session.login_source,
+                    'x-sequenzia-user-source': req.session.login_source,
                     'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                     'Cookie': cookieString || ''
                 },
@@ -793,11 +791,9 @@ async function crossSessionVerification(req, res, next) {
                 if (!error) {
                     try {
                         const getCookies = response.headers['set-cookie'];
-                        console.log(getCookies)
                         if (getCookies) {
                             await setCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
                         }
-                        console.log(body)
                         if (body.loggedin) {
                             next();
                         } else {

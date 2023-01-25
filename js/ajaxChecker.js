@@ -9,7 +9,9 @@ module.exports = async (req, res, next) => {
 
     if (thisUser.master && thisUser.master.discord && thisUser.master.cache && thisUser.master.cache.channels_view) {
         const call_uri = req.originalUrl.split('/')[1].split('?')[0]
-        if (req.session && req.session.lite_mode === true) {
+        if (req.headers['x-sequenzia-exchange']) {
+            next();
+        } else if (req.session && req.session.lite_mode === true) {
             next();
         } else if (req.query && req.query['lite_mode'] === 'true') {
             req.session.lite_mode = true
@@ -30,6 +32,8 @@ module.exports = async (req, res, next) => {
                 theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                 next_episode: thisUser.master.kongou_next_episode,
                 exchange_list: thisUser,
+                active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                 sidebar: thisUser.master.sidebar,
                 applications_list: thisUser.master.applications_list,
                 history: history_urls.rows
@@ -51,6 +55,8 @@ module.exports = async (req, res, next) => {
                 artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
                 theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                 exchange_list: thisUser,
+                active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+                active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                 next_episode: thisUser.master.kongou_next_episode,
                 applications_list: thisUser.master.applications_list,
             })

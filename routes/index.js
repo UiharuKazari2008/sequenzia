@@ -107,6 +107,8 @@ router.get('/offline', sessionVerification, (req, res, next) => {
             sidebar: thisUser.master.sidebar,
             applications_list: thisUser.master.applications_list,
             exchange_list: thisUser,
+            active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+            active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
         })
     } else {
         res.status(401).end();
@@ -887,7 +889,7 @@ router.use('/cross-exchange/:exchnage_id', sessionVerification, async (req, res)
                         'x-sequenzia-exchange': global.This_Exchange.id,
                         'x-sequenzia-key': global.Connected_Exchanges[req.params.exchnage_id].key,
                         'x-sequenzia-user': thisUser.master.discord.user.id,
-                        'x-sequenzia-user-Source': req.session.login_source,
+                        'x-sequenzia-user-source': req.session.login_source,
                         'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                         'Cookie': cookieString || ''
                     }
