@@ -97,92 +97,100 @@ function ddw(){
 }
 
 function getNewContent(remove, add, url) {
+    let _url = (() => {
+        try {
+            if (url) { return '/' + url.split('://').pop().split('/').slice(1).join('/') }
+            if (window.location.hash.substring(1).length > 4) { return '/' + window.location.hash.substring(1).split('://').pop().split('/').slice(1).join('/') }
+            return null
+        } catch (e) {
+            console.error("Failed to access URL data, falling back")
+            console.error(e)
+            return null
+        }
+    })()
+    if (!(_url && _url.startsWith('/') && _url.substring(1).length > 0 && _url.substring(1).split('?')[0].length > 0)) {
+        $.toast({
+            type: 'error',
+            title: 'Navigation Failure',
+            subtitle: 'Now',
+            content: `Invalid Path JOS:/${_url}`,
+            delay: 5000,
+        });
+        responseComplete = true
+        return false;
+    }
+    try {
+        let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
+        const _pathname = _url.split('?')[0];
+        if (add || remove) {
+            for (let e of remove) {
+                _params.delete(e)
+            }
+            for (let e of add) {
+                if (_params.has(e[0])) {
+                    _params.delete(e[0])
+                }
+                _params.set(e[0], decodeURLRecursively(e[1]))
+            }
+
+        }
+        if (_params.has("to_exchange")) {
+            activeExchange = _params.getAll("to_exchange")[0]
+            _params.delete("to_exchange");
+        } else if (_params.has("channel")) {
+            const next_exchange = channel_to_exchange[_params.getAll('channel')[0]];
+            if (next_exchange && next_exchange !== activeExchange)
+                activeExchange = next_exchange
+        }
+        _url = `${_pathname}?${_params.toString()}`
+    } catch (e) {
+        $.toast({
+            type: 'error',
+            title: 'Navigation Failure',
+            subtitle: 'Now',
+            content: `Parser Failure${(e && e.message) ? '\n' + e.message : ''}`,
+            delay: 5000,
+        });
+        responseComplete = true
+        return false;
+    }
+    console.log(_url);
     if (url.startsWith('/tvTheater') || url.startsWith('/listTheater')) {
-        document.getElementById('kmsBootDisplay').classList.remove('d-none');
+        document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('d-none');
     } else if (url.startsWith('/app')) {
         const appName = url.split('/app/').pop().split('/')[1].split('app_').pop().split('?')[0].trim();
         if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
             document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
-            document.getElementById('appBootLogo').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+            document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
         } else {
-            document.getElementById('appBootLogo').src = "/static/img/sequenzia-logo-nav.png"
+            document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/sequenzia-logo-nav.png"
         }
         if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
             document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
-            document.getElementById('appBootBackground').style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+            document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
         } else {
-            document.getElementById('appBootBackground').style.backgroundImage = 'url(/static/img/app-background.jpg)'
+            document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + '/static/img/app-background.jpg)'
         }
         if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
             document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
-            document.getElementById('appBootAccent').classList.remove('hidden')
-            document.getElementById('appBootAccent').querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+            document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('hidden')
+            document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
         } else {
-            document.getElementById('appBootAccent').classList.add('hidden')
-            document.getElementById('appBootAccent').querySelector('img').src = "/static/img/kongou-group.png"
+            document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.add('hidden')
+            document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/kongou-group.png"
         }
         if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
             document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
-            document.getElementById('appBootPublisher').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+            document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
         } else {
-            document.getElementById('appBootPublisher').src = "/static/img/acr-logo.png"
+            document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/acr-logo.png"
         }
 
-        document.getElementById('appBootDisplay').classList.remove('d-none');
+        document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('d-none');
     } else {
-        document.getElementById('bootUpDisplay').classList.remove('d-none');
+        document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('d-none');
     }
     $.when($('#bootBackdrop').fadeIn(1000)).done(() => {
-        let _url = (() => {
-            try {
-                if (url) { return url.split('://' + window.location.host).pop() }
-                if (window.location.hash.substring(1).length > 4) { return window.location.hash.substring(1).split('://' + window.location.host).pop() }
-                return null
-            } catch (e) {
-                console.error("Failed to access URL data, falling back")
-                console.error(e)
-                return null
-            }
-        })()
-        if (_url && _url.startsWith('/') && _url.substring(1).length > 0 && _url.substring(1).split('?')[0].length < 0) {
-            $.toast({
-                type: 'error',
-                title: 'Navigation Failure',
-                subtitle: 'Now',
-                content: `Invalid Path JOS:/${_url}`,
-                delay: 5000,
-            });
-            responseComplete = true
-            return false;
-        }
-        try {
-            let _params = new URLSearchParams(_url.split('?').splice(1).join('?'));
-            const _pathname = _url.split('?')[0];
-
-            if (add || remove) {
-                for (let e of remove) {
-                    _params.delete(e)
-                }
-                for (let e of add) {
-                    if (_params.has(e[0])) {
-                        _params.delete(e[0])
-                    }
-                    _params.set(e[0], decodeURLRecursively(e[1]))
-                }
-                _url = `${_pathname}?${_params.toString()}`
-            }
-        } catch (e) {
-            $.toast({
-                type: 'error',
-                title: 'Navigation Failure',
-                subtitle: 'Now',
-                content: `Parser Failure${(e && e.message) ? '\n' + e.message : ''}`,
-                delay: 5000,
-            });
-            responseComplete = true
-            return false;
-        }
-        console.log(_url);
         window.location.href = `/juneOS#${_url}`;
     })
 }

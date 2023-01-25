@@ -36,9 +36,12 @@ html
                         meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
                         link(rel='preload', href=`${image[1]}` as='image')
         script.
-            const initalExchange = "!{active_exchange_id || 'master'}"
+            let initalExchange = "!{active_exchange_id || 'master'}"
             let pageExchange = "!{active_exchange_id || 'master'}"
             let activeExchange = "!{active_exchange_id || 'master'}"
+            let channel_to_exchange = {}
+            const exchange_to_channels = {!{Object.entries(exchange_list).map(e => `${e[0]}: [${e[1].discord.channels.read.map(e => "'" + e + "'")}]`)}};
+            Object.entries(exchange_to_channels).map(e => e[1].map(f => channel_to_exchange[f.toString()] = e[0]));
         meta(charset='utf-8')
         meta(http-equiv='X-UA-Compatible', content='IE=edge')
         meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=yes, viewport-fit=cover, user-scalable=no')
@@ -255,8 +258,8 @@ html
                                 i.px-2.fas.fa-folder
                                 i.px-2.fas.fa-archive
                         div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                            span.boot-status-holder.font-weight-bolder Waiting for core...
-                            .mt-1.boot-icons-holder
+                            span.boot-status-holder.font-weight-bolder JuneOS Platform v20
+                            .mt-1.boot-icons-holder.d-none
                                 i.fas.fa-circle(style="opacity: 50%").pl-2
                                 i.fas.fa-circle(style="opacity: 50%").pl-2
                                 i.fas.fa-circle(style="opacity: 50%").pl-2
@@ -265,65 +268,80 @@ html
                         div.boot-author-loog.p-2.position-absolute.bottom-left
                             img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         script.
-            if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'none';
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.add('d-none');
+            (async () => {
+                if (window.location.hash.split("?").length > 1) {
+                    const _p = new URLSearchParams(window.location.hash.split("?").splice(1).join("?"));
+                    if (_p.has("to_exchange")) {
+                        activeExchange = _p.getAll("to_exchange")[0]
+                        _p.delete("to_exchange");
+                        window.history.replaceState({}, null, `/juneOS#${window.location.hash.split("?")[0]}?${_p.toString()}`);
+                    }
+                    inferExchange(`${window.location.hash.split("?")[0]}?${_p.toString()}`, ((_p.has("to_exchange")) ? activeExchange : undefined), true);
+                    pageExchange = activeExchange
+                }
+                if (location.hash.startsWith('#/tvTheater') || location.hash.startsWith('#/listTheater')) {
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'none';
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').removeAttribute('id');
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').removeAttribute('id');
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.add('d-none');
 
-                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
-                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
-                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
-                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
-                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
-            } else if (location.hash.startsWith('#/app')) {
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'none';
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').removeAttribute('id');
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.add('d-none');
+                    document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
+                    document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                    document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                    document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
+                    document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+                } else if (location.hash.startsWith('#/app')) {
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'none';
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').removeAttribute('id');
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').removeAttribute('id');
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.add('d-none');
 
-                const appName = location.hash.split('/app/').pop().split('/')[1].split('app_').pop().split('?')[0].trim();
-                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
-                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
-                    document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
-                } else {
-                    document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/sequenzia-logo-nav.png"
-                }
-                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
-                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
-                    document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
-                } else {
-                    document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + '/static/img/app-background.jpg)'
-                }
-                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
-                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
-                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('hidden')
-                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
-                } else {
-                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.add('hidden')
-                    document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/kongou-group.png"
-                }
-                if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
-                    document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
-                    document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
-                } else {
-                    document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/acr-logo.png"
-                }
+                    const appName = location.hash.split('/app/').pop().split('/')[1].split('app_').pop().split('?')[0].trim();
+                    if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`) &&
+                        document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).hasAttribute('content')) {
+                        document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashLogo"]`).getAttribute('content')
+                    } else {
+                        document.getElementById('appBootLogo' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/sequenzia-logo-nav.png"
+                    }
+                    if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`) &&
+                        document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).hasAttribute('content')) {
+                        document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + document.querySelector(`meta[name="seq-app-meta-${appName}_splashBg"]`).getAttribute('content') + ')';
+                    } else {
+                        document.getElementById('appBootBackground' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.backgroundImage = 'url(' + ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + '/static/img/app-background.jpg)'
+                    }
+                    if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`) &&
+                        document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).hasAttribute('content')) {
+                        document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.remove('hidden')
+                        document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashAccent"]`).getAttribute('content')
+                    } else {
+                        document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).classList.add('hidden')
+                        document.getElementById('appBootAccent' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('img').src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/kongou-group.png"
+                    }
+                    if (document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`) &&
+                        document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).hasAttribute('content')) {
+                        document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = document.querySelector(`meta[name="seq-app-meta-${appName}_splashPublisher"]`).getAttribute('content')
+                    } else {
+                        document.getElementById('appBootPublisher' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).src = ((activeExchange && activeExchange !== 'master') ? '/cross-exchange/' + activeExchange : '') + "/static/img/acr-logo.png"
+                    }
 
-                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
-                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
-                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
-                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
-                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
-            } else {
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
-            }
+                    document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
+                    document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                    document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                    document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
+                    document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+                } else {
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).style.display = 'flex';
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Waiting for core..."
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').classList.remove('d-none');
+                    document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
+                }
+                if ("!{active_exchange_id || 'master'}" !== activeExchange)
+                    await switchExchange(activeExchange)
+            })()
+
         #contextSwitchIndicator.animated--fade-in(style="display: none;")
             .context-switch-container.mb-auto.mt-auto.ml-auto.mr-auto.rounded.p-2.px-3
                 .context-switch-items.fa-2x
@@ -431,11 +449,11 @@ html
                                                                 input#dropdownSearch2.form-control.top-menu-search-bar.border-0(type='text' placeholder='Search' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
                                                                 input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2"); return false;`)
                                                                 .input-group-append
-                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
+                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", null, "/gallery"); return false;`)
                                                                         i.far.fa-image.fa-sm.align-middle.nav-item
-                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/files"); return false;`)
+                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", null, "/files"); return false;`)
                                                                         i.far.fa-folder.fa-sm.align-middle.nav-item
-                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/artists"); return false;`)
+                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Artists" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", null, "/artists"); return false;`)
                                                                         i.far.fa-sm.align-middle.nav-item.fa-address-book
                                                     div#locationTags(class="collapse" data-parent="#locationAccordion")
                                                         form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
@@ -448,9 +466,9 @@ html
                                                                     a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelp2Modal')
                                                                         i.far.fa-question-circle.align-middle
                                                                 input#dropdownSearch3.form-control.top-menu-search-bar.border-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
-                                                                input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
+                                                                input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", null); return false;`)
                                                                 .input-group-append
-                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
+                                                                    a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", null, "/gallery"); return false;`)
                                                                         i.far.fa-globe.fa-sm.align-middle.nav-item.input-group-append
                                                     div#locationDirect(class="collapse show" data-parent="#locationAccordion")
                                                         form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
@@ -948,7 +966,7 @@ html
                                             div.d-flex.flex-column.justify-content-center
                                                 h2.mb-1
                                                     if (this_exchnage !== 'master')
-                                                        i.fas.fa-globe.px-1
+                                                        i.fas.fa-link-horizontal.px-1
                                                     if (thisServer.login === 1 )
                                                         i.fas.fa-key.px-1
                                                     span #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})

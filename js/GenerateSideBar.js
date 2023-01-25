@@ -5,9 +5,7 @@ module.exports = async (req, res, next) => {
     if (!thisUser)
         res.status(403).send('User account can not correlated to a valid user!')
 
-    if (req.headers && !req.headers['x-requested-page'] && !req.originalUrl.split('/')[1].split('?')[0].length === 0) {
-        next();
-    } else if (thisUser.master && thisUser.master.sidebar) {
+    if (thisUser.master && thisUser.master.sidebar) {
         if (req.headers['x-requested-page'] === 'SeqSidebar') {
             res.render('sidebar', {
                 url: req.url,
@@ -24,6 +22,7 @@ module.exports = async (req, res, next) => {
                 disabled_channels: thisUser.master.disabled_channels,
                 discord: thisUser.master.discord,
                 exchange_list: thisUser,
+                is_remote_exchange: req.headers['x-sequenzia-exchange'] || false,
                 active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
                 active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                 user: thisUser.master.user,

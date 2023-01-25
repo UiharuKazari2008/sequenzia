@@ -827,6 +827,10 @@ async function handleExchange(req, res, next) {
                 'Cookie': cookieString || ''
             }
         }
+        if (req.headers['x-requested-page'])
+            options.headers['x-requested-page'] = req.headers['x-requested-page']
+        if (req.headers['x-requested-with'])
+            options.headers['x-requested-with'] = req.headers['x-requested-with']
         if (req.body && Object.keys(req.body).length > 0) {
             options.body = req.body;
             options.json = true;

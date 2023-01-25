@@ -32,13 +32,14 @@ module.exports = async (req, res, next) => {
                 theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                 next_episode: thisUser.master.kongou_next_episode,
                 exchange_list: thisUser,
+                is_remote_exchange: req.headers['x-sequenzia-exchange'] || false,
                 active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
                 active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                 sidebar: thisUser.master.sidebar,
                 applications_list: thisUser.master.applications_list,
                 history: history_urls.rows
             })
-        } else if (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' && req.headers['x-requested-page'] || (req.query && (req.query.json || req.query.responseType))) {
+        } else if (call_uri === 'homeImage' || (req.headers && req.headers['x-requested-with'] && req.headers['x-requested-with'] === 'SequenziaXHR' && req.headers['x-requested-page'] || (req.query && (req.query.json || req.query.responseType)))) {
             next();
         } else if ( call_uri === 'home' || call_uri === '' ) {
             res.render('home_lite', {
@@ -55,6 +56,7 @@ module.exports = async (req, res, next) => {
                 artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
                 theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                 exchange_list: thisUser,
+                is_remote_exchange: req.headers['x-sequenzia-exchange'] || false,
                 active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
                 active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                 next_episode: thisUser.master.kongou_next_episode,

@@ -274,7 +274,6 @@ function completeBannerCropper() {
             },
             success: function (res, txt, xhr) {
                 if (xhr.status < 400) {
-                    console.log(res);
                     if (confirm) { $.snack('success', `${res}`, 5000) };
                 } else {
                     if (confirm) { $.snack('error', `${res}`, 5000) };
@@ -348,7 +347,6 @@ function completeAvatarCropper() {
             },
             success: function (res, txt, xhr) {
                 if (xhr.status < 400) {
-                    console.log(res);
                     if (confirm) { $.snack('success', `${res}`, 5000) };
                 } else {
                     if (confirm) { $.snack('error', `${res}`, 5000) };
@@ -390,7 +388,6 @@ function removeUserAvatar() {
         },
         success: function (res, txt, xhr) {
             if (xhr.status < 400) {
-                console.log(res);
                 if (confirm) { $.snack('success', `${res}`, 5000) };
             } else {
                 if (confirm) { $.snack('error', `${res}`, 5000) };
@@ -420,7 +417,6 @@ function removeUserBanner() {
         },
         success: function (res, txt, xhr) {
             if (xhr.status < 400) {
-                console.log(res);
                 if (confirm) { $.snack('success', `${res}`, 5000) };
             } else {
                 if (confirm) { $.snack('error', `${res}`, 5000) };
@@ -446,6 +442,23 @@ async function writeLoadingBar(){
         $('#loadingSpinner').fadeOut(500)
     }
     return false;
+}
+function inferExchange(url, exchange, fast) {
+    if ((url || exchange) && channel_to_exchange) {
+        const _params = new URLSearchParams(url.split('?').splice(1).join('?'));
+        console.log(_params.toString())
+        if (exchange || (_params.has('channel') && channel_to_exchange[_params.getAll('channel')[0]])) {
+            const next_exchange = exchange || channel_to_exchange[_params.getAll('channel')[0]];
+            if (next_exchange !== activeExchange) {
+                if (fast) {
+                    activeExchange = next_exchange
+                    return next_exchange
+                }
+                return (async () => await switchExchange(next_exchange, true))();
+            }
+        }
+    }
+    return true;
 }
 async function setupReq(push, url) {
     nextContext = (() => {
@@ -780,26 +793,27 @@ async function requestCompleted (response, url, lastURL, push) {
             document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
             $('#bootBackdrop').fadeOut(500);
         }
-        initialLoad = false
         if(!isTouchDevice()) {
             $('[data-tooltip="tooltip"]').tooltip()
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
     }
-    if (nextContext !== currentContext || activeExchange !== lastExchange) {
+    goToMainMain();
+    if (nextContext !== currentContext || activeExchange !== lastExchange || initialLoad) {
+        const contextSuffix = ((activeExchange && activeExchange !== 'master') || (initialLoad && initalExchange !== 'master')) ? (initialLoad) ? initalExchange : activeExchange : '';
         setTimeout(() => {
-            $.when($(`#bootUpDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #kmsBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #appBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}`).fadeOut(500)).done(() => {
-                document.getElementById('bootUpDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('appBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "JuneApp Platform v1"
-                document.getElementById('kmsBootDisplay' + ((activeExchange && activeExchange !== 'master') ? activeExchange : '')).querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
+            $.when($(`#bootUpDisplay${contextSuffix}, #kmsBootDisplay${contextSuffix}, #appBootDisplay${contextSuffix}`).fadeOut(500)).done(() => {
+                document.getElementById('bootUpDisplay' + contextSuffix).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
+                document.getElementById('appBootDisplay' + contextSuffix).querySelector('.boot-status-holder').innerText = "JuneApp Platform v1"
+                document.getElementById('kmsBootDisplay' + contextSuffix).querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
             });
         }, 2000);
     }
-    if (!(pageTitle.includes(' - No Results') && !initialLoad)) {
+    if (!(pageTitle.includes(' - No Results'))) {
         currentContext = nextContext;
         lastExchange = activeExchange;
     }
-
+    initialLoad = false
     return false;
 }
 
@@ -833,6 +847,19 @@ async function getNewContent(remove, add, url, keep) {
         });
         responseComplete = true
         return false;
+    }
+    const exchange_ok = initialLoad || offlinePage || (await inferExchange(url));
+    if (!exchange_ok) {
+        $.toast({
+            type: 'error',
+            title: 'Pre-Navigation Failure',
+            subtitle: 'Now',
+            content: `The requested exchange is not available! Please contact the administrator of that exchange`,
+            delay: 10000,
+        });
+        responseComplete = true;
+        initialLoad = false;
+        return true;
     }
     setupReq(undefined, _url)
     let _params = undefined;
@@ -882,7 +909,6 @@ async function getNewContent(remove, add, url, keep) {
     if (initialLoad)
         document.getElementById('bootLoaderStatus').innerText = 'Sanitizing Path...';
 
-    console.log(_url);
     if (offlinePage) {
         if ((_url.startsWith('/gallery') || _url.startsWith('/files') || _url.startsWith('/tvTheater') || _url.startsWith('/listTheater'))) {
             let titleBarHTML;
@@ -1044,7 +1070,6 @@ function getMoreContent(remove, add, url, keep) {
         responseComplete = true
         return false;
     }
-    console.log(_url);
     requestInprogress = $.ajax({async: true,
         url: _url,
         type: "GET", data: '',
@@ -1074,7 +1099,7 @@ function getMoreContent(remove, add, url, keep) {
     });
     return false;
 }
-function getSearchContent(element, tagsElement, url) {
+async function getSearchContent(element, tagsElement, exchange, url) {
     const searchText = document.getElementById(element).value;
     const searchTags = (tagsElement) ? document.getElementById(tagsElement).value : undefined;
     if ((searchText !== null && searchText !== '') || (searchTags && searchTags !== '')) {
@@ -1143,6 +1168,18 @@ function getSearchContent(element, tagsElement, url) {
             });
             responseComplete = true
             return false;
+        }
+        const exchange_ok = !exchange || (await inferExchange(url, exchange));
+        if (!exchange_ok) {
+            $.toast({
+                type: 'error',
+                title: 'Pre-Navigation Failure',
+                subtitle: 'Now',
+                content: `The requested exchange is not available! Please contact the administrator of that exchange`,
+                delay: 10000,
+            });
+            responseComplete = true;
+            return true;
         }
         setupReq(undefined, _url)
         requestInprogress = $.ajax({async: true,
@@ -1348,18 +1385,18 @@ function getNewURIContent(element, type) {
     }
     return false;
 }
-function hideAddressInput() {
-    document.getElementById("directURI").value = '';
+function hideAddressInput(suffix) {
+    document.getElementById("directURI" + suffix || '').value = '';
     return false;
 }
-function showAddressInput() {
+function showAddressInput(suffix) {
     let _uri = new URLSearchParams(document.location.hash.substring(1).split('?').pop());
     _uri.delete('_h')
     if (!_uri.has('folder') && document.getElementById("folderPath")) {
         _uri.delete('channel');
         _uri.set('folder', document.getElementById("folderPath").innerText)
     }
-    document.getElementById("directURI").value = decodeURIComponent(_uri.toString());
+    document.getElementById("directURI" + suffix || '').value = decodeURIComponent(_uri.toString());
     return false;
 }
 function feedContent(type) {
@@ -4226,33 +4263,42 @@ function getLocation(url, tags) {
 }
 if (!activeExchange)
     activeExchange = 'master';
-function goToMainMain() {
+function goToMainMain(indirect) {
     let seqMainMenu = $(`#menuItemMainSeq${(activeExchange !== 'master') ? activeExchange : ''}`);
-    if (seqMainMenu.length === 0)
+    if (seqMainMenu.length === 0 || indirect)
         seqMainMenu = $(`#menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`);
     seqMainMenu.collapse('show');
 }
-function switchExchange(exchange_id) {
-    $.ajax({async: true,
-        type: "get",
-        url: "/discord/exchange/" + exchange_id,
-        cache: false,
-        headers: {
-            'X-Requested-With': 'SequenziaXHR'
-        },
-        success: function (res, txt, xhr) {
-            if (xhr.status < 400) {
-                activeExchange = exchange_id;
-                goToMainMain();
-            } else {
-                $.snack('error', `Failed to change exchange!`, 10000)
-                console.log(res.responseText);
+function switchExchange(exchange_id, automatic) {
+    return new Promise(ok => {
+        $.ajax({async: true,
+            type: "get",
+            url: "/discord/exchange/" + exchange_id,
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    activeExchange = exchange_id;
+                    if (!automatic)
+                        goToMainMain();
+                    ok(true);
+                    kernelRequestData({type: 'SYNC_ACTIVE_EXCHANGE'});
+                } else {
+                    if (!automatic)
+                        $.snack('error', `Failed to change exchange!`, 10000)
+                    console.log(res.responseText);
+                    ok(false)
+                }
+            },
+            error: function (xhr) {
+                if (!automatic)
+                    $.snack('error', `Failed to change exchange!`, 10000)
+                ok(false)
             }
-        },
-        error: function (xhr) {
-            $.snack('error', `Failed to change exchange!`, 10000)
-        }
-    });
+        });
+    })
 }
 
 function showAuthManager() {
@@ -5128,12 +5174,16 @@ function registerURLHandlers(){
 }
 function registerUserMenuHandlers() {
     $('#userMenu').on('show.bs.collapse', function () {
-        if (document.getElementById('menuItemMain').classList.contains('kms-main-menu')) {
-            $('#topbarKmsIcon').removeClass('d-none');
-            $('#topbarIcon').addClass('d-none');
-        } else {
-            $('#topbarIcon').removeClass('d-none');
-            $('#topbarKmsIcon').addClass('d-none');
+        try {
+            if (document.getElementById(`menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`).classList.contains('kms-main-menu')) {
+                $('#topbarKmsIcon').removeClass('d-none');
+                $('#topbarIcon').addClass('d-none');
+            } else {
+                $('#topbarIcon').removeClass('d-none');
+                $('#topbarKmsIcon').addClass('d-none');
+            }
+        } catch (e) {
+            console.error('Failed to set correct background')
         }
         $('#mainMenuBar').removeClass('top-padding-safety');
         $('.show-menu-open').removeClass('hidden');
@@ -5145,7 +5195,7 @@ function registerUserMenuHandlers() {
     $('#userMenu').on('hidden.bs.collapse', function () {
         if (!($('#userMenu').hasClass('show'))) {
             $('.show-menu-open').addClass('hidden');
-            $('#menuItemMain').collapse('show');
+            goToMainMain(true);
             $('#mainMenuBar').addClass('top-padding-safety');
             $('#topbar').removeClass('menu-open')
             if ($('html').scrollTop() <= 50) {

@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v20-1-250123'
+const cacheName = 'PRERELEASE-v20-1-250123-PATCH1'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -46,15 +46,23 @@ const cacheOptions = {
         '/juneOS',
         '/sidebar',
         '/homeImage',
-        '/internal'
+        '/internal',
+        '/home'
     ],
     updateCache: [
         '/homeImage',
         '/juneOS',
         '/sidebar'
     ],
+    updateExchangeCache: [
+        '/home',
+        '/homeImage',
+        '/juneOS',
+        '/sidebar'
+    ],
     preloadCache: [
         offlineUrl,
+        "/home",
         "/static/manifest.json",
         "/static/img/acr-logo.png",
         "/static/img/sequenzia-logo-nav.png",
@@ -146,6 +154,7 @@ let offlineMessages = [];
 let syncActive = false;
 let pushActionsActive = false;
 let pullActionsActive = false;
+let refreshCurrentExchange = null;
 
 const offlineContentDB = self.indexedDB.open("offlineContent", 6);
 offlineContentDB.onerror = event => {
@@ -484,6 +493,20 @@ self.addEventListener('fetch', event => {
                 return new Response(offlineFile, { status: 200 });
             }
 
+            if (event.request.url === '/') {
+                const cachedFile = await caches.match('/home')
+                if (cachedFile) {
+                    if (swDebugMode)
+                        console.log('JulyOS Kernel: Cache - /home');
+                    return cachedFile
+                }
+                const offlineFile = await getDataIfAvailable('/home')
+                if (offlineFile) {
+                    if (swDebugMode)
+                        console.log('JulyOS Kernel: Offline Storage - /home');
+                    return offlineFile;
+                }
+            }
             if (event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
                 const newURL = (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop();
                 const cachedFile = await caches.match(newURL)
@@ -829,6 +852,18 @@ self.addEventListener('message', async (event) => {
             cacheOptions.preloadCache.map(async u => {
                 return await cache.add(u);
             })
+            event.ports[0].postMessage(true);
+            break;
+        case 'SYNC_ACTIVE_EXCHANGE':
+            clearTimeout(refreshCurrentExchange);
+            refreshCurrentExchange = null;
+            refreshCurrentExchange = setTimeout(async () => {
+                const exchange_cache = await caches.open(cacheOptions.cacheConfig)
+                cacheOptions.updateExchangeCache.map(async u => {
+                    return await exchange_cache.add(u);
+                })
+                refreshCurrentExchange = null;
+            }, 10000);
             event.ports[0].postMessage(true);
             break;
         case 'GET_ALL_ACTIVE_JOBS':

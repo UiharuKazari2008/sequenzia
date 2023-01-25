@@ -84,9 +84,9 @@ router.get(['/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, handleExchange, renderResults);
 router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, handleExchange, renderResults);
-router.get('/homeImage', sessionVerification, generateConfiguration, ajaxChecker, getImages, renderResults);
+router.get('/homeImage', sessionVerification, generateConfiguration, getImages, handleExchange, renderResults);
 router.get('/artists', sessionVerification, ajaxChecker, getIndex, handleExchange, renderIndex);
-router.get('/sidebar', sessionVerification, ajaxOnly, generateSidebar, renderSidebar);
+router.get('/sidebar', sessionVerification, generateSidebar, renderSidebar);
 router.get('/albums', sessionVerification, ajaxOnly, handleExchange, getAlbums);
 router.get('/offline', sessionVerification, (req, res, next) => {
     const thisUser = res.locals.thisUser
@@ -107,6 +107,7 @@ router.get('/offline', sessionVerification, (req, res, next) => {
             sidebar: thisUser.master.sidebar,
             applications_list: thisUser.master.applications_list,
             exchange_list: thisUser,
+            is_remote_exchange: req.headers['x-sequenzia-exchange'] || false,
             active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
             active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
         })
@@ -948,14 +949,14 @@ router.get(['/ads-micro', '/ads-widget'], sessionVerification, generateConfigura
 router.get('/ambient-refresh', sessionVerification, getImages, handleExchange, renderResults);
 router.get('/ambient-remote-refresh', sessionVerification, generateConfiguration, getImages, handleExchange, renderResults);
 router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, handleExchange, downloadResults);
-router.get('/ambient-history', sessionVerification, async (req, res) => {
+router.get('/ambient-history', sessionVerification, handleExchange, async (req, res) => {
     try {
         await getHistory(req, res)
     } catch (e) {
         res.status(500).send(e.message);
     }
 });
-router.post('/ambient-history', sessionVerification, async (req, res) => {
+router.post('/ambient-history', sessionVerification, handleExchange, async (req, res) => {
     try {
         await getHistory(req, res)
     } catch (e) {

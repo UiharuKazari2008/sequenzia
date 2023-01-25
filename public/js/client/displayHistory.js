@@ -41,9 +41,9 @@ function getDisplayConfig(name, index) {
     });
 }
 
-function showDisplayHistory(model) {
+function showDisplayHistory() {
     getDisplayHistory("command=getAll");
-    $('#displayHistoryModal' + (model || '')).modal('show');
+    $('#displayHistoryModal').modal('show');
 }
 function toggleHistoryViewOption(item) {
     if (item.classList.contains('btn-danger')) {

@@ -121,7 +121,7 @@ html
                             div.shown-user-menu.d-flex(style="width: 100%; height: 100%").user-menu-buttons
                                 div#menuAccordion.w-100
                                     each exchange, exchange_id in exchange_list
-                                        div.main-menu-items.w-100(class=`collapse ${((appData || (path && (path === '/tvTheater' || path === '/listTheater')))) ? '' : ((exchange_id === active_exchange_id) || (!exchange_id === 'master')) ? 'show' : ''}` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id :''}`).animated--grow-in
+                                        div.main-menu-items.w-100(class=`collapse` data-parent="#menuAccordion" id=`menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}${(exchange_id !== 'master') ? exchange_id :''}`).animated--grow-in
                                             div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` data-toggle="collapse" data-target=`#menuItemWallet`)
                                                 div.user-info-backdrop.rounded
                                                 div.user-info-border.rounded
@@ -168,13 +168,13 @@ html
                                                                 i.far.fa-fw.fa-browser
                                                     .col.p-0
                                                         div.w-100(id=`locationAccordion${(exchange_id !== 'master') ? exchange_id :''}`)
-                                                            div(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent="#locationAccordion" id=`locationSearch${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            div(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationSearch${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100.flex-nowrap
                                                                         .input-group-prepend.flex-column.flex-sm-row.justify-content-center
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationDirect${(exchange_id !== 'master') ? exchange_id :''}` onclick='showAddressInput(); return false;')
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationDirect${(exchange_id !== 'master') ? exchange_id :''}` onclick=`showAddressInput("${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
                                                                                 i.far.fa-map.align-middle
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick=`$('#menuItemMain!{(exchange_id !== 'master') ? exchange_id :''} .user-menu-height').removeClass('dual-search'); return false;`)
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationTags${(exchange_id !== 'master') ? exchange_id :''}` onclick=`$('#menuItemMain${(exchange_id !== 'master') ? exchange_id :''} .user-menu-height').removeClass('dual-search'); return false;`)
                                                                                 i.far.fa-chevron-up.align-middle
                                                                         div.d-flex.flex-column.w-100.justify-content-between.flex-md-row
                                                                             div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
@@ -183,45 +183,45 @@ html
                                                                             div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
                                                                                 input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
                                                                                 i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
-                                                                        input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4"); return false;`)
+                                                                        input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "${exchange_id}"${(exchange_id !== active_exchange_id) ? ', "/' + ((path === '/gallery') ? 'gallery' : 'files') + '"' : ''}); return false;`)
                                                                         .input-group-append
                                                                             a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelpModal').d-none.d-sm-flex
                                                                                 i.far.fa-question-circle.align-middle
-                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
+                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}"${(exchange_id !== active_exchange_id) ? ', "/' + ((path === '/gallery') ? 'gallery' : 'files') + '"' : ''}); return false;`)
                                                                                 i.far.fa-square-arrow-right.fa-sm.align-middle.nav-item
-                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "/gallery"); return false;`)
+                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}", "/gallery"); return false;`)
                                                                                 i.far.fa-image.fa-sm.align-middle.nav-item
-                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "/files"); return false;`)
+                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}", "/files"); return false;`)
                                                                                 i.far.fa-folder.fa-sm.align-middle.nav-item
-                                                            div(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion" id=`locationTags${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            div(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationTags${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100.flex-nowrap
                                                                         .input-group-prepend
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationDirect${(exchange_id !== 'master') ? exchange_id :''}` onclick='showAddressInput(); return false;')
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Enter Direct URI Mode" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationDirect${(exchange_id !== 'master') ? exchange_id :''}` onclick=`showAddressInput("${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
                                                                                 i.far.fa-map.align-middle
                                                                             a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Generic Search" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationSearch${(exchange_id !== 'master') ? exchange_id :''}` onclick=`$('.main-menu-items .user-menu-height').addClass('dual-search'); return false;`)
                                                                                 i.far.fa-chevron-down.align-middle
                                                                         div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
                                                                             input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
                                                                             i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
-                                                                        input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
+                                                                        input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}"${(exchange_id !== active_exchange_id) ? ', "/' + ((path === '/gallery') ? 'gallery' : 'files') + '"' : ''}); return false;`)
                                                                         .input-group-append
                                                                             a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelp2Modal')
                                                                                 i.far.fa-question-circle.align-middle
-                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
+                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}"${(exchange_id !== active_exchange_id) ? ', "/gallery"' : ''}); return false;`)
                                                                                 i.far.fa-square-arrow-right.fa-sm.align-middle.nav-item.input-group-append
-                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}", "/gallery"); return false;`)
+                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch3${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}", "/gallery"); return false;`)
                                                                                 i.far.fa-globe.fa-sm.align-middle.nav-item.input-group-append
-                                                            div(class="collapse" data-parent="#locationAccordion" id=`locationDirect${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            div(class="collapse" data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationDirect${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100
                                                                         .input-group-prepend
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick=`hideAddressInput(); $('.main-menu-items .user-menu-height').removeClass('dual-search'); return false;`)
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationTags${(exchange_id !== 'master') ? exchange_id :''}` onclick=`hideAddressInput("${(exchange_id !== 'master') ? exchange_id :''}"); $('.main-menu-items .user-menu-height').removeClass('dual-search'); return false;`)
                                                                                 i.far.fa-search.align-middle
                                                                         input.text-white.form-control.top-menu-search-bar.border-0(type='text' placeholder='Go to Location' aria-label='Go to Location' id=`directURI${(exchange_id !== 'master') ? exchange_id : ''}`)
-                                                                        input(type="submit" style="display: none" onclick=`getNewURIContent("directURI!{(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
+                                                                        input(type="submit" style="display: none" onclick=`getNewURIContent("directURI${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
                                                                         .input-group-append
-                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Go to..." href='#_', onclick=`getNewURIContent("directURI!{(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
+                                                                            a.btn.input-group-text.top-menu-search-bar.border-0(title="Go to..." href='#_', onclick=`getNewURIContent("directURI${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`)
                                                                                 i.far.fa-arrow-right.fa-sm.align-middle.nav-item
                                                         //span.col-auto.sidebar-brand-logo.sequenzia-logo.user-menu-icon.ml-lg-1.p-0.d-none.d-lg-block sequenzia
                                                 .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0; left: 0;').d-flex.justify-content-center
@@ -236,16 +236,16 @@ html
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                             i.fa-light.fa-compass.fa-fw
                                                             | Directory
-                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#/gallery?numdays=60&sort=eid`)
+                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#_` onclick=`getNewContent([],[['numdays','60'],['sort','eid']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-photo-video
                                                             | Gallery
-                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#_` onclick=`getNewContent([],[['numdays','60'],['sort','eid'],['filesonly','true']],'/files'); return false;`)
                                                             i.fa-light.fa-fw.fa-files
                                                             | Files
                                                         a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`)
                                                             i.fa-light.fa-fw.fa-ticket
                                                             | Theater
-                                                        a.user-menu-item(title="Your Favorites" href=`#/gallery?sort=fav&pins=true`)
+                                                        a.user-menu-item(title="Your Favorites" href=`#_` onclick=`getNewContent([],[['pins','true'],['sort','fav']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-star
                                                             | Favorites
                                                         a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
@@ -256,13 +256,13 @@ html
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
                                                         else
-                                                            a.user-menu-item(title="Index" href=`#/artists?`)
+                                                            a.user-menu-item(title="Index" href=`#_` onclick=`getNewContent([],[],'/artists'); return false;`)
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
-                                                        a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory${(exchange_id !== 'master') ? exchange_id :''}` onClick=`getHistory("${(exchange_id !== 'master') ? exchange_id :''}"); return false;`)
+                                                        a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory` onClick=`getHistory(); return false;`)
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
-                                                        a.user-menu-item(title="I'm feeling lucky!" href=`#/gallery?sort=random`)
+                                                        a.user-menu-item(title="I'm feeling lucky!" href=`#_` onclick=`getNewContent([],[['sort','random']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-dice
                                                             | Random
                                                         if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards' || path === '/listTheater' || path === '/tvTheater')) && (exchange_id === 'master'))
@@ -288,7 +288,7 @@ html
                                                         a.user-menu-item(title="User and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemSettings`)
                                                             i.fa-light.fa-fw.fa-cog
                                                             | Settings
-                                        div.w-100(class=`collapse ${((path && (path === '/tvTheater' || path === '/listTheater')) && ((exchange_id === active_exchange_id) || (!exchange_id === 'master'))) ? 'show' : ''}` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`).kms-main-menu.animated--grow-in
+                                        div.w-100(class=`collapse` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`).kms-main-menu.animated--grow-in
                                             .d-flex.w-100
                                                 if (exchange.kongou_next_episode)
                                                     div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
@@ -310,19 +310,19 @@ html
                                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                         if (exchange.media_groups && exchange.media_groups.length > 0)
                                                             .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
-                                                                a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href=`#/listTheater?watch_history=none`)
+                                                                a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href=`#_` onclick=`getNewContent([],[['watch_history','none']],'/listTheater'); return false;`)
                                                                     i.fa-light.fa-forward
                                                                     | Up Next
                                                                 a.user-menu-item(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemMediaGroups${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                     i.fa-light.fa-fw.fa-books
                                                                     | Shelves
-                                                                a.user-menu-item.user-menu-small(title="Newest Episodes" href=`#/listTheater?numdays=1&sort=eid&num=25`)
+                                                                a.user-menu-item.user-menu-small(title="Newest Episodes" href=`#_` onclick=`getNewContent([],[['numdays','1'],['sort','eid'],['num','25']],'/listTheater'); return false;`)
                                                                     i.fa-light.fa-certificate
                                                                     | Newest
-                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href=`#/listTheater?pins=true`)
+                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Favorite Episodes" href=`#_` onclick=`getNewContent([],[['pins','true']],'/listTheater'); return false;`)
                                                                     i.fa-light.fa-star
                                                                     | Favorites
-                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href=`#/listTheater?watch_history=only`)
+                                                                a.user-menu-item.user-menu-small(data-placement="left" title="Watch History" href=`#_` onclick=`getNewContent([],[['watch_history','only']],'/listTheater'); return false;`)
                                                                     i.fa-light.fa-clock-rotate-left
                                                                     | History
                                                         else
@@ -406,7 +406,7 @@ html
                                                                                 i.far.fa-link.pr-1
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
                                                                         span #{thisAlbum.name}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#_ ` onclick=`getNewContent([],[['album','!{thisAlbum.aid}'],['sort','album']],'/!{thisAlbum.uri}'); return false;`)
                                                                         if (thisAlbum.image)
                                                                             div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
                                                                         else
@@ -421,7 +421,7 @@ html
                                                 .d-flex.w-100.align-items-center
                                                     a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
-                                                    a(class="btn btn-primary" title="Artist Index" href='#/artists?').ml-2
+                                                    a(class="btn btn-primary" title="Artist Index" href='#_' onclick=`getNewContent([],[],'/artists'); return false;`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-grid-2
                                                         span.d-none.d-md-inline Index
                                                     h4.text-primary.ml-auto.mb-0
@@ -460,7 +460,7 @@ html
 
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
                                                                         span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#_` onclick=`getNewContent([],[['nsfw','true'],['search','!{thisArtist.artist_search}']],'/gallery'); return false;`)
                                                                         if (thisArtist.image)
                                                                             div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
                                                                         else
@@ -468,29 +468,6 @@ html
 
                                                     else
                                                         h2 No Favorite Artists!
-                                        div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemHistory${(exchange_id !== 'master') ? exchange_id : ''}`)
-                                            div.position-relative.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
-                                                        i.fas.fa-arrow-left.fa-fw
-                                                    a(class="btn btn-primary" title="Show All Image History" href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`).ml-2
-                                                        i.fas.fa-fw.mr-md-1.fa-grid-2
-                                                        span.d-none.d-md-inline Show All
-                                                    a(class="btn btn-primary" title="Show Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;").ml-2
-                                                        i.fas.fa-fw.mr-md-1.fa-history
-                                                        span.d-none.d-md-inline Navi History
-                                                    a(class="btn btn-primary" title="Manage Photo Frames" href='#_' onclick=`showDisplayHistory("${(exchange_id !== 'master') ? exchange_id : ''}"); return false;`).ml-2
-                                                        i.fas.fa-fw.mr-md-1.fa-cog
-                                                        span.d-none.d-md-inline Manage
-                                                    #menuLoaderImageHistory.d-inline.ml-2
-                                                        i.fas.fa-spin-pulse.fa-spinner
-                                                    h4.text-primary.ml-auto.mb-0
-                                                        i.fas.fa-rectangle-history.mr-2
-                                                        | History
-                                                .w-100.position-absolute(style="justify-content: left; top: 3em;")
-                                                    div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                                        #menuBodyImageHistory.ready(style="display: contents;")
-                                                            span Loading...
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemApps${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
@@ -501,9 +478,10 @@ html
                                                         | Applications
                                                 .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                                        a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href=`/ambient?displayname=Untitled` target="_blank" rel="noopener noreferrer")
-                                                            i.fa-light.fa-tv
-                                                            | Photo Frame
+                                                        if (this_exchnage === 'master')
+                                                            a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href=`/ambient?displayname=Untitled` target="_blank" rel="noopener noreferrer")
+                                                                i.fa-light.fa-tv
+                                                                | Photo Frame
                                                         a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
                                                             i.fa-light.fa-folder-bookmark
                                                             | Local Files
@@ -514,11 +492,11 @@ html
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#_` onclick=`getNewContent([],[],'/app/launch/!{thisApp.id}'); return false;`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 2)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#_` onclick=`getNewContent([],[],'/app/launch/!{thisApp.id}'); return false;`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemMediaGroups${(exchange_id !== 'master') ? exchange_id : ''}`)
@@ -533,14 +511,9 @@ html
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         if (exchange.media_groups && exchange.media_groups.length > 0)
                                                             each thisTheater in exchange.media_groups
-                                                                //if (thisTheater.type === 2)
-                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#_` onclick=`getNewContent([],[['group','!{thisTheater.media_group}']],'/tvTheater'); return false;`)
                                                                     i.fa-light(class=`${thisTheater.icon}`)
                                                                     | #{thisTheater.name}
-                                                                //else if (thisTheater.type === 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#/movieTheater?group=${thisTheater.media_group}`)
-                                                                        i.fa-light(class=`${thisTheater.icon}`)
-                                                                        | #{thisTheater.name}
                                                         else
                                                             h2 No Theaters Available
                                     div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
@@ -583,6 +556,29 @@ html
                                                                         //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                                                 div.text-ellipsis.shadow-text.user-infocard-info
                                                                     span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
+                                    div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemHistory`)
+                                        div.position-relative.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                a(class="btn btn-primary" title="Show All Image History" href=`#_` onclick=`getNewContent([],[['history_numdays','90'],['sort','history'],['history','only'],['displayname','*']],'/gallery'); return false;`).ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-grid-2
+                                                    span.d-none.d-md-inline Show All
+                                                a(class="btn btn-primary" title="Show Page Access History" href='#_' onclick="$('#historyModel').modal('show'); return false;").ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-history
+                                                    span.d-none.d-md-inline Navi History
+                                                a(class="btn btn-primary" title="Manage Photo Frames" href='#_' onclick=`showDisplayHistory(); return false;`).ml-2
+                                                    i.fas.fa-fw.mr-md-1.fa-cog
+                                                    span.d-none.d-md-inline Manage
+                                                #menuLoaderImageHistory.d-inline.ml-2
+                                                    i.fas.fa-spin-pulse.fa-spinner
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-rectangle-history.mr-2
+                                                    | History
+                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                    #menuBodyImageHistory.ready(style="display: contents;")
+                                                        span Loading...
                                     if (appData)
                                         div.w-100(class="collapse show animated--grow-in" data-parent="#menuAccordion" id=`menuItemMain`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
@@ -1629,6 +1625,8 @@ html
                                                 i.fas.fa-bolt.px-1(title=`UltraCache - ${ultraCache}m`)
                                             else
                                                 i.fas.fa-wave-triangle.px-1(title="UltraCache is processing...")
+                                            if (remote_exchange)
+                                                i.fas.fa-link-horizontal.px-1
 
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
@@ -1646,7 +1644,7 @@ html
                                         a.align-items-center.d-flex(title="Disable Performance Mode" href='#_' onClick=`disablePerformanceMode(); return false;`)
                                             i.fas.fa-bolt
                                     li.nav-item.no-arrow.d-flex.align-items-center
-                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`goToMainMain(); $('#menuMainItem1').collapse('show')`)
+                                        a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
                                             img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
 
