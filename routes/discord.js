@@ -320,7 +320,7 @@ router.get('/exchange/:id', sessionVerification, async (req, res) => {
             if (!error) {
                 try {
                     const getCookies = response.headers['set-cookie'];
-                    console.log(getCookies)
+                    console.log(response.headers)
                     if (getCookies) {
                         await setCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.id + '-' + thisUser.master.discord.user.id)
                     }
@@ -647,6 +647,7 @@ function sessionTransfer(req) {
 }
 async function sessionVerification(req, res, next) {
     let thisUser = null;
+    console.log(req.headers)
     if (req.session && req.session.userid) {
         thisUser = app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
         if (thisUser) {
@@ -775,41 +776,45 @@ async function sessionVerification(req, res, next) {
 }
 async function crossSessionVerification(req, res, next) {
     const thisUser = res.locals.thisUser;
-    const cookieString = await getCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.params.id + '-' + thisUser.master.discord.user.id)
-    request.get(
-        global.Connected_Exchanges[req.params.id].base_url + '/ping?json=true', {
-        headers: {
-            'X-Sequenzia-Exchange': global.This_Exchange.id,
-            'X-Sequenzia-Key': global.Connected_Exchanges[req.params.id].key,
-            'X-Sequenzia-User': thisUser.master.discord.user.id,
-            'X-Sequenzia-User-Source': req.session.login_source,
-            'User-Agent': 'Sequenzia Cross-Exchange v20.2',
-            'Cookie': cookieString || ''
-        },
-        json: true
-    }, async function (error, response, body) {
-        if (!error) {
-            try {
-                const getCookies = response.headers['set-cookie'];
-                console.log(getCookies)
-                if (getCookies) {
-                    await setCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.params.id + '-' + thisUser.master.discord.user.id)
-                }
-                console.log(body)
-                if (body.loggedin) {
-                    next();
+    if (req.session.active_exchange && req.session.active_exchange !== 'master') {
+        const cookieString = await getCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
+        request.get(
+            global.Connected_Exchanges[req.session.active_exchange].base_url + '/ping?json=true', {
+                headers: {
+                    'X-Sequenzia-Exchange': global.This_Exchange.id,
+                    'X-Sequenzia-Key': global.Connected_Exchanges[req.session.active_exchange].key,
+                    'X-Sequenzia-User': thisUser.master.discord.user.id,
+                    'X-Sequenzia-User-Source': req.session.login_source,
+                    'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                    'Cookie': cookieString || ''
+                },
+                json: true
+            }, async function (error, response, body) {
+                if (!error) {
+                    try {
+                        const getCookies = response.headers['set-cookie'];
+                        console.log(getCookies)
+                        if (getCookies) {
+                            await setCacheData(req.session.active_exchange + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
+                        }
+                        console.log(body)
+                        if (body.loggedin) {
+                            next();
+                        } else {
+                            res.status(401).send('Exchange failed to allow login');
+                        }
+                    } catch (err) {
+                        console.error(err)
+                        res.status(500).send('Communication with exchange failed');
+                    }
                 } else {
-                    res.status(401).send('Exchange failed to allow login');
+                    console.error(error)
+                    res.status(500).send('Communication with exchange failed');
                 }
-            } catch (err) {
-                console.error(err)
-                res.status(500).send('Communication with exchange failed');
-            }
-        } else {
-            console.error(error)
-            res.status(500).send('Communication with exchange failed');
-        }
-    });
+            });
+    } else {
+        next()
+    }
 }
 function manageValidation(req, res, next) {
     const thisUser = res.locals.thisUser;
