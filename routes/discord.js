@@ -308,10 +308,10 @@ router.get('/exchange/:id', sessionVerification, async (req, res) => {
         const cookieString = await getCacheData(req.params.id + '-' +  req.session.login_source + '-' + thisUser.master.discord.user.id, false, req.params.id + '-' + thisUser.master.discord.user.id)
         request.get(global.Connected_Exchanges[req.params.id].base_url + '/ping?json=true', {
             headers: {
-                'X-Sequenzia-Exchange': global.This_Exchange.id,
-                'X-Sequenzia-Key': global.Connected_Exchanges[req.params.id].key,
-                'X-Sequenzia-User': thisUser.master.discord.user.id,
-                'X-Sequenzia-User-Source': req.session.login_source,
+                'x-sequenzia-exchange': global.This_Exchange.id,
+                'x-sequenzia-key': global.Connected_Exchanges[req.params.id].key,
+                'x-sequenzia-user': thisUser.master.discord.user.id,
+                'x-sequenzia-user-Source': req.session.login_source,
                 'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                 'Cookie': cookieString || ''
             },
@@ -653,26 +653,26 @@ async function sessionVerification(req, res, next) {
         if (thisUser) {
             res.locals.thisUser = thisUser;
         }
-    } else if (req.headers['X-Sequenzia-Exchange'] && req.headers['X-Sequenzia-Key'] && req.headers['X-Sequenzia-User'] &&
-        config.Authorized_Exchange && config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
-        config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key']) {
-        req.session.userid = req.headers['X-Sequenzia-User'];
-        thisUser = app.get('userCache').rows.filter(e => req.headers['X-Sequenzia-User'] === e.userid).map(e => e.data)[0];
+    } else if (req.headers['x-sequenzia-exchange'] && req.headers['x-sequenzia-key'] && req.headers['x-sequenzia-user'] &&
+        config.Authorized_Exchange && config.Authorized_Exchange[req.headers['x-sequenzia-exchange']] &&
+        config.Authorized_Exchange[req.headers['x-sequenzia-exchange']].key === req.headers['x-sequenzia-key']) {
+        req.session.userid = req.headers['x-sequenzia-user'];
+        thisUser = app.get('userCache').rows.filter(e => req.headers['x-sequenzia-user'] === e.userid).map(e => e.data)[0];
         if (thisUser) {
             res.locals.thisUser = thisUser;
             req.session.loggedin = true;
             req.session.esm_verified = true;
-            req.session.login_source = req.headers['X-Sequenzia-User-Source'] || 105;
+            req.session.login_source = req.headers['x-sequenzia-user-Source'] || 105;
             printLine('PassportCheck', `Cross-Instance Session created for ${thisUser.master.discord.user.username}, No ESM Checks will be done!`, 'warn');
         }
     }
     if (req.session && req.query && req.query['lite_mode'] === 'true') {
         req.session.lite_mode = true
     }
-    if (req.headers['X-Sequenzia-Exchange'] && req.headers['X-Sequenzia-Key'] && req.headers['X-Sequenzia-User'] &&
-        config.Authorized_Exchange && config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
-        config.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key'] && thisUser &&
-        thisUser.master.discord.user.id === req.headers['X-Sequenzia-User']) {
+    if (req.headers['x-sequenzia-exchange'] && req.headers['x-sequenzia-key'] && req.headers['x-sequenzia-user'] &&
+        config.Authorized_Exchange && config.Authorized_Exchange[req.headers['x-sequenzia-exchange']] &&
+        config.Authorized_Exchange[req.headers['x-sequenzia-exchange']].key === req.headers['x-sequenzia-key'] && thisUser &&
+        thisUser.master.discord.user.id === req.headers['x-sequenzia-user']) {
         next()
     } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
         next()
@@ -781,10 +781,10 @@ async function crossSessionVerification(req, res, next) {
         request.get(
             global.Connected_Exchanges[req.session.active_exchange].base_url + '/ping?json=true', {
                 headers: {
-                    'X-Sequenzia-Exchange': global.This_Exchange.id,
-                    'X-Sequenzia-Key': global.Connected_Exchanges[req.session.active_exchange].key,
-                    'X-Sequenzia-User': thisUser.master.discord.user.id,
-                    'X-Sequenzia-User-Source': req.session.login_source,
+                    'x-sequenzia-exchange': global.This_Exchange.id,
+                    'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
+                    'x-sequenzia-user': thisUser.master.discord.user.id,
+                    'x-sequenzia-user-Source': req.session.login_source,
                     'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                     'Cookie': cookieString || ''
                 },

@@ -884,10 +884,10 @@ router.use('/cross-exchange/:exchnage_id', sessionVerification, async (req, res)
             if (params.length > 1) {
                 const request = ((global.Connected_Exchanges[req.params.exchnage_id].base_url.startsWith('https') ? https : http)).get(global.Connected_Exchanges[req.params.exchnage_id].base_url + '/' + params.join('/'), {
                     headers: {
-                        'X-Sequenzia-Exchange': global.This_Exchange.id,
-                        'X-Sequenzia-Key': global.Connected_Exchanges[req.params.exchnage_id].key,
-                        'X-Sequenzia-User': thisUser.master.discord.user.id,
-                        'X-Sequenzia-User-Source': req.session.login_source,
+                        'x-sequenzia-exchange': global.This_Exchange.id,
+                        'x-sequenzia-key': global.Connected_Exchanges[req.params.exchnage_id].key,
+                        'x-sequenzia-user': thisUser.master.discord.user.id,
+                        'x-sequenzia-user-Source': req.session.login_source,
                         'User-Agent': 'Sequenzia Cross-Exchange v20.2',
                         'Cookie': cookieString || ''
                     }
