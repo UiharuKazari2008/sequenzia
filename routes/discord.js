@@ -140,7 +140,7 @@ if (config.enable_impersonation) {
             await roleGeneration(req.params.userId, res, req, 950)
                 .then((config) => {
                     if (config) {
-                        req.session.login_source = 100;
+                        req.session.login_source = 110;
                         printLine("PassportImpersonation", `User ${req.params.userId} logged in via impersonation!`, 'warn');
                         res.redirect('/');
                     }
@@ -574,11 +574,27 @@ async function sessionVerification(req, res, next) {
         if (thisUser) {
             res.locals.thisUser = thisUser;
         }
+    } else if (req.headers['X-Sequenzia-Exchange'] && req.headers['X-Sequenzia-Key'] && req.headers['X-Sequenzia-User'] &&
+        host.Authorized_Exchange && host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
+        host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key']) {
+        req.session.userid = req.headers['X-Sequenzia-User'];
+        thisUser = app.get('userCache').rows.filter(e => req.headers['X-Sequenzia-User'] === e.userid).map(e => e.data)[0];
+        if (thisUser) {
+            res.locals.thisUser = thisUser;
+            req.session.loggedin = true;
+            req.session.esm_verified = true;
+            printLine('PassportCheck', `Cross-Instance Session created for ${thisUser.master.discord.user.username}, No ESM Checks will be done!`, 'warn');
+        }
     }
     if (req.session && req.query && req.query['lite_mode'] === 'true') {
         req.session.lite_mode = true
     }
-    if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
+    if (req.headers['X-Sequenzia-Exchange'] && req.headers['X-Sequenzia-Key'] && req.headers['X-Sequenzia-User'] &&
+        host.Authorized_Exchange && host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']] &&
+        host.Authorized_Exchange[req.headers['X-Sequenzia-Exchange']].key === req.headers['X-Sequenzia-Key'] && thisUser &&
+        thisUser.master.discord.user.id === req.headers['X-Sequenzia-User']) {
+        next()
+    } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
         next()
     } else if (req.session && req.session.userid && thisUser && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
         if (thisUser.master.discord.channels.read && thisUser.master.discord.channels.read.length > 0) {

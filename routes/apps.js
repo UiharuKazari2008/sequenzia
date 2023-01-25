@@ -59,6 +59,7 @@ router.use('/launch/*', sessionVerification, ajaxChecker, (req, res, next) => {
             theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
             next_episode: thisUser.master.kongou_next_episode,
             applications_list: thisUser.master.applications_list,
+            exchange_list: thisUser,
             appData: global.web_applications[id],
             appUrl: `/app/web/${id}`
         })

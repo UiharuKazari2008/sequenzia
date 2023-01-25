@@ -28,6 +28,7 @@ module.exports = async (req, res, next) => {
             theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
             next_episode: thisUser.master.kongou_next_episode,
             applications_list: thisUser.master.applications_list,
+            exchange_list: thisUser,
             device: ua
         };
         next();
@@ -548,6 +549,7 @@ module.exports = async (req, res, next) => {
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
+                    exchange_list: thisUser,
                     device: ua,
                     folderInfo
                 }
@@ -578,6 +580,7 @@ module.exports = async (req, res, next) => {
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
+                    exchange_list: thisUser,
                     device: ua,
                     folderInfo
                 })
@@ -604,6 +607,7 @@ module.exports = async (req, res, next) => {
                     albums: (thisUser.master.albums && thisUser.master.albums.length > 0) ? thisUser.master.albums : [],
                     artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
+                    exchange_list: thisUser,
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
                     device: ua,

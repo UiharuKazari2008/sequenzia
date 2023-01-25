@@ -3011,6 +3011,12 @@ div#bootBackdropSunrise {
 .menu-open #mainMenuBar.menu-nsfw #topbarBackground {
     background: #000000a1;
 }
+.user-card-list {
+    display: flex;
+}
+div#menuItemWallet .user-menu-height {
+    height: 220px;
+}
 
 @keyframes animateBg {
     0% {

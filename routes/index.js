@@ -19,6 +19,8 @@ const ajaxChecker = require('../js/ajaxChecker');
 const ajaxOnly = require('../js/ajaxOnly');
 const { printLine } = require('../js/logSystem');
 const { sessionVerification, manageValidation, loginPage, readValidation, downloadValidation} = require('./discord');
+const { redisRetrieve, redisStore, redisDelete } = require('../js/redisClient');
+const app = require("../app");
 const router = express.Router();
 const qrcode = require('qrcode');
 const {sqlSafe, sqlPromiseSafe} = require("../js/sqlClient");
@@ -48,6 +50,35 @@ const closestIndex = (num, arr) => {
 if (web.Base_URL)
     web.base_url = web.Base_URL;
 
+async function getCacheData(key, isJson, local) {
+    if (global.shared_cache) {
+        if (local && app.get(local))
+            return app.get(local)
+        const result = await redisRetrieve(key)
+        const parsed = (isJson) ? JSON.parse(result) : result
+        if (local)
+            app.set(local, parsed)
+        return parsed
+    }
+    return app.get(key)
+}
+async function setCacheData(key, value, isJson, local) {
+    if (global.shared_cache) {
+        if (local)
+            app.set(local, value)
+        return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+    }
+    return app.set(key, value)
+}
+async function deleteCacheData(key, local) {
+    if (global.shared_cache) {
+        if (local)
+            await app.delete(local)
+        return await redisDelete(key)
+    }
+    return app.delete(key)
+}
+
 router.get(['/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, renderResults);
@@ -74,6 +105,7 @@ router.get('/offline', sessionVerification, (req, res, next) => {
             next_episode: thisUser.master.kongou_next_episode,
             sidebar: thisUser.master.sidebar,
             applications_list: thisUser.master.applications_list,
+            exchange_list: thisUser,
         })
     } else {
         res.status(401).end();
@@ -841,6 +873,59 @@ router.use('/icons', async function (req, res) {
         });
     }
 });
+
+router.get('/cross-exchnage/', sessionVerification, async (req, res) => {
+    try {
+        const thisUser = res.locals.thisUser
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        const exchnage_id = params[0];
+        const cookieString = await getCacheData(exchnage_id + '-' + thisUser.master.discord.user.id, false, exchnage_id + '-' + thisUser.master.discord.user.id)
+        console.log(cookieString)
+        if (thisUser[exchnage_id] !== undefined && config.This_Exchnage && config.Connected_Exchanges[exchnage_id]) {
+            if (params.length > 1) {
+                const request = https.get(config.Connected_Exchanges[exchnage_id].base_url + '/' + params.slice(1).join('/'), {
+                    headers: {
+                        'X-Sequenzia-Exchange': config.This_Exchnage.id,
+                        'X-Sequenzia-Key': config.Connected_Exchanges[exchnage_id].key,
+                        'X-Sequenzia-User': thisUser.master.discord.user.id,
+                        'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                        'Cookie': cookieString
+                    }
+                }, async function (response) {
+                    const contentType = response.headers['content-type'];
+                    const getCookies = response.headers['set-cookie'];
+                    console.log(getCookies)
+                    if (getCookies) {
+                        await setCacheData(exchnage_id + '-' + thisUser.master.discord.user.id, getCookies, false, exchnage_id + '-' + thisUser.master.discord.user.id)
+                    }
+                    if (contentType) {
+                        res.setHeader('Content-Type', contentType);
+                        response.pipe(res);
+                    } else {
+                        res.status(500).end();
+                        printLine('ExchangeDirect', `Failed to stream file request - No Data`, 'error');
+                        console.log(response.rawHeaders)
+                    }
+                });
+                request.on('error', function (e) {
+                    res.status(500).send('Error during proxying request');
+                    printLine('ExchangeDirect', `Failed to stream file request - ${e.message}`, 'error');
+                });
+            } else {
+                res.status(400).send('Missing Parameters');
+                printLine('ExchangeDirect', `Invalid Request to proxy, missing a message ID`, 'error');
+            }
+        } else {
+            res.status(404).end();
+        }
+
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+    }
+})
 
 // Ambient Mode
 router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {

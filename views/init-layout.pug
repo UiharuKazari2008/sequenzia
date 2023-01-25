@@ -20,12 +20,13 @@ html
         link(rel='preload', href="/static/img/kms-background.jpeg" as='image')
         link(rel='preload', href="/static/img/kongou-group.png" as='image')
         link(rel='preload', href="/static/img/seq-mascot.png" as='image')
-        if (user && user.banner)
-            link(rel='preload', href=`${user.banner}` as='image')
-        if (user && user.avatar)
-            link(rel='preload', href=`${user.avatar}` as='image')
-        each thisServer, thisIndex in discord.servers.list
-            link(rel='preload', href=`${thisServer.icon}` as='image')
+        each exchange, exchange_id in exchange_list
+            if (exchange.user && exchange.user.banner)
+                link(rel='preload', href=`${exchange.user.banner}` as='image')
+            if (exchange.user && exchange.user.avatar)
+                link(rel='preload', href=`${exchange.user.avatar}` as='image')
+            each thisServer, thisIndex in exchange.discord.servers.list
+                link(rel='preload', href=`${thisServer.icon}` as='image')
         if (applications_list && applications_list.length > 0)
             each app in applications_list
                 if (app.images)
@@ -40,7 +41,7 @@ html
         meta(name='description', content=webconf.site_name || 'Sequenzia')
         meta(name='author', content='Yukimi Kazari')
         meta(name="apple-mobile-web-app-capable" content="yes")
-        meta(name="pple-mobile-web-app-title" content=webconf.site_name || "Sequenzia")
+        meta(name="apple-mobile-web-app-title" content=webconf.site_name || "Sequenzia")
         meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
         meta(content=webconf.site_name || "Sequenzia" property="og:title")
         meta(content="Image Gallery and File Manager" property="og:description")
@@ -158,19 +159,33 @@ html
                     document.querySelectorAll('.btn-group.page-navigator > a').forEach((e, i, a) => (a.length > 1 && i === 0) ? e.remove() : null);
                 }
             }
-        if (user && user.banner)
-            style.
-                .user-info-bg, #topbarUserBackground {
-                    background-image: url('#{user.banner}');
-                }
-        else if (user && user.avatar)
-            style.
-                .user-info-bg, #topbarUserBackground {
-                    background-color: transparent;
-                }
-                #topbarUserBackground {
-                    display: none!important;
-                }
+        each exchange, exchange_id in exchange_list
+            if (exchange.user && exchange.user.banner && exchange_id === 'master')
+                style.
+                    .user-info-bg, #topbarUserBackground {
+                        background-image: url('#{exchange.user.banner}');
+                    }
+            else if (exchange.user && exchange.user.banner && exchange_id !== 'master')
+                style.
+                    .user-info-bg-#{exchange_id}, #topbarUserBackground-#{exchange_id} {
+                        background-image: url('#{exchange.user.banner}');
+                    }
+            else if (exchange_id !== 'master')
+                style.
+                    .user-info-bg-#{exchange_id}, #topbarUserBackground-#{exchange_id} {
+                        background-color: transparent;
+                    }
+                    #topbarUserBackground-#{exchange_id} {
+                        display: none!important;
+                    }
+            else
+                style.
+                    .user-info-bg, #topbarUserBackground {
+                        background-color: transparent;
+                    }
+                    #topbarUserBackground {
+                        display: none!important;
+                    }
     body(id="page-top").sidebar-toggled
         script.
             if (performaceMode) {

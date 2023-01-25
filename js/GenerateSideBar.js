@@ -23,6 +23,7 @@ module.exports = async (req, res, next) => {
                 write_channels: thisUser.master.discord.channels.write,
                 disabled_channels: thisUser.master.disabled_channels,
                 discord: thisUser.master.discord,
+                exchange_list: thisUser,
                 user: thisUser.master.user,
                 login_source: req.session.login_source,
                 webconf: webconfig

@@ -44,6 +44,7 @@ module.exports = async (req, res, next) => {
         artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
         theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
         applications_list: thisUser.master.applications_list,
+        exchange_list: thisUser,
         ...res.locals.response,
         webconf: web,
         query: req.query

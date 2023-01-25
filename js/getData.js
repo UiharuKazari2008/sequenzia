@@ -1267,6 +1267,7 @@ module.exports = async (req, res, next) => {
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
+                    exchange_list: thisUser,
                     call_uri: page_uri,
                     device: ua,
                 }
@@ -1293,6 +1294,7 @@ module.exports = async (req, res, next) => {
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
+                    exchange_list: thisUser,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -1483,6 +1485,7 @@ module.exports = async (req, res, next) => {
                         theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                         next_episode: thisUser.master.kongou_next_episode,
                         applications_list: thisUser.master.applications_list,
+                        exchange_list: thisUser,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1506,6 +1509,7 @@ module.exports = async (req, res, next) => {
                         theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                         next_episode: thisUser.master.kongou_next_episode,
                         applications_list: thisUser.master.applications_list,
+                        exchange_list: thisUser,
                         device: ua,
                         call_uri: page_uri,
                     }
@@ -1600,6 +1604,7 @@ module.exports = async (req, res, next) => {
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
+                    exchange_list: thisUser,
                     device: ua,
                     call_uri: page_uri,
                 }
@@ -2883,6 +2888,7 @@ module.exports = async (req, res, next) => {
                             next_episode: thisUser.master.kongou_next_episode,
                             applications_list: thisUser.master.applications_list,
                             ultraCache: messageResults.cache,
+                            exchange_list: thisUser,
                             device: ua,
                             folderInfo
                         }
@@ -2942,6 +2948,7 @@ module.exports = async (req, res, next) => {
                             theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                             next_episode: thisUser.master.kongou_next_episode,
                             applications_list: thisUser.master.applications_list,
+                            exchange_list: thisUser,
                             device: ua,
                         }
                         next();
@@ -2967,6 +2974,7 @@ module.exports = async (req, res, next) => {
                     theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                     next_episode: thisUser.master.kongou_next_episode,
                     applications_list: thisUser.master.applications_list,
+                    exchange_list: thisUser,
                     device: ua,
                 }
                 next();
