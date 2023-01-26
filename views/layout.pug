@@ -164,7 +164,7 @@ html
                                                 .row.w-100.ml-0.mr-0
                                                     .col-auto.p-0
                                                         if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
-                                                            a(title="Return to Application Menu" class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;').mr-1
+                                                            a(title="Return to Application Menu" class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;').mr-1
                                                                 i.far.fa-fw.fa-browser
                                                     .col.p-0
                                                         div.w-100(id=`locationAccordion${(exchange_id !== 'master') ? exchange_id :''}`)
@@ -296,7 +296,7 @@ html
                                                 div.position-relative.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100#appMenuRow1.align-items-center
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
-                                                            a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;').d-flex.align-items-center.py-0
+                                                            a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;').d-flex.align-items-center.py-0
                                                                 i.fas.fa-house.fa-fw.d-none
                                                                 img.my-2.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.4em;')
                                                         else
@@ -332,7 +332,7 @@ html
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemUpload${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
                                                         i.fas.fa-upload.mr-2
@@ -370,7 +370,7 @@ html
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick=`getAlbumDirectory(); return false;`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-globe-americas
@@ -419,7 +419,7 @@ html
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemArtists${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Artist Index" href='#_' onclick=`getNewContent([],[],'/artists'); return false;`).ml-2
                                                         i.fas.fa-fw.mr-md-1.fa-grid-2
@@ -471,7 +471,7 @@ html
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemApps${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
                                                 .d-flex.w-100.align-items-center
-                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                    a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
                                                         i.fas.fa-browsers.mr-2
@@ -519,7 +519,7 @@ html
                                     div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 h4.text-primary.ml-auto.mb-0
                                                     i.fas.fa-passport.mr-2
@@ -564,7 +564,7 @@ html
                                     div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemHistory`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 a(class="btn btn-primary" title="Show All Image History" href=`#_` onclick=`getNewContent([],[['history_numdays','90'],['sort','history'],['history','only'],['displayname','*']],'/gallery'); return false;`).ml-2
                                                     i.fas.fa-fw.mr-md-1.fa-grid-2
@@ -600,7 +600,7 @@ html
                                     div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 .input-group.ml-2(style='max-width: 180px;')
                                                     input#expressLoginCode(type='text' placeholder='A1B2C3' style="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase
@@ -636,7 +636,7 @@ html
                                     div#menuItemTools.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;')
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 h4.text-primary.ml-auto.mb-0
                                                     i.fas.fa-toolbox.mr-2

@@ -798,7 +798,7 @@ async function requestCompleted (response, url, lastURL, push) {
             $('[data-tooltip="tooltip"]').tooltip('hide')
         }
     }
-    goToMainMain();
+    goToMainMain(true);
     if (nextContext !== currentContext || activeExchange !== lastExchange || initialLoad) {
         setTimeout(() => {
             $.when($(`.boot-logo-panel`).fadeOut(500)).done(() => {
@@ -4264,8 +4264,8 @@ if (!activeExchange)
     activeExchange = 'master';
 function goToMainMain(indirect) {
     let seqMainMenu = $(`#menuItemMainSeq${(activeExchange !== 'master') ? activeExchange : ''}`);
-    if (!indirect && seqMainMenu.length > 0)
-        seqMainMenu = $(`#menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`);
+    if (indirect || seqMainMenu.length === 0)
+        seqMainMenu = $(`#menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`)
     seqMainMenu.collapse('show');
 }
 function switchExchange(exchange_id, automatic) {
@@ -4281,7 +4281,7 @@ function switchExchange(exchange_id, automatic) {
                 if (xhr.status < 400) {
                     activeExchange = exchange_id;
                     if (!automatic)
-                        goToMainMain();
+                        goToMainMain(true);
                     ok(true);
                     kernelRequestData({type: 'SYNC_ACTIVE_EXCHANGE'});
                 } else {
@@ -5194,7 +5194,7 @@ function registerUserMenuHandlers() {
     $('#userMenu').on('hidden.bs.collapse', function () {
         if (!($('#userMenu').hasClass('show'))) {
             $('.show-menu-open').addClass('hidden');
-            goToMainMain();
+            goToMainMain(true);
             $('#mainMenuBar').addClass('top-padding-safety');
             $('#topbar').removeClass('menu-open')
             if ($('html').scrollTop() <= 50) {
