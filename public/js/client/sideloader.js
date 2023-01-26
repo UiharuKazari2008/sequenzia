@@ -4264,7 +4264,7 @@ if (!activeExchange)
     activeExchange = 'master';
 function goToMainMain(indirect) {
     let seqMainMenu = $(`#menuItemMainSeq${(activeExchange !== 'master') ? activeExchange : ''}`);
-    if (!indirect)
+    if (!indirect && seqMainMenu.length > 0)
         seqMainMenu = $(`#menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`);
     seqMainMenu.collapse('show');
 }
