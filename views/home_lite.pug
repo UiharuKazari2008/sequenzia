@@ -14,21 +14,22 @@ html
         meta(content=webconf.site_name || "Sequenzia" property="og:title")
         meta(content="Image Gallery and File Manager" property="og:description")
         meta(content=webconf.site_name || "Sequenzia" property="og:site_name")
-        each exchange, exchange_id in exchange_list
-            if (exchange.user && exchange.user.banner)
-                link(rel='preload', href=`${exchange.user.banner}` as='image')
-            if (exchange.user && exchange.user.avatar)
-                link(rel='preload', href=`${exchange.user.avatar}` as='image')
-            each thisServer, thisIndex in exchange.discord.servers.list
-                link(rel='preload', href=`${thisServer.icon}` as='image')
-            if (exchange.kongou_next_episode)
-                link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
-        if (applications_list && applications_list.length > 0)
-            each app in applications_list
-                if (app.images)
-                    each image in Array.from(Object.entries(app.images))
-                        meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
-                        link(rel='preload', href=`${image[1]}` as='image')
+        if (exchange_list)
+            each exchange, exchange_id in exchange_list
+                if (exchange.user && exchange.user.banner)
+                    link(rel='preload', href=`${exchange.user.banner}` as='image')
+                if (exchange.user && exchange.user.avatar)
+                    link(rel='preload', href=`${exchange.user.avatar}` as='image')
+                each thisServer, thisIndex in exchange.discord.servers.list
+                    link(rel='preload', href=`${thisServer.icon}` as='image')
+                if (exchange.kongou_next_episode)
+                    link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
+            if (applications_list && applications_list.length > 0)
+                each app in applications_list
+                    if (app.images)
+                        each image in Array.from(Object.entries(app.images))
+                            meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
+                            link(rel='preload', href=`${image[1]}` as='image')
 
         link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
@@ -96,39 +97,40 @@ html
 
         style.
             @supports (-webkit-touch-callout: initial) { body { height: 100vh; } }
-        each exchange, exchange_id in exchange_list
-            if (exchange.user && exchange.user.banner && exchange_id === 'master')
-                style.
-                    .user-info-bg, #topbarUserBackground {
-                        background-image: url('#{exchange.user.banner}');
-                    }
-            else if (exchange.user && exchange.user.banner && exchange_id !== 'master')
-                style.
-                    .user-info-bg-#{exchange_id}, #topbarUserBackground-#{exchange_id} {
-                        background-image: url('#{exchange.user.banner}');
-                    }
-            else if (exchange_id !== 'master')
-                style.
-                    .user-info-bg-#{exchange_id}, #topbarUserBackground-#{exchange_id} {
-                        background-color: transparent;
-                    }
+        if (exchange_list)
+            each exchange, exchange_id in exchange_list
+                if (exchange.user && exchange.user.banner && exchange_id === 'master')
+                    style.
+                        .user-info-bg, #topbarUserBackground {
+                            background-image: url('#{exchange.user.banner}');
+                        }
+                else if (exchange.user && exchange.user.banner && exchange_id !== 'master')
+                    style.
+                        .user-info-bg-#{exchange_id}, #topbarUserBackground-#{exchange_id} {
+                            background-image: url('#{exchange.user.banner}');
+                        }
+                else if (exchange_id !== 'master')
+                    style.
+                        .user-info-bg-#{exchange_id}, #topbarUserBackground-#{exchange_id} {
+                            background-color: transparent;
+                        }
 
-                    #topbarUserBackground-#{exchange_id} {
-                        display: none !important;
-                    }
-            else
-                style.
-                    .user-info-bg, #topbarUserBackground {
-                        background-color: transparent;
-                    }
+                        #topbarUserBackground-#{exchange_id} {
+                            display: none !important;
+                        }
+                else
+                    style.
+                        .user-info-bg, #topbarUserBackground {
+                            background-color: transparent;
+                        }
 
-                    #topbarUserBackground {
-                        display: none !important;
-                    }
-        script.
-            let channel_to_exchange = {}
-            const exchange_to_channels = {!{Object.entries(exchange_list).map(e => `${e[0]}: [${e[1].discord.channels.read.map(e => "'" + e + "'")}]`)}};
-            Object.entries(exchange_to_channels).map(e => e[1].map(f => channel_to_exchange[f.toString()] = e[0]));
+                        #topbarUserBackground {
+                            display: none !important;
+                        }
+            script.
+                let channel_to_exchange = {}
+                const exchange_to_channels = {!{Object.entries(exchange_list).map(e => `${e[0]}: [${e[1].discord.channels.read.map(e => "'" + e + "'")}]`)}};
+                Object.entries(exchange_to_channels).map(e => e[1].map(f => channel_to_exchange[f.toString()] = e[0]));
     body
         div#topBarPWA
         script.
@@ -139,72 +141,73 @@ html
             }
         #bootBackdrop.boot-logo-overlay(style="display: none;")
             #bootBackdropSunrise
-        for exchange, this_exchnage in exchange_list
-            .boot-logo-overlay.boot-logo-panel.kmsBootDisplay-panel.animated--grow-in.d-none(style="display: none;" id=`kmsBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                    div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
-                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
-                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
-                            div.d-flex(style="z-index: 1;")
-                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
-                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
-                        div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                            span.boot-status-holder.font-weight-bolder Kongou Media Project v9
-                            .mt-1.boot-icons-holder.d-none
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                        div.boot-author-loog.p-2.position-absolute.bottom-left
-                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
-            .boot-logo-overlay.boot-logo-panel.appBootDisplay-panel.animated--grow-in.d-none(style="display: none;" id=`appBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                    div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/app-background.jpg);` id=`appBootBackground${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
-                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                        div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
-                            div.d-flex(style="z-index: 1;")
-                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);" id=`appBootLogo${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden(id=`appBootAccent${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
-                        div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                            span.boot-status-holder.font-weight-bolder JuneApp Platform v1
-                            .mt-1.boot-icons-holder.d-none
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                        div.boot-author-loog.p-2.position-absolute.bottom-left
-                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);" id=`appBootPublisher${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-            .boot-logo-overlay.boot-logo-panel.bootUpDisplay-panel.animated--grow-in.d-none(id=`bootUpDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                    div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.user.banner) ? exchange.user.banner : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/bootlogo-inner.jpeg'})`)
-                        div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+        if (exchange_list)
+            for exchange, this_exchnage in exchange_list
+                .boot-logo-overlay.boot-logo-panel.kmsBootDisplay-panel.animated--grow-in.d-none(style="display: none;" id=`kmsBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                    .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                        div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
                             div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                             div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
-                            div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
-                                //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
-                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                            div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                                div.d-flex(style="z-index: 1;")
+                                    img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                             div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
-                            div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
-                                i.px-2.fas.fa-image
-                                i.px-2.fas.fa-film
-                                i.px-2.fas.fa-music
-                                i.px-2.fas.fa-folder
-                                i.px-2.fas.fa-archive
-                        div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                            span#bootLoaderStatus.boot-status-holder.font-weight-bolder JuneOS Platform v20
-                            .mt-1.boot-icons-holder#bootStatusIcons
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                                i.fas.fa-circle(style="opacity: 50%").pl-2
-                            //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
-                        div.boot-author-loog.p-2.position-absolute.bottom-left
-                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                            div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                                span.boot-status-holder.font-weight-bolder Kongou Media Project v9
+                                .mt-1.boot-icons-holder.d-none
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                            div.boot-author-loog.p-2.position-absolute.bottom-left
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                .boot-logo-overlay.boot-logo-panel.appBootDisplay-panel.animated--grow-in.d-none(style="display: none;" id=`appBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                    .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                        div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/app-background.jpg);` id=`appBootBackground${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                            div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                            div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                            div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                                div.d-flex(style="z-index: 1;")
+                                    img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);" id=`appBootLogo${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                            div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden(id=`appBootAccent${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                            div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                                span.boot-status-holder.font-weight-bolder JuneApp Platform v1
+                                .mt-1.boot-icons-holder.d-none
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                            div.boot-author-loog.p-2.position-absolute.bottom-left
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);" id=`appBootPublisher${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                .boot-logo-overlay.boot-logo-panel.bootUpDisplay-panel.animated--grow-in.d-none(id=`bootUpDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                    .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                        div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.user.banner) ? exchange.user.banner : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/bootlogo-inner.jpeg'})`)
+                            div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                                div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                                div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                                div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
+                                    //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                                    img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                                div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                                    img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                                div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
+                                    i.px-2.fas.fa-image
+                                    i.px-2.fas.fa-film
+                                    i.px-2.fas.fa-music
+                                    i.px-2.fas.fa-folder
+                                    i.px-2.fas.fa-archive
+                            div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                                span#bootLoaderStatus.boot-status-holder.font-weight-bolder JuneOS Platform v20
+                                .mt-1.boot-icons-holder#bootStatusIcons
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                    i.fas.fa-circle(style="opacity: 50%").pl-2
+                                //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                            div.boot-author-loog.p-2.position-absolute.bottom-left
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         if (active_exchange)
             #homeBg.background-image.overlay
             #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
@@ -258,51 +261,57 @@ html
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5
-            #bootUpLogo.center-block.animated--fade-in(class=(active_exchange && active_exchange.user) ? '' : 'd-none')
-                .d-flex.pb-1.w-100.flex-column
-                    .d-flex.flex-grow-1.align-items-center.boot-card-holder
-                        div.user-info-bg.rounded(class=`user-info-bg-${active_exchange_id}`)
-                            div.user-info-border.rounded
-                            div.user-info-backdrop.rounded
-                            div.user-info-overlay.position-absolute.rounded
-                            div.user-infocard-holder.d-flex.flex-column
-                                .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                    img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                    if (active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.membership)
-                                        if (active_exchange.discord.user.membership.background)
-                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}background: ${active_exchange.discord.user.membership.background}`)
-                                                if (active_exchange.discord.user.membership.icon)
-                                                    i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
-                                                span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
-                                        else
-                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}`)
-                                                if (active_exchange.discord.user.membership.icon)
-                                                    i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
-                                                span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
-                                    else
-                                        span.ml-auto.shadow-text(style="z-index: 1;") Member
+            if (exchange_list)
+                for exchange, this_exchnage in exchange_list
+                    .bootUpLogo.center-block.animated--fade-in.shadow-blk(class=((this_exchnage === active_exchange_id) || (!active_exchange_id && this_exchnage === 'master')) ? '' : 'd-none' id=`bootUpLogo${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+                        .d-flex.pb-1.w-100.flex-column
+                            .d-flex.flex-grow-1.align-items-center.boot-card-holder
+                                div.user-info-bg.rounded(class=`user-info-bg-${this_exchnage}`)
+                                    div.user-info-border.rounded
+                                    div.user-info-backdrop.rounded
+                                    div.user-info-overlay.position-absolute.rounded
+                                    div.user-infocard-holder.d-flex.flex-column
+                                        .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                            img.sidebar-brand-logo.sequenzia-logo(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                            if (exchange && exchange.discord && exchange.discord.user && exchange.discord.user.membership)
+                                                if (exchange.discord.user.membership.background)
+                                                    div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
+                                                        if (exchange.discord.user.membership.icon)
+                                                            i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                        span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                else
+                                                    div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}`)
+                                                        if (exchange.discord.user.membership.icon)
+                                                            i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                        span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                            else
+                                                span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
-                                .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                    if (active_exchange && active_exchange.user)
-                                        .col-auto.p-0
-                                            img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
-                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                            div.text-center.text-ellipsis.align-middle.mr-auto
-                                                if (login_source && login_source > 101)
-                                                    span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
-                                                else if (active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.server && active_exchange.discord.user.server.length > 0)
-                                                    i.pr-1.fas.fa-check-circle
-                                                    span #{(active_exchange.discord.user.server[0].nice_name) ? active_exchange.discord.user.server[0].nice_name : active_exchange.discord.user.server[0].name}
-                                                    //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                            div.text-ellipsis.shadow-text.user-infocard-info
-                                                span.p-0.font-weight-light.d-inline.user-infocard-username #{active_exchange.user.username}
+                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                            if (exchange && exchange.user)
+                                                .col-auto.p-0
+                                                    img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
+                                                .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                    div.text-center.text-ellipsis.align-middle.mr-auto
+                                                        if (login_source && login_source > 101)
+                                                            span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
+                                                        else if (exchange.discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
+                                                            i.pr-1.fas.fa-check-circle
+                                                            span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
+                                                            //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                    div.text-ellipsis.shadow-text.user-infocard-info
+                                                        span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
+            div#exchangeChangeover.d-none.ml-auto.mr-auto
+                .menu-container.p-2.rounded
+                    i.fas.fa-sync.mr-1
+                    span Please Wait...
             #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column(class=(!active_exchange) ? '' : 'd-none')
                 .menu-container.w-100.p-3.rounded.position-relative
                     .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                     div#menuAccordion(style='display: contents').w-100.menu-glow
                         div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").w-100
-                            #mainUserButtons.d-flex(class=`${(!active_exchange && active_exchange.discord) ? 'hidden':''}`).flex-column
+                            #mainUserButtons.d-flex(class=`${(!active_exchange) ? 'hidden':''}`).flex-column
                                 div#mainButtonsAccordion(style='display: contents').w-100
                                     div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
                                         .menu-grid.main-menu-grid.menu-icons.py-1
@@ -351,7 +360,7 @@ html
                                             a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
                                                 i.fa-light.fa-chevron-down
 
-                            #menuSearchActivity.pt-2.w-100(class=`${(!active_exchange && active_exchange.discord) ? 'd-none' : 'd-flex'}`)
+                            #menuSearchActivity.pt-2.w-100(class=`${(!active_exchange) ? 'd-none' : 'd-flex'}`)
                                 .d-flex.align-items-center
                                     //span.sidebar-brand-logo.sequenzia-logo sequenzia
                                     div#statusPanel(style='display: contents;')
@@ -611,6 +620,54 @@ html
                                                 a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
                                                     i.fas(class=`${thisTheater.icon}`)
                                                     | #{thisTheater.name}
+                            div#menuItemWallet.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Account Settings', href='#_' data-toggle="collapse" data-target="#menuItemAccount")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-passport.pr-2
+                                            span Passports
+                                .w-100.user-card-list
+                                    each exchange, exchange_id in exchange_list
+                                        div.user-info-bg.rounded.position-relative(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
+                                            div.user-info-backdrop.rounded
+                                            div.user-info-border.rounded
+                                            div.user-info-overlay.position-absolute.rounded
+                                            div.user-infocard-holder.d-flex.flex-column
+                                                .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                    img.sidebar-brand-logo.sequenzia-logo(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                    if (exchange.discord.user.membership)
+                                                        if (exchange.discord.user.membership.background)
+                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
+                                                                if (exchange.discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                        else
+                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}`)
+                                                                if (exchange.discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                    else
+                                                        span.ml-auto.shadow-text(style="z-index: 1;") Member
+
+
+                                                .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                    .col-auto.p-0
+                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
+                                                    .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                        div.text-center.text-ellipsis.align-middle.mr-auto
+                                                            if (login_source && login_source > 101)
+                                                                span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
+                                                            else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
+                                                                i.pr-1.fas.fa-check-circle
+                                                            span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
+                                                                //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                        div.text-ellipsis.shadow-text.user-infocard-info
+                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
+
                         div#menuItemAccount.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                             .d-flex
                                 .d-flex.flex-grow-1
@@ -633,8 +690,8 @@ html
                                         div.user-info-overlay.position-absolute.rounded
                                         div.user-infocard-holder.d-flex.flex-column
                                             .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                                if (active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.membership)
+                                                img.sidebar-brand-logo.sequenzia-logo(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                if (active_exchange && active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.membership)
                                                     if (active_exchange.discord.user.membership.background)
                                                         div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}background: ${active_exchange.discord.user.membership.background}`)
                                                             if (active_exchange.discord.user.membership.icon)
@@ -664,6 +721,9 @@ html
                                                         div.text-ellipsis.shadow-text.user-infocard-info
                                                             span.p-0.font-weight-light.d-inline.user-infocard-username #{active_exchange.user.username}
                                     div.menu-grid.user-menu-small
+                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Change Account" href='#_' data-toggle="collapse" data-target="#menuItemWallet")
+                                            i.fas.fa-passport
+                                            | Passports
                                         a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
                                             i.fas.fa-sign-out-alt
                                             | Log Out

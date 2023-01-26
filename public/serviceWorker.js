@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v20-1-250123-PATCH1'
+const cacheName = 'PRERELEASE-v20-1-260123'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -872,6 +872,15 @@ self.addEventListener('message', async (event) => {
                 })
                 refreshCurrentExchange = null;
             }, 3000);
+            event.ports[0].postMessage(true);
+            break;
+        case 'SYNC_ACTIVE_EXCHANGE_NOW':
+            clearTimeout(refreshCurrentExchange);
+            refreshCurrentExchange = null;
+            const update_exchange = await caches.open(cacheOptions.cacheConfig);
+            for (let url of cacheOptions.updateExchangeCache) {
+                await update_exchange.add(url);
+            }
             event.ports[0].postMessage(true);
             break;
         case 'GET_ALL_ACTIVE_JOBS':

@@ -160,7 +160,7 @@ html
                                             if (exchange.kongou_next_episode)
                                                 div.outer-menu-next-episode(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(style="height: 152px" src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
-                                            div.position-relative.user-menu-height(style="width: 100%;" class=`${((search_prev && search_prev !== '')) ? 'dual-search' : ''}`)
+                                            div.position-relative.user-menu-height(class=`${((search_prev && search_prev !== '')) ? 'dual-search' : ''}`)
                                                 .row.w-100.ml-0.mr-0
                                                     .col-auto.p-0
                                                         if (appData || (path && (path === '/tvTheater' || path === '/listTheater')))
@@ -176,7 +176,7 @@ html
                                                                                 i.far.fa-map.align-middle
                                                                             a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationTags${(exchange_id !== 'master') ? exchange_id :''}` onclick=`$('#menuItemMain${(exchange_id !== 'master') ? exchange_id :''} .user-menu-height').removeClass('dual-search'); return false;`)
                                                                                 i.far.fa-chevron-up.align-middle
-                                                                        div.d-flex.flex-column.w-100.justify-content-between.flex-md-row
+                                                                        div.d-flex.flex-column.w-100.justify-content-between.flex-xl-row
                                                                             div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
                                                                                 input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
                                                                                 i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
@@ -185,7 +185,7 @@ html
                                                                                 i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
                                                                         input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "${exchange_id}"${(exchange_id !== active_exchange_id) ? ', "/' + ((path === '/gallery') ? 'gallery' : 'files') + '"' : ''}); return false;`)
                                                                         .input-group-append
-                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelpModal').d-none.d-sm-flex
+                                                                            a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Help" href='#_' data-toggle='modal' data-target='#searchHelpModal').d-none.d-lg-flex
                                                                                 i.far.fa-question-circle.align-middle
                                                                             a.btn.input-group-text.top-menu-search-bar.border-0(title="Search Current Results"  href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}"${(exchange_id !== active_exchange_id) ? ', "/' + ((path === '/gallery') ? 'gallery' : 'files') + '"' : ''}); return false;`)
                                                                                 i.far.fa-square-arrow-right.fa-sm.align-middle.nav-item
@@ -516,46 +516,51 @@ html
                                                                     | #{thisTheater.name}
                                                         else
                                                             h2 No Theaters Available
-                                    div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
-                                        div.user-card-list.pb-1.m-0(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
-                                            a.user-card-return.d-flex.align-items-center(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
-                                                i.fas.fa-arrow-left.fa-fw
-                                            each exchange, exchange_id in exchange_list
-                                                div.user-info-bg.rounded(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
-                                                    div.user-info-backdrop.rounded
-                                                    div.user-info-border.rounded
-                                                    div.user-info-overlay.position-absolute.rounded
-                                                    div.user-infocard-holder.d-flex.flex-column
-                                                        .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                            img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                                            if (exchange.discord.user.membership)
-                                                                if (exchange.discord.user.membership.background)
-                                                                    div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
-                                                                        if (exchange.discord.user.membership.icon)
-                                                                            i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
-                                                                        span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                    div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
+                                        div.position-relative.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100.align-items-center
+                                                a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                h4.text-primary.ml-auto.mb-0
+                                                    i.fas.fa-passport.mr-2
+                                                    | Passports
+                                            .row.w-100.position-absolute.mt-3.pb-3.user-card-list.m-0
+                                                each exchange, exchange_id in exchange_list
+                                                    div.user-info-bg.rounded.position-relative(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
+                                                        div.user-info-backdrop.rounded
+                                                        div.user-info-border.rounded
+                                                        div.user-info-overlay.position-absolute.rounded
+                                                        div.user-infocard-holder.d-flex.flex-column
+                                                            .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                                img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                                if (exchange.discord.user.membership)
+                                                                    if (exchange.discord.user.membership.background)
+                                                                        div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
+                                                                            if (exchange.discord.user.membership.icon)
+                                                                                i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                                            span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                                    else
+                                                                        div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}`)
+                                                                            if (exchange.discord.user.membership.icon)
+                                                                                i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                                            span(style="z-index: 1;") #{exchange.discord.user.membership.text}
                                                                 else
-                                                                    div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}`)
-                                                                        if (exchange.discord.user.membership.icon)
-                                                                            i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
-                                                                        span(style="z-index: 1;") #{exchange.discord.user.membership.text}
-                                                            else
-                                                                span.ml-auto.shadow-text(style="z-index: 1;") Member
+                                                                    span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
-                                                        .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                                            .col-auto.p-0
-                                                                img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
-                                                            .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                                                div.text-center.text-ellipsis.align-middle.mr-auto
-                                                                    if (login_source && login_source > 101)
-                                                                        span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
-                                                                    else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
-                                                                        i.pr-1.fas.fa-check-circle
-                                                                    span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
-                                                                        //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                                                div.text-ellipsis.shadow-text.user-infocard-info
-                                                                    span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
+                                                            .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                                .col-auto.p-0
+                                                                    img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
+                                                                .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                                    div.text-center.text-ellipsis.align-middle.mr-auto
+                                                                        if (login_source && login_source > 101)
+                                                                            span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
+                                                                        else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
+                                                                            i.pr-1.fas.fa-check-circle
+                                                                        span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
+                                                                            //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                                    div.text-ellipsis.shadow-text.user-infocard-info
+                                                                        span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
                                     div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemHistory`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -1625,8 +1630,8 @@ html
                                                 i.fas.fa-bolt.px-1(title=`UltraCache - ${ultraCache}m`)
                                             else
                                                 i.fas.fa-wave-triangle.px-1(title="UltraCache is processing...")
-                                            if (remote_exchange)
-                                                i.fas.fa-link-horizontal.px-1
+                                            if (is_remote_exchange)
+                                                i.fas.fa-link-horizontal.px-1(title="Remote Exchange")
 
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100

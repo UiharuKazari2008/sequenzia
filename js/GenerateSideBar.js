@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
     if (thisUser.master && thisUser.master.sidebar) {
         if (req.url === '/') {
             res.redirect(301, '/home')
-        } else if (req.headers['x-requested-page'] === 'SeqSidebar') {
+        } else if (req.url === '/sidebar' || req.headers['x-requested-page'] === 'SeqSidebar') {
             res.render('sidebar', {
                 url: req.url,
                 sidebar: thisUser.master.sidebar,

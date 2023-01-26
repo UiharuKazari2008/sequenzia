@@ -1648,6 +1648,30 @@ div#time {
     scale: 1.5;
 }
 
+.user-card-list {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: scroll;
+    white-space: nowrap;
+    flex-wrap: wrap;
+    width: 100%;
+    max-height: 50vh;
+    justify-content: center;
+}
+.user-card-list > .user-info-bg {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px;
+    display: block!important;
+}
+.user-card-list > .user-info-bg,
+.user-card-list > .user-info-bg > .user-info-backdrop,
+.user-card-list > .user-info-bg > .user-info-border,
+.user-card-list > .user-info-bg > .user-info-overlay {
+    width: 395px!important;
+    min-width: 200px!important;
+}
+
 @media (min-width:356px) {
     .card-columns {
         column-count: 1;

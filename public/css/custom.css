@@ -2159,7 +2159,7 @@ body:not(.menu-open):not(.bottom-bar) .topbar {
     margin-right: 0.25em;
     margin-bottom: 0.25rem;
 }
-@media (min-width: 941px) {
+@media (min-width: 1265px) {
     #mainMenuBar .scroll-list > div {
         margin-right: 0!important;
         margin-left: 0!important;
@@ -2173,6 +2173,12 @@ body:not(.menu-open):not(.bottom-bar) .topbar {
     }
     #mainMenuBar .album-list .album-item:last-child {
         margin-right: calc(env(safe-area-inset-right,0) + 1em);
+    }
+    .user-card-list div.user-info-bg:first-child {
+        margin-left: 0;
+    }
+    .user-card-list div.user-info-bg:last-child {
+        margin-right: 0;
     }
 }
 .album-preview {
@@ -2344,7 +2350,11 @@ footer .server-grid-parent {
     text-shadow: 0 0 4px #ff5100d6;
 }
 
-#menuAccordion>div>div:not(.user-info-bg), #menuAccordion>#appPanels>div>div {
+#menuAccordion>div>div:not(.user-info-bg)  {
+    width: 100%;
+}
+
+#menuAccordion>div>div:not(.user-info-bg):not(.main-menu-items), #menuAccordion>#appPanels>div>div {
     margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
     margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
     margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
@@ -3017,7 +3027,29 @@ div#bootBackdropSunrise {
     display: flex;
 }
 div#menuItemWallet .user-menu-height {
-    height: 220px;
+    height: 235px;
+}
+.user-card-list > .user-info-bg {
+
+    display: block!important;
+}
+div#menuItemWallet .user-card-list {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: scroll;
+    white-space: nowrap;
+    width: 100%;
+    height: 175px;
+    flex-direction: column;
+    align-content: start;
+}
+
+
+.user-card-list>.user-info-bg {
+    display: block!important;
+    margin: 0 .25em;
+    min-width: 300px;
+    width: 300px;
 }
 
 @keyframes animateBg {
@@ -3074,15 +3106,16 @@ div#menuItemWallet .user-menu-height {
     }
 }
 @media (max-width:1300px) {
-    .user-info-bg {
+    /*:not(.user-card-list) > .user-info-bg {
         display: none!important;
-    }
+    }*/
 }
 @media (max-width:1645px) {
     .user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
         min-width: 300px;
     }
 }
+
 @media (max-width:1550px) {
     .main-menu-items .user-menu-item {
         font-size: .8em;
@@ -3097,14 +3130,16 @@ div#menuItemWallet .user-menu-height {
         min-height: 84px;
         min-width: 124px;
     }
-    .shown-user-menu, .user-info-backdrop, .user-info-bg {
-        height: 135px;
+
+    :not(.user-card-list)>.user-info-bg, :not(.user-card-list)>div>.user-info-backdrop {
+        height: 170px;
     }
     .user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
         min-width: 300px;
     }
+
     .user-menu-height {
-        height: 143px;
+        height: 180px;
     }
     .kongou-next-episode-image {
         height: 140px;
@@ -3135,6 +3170,18 @@ div#menuItemWallet .user-menu-height {
         bottom: calc(env(safe-area-inset-bottom, 0px) + 175px + 2.25rem + 1.5rem);
     }
 }
+@media (min-width:1265px) {
+    .user-menu-height {
+        height: 143px;
+    }
+    :not(.user-card-list) > div > .user-info-backdrop,
+    :not(.user-card-list) > div > .user-info-overlay,
+    :not(.user-card-list) > div > .user-info-border,
+    :not(.user-card-list) > .user-info-bg {
+        height: 135px;
+    }
+}
+
 @media (max-width:1120px) {
     .user-menu-item {
         font-size: .8em;
@@ -3172,10 +3219,10 @@ div#menuItemWallet .user-menu-height {
 }
 
 @media (max-width:990px) {
-    .user-info-bg, .bottom-bar .user-info-bg,
-    .user-info-backdrop, .bottom-bar .user-info-backdrop {
+    /*:not(.user-card-list) > .user-info-bg, .bottom-bar .user-info-bg,
+    :not(.user-card-list) > div > .user-info-backdrop, .bottom-bar .user-info-backdrop {
         min-width: 375px;
-    }
+    }*/
 
 }
 @media (max-width:768px) {
@@ -3411,24 +3458,30 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: inline-flex !important;
     }
 }
-@media (max-width: 960px) {
-    .dual-search.user-menu-height {
-        height: 225px;
+@media (max-width: 1264px) {
+    #padding {
+        margin-top: calc(505px - env(safe-area-inset-top, 0px));
     }
-    .user-menu-height {
-        height: 200px
+    .user-menu-height, .dual-search.user-menu-height {
+        height: 180px;
     }
     #mainMenuBar .scroll-list .user-menu-height {
-        height: 355px;
+        height: 335px;
     }
     #mainMenuBar .album-list {
-        height: 300px;
+        height: 280px;
     }
-
-    #mainMenuBar .album-item,  #mainMenuBar #menuBodyImageHistory .album-item {
+    :not(.user-card-list) > div > .user-info-backdrop,
+    :not(.user-card-list) > div > .user-info-overlay,
+    :not(.user-card-list) > div > .user-info-border,
+    :not(.user-card-list) > .user-info-bg {
+        height: 170px;
+        min-width: 430px;
+    }
+    #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
         min-height: 100px;
-        min-width: calc(20% - 0.5rem);
-        margin-bottom: 0.5rem;
+        min-width: calc(14.2857142857% - .5rem);
+        margin-bottom: .5rem;
     }
     #mainMenuBar  .album-info {
         font-size: 0.8em;
@@ -3440,37 +3493,46 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         flex-wrap: wrap;
     }
 
-    .menu-grid {
+    .main-menu-items .menu-grid {
         max-width: 490px;
     }
     .kongou-next-episode-image {
-        height: 185px;
+        height: 165px;
+    }
+    .album-item {
+        min-height: 100px;
+        min-width: 150px;
+    }
+    .album-info {
+        font-size: 1em;
+    }
+    .bottom-bar.menu-open .page-navigator,
+    .bottom-bar.menu-open .scrollBtn,
+    .bottom-bar.menu-open .music-player {
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 195px + 2.5rem + 1.5rem);
+    }
+    .shown-user-menu {
+        height: calc(env(safe-area-inset-top, 0px) + 195px);
+        flex-direction: column;
+    }
+    .bottom-bar .shown-user-menu {
+        height: calc(env(safe-area-inset-bottom, 0px) + 195px);
+        flex-direction: column;
+    }
+    .topbar .dropdown .dropdown-menu {
+        max-height: calc(80vh - 180px);
+    }
+    #menuAccordion>div>.d-flex>div {
+        padding: 0!important;
+    }
+    .bottom-bar #menuAccordion>div>div:not(.d-flex), .bottom-bar #menuAccordion>div>.d-flex>div, .bottom-bar #menuAccordion>#appPanels>div>div {
+        margin-top: 0.5em;
     }
     #topbarIcon, #topbarAccent {
         top: unset;
         bottom: 0;
-        height: 260px;
+        height: 240px;
         opacity: 0.4;
-    }
-    #topbarUserBackground {
-        display: block;
-    }
-    .shown-user-menu {
-        height: calc(env(safe-area-inset-top, 0px) + 215px);
-        flex-direction: column;
-    }
-    .bottom-bar .shown-user-menu {
-        height: calc(env(safe-area-inset-bottom, 0px) + 215px);
-        flex-direction: column;
-    }
-    .topbar .dropdown .dropdown-menu {
-        max-height: calc(80vh - 200px);
-    }
-    .user-infocard-row1 {
-        margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
-        display: none;
-        margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
-        margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
     }
     .bottom-bar .user-infocard-row1 {
         margin-top: 0;
@@ -3479,11 +3541,109 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
         margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
     }
-    #padding {
-        margin-top: calc(525px - env(safe-area-inset-top, 0px));
-    }
     .user-infocard-row2 .album-list {
         margin-right: calc(env(safe-area-inset-right, 0px) + 0em);
+    }
+    .user-card-list {
+        flex-direction: row!important;
+        flex-wrap: wrap;
+        height: 158px;
+    }
+    .user-card-list > .user-info-bg {
+        margin: 0 0.5em 0.5em 0.5em;
+        min-width: calc(50% - 1em);
+        width: calc(50% - 1em);
+    }
+    .user-card-list > div > .user-info-backdrop,
+    .user-card-list > div > .user-info-overlay,
+    .user-card-list > div > .user-info-border {
+        min-width: 100%;
+        width: inherit;
+    }
+}
+@media (max-width: 1200px) {
+    .dual-search.user-menu-height {
+        height: 205px;
+    }
+}
+@media (max-width: 945px) {
+    :not(.user-card-list) > div > .user-info-backdrop,
+    :not(.user-card-list) > div > .user-info-overlay,
+    :not(.user-card-list) > div > .user-info-border,
+    :not(.user-card-list) > .user-info-bg {
+        min-width: 320px;
+    }
+}
+@media (max-width: 960px) {
+
+
+    /*#topbarUserBackground {
+        display: block;
+    }
+    :not(.user-card-list) > .user-info-bg, .bottom-bar .user-info-bg,
+    :not(.user-card-list) > div > .user-info-backdrop, .bottom-bar .user-info-backdrop {
+        height: 0;
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+        background: none!important;
+    }
+    :not(.user-card-list) > div > div > .user-infocard-row1 {
+        margin-top: calc(env(safe-area-inset-top, 0px) + 1em);
+        display: none;
+        margin-left: calc(env(safe-area-inset-left, 0px) + 1em);
+        margin-right: calc(env(safe-area-inset-right, 0px) + 1em);
+    }*/
+}
+@media (max-width: 900px) {
+    #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
+        min-height: 100px;
+        min-width: calc(16.6666666667% - .5rem);
+        margin-bottom: .5rem;
+    }
+}
+@media (max-width: 834px) {
+    .main-menu-items .dual-search.user-menu-height {
+        height: 267px;
+    }
+    .main-menu-items .menu-grid {
+        max-width: 320px;
+    }
+
+    #padding {
+        margin-top: calc(560px - env(safe-area-inset-top, 0px));
+    }
+    .main-menu-items .user-menu-height {
+        height: 235px;
+    }
+    #mainMenuBar .scroll-list .user-menu-height {
+        height: 335px;
+    }
+    #mainMenuBar .album-list {
+        height: 280px;
+    }
+    :not(.user-card-list) > div > .user-info-backdrop,
+    :not(.user-card-list) > div > .user-info-overlay,
+    :not(.user-card-list) > div > .user-info-border,
+    :not(.user-card-list) > .user-info-bg {
+        height: 225px;
+        min-width: 340px;
+    }
+
+    .bottom-bar.menu-open .page-navigator,
+     .bottom-bar.menu-open .scrollBtn,
+     .bottom-bar.menu-open .music-player {
+         bottom: calc(env(safe-area-inset-bottom, 0px) + 195px + 2.5rem + 1.5rem);
+     }
+    .shown-user-menu {
+        height: calc(env(safe-area-inset-top, 0px) + 195px);
+        flex-direction: column;
+    }
+    .bottom-bar .shown-user-menu {
+        height: calc(env(safe-area-inset-bottom, 0px) + 195px);
+        flex-direction: column;
+    }
+    .topbar .dropdown .dropdown-menu {
+        max-height: calc(80vh - 235px);
     }
     #menuAccordion>div>.d-flex>div {
         padding: 0!important;
@@ -3491,45 +3651,23 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .bottom-bar #menuAccordion>div>div:not(.d-flex), .bottom-bar #menuAccordion>div>.d-flex>div, .bottom-bar #menuAccordion>#appPanels>div>div {
         margin-top: 0.5em;
     }
-
-    .user-info-bg, .bottom-bar .user-info-bg,
-    .user-info-backdrop, .bottom-bar .user-info-backdrop {
-        height: 0;
-        border-bottom-right-radius: 0;
-        border-top-right-radius: 0;
-        background: none!important;
-    }
-
-    .bottom-bar.menu-open .page-navigator,
-    .bottom-bar.menu-open .scrollBtn,
-    .bottom-bar.menu-open .music-player {
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 215px + 2.5rem + 1.5rem);
-    }
-
-
-    .user-infocard-icon {
-        width: 32px;
-        font-size: 1.85em;
-        box-shadow: 0 0 4px #ff5100d6!important;
-    }
-    .user-infocard-username {
-        font-size: 1em;
-        color: #ffa554;
-        text-shadow: 0 0 4px #ff5100d6;
-    }
-
-
-    .album-item {
-        min-height: 120px;
-        min-width: 150px;
-    }
-    .album-info {
-        font-size: 1em;
+}
+@media (max-width: 800px) {
+    #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
+        min-height: 100px;
+        min-width: calc(20% - .5rem);
+        margin-bottom: .5rem;
     }
 }
-@media (max-width: 730px) {
-    #mainMenuBar .album-item {
+@media (max-width: 700px) {
+    #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
         min-width: calc(25% - 0.5rem);
+    }
+    :not(.user-card-list) > div > .user-info-backdrop,
+    :not(.user-card-list) > div > .user-info-overlay,
+    :not(.user-card-list) > div > .user-info-border,
+    :not(.user-card-list) > .user-info-bg {
+        min-width: 300px;
     }
 }
 @media (max-width: 767px) {
@@ -3643,6 +3781,45 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: none!important;
     }
 }
+@media (max-width:660px) {
+    .user-card-list {
+        height: 250px;
+    }
+    .user-card-list > .user-info-bg {
+        margin: 0 0.5em 0.5em 0.5em;
+        min-width: calc(100% - 1em);
+    }
+    div#menuItemWallet .user-menu-height {
+        height: 310px;
+    }
+    .main-menu-items {
+        flex-direction: column;
+    }
+    #menuAccordion>div.main-menu-items>div:not(.user-info-bg) {
+        margin-top: 0!important;
+        width: auto;
+    }
+
+    .main-menu-items .dual-search.user-menu-height {
+        height: 210px;
+    }
+    .main-menu-items .user-menu-height {
+        height: 180px;
+    }
+    :not(.user-card-list) > .user-info-bg {
+        margin: calc(env(safe-area-inset-top,0) + .75em) calc(env(safe-area-inset-left,0) + .75em) calc(env(safe-area-inset-right,0) + .75em) .75em;
+    }
+    :not(.user-card-list) > div > .user-info-backdrop,
+    :not(.user-card-list) > div > .user-info-overlay,
+    :not(.user-card-list) > div > .user-info-border,
+    :not(.user-card-list) > .user-info-bg {
+        min-width: calc(100% - calc(calc(env(safe-area-inset-left,0) + .75em) + calc(env(safe-area-inset-right,0) + .75em)));
+        height: 120px;
+    }
+    .main-menu-items .menu-grid {
+        max-width: 475px;
+    }
+}
 @media (min-width:576px) {
     .card-columns {
         column-count: 2;
@@ -3654,10 +3831,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width:575px) {
-    #mainMenuBar .album-item {
+    #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
         min-width: calc(33.33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333% - 0.5rem);
     }
-    .menu-grid {
+    .main-menu-items .menu-grid {
         max-width: 490px;
     }
     .table-responsive {
@@ -3677,6 +3854,26 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         max-width: 280px;
     }
 
+}
+@media (max-width:500px) {
+    .main-menu-items .menu-grid {
+        max-width: 325px;
+    }
+    .main-menu-items .dual-search.user-menu-height {
+        height: 260px;
+    }
+    .main-menu-items .user-menu-height {
+        height: 230px;
+    }
+    .user-menu-item {
+        padding-top: 0.25em;
+        padding: 0 0.25em;
+    }
+}
+@media (max-width:400px) {
+    #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
+        min-width: calc(50% - 0.5rem);
+    }
 }
 .sidebar {
     position: absolute;
@@ -3777,8 +3974,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         display: block;
     }
     .inner-menu-next-episode .kongou-next-episode-image {
-        height: 163px;
-    }
+         height: 110px;
+     }
     .outer-menu-next-episode {
         display: none;
     }
@@ -3790,7 +3987,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .kongou-next-episode-image {
         height: 236px;
     }
-    .menu-grid {
+    .main-menu-items .menu-grid {
         max-width: 340px;
     }
     .kms-main-grid {
@@ -3820,7 +4017,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-top: calc(475px - env(safe-area-inset-top, 0px));
     }
 
-    .user-menu-height {
+    .main-menu-items .user-menu-height {
         height: 250px
     }
 }
@@ -3830,8 +4027,8 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
 }
 @media (max-width: 383px) {
-    .inner-menu-next-episode .kongou-next-episode-image {
-        height: 163px;
+    .inner-menu-next-episode {
+        display: none;
     }
     .kms-main-grid {
         max-width: 170px;
@@ -3864,9 +4061,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         bottom: 0;
         height: 350px;
     }
-    .menu-grid {
-        max-width: 245px;
-    }
     .kms-main-grid {
         max-width: 167px;
     }
@@ -3892,10 +4086,6 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     }
     #padding {
         margin-top: calc(525px - env(safe-area-inset-top, 0px));
-    }
-
-    .user-menu-height {
-        height: 300px
     }
     .user-infocard-row2 .album-list {
         height: 250px;

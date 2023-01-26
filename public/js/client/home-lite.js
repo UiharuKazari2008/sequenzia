@@ -504,7 +504,7 @@ function getRandomImage() {
                         document.getElementById('midSearch').classList.remove('d-none');
                         document.getElementById('naviResume').classList.remove('d-none');
                         document.getElementById('photoInfo').classList.remove('d-none');
-                        document.getElementById('bootUpLogo').classList.add('d-none');
+                        document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
                     }, 1000)
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.add('shine-effect-go');
@@ -520,14 +520,14 @@ function getRandomImage() {
                     document.getElementById('midSearch').classList.remove('d-none');
                     document.getElementById('naviResume').classList.remove('d-none');
                     document.getElementById('photoInfo').classList.remove('d-none');
-                    document.getElementById('bootUpLogo').classList.add('d-none');
+                    document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
                     setTimeout(() => {
                         document.getElementById('midSearch').classList.add('shine-effect-go');
                     }, 3000)
                 } else {
                     document.getElementById('midSearch').classList.remove('d-none');
                     document.getElementById('naviResume').classList.remove('d-none');
-                    document.getElementById('bootUpLogo').classList.add('d-none');
+                    document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
                 }
             },
             error: function (xhr) {
@@ -542,7 +542,7 @@ function getRandomImage() {
                 }
                 document.getElementById('midSearch').classList.remove('d-none');
                 document.getElementById('naviResume').classList.remove('d-none');
-                document.getElementById('bootUpLogo').classList.add('d-none');
+                document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
                 setTimeout(() => {
                     document.getElementById('midSearch').classList.add('shine-effect-go');
                 }, 3000);
@@ -622,6 +622,48 @@ function verifyNetworkAccess() {
                     delay: 30000,
                 });
                 ok(false);
+            }
+        });
+    })
+}
+function switchExchange(exchange_id) {
+    document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
+    document.getElementById('midSearch').classList.add('d-none');
+    document.getElementById('naviResume').classList.add('d-none');
+    document.getElementById('photoInfo').classList.add('d-none');
+    document.getElementById('exchangeChangeover').classList.remove('d-none');
+    document.getElementById(`bootUpLogo${(exchange_id !== 'master') ? exchange_id : ''}`).classList.remove('d-none');
+
+    return new Promise(ok => {
+        $.ajax({async: true,
+            type: "get",
+            url: "/discord/exchange/" + exchange_id,
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: async function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    noAmbientTimer = true;
+                    await kernelRequestData({type: 'SYNC_ACTIVE_EXCHANGE_NOW'});
+                    window.location.reload();
+                    ok(true);
+                } else {
+                    ok(false);
+                    document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
+                    document.getElementById('midSearch').classList.remove('d-none');
+                    document.getElementById('naviResume').classList.remove('d-none');
+                    document.getElementById('photoInfo').classList.remove('d-none');
+                    document.getElementById('exchangeChangeover').classList.add('d-none');
+                }
+            },
+            error: function (xhr) {
+                ok(false);
+                document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
+                document.getElementById('midSearch').classList.remove('d-none');
+                document.getElementById('naviResume').classList.remove('d-none');
+                document.getElementById('photoInfo').classList.remove('d-none');
+                document.getElementById('exchangeChangeover').classList.add('d-none');
             }
         });
     })
