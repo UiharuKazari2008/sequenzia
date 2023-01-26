@@ -135,6 +135,53 @@ html
             }
         #bootBackdrop.boot-logo-overlay
             #bootBackdropSunrise
+        .boot-logo-overlay.boot-logo-panel(style="display: none;" id=`kmsBootDisplay`)
+            .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? '/media_attachments' + active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ((this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                    div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.d-flex(style="z-index: 1;")
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                    div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                        img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(active_exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder Kongou Media Project v9
+                        .mt-1.boot-icons-holder.d-none
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        .boot-logo-overlay.boot-logo-panel(id=`bootUpDisplay`)
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.user.banner) ? active_exchange.user.banner : ((this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/bootlogo-inner.jpeg'})`)
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder JuneOS Platform v20
+                        .mt-1.boot-icons-holder.d-none
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+
         #kmsBootDisplay.boot-logo-overlay(style="display: none;")
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(next_episode) ? (next_episode.background) ? '/media_attachments' + next_episode.background : next_episode.data.background[0] : '/static/img/kms-background.jpeg'});`)
@@ -154,9 +201,9 @@ html
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                     div.boot-author-loog.p-2.position-absolute.bottom-left
                         img(src="/static/img/acr-logo.png" style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
-        #bootUpDisplay.boot-logo-overlay
+        #bootUpDisplay.boot-logo-panel.boot-logo-overlay
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(user.banner) ? user.banner : '/static/img/bootlogo-inner.jpeg'})`)
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.user.banner) ? active_exchange.user.banner : '/static/img/bootlogo-inner.jpeg'})`)
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
@@ -226,34 +273,34 @@ html
                                             div.user-infocard-holder.d-flex.flex-column
                                                 .row.p-0.m-2(style="padding: 0.25em 0.5em;")
                                                     img.sidebar-brand-logo.sequenzia-logo.shadow(src='/static/img/sequenzia-logo-nav.png' style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                                    if (discord.user.membership)
-                                                        if (discord.user.membership.background)
-                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}background: ${discord.user.membership.background}`)
-                                                                if (discord.user.membership.icon)
-                                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
-                                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                                    if (active_exchange.discord.user.membership)
+                                                        if (active_exchange.discord.user.membership.background)
+                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}background: ${active_exchange.discord.user.membership.background}`)
+                                                                if (active_exchange.discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
                                                         else
-                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(discord.user.membership.color) ? 'color: ' + discord.user.membership.color + '; ' : ''}`)
-                                                                if (discord.user.membership.icon)
-                                                                    i.fas.pr-2(class=`fa-${discord.user.membership.icon}`)
-                                                                span(style="z-index: 1;") #{discord.user.membership.text}
+                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}`)
+                                                                if (active_exchange.discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
                                                     else
                                                         span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                     .col-auto.p-0
-                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
                                                     .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
                                                         div.text-center.text-ellipsis.align-middle.mr-auto
                                                             if (login_source && login_source > 101)
                                                                 span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
-                                                            else if (discord && discord.user && discord.user.server && discord.user.server.length > 0)
+                                                            else if (active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.server && active_exchange.discord.user.server.length > 0)
                                                                 i.pr-1.fas.fa-check-circle
-                                                                span #{(discord.user.server[0].nice_name) ? discord.user.server[0].nice_name : discord.user.server[0].name}
+                                                                span #{(active_exchange.discord.user.server[0].nice_name) ? active_exchange.discord.user.server[0].nice_name : active_exchange.discord.user.server[0].name}
                                                                 //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                                         div.text-ellipsis.shadow-text.user-infocard-info
-                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{user.username}
+                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{active_exchange.user.username}
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .row.w-100.ml-0.mr-0
                                                 .d-flex.w-100.align-items-center
@@ -410,7 +457,7 @@ html
                                     li.nav-item.no-arrow.d-flex.align-items-center
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
-                                            img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=user.avatar)
+                                            img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
 
                         div#topbarUserBackground.show-menu-open.hidden
                             div.user-info-backdrop
@@ -652,8 +699,8 @@ html
                                 h3
                                     i.fas.fa-server.pr-2
                                     | Storage Servers
-                            each thisServer, thisIndex in discord.servers.list
-                                .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== discord.servers.list.length) ? 'mb-2' : ''}`)
+                            each thisServer, thisIndex in active_exchange.discord.servers.list
+                                .row.pl-3.pr-3.pt-2(class=`${(thisIndex + 1 !== active_exchange.discord.servers.list.length) ? 'mb-2' : ''}`)
                                     div.mr-3
                                         img.rounded-pill(src=thisServer.icon style='height: 8em;')
                                     div

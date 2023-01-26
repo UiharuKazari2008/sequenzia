@@ -59,10 +59,9 @@ const cacheOptions = {
         '/juneOS',
         '/homeImage',
         '/sidebar',
+        offlineUrl,
     ],
     preloadCache: [
-        offlineUrl,
-        "/home",
         "/static/manifest.json",
         "/static/img/acr-logo.png",
         "/static/img/sequenzia-logo-nav.png",
@@ -431,6 +430,16 @@ self.addEventListener('install', event => {
         })
     );
     console.log('JulyOS is now installed!');
+    event.waitUntil(
+        caches.open(cacheOptions.cacheConfig).then(function(cache) {
+            const results = cacheOptions.updateExchangeCache.map(async u => {
+                return await cache.add(u);
+            }).filter(f => !(f && f.ok)).length > 1
+            console.log(results)
+            return results
+        })
+    );
+    console.log('Configuration is now installed!');
 });
 self.addEventListener('activate', e => {
     console.log('JulyOS Kernel Started');
@@ -452,6 +461,13 @@ self.addEventListener('activate', e => {
         if (oldCaches.length > 0) {
             caches.open(cacheOptions.cacheKernel).then(function(cache) {
                 const results = cacheOptions.preloadCache.map(async u => {
+                    return await cache.add(u);
+                }).filter(f => !(f && f.ok)).length > 1
+                console.log(results)
+                return results
+            })
+            caches.open(cacheOptions.cacheConfig).then(function(cache) {
+                const results = cacheOptions.updateExchangeCache.map(async u => {
                     return await cache.add(u);
                 }).filter(f => !(f && f.ok)).length > 1
                 console.log(results)
@@ -834,9 +850,15 @@ self.addEventListener('message', async (event) => {
             }
             break;
         case 'INSTALL_KERNEL':
+            clearTimeout(refreshCurrentExchange);
+            refreshCurrentExchange = null;
             const cache = await caches.open(cacheOptions.cacheKernel)
             cacheOptions.preloadCache.map(async u => {
                 return await cache.add(u);
+            })
+            const exchange_cache2 = await caches.open(cacheOptions.cacheConfig)
+            cacheOptions.updateExchangeCache.map(async u => {
+                return await exchange_cache2.add(u);
             })
             event.ports[0].postMessage(true);
             break;

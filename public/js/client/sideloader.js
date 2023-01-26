@@ -800,12 +800,11 @@ async function requestCompleted (response, url, lastURL, push) {
     }
     goToMainMain();
     if (nextContext !== currentContext || activeExchange !== lastExchange || initialLoad) {
-        const contextSuffix = ((activeExchange && activeExchange !== 'master') || (initialLoad && initalExchange !== 'master')) ? (initialLoad) ? initalExchange : activeExchange : '';
         setTimeout(() => {
-            $.when($(`#bootUpDisplay${contextSuffix}, #kmsBootDisplay${contextSuffix}, #appBootDisplay${contextSuffix}`).fadeOut(500)).done(() => {
-                document.getElementById('bootUpDisplay' + contextSuffix).querySelector('.boot-status-holder').innerText = "JuneOS Platform v20"
-                document.getElementById('appBootDisplay' + contextSuffix).querySelector('.boot-status-holder').innerText = "JuneApp Platform v1"
-                document.getElementById('kmsBootDisplay' + contextSuffix).querySelector('.boot-status-holder').innerText = "Kongou Media Project v9"
+            $.when($(`.boot-logo-panel`).fadeOut(500)).done(() => {
+                document.querySelectorAll('.bootUpDisplay-panel .boot-status-holder').forEach(e => e.innerText = "JuneOS Platform v20")
+                document.querySelectorAll('.appBootDisplay .boot-status-holder').forEach(e => e.innerText = "JuneApp Platform v1")
+                document.querySelectorAll('.kmsBootDisplay .boot-status-holder').forEach(e => e.innerText = "Kongou Media Project v9")
             });
         }, 2000);
     }
@@ -954,7 +953,7 @@ async function getNewContent(remove, add, url, keep) {
         }
         if (nextContext !== currentContext) {
             setTimeout(() => {
-                $(`#bootUpDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #kmsBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}, #appBootDisplay${(activeExchange !== 'master') ? activeExchange : ''}`).fadeOut(500);
+                $(`.boot-logo-panel`).fadeOut(500);
             }, 2000);
         }
         currentContext = nextContext;

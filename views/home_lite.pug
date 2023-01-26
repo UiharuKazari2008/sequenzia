@@ -140,7 +140,7 @@ html
         #bootBackdrop.boot-logo-overlay(style="display: none;")
             #bootBackdropSunrise
         for exchange, this_exchnage in exchange_list
-            .boot-logo-overlay.animated--grow-in.d-none(style="display: none;" id=`kmsBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+            .boot-logo-overlay.boot-logo-panel.kmsBootDisplay-panel.animated--grow-in.d-none(style="display: none;" id=`kmsBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
                 .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                     div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
@@ -159,7 +159,7 @@ html
                                 i.fas.fa-circle(style="opacity: 50%").pl-2
                         div.boot-author-loog.p-2.position-absolute.bottom-left
                             img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
-            .boot-logo-overlay.animated--grow-in.d-none(style="display: none;" id=`appBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+            .boot-logo-overlay.boot-logo-panel.appBootDisplay-panel.animated--grow-in.d-none(style="display: none;" id=`appBootDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
                 .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                     div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/app-background.jpg);` id=`appBootBackground${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
                         div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
@@ -178,7 +178,7 @@ html
                                 i.fas.fa-circle(style="opacity: 50%").pl-2
                         div.boot-author-loog.p-2.position-absolute.bottom-left
                             img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);" id=`appBootPublisher${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-            .boot-logo-overlay.animated--grow-in.d-none(id=`bootUpDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
+            .boot-logo-overlay.boot-logo-panel.bootUpDisplay-panel.animated--grow-in.d-none(id=`bootUpDisplay${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
                 .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                     div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(exchange.user.banner) ? exchange.user.banner : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/bootlogo-inner.jpeg'})`)
                         div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
