@@ -2074,7 +2074,7 @@ div.collapse-divider {
 #menuAccordion > div.collapsing {
     display: flex;
 }
-#menuAccordion > div > div:not(.user-info-bg) {
+#menuAccordion > div > div:not(.user-info-bg):not(.outer-menu-next-episode) {
     margin-top: calc(env(safe-area-inset-top, 0px) + 1rem);
 }
 .bottom-bar #menuAccordion > div > div {
@@ -2350,7 +2350,7 @@ footer .server-grid-parent {
     text-shadow: 0 0 4px #ff5100d6;
 }
 
-#menuAccordion>div>div:not(.user-info-bg)  {
+#menuAccordion>div>div:not(.user-info-bg):not(.outer-menu-next-episode)  {
     width: 100%;
 }
 
@@ -2969,8 +2969,8 @@ div#bootBackdropSunrise {
     }
 }
 .kongou-next-episode-image {
-    height: 156px;
-}
+     height: 134px;
+ }
 .about-left-panel {
     width: 40%;
 }
@@ -3172,7 +3172,7 @@ div#menuItemWallet .user-card-list {
 }
 @media (min-width:1265px) {
     .user-menu-height {
-        height: 143px;
+        height: 150px;
     }
     :not(.user-card-list) > div > .user-info-backdrop,
     :not(.user-card-list) > div > .user-info-overlay,
@@ -3795,7 +3795,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .main-menu-items {
         flex-direction: column;
     }
-    #menuAccordion>div.main-menu-items>div:not(.user-info-bg) {
+    #menuAccordion>div.main-menu-items>div:not(.user-info-bg):not(.outer-menu-next-episode) {
         margin-top: 0!important;
         width: auto;
     }

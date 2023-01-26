@@ -4264,7 +4264,7 @@ if (!activeExchange)
     activeExchange = 'master';
 function goToMainMain(indirect) {
     let seqMainMenu = $(`#menuItemMainSeq${(activeExchange !== 'master') ? activeExchange : ''}`);
-    if (seqMainMenu.length === 0 || indirect)
+    if (!indirect)
         seqMainMenu = $(`#menuItemMain${(activeExchange !== 'master') ? activeExchange : ''}`);
     seqMainMenu.collapse('show');
 }
@@ -5194,7 +5194,7 @@ function registerUserMenuHandlers() {
     $('#userMenu').on('hidden.bs.collapse', function () {
         if (!($('#userMenu').hasClass('show'))) {
             $('.show-menu-open').addClass('hidden');
-            goToMainMain(true);
+            goToMainMain();
             $('#mainMenuBar').addClass('top-padding-safety');
             $('#topbar').removeClass('menu-open')
             if ($('html').scrollTop() <= 50) {
