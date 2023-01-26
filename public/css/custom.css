@@ -3044,12 +3044,16 @@ div#menuItemWallet .user-card-list {
     align-content: start;
 }
 
-
+.user-card-list > div > .user-info-backdrop,
+.user-card-list > div > .user-info-overlay,
+.user-card-list > div > .user-info-border,
+.user-card-list>.user-info-bg {
+    min-width: 300px;
+    width: 300px;
+}
 .user-card-list>.user-info-bg {
     display: block!important;
     margin: 0 .25em;
-    min-width: 300px;
-    width: 300px;
 }
 
 @keyframes animateBg {
