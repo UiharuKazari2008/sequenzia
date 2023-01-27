@@ -172,13 +172,11 @@ if (!!config.enable_impersonation) {
         if (typeof config.enable_impersonation !== true) {
             const ip_address = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.ip || null
             if (ip_address && config.enable_impersonation.map(e => (ip_address.startsWith(e) || e === ip_address)).filter(e => !!e).length > 0) {
-                res.session.impersonation_allowed = true;
                 next()
             } else {
                 res.status(401).send('This endpoint is disabled in production mode')
             }
         } else {
-            res.session.impersonation_allowed = true;
             next()
         }
     }
@@ -559,8 +557,16 @@ async function loginPage(req, res, obj) {
         _obj.banner = webconfig.system_banner;
     if (webconfig.site_name)
         _obj.site_name = webconfig.site_name;
-    if (config.enable_impersonation && res.session.impersonation_allowed)
-        _obj.show_user_list = true
+
+    if (config.enable_impersonation) {
+        if (typeof config.enable_impersonation !== true) {
+            const ip_address = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.ip || null
+            if (ip_address && config.enable_impersonation.map(e => (ip_address.startsWith(e) || e === ip_address)).filter(e => !!e).length > 0)
+                _obj.show_user_list = true
+        } else {
+            _obj.show_user_list = true
+        }
+    }
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
         if (obj && obj.keepSession) {
