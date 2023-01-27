@@ -166,9 +166,23 @@ router.get('/callback', catchAsync(async (req, res) => {
         });
     }
 }));
-if (config.enable_impersonation) {
+if (!!config.enable_impersonation) {
     printLine("Init", `User Impersonation is ENABLED! You should never enable this on a non-localhost instance for testing only!`, 'critical');
-    router.get('/impersonate/:userId', catchAsync(async (req, res) => {
+    async function verifyImpersonation(req, res, next) {
+        if (typeof config.enable_impersonation !== true) {
+            const ip_address = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.ip || null
+            if (ip_address && config.enable_impersonation.map(e => (ip_address.startsWith(e) || e === ip_address)).filter(e => !!e).length > 0) {
+                res.session.impersonation_allowed = true;
+                next()
+            } else {
+                res.status(401).send('This endpoint is disabled in production mode')
+            }
+        } else {
+            res.session.impersonation_allowed = true;
+            next()
+        }
+    }
+    router.get('/impersonate/:userId', verifyImpersonation, catchAsync(async (req, res) => {
         try {
             await roleGeneration(req.params.userId, res, req, 950)
                 .then((config) => {
@@ -185,7 +199,7 @@ if (config.enable_impersonation) {
             });
         }
     }));
-    router.get('/users', catchAsync(async (req, res) => {
+    router.get('/users', verifyImpersonation, catchAsync(async (req, res) => {
         try {
             res.status(200).send([
                 "<h1>Authorised Users</h1>",
@@ -545,7 +559,7 @@ async function loginPage(req, res, obj) {
         _obj.banner = webconfig.system_banner;
     if (webconfig.site_name)
         _obj.site_name = webconfig.site_name;
-    if (config.enable_impersonation)
+    if (config.enable_impersonation && res.session.impersonation_allowed)
         _obj.show_user_list = true
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
