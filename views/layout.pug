@@ -406,7 +406,7 @@ html
                                                                                 i.far.fa-link.pr-1
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
                                                                         span #{thisAlbum.name}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#_ ` onclick=`getNewContent([],[['album','!{thisAlbum.aid}'],['sort','album']],'/!{thisAlbum.uri}'); return false;`)
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=thisAlbum.name href=`#_ ` onclick=`getNewContent([],[['album','${thisAlbum.aid}'],['sort','album']],'/${thisAlbum.uri}'); return false;`)
                                                                         if (thisAlbum.image)
                                                                             div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
                                                                         else
@@ -460,7 +460,7 @@ html
 
                                                                     div.album-info.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; left: 0;")
                                                                         span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
-                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#_` onclick=`getNewContent([],[['nsfw','true'],['search','!{thisArtist.artist_search}']],'/gallery'); return false;`)
+                                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#_` onclick=`getNewContent([],[['nsfw','true'],['search','${thisArtist.artist_search}']],'/gallery'); return false;`)
                                                                         if (thisArtist.image)
                                                                             div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
                                                                         else
@@ -492,11 +492,11 @@ html
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 1)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#_` onclick=`getNewContent([],[],'/app/launch/!{thisApp.id}'); return false;`)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#_` onclick=`getNewContent([],[],'/app/launch/${thisApp.id}'); return false;`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                                                 else if (thisApp.type == 2)
-                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#_` onclick=`getNewContent([],[],'/app/launch/!{thisApp.id}'); return false;`)
+                                                                    a.user-menu-item.user-menu-small(title=`Launch ${thisApp.name}` href=`#_` onclick=`getNewContent([],[],'/app/launch/${thisApp.id}'); return false;`)
                                                                         i.fa-light(class=`${thisApp.icon}`)
                                                                         | #{thisApp.name}
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemMediaGroups${(exchange_id !== 'master') ? exchange_id : ''}`)
@@ -511,7 +511,7 @@ html
                                                     .menu-grid(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         if (exchange.media_groups && exchange.media_groups.length > 0)
                                                             each thisTheater in exchange.media_groups
-                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#_` onclick=`getNewContent([],[['group','!{thisTheater.media_group}']],'/tvTheater'); return false;`)
+                                                                a.user-menu-item.user-menu-small(title=`Browse ${thisTheater.name} Collection` href=`#_` onclick=`getNewContent([],[['group','${thisTheater.media_group}']],'/tvTheater'); return false;`)
                                                                     i.fa-light(class=`${thisTheater.icon}`)
                                                                     | #{thisTheater.name}
                                                         else
