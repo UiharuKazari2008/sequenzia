@@ -956,10 +956,10 @@ html
                                     h3
                                         i.fas.fa-server.pr-2
                                         | Storage Servers
+                                - full_server_list = [];
                                 each exchange, this_exchnage in exchange_list
-                                    if (this_exchnage !== 'master')
-
-                                    each thisServer, thisIndex in exchange.discord.servers.list
+                                    each thisServer, thisIndex in exchange.discord.servers.list.filter(f => full_server_list.indexOf(f.id) === -1)
+                                        - full_server_list.push(thisServer.id)
                                         .row.pl-3.pr-3.pt-2.flex-nowrap.d-flex(class=`${(thisIndex + 1 !== exchange.discord.servers.list.length) ? 'mb-2' : ''}`)
                                             div.mr-3
                                                 img(src=thisServer.icon style='height: 8em;' class=`${(webconf.square_server_icons_about) ? 'rounded' : 'rounded-circle'}`)

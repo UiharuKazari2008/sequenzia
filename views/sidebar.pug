@@ -145,9 +145,9 @@ html
                     li.server-grid-container.text-center.mt-3
                         .server-grid.d-inline-block
                             - full_server_list = [];
-                            - Object.values(exchange_list).map(g => full_server_list.push(...g.discord.servers.list))
+                            - Object.values(exchange_list).map(g => full_server_list.push(...g.discord.servers.list.filter(k => full_server_list.filter(f => f.id === k.id).length === 0)))
                             .server-grid-parent(style=`grid-template-columns: repeat(${full_server_list.slice(0,4).length}, minmax(45px, 40px));`)
-                                for thisServer, thisServerIndex in discord.servers.list.slice(0,4)
+                                for thisServer, thisServerIndex in full_server_list.slice(0,4)
                                     .server-grid-child(style=`z-index: ${4 - thisServerIndex}`)
                                         img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon)
                 div#sidebarbottompadding

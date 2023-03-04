@@ -169,7 +169,7 @@ router.get('/callback', catchAsync(async (req, res) => {
 if (!!config.enable_impersonation) {
     printLine("Init", `User Impersonation is ENABLED! You should never enable this on a non-localhost instance for testing only!`, 'critical');
     async function verifyImpersonation(req, res, next) {
-        if (typeof config.enable_impersonation !== true) {
+        if (config.enable_impersonation !== true) {
             const ip_address = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.ip || null
             if (ip_address && config.enable_impersonation.map(e => (ip_address.startsWith(e) || e === ip_address)).filter(e => !!e).length > 0) {
                 next()
@@ -558,8 +558,8 @@ async function loginPage(req, res, obj) {
     if (webconfig.site_name)
         _obj.site_name = webconfig.site_name;
 
-    if (config.enable_impersonation) {
-        if (typeof config.enable_impersonation !== true) {
+    if (!!config.enable_impersonation) {
+        if (config.enable_impersonation !== true) {
             const ip_address = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.ip || null
             if (ip_address && config.enable_impersonation.map(e => (ip_address.startsWith(e) || e === ip_address)).filter(e => !!e).length > 0)
                 _obj.show_user_list = true

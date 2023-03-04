@@ -546,11 +546,12 @@ async function requestCompleted (response, url, lastURL, push) {
     } else if (pageTitle.includes(' - No Results') && !initialLoad) {
         $(".container-fluid").fadeTo(2000, 1);
         $(".container-fluid").removeClass('disabled-pointer');
+        console.log(url)
         $.toast({
             type: 'error',
             title: 'No Results Found',
             subtitle: 'Error',
-            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'}); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'}); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
+            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
             delay: 10000,
         });
         responseComplete = true

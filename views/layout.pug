@@ -1143,6 +1143,25 @@ html
                                                                     a.dropdown-item(title="Show only Fast Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
                                                                         i.fas.fa-cloud-check.pr-2
                                                                         | Fast Access
+                                                                if (params.getAll('nsfw')[0] === 'true')
+                                                                    a.dropdown-item(title="Show Only NSFW Results" href='#_' onclick=`getNewContent([], [['nsfw', 'only']])` role='button')
+                                                                        i.fas.fa-shield-slash.pr-2
+                                                                        | Only NSFW
+                                                                    a.dropdown-item(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['nsfw'], [])`  role='button')
+                                                                        i.fas.fa-shield-cat.pr-2
+                                                                        | No NSFW
+
+                                                                else if (params.getAll('nsfw')[0] === 'only')
+                                                                    a.dropdown-item(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['nsfw'], [])`  role='button')
+                                                                        i.fas.fa-shield-cat.pr-2
+                                                                        | No NSFW
+                                                                else
+                                                                    a.dropdown-item(title="Show NSFW Results" href='#_' onclick=`getNewContent([], [['nsfw', 'true']])` role='button')
+                                                                        i.fas.fa-shield-slash.pr-2
+                                                                        | Show NSFW
+                                                                    a.dropdown-item(title="Show Only NSFW Results" href='#_' onclick=`getNewContent([], [['nsfw', 'only']])` role='button')
+                                                                        i.fas.fa-shield-slash.pr-2
+                                                                        | Only NSFW
                                                                 .dropdown-divider
                                                                 if (params.getAll('sort')[0] !== 'random')
                                                                     if (params.getAll('sort')[0] !== 'eid')
@@ -2164,14 +2183,16 @@ html
                                 div.mb-2
                                     span.sidebar-brand-logo.sequenzia-logo(class=showlogo1 style='font-size: 2.8em;') sequenzia
                                 div
-                                    strong The Kanmi x Sequenzia II Project
+                                    strong The Shutaura Sequenzia II Project
                                 div
                                     span Copyright &copy; #{webconf.company_name} #{moment(Date.now()).format('YYYY')}
                             if (!webconf.hide_server_list)
-                                .server-grid-container.text-center.mt-3.hide-1700
+                                .server-grid-container.text-center.mt-3
                                     .server-grid.d-inline-block
-                                        .server-grid-parent(style=`grid-template-columns: repeat(${discord.servers.list.slice(0, 8).length}, minmax(45px, 40px));`)
-                                            for thisServer, thisServerIndex in discord.servers.list.slice(0,8)
+                                        - full_server_list = [];
+                                        - Object.values(exchange_list).map(g => full_server_list.push(...g.discord.servers.list.filter(k => full_server_list.filter(f => f.id === k.id).length === 0)))
+                                        .server-grid-parent(style=`grid-template-columns: repeat(${full_server_list.slice(0, 10).length}, minmax(45px, 40px));`)
+                                            for thisServer, thisServerIndex in full_server_list.slice(0, 10)
                                                 .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
                                                     img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                     if (!appData)
