@@ -38,6 +38,7 @@ let displayConfiguration = {
     weatherFormat: 0,
     weatherDisplay: 0,
     quoteEnable: 0,
+    layoutMode: 0,
 }
 
 const _sysHeight = window.innerHeight * window.devicePixelRatio;
@@ -866,6 +867,28 @@ function syncDisplaySettings() {
         }
     } catch (e) {
         console.error(`Failed to setup Taskbar Position: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
+    try {
+        let _lm = $('#content-wrapper')
+        if (config.has('layoutMode')) {
+            displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
+        }
+        switch (parseInt(displayConfiguration.layoutMode.toString())) {
+            case 0:
+                _lm.removeClass('wacca-layout');
+                break;
+            default:
+                _lm.addClass('wacca-layout');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to setup layout mode: ${e.message}`);
         document.getElementById('errorBanner').classList = 'warningBanner'
         setTimeout(() => {
             if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
