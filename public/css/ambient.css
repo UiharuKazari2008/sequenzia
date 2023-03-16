@@ -191,7 +191,7 @@ div#quoteContainer {
     height: inherit;
     width: inherit;
 }
-#content-wrapper .wacca > .m-5 {
+div#content-wrapper.wacca-layout > .m-5 {
     margin: 14em!important;
     zoom: 0.75;
 }
