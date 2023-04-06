@@ -935,6 +935,14 @@ $(document).ready(function () {
             if (xhr.status === 200) {
                 document.getElementById('data3').innerText = "Configuring...";
                 console.log("Getting first image...");
+                try {
+                    console.log("Changing system logo...");
+                    if (config.has('logoFile')) {
+                        $('img[src="/static/img/sequenzia-logo-nav.png"]').each((i,e) => { e.src = "/static/img/" + config.getAll('logoFile')[0] })
+                    }
+                } catch (e) {
+                    console.error(e)
+                }
                 getNextImage();
 
                 dc();
