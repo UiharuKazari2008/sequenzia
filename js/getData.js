@@ -1168,7 +1168,7 @@ module.exports = async (req, res, next) => {
                     // Get Image Preview URL
                     let ranImage = '';
                     if ( image.cache_proxy !== null) {
-                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
+                        ranImage = image.cache_proxy.startsWith('http') ? image.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${image.cache_proxy}`
                     } else {
                         ranImage = `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                     }
@@ -1325,7 +1325,7 @@ module.exports = async (req, res, next) => {
                     // Get Image Preview URL
                     let ranImage = '';
                     if ( image.cache_proxy !== null) {
-                        ranImage = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
+                        ranImage = image.cache_proxy.startsWith('http') ? image.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${image.cache_proxy}`
                     } else {
                         ranImage = `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}`)
                     }
