@@ -1743,21 +1743,27 @@ module.exports = async (req, res, next) => {
                 if (cacheEnabled && (await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
                     const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {
-                        _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
-                        if (_return) {
-                            console.log(meta)
-                            if (cacheEnabled && _return && !reCache) {
-                                await setCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
-                                    ...meta,
-                                    expires: (Date.now().valueOf() + meta.time)
-                                }, true);
-                                return {
-                                    rows: _return.rows.slice(offset, limit + offset),
-                                    cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0)
-                                };
+                        if (meta.count && meta.count !== 0) {
+                            _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
+                            if (_return) {
+                                console.log(meta)
+                                if (cacheEnabled && _return && !reCache) {
+                                    await setCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
+                                        ...meta,
+                                        expires: (Date.now().valueOf() + meta.time)
+                                    }, true);
+                                    return {
+                                        rows: _return.rows.slice(offset, limit + offset),
+                                        cache: ((meta.expires - Date.now().valueOf()) / 60000).toFixed(0)
+                                    };
+                                }
+                                deleteCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, meta.key);
+                                console.log(`Cache Expired - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                             }
+                        } else {
+                            console.log(`Cache Invalid - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                            deleteCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
                             deleteCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, meta.key);
-                            console.log(`Cache Expired - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
                         }
                     }
                 }
