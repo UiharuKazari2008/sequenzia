@@ -15,6 +15,12 @@ config.set('json', 'true');
 
 let lastURL = '';
 let displayMode = [];
+let remoteInfoCFD = false;
+let vfdWeather = '';
+let vfdInfo = '';
+let vfdDate = '';
+let vfdDefaultLine = 'Sequenzia'
+let vfdDateMode = 0;
 let failCount = 0;
 let _quotes, _weather
 let _night = undefined;
@@ -50,6 +56,12 @@ if (typeof overides !== 'undefined') {
     displayConfiguration = {...displayConfiguration, ...overides};
 }
 if (!config.has('displayname')) { config.set('displayname', 'Untitled') }
+if (config.has('info_vfd')) {
+    remoteInfoCFD = config.getAll('info_vfd')[0]
+}
+if (config.has('info_vfd_default_line')) {
+    vfdDefaultLine = config.getAll('info_vfd_default_line')[0]
+}
 
 function dct() {
     const d = new Date();
@@ -280,6 +292,18 @@ function getNextImage() {
                         nextRefreshTime = 3 * 60000;
                         console.log('Unacceptable Sync Delta, Master is offline or did not report in time. Using Default Time')
                         setTimeout(() => {
+                            if (remoteInfoCFD) {
+                                $.ajax({async: true,
+                                    url: `http://${remoteInfoCFD}/setBoth?header=STANDBY MODE&status=Master Unavailable&keepAwake=true&brightness=3`,
+                                    type: "GET", data: '',
+                                    processData: false,
+                                    contentType: false,
+                                    headers: {
+                                        'X-Requested-With': 'SequenziaXHR'
+                                    },
+                                    error: function (res) { console.error('Failed to update VFD Display') }
+                                });
+                            }
                             document.getElementById('data3').innerText = 'STANDBY MODE';
                             document.getElementById('data1').innerText = 'Master Unavailable';
                             document.getElementById('errorBanner').classList = 'warningBanner'
@@ -314,6 +338,18 @@ function getNextImage() {
                     nextImageTimer = null;
 
                     console.log(response);
+                    if (remoteInfoCFD) {
+                        $.ajax({async: true,
+                            url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=No Response after 5 retries&keepAwake=true&brightness=3`,
+                            type: "GET", data: '',
+                            processData: false,
+                            contentType: false,
+                            headers: {
+                                'X-Requested-With': 'SequenziaXHR'
+                            },
+                            error: function (res) { console.error('Failed to update VFD Display') }
+                        });
+                    }
                     document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                     document.getElementById('data1').classList.remove('hidden-on-boot')
                     document.getElementById('data1').innerText = 'No Response after 5 retries';
@@ -342,6 +378,18 @@ function getNextImage() {
                 clearTimeout(nextImageTimer);
                 nextImageTimer = null;
 
+                if (remoteInfoCFD) {
+                    $.ajax({async: true,
+                        url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=Data Processing Error&keepAwake=true&brightness=3`,
+                        type: "GET", data: '',
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        error: function (res) { console.error('Failed to update VFD Display') }
+                    });
+                }
                 console.error('getImage Failed');
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
@@ -419,33 +467,39 @@ function pullImage(data) {
                 }
                 document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
                 if (displayConfiguration.displayImageInfo !== 0) {
-                    setTimeout(function () {
-                        document.getElementById('data1').innerText = `${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName}`;
-                        document.getElementById('data3').innerText = data.randomImagev2[0].date;
-                        if (data.randomImagev2[0].pinned) {
-                            if (config.has('displayname')) {
-                                document.getElementById('dataFav').classList.remove('d-none')
-                                document.getElementById('dataFav').classList.add('mr-2')
+                    if (remoteInfoCFD) {
+                        vfdInfo = `${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName} (${data.randomImagev2[0].date})`;
+                        $('#dataInfo').addClass('d-none').removeClass('d-flex');
+                    } else {
+                        vfdInfo = `${vfdDefaultLine}`;
+                        setTimeout(function () {
+                            document.getElementById('data1').innerText = `${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName}`;
+                            document.getElementById('data3').innerText = data.randomImagev2[0].date;
+                            if (data.randomImagev2[0].pinned) {
+                                if (config.has('displayname')) {
+                                    document.getElementById('dataFav').classList.remove('d-none')
+                                    document.getElementById('dataFav').classList.add('mr-2')
+                                } else {
+                                    document.getElementById('dataFav').classList.remove('d-none')
+                                    document.getElementById('dataFav').classList.remove('mr-2')
+                                }
                             } else {
-                                document.getElementById('dataFav').classList.remove('d-none')
+                                document.getElementById('dataFav').classList.add('d-none')
                                 document.getElementById('dataFav').classList.remove('mr-2')
                             }
-                        } else {
-                            document.getElementById('dataFav').classList.add('d-none')
-                            document.getElementById('dataFav').classList.remove('mr-2')
-                        }
-                        if (config.has('displayname')) {
-                            document.getElementById('data2').classList.add('d-none');
-                            document.getElementById('dataIcon').classList.add('d-none');
-                        } else {
-                            document.getElementById('data2').innerText = data.randomImagev2[0].eid;
-                            if (data.randomImagev2[0].pinned) {
-                                document.getElementById('dataIcon').classList.add('d-none')
+                            if (config.has('displayname')) {
+                                document.getElementById('data2').classList.add('d-none');
+                                document.getElementById('dataIcon').classList.add('d-none');
                             } else {
-                                document.getElementById('dataIcon').classList.remove('d-none')
+                                document.getElementById('data2').innerText = data.randomImagev2[0].eid;
+                                if (data.randomImagev2[0].pinned) {
+                                    document.getElementById('dataIcon').classList.add('d-none')
+                                } else {
+                                    document.getElementById('dataIcon').classList.remove('d-none')
+                                }
                             }
-                        }
-                    }, 700)
+                        }, 700)
+                    }
                 }
                 if (element_to === 'bg1') {
                     $('#' + element_to).animate({ opacity: 1 }, 1500);
@@ -470,6 +524,21 @@ function pullImage(data) {
                     $('.hidden-on-boot').removeClass('hidden-on-boot')
                 }, 1700);
                 lastURL = data.randomImagev2[0].fullImage;
+                if (remoteInfoCFD) {
+                    vfdDate = getVFDDate()
+                    setTimeout(function () {
+                        $.ajax({async: true,
+                            url: `http://${remoteInfoCFD}/setBoth?header=${(vfdDate.length > 0) ? vfdDate : vfdDefaultLine}&status=${vfdInfo}${(vfdInfo.length > 0 && vfdWeather.length > 0) ? ' // ' : ''}${vfdWeather}&keepAwake=true&brightness=1`,
+                            type: "GET", data: '',
+                            processData: false,
+                            contentType: false,
+                            headers: {
+                                'X-Requested-With': 'SequenziaXHR'
+                            },
+                            error: function (res) { console.error('Failed to update VFD Display') }
+                        });
+                    }, 700)
+                }
             } else {
                 console.log(response);
                 failCount++
@@ -478,6 +547,18 @@ function pullImage(data) {
         error: function (response) {
             console.error('setImage Failed')
             if (failCount !== 5) {
+                if (remoteInfoCFD) {
+                    $.ajax({async: true,
+                        url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=After 5 failed attempts, was unable to get a valid response&keepAwake=true&brightness=3`,
+                        type: "GET", data: '',
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        error: function (res) { console.error('Failed to update VFD Display') }
+                    });
+                }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').innerText = 'After 5 failed attempts, was unable to get a valid response';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
@@ -515,13 +596,22 @@ function getWeather() {
             },
             success: function (response) {
                 if (response.temperature !== undefined) {
+                    let weatherLine = '';
                     document.getElementById('weatherInfo').classList.remove('hidden');
                     document.getElementById('weatherDataCond').innerText = response.weather_name;
+                    weatherLine += response.weather_name + ' '
                     let _temp
                     if (displayConfiguration.weatherFeelLike === 1) {
                         _temp = parseInt(response.temperature_feel.toFixed(0).toString());
+                        weatherLine += parseInt(response.temperature_feel.toFixed(0).toString())
                     } else {
                         _temp = parseInt(response.temperature.toFixed(0).toString());
+                        weatherLine += parseInt(response.temperature.toFixed(0).toString())
+                    }
+                    if (displayConfiguration.weatherFormat === 1) {
+                        weatherLine += 'F'
+                    } else {
+                        weatherLine += 'C'
                     }
                     document.getElementById('weatherIconMin').classList = `wi ${response.weather_icon_class}`;
                     document.getElementById('weatherDataTemp').innerText = _temp;
@@ -541,6 +631,23 @@ function getWeather() {
                     }
 
                     console.log('Weather OK');
+                    vfdWeather = weatherLine;
+                    vfdDate = getVFDDate();
+                    if (remoteInfoCFD) {
+                        $.ajax({
+                            async: true,
+                            url: `http://${remoteInfoCFD}/setBoth?header=${(vfdDate.length > 0) ? vfdDate : vfdDefaultLine}&status=${vfdInfo}${(vfdInfo.length > 0 && vfdWeather.length > 0) ? ' // ' : ''}${vfdWeather}&keepAwake=true&brightness=1`,
+                            type: "GET", data: '',
+                            processData: false,
+                            contentType: false,
+                            headers: {
+                                'X-Requested-With': 'SequenziaXHR'
+                            },
+                            error: function (res) {
+                                console.error('Failed to update VFD Display')
+                            }
+                        });
+                    }
                 } else {
                     console.error('Weather ERROR');
                     console.log(response);
@@ -660,30 +767,37 @@ function syncDisplaySettings() {
         let _di = $('#dateInfo');
         let _dw = $('#day');
         let _df = $('#date');
-        switch (parseInt(displayConfiguration.displayDate.toString())) {
-            // Day Of The Week Disabled
-            case 3:
-                _di.addClass('d-flex').removeClass('d-none');
-                _dw.addClass('d-none');
-                _df.removeClass('d-none');
-                break;
-            // Full Date Disabled
-            case 2:
-                _di.addClass('d-flex').removeClass('d-none');
-                _dw.removeClass('d-none');
-                _df.addClass('d-none');
-                break;
-            // All Off
-            case 0:
-                _di.addClass('d-none').removeClass('d-flex');
-                _dw.addClass('d-none');
-                _df.addClass('d-none');
-                break;
-            default:
-                _di.addClass('d-flex').removeClass('d-none');
-                _dw.removeClass('d-none');
-                _df.removeClass('d-none');
-                break;
+        if (remoteInfoCFD) {
+            _di.addClass('d-none').removeClass('d-flex');
+            _dw.addClass('d-none');
+            _df.addClass('d-none');
+            vfdDateMode = parseInt(displayConfiguration.displayDate.toString())
+        } else {
+            switch (parseInt(displayConfiguration.displayDate.toString())) {
+                // Day Of The Week Disabled
+                case 3:
+                    _di.addClass('d-flex').removeClass('d-none');
+                    _dw.addClass('d-none');
+                    _df.removeClass('d-none');
+                    break;
+                // Full Date Disabled
+                case 2:
+                    _di.addClass('d-flex').removeClass('d-none');
+                    _dw.removeClass('d-none');
+                    _df.addClass('d-none');
+                    break;
+                // All Off
+                case 0:
+                    _di.addClass('d-none').removeClass('d-flex');
+                    _dw.addClass('d-none');
+                    _df.addClass('d-none');
+                    break;
+                default:
+                    _di.addClass('d-flex').removeClass('d-none');
+                    _dw.removeClass('d-none');
+                    _df.removeClass('d-none');
+                    break;
+            }
         }
     } catch (e) {
         console.error(`Failed to setup Date: ${e.message}`);
@@ -878,14 +992,14 @@ function syncDisplaySettings() {
         let _lm = $('#content-wrapper')
         if (config.has('layoutMode')) {
             displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
-        }
-        switch (parseInt(displayConfiguration.layoutMode.toString())) {
-            case 0:
-                _lm.removeClass('wacca-layout');
-                break;
-            default:
-                _lm.addClass('wacca-layout');
-                break;
+            switch (parseInt(displayConfiguration.layoutMode.toString())) {
+                case 0:
+                    _lm.removeClass('wacca-layout');
+                    break;
+                default:
+                    _lm.addClass('wacca-layout');
+                    break;
+            }
         }
     } catch (e) {
         console.error(`Failed to setup layout mode: ${e.message}`);
@@ -902,9 +1016,6 @@ function syncDisplaySettings() {
                 _weather = setInterval(getWeather, 900000);
                 getWeather();
             }
-        } else {
-            clearInterval(_weather);
-            _weather = undefined;
         }
     } catch (e) {
         console.error(`Failed to setup Weather Runtime: ${e.message}`)
@@ -916,9 +1027,41 @@ function syncDisplaySettings() {
         }, 180000)
     }
 }
+function getVFDDate() {
+    const d = new Date();
+    let dow = days[d.getDay()];
+    let mth = month[d.getMonth()];
+    let dy = d.getDate();
+    switch (vfdDateMode) {
+        // Day Of The Week Disabled
+        case 3:
+            return `${mth} ${dy}`
+        // Full Date Disabled
+        case 2:
+            return `${dow}day`
+        // All Off
+        case 0:
+            return '';
+        default:
+            return `${dow}day, ${mth} ${dy}`
+    }
+}
 
 $(document).ready(function () {
     // Init Check
+
+    if (remoteInfoCFD) {
+        $.ajax({async: true,
+            url: `http://${remoteInfoCFD}/setBoth?header=Sequenzia ADS&status=Starting...&keepAwake=true&brightness=3`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            error: function (res) { console.error('Failed to update VFD Display') }
+        });
+    }
     let _refreshURL = '/discord/refresh'
     if (config.has('key')) {
         _refreshURL += `?key=${config.getAll('key').pop()}`
@@ -934,6 +1077,18 @@ $(document).ready(function () {
         success: function (res, txt, xhr) {
             if (xhr.status === 200) {
                 document.getElementById('data3').innerText = "Configuring...";
+                if (remoteInfoCFD) {
+                    $.ajax({async: true,
+                        url: `http://${remoteInfoCFD}/setBoth?header=Sequenzia ADS&status=Configuring...&keepAwake=true&brightness=3`,
+                        type: "GET", data: '',
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        error: function (res) { console.error('Failed to update VFD Display') }
+                    });
+                }
                 console.log("Getting first image...");
                 try {
                     console.log("Changing system logo...");
@@ -945,10 +1100,23 @@ $(document).ready(function () {
                 }
                 getNextImage();
 
+
                 dc();
                 dd();
                 ddw();
             } else {
+                if (remoteInfoCFD) {
+                    $.ajax({async: true,
+                        url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=Failed to validate login&keepAwake=true&brightness=3`,
+                        type: "GET", data: '',
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        error: function (res) { console.error('Failed to update VFD Display') }
+                    });
+                }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
                 document.getElementById('data1').innerText = 'Failed to validate login';
@@ -958,6 +1126,18 @@ $(document).ready(function () {
             }
         },
         error: function (res) {
+            if (remoteInfoCFD) {
+                $.ajax({async: true,
+                    url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=Account Login Failure&keepAwake=true&brightness=3`,
+                    type: "GET", data: '',
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-Requested-With': 'SequenziaXHR'
+                    },
+                    error: function (res) { console.error('Failed to update VFD Display') }
+                });
+            }
             document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
             document.getElementById('data1').classList.remove('hidden-on-boot')
             document.getElementById('data1').innerText = 'Account Login Failure';
