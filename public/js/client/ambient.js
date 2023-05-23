@@ -1,4 +1,4 @@
-if ('serviceWorker' in navigator) {
+/*if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
             .register('/serviceWorker.min.js')
@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
             })
             .catch(err => console.log(`Service Worker: Error: ${err}`));
     });
-}
+}*/
 
 let config = new URLSearchParams(location.search);
 config.delete('history');
