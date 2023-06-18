@@ -211,7 +211,6 @@ module.exports = async (req, res, next) => {
             hideChannels = false;
             bypassNSFWFilter = true;
         } else if (req.query.folder) {
-            bypassNSFWFilter = true;
             const _ch = req.query.folder.trim().split(' ').filter(e => e.length > 0)
             let _andStat = []
             _ch.forEach((_c) => {
@@ -293,12 +292,15 @@ module.exports = async (req, res, next) => {
                                 _svAND.push(`channelid = '${e}'`)
                                 selectedChannel++;
                                 hideChannels = false;
+                                bypassNSFWFilter = true;
                             } else if (e.includes('virt_')) {
                                 _svAND.push(`virtual_channel_eid = '${e.split('virt_').pop()}'`)
+                                bypassNSFWFilter = true;
                             } else if (e !== '*') {
                                 _svAND.push(`LOWER(channel_short_name) = LOWER('${e}')`)
                                 selectedChannel++;
                                 hideChannels = false;
+                                bypassNSFWFilter = true;
                             } else if (e === '*') {
                                 multiChannel = true;
                                 multiChannelBase = true;
@@ -1059,7 +1061,8 @@ module.exports = async (req, res, next) => {
             thisUser.master.cache.channels_view
         ];
         sqlWhere = [
-            `kanmi_records.channel = ${thisUser.master.cache.channels_view}.channelid`
+            `kanmi_records.channel = ${thisUser.master.cache.channels_view}.channelid`,
+            "kanmi_records.hidden = 0"
         ];
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
