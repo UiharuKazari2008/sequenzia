@@ -1062,7 +1062,7 @@ module.exports = async (req, res, next) => {
         ];
         sqlWhere = [
             `kanmi_records.channel = ${thisUser.master.cache.channels_view}.channelid`,
-            "kanmi_records.hidden = 0"
+            "kanmi_records.hidden != 1"
         ];
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
