@@ -100,6 +100,7 @@ module.exports = async (req, res, next) => {
                             messageType: 'command',
                             messageAction: 'RemovePost'
                         })
+                        await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 0 WHERE id = ? AND channel = ?`, [job.messageid, job.channelid])
                         if (req.body.batch) {
                             _return = 200
                         } else {
