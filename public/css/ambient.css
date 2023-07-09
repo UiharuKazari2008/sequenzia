@@ -195,3 +195,6 @@ div#content-wrapper.wacca-layout > .m-5 {
     margin: 16em!important;
     zoom: 0.70;
 }
+div#content-wrapper.nost-layout > .m-5 {
+    margin: 3em 3em 6.5em 3em!important;
+}

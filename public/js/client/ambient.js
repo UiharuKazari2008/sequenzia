@@ -996,6 +996,9 @@ function syncDisplaySettings() {
                 case 0:
                     _lm.removeClass('wacca-layout');
                     break;
+                case 1:
+                    _lm.addClass('nosta-layout');
+                    break;
                 default:
                     _lm.addClass('wacca-layout');
                     break;
