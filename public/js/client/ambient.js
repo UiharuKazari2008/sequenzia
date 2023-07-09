@@ -994,7 +994,7 @@ function syncDisplaySettings() {
             displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
             switch (parseInt(displayConfiguration.layoutMode.toString())) {
                 case 2:
-                    _lm.addClass('nosta-layout');
+                    _lm.addClass('nost-layout');
                     break;
                 case 1:
                     _lm.addClass('wacca-layout');
