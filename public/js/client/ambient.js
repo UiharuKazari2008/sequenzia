@@ -993,9 +993,6 @@ function syncDisplaySettings() {
         if (config.has('layoutMode')) {
             displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
             switch (parseInt(displayConfiguration.layoutMode.toString())) {
-                case 0:
-                    _lm.removeClass('wacca-layout');
-                    break;
                 case 2:
                     _lm.addClass('nosta-layout');
                     break;
@@ -1003,7 +1000,6 @@ function syncDisplaySettings() {
                     _lm.addClass('wacca-layout');
                     break;
                 default:
-                    _lm.addClass('wacca-layout');
                     break;
             }
         }
