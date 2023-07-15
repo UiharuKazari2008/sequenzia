@@ -845,6 +845,11 @@ function syncDisplaySettings() {
         let _lt = $('#logoTop');
         let _lb = $('#logoEnd');
         switch (parseInt(displayConfiguration.displayLogo.toString())) {
+            case 3:
+                _ll.addClass('d-none');
+                _lb.addClass('d-none');
+                _lt.addClass('d-none');
+                break;
             case 2:
                 _ll.addClass('d-none');
                 _lb.addClass('d-none');
@@ -1011,6 +1016,34 @@ function syncDisplaySettings() {
                 document.getElementById('errorBanner').classList = '';
             }
         }, 180000)
+    }
+    try {
+        let _wb = $('#warningBox')
+        let _wt = $('#warningText')[0]
+        if (config.has('noticeText')) {
+            _wt.innerText = config.getAll('noticeText')[0].toString();
+            _wb.removeClass('d-none').addClass('d-flex');
+        }
+    } catch (e) {
+        console.error(`Failed to setup notice text: ${e.message}`);
+    }
+    try {
+        let _wb = $('#warningBox')
+        let _wi = $('#warningIcon')
+        if (config.has('noticeIcon')) {
+            _wi.removeClass("fa-search").addClass(config.getAll('noticeIcon')[0].toString())
+            _wb.removeClass('d-none').addClass('d-flex');
+        }
+    } catch (e) {
+        console.error(`Failed to setup notice icon: ${e.message}`);
+    }
+    try {
+        let _wb = $('#warningBox')[0]
+        if (config.has('noticeColor')) {
+            _wb.style.backgroundColor = "" + config.getAll('noticeColor')[0].toString()
+        }
+    } catch (e) {
+        console.error(`Failed to setup notice color: ${e.message}`);
     }
     try {
         if (displayConfiguration.location) {

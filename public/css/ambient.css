@@ -41,6 +41,12 @@ html {
     width: 100vw;
 }
 
+.warning-box-contents {
+    background: #000000c9;
+    border-radius: 0.75em;
+    padding: 1em 1.5em;
+}
+
 .taskbar-bottom {
     margin-bottom: 5.5em!important;
 }

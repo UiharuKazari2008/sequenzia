@@ -51,12 +51,16 @@ html
                 #quoteContainer.quote.shadow-text.d-none
                     span#quoteText
                     span#quoteAuthor
-            .fixed-top.m-5.animated--fade-in.hidden-on-boot
+            .fixed-top.m-5.animated--fade-in.hidden-on-boot.align-items-start.d-flex
                 #logoTop.d-none.justify-content-end.pr-4(style='opacity: .6')
                     img.shadow-txt.text-white(style="width: 280px;position: relative;top: 0.2em;" src=`/static/img/sequenzia-logo-nav.png`)
-                #displayInfo.d-flex.justify-content-end.hover-show.d-none(style='opacity: .4;')
+                #warningBox.warning-box-contents.d-none.justify-content-end
+                    .align-items-center.d-flex
+                        i#warningIcon.pr-2.fas.fa-search
+                        span#warningText This is just a test
+                #displayInfo.d-flex.justify-content-end.hover-show.ml-auto.d-none(style='opacity: .4;')
                     span#displayName.align-self-center(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
-                #userInfo.d-flex.justify-content-end.hover-show(style='opacity: .4;')
+                #userInfo.d-flex.justify-content-end.hover-show.ml-auto(style='opacity: .4;')
                     span.align-self-center(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;') #{user.username}
                     a#userDropdown.pr-0(href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                         img.img-profile.rounded-circle(src=user.avatar style='width: 2.5em; box-shadow: 0 0 8px black; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
