@@ -380,7 +380,7 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
                                         label(for='optionsDisplayLogo') Logo
                                         select#optionsDisplayLogo.form-control
                                             if (configuration.displayLogo || configuration.displayLogo === 0)
-                                                for x, i in [ 'Top', 'Left', 'Right' ]
+                                                for x, i in [ 'Top', 'Left', 'Right', 'Disabled' ]
                                                     if (configuration.displayLogo === i)
                                                         option(value=i selected) #{x}
                                                     else
