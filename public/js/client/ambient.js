@@ -9,9 +9,31 @@
     });
 }*/
 
+function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return null;
+}
+
 let config = new URLSearchParams(location.search);
 config.delete('history');
 config.set('json', 'true');
+let kioskOptions = new URLSearchParams(document.location.hash.substring(1));
 
 let lastURL = '';
 let displayMode = [];
@@ -43,7 +65,6 @@ let displayConfiguration = {
     weatherFeelLike: 0,
     weatherFormat: 0,
     weatherDisplay: 0,
-    quoteEnable: 0,
     layoutMode: 0,
 }
 
@@ -271,6 +292,7 @@ function getNextImage() {
                         } else {
                             displayConfiguration = response.configuration;
                         }
+                        await setupKioskMode();
                         await syncDisplaySettings();
                     } else {
                         console.error('No remote configuration available at this time')
@@ -662,40 +684,87 @@ function getWeather() {
         console.log('No Weather Location');
     }
 }
-function getQuote() {
-    let reqURL = `/acc/quote`
-    if (displayConfiguration.quoteTag) {
-        reqURL += `?tag=${displayConfiguration.quoteTag}`
+function setupKioskMode() {
+    try {
+        if (kioskOptions.has('kButtons')) {
+            setCookie("kiosk_mode", window.location.href)
+
+            let data = window.atob(decodeURIComponent(kioskOptions.getAll('kButtons')[0]))
+            const buttons_json = JSON.parse(data);
+            if (buttons_json.buttons) {
+                const buttons_html = buttons_json.buttons.map(b => {
+                    let h = ''
+                    switch (b.type) {
+                        case 'redirect':
+                            h += `<a class="kiosk-button" href="${b.url}">`
+                            break;
+                        case 'action':
+                            h += `<a class="kiosk-button" href="#_" onclick="button_call('${b.url}'); return false;">`
+                            break;
+                        default:
+                            h += `<a class="kiosk-button" href="#_">`
+                            break;
+                    }
+                    if (b.bimage !== undefined && kioskOptions.has('bImage')) {
+                        const images = kioskOptions.getAll('bImage')
+                        if (images.length >= b.bimage + 1) {
+                            h += `<img src="data:image;base64,${images[b.bimage]}" alt=""`
+                            if (b.padding) {
+                                h += ` style="padding: ${b.padding};"\>`
+                            } else {
+                                h += "\>"
+                            }
+                        }
+                    } else if (b.image) {
+                        h += `<img src="${b.image}" alt=""`
+                        if (b.padding) {
+                            h += ` style="padding: ${b.padding};"\>`
+                        } else {
+                            h += "\>"
+                        }
+                    } else {
+                        h+= `<i class="pr-2 ${b.icon}"></i><span>${b.text}</span></a>`
+                    }
+                    return h
+                })
+                console.log(buttons_html)
+                $('#kioskRemoteButtons > .kiosk-buttons-container').html(buttons_html)
+            }
+        }
+        let _ui = $('#userInfo');
+        let _di = $('#displayInfo');
+        switch (parseInt(displayConfiguration.displaySysInfo.toString())) {
+            case 2:
+                _ui.addClass('d-none').removeClass('d-flex');
+                _di.addClass('d-flex').removeClass('d-none');
+                document.getElementById('displayName').innerText = (displayConfiguration.nice_name) ? displayConfiguration.nice_name : displayConfiguration.name;
+                break;
+            case 0:
+                _ui.addClass('d-none').removeClass('d-flex');
+                _di.addClass('d-none').removeClass('d-flex');
+                break;
+            default:
+                _ui.addClass('d-flex').removeClass('d-none');
+                _di.addClass('d-none').removeClass('d-flex');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to read kiosk buttons: ${e.message}`);
     }
+}
+function button_call(url) {
     $.ajax({async: true,
-        url: reqURL,
+        url,
         type: "GET", data: '',
         processData: false,
         contentType: false,
         headers: {
             'X-Requested-With': 'SequenziaXHR'
         },
-        success: function (response) {
-            if (response.text !== undefined) {
-                document.getElementById('quoteContainer').classList.remove('d-none')
-                document.getElementById('quoteText').innerText = response.text;
-                if (response.author) {
-                    document.getElementById('quoteAuthor').innerText = response.author;
-                } else {
-                    document.getElementById('quoteAuthor').innerText = '';
-                }
-
-                console.log('Quote OK');
-            } else {
-                console.log('Quote ERROR');
-                console.log(response);
-            }
-        },
-        error: function (response) {
-            console.log('Quote Failed');
-            console.log(response);
-        }
+        error: function (res) { console.error('Failed to call button url') },
+        success: function (res, txt, xhr) { console.log(xhr.status, txt) }
     });
+    return false;
 }
 function syncDisplaySettings() {
     try {
@@ -953,28 +1022,6 @@ function syncDisplaySettings() {
         }, 180000)
     }
     try {
-        switch (parseInt(displayConfiguration.quoteEnable.toString())) {
-            case 0:
-                clearInterval(_quotes);
-                _quotes = undefined;
-                break;
-            default:
-                if (!_quotes) {
-                    getQuote();
-                    _quotes = setInterval(getQuote, 900000);
-                }
-                break;
-        }
-    } catch (e) {
-        console.error(`Failed to setup Quotes Settings: ${e.message}`);
-        document.getElementById('errorBanner').classList = 'warningBanner'
-        setTimeout(() => {
-            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
-                document.getElementById('errorBanner').classList = '';
-            }
-        }, 180000)
-    }
-    try {
         let _di = $('#BottomSestion')
         switch (parseInt(displayConfiguration.taskbarPosition.toString())) {
             case 0:
@@ -1019,20 +1066,24 @@ function syncDisplaySettings() {
     }
     try {
         let _wb = $('#warningBox')
+        let _kb = $('#kioskRemoteButtons')
         let _wt = $('#warningText')[0]
         if (config.has('noticeText')) {
             _wt.innerText = config.getAll('noticeText')[0].toString();
             _wb.removeClass('d-none').addClass('d-flex');
+            _kb.addClass("notice-enabled");
         }
     } catch (e) {
         console.error(`Failed to setup notice text: ${e.message}`);
     }
     try {
         let _wb = $('#warningBox')
+        let _kb = $('#kioskRemoteButtons')
         let _wi = $('#warningIcon')
         if (config.has('noticeIcon')) {
             _wi.removeClass("fa-search").addClass(config.getAll('noticeIcon')[0].toString())
             _wb.removeClass('d-none').addClass('d-flex');
+            _kb.addClass("notice-enabled");
         }
     } catch (e) {
         console.error(`Failed to setup notice icon: ${e.message}`);

@@ -574,28 +574,3 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
                                                     option(value='4') Temp/HiLo/Name
                                                     option(value='5') Name
                                                     option(value='6') Icon
-                .card
-                    .card-header.collapsed(id=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}`)
-                        h5.mb-0.mr-auto
-                            button.btn.btn-link(type='button' data-toggle='collapse' data-target=`#displayQuotesConfig-${configuration.name.split(' ').join('')}`)
-                                i.fas.fa-quote-right.pr-2
-                                | Quotes
-                    .collapse(aria-labelledby=`displayQuotesConfig-header-${configuration.name.split(' ').join('')}` data-parent=`#displayConfigMenu-${configuration.name.split(' ').join('')}` id=`displayQuotesConfig-${configuration.name.split(' ').join('')}`)
-                        .card-body.auth-col.d-flex
-                            form
-                                div.form-row.form-group
-                                    div.form-group.col-4
-                                        label(for='optionsDisplayQuote') Display Quotes
-                                        select#optionsDisplayQuote.form-control
-                                            if (configuration.quoteEnable || configuration.quoteEnable === 0)
-                                                for x, i in [ 'Disabled', 'Enabled' ]
-                                                    if (configuration.quoteEnable === i)
-                                                        option(value=i selected) #{x}
-                                                    else
-                                                        option(value=i) #{x}
-                                            else
-                                                option(value='0' selected) Disabled
-                                                option(value='1') Enabled
-                                    div#optionsDisplayFolder.form-group.col-8
-                                        label(for="optionsDisplayQuotesInput") Tags for Quotes
-                                        input#optionsDisplayQuotesInput.form-control(type="text" placeholder="Enter Tags (Life, Inspiration, etc.)" value=configuration.quoteTag)

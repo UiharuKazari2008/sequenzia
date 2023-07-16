@@ -41,10 +41,34 @@ html {
     width: 100vw;
 }
 
-.warning-box-contents {
+.warning-box-contents, .kiosk-buttons-container {
     background: #000000c9;
     border-radius: 0.75em;
+}
+
+.warning-box-contents {
     padding: 1em 1.5em;
+}
+
+#kioskRemoteButtons.notice-enabled {
+    margin-top: 5.5em;
+}
+
+.kiosk-button {
+    padding: .5em 1.5em;
+    margin: .25em 0em;
+}
+.kiosk-button:first-child {
+    padding: 1em 1.5em 0.5em 1.5em;
+    margin-bottom: .25em;
+}
+.kiosk-button:last-child {
+    padding: 0.5em 1.5em 1em 1.5em;
+    margin-top: .25em;
+}
+.kiosk-button:first-child:nth-last-child(1) {
+    padding: 1em 1.5em;
+    margin: 0em;
 }
 
 .taskbar-bottom {
@@ -116,14 +140,6 @@ span#weatherDataTemp {
 span#quoteAuthor {
     font-style: oblique;
     font-size: 0.7em;
-}
-div#quoteContainer {
-    width: 55%;
-    display: grid;
-    opacity: 0.7;
-}
-.quote {
-    font-size: 1.5em;
 }
 
 .clock {

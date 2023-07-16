@@ -71,41 +71,5 @@ router.get('/weather', sessionVerification, async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
-router.get('/quote', sessionVerification, async (req, res) => {
-    try {
-        let _where
-        if (req.query && req.query.tag) {
-            sqlSafe(`SELECT * FROM sequenzia_quotes WHERE tags LIKE ? ORDER BY RAND() LIMIT 1`, ['%' + req.query.tag + '%'], (err, results) => {
-                if (err) {
-                    res.status(500).send('Internal Server Error');
-                } else if (results && results.length > 0) {
-                    res.json({
-                        text: results[0].quote,
-                        author: results[0].author,
-                        tags: results[0].tags
-                    });
-                } else {
-                    res.status(404).send('No Results');
-                }
-            })
-        } else {
-            sqlSimple(`SELECT * FROM sequenzia_quotes ORDER BY RAND() LIMIT 1`, (err, results) => {
-                if (err) {
-                    res.status(500).send('Internal Server Error');
-                } else if (results && results.length > 0) {
-                    res.json({
-                        text: results[0].quote,
-                        author: results[0].author,
-                        tags: results[0].tags
-                    });
-                } else {
-                    res.status(404).send('No Results');
-                }
-            })
-        }
-    } catch {
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 module.exports = router;
