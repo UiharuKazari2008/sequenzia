@@ -71,6 +71,16 @@ html {
     margin: 0em;
 }
 
+div#exitOverlay {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: black;
+    z-index: 10000;
+}
+
 .taskbar-bottom {
     margin-bottom: 5.5em!important;
 }

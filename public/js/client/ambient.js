@@ -699,7 +699,7 @@ function setupKioskMode() {
                             h += `<a class="kiosk-button" href="${b.url}">`
                             break;
                         case 'action':
-                            h += `<a class="kiosk-button" href="#_" onclick="button_call('${b.url}'); return false;">`
+                            h += `<a class="kiosk-button" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}, ${(b.fade_image && kioskOptions.has('bImage')) ? kioskOptions.getAll('bImage')[b.fade_image] : ''}); return false;">`
                             break;
                         default:
                             h += `<a class="kiosk-button" href="#_">`
@@ -752,7 +752,14 @@ function setupKioskMode() {
         console.error(`Failed to read kiosk buttons: ${e.message}`);
     }
 }
-function button_call(url) {
+function button_call(url, fade_in, exit_image) {
+    if (fade_in === 1) {
+        $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+        if (exit_image) {
+            $("#exitImage")[0].src = 'data:image;base64,' + exit_image;
+            $("#exitImage").removeClass('d-none');
+        }
+    }
     $.ajax({async: true,
         url,
         type: "GET", data: '',
@@ -762,7 +769,16 @@ function button_call(url) {
             'X-Requested-With': 'SequenziaXHR'
         },
         error: function (res) { console.error('Failed to call button url') },
-        success: function (res, txt, xhr) { console.log(xhr.status, txt) }
+        success: function (res, txt, xhr) {
+            console.log(xhr.status, txt)
+            if (fade_in === 2) {
+                $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+                if (exit_image) {
+                    $("#exitImage")[0].src = 'data:image;base64,' + exit_image;
+                    $("#exitImage").removeClass('d-none');
+                }
+            }
+        }
     });
     return false;
 }
