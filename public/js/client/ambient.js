@@ -687,7 +687,8 @@ function getWeather() {
 function setupKioskMode() {
     try {
         if (kioskOptions.has('kButtons')) {
-            setCookie("kiosk_mode", window.location.href)
+            $('#kioskRemoteButtons').removeClass('d-none').addClass('d-flex');
+            setCookie("kiosk_mode", window.location.href);
 
             let data = window.atob(decodeURIComponent(kioskOptions.getAll('kButtons')[0]))
             const buttons_json = JSON.parse(data);

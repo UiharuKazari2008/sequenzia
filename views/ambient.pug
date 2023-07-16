@@ -50,23 +50,9 @@ html
             .fixed-bottom
                 #errorBanner
             .fixed-top.m-5.animated--fade-in.hidden-on-boot
-                #kioskRemoteButtons.d-flex
+                #kioskRemoteButtons.d-none
                     .kiosk-buttons-container.d-flex.flex-column
-                        a(href="#_" onclick="console.log('Button1'); return false;").kiosk-button
-                            i.pr-2.fas.fa-star
-                            span Test Button #1
-                        a(href="#_" onclick="console.log('Button2'); return false;").kiosk-button
-                            i.pr-2.fas.fa-star
-                            span Test Button #2
-                        a(href="#_" onclick="console.log('Button3'); return false;").kiosk-button
-                            i.pr-2.fas.fa-star
-                            span Test Button #3
-                        a(href="#_" onclick="console.log('Button4'); return false;").kiosk-button
-                            i.pr-2.fas.fa-star
-                            span Test Button #4
-                        a(href="#_" onclick="console.log('Button5'); return false;").kiosk-button
-                            i.pr-2.fas.fa-star
-                            span Test Button #5
+                        span Invalid Kiosk Config
             .fixed-top.m-5.animated--fade-in.hidden-on-boot.align-items-start.d-flex
                 #logoTop.d-none.justify-content-end.pr-4(style='opacity: .6')
                     img.shadow-txt.text-white(style="width: 280px;position: relative;top: 0.2em;" src=`/static/img/sequenzia-logo-nav.png`)
