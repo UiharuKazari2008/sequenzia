@@ -699,7 +699,7 @@ function setupKioskMode() {
                             h += `<a class="kiosk-button" href="${b.url}">`
                             break;
                         case 'action':
-                            h += `<a class="kiosk-button" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}, ${(b.fade_image && kioskOptions.has('bImage')) ? "'" + kioskOptions.getAll('bImage')[b.fade_image] + "'" : ''}); return false;">`
+                            h += `<a class="kiosk-button" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}, ${(b.fade_image !== undefined && kioskOptions.has('bImage')) ? "'" + kioskOptions.getAll('bImage')[b.fade_image] + "'" : ''}); return false;">`
                             break;
                         default:
                             h += `<a class="kiosk-button" href="#_">`
