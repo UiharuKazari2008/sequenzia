@@ -754,11 +754,10 @@ function setupKioskMode() {
 }
 function button_call(url, fade_in, exit_image) {
     if (fade_in === 1) {
-        $('#exitOverlay').removeClass('d-none').addClass("d-flex");
         if (exit_image) {
-            $("#exitImage")[0].src = 'data:image;base64,' + exit_image;
-            $("#exitImage").removeClass('d-none');
+            document.getElementById('exitImage').src = 'data:image;base64,' + exit_image;
         }
+        $('#exitOverlay').removeClass('d-none').addClass("d-flex");
     }
     $.ajax({async: true,
         url,
@@ -772,11 +771,10 @@ function button_call(url, fade_in, exit_image) {
         success: function (res, txt, xhr) {
             console.log(xhr.status, txt)
             if (fade_in === 2) {
-                $('#exitOverlay').removeClass('d-none').addClass("d-flex");
                 if (exit_image) {
-                    $("#exitImage")[0].src = 'data:image;base64,' + exit_image;
-                    $("#exitImage").removeClass('d-none');
+                    document.getElementById('exitImage').src = 'data:image;base64,' + exit_image;
                 }
+                $('#exitOverlay').removeClass('d-none').addClass("d-flex");
             }
         }
     });
