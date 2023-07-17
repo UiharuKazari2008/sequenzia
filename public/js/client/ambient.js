@@ -706,6 +706,8 @@ function setupKioskMode() {
                             h += `<a class="kiosk-button" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''}>`
                             break;
                     }
+                    if (b.fade_image)
+                        let preload = (new Image()).src = b.fade_image;
                     if (b.bimage !== undefined && kioskOptions.has('bImage')) {
                         const images = kioskOptions.getAll('bImage')
                         if (images.length >= b.bimage + 1) {
@@ -728,7 +730,6 @@ function setupKioskMode() {
                     }
                     return h
                 })
-                console.log(buttons_html)
                 $('#kioskRemoteButtons > .kiosk-buttons-container').html(buttons_html)
             }
         }
