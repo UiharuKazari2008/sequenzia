@@ -44,6 +44,7 @@ html {
 .warning-box-contents, .kiosk-buttons-container {
     background: #000000c9;
     border-radius: 0.75em;
+    backdrop-filter: blur(15px);
 }
 
 .warning-box-contents {
