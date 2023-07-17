@@ -81,10 +81,6 @@ div#exitOverlay {
     z-index: 10000;
 }
 
-#exitImage {
-    scale: 3;
-}
-
 .taskbar-bottom {
     margin-bottom: 5.5em!important;
 }
