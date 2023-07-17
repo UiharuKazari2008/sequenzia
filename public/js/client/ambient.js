@@ -706,8 +706,10 @@ function setupKioskMode() {
                             h += `<a class="kiosk-button" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''}>`
                             break;
                     }
-                    if (b.fade_image)
-                        let preload = (new Image()).src = b.fade_image;
+                    if (b.fade_image) {
+                        let preload = new Image();
+                        preload.src = b.fade_image
+                    }
                     if (b.bimage !== undefined && kioskOptions.has('bImage')) {
                         const images = kioskOptions.getAll('bImage')
                         if (images.length >= b.bimage + 1) {
@@ -729,8 +731,8 @@ function setupKioskMode() {
                         h+= `<i class="pr-2 ${b.icon}"></i><span>${b.text}</span></a>`
                     }
                     return h
-                })
-                $('#kioskRemoteButtons > .kiosk-buttons-container').html(buttons_html)
+                });
+                $('#kioskRemoteButtons > .kiosk-buttons-container').html(buttons_html);
             }
         }
         let _ui = $('#userInfo');
