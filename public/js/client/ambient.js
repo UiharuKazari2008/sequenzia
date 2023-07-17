@@ -697,13 +697,13 @@ function setupKioskMode() {
                     let h = ''
                     switch (b.type) {
                         case 'redirect':
-                            h += `<a class="kiosk-button" href="${b.url}">`
+                            h += `<a class="kiosk-button" href="${b.url}"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''}>`
                             break;
                         case 'action':
-                            h += `<a class="kiosk-button" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}, ${(b.fade_image !== undefined && kioskOptions.has('bImage')) ? "'" + kioskOptions.getAll('bImage')[b.fade_image] + "'" : ''}); return false;">`
+                            h += `<a class="kiosk-button" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''} onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}, ${(b.fade_image !== undefined && kioskOptions.has('bImage')) ? "'" + kioskOptions.getAll('bImage')[b.fade_image] + "'" : ''}); return false;">`
                             break;
                         default:
-                            h += `<a class="kiosk-button" href="#_">`
+                            h += `<a class="kiosk-button" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''}>`
                             break;
                     }
                     if (b.bimage !== undefined && kioskOptions.has('bImage')) {
@@ -756,7 +756,7 @@ function setupKioskMode() {
 function button_call(url, fade_in, exit_image) {
     if (fade_in === 1) {
         if (exit_image) {
-            document.getElementById('exitImage').src = 'data:image;base64,' + exit_image;
+            document.getElementById('exitImage').src = ((typeof exit_image !== 'string') ? 'data:image;base64,' : '') + exit_image;
         }
         $('#exitOverlay').removeClass('d-none').addClass("d-flex");
     }
@@ -773,7 +773,7 @@ function button_call(url, fade_in, exit_image) {
             console.log(xhr.status, txt)
             if (fade_in === 2) {
                 if (exit_image) {
-                    document.getElementById('exitImage').src = 'data:image;base64,' + exit_image;
+                    document.getElementById('exitImage').src = ((typeof exit_image !== 'string') ? 'data:image;base64,' : '') + exit_image;
                 }
                 $('#exitOverlay').removeClass('d-none').addClass("d-flex");
             }
