@@ -86,7 +86,7 @@ html {
     font-size: 1.3em;
 }
 
-#kioskToolbarButtons .kiosk-buttons-container img.toolbar-buttons {
+#kioskToolbarButtons .kiosk-buttons-container .toolbar-buttons img {
     height: 1.15em;
 }
 
