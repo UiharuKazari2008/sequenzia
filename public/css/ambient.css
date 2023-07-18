@@ -245,3 +245,11 @@ div#content-wrapper.wacca-layout > .m-5 {
 div#content-wrapper.nost-layout > .m-5.fixed-bottom {
     margin: 3em 3em 5em 3em!important;
 }
+
+a:focus,
+a:hover,
+a:active {
+    outline: none;
+    text-decoration: none;
+    color: initial;
+}
