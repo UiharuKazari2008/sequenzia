@@ -49,6 +49,10 @@ html
         #content-wrapper.container.p-4
             .fixed-bottom
                 #errorBanner
+            .fixed-bottom.m-5.animated--fade-in.hidden-on-boot(style="z-index: 1031;")
+                #kioskToolbarButtons.d-none
+                    .kiosk-buttons-container.d-flex.flex-row.align-items-left
+                        span.p-4 Kiosk Config, No Data
             .fixed-top.m-5.animated--fade-in.hidden-on-boot
                 #kioskRemoteButtons.d-none
                     .kiosk-buttons-container.d-flex.flex-column.align-items-center

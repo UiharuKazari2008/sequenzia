@@ -735,22 +735,48 @@ function setupKioskMode() {
                 $('#kioskRemoteButtons > .kiosk-buttons-container').html(buttons_html);
             }
         }
-        let _ui = $('#userInfo');
-        let _di = $('#displayInfo');
-        switch (parseInt(displayConfiguration.displaySysInfo.toString())) {
-            case 2:
-                _ui.addClass('d-none').removeClass('d-flex');
-                _di.addClass('d-flex').removeClass('d-none');
-                document.getElementById('displayName').innerText = (displayConfiguration.nice_name) ? displayConfiguration.nice_name : displayConfiguration.name;
-                break;
-            case 0:
-                _ui.addClass('d-none').removeClass('d-flex');
-                _di.addClass('d-none').removeClass('d-flex');
-                break;
-            default:
-                _ui.addClass('d-flex').removeClass('d-none');
-                _di.addClass('d-none').removeClass('d-flex');
-                break;
+    } catch (e) {
+        console.error(`Failed to read kiosk buttons: ${e.message}`);
+    }
+    try {
+        if (kioskOptions.has('enable_toolbar')) {
+            $('#kioskToolbarButtons').removeClass('d-none').addClass('d-flex');
+
+            $.ajax({
+                async: true,
+                url: `http://localhost:6833/get_config`,
+                type: "GET", data: '',
+                processData: false,
+                contentType: false,
+                timeout: 2000,
+                headers: { 'X-Requested-With': 'SequenziaXHR' },
+                success: async function (response) {
+                    console.log(response);
+                    const buttons_html = response.map(b => {
+                        let h = ''
+                        h += `<a class="toolbar-buttons" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''} onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        if (b.fade_image) {
+                            let preload = new Image();
+                            preload.src = b.fade_image
+                        }
+                        if (b.image) {
+                            h += `<img src="${b.image}" alt=""`
+                            if (b.padding) {
+                                h += ` style="padding: ${b.padding};"\>`
+                            } else {
+                                h += "\>"
+                            }
+                        } else {
+                            h+= `<i class="${b.icon}"></i></a>`
+                        }
+                        return h
+                    });
+                    $('#kioskToolbarButtons > .kiosk-buttons-container').html(buttons_html);
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
         }
     } catch (e) {
         console.error(`Failed to read kiosk buttons: ${e.message}`);

@@ -1,8 +1,11 @@
 body {
     font-family: "Product Sans", "Yantramanav", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+    zoom: 1;
 }
+
 html {
     overflow: hidden!important;
+    touch-action: manipulation;
 }
 .background-image.overlay {
     background-image: linear-gradient(180deg, transparent 75%, #000000c7);
@@ -70,6 +73,17 @@ html {
 .kiosk-button:first-child:nth-last-child(1) {
     padding: 1em 1.5em;
     margin: 0em;
+}
+
+.toolbar-buttons {
+    padding: 1em;
+}
+
+#kioskToolbarButtons .kiosk-buttons-container {
+    padding: 0 0.5em;
+}
+#kioskToolbarButtons .kiosk-buttons-container .toolbar-buttons {
+    font-size: 1.3em;
 }
 
 div#exitOverlay {
@@ -228,6 +242,6 @@ div#content-wrapper.wacca-layout > .m-5 {
     margin: 16em!important;
     zoom: 0.70;
 }
-div#content-wrapper.nost-layout > .m-5 {
+div#content-wrapper.nost-layout > .m-5.fixed-bottom {
     margin: 3em 3em 5em 3em!important;
 }
