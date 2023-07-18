@@ -251,5 +251,5 @@ a:hover,
 a:active {
     outline: none;
     text-decoration: none;
-    color: initial;
+    color: rgb(255, 165, 84);
 }
