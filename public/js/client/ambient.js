@@ -754,7 +754,11 @@ function setupKioskMode() {
                     console.log(response);
                     const buttons_html = response.map(b => {
                         let h = ''
-                        h += `<a class="toolbar-buttons" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''} onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        if (b.url) {
+                            h += `<a class="toolbar-buttons" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''} onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        } else {
+                            h += `<a class="toolbar-buttons" href="#_"${(b.pre_padding) ? ' style="padding: ' + b.pre_padding + ';"': ''} onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        }
                         if (b.fade_image) {
                             let preload = new Image();
                             preload.src = b.fade_image
