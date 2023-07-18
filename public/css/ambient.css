@@ -86,6 +86,10 @@ html {
     font-size: 1.3em;
 }
 
+#kioskToolbarButtons .kiosk-buttons-container img.toolbar-buttons {
+    height: 1.15em;
+}
+
 div#exitOverlay {
     height: 100vh;
     width: 100vw;
@@ -246,10 +250,11 @@ div#content-wrapper.nost-layout > .m-5.fixed-bottom {
     margin: 3em 3em 5em 3em!important;
 }
 
+a,
 a:focus,
 a:hover,
 a:active {
     outline: none;
     text-decoration: none;
-    color: rgb(255, 165, 84);
+    color: #ff9b59;
 }

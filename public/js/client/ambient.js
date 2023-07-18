@@ -764,12 +764,14 @@ function setupKioskMode() {
                             preload.src = b.fade_image
                         }
                         if (b.image) {
-                            h += `<img src="${b.image}" alt=""`
-                            if (b.padding) {
-                                h += ` style="padding: ${b.padding};"\>`
-                            } else {
-                                h += "\>"
+                            h += `<img src="${b.image}" alt=""  style="`
+                            if (b.height) {
+                                h += `height: ${b.height}; `
                             }
+                            if (b.padding) {
+                                h += `padding: ${b.padding}; `
+                            }
+                            h += `"\>`
                         } else {
                             h+= `<i class="${b.icon}"></i></a>`
                         }
