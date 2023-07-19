@@ -684,6 +684,14 @@ function getWeather() {
         console.log('No Weather Location');
     }
 }
+function kioskGainFocus() {
+    if (fadeActive) {
+        fadeActive = false;
+        $('#exitOverlay').addClass('d-none').removeClass("d-flex");
+    }
+}
+window.addEventListener('focus', kioskGainFocus);
+document.addEventListener('mousemove', kioskGainFocus);
 function setupKioskMode() {
     try {
         if (kioskOptions.has('kButtons')) {
@@ -788,12 +796,15 @@ function setupKioskMode() {
         console.error(`Failed to read kiosk buttons: ${e.message}`);
     }
 }
+let fadeActive = false;
 function button_call(url, fade_in, exit_image) {
-    if (fade_in === 1) {
+    if (fade_in === 1 || fade_in === 3) {
         if (exit_image) {
             document.getElementById('exitImage').src = exit_image;
         }
         $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+        if (fade_in === 3)
+            fadeActive = true;
     }
     $.ajax({async: true,
         url,
@@ -806,11 +817,13 @@ function button_call(url, fade_in, exit_image) {
         error: function (res) { console.error('Failed to call button url') },
         success: function (res, txt, xhr) {
             console.log(xhr.status, txt)
-            if (fade_in === 2) {
+            if (fade_in === 2 || fade_in === 4) {
                 if (exit_image) {
                     document.getElementById('exitImage').src = exit_image;
                 }
                 $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+                if (fade_in === 4)
+                    fadeActive = true;
             }
         }
     });
