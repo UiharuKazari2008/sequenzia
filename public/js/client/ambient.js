@@ -44,7 +44,7 @@ let vfdDate = '';
 let vfdDefaultLine = 'Sequenzia'
 let vfdDateMode = 0;
 let failCount = 0;
-let _quotes, _weather
+let _weather
 let _night = undefined;
 let _dssT1C = false;
 let _dssT2C = false;

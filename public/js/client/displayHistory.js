@@ -251,19 +251,6 @@ function saveDisplayConfig(name, index) {
     } else {
         results.weatherFeelLike = 0;
     }
-    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
-        !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayQuote').value.toString()))) {
-        results.quoteEnable = parseInt(setthingsForm.querySelector('#optionsDisplayQuote').value.toString());
-    } else {
-        results.quoteEnable = 0;
-    }
-    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
-        setthingsForm.querySelector('#optionsDisplayQuotesInput').value.length > 2) {
-        results.quoteTag = setthingsForm.querySelector('#optionsDisplayQuotesInput').value.trim()
-    } else {
-        results.quoteTag = null;
-    }
-
     if (requestOptions.toString().length > 3) {
         results.requestOptions = requestOptions.toString()
     } else {
