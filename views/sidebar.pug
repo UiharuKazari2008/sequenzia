@@ -28,7 +28,7 @@ html
                                     div.collapse(data-parent='#accordionSidebar' id=`${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}Menu` class=isVisible)
                                         .bg-white.py-2.collapse-inner.rounded
                                             if (thisClass.entities.length > 1)
-                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}:*`) Everything
+                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}%3A*`) Everything
                                                     div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
                                                         if (thisClass.uri === 'gallery')
                                                             i.fas.fa-photo-video.ml-1
