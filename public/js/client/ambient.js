@@ -1105,11 +1105,15 @@ function syncDisplaySettings() {
     }
     try {
         let _lm = $('#content-wrapper')
+        let _bo = $('.background-image.overlay')
+        let _dz = $('#deadzoneOverlay')
         if (config.has('layoutMode')) {
             displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
             switch (parseInt(displayConfiguration.layoutMode.toString())) {
                 case 2:
                     _lm.addClass('nost-layout');
+                    _bo.addClass('nost-layout');
+                    _dz.addClass('nost-layout');
                     break;
                 case 1:
                     _lm.addClass('wacca-layout');
