@@ -1110,6 +1110,11 @@ function syncDisplaySettings() {
         if (config.has('layoutMode')) {
             displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
             switch (parseInt(displayConfiguration.layoutMode.toString())) {
+                case 3:
+                    _lm.addClass('nost-layout');
+                    _bo.addClass('nost-layout-top');
+                    _dz.addClass('nost-layout-top');
+                    break;
                 case 2:
                     _lm.addClass('nost-layout');
                     _bo.addClass('nost-layout');

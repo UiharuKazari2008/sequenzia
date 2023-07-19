@@ -30,6 +30,9 @@ html {
 .background-image.overlay.nost-layout {
     background-image: linear-gradient(180deg, transparent 75%, #000000c7 96%, black);
 }
+.background-image.overlay.nost-layout-top {
+    background-image: linear-gradient(180deg, transparent 75%, #000000c7 98%, black);
+}
 .background-image {
     background-position: center;
     background-size: cover;
@@ -102,6 +105,9 @@ html {
 }
 #deadzoneOverlay.nost-layout {
     height: 3em;
+}
+#deadzoneOverlay.nost-layout-top {
+    height: 2em;
 }
 div#exitOverlay {
     height: 100vh;
