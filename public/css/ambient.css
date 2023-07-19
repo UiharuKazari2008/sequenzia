@@ -101,7 +101,7 @@ html {
     z-index: 10000;
 }
 #deadzoneOverlay.nost-layout {
-    height: 2em;
+    height: 3em;
 }
 div#exitOverlay {
     height: 100vh;
