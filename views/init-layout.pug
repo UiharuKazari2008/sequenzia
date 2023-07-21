@@ -1346,7 +1346,9 @@ html
                                                     - params = new URLSearchParams(historyItem.uri.split('?')[1])
                                                     .d-flex.flex-column
                                                         div
-                                                            if (params && params.has('search'))
+                                                            if (params && params.has('review_mode') && params.getAll('review_mode')[0] === 'true')
+                                                                i.far.fa-check-to-slot.mr-2
+                                                            else if (params && params.has('search'))
                                                                 i.far.fa-search.mr-2
                                                             else if (params.has('displayname'))
                                                                 i.far.mr-2.fa-history
@@ -1357,7 +1359,7 @@ html
                                                             else if (params && params.has('album'))
                                                                 i.far.fa-archive.mr-2
                                                             else if (path === '/gallery')
-                                                                i.far.fa-photo-vide.mr-2
+                                                                i.far.fa-photo-video.mr-2
                                                             else if (path === '/files')
                                                                 i.far.fa-folder.mr-2
                                                             else if (path === '/cards')

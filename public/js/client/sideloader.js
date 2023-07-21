@@ -748,8 +748,11 @@ async function requestCompleted (response, url, lastURL, push) {
                         if (!offlinePage) {
                             if (initialLoad)
                                 document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
-                            if (inReviewMode)
+                            if (inReviewMode) {
                                 enableReviewMode();
+                            } else if (url.includes('review_mode=true')) {
+                                setupReviewMode();
+                            }
                             updateActionsPanel();
                             updateNotficationsPanel();
                             if (Object.values(apiActions).length > 0) {
@@ -1912,7 +1915,7 @@ async function generateGalleryHTML(url, eids, topText) {
                     } else {
                         document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-photo-film"></i><span class="text-uppercase">Gallery</span></li></ul>'
                     }
-                    
+
                     registerLazyLoader();
                     registerURLHandlers();
                     extratitlewidth = 0;

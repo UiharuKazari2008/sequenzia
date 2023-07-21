@@ -9,7 +9,9 @@ html
                         - params = new URLSearchParams(historyItem.uri.split('?')[1])
                         .d-flex.flex-column
                             div.text-ellipsis
-                                if (params && params.has('search') && params.getAll('search')[0].startsWith('id:st'))
+                                if (params && params.has('review_mode') && params.getAll('review_mode')[0] === 'true')
+                                    i.far.fa-check-to-slot.mr-2
+                                else if (params && params.has('search') && params.getAll('search')[0].startsWith('id:st'))
                                     i.far.fa-asterisk.mr-2
                                 else if (params.has('color'))
                                     i.fas.fa-swatchbook

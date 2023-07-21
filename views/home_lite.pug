@@ -331,12 +331,16 @@ html
                                                 i.fa-light.fa-compass
                                             a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
                                                 i.fa-light.fa-history
+                                            if (active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0)
+                                                a.hover-color(data-placement="top" title="Review Channels" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemReview")
+                                                    i.fa-light.fa-badge-check
                                             a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
                                                 i.fa-light.fa-address-book
                                             a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
                                                 i.fa-light.fa-bookmark
-                                            a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random').user-menu-overlow-show-icon-1
-                                                i.fa-light.fa-dice
+                                            if (!(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0))
+                                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random').user-menu-overlow-show-icon-1
+                                                    i.fa-light.fa-dice
                                             a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                                 i.fa-light.fa-browsers
                                             a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0.desktop-only
@@ -565,6 +569,23 @@ html
                                                     a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
                                                         i.fas(class=`${thisApp.icon}`)
                                                         | #{thisApp.name}
+                            div#menuItemReview.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
+                                .d-flex.w-100
+                                    .flex-grow-1
+                                        a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                            i.fas.fa-arrow-left.fa-fw
+
+                                    .d-flex.flex-column.justify-content-end.top-icon
+                                        div
+                                            i.fas.fa-badge-check.pr-2
+                                            span Timelines
+                                .d-flex.w-100.mb-3
+                                    div.menu-grid.user-menu-small
+                                        if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
+                                            each thisChanel in active_exchange.review_channels
+                                                a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href=`#/gallery?review_mode=true&${(thisChanel.vchannel) ? 'vchannel=' + thisChanel.vchannel : (thisChanel.channel) ? 'channel=' + thisChanel.channel : (thisChanel.folder) ? 'folder=' + encodeURIComponent(thisChanel.folder) : '' }`)
+                                                    i.fas(class=`${thisChanel.icon}`)
+                                                    | #{thisChanel.name}
                             div#menuItemLibrary.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
                                 .d-flex
                                     .flex-grow-1

@@ -186,6 +186,7 @@ module.exports = async (req, res, next) => {
         } else if (req.query.vchannel) {
             multiChannel = true;
             hideChannels = false;
+            bypassNSFWFilter = true;
             let _ch = req.query.vchannel.split(' ')
             if (_ch.length > 1) {
                 let _andStat = []

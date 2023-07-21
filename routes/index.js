@@ -80,8 +80,7 @@ async function deleteCacheData(key, local) {
     return app.delete(key)
 }
 
-router.get(['/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
-router.get(['/home', '/'], sessionVerification, generateSidebar, ajaxChecker);
+router.get(['/home', '/', '/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, handleExchange, renderResults);
 router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, handleExchange, renderResults);
 router.get('/homeImage', sessionVerification, generateConfiguration, getImages, handleExchange, renderResults);
