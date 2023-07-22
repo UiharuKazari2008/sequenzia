@@ -245,7 +245,7 @@ a.lightbox:before {
 }
 
 #photoInfo {
-    display: flex;
+    display: flex!important;
 }
 
 .modal-backdrop {
