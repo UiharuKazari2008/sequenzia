@@ -7,7 +7,7 @@ let performaceMode = (getCookie("performaceMode") !== null) ? getCookie("perform
 let menuLocation = (getCookie("menuLocation") !== null) ? getCookie("menuLocation") : false;
 let kiosk_settings = '';
 let kiosk_padding = {};
-let kioskOptions = new URLSearchParams(document.location.hash.substring(1));
+let kioskOptions = new URLSearchParams(document.location.query.substring(1));
 let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;;
 function setCookie(cname, cvalue, exdays) {
     const d = new Date();
