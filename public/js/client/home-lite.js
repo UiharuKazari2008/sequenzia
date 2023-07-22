@@ -957,8 +957,8 @@ function getRandomImage() {
                         console.error(`Failed to prettyfy the post body!`)
                         console.error(e)
                     }
-                } else {
                 }
+                postBody = postBody.split('\n').join('<br>')
 
 
                 if (!pageReady) {
