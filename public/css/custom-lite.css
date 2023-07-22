@@ -887,6 +887,16 @@ body {
     top: 0;
     left: 0;
 }
+.night-overlay {
+    background-color: #000000;
+    transform: none;
+    z-index: -90;
+    opacity: 0.5;
+    background-position: center;
+    background-size: cover;
+    height: 100vh;
+    width: 100vw;
+}
 
 .sidebar .sidebar-heading {
     text-align: center;
@@ -1616,6 +1626,113 @@ select.form-control:focus::-ms-value {
 .half-full, .half-center {
     padding-top: 60%;
 }
+
+.warning-box-contents, .kiosk-buttons-container {
+    background: #000000c9;
+    border-radius: 0.75em;
+    backdrop-filter: blur(15px);
+}
+
+.warning-box-contents {
+    padding: 1em 1.5em;
+}
+
+#kioskRemoteButtons.notice-enabled {
+    margin-top: 5.5em;
+}
+
+.kiosk-button {
+    padding: .5em 1.5em;
+    margin: .25em 0em;
+}
+.kiosk-button:first-child {
+    padding: 1em 1.5em 0.5em 1.5em;
+    margin-bottom: .25em;
+}
+.kiosk-button:last-child {
+    padding: 0.5em 1.5em 1em 1.5em;
+    margin-top: .25em;
+}
+.kiosk-button:first-child:nth-last-child(1) {
+    padding: 1em 1.5em;
+    margin: 0em;
+}
+
+.toolbar-buttons {
+    padding: 1em;
+}
+
+#kioskToolbarButtons .kiosk-buttons-container {
+    padding: 0 0.5em;
+}
+#kioskToolbarButtons .kiosk-buttons-container .toolbar-buttons {
+    font-size: 1.3em;
+}
+
+#kioskToolbarButtons .kiosk-buttons-container .toolbar-buttons img {
+    height: 1.15em;
+}
+#deadzoneOverlay {
+    width: 100vw;
+    position: absolute;
+    bottom: 0;
+    background: black;
+    height: 0;
+    z-index: 10000;
+}
+#deadzoneOverlay.nost-layout {
+    height: 3em;
+}
+#deadzoneOverlay.nost-layout-top {
+    height: 2em;
+}
+div#exitOverlay {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: black;
+    z-index: 10010;
+}
+
+.taskbar-bottom {
+    margin-bottom: 5.5em!important;
+}
+
+i#weatherIconMin {
+    font-size: 3em;
+    line-height: 1.3em;
+}
+i#weatherIconMin {
+    font-size: 3.5em
+}
+#weatherData {
+    font-size: 1.5em;
+    display: flex;
+    align-items: flex-end;
+}
+span#weatherDataCond {
+    font-size: 0.8em;
+    line-height: 1.1em;
+}
+div#weatherLoHi {
+    font-size: 0.5em;
+}
+.text-end {
+    text-align: end;
+}
+.current-weather {
+    font-size: 1.2em;
+}
+span#weatherDataTemp {
+    font-size: 1.7em;
+    line-height: 1em;
+}
+#weatherData.t2x {
+    font-size: 2em;
+}
+
 .album-list .wide-center, .album-list .wide-full, .album-list .half-center, .album-list .half-full  {
     padding-bottom: 62%;
 }
@@ -2020,6 +2137,31 @@ div#time {
 .performance-mode .menu-container {
     background: black;
 }
+.goto-seqmode {
+    margin-top: -4px;
+    padding-top: 4px;
+    z-index: -1;
+    position: relative;
+}
+.goto-kiosk {
+    margin-bottom: -4px;
+    padding-bottom: 4px;
+    z-index: -1;
+    position: relative;
+}
+
+div#kioskAppButtons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+}
+
+
+
 ul#accordionSidebar * {
     z-index: 5;
 }
@@ -2210,17 +2352,22 @@ ul#accordionSidebar * {
     display: none!important;
 }
 
-@media (max-width:882px) {
+@media (max-width:901px) {
     .user-menu-overlow-show-icon-1 {
         display: none!important;
     }
 }
-@media (min-width:883px) {
+@media (min-width:902px) {
     #midSearch {
-        width: 848px;
+        width: 866px;
     }
     .user-menu-overlow-hide-icon-1 {
         display: none!important;
+    }
+}
+@media (min-width:990px) {
+    #midSearch {
+        width: 950px;
     }
 }
 @media (max-width:575px) {

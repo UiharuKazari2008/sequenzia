@@ -83,12 +83,10 @@ span#loginCodeDisplay {
 .clock {
     font-weight: 400;
     line-height: 1em;
-    opacity: .6;
 }
 
 .clock.clock-date, .clock.clock-day {
     font-size: 2rem;
-    opacity: .5;
 }
 
 .clock.clock-time {
@@ -163,6 +161,19 @@ input.middle:focus {
 .background-image.overlay.ambient {
     background: linear-gradient(180deg, transparent 50%, #000000c7);
     box-shadow: none;
+}
+
+.overlay-for-data {
+    backdrop-filter: blur(25px);
+    width: 100%;
+    height: 300px;
+    z-index: 2;
+    content: '';
+    opacity: 1;
+    -webkit-mask-image: linear-gradient(to top, black 20%, transparent);
+    mask-image: linear-gradient(to top, black, transparent);
+    /* display: block; */
+    background: rgba(0,0,0,0.35);
 }
 
 .user-info-bg, .user-info-backdrop {
@@ -246,6 +257,9 @@ input.middle:focus {
 }
 
 @media (prefers-color-scheme: light) {
+    .invert-button-day {
+        filter: invert(1);
+    }
     .kms-menu-logo {
         content:url("/static/img/kongoumedialogo-menu-black.png");
     }
@@ -313,6 +327,9 @@ input.middle:focus {
     }
 }
 @media (prefers-color-scheme: dark) {
+    .invert-button-night {
+        filter: invert(1);
+    }
     .background-image.overlay {
         background-color: #0a0a0a96;
         box-shadow: inset 0 0 250px black;

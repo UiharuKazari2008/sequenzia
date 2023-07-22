@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v20-2-21JULY23'
+const cacheName = 'PRERELEASE-v20-2-22JULY23'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -847,6 +847,13 @@ self.addEventListener('message', async (event) => {
                 event.ports[0].postMessage(true);
             } else {
                 event.ports[0].postMessage(false);
+            }
+            break;
+        case 'IS_CACHED':
+            if (event.data.url) {
+                event.ports[0].postMessage(!!(await caches.match(event.data.url)));
+            } else {
+                event.ports[0].postMessage('missing url');
             }
             break;
         case 'INSTALL_KERNEL':

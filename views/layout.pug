@@ -1672,7 +1672,9 @@ html
                                         a.userDropdown.align-items-center.d-flex.collapsed(title="User Account and Settings" href='#_' data-toggle="collapse" aria-haspopup='true' aria-expanded='false' data-target='#userMenu' onClick=`$('#menuMainItem1').collapse('show')`)
                                             i.far.fa-bars.pl-2
                                             img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
-
+                            ul#kioskExit.navbar-nav.text-primary.ml-1.d-none
+                                a(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='#_' onclick='transitionToOOBPage("/"); return false;').btn-sm.btn-danger.px-1
+                                    i.fas.fa-home.px-2
                         //div#topbarAccent.show-menu-open.hidden
                         div#topbarUserBackground.show-menu-open.hidden
                             div.user-info-backdrop

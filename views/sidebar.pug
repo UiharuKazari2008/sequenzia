@@ -54,10 +54,16 @@ html
                                                         - nsfwSearch = "&nsfw=true"
                                                         - nsfwIndex = "&nsfw=true"
                                                     div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id=`vc_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).pr-0
-                                                        a.text-capitalize(href=`#/${thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
+                                                        a.text-capitalize(href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
                                                             div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                if (thisClass.uri === 'gallery')
+                                                                    i.fas.fa-photo-video.ml-1
+                                                                else if (thisClass.uri === 'files')
+                                                                    i.fas.fa-folder.ml-1
+                                                                else if (thisClass.uri === 'cards')
+                                                                    i.fas.fa-sticky-note.ml-1
                                                                 if (thisVirtualChannel.nsfw)
-                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                                    i.fas.fa-exclamation-triangle.mr-1(style="color: #ff4a4a;")
                                                         a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).px-3
                                                             i.fas.fa-chevron-right.align-self-center
                                                     .collapse.m-0(id=`vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` style="position: unset;")
@@ -82,11 +88,11 @@ html
                                                     if (_channels.length > 2)
                                                         a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
                                                             div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                                if (thisClass.uri === 'gallery')
+                                                                if (thisClass.uri !== thisSuperClass.uri && thisClass.uri === 'gallery')
                                                                     i.fas.fa-photo-video.ml-1
-                                                                else if (thisClass.uri === 'files')
+                                                                else if (thisClass.uri !== thisSuperClass.uri && thisClass.uri === 'files')
                                                                     i.fas.fa-folder.ml-1
-                                                                else if (thisClass.uri === 'cards')
+                                                                else if (thisClass.uri !== thisSuperClass.uri && thisClass.uri === 'cards')
                                                                     i.fas.fa-sticky-note.ml-1
                                                                 else if (thisSuperClass.uri === 'gallery')
                                                                     i.fas.fa-photo-video.ml-1

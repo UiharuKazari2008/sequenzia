@@ -5,6 +5,10 @@ let offlineDownloadController = new Map();
 let notificationControler = null;
 let performaceMode = (getCookie("performaceMode") !== null) ? getCookie("performaceMode") === 'true' : false;
 let menuLocation = (getCookie("menuLocation") !== null) ? getCookie("menuLocation") : false;
+let kiosk_settings = '';
+let kiosk_padding = {};
+let kioskOptions = new URLSearchParams(document.location.hash.substring(1));
+let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;;
 function setCookie(cname, cvalue, exdays) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -60,6 +64,28 @@ function params(_removeParams, _addParams, _url) {
 
 }
 
+let nextImageTimer = null;
+let displayConfiguration = {
+    refreshTime: 15,
+    displaySysInfo: 1,
+    displayImageInfo: 1,
+    displayClock: 1,
+    displayDate: 1,
+    displayOverlay: 1,
+    displayLogo: 1,
+    enableScale: 1,
+    displayAspectCorrect: 1,
+    darkImages: 0,
+    darkOverlay: 0,
+    taskbarPosition: 0,
+    weatherFeelLike: 0,
+    weatherFormat: 0,
+    weatherDisplay: 0,
+    layoutMode: 0,
+}
+const month = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+const days = ["Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur"];
+
 function dct() {
     const d = new Date();
     let h = d.getHours()
@@ -94,6 +120,231 @@ function dd(){
 // Day
 function ddw(){
     setTimeout(ddwt,5000)
+}
+let _weather
+let _night = undefined;
+function getWeather() {
+    if (displayConfiguration.location) {
+        let weatherOptions = new URLSearchParams();
+        weatherOptions.set('address', displayConfiguration.location);
+        if (displayConfiguration.weatherFormat === 1) {
+            document.getElementById('weatherFormat').classList.add('wi-fahrenheit')
+            document.getElementById('weatherFormat').classList.remove('wi-celsius')
+            weatherOptions.set('imperial', 'true');
+        } else {
+            document.getElementById('weatherFormat').classList.add('wi-celsius')
+            document.getElementById('weatherFormat').classList.remove('wi-fahrenheit')
+        }
+        $.ajax({async: true,
+            url: `/acc/weather?${weatherOptions.toString()}`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (response) {
+                if (response.temperature !== undefined) {
+                    let weatherLine = '';
+                    document.getElementById('weatherInfo').classList.remove('hidden');
+                    document.getElementById('weatherDataCond').innerText = response.weather_name;
+                    weatherLine += response.weather_name + ' '
+                    let _temp
+                    if (displayConfiguration.weatherFeelLike === 1) {
+                        _temp = parseInt(response.temperature_feel.toFixed(0).toString());
+                        weatherLine += parseInt(response.temperature_feel.toFixed(0).toString())
+                    } else {
+                        _temp = parseInt(response.temperature.toFixed(0).toString());
+                        weatherLine += parseInt(response.temperature.toFixed(0).toString())
+                    }
+                    if (displayConfiguration.weatherFormat === 1) {
+                        weatherLine += 'F'
+                    } else {
+                        weatherLine += 'C'
+                    }
+                    document.getElementById('weatherIconMin').classList = `wi ${response.weather_icon_class}`;
+                    document.getElementById('weatherDataTemp').innerText = _temp;
+                    document.getElementById('weatherDataLo').innerText = `LO ${parseInt(response.temperature_min.toFixed(0).toString())}`;
+                    document.getElementById('weatherDataHi').innerText = `HI ${parseInt(response.temperature_max.toFixed(0).toString())}`;
+
+                    if (displayConfiguration.darkOverlay === 1) {
+                        if (response.sys_night) {
+                            document.getElementById('overlayCycle').classList = `night-overlay`;
+                            _night = true;
+                        } else {
+                            document.getElementById('overlayCycle').classList = `day-overlay`;
+                            _night = false;
+                        }
+                    } else {
+                        document.getElementById('overlayCycle').classList = "";
+                    }
+
+                    console.log('Weather OK');
+                } else {
+                    console.error('Weather ERROR');
+                    console.log(response);
+                }
+            },
+            error: function (response) {
+                console.error('Weather ERROR');
+                console.log(response);
+            }
+        });
+    } else {
+        console.log('No Weather Location');
+    }
+}
+function syncDisplaySettings() {
+    try {
+        let _di = $('#dataInfo');
+        switch (parseInt(displayConfiguration.displayImageInfo.toString())) {
+            case 1:
+                _di.removeClass('d-none');
+                break;
+            default:
+                _di.addClass('d-none');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to setup Display Info: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
+    try {
+        let _di = $('#timeInfo');
+        switch (displayConfiguration.displayClock) {
+            case 0:
+                _di.addClass('d-none');
+                break;
+            default:
+                _di.removeClass('d-none');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to setup Time: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
+    try {
+        let _di = $('#dateInfo');
+        let _dw = $('#day');
+        let _df = $('#date');
+        switch (parseInt(displayConfiguration.displayDate.toString())) {
+            // Day Of The Week Disabled
+            case 3:
+                _di.addClass('d-flex').removeClass('d-none');
+                _dw.addClass('d-none');
+                _df.removeClass('d-none');
+                break;
+            // Full Date Disabled
+            case 2:
+                _di.addClass('d-flex').removeClass('d-none');
+                _dw.removeClass('d-none');
+                _df.addClass('d-none');
+                break;
+            // Enabled
+            case 1:
+                _di.addClass('d-flex').removeClass('d-none');
+                _dw.removeClass('d-none');
+                _df.removeClass('d-none');
+                break;
+            default:
+                _di.removeClass('d-flex').addClass('d-none');
+                _dw.addClass('d-none');
+                _df.addClass('d-none');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to setup Date: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
+    try {
+        let _wc = $('#weatherDataCond');
+        let _whl = $('#weatherLoHi');
+        let _wi = $('#weatherIcon');
+        let _wd = $('#weatherData');
+        switch (parseInt(displayConfiguration.weatherDisplay.toString())) {
+            case 6:
+                _wc.addClass('hidden');
+                _wi.remove('hidden');
+                _whl.addClass('hidden');
+                _wd.addClass('hidden').removeClass('t2x');
+                break;
+            case 5:
+                _wc.removeClass('hidden');
+                _wi.addClass('hidden');
+                _whl.addClass('hidden');
+                _wd.removeClass('hidden').addClass('t2x');
+                break;
+            case 4:
+                _wc.removeClass('hidden');
+                _whl.removeClass('hidden');
+                _wi.addClass('hidden');
+                _wd.removeClass('hidden').addClass('t2x');
+                break;
+            case 3:
+                _wc.removeClass('hidden');
+                _whl.removeClass('hidden');
+                _wi.removeClass('hidden');
+                _wd.removeClass('hidden').removeClass('t2x');
+                break;
+            case 2:
+                _whl.removeClass('hidden');
+                _wi.removeClass('hidden');
+                _wc.addClass('hidden');
+                _wd.removeClass('hidden').removeClass('t2x');
+                break;
+            case 1:
+                _wc.addClass('hidden');
+                _wi.removeClass('hidden');
+                _whl.addClass('hidden');
+                _wd.removeClass('hidden').removeClass('t2x');
+                break;
+            default:
+                _wc.addClass('hidden');
+                _whl.addClass('hidden');
+                _wi.addClass('hidden');
+                _wd.addClass('hidden').removeClass('t2x');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to setup Weather Display: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
+    try {
+        if (displayConfiguration.location) {
+            if (!_weather) {
+                _weather = setInterval(getWeather, 900000);
+                getWeather();
+            }
+        }
+    } catch (e) {
+        console.error(`Failed to setup Weather Runtime: ${e.message}`)
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
 }
 
 function getNewContent(remove, add, url) {
@@ -401,6 +652,174 @@ async function clearKernelCache() {
     window.location.reload();
 }
 
+async function setupKioskMode() {
+    return new Promise(async (ok) => {
+        try {
+            if (kioskOptions.has('enable_kiosk') || kioskMenuEnabled) {
+                $.ajax({
+                    async: true,
+                    url: `http://localhost:6833/get_config2`,
+                    type: "GET", data: '',
+                    processData: false,
+                    contentType: false,
+                    timeout: 2000,
+                    headers: { 'X-Requested-With': 'SequenziaXHR' },
+                    success: async function (response) {
+                        console.log(response);
+                        kioskMenuEnabled = true;
+
+                        setCookie("kiosk_enabled", 'true');
+
+                        $('#menuAccordion > div').removeClass('show');
+                        $('#kioskAccordion > div').removeClass('show');
+                        $('#masterAccordion > div').removeClass('show');
+
+                        $('#menuItemMain').addClass('show');
+                        $('#deviceMenuButton').removeClass('d-none');
+                        $('#dataFade').removeClass('d-none');
+                        $('#masterAccordion > #kioskAccordion').removeClass('d-none').addClass('show');
+                        $('#menuItemKiosk').addClass('show');
+
+                        kiosk_settings = response.display_config
+                        kiosk_padding = response.padding
+                        setCookie('kiosk_padding', JSON.stringify(response.padding));
+
+                        if (kiosk_padding.bottom) {
+                            let rule = '<style>'
+                            rule += `#deadzoneOverlay { height: ${kiosk_padding.bottom}; }\n`
+                            rule += `.fixed-bottom.ambient-items { margin-bottom: ${kiosk_padding.bottom}; }\n`
+                            rule += `#naviResume { margin-bottom : calc(calc(calc(env(safe-area-inset-bottom) + 2.125em) * -1) + ${kiosk_padding.bottom})!important }\n`
+                            rule += '</style>'
+                            $('head').append(rule)
+                        }
+
+                        const buttons_html = response.buttons.map(b => {
+                            let h = ''
+                            if (b.url) {
+                                h += `<a class="user-menu-item hover-color d-flex flex-column" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                            } else {
+                                h += `<a class="user-menu-item hover-color d-flex flex-column" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                            }
+                            if (b.fade_image) {
+                                let preload = new Image();
+                                preload.src = b.fade_image
+                            }
+                            if (b.image) {
+                                h += `<img src="${b.image}" alt=""  style="`
+                                if (b.height) {
+                                    h += `height: ${b.height}; `
+                                }
+                                if (b.padding) {
+                                    h += `padding: ${b.padding}; `
+                                }
+                                h += `"\>`
+                            } else {
+                                h+= `<i class="${b.icon}${(!b.title) ? ' mb-0' : ''}"></i>`
+                            }
+                            if (b.title) {
+                                h += `<span>${b.title}</span></a>`
+                            } else {
+                                h += '</a>'
+                            }
+                            return h
+                        });
+                        $('#kioskToolbarButtons').html(buttons_html);
+                        if (response.applications)
+                            $('#kioskAppButtons').addClass('mb-3')
+                        const apps_html = response.applications.map(b => {
+                            let h = ''
+                            if (b.url) {
+                                h += `<a class="kapp-icon d-flex flex-column" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                            } else {
+                                h += `<a class="kapp-icon d-flex flex-column" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                            }
+                            if (b.fade_image) {
+                                let preload = new Image();
+                                preload.src = b.fade_image
+                            }
+                            if (b.image) {
+                                h += `<img src="${b.image}" alt=""  style="`
+                                if (b.height) {
+                                    h += `height: ${b.height}; `
+                                }
+                                if (b.padding) {
+                                    h += `padding: ${b.padding}; `
+                                }
+                                h += `"`
+                                if (b.invert) {
+                                    h += ` class="invert-button-${b.invert}"`
+                                }
+                                h += `\>`
+                            } else {
+                                h+= `<i class="${b.icon}${(!b.title) ? ' mb-0' : ''}"></i>`
+                            }
+                            if (b.title) {
+                                h += `<span>${b.title}</span></a>`
+                            } else {
+                                h += '</a>'
+                            }
+                            return h
+                        });
+                        $('#kioskAppButtons').html(apps_html);
+                        ok();
+                    },
+                    error: function (response) {
+                        console.log(response);
+                        ok();
+                    }
+                });
+            } else {
+                ok();
+            }
+        } catch (e) {
+            console.error(`Failed to read kiosk buttons: ${e.message}`);
+            ok();
+        }
+    })
+}
+let fadeActive = false;
+function button_call(url, fade_in, exit_image) {
+    if (fade_in === 1 || fade_in === 3) {
+        noAmbientTimer = true;
+        if (exit_image) {
+            document.getElementById('exitImage').src = exit_image;
+        }
+        $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+        if (fade_in === 3)
+            fadeActive = true;
+    }
+    $.ajax({async: true,
+        url,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        error: function (res) { console.error('Failed to call button url') },
+        success: function (res, txt, xhr) {
+            console.log(xhr.status, txt)
+            if (fade_in === 2 || fade_in === 4) {
+                noAmbientTimer = true;
+                if (exit_image) {
+                    document.getElementById('exitImage').src = exit_image;
+                }
+                $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+                if (fade_in === 4)
+                    fadeActive = true;
+            }
+        }
+    });
+    return false;
+}
+function kioskGainFocus() {
+    if (fadeActive) {
+        fadeActive = false;
+        $('#exitOverlay').addClass('d-none').removeClass("d-flex");
+        noAmbientTimer = false;
+    }
+}
+
 let noAmbientTimer = false;
 let pageReady = false
 let refreshLayoutThrottleTimeout
@@ -446,26 +865,90 @@ function refreshLayout() {
 }
 function getRandomImage() {
     //try {
-        $.ajax({
-            async: true,
-            url: `/homeImage${(window.location.search && window.location.search.startsWith('?')) ? window.location.search : ''}`,
-            type: "GET", data: '',
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR',
-                'X-Requested-Page': 'SeqContent'
-            },
-            success: function (json, textStatus, xhr) {
-                if (json.randomImagev2 && json.randomImagev2.length > 0) {
-                    const previewImage = json.randomImagev2[0].previewImage;
-                    const fullImage = json.randomImagev2[0].fullImage;
-                    document.getElementById('midSearch').setAttribute('channel', json.randomImagev2[0].channelId);
-                    document.getElementById('midSearch').setAttribute('eid', json.randomImagev2[0].eid);
-                    _Size = [ json.randomImagev2[0].sizeH, json.randomImagev2[0].sizeW, json.randomImagev2[0].sizeR ];
-                    _Color = [ json.randomImagev2[0].colorR, json.randomImagev2[0].colorG, json.randomImagev2[0].colorB ];
+    clearTimeout(nextImageTimer);
+    nextImageTimer = null;
+    let extra_options = ''
+    if (kioskMenuEnabled && displayConfiguration.darkImages === 1 && _night !== undefined) {
+        if (_night) {
+            extra_options += 'dark=true&'
+        } else {
+            extra_options += 'dark=false&'
+        }
+    }
+    const url = `/homeImage${(kiosk_settings) ? '?' + extra_options + kiosk_settings : (window.location.search && window.location.search.startsWith('?')) ? window.location.search : ''}`;
+    (async () => {
+        const needMultiple = await kernelRequestData({
+            type: 'IS_CACHED',
+            url
+        });
+        if (!needMultiple) {
+            setTimeout(() => {
+                document.getElementById('midSearch').classList.add('shine-effect-go');
+                $.ajax({
+                    async: true,
+                    url,
+                    type: "GET", data: '',
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-Requested-With': 'SequenziaXHR',
+                        'X-Requested-Page': 'SeqContent'
+                    },
+                    success: function (json, textStatus, xhr) {
+                        if (json.randomImagev2 && json.randomImagev2.length > 0) {
+                            console.log('Got next image ready!')
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Failed to get next image ready!')
+                    }
+                })
+            }, 3000);
+        }
+    })()
+    $.ajax({
+        async: true,
+        url,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR',
+            'X-Requested-Page': 'SeqContent'
+        },
+        success: function (json, textStatus, xhr) {
+            if (json.randomImagev2 && json.randomImagev2.length > 0) {
+                if (json.configuration && kioskMenuEnabled) {
+                    displayConfiguration = json.configuration;
+                    syncDisplaySettings();
+                    let nextRefreshTime = (displayConfiguration.refreshTime) ? Math.abs(parseInt(displayConfiguration.refreshTime.toString()) * 60000) : 900000;
+                    nextImageTimer = setInterval(getRandomImage, nextRefreshTime);
+                }
+                const previewImage = json.randomImagev2[0].previewImage;
+                const fullImage = json.randomImagev2[0].fullImage;
+                document.getElementById('midSearch').setAttribute('channel', json.randomImagev2[0].channelId);
+                document.getElementById('midSearch').setAttribute('eid', json.randomImagev2[0].eid);
+                _Size = [ json.randomImagev2[0].sizeH, json.randomImagev2[0].sizeW, json.randomImagev2[0].sizeR ];
+                _Color = [ json.randomImagev2[0].colorR, json.randomImagev2[0].colorG, json.randomImagev2[0].colorB ];
 
-                    if (!pageReady) {
+                if (!pageReady) {
+                    $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
+                    $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
+                    $('.full-image-holder').attr('src', fullImage);
+                    $('.ajax-downloadLink').attr("href", fullImage);
+                    $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
+                    $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
+                    $('.ajax-imageDate').text(json.randomImagev2[0].date);
+                    $('.middle-indicator, #photoInfo').removeClass('hidden');
+                    if (json.randomImagev2[0].pinned) {
+                        $('.ajax-imageFav').removeClass('d-none');
+                    } else {
+                        $('.ajax-imageFav').addClass('d-none');
+                    }
+                    pageReady = true;
+                    refreshLayout();
+                } else {
+                    $.when($('#cover').fadeTo(1000, 1)).done(() => {
                         $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
                         $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
                         $('.full-image-holder').attr('src', fullImage);
@@ -481,73 +964,56 @@ function getRandomImage() {
                         }
                         pageReady = true;
                         refreshLayout();
-                    } else {
-                        $.when($('#cover').fadeTo(1000, 1)).done(() => {
-                            $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
-                            $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
-                            $('.full-image-holder').attr('src', fullImage);
-                            $('.ajax-downloadLink').attr("href", fullImage);
-                            $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
-                            $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
-                            $('.ajax-imageDate').text(json.randomImagev2[0].date);
-                            $('.middle-indicator, #photoInfo').removeClass('hidden');
-                            if (json.randomImagev2[0].pinned) {
-                                $('.ajax-imageFav').removeClass('d-none');
-                            } else {
-                                $('.ajax-imageFav').addClass('d-none');
-                            }
-                            pageReady = true;
-                            refreshLayout();
-                        });
-                    }
-                    setTimeout(() => {
-                        document.getElementById('midSearch').classList.remove('d-none');
-                        document.getElementById('naviResume').classList.remove('d-none');
-                        document.getElementById('photoInfo').classList.remove('d-none');
-                        document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
-                    }, 1000)
-                    setTimeout(() => {
-                        document.getElementById('midSearch').classList.add('shine-effect-go');
-                    }, 3000);
-                } else if (xhr.status >= 403) {
-                    $.toast({
-                        type: 'error',
-                        title: 'Random Image Error',
-                        subtitle: 'Now',
-                        content: `No Results Found`,
-                        delay: 5000,
                     });
+                }
+                setTimeout(() => {
                     document.getElementById('midSearch').classList.remove('d-none');
                     document.getElementById('naviResume').classList.remove('d-none');
                     document.getElementById('photoInfo').classList.remove('d-none');
                     document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
-                    setTimeout(() => {
-                        document.getElementById('midSearch').classList.add('shine-effect-go');
-                    }, 3000)
-                } else {
-                    document.getElementById('midSearch').classList.remove('d-none');
-                    document.getElementById('naviResume').classList.remove('d-none');
-                    document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
-                }
-            },
-            error: function (xhr) {
-                if (xhr.status  >= 403) {
-                    $.toast({
-                        type: 'error',
-                        title: 'Random Image Error',
-                        subtitle: 'Now',
-                        content: ``,
-                        delay: 5000,
-                    });
-                }
-                document.getElementById('midSearch').classList.remove('d-none');
-                document.getElementById('naviResume').classList.remove('d-none');
-                document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
+                }, 1000)
                 setTimeout(() => {
                     document.getElementById('midSearch').classList.add('shine-effect-go');
                 }, 3000);
+            } else if (xhr.status >= 403) {
+                $.toast({
+                    type: 'error',
+                    title: 'Random Image Error',
+                    subtitle: 'Now',
+                    content: `No Results Found`,
+                    delay: 5000,
+                });
+                document.getElementById('midSearch').classList.remove('d-none');
+                document.getElementById('naviResume').classList.remove('d-none');
+                document.getElementById('photoInfo').classList.remove('d-none');
+                document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
+                setTimeout(() => {
+                    document.getElementById('midSearch').classList.add('shine-effect-go');
+                }, 3000)
+            } else {
+                document.getElementById('midSearch').classList.remove('d-none');
+                document.getElementById('naviResume').classList.remove('d-none');
+                document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
             }
-        });
+        },
+        error: function (xhr) {
+            if (xhr.status  >= 403) {
+                $.toast({
+                    type: 'error',
+                    title: 'Random Image Error',
+                    subtitle: 'Now',
+                    content: ``,
+                    delay: 5000,
+                });
+            }
+            document.getElementById('midSearch').classList.remove('d-none');
+            document.getElementById('naviResume').classList.remove('d-none');
+            document.querySelectorAll('.bootUpLogo').forEach(n => n.classList.add('d-none'));
+            setTimeout(() => {
+                document.getElementById('midSearch').classList.add('shine-effect-go');
+            }, 3000);
+        }
+    });
     // } catch (e) {
     //     $.toast({
     //         type: 'error',
@@ -607,6 +1073,7 @@ function verifyNetworkAccess() {
                         content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                         delay: 30000,
                     });
+                    document.getElementById('statusMenuIcon').classList = 'fas fa-exclamation-triangle';
                     ok(false);
                 } else {
                     ok(true);
@@ -621,6 +1088,7 @@ function verifyNetworkAccess() {
                     content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                     delay: 30000,
                 });
+                document.getElementById('statusMenuIcon').classList = 'fas fa-exclamation-triangle';
                 ok(false);
             }
         });
@@ -882,13 +1350,18 @@ function setupAmbientTimers () {
     document.addEventListener("mousedown", resetAmbientTimer, false);
     document.addEventListener("keypress", resetAmbientTimer, false);
     document.addEventListener("touchmove", resetAmbientTimer, false);
-    dc();
+    dct();
+    ddt();
+    ddwt();
+
     startAmbientTimer();
-    setInterval(() => {
-        if (!document.hidden) {
-            getRandomImage();
-        }
-    }, 300000)
+    if (kioskMenuEnabled) {
+        setInterval(() => {
+            if (!document.hidden) {
+                getRandomImage();
+            }
+        }, 300000)
+    }
 }
 function startAmbientTimer() {
     if (!ambientTimeout) {
@@ -902,14 +1375,26 @@ function startAmbientTimer() {
     ambientTimeout = window.setTimeout(switchToAmbientMode, 30000)
 }
 function resetAmbientTimer() {
+    kioskGainFocus();
     window.clearTimeout(ambientTimeout);
     startAmbientTimer();
 }
 function switchToAmbientMode() {
     if (!noAmbientTimer) {
         document.getElementById('mainContainer').classList.add('disabled-pointer')
-        $('#mainContainer, #homeBg, #photoInfo').fadeOut(500);
         $('.ambient-items').fadeIn(500);
+        $.when($('#mainContainer, #homeBg, #photoInfo').fadeOut(500)).done(() => {
+            $('#menuAccordion > div').removeClass('show');
+            $('#kioskAccordion > div').removeClass('show');
+            $('#masterAccordion > div').removeClass('show');
+            $('#menuItemMain').addClass('show');
+            if (kioskMenuEnabled) {
+                $('#masterAccordion > #kioskAccordion').addClass('show');
+                $('#menuItemKiosk').addClass('show');
+            } else {
+                $('#masterAccordion > #menuAccordion').addClass('show');
+            }
+        })
     }
     window.clearTimeout(ambientTimeout);
     ambientTimeout = null;
@@ -1259,7 +1744,7 @@ if ('serviceWorker' in navigator) {
     }
 }
 
-$(document).ready(function () {
+$(document).ready(async function () {
     if (menuLocation) {
         if (menuLocation === 'bottom') {
             document.getElementById('mainContainer').classList.add('menu-bottom');
@@ -1267,6 +1752,7 @@ $(document).ready(function () {
             document.getElementById('mainContainer').classList.add('menu-top');
         }
     }
+    await setupKioskMode()
     verifyNetworkAccess()
         .then(async ok => {
             if (ok) {

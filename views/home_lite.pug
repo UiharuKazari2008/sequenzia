@@ -88,6 +88,7 @@ html
         link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
         link(rel='stylesheet', href="/css/custom-lite.min.css")
         link(rel='stylesheet', href="/css/home-lite.min.css")
+        link(rel='stylesheet', href='/static/css/weather-icons.min.css')
 
         script(src="/static/vendor/jquery/jquery.min.js")
         script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
@@ -139,6 +140,11 @@ html
                 document.querySelector('body').classList.add('performance-mode');
                 console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
             }
+        #exitOverlay.animated--fade-in.align-items-center.justify-content-center.d-none
+            img#exitImage(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
+        #deadzoneOverlay
+        #roundedOverlay
+        #overlayCycle
         #bootBackdrop.boot-logo-overlay(style="display: none;")
             #bootBackdropSunrise
         if (exchange_list)
@@ -229,18 +235,42 @@ html
                 document.getElementById('cover').classList.add('fadeOut');
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
+        #dataFade.fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row.overlay-for-data.d-none
         .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row
             .animated--fade-in.text-left.pb-4.d-none.align-items-end.d-md-flex
                 img(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 4em').pl-4.shadow-blk
-            .animated--fade-in.text-center.ml-auto.p-4
-                div(style="margin-top: -0.75em;")
-                    #time
-                //div
-                    i.fas.fa-star.d-none.ajax-imageFav.pr-2
-                    span.ajax-imageLocation.text-capitalize ...
-                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
-                        i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
-                    span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
+            .animated--fade-in.text-center.ml-auto.p-4.d-flex
+                div.mr-3.mt-auto
+                    .ml-auto.d-flex.animated--fade-in
+                        #weatherInfo.weather.d-flex.align-items-end.mb-2.hidden
+                            #weatherData
+                                .pr-1.text-end
+                                    span#weatherDataCond.text-uppercase.hidden
+                                    #weatherLoHi.text-end.hidden
+                                        span#weatherDataLo
+                                        i.weather-format.wi.wi-degrees
+                                        .d-inline-block
+                                            i.fas.fa-circle.mb-1.shadow-txt(style='margin: 0 1em 0.5em 1em;font-size: 6px;vertical-align: middle;line-height: 0.1em;')
+                                        span#weatherDataHi
+                                        i.weather-format.wi.wi-degrees
+                                .text-end.current-weather
+                                    .d-inline-flex
+                                        span#weatherDataTemp
+                                        i#weatherFormat.weather-format.align-text-top.wi
+                            #weatherIcon.ml-2
+                                i#weatherIconMin
+                div.d-flex.flex-column
+                    #dateInfo.clock-date.clock.ml-auto.animated--fade-in.pr-2
+                        span#day.shadow-txt
+                        span#date.pl-2.shadow-txt
+                    div#timeInfo(style="margin-top: -0.75em;")
+                        #time
+                    div#dataInfo.d-none
+                        i.fas.fa-star.d-none.ajax-imageFav.pr-2
+                        span.ajax-imageLocation.text-capitalize ...
+                        div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
+                            i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                        span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
         #mainContainer.container.position-fixed.top-center.h-100.w-100.flex-column
             #photoInfo.animated--fade-in.hidden.d-none.w-100.p-2.pb-0
                 .text-center.align-items-start.d-none.d-md-flex
@@ -307,448 +337,469 @@ html
                     i.fas.fa-sync.mr-1
                     span Please Wait...
             #midSearch.ml-auto.mr-auto.justify-content-between.align-items-center.animated--grow-in.flex-column(class=(!active_exchange) ? '' : 'd-none')
-                .menu-container.w-100.p-3.rounded.position-relative
-                    .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
-                    div#menuAccordion(style='display: contents').w-100.menu-glow
-                        div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").w-100
-                            #mainUserButtons.d-flex(class=`${(!active_exchange) ? 'hidden':''}`).flex-column
-                                div#mainButtonsAccordion(style='display: contents').w-100
-                                    div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
-                                        .menu-grid.main-menu-grid.menu-icons.py-1
-                                            a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
-                                                i.fa-light.fa-compass
-                                            a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
-                                                i.fa-light.fa-photo-video
-                                            a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
-                                                i.fa-light.fa-files
-                                            a.hover-color(data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
-                                                i.fa-light.fa-ticket
-                                            a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
-                                                i.fa-light.fa-star
-                                            a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
-                                                i.fa-light.fa-archive
-                                            a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
-                                                i.fa-light.fa-compass
-                                            a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
-                                                i.fa-light.fa-history
-                                            if (active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                                a.hover-color(data-placement="top" title="Review Channels" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemReview")
-                                                    i.fa-light.fa-badge-check
-                                            a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
-                                                i.fa-light.fa-address-book
-                                            a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
-                                                i.fa-light.fa-bookmark
-                                            if (!(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0))
-                                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random').user-menu-overlow-show-icon-1
+                div#masterAccordion(class="animated--grow-in" style='display: contents')
+                    div#kioskAccordion(class="collapse show" data-parent="#masterAccordion").position-relative.w-100.d-none
+                        .menu-container.w-100.rounded.position-relative
+                            .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
+                            div#menuItemKiosk.p-3.collapse.menu-object(class="collapse show animated--fade-in" data-parent="#kioskAccordion").w-100.menu-glow
+                                .d-flex.w-100
+                                    div#kioskAppButtons.kiosk-image-grid
+                                .d-flex.w-100
+                                    div#kioskToolbarButtons.menu-grid.user-menu-small
+                        div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").goto-seqmode.menu-container.rounded-bottom
+                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                i.fas.fa-photo-video.pr-2.mr-auto
+                                //span Sequenzia
+                                span.sidebar-brand-logo.sequenzia-logo(style="font-size: 24.5px;") sequenzia
+
+
+                    div#menuAccordion(class="collapse show" data-parent="#masterAccordion").w-100
+                        div#deviceMenuButton(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").goto-kiosk.menu-container.rounded-top.d-none
+                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                i.fas.fa-grid-3.pr-2.mr-auto
+                                span Device Menu
+                        .menu-container.w-100.rounded.position-relative
+                            .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
+                            div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").menu-glow.w-100.p-3
+                                #mainUserButtons.d-flex(class=`${(!active_exchange) ? 'hidden':''}`).flex-column.w-100
+                                    div#mainButtonsAccordion(style='display: contents').w-100
+                                        div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
+                                            .menu-grid.main-menu-grid.menu-icons.py-1
+                                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
+                                                    i.fa-light.fa-compass
+                                                a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
+                                                    i.fa-light.fa-photo-video
+                                                a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
+                                                    i.fa-light.fa-files
+                                                a.hover-color(data-placement="bottom" title='Libraries', href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemLibrary" )
+                                                    i.fa-light.fa-ticket
+                                                a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&pins=true')
+                                                    i.fa-light.fa-star
+                                                a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
+                                                    i.fa-light.fa-archive
+                                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
+                                                    i.fa-light.fa-compass
+                                                if (active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0)
+                                                    a.hover-color(data-placement="top" title="Review Channels" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemReview")
+                                                        i.fa-light.fa-badge-check
+                                                a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;' class=`${(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0) ? 'd-md-flex d-none' : ''}`)
+                                                    i.fa-light.fa-history
+                                                a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
+                                                    i.fa-light.fa-address-book
+                                                a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
+                                                    i.fa-light.fa-bookmark
+                                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random' class=`${(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0) ? 'user-menu-overlow-show-icon-1' : ''}`)
                                                     i.fa-light.fa-dice
-                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
-                                                i.fa-light.fa-browsers
-                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0.desktop-only
-                                                if (user)
-                                                    img.img-profile.img-button(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
-                                                else
-                                                    i.fa-light.fa-login
-                                            a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2").user-menu-overlow-hide-icon-1
-                                                i.fa-light.fa-ellipsis-stroke
-                                    div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
-                                        .menu-grid.main-menu-grid.menu-icons.py-1
-                                            a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
-                                                i.fa-light.fa-dice
-                                            a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
-                                                i.fa-light.fa-address-book
-                                            a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
-                                                if (user)
-                                                    img.img-profile.img-button(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
-                                                else
-                                                    i.fa-light.fa-login
-                                            a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
-                                                i.fa-light.fa-chevron-down
+                                                a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                                    i.fa-light.fa-browsers
+                                                a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0.user-menu-overlow-show-icon-1.desktop-only
+                                                    if (user)
+                                                        img.img-profile.img-button(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
+                                                    else
+                                                        i.fa-light.fa-login
+                                                a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage2").user-menu-overlow-hide-icon-1
+                                                    i.fa-light.fa-ellipsis-stroke
+                                        div#buttonsPage2(class="collapse" data-parent="#mainButtonsAccordion").w-100
+                                            .menu-grid.main-menu-grid.menu-icons.py-1
+                                                a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
+                                                    i.fa-light.fa-dice
+                                                a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;' class=`${(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length === 0) ? 'd-none' : 'd-md-none'}`)
+                                                    i.fa-light.fa-history
+                                                a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
+                                                    i.fa-light.fa-address-book
+                                                a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
+                                                    if (user)
+                                                        img.img-profile.img-button(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
+                                                    else
+                                                        i.fa-light.fa-login
+                                                a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
+                                                    i.fa-light.fa-chevron-down
 
-                            #menuSearchActivity.pt-2.w-100(class=`${(!active_exchange) ? 'd-none' : 'd-flex'}`)
-                                .d-flex.align-items-center
-                                    //span.sidebar-brand-logo.sequenzia-logo sequenzia
-                                    div#statusPanel(style='display: contents;')
-                                        .dropdown
-                                            a#statusMenu.d-flex.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
-                                                i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
-                                                i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
-                                                div#statusMenuProgress
-                                            .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
-                                                span.dropdown-header
-                                                    | Syncing Offline Pages...
-                                .w-100.align-items-center
-                                    div#locationAccordion.w-100.rounded
-                                        div#locationSearch(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent="#locationAccordion")
-                                            form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
-                                                .input-group.w-100.flex-nowrap
-                                                    div.d-flex.flex-column.w-100.justify-content-between.flex-md-row.pl-2
-                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
-                                                            input#dropdownSearch4.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                #menuSearchActivity.pt-2.w-100(class=`${(!active_exchange) ? 'd-none' : 'd-flex'}`).w-100
+                                    .d-flex.align-items-center
+                                        //span.sidebar-brand-logo.sequenzia-logo sequenzia
+                                        div#statusPanel(style='display: contents;')
+                                            .dropdown
+                                                a#statusMenu.d-flex.btn.pl-1.py-0(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="statusMenu")
+                                                    i#statusMenuIcon.fas.fa-sync.fa-spin.dimmed
+                                                    i#statusMenuIndicator.fas.fa-square-0.pl-2.hidden
+                                                    div#statusMenuProgress
+                                                .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="statusMenu")
+                                                    span.dropdown-header
+                                                        | Syncing Offline Pages...
+                                    .w-100.align-items-center
+                                        div#locationAccordion.w-100.rounded
+                                            div#locationSearch(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent="#locationAccordion")
+                                                form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                    .input-group.w-100.flex-nowrap
+                                                        div.d-flex.flex-column.w-100.justify-content-between.flex-md-row.pl-2
+                                                            div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                input#dropdownSearch4.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                            div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                input#dropdownSearch2.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                                i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                        input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
+                                                        .input-group-append
+                                                            a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
+                                                                i.far.fa-image.fa-sm.align-middle.nav-item
+                                                            a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/files"); return false;`)
+                                                                i.far.fa-folder.fa-sm.align-middle.nav-item
+                                                            a.btn.input-group-text.bg-transparent.border-0.bg-transparent(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick="$('#menuItemMain .user-menu-height').removeClass('dual-search'); return false;")
+                                                                i.far.fa-chevron-up.align-middle
+
+                                            div#locationTags(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
+                                                form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
+                                                    .input-group.w-100.flex-nowrap
+                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative.pl-2
+                                                            input#dropdownSearch3.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
                                                             i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
-                                                        div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
-                                                            input#dropdownSearch2.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
-                                                            i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
-                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
-                                                    .input-group-append
-                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Images"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/gallery"); return false;`)
-                                                            i.far.fa-image.fa-sm.align-middle.nav-item
-                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "/files"); return false;`)
-                                                            i.far.fa-folder.fa-sm.align-middle.nav-item
-                                                        a.btn.input-group-text.bg-transparent.border-0.bg-transparent(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationTags" onclick="$('#menuItemMain .user-menu-height').removeClass('dual-search'); return false;")
-                                                            i.far.fa-chevron-up.align-middle
+                                                        input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
+                                                        .input-group-append
+                                                            a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
+                                                                i.far.fa-search.fa-sm.align-middle.nav-item.input-group-append
+                                                            a.btn.input-group-text.bg-transparent.border-0(title="Advanced Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
+                                                                i.far.fa-chevron-down.align-middle
 
-                                        div#locationTags(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent="#locationAccordion")
-                                            form.col.form-inline.navbar-search.top-menu-search-bar.mb-0.p-0(onsubmit="return false;" method="post" style="width: 100%;" )
-                                                .input-group.w-100.flex-nowrap
-                                                    div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative.pl-2
-                                                        input#dropdownSearch3.bg-transparent.form-control.top-menu-search-bar.border-0.w-100.p-0(type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
-                                                        i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
-                                                    input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3"); return false;`)
-                                                    .input-group-append
-                                                        a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
-                                                            i.far.fa-search.fa-sm.align-middle.nav-item.input-group-append
-                                                        a.btn.input-group-text.bg-transparent.border-0(title="Advanced Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
-                                                            i.far.fa-chevron-down.align-middle
+                                #loginUserButtons.d-flex.py-1(class=`${(active_exchange && active_exchange.discord) ? 'hidden':''}`).flex-column.flex-sm-row.w-100
+                                    span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
+                                    .login-options.menu-grid.mt-auto.mb-auto
+                                        a.hover-color(data-placement="top" title='Access Local Files', href='#_' onclick="transitionToOOBPage('/offline'); return false").d-flex.flex-column
+                                            i.fa-light.fa-bookmark.fa-2x.align-self-center
+                                            span.align-self-center.pt-1 Local Files
+                                        a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
+                                            i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
+                                            span.align-self-center.pt-1 Login
+                                .d-flex.justify-content-between.align-items-center.image-description.hidden
+                                    div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;')
+                                        .d-inline(style='white-space: nowrap;  flex: 1;')
+                                            i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
+                                            a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                                                .d-inline-block
+                                                    span.ajax-imageLocation.text-capitalize ...
+                                                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
+                                                        i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                                                    span.ajax-imageDate.d-sm-inline.d-none
+                                    div.d-flex.justify-content-center.ml-2.align-items-center
+                                        a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;').mr-3
+                                            i.i.fas.fa-download.fa-sm
+                                        a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
+                                            i.i.fas.fa-fast-forward.fa-sm
+                                if (pageError)
+                                    .d-flex.justify-content-between.align-items-center(style="font-size: 1.25em;").text-center.w-100.text-danger
+                                        span.text-capitalize.shadow-text Internal Server Error
 
-                            #loginUserButtons.d-flex.py-1(class=`${(active_exchange && active_exchange.discord) ? 'hidden':''}`).flex-column.flex-sm-row
-                                span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
-                                .login-options.menu-grid.mt-auto.mb-auto
-                                    a.hover-color(data-placement="top" title='Access Local Files', href='#_' onclick="transitionToOOBPage('/offline'); return false").d-flex.flex-column
-                                        i.fa-light.fa-bookmark.fa-2x.align-self-center
-                                        span.align-self-center.pt-1 Local Files
-                                    a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
-                                        i.fa-light.fa-right-to-bracket.fa-2x.align-self-center
-                                        span.align-self-center.pt-1 Login
-                            .d-flex.justify-content-between.align-items-center.image-description.hidden
-                                div(style='min-width: 0; overflow: hidden; flex: 1; white-space: nowrap;')
-                                    .d-inline(style='white-space: nowrap;  flex: 1;')
-                                        i.fas.fa-star.d-none.ajax-imageFav.pr-2(onclick="toggleFavorite(); return false;")
-                                        a.ajax-imageLink(data-placement="bottom" title='View the background photo')
-                                            .d-inline-block
-                                                span.ajax-imageLocation.text-capitalize ...
-                                                div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
-                                                    i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
-                                                span.ajax-imageDate.d-sm-inline.d-none
-                                div.d-flex.justify-content-center.ml-2.align-items-center
-                                    a.ajax-downloadLink.d-inline.hover-color(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;').mr-3
-                                        i.i.fas.fa-download.fa-sm
-                                    a.d-inline.hover-color(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
-                                        i.i.fas.fa-fast-forward.fa-sm
-                            if (pageError)
-                                .d-flex.justify-content-between.align-items-center(style="font-size: 1.25em;").text-center.w-100.text-danger
-                                    span.text-capitalize.shadow-text Internal Server Error
-
-                        if (active_exchange && active_exchange.discord)
-                            div#menuItemAlbums.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex.w-100
-                                    .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
-                                            i.fas.fa-arrow-left.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-archive.pr-2
-                                            span Albums
-                                .d-flex.w-100.mb-3
-                                    if (active_exchange.albums && active_exchange.albums.length > 0)
-                                        div.album-list
-                                            each thisAlbum in active_exchange.albums
-                                                div.album-item.position-relative
-                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
-                                                        //x.uri, x.privacy
-                                                        div.album-icon
-                                                            if (thisAlbum.uri === 'gallery')
-                                                                i.far.fa-photo-video.pr-1
-                                                            else if (thisAlbum.uri === 'files')
-                                                                i.far.fa-folder.pr-1
-                                                            else if (thisAlbum.uri === 'cards')
-                                                                i.far.fa-sticky-note.pr-1
-                                                            else
-                                                                i.far.fa-archive.pr-1
-                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
-                                                        span #{thisAlbum.name}
-                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
-                                                        if (thisAlbum.image)
-                                                            div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
-                                                        else
-                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
-                                    else
-                                        div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
-                                            i.fas.fa-empty-set.pr-2
-                                            span No Albums
-                            div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex.w-100
-                                    .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
-                                            i.fas.fa-arrow-left.fa-fw
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#/artists?')
-                                            i.fas.fa-grid-2.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-address-book.pr-2
-                                            span Artists
-                                .d-flex.w-100.mb-3
-                                    if (active_exchange.artists && active_exchange.artists.length > 0)
-                                        div.album-list
-                                            each thisArtist in active_exchange.artists
-                                                div.album-item.position-relative
-                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
-                                                        //x.uri, x.privacy
-                                                        div.album-icon
-                                                            if (thisArtist.artist_source && thisArtist.artist_source === 1)
-                                                                i.fab.fa-twitter.pr-1
-                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 2)
-                                                                i.fas.fa-palette.pr-1
-                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 3)
-                                                                i.fab.fa-flickr.pr-1
-                                                            else if (thisArtist.artist_source && thisArtist.artist_source === 4)
-                                                                i.fas.fa-download.pr-1
-
-                                                            if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
-                                                                i.fas.fa-check-circle.ml-1.pr-1
-
-                                                            if (thisArtist.artist_rating)
-                                                                if (thisArtist.artist_rating >= 0.9)
-                                                                    i.fas.fa-face-smile.ml-1.pr-1
-                                                                else if (thisArtist.artist_rating >= 0.75)
-                                                                    i.fas.fa-face-meh.ml-1.pr-1
-                                                                else if (thisArtist.artist_rating >= 0.50)
-                                                                    i.fas.fa-face-frown.ml-1.pr-1
-                                                                else
-                                                                    i.fas.fa-face-meh-blank.ml-1.pr-1
-                                                                span #{(thisArtist.artist_rating * 100).toFixed(0)}%
-                                                    div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
-                                                        span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
-                                                    a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
-                                                        if (thisArtist.image)
-                                                            div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
-                                                        else
-                                                            div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
-                                    else
-                                        span No Favorite Artists!
-
-                            div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex.w-100
-                                    .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
-                                            i.fas.fa-arrow-left.fa-fw
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show All History', href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`)
-                                            i.fas.fa-grid-2.fa-fw
-                                        #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
-                                            i.fas.fa-spin-pulse.fa-spinner
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-history.pr-2
-                                            span History
-                                .d-flex.w-100.mb-3
-                                    div.album-list
-                                        #menuBodyImageHistory.ready(style="display: contents;")
-                            div#menuItemApps.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex.w-100
-                                    .flex-grow-1
-                                        a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
-                                            i.fas.fa-arrow-left.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-browsers.pr-2
-                                            span Apps
-                                .d-flex.w-100.mb-3
-                                    div.menu-grid.user-menu-small
-                                        a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
-                                            i.fas.fa-tv
-                                            | Photo Frame
-                                        if (active_exchange.applications_list && active_exchange.applications_list.length > 0)
-                                            each thisApp in active_exchange.applications_list
-                                                if (thisApp.type == 0)
-                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
-                                                        i.fas(class=`${thisApp.icon}`)
-                                                        | #{thisApp.name}
-                                                else
-                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
-                                                        i.fas(class=`${thisApp.icon}`)
-                                                        | #{thisApp.name}
-                            div#menuItemReview.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex.w-100
-                                    .flex-grow-1
-                                        a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
-                                            i.fas.fa-arrow-left.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-badge-check.pr-2
-                                            span Timelines
-                                .d-flex.w-100.mb-3
-                                    div.menu-grid.user-menu-small
-                                        if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                            each thisChanel in active_exchange.review_channels
-                                                a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href=`#/gallery?review_mode=true&${(thisChanel.vchannel) ? 'vchannel=' + thisChanel.vchannel : (thisChanel.channel) ? 'channel=' + thisChanel.channel : (thisChanel.folder) ? 'folder=' + encodeURIComponent(thisChanel.folder) : '' }`)
-                                                    i.fas(class=`${thisChanel.icon}`)
-                                                    | #{thisChanel.name}
-                            div#menuItemLibrary.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex
-                                    .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
-                                            i.fas.fa-arrow-left.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            img.kms-menu-logo(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.4em;")
-                                            //i.fas.fa-ticket.pr-2.d-sm-none
-                                            //span.d-sm-none Theater
-                                .d-flex.w-100.mb-3
+                            if (active_exchange && active_exchange.discord)
+                                div#menuItemAlbums.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
                                     .d-flex.w-100
-                                        if (active_exchange.kongou_next_episode)
-                                            div.pl-2(onclick=`getNewContent([],[["show_id","${active_exchange.kongou_next_episode.show_id}"]${(active_exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!active_exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? '/media_attachments' + active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ''}`)
-                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(active_exchange.kongou_next_episode.poster) ? '/media_attachments' + active_exchange.kongou_next_episode.poster : active_exchange.kongou_next_episode.data.poster[0]}`)
-                                        if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
-                                            div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
-                                                a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
-                                                    i.fas.fa-forward
-                                                    | Up Next
-                                                a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
-                                                    i.fas.fa-fw.fa-books
-                                                    | Shelves
-                                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
-                                                    i.fas.fa-certificate
-                                                    | Newest
-                                                a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
-                                                    i.fas.fa-star
-                                                    | Favorites
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-archive.pr-2
+                                                span Albums
+                                    .d-flex.w-100.mb-3
+                                        if (active_exchange.albums && active_exchange.albums.length > 0)
+                                            div.album-list
+                                                each thisAlbum in active_exchange.albums
+                                                    div.album-item.position-relative
+                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                            //x.uri, x.privacy
+                                                            div.album-icon
+                                                                if (thisAlbum.uri === 'gallery')
+                                                                    i.far.fa-photo-video.pr-1
+                                                                else if (thisAlbum.uri === 'files')
+                                                                    i.far.fa-folder.pr-1
+                                                                else if (thisAlbum.uri === 'cards')
+                                                                    i.far.fa-sticky-note.pr-1
+                                                                else
+                                                                    i.far.fa-archive.pr-1
+                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                            span #{thisAlbum.name}
+                                                        a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=thisAlbum.name href=`#/${thisAlbum.uri}?album=${thisAlbum.aid}&sort=album`)
+                                                            if (thisAlbum.image)
+                                                                div.album-preview.rounded(style=`background-image: url("${thisAlbum.image}");`)
+                                                            else
+                                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
                                         else
-                                            div.mt-auto.mb-auto.ml-auto.mr-auto.h3
-                                                i.fas.fa-shelves-empty.pr-2
-                                                span No Library Access
+                                            div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
+                                                i.fas.fa-empty-set.pr-2
+                                                span No Albums
+                                div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#/artists?')
+                                                i.fas.fa-grid-2.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-address-book.pr-2
+                                                span Artists
+                                    .d-flex.w-100.mb-3
+                                        if (active_exchange.artists && active_exchange.artists.length > 0)
+                                            div.album-list
+                                                each thisArtist in active_exchange.artists
+                                                    div.album-item.position-relative
+                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                            //x.uri, x.privacy
+                                                            div.album-icon
+                                                                if (thisArtist.artist_source && thisArtist.artist_source === 1)
+                                                                    i.fab.fa-twitter.pr-1
+                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 2)
+                                                                    i.fas.fa-palette.pr-1
+                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 3)
+                                                                    i.fab.fa-flickr.pr-1
+                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 4)
+                                                                    i.fas.fa-download.pr-1
+
+                                                                if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
+                                                                    i.fas.fa-check-circle.ml-1.pr-1
+
+                                                                if (thisArtist.artist_rating)
+                                                                    if (thisArtist.artist_rating >= 0.9)
+                                                                        i.fas.fa-face-smile.ml-1.pr-1
+                                                                    else if (thisArtist.artist_rating >= 0.75)
+                                                                        i.fas.fa-face-meh.ml-1.pr-1
+                                                                    else if (thisArtist.artist_rating >= 0.50)
+                                                                        i.fas.fa-face-frown.ml-1.pr-1
+                                                                    else
+                                                                        i.fas.fa-face-meh-blank.ml-1.pr-1
+                                                                    span #{(thisArtist.artist_rating * 100).toFixed(0)}%
+                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                            span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
+                                                        a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
+                                                            if (thisArtist.image)
+                                                                div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
+                                                            else
+                                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                        else
+                                            span No Favorite Artists!
+
+                                div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show All History', href=`#/gallery?sort=history&history_numdays=90&history=only&displayname=*`)
+                                                i.fas.fa-grid-2.fa-fw
+                                            #menuLoaderImageHistory.top-icon.d-inline(style="opacity: 0.5;")
+                                                i.fas.fa-spin-pulse.fa-spinner
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-history.pr-2
+                                                span History
+                                    .d-flex.w-100.mb-3
+                                        div.album-list
+                                            #menuBodyImageHistory.ready(style="display: contents;")
+                                div#menuItemApps.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-browsers.pr-2
+                                                span Apps
+                                    .d-flex.w-100.mb-3
+                                        div.menu-grid.user-menu-small
+                                            a.user-menu-item.hover-color.d-flex.flex-column(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
+                                                i.fa-light.fa-tv
+                                                | Photo Frame
+                                            if (active_exchange.applications_list && active_exchange.applications_list.length > 0)
+                                                each thisApp in active_exchange.applications_list
+                                                    if (thisApp.type == 0)
+                                                        a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisApp.name}` href=thisApp.url target="_blank" rel="noopener noreferrer")
+                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                            | #{thisApp.name}
+                                                    else
+                                                        a.user-menu-item.hover-color.d-flex.flex-column(title=`Launch ${thisApp.name}` href=`#/app/launch/${thisApp.id}`)
+                                                            i.fa-light(class=`${thisApp.icon}`)
+                                                            | #{thisApp.name}
+                                div#menuItemReview.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-badge-check.pr-2
+                                                span Timelines
+                                    .d-flex.w-100.mb-3
+                                        div.menu-grid.user-menu-small
+                                            if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
+                                                each thisChanel in active_exchange.review_channels
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href=`#/gallery?review_mode=true&${(thisChanel.vchannel) ? 'vchannel=' + thisChanel.vchannel : (thisChanel.channel) ? 'channel=' + thisChanel.channel : (thisChanel.folder) ? 'folder=' + encodeURIComponent(thisChanel.folder) : '' }`)
+                                                        i.fas(class=`${thisChanel.icon}`)
+                                                        | #{thisChanel.name}
+                                div#menuItemLibrary.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                img.kms-menu-logo(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.4em;")
+                                                //i.fas.fa-ticket.pr-2.d-sm-none
+                                                //span.d-sm-none Theater
+                                    .d-flex.w-100.mb-3
+                                        .d-flex.w-100
+                                            if (active_exchange.kongou_next_episode)
+                                                div.pl-2(onclick=`getNewContent([],[["show_id","${active_exchange.kongou_next_episode.show_id}"]${(active_exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!active_exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? '/media_attachments' + active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ''}`)
+                                                    img.border-left-warning.rounded.kongou-next-episode-image(src=`${(active_exchange.kongou_next_episode.poster) ? '/media_attachments' + active_exchange.kongou_next_episode.poster : active_exchange.kongou_next_episode.data.poster[0]}`)
+                                            if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
+                                                div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title="Continue Ongoing Series" href='#/listTheater?watch_history=none')
+                                                        i.fas.fa-forward
+                                                        | Up Next
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title="Media Shelves" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMediaGroups")
+                                                        i.fas.fa-fw.fa-books
+                                                        | Shelves
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Newest Episodes" href='#/listTheater?numdays=1&sort=eid&num=25')
+                                                        i.fas.fa-certificate
+                                                        | Newest
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(data-placement="left" title="Favorite Episodes" href='#/listTheater?pins=true')
+                                                        i.fas.fa-star
+                                                        | Favorites
+                                            else
+                                                div.mt-auto.mb-auto.ml-auto.mr-auto.h3
+                                                    i.fas.fa-shelves-empty.pr-2
+                                                    span No Library Access
 
 
 
 
-                            div#menuItemMediaGroups.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
+                                div#menuItemMediaGroups.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
+                                                i.fas.fa-arrow-left.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-books.pr-2
+                                                span Shelves
+                                    .d-flex.w-100.mb-3
+                                        div.menu-grid.user-menu-small
+                                            if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
+                                                each thisTheater in active_exchange.media_groups
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
+                                                        i.fas(class=`${thisTheater.icon}`)
+                                                        | #{thisTheater.name}
+                                div#menuItemWallet.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Account Settings', href='#_' data-toggle="collapse" data-target="#menuItemAccount")
+                                                i.fas.fa-arrow-left.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-passport.pr-2
+                                                span Passports
+                                    .w-100.user-card-list
+                                        each exchange, exchange_id in exchange_list
+                                            div.user-info-bg.rounded.position-relative(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
+                                                div.user-info-backdrop.rounded
+                                                div.user-info-border.rounded
+                                                div.user-info-overlay.position-absolute.rounded
+                                                div.user-infocard-holder.d-flex.flex-column
+                                                    .row.p-0.m-2(style="padding: 0.25em 0.5em;")
+                                                        img.sidebar-brand-logo.sequenzia-logo(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                        if (exchange.discord.user.membership)
+                                                            if (exchange.discord.user.membership.background)
+                                                                div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
+                                                                    if (exchange.discord.user.membership.icon)
+                                                                        i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                                    span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                            else
+                                                                div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}`)
+                                                                    if (exchange.discord.user.membership.icon)
+                                                                        i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
+                                                                    span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                        else
+                                                            span.ml-auto.shadow-text(style="z-index: 1;") Member
+
+
+                                                    .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
+                                                        .col-auto.p-0
+                                                            img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
+                                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                            div.text-center.text-ellipsis.align-middle.mr-auto
+                                                                if (login_source && login_source > 101)
+                                                                    span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
+                                                                else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
+                                                                    i.pr-1.fas.fa-check-circle
+                                                                span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
+                                                                    //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                            div.text-ellipsis.shadow-text.user-infocard-info
+                                                                span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
+
+                            div#menuItemAccount.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
                                 .d-flex.w-100
-                                    .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemLibrary")
+                                    .d-flex.flex-grow-1
+                                        a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.getElementById('mainContainer').classList.remove('show-menu-buttons'); return false;")
                                             i.fas.fa-arrow-left.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-books.pr-2
-                                            span Shelves
-                                .d-flex.w-100.mb-3
-                                    div.menu-grid.user-menu-small
-                                        if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
-                                            each thisTheater in active_exchange.media_groups
-                                                a.user-menu-item.hover-color.d-flex.flex-column(title=`Browse ${thisTheater.name} Collection` href=`#/tvTheater?group=${thisTheater.media_group}`)
-                                                    i.fas(class=`${thisTheater.icon}`)
-                                                    | #{thisTheater.name}
-                            div#menuItemWallet.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                                .d-flex.w-100
-                                    .flex-grow-1
-                                        a.pr-2.d-inline.hover-color.top-icon(title='Show Account Settings', href='#_' data-toggle="collapse" data-target="#menuItemAccount")
-                                            i.fas.fa-arrow-left.fa-fw
-
-                                    .d-flex.flex-column.justify-content-end.top-icon
-                                        div
-                                            i.fas.fa-passport.pr-2
-                                            span Passports
-                                .w-100.user-card-list
-                                    each exchange, exchange_id in exchange_list
-                                        div.user-info-bg.rounded.position-relative(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
-                                            div.user-info-backdrop.rounded
+                                        if (active_exchange)
+                                            .input-group(style="width: 13rem;").h-25
+                                                input#expressLoginCode.bg-darker(type='text' placeholder='123ABC' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="height: 1.8em;").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
+                                                .input-group-append
+                                                    a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`).py-0
+                                                        span Login
+                                    .d-flex.top-icon.align-items-center
+                                        i.fas.fa-cog.pr-sm-2
+                                        span.d-none.d-sm-inline Settings
+                                div.d-flex.align-items-center.user-info-container.settings-menu-col
+                                    div.settings-row
+                                        div.user-info-bg.rounded(class=`user-info-bg-${active_exchange_id}`)
                                             div.user-info-border.rounded
+                                            div.user-info-backdrop.rounded
                                             div.user-info-overlay.position-absolute.rounded
                                             div.user-infocard-holder.d-flex.flex-column
                                                 .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                    img.sidebar-brand-logo.sequenzia-logo(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                                    if (exchange.discord.user.membership)
-                                                        if (exchange.discord.user.membership.background)
-                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
-                                                                if (exchange.discord.user.membership.icon)
-                                                                    i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
-                                                                span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                    img.sidebar-brand-logo.sequenzia-logo(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                    if (active_exchange && active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.membership)
+                                                        if (active_exchange.discord.user.membership.background)
+                                                            div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}background: ${active_exchange.discord.user.membership.background}`)
+                                                                if (active_exchange.discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
                                                         else
-                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}`)
-                                                                if (exchange.discord.user.membership.icon)
-                                                                    i.fas.pr-2(class=`fa-${exchange.discord.user.membership.icon}`)
-                                                                span(style="z-index: 1;") #{exchange.discord.user.membership.text}
+                                                            div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}`)
+                                                                if (active_exchange.discord.user.membership.icon)
+                                                                    i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
+                                                                span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
                                                     else
                                                         span.ml-auto.shadow-text(style="z-index: 1;") Member
 
 
                                                 .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                                    .col-auto.p-0
-                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
-                                                    .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                                        div.text-center.text-ellipsis.align-middle.mr-auto
-                                                            if (login_source && login_source > 101)
-                                                                span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
-                                                            else if (discord && exchange.discord.user && exchange.discord.user.server && exchange.discord.user.server.length > 0)
-                                                                i.pr-1.fas.fa-check-circle
-                                                            span #{(exchange.discord.user.server[0].nice_name) ? exchange.discord.user.server[0].nice_name : exchange.discord.user.server[0].name}
-                                                                //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                                        div.text-ellipsis.shadow-text.user-infocard-info
-                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
-
-                        div#menuItemAccount.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100
-                            .d-flex
-                                .d-flex.flex-grow-1
-                                    a.pr-2.d-inline.hover-color.top-icon.align-self-center(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain" onclick="document.getElementById('mainContainer').classList.remove('show-menu-buttons'); return false;")
-                                        i.fas.fa-arrow-left.fa-fw
-                                    if (active_exchange)
-                                        .input-group(style="width: 13rem;").h-25
-                                            input#expressLoginCode.bg-darker(type='text' placeholder='123ABC' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="height: 1.8em;").m-0.form-control.form-text.input-group-text.border-left-0.text-uppercase.text-white
-                                            .input-group-append
-                                                a.btn.btn-primary(data-placement="right" title="Transfer Login to this device" href='#_' onClick=`authwareLogin(); return false;`).py-0
-                                                    span Login
-                                .d-flex.top-icon.align-items-center
-                                    i.fas.fa-cog.pr-sm-2
-                                    span.d-none.d-sm-inline Settings
-                            div.d-flex.align-items-center.user-info-container.settings-menu-col
-                                div.settings-row
-                                    div.user-info-bg.rounded(class=`user-info-bg-${active_exchange_id}`)
-                                        div.user-info-border.rounded
-                                        div.user-info-backdrop.rounded
-                                        div.user-info-overlay.position-absolute.rounded
-                                        div.user-infocard-holder.d-flex.flex-column
-                                            .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                img.sidebar-brand-logo.sequenzia-logo(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
-                                                if (active_exchange && active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.membership)
-                                                    if (active_exchange.discord.user.membership.background)
-                                                        div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}background: ${active_exchange.discord.user.membership.background}`)
-                                                            if (active_exchange.discord.user.membership.icon)
-                                                                i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
-                                                            span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
-                                                    else
-                                                        div.ml-auto.d-flex.align-items-center.justify-content-center(style=`${(active_exchange.discord.user.membership.color) ? 'color: ' + active_exchange.discord.user.membership.color + '; ' : ''}`)
-                                                            if (active_exchange.discord.user.membership.icon)
-                                                                i.fas.pr-2(class=`fa-${active_exchange.discord.user.membership.icon}`)
-                                                            span(style="z-index: 1;") #{active_exchange.discord.user.membership.text}
-                                                else
-                                                    span.ml-auto.shadow-text(style="z-index: 1;") Member
-
-
-                                            .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
-                                                if (active_exchange)
-                                                    .col-auto.p-0
-                                                        img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
-                                                    .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
-                                                        div.text-center.text-ellipsis.align-middle.mr-auto
-                                                            if (login_source && login_source > 101)
-                                                                span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
-                                                            else if (active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.server && active_exchange.discord.user.server.length > 0)
-                                                                i.pr-1.fas.fa-check-circle
-                                                                span #{(active_exchange.discord.user.server[0].nice_name) ? active_exchange.discord.user.server[0].nice_name : active_exchange.discord.user.server[0].name}
-                                                                //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
-                                                        div.text-ellipsis.shadow-text.user-infocard-info
-                                                            span.p-0.font-weight-light.d-inline.user-infocard-username #{active_exchange.user.username}
-                                    div.menu-grid.user-menu-small
-                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Change Account" href='#_' data-toggle="collapse" data-target="#menuItemWallet")
-                                            i.fas.fa-passport
-                                            | Passports
-                                        a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
-                                            i.fas.fa-sign-out-alt
-                                            | Log Out
-                                div.settings-row
+                                                    if (active_exchange)
+                                                        .col-auto.p-0
+                                                            img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
+                                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                            div.text-center.text-ellipsis.align-middle.mr-auto
+                                                                if (login_source && login_source > 101)
+                                                                    span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
+                                                                else if (active_exchange.discord && active_exchange.discord.user && active_exchange.discord.user.server && active_exchange.discord.user.server.length > 0)
+                                                                    i.pr-1.fas.fa-check-circle
+                                                                    span #{(active_exchange.discord.user.server[0].nice_name) ? active_exchange.discord.user.server[0].nice_name : active_exchange.discord.user.server[0].name}
+                                                                    //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
+                                                            div.text-ellipsis.shadow-text.user-infocard-info
+                                                                span.p-0.font-weight-light.d-inline.user-infocard-username #{active_exchange.user.username}
+                                        div.menu-grid.user-menu-small
+                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Change Account" href='#_' data-toggle="collapse" data-target="#menuItemWallet")
+                                                i.fas.fa-passport
+                                                | Passports
+                                            a.user-menu-item.hover-color.d-flex.flex-column(data-placement="top" title="Logout Account" href='#_' data-toggle='modal' data-target='#logoutModal')
+                                                i.fas.fa-sign-out-alt
+                                                | Log Out
+                                    div.settings-row
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5

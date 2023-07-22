@@ -55,13 +55,13 @@ module.exports = async (req, res, next) => {
                 || current_params.has('album') || current_params.has('history') || current_params.has('history_screen') || current_params.has('tags')
                 || current_params.has('datestart') || current_params.has('dateend') || current_params.has('history_numdays')
                 || current_params.has('color') || current_params.has('group') || current_params.has('show_id'))) {
-            const accessURL = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [], current_params)).toString()
+            const accessURL = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nocds', 'setscreen','reqCount', '_', '_h'], [], current_params)).toString()
             const cleanURL = (params(['limit', 'offset'], [], current_params)).toString()
             const last = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE (user = ? AND date >= NOW() - INTERVAL 3 MINUTE) ORDER BY date DESC`, [thisUser.master.discord.user.id])
             if (last.rows.length > 0) {
                 const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
-                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
-                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
+                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
+                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
                 console.log(noLastTags)
                 console.log(noTags)
                 if (noLastTags === noTags) {
@@ -1476,7 +1476,7 @@ module.exports = async (req, res, next) => {
                         user_image: thisUser.master.user.avatar,
                         user_username: thisUser.master.user.username
                     })
-                } else if ((page_uri === '/ads-micro' || page_uri === '/ads-widget')  && req.query.displayname) {
+                } else if ((page_uri === '/homeImage' || page_uri === '/ads-micro' || page_uri === '/ads-widget')  && req.query.displayname) {
                     const _configuration = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIt 1', [thisUser.master.discord.user.id, req.query.displayname]);
                     if (_configuration.error) {
                         printLine('SQL', `Error adding messages to display history - ${_configuration.error.sqlMessage}`, 'error')

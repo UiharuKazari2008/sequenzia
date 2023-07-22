@@ -715,8 +715,13 @@ async function sessionVerification(req, res, next) {
                 loginPage(req, res, { noLoginAvalible: 'nomember', status: 401 });
             }
         } else {
-            req.session.login_source = 900;
-            await roleGeneration(user[0].id, res, req, 900)
+            let source = 900;
+            if (config.key_authpass && req.query.key_pass && req.query.key_pass === config.key_authpass) {
+                source = 101;
+                printLine('PassportCheck', `Login is using a AuthPass for Key login!! Session is marked as verified!!`, 'warn');
+            }
+            req.session.login_source = source;
+            await roleGeneration(user[0].id, res, req, source)
                 .then((thisUser) => {
                     if (thisUser) {
                         next();

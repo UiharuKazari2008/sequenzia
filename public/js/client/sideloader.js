@@ -114,6 +114,7 @@ let _lastUploadChannelSelection = '';
 let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
+let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;;
 let undoActions = [];
 let notificationControler = null;
 let recoverable
@@ -134,6 +135,22 @@ let extratitlewidth = 0
 const networkKernelChannel = new MessageChannel();
 let unpackerWorker = null;
 let lastExchange = null;
+
+if (kioskMenuEnabled) {
+    try {
+        let kiosk_padding = (getCookie("kiosk_padding") !== null) ? JSON.parse(getCookie("kiosk_padding")) : false;
+        if (kiosk_padding.bottom) {
+            let rule = '<style>'
+            rule += `#deadzoneOverlay { height: ${kiosk_padding.bottom}; }\n`
+            rule += `#pageNav, #btnTop, footer, .modal-content, .kms-media-inner, .fancybox-inner { margin-bottom: ${kiosk_padding.bottom}; }\n`
+            rule += `#naviResume { margin-bottom : calc(calc(calc(env(safe-area-inset-bottom) + 2.125em) * -1) + ${kiosk_padding.bottom})!important }\n`
+            rule += '</style>'
+            $('head').append(rule)
+        }
+    } catch (e) {
+        console.error(`Failed to add kiosk padding!`)
+    }
+}
 
 const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
@@ -551,7 +568,7 @@ async function requestCompleted (response, url, lastURL, push) {
             type: 'error',
             title: 'No Results Found',
             subtitle: 'Error',
-            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
+            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key_pass', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
             delay: 10000,
         });
         responseComplete = true
@@ -619,6 +636,8 @@ async function requestCompleted (response, url, lastURL, push) {
                     }
                     if (initialLoad)
                         document.getElementById('bootLoaderStatus').innerText = 'Welcome';
+                    if (document.getElementById('kioskExit') && kioskMenuEnabled)
+                        document.getElementById('kioskExit').classList.remove('d-none');
                     $(".container-fluid").fadeTo(2000, 1);
                     $(".container-fluid").removeClass('disabled-pointer');
                     scrollToTop(true);
@@ -786,6 +805,8 @@ async function requestCompleted (response, url, lastURL, push) {
             }
             const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit', 'refresh'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
+            if (document.getElementById('kioskExit') && kioskMenuEnabled)
+                document.getElementById('kioskExit').classList.remove('d-none');
             $(".container-fluid").fadeTo(500, 1);
             $(".container-fluid").removeClass('disabled-pointer');
             responseComplete = true

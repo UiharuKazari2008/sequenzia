@@ -124,16 +124,16 @@ module.exports = async (req, res, next) => {
             const xmlResponse = new feed({
                 title: `${results.full_title}`,
                 description: (results.description) ? results.description : 'Sequenzia Response Feed',
-                id: params(['key', 'blind_key'],[]),
-                link: params(['responseType', 'key', 'blind_key'],[]),
+                id: params(['key', 'key_pass', 'blind_key'],[]),
+                link: params(['responseType', 'key', 'key_pass', 'blind_key'],[]),
                 language: "en",
                 image: serverIcon,
                 favicon: req.protocol + '://' + req.get('host') + '/favicon.ico',
                 copyright: `Copyright (c) ${web.company_name} ${moment(Date.now()).format('YYYY')}`,
                 generator: "Sequenzia Digital Media Management Server",
                 feedLinks: {
-                    json: params(['blind_key'],[['responseType', 'json'], ['key', thisUser.master.discord.user.token_static]]),
-                    atom: params(['blind_key'],[['responseType', 'atom'], ['key', thisUser.master.discord.user.token_static]])
+                    json: params(['key_pass', 'blind_key'],[['responseType', 'json'], ['key', thisUser.master.discord.user.token_static]]),
+                    atom: params(['key_pass', 'blind_key'],[['responseType', 'atom'], ['key', thisUser.master.discord.user.token_static]])
                 },
                 author: {
                     name: web.site_name,
