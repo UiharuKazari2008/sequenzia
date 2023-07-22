@@ -932,6 +932,35 @@ function getRandomImage() {
                 _Size = [ json.randomImagev2[0].sizeH, json.randomImagev2[0].sizeW, json.randomImagev2[0].sizeR ];
                 _Color = [ json.randomImagev2[0].colorR, json.randomImagev2[0].colorG, json.randomImagev2[0].colorB ];
 
+                let postBody = json.randomImagev2[0].content;
+                if (postBody && postBody.length > 0) {
+                    postBody = postBody.split('<br/>')
+                    if (postBody[0].includes('🧩 File'))
+                        postBody = postBody.slice(2)
+                    postBody = postBody.join('<br/>')
+                }
+                if (postBody && postBody.length > 0) {
+                    try {
+                        const regexItalic = /\*\*\*(.*?)\*\*\*/g;
+                        while (postBody.includes('***')) {
+                            let matched = regexItalic.exec(postBody);
+                            let wrap = "<i>" + matched[1] + "</i>";
+                            postBody = postBody.replace(`***${matched[1]}***`, wrap);
+                        }
+                        const regexBold = /\*\*(.*?)\*\*/g;
+                        while (postBody.includes('**')) {
+                            let matched = regexBold.exec(postBody);
+                            let wrap = "<b>" + matched[1] + "</b>";
+                            postBody = postBody.replace(`**${matched[1]}**`, wrap);
+                        }
+                    } catch (e) {
+                        console.error(`Failed to prettyfy the post body!`)
+                        console.error(e)
+                    }
+                } else {
+                }
+
+
                 if (!pageReady) {
                     $('#previewBG')[0].style.backgroundImage = `url('${previewImage}')`;
                     $('#fullBG')[0].style.backgroundImage = `url('${fullImage}')`;
@@ -940,6 +969,12 @@ function getRandomImage() {
                     $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                     $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                     $('.ajax-imageDate').text(json.randomImagev2[0].date);
+                    if (postBody && postBody.length > 0) {
+                        $('.ajax-text-contents').html(postBody);
+                    } else {
+                        $('.ajax-text-contents').html('');
+                        $('.ajax-text-contents').addClass('hidden');
+                    }
                     $('.middle-indicator, #photoInfo').removeClass('hidden');
                     if (json.randomImagev2[0].pinned) {
                         $('.ajax-imageFav').removeClass('d-none');
@@ -957,6 +992,12 @@ function getRandomImage() {
                         $('.ajax-imageLink').attr("onClick", `getNewContent([], [], "${json.randomImagev2[0].jumpLink}"); return false;`);
                         $('.ajax-imageLocation').text(`${json.randomImagev2[0].className} / ${json.randomImagev2[0].channelName}`);
                         $('.ajax-imageDate').text(json.randomImagev2[0].date);
+                        if (postBody && postBody.length > 0) {
+                            $('.ajax-text-contents').html(postBody);
+                        } else {
+                            $('.ajax-text-contents').html('');
+                            $('.ajax-text-contents').addClass('hidden');
+                        }
                         $('.middle-indicator, #photoInfo').removeClass('hidden');
                         if (json.randomImagev2[0].pinned) {
                             $('.ajax-imageFav').removeClass('d-none');

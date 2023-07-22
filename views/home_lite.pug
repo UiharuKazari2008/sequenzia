@@ -236,10 +236,14 @@ html
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
         #dataFade.fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row.overlay-for-data.d-none
+        .fixed-top.ambient-items.p4-safty(style="display: none;").flex-row
+            .animated--fade-in.text-center.ml-auto.p-2.d-flex
+                div
+                    span.ajax-text-contents
         .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row
-            .animated--fade-in.text-left.pb-4.d-none.align-items-end.d-md-flex
-                img(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 4em').pl-4.shadow-blk
-            .animated--fade-in.text-center.ml-auto.p-4.d-flex
+            .animated--fade-in.text-left.pb-2.d-none.align-items-end.d-md-flex
+                img(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 4em').pl-2.shadow-blk
+            .animated--fade-in.text-center.ml-auto.p-2.d-flex
                 div.mr-3.mt-auto
                     .ml-auto.d-flex.animated--fade-in
                         #weatherInfo.weather.d-flex.align-items-end.mb-2.hidden
