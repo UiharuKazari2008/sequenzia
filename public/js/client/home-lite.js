@@ -941,18 +941,8 @@ function getRandomImage() {
                 }
                 if (postBody && postBody.length > 0) {
                     try {
-                        const regexItalic = /\*\*\*(.*?)\*\*\*/g;
-                        while (postBody.includes('***')) {
-                            let matched = regexItalic.exec(postBody);
-                            let wrap = "<i>" + matched[1] + "</i>";
-                            postBody = postBody.replace(`***${matched[1]}***`, wrap);
-                        }
-                        const regexBold = /\*\*(.*?)\*\*/g;
-                        while (postBody.includes('**')) {
-                            let matched = regexBold.exec(postBody);
-                            let wrap = "<b>" + matched[1] + "</b>";
-                            postBody = postBody.replace(`**${matched[1]}**`, wrap);
-                        }
+                        postBody = postBody.replace(/\*\*\*(.+?)\*\*\*/g, '<i>$1</i>');
+                        postBody = postBody.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
                     } catch (e) {
                         console.error(`Failed to prettyfy the post body!`)
                         console.error(e)
