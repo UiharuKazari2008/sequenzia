@@ -303,13 +303,6 @@
       "description": "Random Images",
       "url": "/gallery?sort=random",
       "icons": [{"src":"/static/img/icons/actions/dice-192.png","sizes":"192x192","type":"image/png"}, {"src":"/static/img/icons/actions/dice-512.png","sizes":"512x512","type":"image/png"}]
-    },
-	{
-      "name": "Ambient Mode",
-      "short_name": "Ambient",
-      "description": "Ambient Display System",
-      "url": "/ambient?displayname=Untitled",
-      "icons": [{"src":"/static/img/icons/actions/moon-192.png","sizes":"192x192","type":"image/png"}, {"src":"/static/img/icons/actions/moon-512.png","sizes":"512x512","type":"image/png"}]
     }
   ]
 }
