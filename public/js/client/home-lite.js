@@ -1346,11 +1346,11 @@ function deleteAlbum(aid) {
 }
 let ambientTimeout;
 let ambientNextImageTimeout;
+document.addEventListener("mousemove", resetAmbientTimer, false);
+document.addEventListener("mousedown", resetAmbientTimer, false);
+document.addEventListener("keypress", resetAmbientTimer, false);
+document.addEventListener("touchmove", resetAmbientTimer, false);
 function setupAmbientTimers () {
-    document.addEventListener("mousemove", resetAmbientTimer, false);
-    document.addEventListener("mousedown", resetAmbientTimer, false);
-    document.addEventListener("keypress", resetAmbientTimer, false);
-    document.addEventListener("touchmove", resetAmbientTimer, false);
     dct();
     ddt();
     ddwt();
