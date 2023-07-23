@@ -143,7 +143,7 @@ function sendFileData() {
     try {
         const messageContents = $('#contentHolder > div > textarea')
         if (messageContents[0] && messageContents[0].value && messageContents[0].value.length > 1) {
-            send_url += `messageText=${encodeURIComponent(messageContents[0].value)}`
+            send_url += `&messageText=${encodeURIComponent(messageContents[0].value)}`
         }
     } catch (e) {
         console.error(`Failed to parse upload text: ${e}`)
