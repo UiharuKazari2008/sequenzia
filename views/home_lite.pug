@@ -369,8 +369,6 @@ html
                                     div#mainButtonsAccordion(style='display: contents').w-100
                                         div#buttonsPage1(class="collapse show" data-parent="#mainButtonsAccordion").w-100
                                             .menu-grid.main-menu-grid.menu-icons.py-1
-                                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').desktop-only
-                                                    i.fa-light.fa-compass
                                                 a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&sort=eid')
                                                     i.fa-light.fa-photo-video
                                                 a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&sort=eid&filesonly=true`)
@@ -381,12 +379,10 @@ html
                                                     i.fa-light.fa-star
                                                 a.hover-color(data-placement="top" title="User Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
                                                     i.fa-light.fa-archive
-                                                a.hover-color(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;').mobile-only
-                                                    i.fa-light.fa-compass
                                                 if (active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0)
                                                     a.hover-color(data-placement="top" title="Review Channels" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemReview")
                                                         i.fa-light.fa-badge-check
-                                                a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;' class=`${(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0) ? 'd-md-flex d-none' : ''}`)
+                                                a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
                                                     i.fa-light.fa-history
                                                 a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
                                                     i.fa-light.fa-address-book
@@ -407,8 +403,6 @@ html
                                             .menu-grid.main-menu-grid.menu-icons.py-1
                                                 a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
                                                     i.fa-light.fa-dice
-                                                a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;' class=`${(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length === 0) ? 'd-none' : 'd-md-none'}`)
-                                                    i.fa-light.fa-history
                                                 a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
                                                     i.fa-light.fa-address-book
                                                 a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
@@ -418,8 +412,14 @@ html
                                                         i.fa-light.fa-login
                                                 a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
                                                     i.fa-light.fa-chevron-down
-
-                                #menuSearchActivity.pt-2.w-100(class=`${(!active_exchange) ? 'd-none' : 'd-flex'}`).w-100
+                                    div#bottomControls.pt-2.w-100
+                                        a.hover-color.px-2(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;')
+                                            i.fas.fa-compass.pr-2
+                                            span Navigator
+                                        a.hover-color.px-2(data-placement="top" title="Open Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuSearchActivity")
+                                            i.fas.fa-search.pr-2
+                                            span Search
+                                #menuSearchActivity.pt-2.w-100.collapse(class=`${(!active_exchange) ? 'd-none' : ''}`).w-100
                                     .d-flex.align-items-center
                                         //span.sidebar-brand-logo.sequenzia-logo sequenzia
                                         div#statusPanel(style='display: contents;')

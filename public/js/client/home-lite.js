@@ -670,15 +670,15 @@ async function setupKioskMode() {
 
                         setCookie("kiosk_enabled", 'true');
 
-                        $('#menuAccordion > div').removeClass('show');
-                        $('#kioskAccordion > div').removeClass('show');
-                        $('#masterAccordion > div').removeClass('show');
+                        $('#menuAccordion .collapse').removeClass('show');
+                        $('#kioskAccordion .collapse').removeClass('show');
+                        $('#masterAccordion .collapse').removeClass('show');
 
                         $('#homeBG').addClass('kisok');
-                        $('#menuItemMain').addClass('show');
+                        $('#menuItemMain, #buttonsPage1, #locationTags').addClass('show');
                         $('#deviceMenuButton').removeClass('d-none');
                         $('#dataFade').removeClass('d-none');
-                        $('#masterAccordion > #kioskAccordion').removeClass('d-none').addClass('show');
+                        $('#masterAccordion #kioskAccordion').removeClass('d-none').addClass('show');
                         $('#menuItemKiosk').addClass('show');
 
                         kiosk_settings = response.display_config
@@ -1416,15 +1416,15 @@ function switchToAmbientMode() {
         document.getElementById('mainContainer').classList.add('disabled-pointer')
         $('.ambient-items').fadeIn(500);
         $.when($('#mainContainer, #homeBg, #photoInfo').fadeOut(500)).done(() => {
-            $('#menuAccordion > div').removeClass('show');
-            $('#kioskAccordion > div').removeClass('show');
-            $('#masterAccordion > div').removeClass('show');
-            $('#menuItemMain').addClass('show');
+            $('#menuAccordion .collapse').removeClass('show');
+            $('#kioskAccordion .collapse').removeClass('show');
+            $('#masterAccordion .collapse').removeClass('show');
+            $('#menuItemMain, #buttonsPage1, #locationTags').addClass('show');
             if (kioskMenuEnabled) {
                 $('#masterAccordion > #kioskAccordion').addClass('show');
                 $('#menuItemKiosk').addClass('show');
             } else {
-                $('#masterAccordion > #menuAccordion').addClass('show');
+                $('#masterAccordion #menuAccordion').addClass('show');
             }
         })
     }

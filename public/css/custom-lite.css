@@ -245,9 +245,16 @@ a.lightbox:before {
 }
 
 #photoInfo {
-    display: flex!important;
+    display: flex;
 }
-
+#bottomControls {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: space-evenly;
+    align-items: center;
+}
 .modal-backdrop {
     background-color: #000;
 }
@@ -2366,9 +2373,9 @@ ul#accordionSidebar * {
     }
 }
 @media (min-width:990px) {
-    #midSearch {
+    /*#midSearch {
         width: 950px;
-    }
+    }*/
 }
 @media (max-width:575px) {
     .boot-card-holder {

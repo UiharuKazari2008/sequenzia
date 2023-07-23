@@ -299,9 +299,9 @@ input.middle:focus {
         opacity: 1;
     }
     .menu-container {
-        background: #ffffff9c;
-        box-shadow: 0 0 20px #4e4e4e;
-        border: solid 1px #ffffff87;
+        background: #e57f009c;
+        box-shadow: 0 0 20px #885800;
+        border: solid 1px #ff971687;
     }
     .menu-container #locationAccordion {
         background: #ffffff63;
@@ -309,15 +309,15 @@ input.middle:focus {
         box-shadow: 0px 0px 3px 0px #00000069; */
     }
     .performance-mode .menu-container {
-        background: white;
+        background: #e57f00;
     }
     .container a,
     .container a:active,
     .container a:hover,
     .container,
     .container i {
-        color: #000000;
-        text-shadow: 0 0 4px #9d320066;
+        color: #fff5e9;
+        text-shadow: 0 0 4px #74440066;
     }
     .container img.img-profile.img-button {
         box-shadow: 0 0 4px #9d320066;
