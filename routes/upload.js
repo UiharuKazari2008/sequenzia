@@ -80,11 +80,12 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                                             readStream.pipe(fileWriter);
                                                             fileWriter.on('finish', function () {
                                                                 if (fs.existsSync(path.join(global.upload_folder, local_filename))) {
+                                                                    const messageText = (req.query.messageText) ? decodeURIComponent(req.query.messageText) : '';
                                                                     const MessageBody = {
                                                                         Type: 'Remote',
                                                                         ChannelID: req.query.channelid,
                                                                         UserID: thisUser.master.discord.user.id,
-                                                                        MessageText: '',
+                                                                        MessageText: messageText,
                                                                         FileName: real_filename,
                                                                         FilePath: `${global.fw_path}${local_filename}`
                                                                     }
@@ -143,11 +144,12 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                         printLine('Upload', `Error saving file to fileworker folder - ${err}`, 'error');
                                     } else {
                                         if (fs.existsSync(path.join(global.upload_folder, p.filename))) {
+                                            const messageText = (req.query.messageText) ? decodeURIComponent(req.query.messageText) : '';
                                             const MessageBody = {
                                                 Type: 'Remote',
                                                 ChannelID: req.query.channelid,
                                                 UserID: thisUser.master.discord.user.id,
-                                                MessageText: '',
+                                                MessageText: messageText,
                                                 FileName: p.originalname,
                                                 FilePath: `${global.fw_path}${p.filename}`
                                             }

@@ -140,7 +140,14 @@ function sendFileData() {
         send_url += `&package=${isPackageFile}`
         $("#zipSelection").addClass('hidden');
     }
-
+    try {
+        const messageContents = $('#contentHolder > div > textarea')
+        if (messageContents.value && messageContents.value.length > 1) {
+            send_url += `messageText=${encodeURIComponent(messageContents.value)}`
+        }
+    } catch (e) {
+        console.error(`Failed to parse upload text: ${e}`)
+    }
     $("#uploadSection").addClass('hidden');
     $("#uploadSelection").addClass('hidden');
     uploadModel.querySelector("#Footer").classList.add('hidden');
