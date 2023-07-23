@@ -4176,15 +4176,19 @@ async function showSearchOptions(post) {
                 modalSearchByChildren.classList.remove('hidden');
             }
         } else if (postBody.includes('**🎆 ') && postBody.includes(' (')) {
-            const isMeta = postBody.split('** : ***')
-            if (isMeta.length > 1 && isMeta.pop().includes('[') && isMeta.pop().includes('/')) {
-                const findId = isMeta.pop().split('[').pop().split(']')[0];
-                modalSearchByChildren.onclick = function() {
-                    $('#searchModal').modal('hide');
-                    window.location.assign(`#${getLocation()}search=${encodeURIComponent('text: [' + findId + '] ')}${(nsfwString) ? nsfwString : ''}`);
-                    return false;
+            try {
+                const isMeta = postBody.split('** : ***')
+                if (isMeta.length > 1 && isMeta.pop().includes('[') && isMeta.pop().includes('/')) {
+                    const findId = isMeta.pop().split('[').pop().split(']')[0];
+                    modalSearchByChildren.onclick = function () {
+                        $('#searchModal').modal('hide');
+                        window.location.assign(`#${getLocation()}search=${encodeURIComponent('text: [' + findId + '] ')}${(nsfwString) ? nsfwString : ''}`);
+                        return false;
+                    }
+                    modalSearchByChildren.classList.remove('hidden');
                 }
-                modalSearchByChildren.classList.remove('hidden');
+            } catch (e) {
+                console.error(`Failed to extract pixiv id: ${e}`)
             }
         }
         try {
