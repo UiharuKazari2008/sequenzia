@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v20-2-24JULY23-PATHCH3'
+const cacheName = 'PRERELEASE-v20-2-24JULY23-PATHCH4'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -487,8 +487,8 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', event => {
-    // Bypass for Uploads
-    if (event.request.url.includes('/upload/'))
+    // Bypass for Uploads and non-Sequenzia
+    if (!event.request.url.startsWith(origin) && event.request.url.includes('/upload/'))
         return;
     event.respondWith(async function() {
         if (event.request.url.startsWith('chrome-extension'))
