@@ -1932,6 +1932,16 @@ div.collapse-divider {
     margin-left: 0;
 }
 
+div#exitOverlay {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: black;
+    z-index: 10010;
+}
+
 .user-info-bg, .user-info-backdrop {
     background-position: center;
     background-repeat: no-repeat;

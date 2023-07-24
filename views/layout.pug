@@ -748,6 +748,7 @@ html
                                                                 | Only Flagged
                                     div#appPanels.w-100(style=`display: contents;`)
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
+                            ul#kioskActions.navbar-nav.text-primary.mr-2.d-none
                             //ul.navbar-nav.text-primary.text-ellipsis
                                 li.nav-item.text-right.d-none.d-md-block.page-title.text-primary.mr-1
                                     img.sidebar-brand-logo.main-logo-small(src='/static/img/sequenzia-logo-mini.png' style='height: 1.8em; opacity: 0.78;')
@@ -1673,7 +1674,7 @@ html
                                             i.far.fa-bars.pl-2
                                             img.img-profile(class=`${(webconf.square_user_icons_menu) ? 'rounded' : 'rounded-circle'}` src=active_exchange.user.avatar)
                             ul#kioskExit.navbar-nav.text-primary.ml-1.d-none
-                                a(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='#_' onclick='transitionToOOBPage("/"); return false;').btn-sm.btn-danger.px-1
+                                a(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='#_' onclick='transitionToOOBPage("/"); return false;').btn-sm.btn-danger.px-1.ml-1
                                     i.fas.fa-home.px-2
                         //div#topbarAccent.show-menu-open.hidden
                         div#topbarUserBackground.show-menu-open.hidden

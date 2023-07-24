@@ -488,7 +488,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', event => {
     // Bypass for Uploads and non-Sequenzia
-    if (!event.request.url.startsWith(origin) && event.request.url.includes('/upload/'))
+    if (!event.request.url.startsWith(origin) && event.request.url.includes(':6833/action') && event.request.url.includes(':6833/get_config') && event.request.url.includes('/upload/'))
         return;
     event.respondWith(async function() {
         if (event.request.url.startsWith('chrome-extension'))

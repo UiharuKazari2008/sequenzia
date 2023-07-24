@@ -694,7 +694,7 @@ async function setupKioskMode() {
                             $('head').append(rule)
                         }
 
-                        const buttons_html = response.buttons.map(b => {
+                        const buttons_html = response.buttons.filter(e => !e.hide_in_home).map(b => {
                             let h = ''
                             if (b.url) {
                                 h += `<a class="user-menu-item hover-color d-flex flex-column" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
@@ -727,7 +727,7 @@ async function setupKioskMode() {
                         $('#kioskToolbarButtons').html(buttons_html);
                         if (response.applications)
                             $('#kioskAppButtons').addClass('mb-3')
-                        const apps_html = response.applications.map(b => {
+                        const apps_html = response.applications.filter(e => !e.hide_in_home).map(b => {
                             let h = ''
                             if (b.url) {
                                 h += `<a class="kapp-icon d-flex flex-column" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`

@@ -199,6 +199,8 @@ html
                 document.querySelector('body').classList.add('performance-mode');
                 console.log('Performance Mode is enabled, No animation will be enabled and all effects are removed')
             }
+        #exitOverlay.animated--fade-in.align-items-center.justify-content-center.d-none
+            img#exitImage(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
         #bootBackdrop.boot-logo-overlay
             #bootBackdropSunrise
         for exchange, this_exchnage in exchange_list
@@ -1566,6 +1568,15 @@ html
         div#dataModels
         script.
             getSidebar();
+        #kioskIdelModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
+            .modal-dialog.modal-dialog-scrollable(role='document')
+                .modal-content
+                    .modal-header
+                        h5.modal-title
+                            i.fas.fa-person-walking-arrow-right.pr-2
+                            | Inactivity
+                    .modal-body
+                        span If you are still using this kiosk please touch the screen
         if (login_source && login_source < 900)
             #authenticationModel.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                 .modal-dialog.modal-dialog-scrollable(role='document')

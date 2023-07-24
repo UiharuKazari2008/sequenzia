@@ -114,7 +114,8 @@ let _lastUploadChannelSelection = '';
 let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
-let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;;
+let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;
+let kioskbuttonsHTML = { apps: [], buttons: [] };
 let undoActions = [];
 let notificationControler = null;
 let recoverable
@@ -136,6 +137,69 @@ const networkKernelChannel = new MessageChannel();
 let unpackerWorker = null;
 let lastExchange = null;
 
+let fadeActive = false;
+let inactivityTime = 5 * 60 * 1000;
+let inactivityTimeout = null;
+let inactivityDelay = null;
+let inactivityLeave = null;
+function button_call(url, fade_in, exit_image) {
+    if (fade_in === 1 || fade_in === 3) {
+        noAmbientTimer = true;
+        if (exit_image) {
+            document.getElementById('exitImage').src = exit_image;
+        }
+        $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+        if (fade_in === 3)
+            fadeActive = true;
+    }
+    $.ajax({async: true,
+        url,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        error: function (res) { console.error('Failed to call button url') },
+        success: function (res, txt, xhr) {
+            console.log(xhr.status, txt)
+            if (fade_in === 2 || fade_in === 4) {
+                noAmbientTimer = true;
+                if (exit_image) {
+                    document.getElementById('exitImage').src = exit_image;
+                }
+                $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+                if (fade_in === 4)
+                    fadeActive = true;
+            }
+        }
+    });
+    return false;
+}
+function setKioskSleep() {
+    if (!document.querySelector('body').classList.contains('kms-play-open')) {
+        clearTimeout(inactivityTimeout);
+        clearTimeout(inactivityLeave);
+        inactivityTimeout = setTimeout(() => {
+            $('#kioskIdelModel').modal('show');
+        }, inactivityTime - 30000)
+        inactivityLeave = setTimeout(() => {
+            transitionToOOBPage('/');
+        }, inactivityTime)
+    }
+}
+function kioskGainFocus() {
+    if (document.getElementById('kioskIdelModel').classList.contains('show')) {
+        $('#kioskIdelModel').modal('hide');
+    }
+    clearTimeout(inactivityDelay);
+    inactivityDelay = setTimeout(setKioskSleep, 5000);
+    if (fadeActive) {
+        fadeActive = false;
+        $('#exitOverlay').addClass('d-none').removeClass("d-flex");
+        noAmbientTimer = false;
+    }
+}
 if (kioskMenuEnabled) {
     try {
         let kiosk_padding = (getCookie("kiosk_padding") !== null) ? JSON.parse(getCookie("kiosk_padding")) : false;
@@ -147,8 +211,76 @@ if (kioskMenuEnabled) {
             rule += '</style>'
             $('head').append(rule)
         }
+        $.ajax({
+            async: true,
+            url: `http://localhost:6833/get_config2`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            timeout: 2000,
+            headers: { 'X-Requested-With': 'SequenziaXHR' },
+            success: async function (response) {
+                console.log(response);
+                if (response.timeout)
+                    inactivityTime = response.timeout * 60 * 1000
+                kioskbuttonsHTML.buttons = response.buttons.filter(e => !e.hide_in_app).map(b => {
+                    let h = ''
+                    if (b.url) {
+                        h += `<a class="btn-sm btn btn-dark" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                    } else {
+                        h += `<a class="btn-sm btn btn-dark" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                    }
+                    if (b.fade_image) {
+                        let preload = new Image();
+                        preload.src = b.fade_image
+                    }
+                    h += `<i class="${b.icon}${(!b.title) ? ' mb-0' : ''}"></i>`
+                    h += '</a>'
+                    return h
+                })
+                kioskbuttonsHTML.apps = response.applications.filter(e => !e.hide_in_app).map(b => {
+                    let h = ''
+                    if (b.url) {
+                        h += `<a class="user-menu-item user-menu-small" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                    } else {
+                        h += `<a class="user-menu-item user-menu-small" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                    }
+                    if (b.fade_image) {
+                        let preload = new Image();
+                        preload.src = b.fade_image
+                    }
+                    if (b.menu_image) {
+                        h += `<img src="${b.menu_image}" alt=""  style="`
+                        if (b.menu_height) {
+                            h += `height: ${b.height}; `
+                        }
+                        if (b.menu_padding) {
+                            h += `padding: ${b.padding}; `
+                        }
+                        h += `"\>`
+                    } else {
+                        h += `<i class="${b.icon}${(!b.title) ? ' mb-0' : ''}"></i>`
+                    }
+                    if (b.name) {
+                        h += `<span>${b.name}</span></a>`
+                    }
+                    h += '</a>'
+                    return h
+                })
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        });
+
+        document.addEventListener("mousemove", kioskGainFocus, false);
+        document.addEventListener("mousedown", kioskGainFocus, false);
+        document.addEventListener("keypress", kioskGainFocus, false);
+        document.addEventListener("touchmove", kioskGainFocus, false);
+        clearTimeout(inactivityDelay);
+        inactivityDelay = setTimeout(setKioskSleep, 15000);
     } catch (e) {
-        console.error(`Failed to add kiosk padding!`)
+        console.error(`Failed to add kiosk padding!`, e)
     }
 }
 
@@ -636,6 +768,13 @@ async function requestCompleted (response, url, lastURL, push) {
                     }
                     if (initialLoad)
                         document.getElementById('bootLoaderStatus').innerText = 'Welcome';
+                    if (document.getElementById('kioskActions') && kioskMenuEnabled) {
+                        $('#kioskActions').removeClass('d-none');
+                        $('#kioskActions').addClass('d-inline-block');
+                        $('#kioskActions').addClass('btn-group');
+                        $('#kioskActions').html(kioskbuttonsHTML.buttons);
+                        $('#menuItemApps .menu-grid').prepend(kioskbuttonsHTML.apps);
+                    }
                     if (document.getElementById('kioskExit') && kioskMenuEnabled)
                         document.getElementById('kioskExit').classList.remove('d-none');
                     $(".container-fluid").fadeTo(2000, 1);
@@ -809,6 +948,13 @@ async function requestCompleted (response, url, lastURL, push) {
             }
             const _url = params(['responseType', 'nsfwEnable', 'pageinatorEnable', 'limit', 'refresh'], addOptions, url);
             $.history.push(_url, (_url.includes('offset=')));
+            if (document.getElementById('kioskActions') && kioskMenuEnabled) {
+                $('#kioskActions').removeClass('d-none');
+                $('#kioskActions').addClass('d-inline-block');
+                $('#kioskActions').addClass('btn-group');
+                $('#kioskActions').html(kioskbuttonsHTML.buttons);
+                $('#menuItemApps .menu-grid').prepend(kioskbuttonsHTML.apps);
+            }
             if (document.getElementById('kioskExit') && kioskMenuEnabled)
                 document.getElementById('kioskExit').classList.remove('d-none');
             $(".container-fluid").fadeTo(500, 1);
