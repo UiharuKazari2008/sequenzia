@@ -1387,7 +1387,7 @@ function setupAmbientTimers () {
     ddwt();
 
     startAmbientTimer();
-    if (kioskMenuEnabled) {
+    if (!kioskMenuEnabled) {
         setInterval(() => {
             if (!document.hidden) {
                 getRandomImage();
