@@ -1430,6 +1430,8 @@ function switchToAmbientMode() {
     }
     window.clearTimeout(ambientTimeout);
     ambientTimeout = null;
+    if (kioskMenuEnabled)
+        getLastNaviPage();
 }
 async function stopUnpackingFiles(fileid) {
     unpackingJobs.delete(fileid)
