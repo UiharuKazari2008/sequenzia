@@ -9,8 +9,8 @@ const { sendData } = require('./mqAccess');
 const { sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {
-    function sendRequest(MessageBody) {
-        sendData(global.mq_discord_out, MessageBody, function (callback) {
+    function sendRequest(MessageBody, queue) {
+        sendData(queue || global.mq_discord_out, MessageBody, function (callback) {
             if (callback) {
                 printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info', MessageBody)
             } else {
@@ -245,6 +245,136 @@ module.exports = async (req, res, next) => {
                             _return = 200
                         } else {
                             res.status(200).send(`Text Message Sent`);
+                        }
+                        break;
+                    case 'followPixiv':
+                        if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
+                            printLine("ActionParser", `Requested Pixiv to follow use ${job.id}`, 'info', job)
+                            sendRequest({
+                                fromClient: `return.Sequenzia.${config.system_name}`,
+                                messageReturn: false,
+                                postID: job.id,
+                                messageID: job.messageid,
+                                messageChannelID: job.channelid,
+                                messageServerID: job.serverid,
+                                messageAction: 'add',
+                                messageIntent: 'Follow'
+                            }, global.mq_pixiv_in || 'inbox.pixiv')
+                            if (req.body.batch) {
+                                _return = 200
+                            } else {
+                                res.status(200).send(`Follow request sent to Pixiv`);
+                            }
+                        } else {
+                            if (req.body.batch) {
+                                _return = 400
+                            } else {
+                                res.status(400).send(`Not Authorised`);
+                            }
+                        }
+                        break;
+                     case 'pixivDownloadUser':
+                        if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
+                            const downloadChannel = thisUser.master.discord.servers.download.filter(e => e.serverid === job.serverid);
+                            if (downloadChannel.length > 0) {
+                                printLine("ActionParser", `Requested Pixiv to download images from user ${job.id}`, 'info', job)
+                                sendRequest({
+                                    fromClient: `return.Sequenzia.${config.system_name}`,
+                                    messageReturn: false,
+                                    postID: job.id,
+                                    messageID: job.messageid,
+                                    messageChannelID: downloadChannel[0].channelid,
+                                    messageServerID: job.serverid,
+                                    messageAction: 'add',
+                                    messageIntent: 'DownloadUser'
+                                }, global.mq_pixiv_in || 'inbox.pixiv')
+                                if (req.body.batch) {
+                                    _return = 200
+                                } else {
+                                    res.status(200).send(`Downloading posts from user, this make take some time.<br/>Results will be in the servers downloads folder.`);
+                                }
+                            } else {
+                                if (req.body.batch) {
+                                    _return = 404
+                                } else {
+                                    res.status(404).send(`Downloads channel was not found for this server!`);
+                                }
+                            }
+                        } else {
+                            if (req.body.batch) {
+                                _return = 400
+                            } else {
+                                res.status(400).send(`Not Authorised`);
+                            }
+                        }
+                        break;
+                    case 'pixivExpand':
+                        if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
+                            const downloadChannel = thisUser.master.discord.servers.download.filter(e => e.serverid === job.serverid);
+                            if (downloadChannel.length > 0) {
+                                printLine("ActionParser", `Requested Pixiv to expand search for post ${job.id}`, 'info', job)
+                                sendRequest({
+                                    fromClient: `return.Sequenzia.${config.system_name}`,
+                                    messageReturn: false,
+                                    postID: job.id,
+                                    messageID: job.messageid,
+                                    messageChannelID: downloadChannel[0].channelid,
+                                    messageServerID: job.serverid,
+                                    messageAction: 'add',
+                                    messageIntent: 'ExpandSearch'
+                                }, global.mq_pixiv_in || 'inbox.pixiv')
+                                if (req.body.batch) {
+                                    _return = 200
+                                } else {
+                                    res.status(200).send(`Started Search, this make take some time.<br/>Results will be in the servers downloads folder.`);
+                                }
+                            } else {
+                                    if (req.body.batch) {
+                                        _return = 404
+                                    } else {
+                                        res.status(404).send(`Downloads channel was not found for this server!`);
+                                    }
+                                }
+                        } else {
+                            if (req.body.batch) {
+                                _return = 400
+                            } else {
+                                res.status(400).send(`Not Authorised`);
+                            }
+                        }
+                        break;
+                    case 'twitterDownloadUser':
+                        if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
+                            const downloadChannel = thisUser.master.discord.servers.download.filter(e => e.serverid === job.serverid);
+                            if (downloadChannel.length > 0) {
+                                printLine("ActionParser", `Requested Pixiv to expand search for post ${job.id}`, 'info', job)
+                                sendRequest({
+                                    fromClient: `return.Sequenzia.${config.system_name}`,
+                                    messageReturn: false,
+                                    userID: job.id,
+                                    messageChannelID: downloadChannel[0].channelid,
+                                    messageDestinationID: downloadChannel[0].channelid,
+                                    messageAction: 'add',
+                                    messageIntent: 'DownloadUser'
+                                }, global.mq_twitter_in || 'inbox.twitter')
+                                if (req.body.batch) {
+                                    _return = 200
+                                } else {
+                                    res.status(200).send(`Started Search, this make take some time.<br/>Results will be in the servers downloads folder.`);
+                                }
+                            } else {
+                                if (req.body.batch) {
+                                    _return = 404
+                                } else {
+                                    res.status(404).send(`Downloads channel was not found for this server!`);
+                                }
+                            }
+                        } else {
+                            if (req.body.batch) {
+                                _return = 400
+                            } else {
+                                res.status(400).send(`Not Authorised`);
+                            }
                         }
                         break;
                     default:

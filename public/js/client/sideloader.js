@@ -673,12 +673,16 @@ async function requestCompleted (response, url, lastURL, push) {
                 $("#contentBlock > .tz-gallery > .row").append(contentPage.find('.tz-gallery > .row').contents());
                 setImageLayout(setImageSize);
                 setPageLayout(false);
-                if (Object.values(apiActions).length > 0) {
-                    const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
-                    $(Array.from(response.find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
-                    if ($.find('[data-msg-id].col-image.hidden').length > 0) {
-                        $.find('#hiddenItemsAlert').removeClass('hidden')
+                try {
+                    if (Object.values(apiActions).length > 0) {
+                        const removedItems = Object.values(apiActions).filter(e => e.action === "RemovePost" || e.action === "MovePost" || e.action === "ArchivePost").map(e => e.messageid);
+                        $(Array.from(response.find('[data-msg-id].col-image:not(.hidden)')).filter(e => removedItems.indexOf(e.id.substring(8)) !== -1)).addClass('hidden')
+                        if ($.find('[data-msg-id].col-image.hidden').length > 0) {
+                            $.find('#hiddenItemsAlert').removeClass('hidden')
+                        }
                     }
+                } catch (e) {
+                    console.error('Failed to remove pending items: ' + e.message)
                 }
                 $("#contentBlock > style").html($(response).find('#contentBlock > style'));
                 $("#finalLoad").html($(response).find('#finalLoad'));
@@ -3585,6 +3589,7 @@ async function showSearchOptions(post) {
     const modalRepair = document.getElementById(`infoRepair`);
     const modalSetAvatar = document.getElementById(`setAsAvatar`);
     const modalSetBanner = document.getElementById(`setAsBanner`);
+    const modalSearchSNAO = document.getElementById(`sausenaoRequest`);
     const modelTagsHeader = document.getElementById(`tagsHeader`);
     const modelTagsHolder = document.getElementById(`tagsHolder`);
     const modelManageButtons = document.getElementById(`manageButtons`);
@@ -3817,8 +3822,9 @@ async function showSearchOptions(post) {
             modalKeepExpireingSection.classList.add('hidden');
             modalKeepExpireingButton.onclick = null;
         }
-
         modalDownloadButton.classList.remove('hidden')
+        modalSearchSNAO.href = "#_"
+        modalSearchSNAO.classList.add('hidden')
         advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
     } else if (postDownload && postDownload.length > 0) {
         if (postOffline) {
@@ -3835,12 +3841,16 @@ async function showSearchOptions(post) {
             modalDownloadButton.download = ''
         }
         modalDownloadButton.classList.remove('hidden')
+        modalSearchSNAO.href = "https://saucenao.com/search.php?db=999&url=" + encodeURIComponent(postDownload);
+        modalSearchSNAO.classList.remove('hidden')
     } else {
         modalDownloadButton.href = '#_'
-        modalDownloadButton.download = undefined
+        modalDownloadButton.download = undefined;
         modalDownloadButton.onclick = null;
-        modalDownloadButton.title = 'Direct Download'
-        modalDownloadButton.classList.add('hidden')
+        modalDownloadButton.title = 'Direct Download';
+        modalDownloadButton.classList.add('hidden');
+        modalSearchSNAO.href = "#_";
+        modalSearchSNAO.classList.add('hidden');
     }
     if (postFlagged) {
         normalInfo.push('<div class="badge badge-danger m-1 ">')
@@ -4028,10 +4038,77 @@ async function showSearchOptions(post) {
             return false;
         }
         modalGoToPostSource.classList.remove('hidden')
+
+        if (postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
+            const findId = searchSource.split('/').pop();
+            modalSearchByChildren.onclick = function () {
+                $('#searchModal').modal('hide');
+                window.location.assign(`#${getLocation()}search=${encodeURIComponent('text: [' + findId + '] ')}${(nsfwString) ? nsfwString : ''}`);
+                return false;
+            }
+            modalSearchByChildren.classList.remove('hidden');
+
+            $('#noFunctions').addClass('hidden');
+            $('#functionsList').removeClass('hidden');
+            document.getElementById('openPixiv').classList.remove('hidden');
+            document.getElementById('openPixiv').href = 'https://www.pixiv.net/en/artworks/' + findId;
+            if (manageAllowed) {
+                document.getElementById('pixivExpand').classList.remove('hidden');
+                document.getElementById('pixivExpand').onclick = function () {
+                    $.ajax({
+                        async: true,
+                        type: "post",
+                        url: "/actions/v2",
+                        data: {
+                            'id': `${findId}`,
+                            'channelid': postChannel,
+                            'messageid': postID,
+                            'serverid': postServer,
+                            'action': 'pixivExpand'
+                        },
+                        cache: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        success: function (res, txt, xhr) {
+                            if (xhr.status < 400) {
+                                console.log(res);
+                                $.snack('success', `${res}`, 5000);
+                            } else {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Failed to complete action',
+                                    subtitle: 'Now',
+                                    content: `${res}`,
+                                    delay: 5000,
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            $.toast({
+                                type: 'error',
+                                title: 'Failed to complete action',
+                                subtitle: 'Now',
+                                content: `${xhr.responseText}`,
+                                delay: 5000,
+                            });
+                        }
+                    });
+                };
+            } else {
+                document.getElementById('openPixiv').classList.add('hidden');
+                document.getElementById('pixivExpand').classList.add('hidden');
+            }
+        } else {
+            document.getElementById('openPixiv').classList.add('hidden');
+            document.getElementById('pixivExpand').classList.add('hidden');
+        }
     } else {
         modalGoToPostSource.title = 'Go To Source'
         modalGoToPostSource.onclick = function() { return false; };
-        modalGoToPostSource.classList.add('hidden')
+        modalGoToPostSource.classList.add('hidden');
+        document.getElementById('openPixiv').classList.add('hidden');
+        document.getElementById('pixivExpand').classList.add('hidden');
     }
     if (postDisplayName && postDisplayName.length > 0) {
         normalInfo.push('<div class="badge badge-warning text-dark m-1">')
@@ -4101,11 +4178,167 @@ async function showSearchOptions(post) {
             window.location.assign(`#${getLocation()}search=${encodeURIComponent('artist:' + searchUser)}${(nsfwString) ? nsfwString : ''}`);
             return false;
         }
-        modalSearchByUser.classList.remove('hidden')
+        modalSearchByUser.classList.remove('hidden');
+
+        if (manageAllowed && postBody && postBody.includes('Twitter Image')) {
+            $('#noFunctions').addClass('hidden');
+            $('#functionsList').removeClass('hidden');
+            document.getElementById('twitterInteract').classList.remove('hidden');
+            document.getElementById('twitterListCtrl').classList.remove('hidden');
+            document.getElementById('twitterDownloadUser').classList.remove('hidden');
+            document.getElementById('twitterDownloadUser').onclick = function () {
+                $.ajax({
+                    async: true,
+                    type: "post",
+                    url: "/actions/v2",
+                    data: {
+                        'id': `${searchUser}`,
+                        'channelid': postChannel,
+                        'messageid': postID,
+                        'serverid': postServer,
+                        'action': 'twitterDownloadUser'
+                    },
+                    cache: false,
+                    headers: {
+                        'X-Requested-With': 'SequenziaXHR'
+                    },
+                    success: function (res, txt, xhr) {
+                        if (xhr.status < 400) {
+                            console.log(res);
+                            $.snack('success', `${res}`, 5000);
+                        } else {
+                            $.toast({
+                                type: 'error',
+                                title: 'Failed to complete action',
+                                subtitle: 'Now',
+                                content: `${res}`,
+                                delay: 5000,
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        $.toast({
+                            type: 'error',
+                            title: 'Failed to complete action',
+                            subtitle: 'Now',
+                            content: `${xhr.responseText}`,
+                            delay: 5000,
+                        });
+                    }
+                });
+            };
+
+
+            document.getElementById('pixivFollow').classList.add('hidden');
+            document.getElementById('pixivDownloadUser').classList.add('hidden');
+        } else if (manageAllowed && postBody && postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
+            $('#noFunctions').addClass('hidden');
+            $('#functionsList').removeClass('hidden');
+            document.getElementById('pixivFollow').classList.remove('hidden');
+            document.getElementById('pixivFollow').onclick = function () {
+                $.ajax({
+                    async: true,
+                    type: "post",
+                    url: "/actions/v2",
+                    data: {
+                        'id': `${searchUser}`,
+                        'channelid': postChannel,
+                        'messageid': postID,
+                        'serverid': postServer,
+                        'action': 'followPixiv'
+                    },
+                    cache: false,
+                    headers: {
+                        'X-Requested-With': 'SequenziaXHR'
+                    },
+                    success: function (res, txt, xhr) {
+                        if (xhr.status < 400) {
+                            console.log(res);
+                            $.snack('success', `${res}`, 5000);
+                        } else {
+                            $.toast({
+                                type: 'error',
+                                title: 'Failed to complete action',
+                                subtitle: 'Now',
+                                content: `${res}`,
+                                delay: 5000,
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        $.toast({
+                            type: 'error',
+                            title: 'Failed to complete action',
+                            subtitle: 'Now',
+                            content: `${xhr.responseText}`,
+                            delay: 5000,
+                        });
+                    }
+                });
+            };
+            document.getElementById('pixivDownloadUser').classList.remove('hidden');
+            document.getElementById('pixivDownloadUser').onclick = function () {
+                $.ajax({
+                    async: true,
+                    type: "post",
+                    url: "/actions/v2",
+                    data: {
+                        'id': `${searchUser}`,
+                        'channelid': postChannel,
+                        'messageid': postID,
+                        'serverid': postServer,
+                        'action': 'pixivDownloadUser'
+                    },
+                    cache: false,
+                    headers: {
+                        'X-Requested-With': 'SequenziaXHR'
+                    },
+                    success: function (res, txt, xhr) {
+                        if (xhr.status < 400) {
+                            console.log(res);
+                            $.snack('success', `${res}`, 5000);
+                        } else {
+                            $.toast({
+                                type: 'error',
+                                title: 'Failed to complete action',
+                                subtitle: 'Now',
+                                content: `${res}`,
+                                delay: 5000,
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        $.toast({
+                            type: 'error',
+                            title: 'Failed to complete action',
+                            subtitle: 'Now',
+                            content: `${xhr.responseText}`,
+                            delay: 5000,
+                        });
+                    }
+                });
+            };
+
+            document.getElementById('twitterInteract').classList.add('hidden');
+            document.getElementById('twitterListCtrl').classList.add('hidden');
+            document.getElementById('twitterDownloadUser').classList.add('hidden');
+        } else {
+            document.getElementById('pixivFollow').classList.add('hidden');
+            document.getElementById('pixivDownloadUser').classList.add('hidden');
+            document.getElementById('twitterInteract').classList.add('hidden');
+            document.getElementById('twitterListCtrl').classList.add('hidden');
+            document.getElementById('twitterDownloadUser').classList.add('hidden');
+        }
+
     } else {
         modalSearchByUser.querySelector('span').innerText = `Artist`;
         modalSearchByUser.onclick = function() { return false; };
-        modalSearchByUser.classList.add('hidden')
+        modalSearchByUser.classList.add('hidden');
+        document.getElementById('pixivFollow').classList.remove('hidden');
+        document.getElementById('pixivDownloadUser').classList.remove('hidden');
+        document.getElementById('twitterInteract').classList.add('hidden');
+        document.getElementById('twitterListCtrl').classList.add('hidden');
+        document.getElementById('twitterDownloadUser').classList.add('hidden');
     }
     if (searchParent && searchParent.length > 0) {
         modalSearchByParent.onclick = function() {
@@ -4174,21 +4407,6 @@ async function showSearchOptions(post) {
                     return false;
                 }
                 modalSearchByChildren.classList.remove('hidden');
-            }
-        } else if (postBody.includes('**🎆 ') && postBody.includes(' (')) {
-            try {
-                const isMeta = postBody.split('** : ***')
-                if (isMeta.length > 1 && isMeta.pop().includes('[') && isMeta.pop().includes('/')) {
-                    const findId = isMeta.pop().split('[').pop().split(']')[0];
-                    modalSearchByChildren.onclick = function () {
-                        $('#searchModal').modal('hide');
-                        window.location.assign(`#${getLocation()}search=${encodeURIComponent('text: [' + findId + '] ')}${(nsfwString) ? nsfwString : ''}`);
-                        return false;
-                    }
-                    modalSearchByChildren.classList.remove('hidden');
-                }
-            } catch (e) {
-                console.error(`Failed to extract pixiv id: ${e}`)
             }
         }
         try {

@@ -32,12 +32,14 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "5.15.1",
+        "baguettebox.js": "^1.11.1",
         "bootstrap": "4.5.3",
         "chart.js": "2.9.4",
+        "csso": "^5.0.5",
         "datatables.net-bs4": "1.10.22",
         "jquery": "3.5.1",
         "jquery.easing": "^1.4.1",
-        "baguettebox.js": "^1.11.1"
+        "uglifyjs": "^2.4.11"
     },
     "devDependencies": {
         "browser-sync": "2.26.13",

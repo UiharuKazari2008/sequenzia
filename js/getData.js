@@ -2017,7 +2017,7 @@ module.exports = async (req, res, next) => {
                                     if (decoded_content.includes('Related to post ')) {
                                         parent_search = decoded_content.split('\n')[0].split(') by ')[0].split(' (').pop()
                                     }
-                                    user_search = decoded_content.split(' (')[1].split(') - ')[0]
+                                    user_search = decoded_content.split('** : ***')[0].split(') - ').pop()
                                     content_urls = Array.from(getUrls(clean_content));
                                     if (content_urls.length === 0) {
                                         const user = clean_content.split(' : ')[0].split(') - ').pop()
