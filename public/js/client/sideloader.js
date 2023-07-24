@@ -221,14 +221,14 @@ if (kioskMenuEnabled) {
             headers: { 'X-Requested-With': 'SequenziaXHR' },
             success: async function (response) {
                 console.log(response);
-                if (response.timeout)
-                    inactivityTime = response.timeout * 60 * 1000
+                if (response.app_timeout)
+                    inactivityTime = response.app_timeout * 60 * 1000
                 kioskbuttonsHTML.buttons = response.buttons.filter(e => !e.hide_in_app).map(b => {
                     let h = ''
                     if (b.url) {
-                        h += `<a class="btn-sm btn btn-dark" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        h += `<a class="btn-sm btn btn-dark bg-light" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
                     } else {
-                        h += `<a class="btn-sm btn btn-dark" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        h += `<a class="btn-sm btn btn-dark bg-light" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
                     }
                     if (b.fade_image) {
                         let preload = new Image();
