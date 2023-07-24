@@ -4,6 +4,7 @@ module.exports = async (req, res, next) => {
     try {
         const thisUser = res.locals.thisUser
         if (req.body) {
+            console.log(thisUser)
             console.log(req.body)
             if (req.body.disabled_channels) {
                 await sqlPromiseSafe(`DELETE FROM sequenzia_hidden_channels WHERE user = ? AND user IS NOT NULL`, [thisUser.master.discord.user.id]);

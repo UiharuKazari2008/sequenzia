@@ -1841,6 +1841,26 @@ html
                                                     i.fas.fa-star.text-warning
                                             .align-self-start.align-self-center
                                                 .text-warning Showing Favorites for user ID : #{params.getAll('pins')[0]}
+                                if (params && params.has('fast_query') && params.getAll('fast_query')[0] === '1')
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-link-slash.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning Fast Query Mode Enabled, Image Display History is ommited for metadata
+                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                a.text-warning.align-self-end.alert-btn(title="Remove Query Restrictions Requirements" href='#_' onclick=`getNewContent(['fast_query'], []); return false;`) Reset
+                                if (params && params.has('fast_query') && params.getAll('fast_query')[0] === '2')
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-link-slash.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning Fast Query Mode Enabled, Image Display History and Favorite Status is ommited for metadata
+                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                a.text-warning.align-self-end.alert-btn(title="Remove Query Restrictions Requirements" href='#_' onclick=`getNewContent(['fast_query'], []); return false;`) Reset
                                 if (params && params.has('cached') && params.getAll('cached')[0] === 'true')
                                     .alert.alert-time-transparent(role="alert")
                                         .row

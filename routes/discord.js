@@ -310,7 +310,7 @@ router.post('/update', sessionVerification, async (req, res) => {
         res.status(500).send(e.message)
     }
 });
-router.post('/persistent/settings', persistSettingsManager);
+router.post('/persistent/settings', sessionVerification, persistSettingsManager);
 router.get('/exchange/:id', sessionVerification, async (req, res) => {
     const thisUser = res.locals.thisUser
     if (req.params.id === 'master') {

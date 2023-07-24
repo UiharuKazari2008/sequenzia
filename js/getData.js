@@ -1123,12 +1123,28 @@ module.exports = async (req, res, next) => {
         let sqlCall = (() => {
             if (req.query.sort === 'rating')
                 return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
-            return `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            if (req.query.fast_query && req.query.fast_query === '1') {
+                return `SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
+            } else if (req.query.fast_query && req.query.fast_query === '2') {
+                return `${selectBase}`;
+            } else {
+                return `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            }
         })();
         let sqlCallNoPreLimit = (() => {
             if (req.query.sort === 'rating')
                 return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
-            return `SELECT * FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            if (req.query.fast_query && req.query.fast_query === '1') {
+                return `SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
+            } else if (req.query.fast_query && req.query.fast_query === '2') {
+                return `${selectBaseNoPreLimit}`;
+            } else {
+                return `SELECT *
+                        FROM (SELECT *
+                              FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav
+                              ON (base.eid = fav.fav_id) ${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf
+                        ON (i_wfav.eid = his_wconf.history_eid) ${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            }
         })();
         if (sqlAlbumWhere.length > 0) {
             sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
@@ -1201,7 +1217,7 @@ module.exports = async (req, res, next) => {
 
                     // If Image is Favorited
                     let imageFav = false
-                    if (image.fav_date !== null) {
+                    if (image.fav_date !== null && !(req.query.fast_query && req.query.fast_query === '2')) {
                         imageFav = true
                     }
 
@@ -1359,7 +1375,7 @@ module.exports = async (req, res, next) => {
 
                     // If Image is Favorited
                     let imageFav = false
-                    if (image.fav_date !== null) {
+                    if (image.fav_date !== null && !(req.query.fast_query && req.query.fast_query === '2')) {
                         imageFav = true
                     }
 
