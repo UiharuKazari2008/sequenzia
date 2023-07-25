@@ -1397,7 +1397,8 @@ function setupAmbientTimers () {
 }
 function startAmbientTimer() {
     if (!ambientTimeout) {
-        $.when($('#mainContainer, #homeBg, #photoInfo').fadeIn(500)).done(() => {
+        $('#photoInfo').css('display', 'flex').hide().fadeIn(500);
+        $.when($('#mainContainer, #homeBg').fadeIn(500)).done(() => {
             document.getElementById('mainContainer').classList.remove('disabled-pointer')
         })
         $('.ambient-items').fadeOut(500);
