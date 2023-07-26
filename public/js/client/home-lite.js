@@ -675,7 +675,7 @@ async function setupKioskMode() {
                         $('#masterAccordion .collapse').removeClass('show');
 
                         $('#homeBG').addClass('kisok');
-                        $('#menuItemMain, #buttonsPage1, #locationTags').addClass('show');
+                        $('#menuItemMain, #masterNavList, #buttonsPage1, #locationTags').addClass('show');
                         $('#deviceMenuButton').removeClass('d-none');
                         $('#masterAccordion #kioskAccordion').removeClass('d-none').addClass('show');
                         $('#menuItemKiosk').addClass('show');
@@ -1109,7 +1109,7 @@ function verifyNetworkAccess() {
                         type: 'error',
                         title: 'Network Error',
                         subtitle: '',
-                        content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                        content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                         delay: 30000,
                     });
                     document.getElementById('statusMenuIcon').classList = 'fas fa-exclamation-triangle';
@@ -1124,7 +1124,7 @@ function verifyNetworkAccess() {
                     type: 'error',
                     title: 'Network Error',
                     subtitle: '',
-                    content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
+                    content: `<p>Failed to verify network access!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a>`,
                     delay: 30000,
                 });
                 document.getElementById('statusMenuIcon').classList = 'fas fa-exclamation-triangle';
@@ -1427,7 +1427,7 @@ function switchToAmbientMode() {
             $('#menuAccordion .collapse').removeClass('show');
             $('#kioskAccordion .collapse').removeClass('show');
             $('#masterAccordion .collapse').removeClass('show');
-            $('#menuItemMain, #buttonsPage1, #locationTags').addClass('show');
+            $('#menuItemMain, #masterNavList, #buttonsPage1, #locationTags').addClass('show');
             if (kioskMenuEnabled) {
                 $('#masterAccordion > #kioskAccordion').addClass('show');
                 $('#menuItemKiosk').addClass('show');
@@ -1836,7 +1836,7 @@ $(document).ready(async function () {
             }
         });
     getRandomImage();
-    getSidebar();
+    //getSidebar();
     $('.popover').popover('hide');
     $('[data-toggle="popover"]').popover()
     if(isTouchDevice() === false) {

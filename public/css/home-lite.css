@@ -158,6 +158,24 @@ input.middle:focus {
     color: #ffac78;
 }
 
+.navi-header {
+    font-size: 10pt;
+    opacity: 0.6;
+}
+.nav-channel-list {
+    max-height: 60vh;
+    overflow-x: auto;
+}
+.nav-menu-vc {
+    padding: 0.5em 0.5em;
+    background: #0000005c;
+
+}
+
+.sidebar-brand-logo {
+    filter: drop-shadow(0 0 4px #ff510060);
+}
+
 .background-image.overlay.ambient {
     background: linear-gradient(180deg, transparent 50%, #000000c7);
     box-shadow: none;
@@ -265,7 +283,7 @@ input.middle:focus {
         filter: invert(1);
     }
     .kms-menu-logo {
-        content:url("/static/img/kongoumedialogo-menu-black.png");
+        content:url("/static/img/kongoumedialogo-menu.png");
     }
     .user-info-border {
         border: 1px solid #ffffffc7;
@@ -343,6 +361,9 @@ input.middle:focus {
     }
     .dimmed:hover {
         opacity: 1;
+    }
+    .main-logo-small {
+        content:url("/static/img/sequenzia-logo-mini-color.png");
     }
 }
 .performance-mode * {

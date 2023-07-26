@@ -637,7 +637,7 @@ html
                                                     a.user-menu-item.user-menu-small(title="Launch Ambient Display Web App" href='/ambient?displayname=Untitled' target="_blank" rel="noopener noreferrer")
                                                         i.fa-light.fa-tv
                                                         | Photo Frame
-                                                    a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
+                                                    a.user-menu-item.user-menu-small(title="Launch Offline Mode" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;")
                                                         i.fa-light.fa-folder-bookmark
                                                         | Local Files
                                                     if (applications_list && applications_list.length > 0)
@@ -1177,7 +1177,7 @@ html
                         p If you have offline content you can switch to it now or try again.
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
-                        a.btn.btn-danger(href='#_' onclick="transitionToOOBPage('/offline'); return false;") Offline
+                        a.btn.btn-danger(href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;") Offline
         #emiitsWarning.modal.fade(tabindex='-1' role='dialog' aria-labelledby='exampleModalLabel' aria-hidden='true')
             .modal-dialog(role='document')
                 .modal-content

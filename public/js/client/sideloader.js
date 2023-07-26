@@ -1156,7 +1156,7 @@ async function getNewContent(remove, add, url, keep) {
         },
         error: function (xhr) {
             if (initialLoad) {
-                window.location.href = '/offline';
+                window.location.href = '/offline#/gallery?';
             } else {
                 responseComplete = true
                 $(".container-fluid").fadeTo(2000, 1);
@@ -1165,7 +1165,7 @@ async function getNewContent(remove, add, url, keep) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -1259,14 +1259,14 @@ function getMoreContent(remove, add, url, keep) {
         },
         error: function (xhr) {
             if (initialLoad) {
-                window.location.href = '/offline';
+                window.location.href = '/offline#/gallery?';
             }
             responseComplete = true
             $.toast({
                 type: 'error',
                 title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                 subtitle: '',
-                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                 delay: 10000,
             });
         }
@@ -1370,7 +1370,7 @@ async function getSearchContent(element, tagsElement, exchange, url) {
             },
             error: function (xhr) {
                 if (initialLoad) {
-                    window.location.href = '/offline';
+                    window.location.href = '/offline#/gallery?';
                 }
                 responseComplete = true
                 $(".container-fluid").fadeTo(2000, 1);
@@ -1379,7 +1379,7 @@ async function getSearchContent(element, tagsElement, exchange, url) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -1407,7 +1407,7 @@ function getLimitContent(perm) {
             },
             error: function (xhr) {
                 if (initialLoad) {
-                    window.location.href = '/offline';
+                    window.location.href = '/offline#/gallery?';
                 }
                 responseComplete = true
                 $(".container-fluid").fadeTo(2000, 1);
@@ -1416,7 +1416,7 @@ function getLimitContent(perm) {
                     type: 'error',
                     title: '<i class="fas fa-server pr-2"></i>Navigation Error',
                     subtitle: '',
-                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
+                    content: `<p>Failed to navigate to the resource or page!</p><a class="btn btn-danger w-100" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;"><i class="fas fa-folder-bookmark pr-2"></i>Local Files</a><p>${(xhr && xhr.responseText) ? '\n' + xhr.responseText : ''}</p>`,
                     delay: 10000,
                 });
             }
@@ -1743,7 +1743,7 @@ async function startDownloadingFiles() {
     disableGallerySelect();
 }
 async function transitionToOOBPage(pageUrl) {
-    if (pageUrl === '/offline')
+    if (pageUrl === '/offline#/gallery?')
         $('#bootUpDisplay').fadeIn(250);
     try {
         document.getElementById('bootBackdropSunrise').classList.add('hidden');

@@ -355,11 +355,12 @@ html
                                     div#kioskToolbarButtons.menu-grid.user-menu-small
                         div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").goto-seqmode.menu-container.rounded-bottom
                             .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                i.fas.fa-photo-video.pr-2.mr-auto
-                                //span Sequenzia
-                                span.sidebar-brand-logo.sequenzia-logo(style="font-size: 24.5px;") sequenzia
-
-
+                                img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
+                                span Sequenzia
+                        div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#NaviAccordion").goto-seqmode.menu-container.rounded-bottom
+                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                i.fas.fa-compass.pr-2.mr-auto
+                                span Navigator
                     div#menuAccordion(class="collapse show" data-parent="#masterAccordion").w-100
                         div#deviceMenuButton(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").goto-kiosk.menu-container.rounded-top.d-none
                             .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
@@ -389,7 +390,7 @@ html
                                                     i.fa-light.fa-history
                                                 a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists").user-menu-overlow-show-icon-1
                                                     i.fa-light.fa-address-book
-                                                a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline'); return false;")
+                                                a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;")
                                                     i.fa-light.fa-bookmark
                                                 a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random' class=`${(active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0) ? 'user-menu-overlow-show-icon-1' : ''}`)
                                                     i.fa-light.fa-dice
@@ -416,9 +417,6 @@ html
                                                 a.hover-color(data-placement="top" title="Return" href='#_' class="collapsed" data-toggle="collapse" data-target="#buttonsPage1")
                                                     i.fa-light.fa-chevron-down
                                     div#bottomControls.pt-2.w-100
-                                        a.hover-color.px-2(data-placement="top" title='Show Navigator', href='#_' onClick='toggleMenu(); return false;')
-                                            i.fas.fa-compass.pr-2
-                                            span Navigator
                                         a.hover-color.px-2(data-placement="top" title="Open Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuSearchActivity")
                                             i.fas.fa-search.pr-2
                                             span Search
@@ -471,7 +469,7 @@ html
                                 #loginUserButtons.d-flex.py-1(class=`${(active_exchange && active_exchange.discord) ? 'hidden':''}`).flex-column.flex-sm-row.w-100
                                     span#loginCodeDisplay.text-center.text-sm-left.pb-3.pb-sm-0.w-100 XXXXXX
                                     .login-options.menu-grid.mt-auto.mb-auto
-                                        a.hover-color(data-placement="top" title='Access Local Files', href='#_' onclick="transitionToOOBPage('/offline'); return false").d-flex.flex-column
+                                        a.hover-color(data-placement="top" title='Access Local Files', href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false").d-flex.flex-column
                                             i.fa-light.fa-bookmark.fa-2x.align-self-center
                                             span.align-self-center.pt-1 Local Files
                                         a.hover-color(data-placement="top" title='Login with Discord', href='#_' onclick="transitionToOOBPage('/discord/login'); return false").d-flex.flex-column
@@ -807,6 +805,182 @@ html
                                                 i.fas.fa-sign-out-alt
                                                 | Log Out
                                     div.settings-row
+                        div#NavigatorMenuButton(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#NaviAccordion").goto-seqmode.menu-container.rounded-bottom
+                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                i.fas.fa-compass.pr-2.mr-auto
+                                span Navigator
+                    div#NaviAccordion(class="collapse" data-parent="#masterAccordion").position-relative.w-100
+                        div#deviceMenuButton(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").goto-kiosk.menu-container.rounded-top.d-none
+                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                i.fas.fa-grid-3.pr-2.mr-auto
+                                span Device Menu
+                        div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").goto-kiosk.menu-container.rounded-top
+                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
+                                span Sequenzia
+                        .menu-container.w-100.rounded.position-relative
+                            .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
+                            div#masterNavList.p-3.collapse.menu-object(class="collapse show animated--fade-in" data-parent="#NaviAccordion").w-100.menu-glow
+                                .d-flex.w-100.flex-column
+                                    for exchange, this_exchnage in exchange_list
+                                        if (exchange.exchange)
+                                            .navi-header.d-flex.flex-row
+                                                div.mr-auto
+                                                    i.fas.fa-arrow-right-arrow-left.pr-2
+                                                    span #{exchange.exchange.name}
+                                                div
+                                                    span #{exchange.exchange.prefix}
+                                        div.menu-grid.user-menu-small
+                                            for thisSuper in exchange.sidebar
+                                                a.navi-items-menu.user-menu-item.hover-color.d-flex.flex-column(title=`Expand ${thisSuper.name}`, href='#_' data-toggle="collapse" data-target=`#naviEx${this_exchnage}Super${thisSuper.id}`)
+                                                    i.fa-light(class=`${thisSuper.icon || 'fa-folder'}`)
+                                                    span #{thisSuper.name}
+                            for exchange, this_exchnage in exchange_list
+                                for thisSuper in exchange.sidebar
+                                    // SuperClass
+                                    div.p-3.collapse.menu-object(class="collapse animated--fade-in" data-parent="#NaviAccordion" id=`naviEx${this_exchnage}Super${thisSuper.id}`).w-100.menu-glow
+                                        .d-flex.w-100
+                                            .flex-grow-1
+                                                a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#masterNavList")
+                                                    i.fas.fa-arrow-left.fa-fw
+                                            .d-flex.flex-column.justify-content-end.top-icon
+                                                div
+                                                    i.fas.pr-2(class=`${thisSuper.icon || 'fa-compass'}`)
+                                                    span #{thisSuper.name}
+                                        .d-flex.w-100.mb-3
+                                            for thisClass in thisSuper.entities
+                                                div.menu-grid.user-menu-small.flex-wrap.justify-content-around
+                                                    a.navi-items-menu.user-menu-item.hover-color.d-flex.flex-column(title=`Expand ${thisClass.name}`, href='#_' data-toggle="collapse" data-target=`#naviEx${this_exchnage}Super${thisSuper.id}Class${thisClass.id}`)
+                                                        i.fa-light(class=`${thisClass.icon || 'fa-compass'}`)
+                                                        span #{thisClass.name}
+                                    for thisClass in thisSuper.entities
+                                        div.p-3.collapse.menu-object(class="collapse animated--fade-in" data-parent="#NaviAccordion" id=`naviEx${this_exchnage}Super${thisSuper.id}Class${thisClass.id}`).w-100.menu-glow
+                                            .d-flex.w-100
+                                                .flex-grow-1
+                                                    a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target=`#naviEx${this_exchnage}Super${thisSuper.id}`)
+                                                        i.fas.pr-2(class=`${thisClass.icon || 'fa-compass'}`)
+                                                        span #{thisSuper.name}
+                                                        i.fas.fa-chevron-right.px-2.d-none.d-sm-inline
+                                                        span.d-none.d-sm-inline #{thisClass.name}
+
+                                                .d-flex.flex-column.justify-content-end.top-icon
+                                                    div
+                                                        a.pr-2.d-inline.hover-color.top-icon(title='Show All', href=`#/${(thisClass.uri) ? thisClass.uri : thisSuper.uri}?folder=${thisClass.id}%3A*`)
+                                                            if (thisClass.uri === 'gallery')
+                                                                i.fas.fa-photo-video
+                                                            else if (thisClass.uri === 'files')
+                                                                i.fas.fa-folder
+                                                            else if (thisClass.uri === 'cards')
+                                                                i.fas.fa-sticky-note
+                                                            else if (thisSuper.uri === 'gallery')
+                                                                i.fas.fa-photo-video
+                                                            else if (thisSuper.uri === 'files')
+                                                                i.fas.fa-folder
+                                                            else if (thisSuper.uri === 'cards')
+                                                                i.fas.fa-sticky-note
+                                                            span.pl-2.d-none.d-md-inline View All
+                                            .d-flex.w-100.flex-column.nav-channel-list
+                                                - let nsfwIndex = ''
+                                                - _mergedChannels = thisClass.entities.filter((e) => { return e.type === 2})
+                                                if (_mergedChannels.length > 0)
+                                                    .navi-header
+                                                        i.fas.fa-folder-tree.pr-1
+                                                        | Virtual Channels
+                                                    each thisVirtualChannel, indexChannel in _mergedChannels
+                                                        - let nsfwSearch = ''
+                                                        if (thisVirtualChannel.nsfw)
+                                                            - nsfwSearch = "&nsfw=true"
+                                                            - nsfwIndex = "&nsfw=true"
+                                                        div.d-flex.navi-item.virtual-channel(title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id=`vc_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).pr-0
+                                                            a.text-capitalize(href=`#/${(thisClass.uri) ? thisClass.uri : thisSuper.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
+                                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                    if (thisClass.uri === 'gallery')
+                                                                        i.fas.fa-photo-video.ml-1
+                                                                    else if (thisClass.uri === 'files')
+                                                                        i.fas.fa-folder.ml-1
+                                                                    else if (thisClass.uri === 'cards')
+                                                                        i.fas.fa-sticky-note.ml-1
+                                                                    if (thisVirtualChannel.nsfw)
+                                                                        i.fas.fa-exclamation-triangle.mr-1(style="color: #ff4a4a;")
+                                                            a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).px-3
+                                                                i.fas.fa-chevron-right.align-self-center
+                                                        .nav-menu-vc.rounded.collapse.m-0.position-relative(id=`vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).position-relative
+                                                            .d-flex.flex-column
+                                                                each thisChannel, indexChannel in thisVirtualChannel.entities
+                                                                    - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
+                                                                    - let nsfwSearch = ''
+                                                                    if (thisChannel.nsfw)
+                                                                        - nsfwSearch = "&nsfw=true"
+                                                                        - nsfwIndex = "&nsfw=true"
+                                                                    a.navi-item.text-capitalize.icon-padding(title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuper.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                            if (thisChannel.nsfw)
+                                                                                i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
+                                                                            i.fas.fa-clone
+                                                each thisServer, indexServer in exchange.server_list.sort()
+                                                    - _channels = thisClass.entities.filter((e) => { return e.server === thisServer.id && e.type === 0})
+                                                    if (_channels.length > 0)
+                                                        .navi-header
+                                                            i.fas.fa-database.pr-1
+                                                            span #{thisServer.name}
+                                                        if (_channels.length > 2)
+                                                            a.navi-item.text-capitalize.icon-padding(title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuper.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
+                                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                    if (thisClass.uri !== thisSuper.uri && thisClass.uri === 'gallery')
+                                                                        i.fas.fa-photo-video.ml-1
+                                                                    else if (thisClass.uri !== thisSuper.uri && thisClass.uri === 'files')
+                                                                        i.fas.fa-folder.ml-1
+                                                                    else if (thisClass.uri !== thisSuper.uri && thisClass.uri === 'cards')
+                                                                        i.fas.fa-sticky-note.ml-1
+                                                                    else if (thisSuper.uri === 'gallery')
+                                                                        i.fas.fa-photo-video.ml-1
+                                                                    else if (thisSuper.uri === 'files')
+                                                                        i.fas.fa-folder.ml-1
+                                                                    else if (thisSuper.uri === 'cards')
+                                                                        i.fas.fa-sticky-note.ml-1
+                                                    each thisChannel, indexChannel in _channels
+                                                        - if (manage_channels && manage_channels.length > 0 && manage_channels.indexOf(thisChannel.id) !== -1) { enableManageTools = true }
+                                                        - let nsfwSearch = ''
+                                                        if (thisChannel.nsfw)
+                                                            - nsfwSearch = "&nsfw=true"
+                                                            - nsfwIndex = "&nsfw=true"
+                                                        a.navi-item.text-capitalize.icon-padding(title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuper.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                if (thisChannel.nsfw)
+                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                                if (thisChannel.uri || thisClass.uri)
+                                                                    if (thisChannel.uri && thisSuper.uri !== thisChannel.uri)
+                                                                        if (thisChannel.uri === 'gallery')
+                                                                            i.fas.fa-photo-video.ml-1
+                                                                        else if (thisChannel.uri === 'files')
+                                                                            i.fas.fa-folder.ml-1
+                                                                        else if (thisChannel.uri === 'cards')
+                                                                            i.fas.fa-sticky-note.ml-1
+                                                                    else if (!thisChannel.uri && thisClass.uri && thisSuper.uri !== thisClass.uri)
+                                                                        if (thisClass.uri === 'gallery')
+                                                                            i.fas.fa-photo-video.ml-1
+                                                                        else if (thisClass.uri === 'files')
+                                                                            i.fas.fa-folder.ml-1
+                                                                        else if (thisClass.uri === 'cards')
+                                                                            i.fas.fa-sticky-note.ml-1
+                                                .navi-header
+                                                    i.fas.fa-atlas.pr-1
+                                                    | Indexes
+                                                a.navi-item.text-capitalize.icon-padding(title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
+                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                        i.fas.fa-atlas.ml-1
+                                                - _custom_channels = thisClass.entities.filter((e) => { return e.type === 1})
+                                                if (_custom_channels.length > 0)
+                                                    .navi-header
+                                                        i.fas.fa-tags.pr-1
+                                                        | Quick Access
+                                                    each thisCustomChannel in _custom_channels
+                                                        a.navi-item.text-capitalize.icon-padding(title=thisCustomChannel.name id=`${thisCustomChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
+                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                if (thisCustomChannel.nsfw)
+                                                                    i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                                i.fas.fa-tag.ml-1
+
             #pushDown.ml-auto.mr-auto.mb-auto
                 a(href='#_' onclick='setMenuLocation("bottom"); return false;')
                     i.fas.fa-chevron-down.fa-2x.py-2.px-5

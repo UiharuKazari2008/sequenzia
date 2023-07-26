@@ -2141,6 +2141,9 @@ div#time {
     box-shadow: 0 0 20px black;
     border: solid 1px #1d1d1df2;
 }
+.navi-items-menu .user-menu-item {
+    max-width: 72px;
+}
 .performance-mode .menu-container {
     background: black;
 }
