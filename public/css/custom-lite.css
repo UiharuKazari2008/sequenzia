@@ -2147,6 +2147,12 @@ div#time {
 .performance-mode .menu-container {
     background: black;
 }
+.goto-navigagtor {
+    margin-top: -4px;
+    padding-top: 4px;
+    z-index: -2;
+    position: relative;
+}
 .goto-seqmode {
     margin-top: -4px;
     padding-top: 4px;

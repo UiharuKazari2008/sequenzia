@@ -676,7 +676,7 @@ async function setupKioskMode() {
 
                         $('#homeBG').addClass('kisok');
                         $('#menuItemMain, #masterNavList, #buttonsPage1, #locationTags').addClass('show');
-                        $('#deviceMenuButton').removeClass('d-none');
+                        $('#deviceMenuButton, #deviceMenuButton2').removeClass('d-none');
                         $('#masterAccordion #kioskAccordion').removeClass('d-none').addClass('show');
                         $('#menuItemKiosk').addClass('show');
 
