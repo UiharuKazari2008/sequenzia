@@ -2135,11 +2135,11 @@ div#time {
     padding-bottom: calc(env(safe-area-inset-bottom) + 1em);
 }
 .menu-container {
-    background: #000000cc;
+    background: #00000091;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 20px black;
-    border: solid 1px #000000f2;
+    border: solid 1px #1d1d1df2;
 }
 .performance-mode .menu-container {
     background: black;

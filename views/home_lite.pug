@@ -235,12 +235,18 @@ html
                 document.getElementById('cover').classList.add('fadeOut');
         ul#accordionSidebar.navbar-nav.bg-gradient-primary.sidebar.sidebar-dark.accordion.toggled.animated--fade-in
             #sidebar
-        #dataFade.fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row.overlay-for-data.d-none
+        #dataFade.fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row.overlay-for-data
         .fixed-top.ambient-items.p4-safty(style="display: none;").flex-row
-            .animated--fade-in.text-center.ml-auto.p-2.d-flex
-                div
+            .animated--fade-in.text-center.ml-auto.p-2.d-flex.flex-column.align-items-center
+                div#dataInfo.d-none.pb-2
+                    i.fas.fa-star.d-none.ajax-imageFav.pr-2
+                    span.ajax-imageLocation.text-capitalize ...
+                    div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
+                        i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
+                    span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
+                div(style="width: 350px;")
                     span.ajax-text-contents
-        .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row
+        .fixed-bottom.ambient-items.p4-safty(style="display: none;").flex-row.bottom-data
             .animated--fade-in.text-left.pb-2.d-none.align-items-end.d-md-flex
                 img(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 4em').pl-2.shadow-blk
             .animated--fade-in.text-center.ml-auto.p-2.d-flex
@@ -269,29 +275,26 @@ html
                         span#date.pl-2.shadow-txt
                     div#timeInfo(style="margin-top: -0.75em;")
                         #time
-                    div#dataInfo.d-none
-                        i.fas.fa-star.d-none.ajax-imageFav.pr-2
-                        span.ajax-imageLocation.text-capitalize ...
-                        div(style='padding: 0 0.5rem; display: inline;').middle-indicator.hidden.d-sm-inline.d-none
-                            i.fas.fa-circle(style='font-size: 8px; vertical-align: middle;')
-                        span.ajax-imageDate.middle-indicator.hidden.d-sm-inline.d-none
         #mainContainer.container.position-fixed.top-center.h-100.w-100.flex-column
             #photoInfo.animated--fade-in.hidden.d-none.w-100.p-2.pb-0
                 .text-center.align-items-start.d-none.d-md-flex
                     img(src=`${(active_exchange_id && active_exchange_id !== 'master') ? '/cross-exchange/' + active_exchange_id : ''}/static/img/sequenzia-logo-nav.png` style='height: 3.5em').shadow-blk
                 .ml-auto.justify-content-between.align-items-center.animated--fade-in.mr-auto.mr-md-0
-                    .menu-container.w-100.p-2.px-3.rounded.position-relative.d-flex.flex-column.flex-md-row
-                        div
-                            a.ajax-imageLink(data-placement="bottom" title='View the background photo')
-                                .align-items-center.d-flex.flex-column
-                                    span.ajax-imageLocation.text-capitalize ...
-                                    span.ajax-imageDate(style="font-size: .8em;")
-                        div.align-items-center.d-flex.justify-content-between.py-md-0.pl-md-2.pr-md-0.pt-2.px-3.pb-1
-                            i.fas.fa-star.d-none.ajax-imageFav.px-md-2.px-0(onclick="toggleFavorite(); return false;")
-                            a.ajax-downloadLink.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
-                                i.i.fas.fa-download.fa-sm
-                            a.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
-                                i.i.fas.fa-fast-forward.fa-sm
+                    .menu-container.w-100.p-2.px-3.rounded.position-relative.d-flex.flex-column
+                         div.d-flex.flex-column.flex-md-row
+                            div.mr-auto
+                                a.ajax-imageLink(data-placement="bottom" title='View the background photo')
+                                    .align-items-center.d-flex.flex-column
+                                        span.ajax-imageLocation.text-capitalize ...
+                                        span.ajax-imageDate(style="font-size: .8em;")
+                            div.align-items-center.d-flex.justify-content-between.py-md-0.pl-md-2.pr-md-0.pt-2.px-3.pb-1
+                                i.fas.fa-star.d-none.ajax-imageFav.px-md-2.px-0(onclick="toggleFavorite(); return false;")
+                                a.ajax-downloadLink.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Download Background Image', target='_blank', rel='noopener noreferrer', style='text-decoration: none;')
+                                    i.i.fas.fa-download.fa-sm
+                                a.d-inline.hover-color.px-md-2.px-0(data-placement="bottom" title='Reload Page', style='text-decoration: none;', href='#_' onclick='getRandomImage(true); return false;')
+                                    i.i.fas.fa-fast-forward.fa-sm
+                         //div.d-flex.justify-content-center.text-center
+                            span.ajax-text-contents.d-none.d-xl-block.mt-2
             #pushUp.ml-auto.mr-auto.mt-auto
                 a(href='#_' onclick='setMenuLocation("top"); return false;')
                     i.fas.fa-chevron-up.fa-2x.py-2.px-5

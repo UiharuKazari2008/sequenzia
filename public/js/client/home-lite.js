@@ -7,7 +7,7 @@ let performaceMode = (getCookie("performaceMode") !== null) ? getCookie("perform
 let menuLocation = (getCookie("menuLocation") !== null) ? getCookie("menuLocation") : false;
 let kiosk_settings = '';
 let kiosk_padding = {};
-let kioskOptions = new URLSearchParams(document.location.search.substring(1));
+let options = new URLSearchParams(document.location.search.substring(1));
 let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;;
 function setCookie(cname, cvalue, exdays) {
     const d = new Date();
@@ -655,7 +655,7 @@ async function clearKernelCache() {
 async function setupKioskMode() {
     return new Promise(async (ok) => {
         try {
-            if (kioskOptions.has('enable_kiosk') || kioskMenuEnabled) {
+            if (options.has('enable_kiosk') || kioskMenuEnabled) {
                 $.ajax({
                     async: true,
                     url: `http://localhost:6833/get_config2`,
@@ -677,7 +677,6 @@ async function setupKioskMode() {
                         $('#homeBG').addClass('kisok');
                         $('#menuItemMain, #buttonsPage1, #locationTags').addClass('show');
                         $('#deviceMenuButton').removeClass('d-none');
-                        $('#dataFade').removeClass('d-none');
                         $('#masterAccordion #kioskAccordion').removeClass('d-none').addClass('show');
                         $('#menuItemKiosk').addClass('show');
 
@@ -869,7 +868,7 @@ function getRandomImage() {
     clearTimeout(nextImageTimer);
     nextImageTimer = null;
     let extra_options = ''
-    if (kioskMenuEnabled && displayConfiguration.darkImages === 1 && _night !== undefined) {
+    if (displayConfiguration.darkImages === 1 && _night !== undefined) {
         if (_night) {
             extra_options += 'dark=true&'
         } else {
@@ -919,12 +918,12 @@ function getRandomImage() {
         },
         success: function (json, textStatus, xhr) {
             if (json.randomImagev2 && json.randomImagev2.length > 0) {
-                if (json.configuration && kioskMenuEnabled) {
+                if (json.configuration) {
                     displayConfiguration = json.configuration;
-                    syncDisplaySettings();
                     let nextRefreshTime = (displayConfiguration.refreshTime) ? Math.abs(parseInt(displayConfiguration.refreshTime.toString()) * 60000) : 900000;
                     nextImageTimer = setInterval(getRandomImage, nextRefreshTime);
                 }
+                syncDisplaySettings();
                 const previewImage = json.randomImagev2[0].previewImage;
                 const fullImage = json.randomImagev2[0].fullImage;
                 document.getElementById('midSearch').setAttribute('channel', json.randomImagev2[0].channelId);
@@ -941,8 +940,16 @@ function getRandomImage() {
                 }
                 if (postBody && postBody.length > 0) {
                     try {
-                        postBody = postBody.replace(/\*\*\*(.+?)\*\*\*/g, '<i>$1</i>');
-                        postBody = postBody.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+                        postBody = postBody.split('***')
+                        for (let i = 1; i < postBody.length; i += 2) {
+                            postBody[i] = `<i>${postBody[i]}</i>`
+                        }
+                        postBody = postBody.join('');
+                        postBody = postBody.split('**')
+                        for (let i = 1; i < postBody.length; i += 2) {
+                            postBody[i] = `<b>${postBody[i]}</b>`
+                        }
+                        postBody = postBody.join('');
                     } catch (e) {
                         console.error(`Failed to prettyfy the post body!`)
                         console.error(e)
@@ -1550,9 +1557,9 @@ async function updateNotficationsPanel() {
 }
 function kernelRequestData(message) {
     if (!navigator.serviceWorker.controller) {
-        if (window.location.protocol !== 'https:') {
+        if (window.location.protocol !== 'https:' && !kioskMenuEnabled) {
             $.snack('error', `Application not secure!`, 1500);
-        } else {
+        } else if (!kioskMenuEnabled) {
             $.snack('error', `Application not ready!`, 1500);
         }
     } else {
@@ -1793,9 +1800,9 @@ $(document).ready(async function () {
             if (ok) {
                 getLastNaviPage();
                 if (!navigator.serviceWorker.controller) {
-                    if (window.location.protocol !== 'https:') {
+                    if (window.location.protocol !== 'https:' && !kioskMenuEnabled) {
                         $.snack('error', `Application not secure!`, 1500);
-                    } else {
+                    } else if (!kioskMenuEnabled) {
                         $.snack('error', `Application not ready!`, 1500);
                     }
                     updateNotficationsPanel();
