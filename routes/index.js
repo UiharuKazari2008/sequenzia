@@ -181,9 +181,9 @@ router.use('/parity', sessionVerification, handleExchange, readValidation, async
         if (params.length > 0) {
             const results = await (() => {
                 if (global.bypass_cds_check) {
-                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
+                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ? AND paritycount IS NOT NULL) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
                 } else {
-                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.master.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ?) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
+                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.master.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ? AND paritycount IS NOT NULL) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
                 }
             })()
             if (!config.disable_esm)
