@@ -201,7 +201,7 @@ router.use('/parity', sessionVerification, handleExchange, readValidation, async
                 if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
                     res.status(200).json({
                         parts: files,
-                        expected_parts: file.paritycount,
+                        expected_parts: file.paritycount || files.length,
                         filename: file.real_filename
                     })
                 } else {
