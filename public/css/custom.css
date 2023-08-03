@@ -3440,7 +3440,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     .thin-width.max-resize {
         max-width: 900px;
     }
-    .bottom-bar .max-resize {;
+    .bottom-bar .max-resize {
         margin-top: calc(env(safe-area-inset-top) + 3em);
         margin-bottom: calc(env(safe-area-inset-top) + 4em);
     }

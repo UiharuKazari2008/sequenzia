@@ -206,7 +206,11 @@ if (kioskMenuEnabled) {
         if (kiosk_padding.bottom) {
             let rule = '<style>'
             rule += `#deadzoneOverlay { height: ${kiosk_padding.bottom}; }\n`
-            rule += `#pageNav, #btnTop, footer, .modal-content, .kms-media-inner, .fancybox-inner { margin-bottom: ${kiosk_padding.bottom}; }\n`
+            rule += `footer, .modal-content, .kms-media-inner, .fancybox-inner { margin-bottom: ${kiosk_padding.bottom}; }\n`
+            rule += `:not(.bottom-bar) #pageNav, :not(.bottom-bar) #btnTop { margin-bottom: ${kiosk_padding.bottom}; }\n`
+            rule += `.bottom-bar.menu-open #pageNav, .bottom-bar.menu-open #btnTop { margin-bottom: ${kiosk_padding.bottom}; }\n`
+            rule += `.bottom-bar #content-wrapper > div > #mainMenuBar { padding-bottom: ${kiosk_padding.bottom}!important; }\n`
+            rule += `.bottom-bar .user-menu-buttons { padding-bottom: ${kiosk_padding.bottom}; margin-bottom: -${kiosk_padding.bottom} }\n`
             rule += `#naviResume { margin-bottom : calc(calc(calc(env(safe-area-inset-bottom) + 2.125em) * -1) + ${kiosk_padding.bottom})!important }\n`
             rule += '</style>'
             $('head').append(rule)
