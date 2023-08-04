@@ -670,12 +670,11 @@ async function setupKioskMode() {
 
                         setCookie("kiosk_enabled", 'true');
 
+                        $('#homeBG').addClass('kisok');
                         $('.panel-root .collapse').removeClass('show');
                         $('.panel-reset-show').addClass('show');
-                        $('#homeBG').addClass('kisok');
                         $('.kiosk-menu-button').removeClass('d-none');
-                        $('#masterAccordion #kioskAccordion').removeClass('d-none').addClass('show');
-                        $('#menuItemKiosk').addClass('show');
+                        $('#masterAccordion > #kioskAccordion').removeClass('d-none').addClass('show');
 
                         kiosk_settings = response.display_config
                         kiosk_padding = response.padding
