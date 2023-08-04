@@ -10,13 +10,7 @@ const { sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {
     function sendRequest(MessageBody, queue) {
-        sendData(queue || `${global.mq_discord_out}.sequenzia`, MessageBody, function (callback) {
-            if (callback) {
-                printLine("KanmiMQ", `Sent to ${global.mq_discord_out}`, 'info', MessageBody)
-            } else {
-                printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out}`, 'error', MessageBody)
-            }
-        })
+        sendData(queue || `${global.mq_discord_out}.sequenzia`, MessageBody, function (callback) {})
     }
     try {
         const thisUser = res.locals.thisUser
