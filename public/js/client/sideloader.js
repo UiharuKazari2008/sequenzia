@@ -105,16 +105,16 @@ let reviewDestinationMap = (getCookie("reviewDestinationMap") !== null) ? (() =>
         return {}
     }
 })() : {};
-let _lastChannelSelection = '';
-let _lastReviewChannelSelection = '';
-let fileWorking = false;
 let uploadDestination = (getCookie("UploadChannelSelection") !== null) ? getCookie("UploadChannelSelection") : '';
 let uploadServer = (getCookie("UploadServerSelection") !== null) ? getCookie("UploadServerSelection") : '';
-let _lastUploadChannelSelection = '';
-let _lastUploadServerSelection = '';
 let setImageSize = (getCookie("imageSizes") !== null) ? getCookie("imageSizes") : '0';
 let widePageResults = (getCookie("widePageResults") !== null) ? getCookie("widePageResults") : '0';
 let kioskMenuEnabled = (getCookie("kiosk_enabled") !== null) ? (getCookie("kiosk_enabled") === 'true') : false;
+let _lastChannelSelection = '';
+let _lastReviewChannelSelection = '';
+let fileWorking = false;
+let _lastUploadChannelSelection = '';
+let _lastUploadServerSelection = '';
 let kioskbuttonsHTML = { apps: [], buttons: [] };
 let undoActions = [];
 let notificationControler = null;
@@ -5029,6 +5029,16 @@ function setMenuBarLocation() {
     }
 }
 
+let timerPendingActions = null;
+async function savePendingActions() {
+    clearTimeout(timerPendingActions);
+    timerPendingActions = setTimeout(writePendingActions, 5000)
+}
+async function writePendingActions() {
+    clearTimeout(timerPendingActions);
+    timerPendingActions = null;
+    await kernelRequestData({type: 'SAVE_LOCAL_DATA', key: 'pending.actions', data: { actions: apiActions }});
+}
 // Send Action
 async function toggleFavorite(channelid, eid) {
     const star = document.querySelector(`#fav-${eid} > i.fas.fa-star`)
@@ -5266,6 +5276,7 @@ async function commitPendingActions() {
                         afterAction(request.action, request.data, request.messageid);
                     });
                     apiActions = {};
+                    kernelRequestData({type: 'REMOVE_LOCAL_DATA', key: 'pending.actions'});
                 }
                 updateActionsPanel();
             } else {
@@ -5312,6 +5323,7 @@ async function cancelPendingAction(messageid) {
             }
         })
         apiActions = {};
+        kernelRequestData({type: 'REMOVE_LOCAL_DATA', key: 'pending.actions'});
     } else {
         const message = document.getElementById(`message-${messageid}`)
         if (message) {
@@ -5348,6 +5360,7 @@ async function updateActionsPanel() {
     if (document.getElementById('actionPanel')) {
         if (Object.keys(apiActions).length > 0) {
             $('#actionPanel').removeClass('hidden')
+            savePendingActions();
         } else {
             $('#actionPanel').addClass('hidden')
         }
@@ -5783,6 +5796,14 @@ if ('serviceWorker' in navigator) {
             if (!offlinePage) {
                 try {
                     await registration.sync.register('SYNC_PAGES_NEW_ONLY');
+                } catch (e) {
+                    console.error(e);
+                    await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});
+                }
+                try {
+                    const pending_actions = await kernelRequestData({type: 'GET_LOCAL_DATA', key: 'pending.actions'});
+                    if (pending_actions)
+                        apiActions = pending_actions.actions;
                 } catch (e) {
                     console.error(e);
                     await kernelRequestData({type: 'SYNC_PAGES_NEW_ONLY'});

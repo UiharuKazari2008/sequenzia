@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v20-2-04AUG23-PATCH1'
+const cacheName = 'PRERELEASE-v20-2-04AUG23-PATCH2'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -155,7 +155,7 @@ let pushActionsActive = false;
 let pullActionsActive = false;
 let refreshCurrentExchange = null;
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 6);
+const offlineContentDB = self.indexedDB.open("offlineContent", 7);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     broadcastAllMessage({type: 'NOTIFY_ERROR', message: `IndexedDB Is Not Available: Offline Content will not be available!`});
@@ -217,6 +217,12 @@ offlineContentDB.onupgradeneeded = event => {
         const offlineStorageData = db.createObjectStore("offline_actions", {keyPath: "id"});
         offlineStorageData.createIndex("id", "id", {unique: true});
         offlineStorageData.createIndex("action", "action", {unique: false});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 6) {
+        const offlineStorageData = db.createObjectStore("local_data", {keyPath: "key"});
+        offlineStorageData.createIndex("id", "id", {unique: true});
         offlineStorageData.transaction.oncomplete = event => {
         }
     }
@@ -742,6 +748,15 @@ self.addEventListener('message', async (event) => {
             break;
         case 'EXPIRE_STORAGE_SPANNED_FILE':
             event.ports[0].postMessage(await expireSpannedFile(event.data.fileid, (!!event.data.noupdate), (event.data.hours)));
+            break;
+        case 'GET_LOCAL_DATA':
+            event.ports[0].postMessage(await retrieveStorageBlock(event.data.key));
+            break;
+        case 'SAVE_LOCAL_DATA':
+            event.ports[0].postMessage(await writeStorageBlock(event.data.key, event.data.data));
+            break;
+        case 'REMOVE_LOCAL_DATA':
+            event.ports[0].postMessage(await deleteStorageBlock(event.data.key));
             break;
         case 'PING':
             event.ports[0].postMessage(true);
@@ -2263,6 +2278,71 @@ async function cacheEpisodeOffline(meta, noConfirm) {
         });
     }
     return false;
+}
+
+async function retrieveStorageBlock(key) {
+    return new Promise((resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                offlineContent.transaction("local_data").objectStore("local_data").get(key).onsuccess = event => {
+                    resolve(event.target.result)
+                }
+            } else {
+                resolve(null)
+            }
+        } catch (e) {
+            console.log(e);
+            resolve(null)
+        }
+    })
+}
+async function writeStorageBlock(key, object) {
+    return new Promise(async (resolve) => {
+        try {
+            if (browserStorageAvailable) {
+                try {
+                    const transaction = offlineContent.transaction(['local_data'], "readwrite")
+                    transaction.objectStore('local_data').put({
+                        ...object,
+                        key
+                    }).onsuccess = event => {
+                        console.log(event)
+                        resolve({
+                            ...object,
+                            dbWriteOK: (!event.target.error),
+                        });
+                    };
+                } catch (e) {
+                    console.error(`Failed to save record for ${key}`);
+                    console.error(e)
+                    console.error(object);
+                    resolve({
+                        ...object,
+                        dbWriteOK: false,
+                    })
+                }
+            } else {
+                resolve({
+                    ...object,
+                    dbWriteOK: false,
+                })
+            }
+        } catch (err) {
+            console.error(`Uncaught Error for object data: ${key}`,);
+            console.error(err)
+            resolve(false);
+        }
+    })
+}
+async function deleteStorageBlock(key) {
+    if (browserStorageAvailable) {
+        return new Promise((resolve) => {
+            const indexDBUpdate = offlineContent.transaction(["local_data"], "readwrite").objectStore("local_data").delete(key);
+            indexDBUpdate.onsuccess = event => {
+                resolve(event.target.result);
+            };
+        })
+    }
 }
 
 async function checkExpiredFiles() {

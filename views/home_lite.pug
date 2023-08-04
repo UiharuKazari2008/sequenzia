@@ -354,33 +354,28 @@ html
                                 .d-flex.w-100
                                     div#kioskToolbarButtons.menu-grid.user-menu-small
                         div(title='Show Main Menu', href='#_' data-toggle="collapse" data-target="#menuAccordion").panel-lower.panel-1.menu-container.rounded-bottom
-                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                            .image-hld.d-flex.align-items-center.panel-header
                                 img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
                                 span Sequenzia
                         if (active_exchange && active_exchange.discord)
                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
                                 div(title='Show Kongou Media', href='#_' data-toggle="collapse" data-target="#kmsAccordion").panel-lower.panel-2.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-ticket.pr-2.mr-auto
                                         span Theater
                             if (active_exchange.albums && active_exchange.albums.length > 0)
                                 div(title='Show Albums', href='#_' data-toggle="collapse" data-target="#albumsAccordion").panel-lower.panel-3.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-archive.pr-2.mr-auto
                                         span Albums
-                            if (active_exchange.artists && active_exchange.artists.length > 0)
-                                div(title='Show Artists', href='#_' data-toggle="collapse" data-target="#artistsAccordion").panel-lower.panel-4.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-address-book.pr-2.mr-auto
-                                        span Artists
                             if (active_exchange && active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                div(title='Show Timelines', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-5.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-badge-check.pr-2.mr-auto
-                                        span Timelines
+                                div(title='Show Feeds', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-5.menu-container.rounded-bottom
+                                    .image-hld.d-flex.align-items-center.panel-header
+                                        i.fas.fa-sparkles.pr-2.mr-auto
+                                        span Feeds
                     div#menuAccordion(class="collapse show" data-parent="#masterAccordion").w-100.panel-root
                         div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").panel-upper.panel-1.menu-container.rounded-top.kiosk-menu-button.d-none
-                            .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                            .image-hld.d-flex.align-items-center.panel-header
                                 i.fas.fa-grid-3.pr-2.mr-auto
                                 span Device Menu
                         .menu-container.w-100.rounded.position-relative
@@ -398,6 +393,8 @@ html
                                             i.fa-light.fa-star
                                         a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=random')
                                             i.fa-light.fa-dice
+                                        a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
+                                            i.fa-light.fa-address-book
                                         a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
                                             i.fa-light.fa-history
                                         a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;")
@@ -484,6 +481,58 @@ html
                                         span.text-capitalize.shadow-text Internal Server Error
 
                             if (active_exchange && active_exchange.discord)
+                                div#menuItemArtists.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
+                                    .d-flex.w-100
+                                        .flex-grow-1
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuItemMain")
+                                                i.fas.fa-arrow-left.fa-fw
+                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#/artists?')
+                                                i.fas.fa-grid-2.fa-fw
+
+                                        .d-flex.flex-column.justify-content-end.top-icon
+                                            div
+                                                i.fas.fa-address-book.pr-2
+                                                span Artists
+                                    .d-flex.w-100.mb-3
+                                        if (active_exchange.artists && active_exchange.artists.length > 0)
+                                            div.album-list
+                                                each thisArtist in active_exchange.artists
+                                                    div.album-item.position-relative
+                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
+                                                            //x.uri, x.privacy
+                                                            div.album-icon
+                                                                if (thisArtist.artist_source && thisArtist.artist_source === 1)
+                                                                    i.fab.fa-twitter.pr-1
+                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 2)
+                                                                    i.fas.fa-palette.pr-1
+                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 3)
+                                                                    i.fab.fa-flickr.pr-1
+                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 4)
+                                                                    i.fas.fa-download.pr-1
+
+                                                                if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
+                                                                    i.fas.fa-check-circle.ml-1.pr-1
+
+                                                                if (thisArtist.artist_rating)
+                                                                    if (thisArtist.artist_rating >= 0.9)
+                                                                        i.fas.fa-face-smile.ml-1.pr-1
+                                                                    else if (thisArtist.artist_rating >= 0.75)
+                                                                        i.fas.fa-face-meh.ml-1.pr-1
+                                                                    else if (thisArtist.artist_rating >= 0.50)
+                                                                        i.fas.fa-face-frown.ml-1.pr-1
+                                                                    else
+                                                                        i.fas.fa-face-meh-blank.ml-1.pr-1
+                                                                    span #{(thisArtist.artist_rating * 100).toFixed(0)}%
+                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
+                                                            span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
+                                                        a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
+                                                            if (thisArtist.image)
+                                                                div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
+                                                            else
+                                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
+                                        else
+                                            span No Favorite Artists!
+
                                 div#menuItemImageHistory.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
                                     .d-flex.w-100
                                         .flex-grow-1
@@ -807,32 +856,27 @@ html
                         if (active_exchange && active_exchange.discord)
                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
                                 div(title='Show Kongou Media', href='#_' data-toggle="collapse" data-target="#kmsAccordion").panel-lower.panel-1.menu-container.rounded-bottom
-                                        .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                        .image-hld.d-flex.align-items-center.panel-header
                                             i.fas.fa-ticket.pr-2.mr-auto
                                             span Theater
                             if (active_exchange.albums && active_exchange.albums.length > 0)
                                 div(title='Show Albums', href='#_' data-toggle="collapse" data-target="#albumsAccordion").panel-lower.panel-2.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-archive.pr-2.mr-auto
                                         span Albums
-                            if (active_exchange.artists && active_exchange.artists.length > 0)
-                                div(title='Show Artists', href='#_' data-toggle="collapse" data-target="#artistsAccordion").panel-lower.panel-3.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-address-book.pr-2.mr-auto
-                                        span Artists
                             if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                div(title='Show Timelines', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-4.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-badge-check.pr-2.mr-auto
-                                        span Timelines
+                                div(title='Show Feeds', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-4.menu-container.rounded-bottom
+                                    .image-hld.d-flex.align-items-center.panel-header
+                                        i.fas.fa-sparkles.pr-2.mr-auto
+                                        span Feeds
                     if (active_exchange && active_exchange.discord)
                         div#kmsAccordion(class="collapse" data-parent="#masterAccordion").position-relative.w-100.panel-root
                             div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").panel-upper.panel-3.menu-container.rounded-top.kiosk-menu-button.d-none
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                .image-hld.d-flex.align-items-center.panel-header
                                     i.fas.fa-grid-3.pr-2.mr-auto
                                     span Device Menu
                             div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").panel-upper.panel-2.menu-container.rounded-top
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                .image-hld.d-flex.align-items-center.panel-header
                                     img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
                                     span Sequenzia
                             .menu-container.w-100.rounded.position-relative
@@ -887,31 +931,26 @@ html
                                                         | #{thisTheater.name}
                             if (active_exchange.albums && active_exchange.albums.length > 0)
                                 div(title='Show Albums', href='#_' data-toggle="collapse" data-target="#albumsAccordion").panel-lower.panel-1.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-archive.pr-2.mr-auto
                                         span Albums
-                            if (active_exchange.artists && active_exchange.artists.length > 0)
-                                div(title='Show Artists', href='#_' data-toggle="collapse" data-target="#artistsAccordion").panel-lower.panel-2.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-address-book.pr-2.mr-auto
-                                        span Artists
                             if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                div(title='Show Timelines', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-3.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-badge-check.pr-2.mr-auto
-                                        span Timelines
+                                div(title='Show Feeds', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-3.menu-container.rounded-bottom
+                                    .image-hld.d-flex.align-items-center.panel-header
+                                        i.fas.fa-sparkles.pr-2.mr-auto
+                                        span Feeds
                         div#albumsAccordion(class="collapse" data-parent="#masterAccordion").position-relative.w-100.panel-root
                             div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").panel-upper.panel-2.menu-container.rounded-top.kiosk-menu-button.d-none
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                .image-hld.d-flex.align-items-center.panel-header
                                     i.fas.fa-grid-3.pr-2.mr-auto
                                     span Device Menu
                             div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").panel-upper.panel-1.menu-container.rounded-top
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                .image-hld.d-flex.align-items-center.panel-header
                                     img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
                                     span Sequenzia
                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
                                 div(title='Show Kongou Media', href='#_' data-toggle="collapse" data-target="#kmsAccordion").panel-upper.panel-1.menu-container.rounded-top
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-ticket.pr-2.mr-auto
                                         span Theater
                             .menu-container.w-100.rounded.position-relative
@@ -957,115 +996,30 @@ html
                                             div.mt-auto.mb-auto.ml-auto.mr-auto.h3.p-3
                                                 i.fas.fa-empty-set.pr-2
                                                 span Login Required
-                            if (active_exchange.artists && active_exchange.artists.length > 0)
-                                div(title='Show Artists', href='#_' data-toggle="collapse" data-target="#artistsAccordion").panel-lower.panel-1.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-address-book.pr-2.mr-auto
-                                        span Artists
                             if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                div(title='Show Timelines', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-2.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-badge-check.pr-2.mr-auto
-                                        span Timelines
-                        div#artistsAccordion(class="collapse" data-parent="#masterAccordion").position-relative.w-100.panel-root
-                            div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").panel-upper.panel-4.menu-container.rounded-top.kiosk-menu-button.d-none
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                    i.fas.fa-grid-3.pr-2.mr-auto
-                                    span Device Menu
-                            div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").panel-upper.panel-3.menu-container.rounded-top
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                    img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
-                                    span Sequenzia
-                            if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
-                                div(title='Show Kongou Media', href='#_' data-toggle="collapse" data-target="#kmsAccordion").panel-upper.panel-2.menu-container.rounded-top
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-ticket.pr-2.mr-auto
-                                        span Theater
-                            if (active_exchange.albums && active_exchange.albums.length > 0)
-                                div(title='Show Albums', href='#_' data-toggle="collapse" data-target="#albumsAccordion").panel-upper.panel-1.menu-container.rounded-top
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-archive.pr-2.mr-auto
-                                        span Albums
-                            .menu-container.w-100.rounded.position-relative
-                                .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
-                                div#menuItemArtists.show.panel-reset-show.scroll-list.collapse.menu-object(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
-                                    .d-flex.w-100
-                                        .flex-grow-1
-                                            a.pr-2.d-inline.hover-color.top-icon(title='Show Navigator', href='#/artists?')
-                                                i.fas.fa-grid-2.fa-fw
-
-                                        .d-flex.flex-column.justify-content-end.top-icon
-                                            div
-                                                i.fas.fa-address-book.pr-2
-                                                span Artists
-                                    .d-flex.w-100.mb-3
-                                        if (active_exchange.artists && active_exchange.artists.length > 0)
-                                            div.album-list
-                                                each thisArtist in active_exchange.artists
-                                                    div.album-item.position-relative
-                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2.pt-1(style="justify-content: left; top: 0;")
-                                                            //x.uri, x.privacy
-                                                            div.album-icon
-                                                                if (thisArtist.artist_source && thisArtist.artist_source === 1)
-                                                                    i.fab.fa-twitter.pr-1
-                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 2)
-                                                                    i.fas.fa-palette.pr-1
-                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 3)
-                                                                    i.fab.fa-flickr.pr-1
-                                                                else if (thisArtist.artist_source && thisArtist.artist_source === 4)
-                                                                    i.fas.fa-download.pr-1
-
-                                                                if (thisArtist.artist_confidence && thisArtist.artist_confidence === 1)
-                                                                    i.fas.fa-check-circle.ml-1.pr-1
-
-                                                                if (thisArtist.artist_rating)
-                                                                    if (thisArtist.artist_rating >= 0.9)
-                                                                        i.fas.fa-face-smile.ml-1.pr-1
-                                                                    else if (thisArtist.artist_rating >= 0.75)
-                                                                        i.fas.fa-face-meh.ml-1.pr-1
-                                                                    else if (thisArtist.artist_rating >= 0.50)
-                                                                        i.fas.fa-face-frown.ml-1.pr-1
-                                                                    else
-                                                                        i.fas.fa-face-meh-blank.ml-1.pr-1
-                                                                    span #{(thisArtist.artist_rating * 100).toFixed(0)}%
-                                                        div.album-info.rounded.position-absolute.shadow-text.text-ellipsis.pl-2.pr-2(style="justify-content: left; bottom: 0; background: #00000091")
-                                                            span #{(thisArtist.artist_full_name) ? thisArtist.artist_full_name + ((thisArtist.artist && thisArtist.artist.toLowerCase() !== thisArtist.artist_full_name.toLowerCase()) ? " (" + thisArtist.artist + ")" : "") : thisArtist.artist}
-                                                        a.position-absolute.text-capitalize(style='height: 100%; width: 100%' title=((thisArtist.artist_full_name) ? thisArtist.artist_full_name : thisArtist.artist) href=`#/gallery?nsfw=true&search=${encodeURIComponent(thisArtist.artist_search)}`)
-                                                            if (thisArtist.image)
-                                                                div.album-preview.rounded(style=`background-image: url("${thisArtist.image}");`)
-                                                            else
-                                                                div.album-preview.rounded(style=`background: linear-gradient(31deg, #9f3202, #f7c21c);`)
-                                        else
-                                            span No Favorite Artists!
-                            if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
-                                div(title='Show Timelines', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-1.menu-container.rounded-bottom
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-badge-check.pr-2.mr-auto
-                                        span Timelines
+                                div(title='Show Feeds', href='#_' data-toggle="collapse" data-target="#timelineAccordion").panel-lower.panel-2.menu-container.rounded-bottom
+                                    .image-hld.d-flex.align-items-center.panel-header
+                                        i.fas.fa-sparkles.pr-2.mr-auto
+                                        span Feeds
                         div#timelineAccordion(class="collapse" data-parent="#masterAccordion").position-relative.w-100.panel-root
                             div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#kioskAccordion").panel-upper.panel-5.menu-container.rounded-top.kiosk-menu-button.d-none
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                .image-hld.d-flex.align-items-center.panel-header
                                     i.fas.fa-grid-3.pr-2.mr-auto
                                     span Device Menu
                             div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#menuAccordion").panel-upper.panel-4.menu-container.rounded-top
-                                .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                .image-hld.d-flex.align-items-center.panel-header
                                     img.sidebar-brand-logo.main-logo-small.pr-2.mr-auto(src='/static/img/sequenzia-logo-mini.png' style='height: 1.23em;')
                                     span Sequenzia
                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
                                 div(title='Show Kongou Media', href='#_' data-toggle="collapse" data-target="#kmsAccordion").panel-upper.panel-3.menu-container.rounded-top
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-ticket.pr-2.mr-auto
                                         span Theater
                             if (active_exchange.albums && active_exchange.albums.length > 0)
                                 div(title='Show Navigator', href='#_' data-toggle="collapse" data-target="#albumsAccordion").panel-upper.panel-2.menu-container.rounded-top
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
+                                    .image-hld.d-flex.align-items-center.panel-header
                                         i.fas.fa-archive.pr-2.mr-auto
                                         span Albums
-                            if (active_exchange.artists && active_exchange.artists.length > 0)
-                                div(title='Show Artists', href='#_' data-toggle="collapse" data-target="#artistsAccordion").panel-upper.panel-1.menu-container.rounded-top
-                                    .image-hld.px-3.py-2.d-flex.align-items-center(style="font-size: 14pt;")
-                                        i.fas.fa-address-book.pr-2.mr-auto
-                                        span Artists
                             .menu-container.w-100.rounded.position-relative
                                 .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                                 div#menuItemReview.collapse.menu-object.panel-reset-show.show(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
@@ -1074,8 +1028,8 @@ html
 
                                         .d-flex.flex-column.justify-content-end.top-icon
                                             div
-                                                i.fas.fa-badge-check.pr-2
-                                                span Timelines
+                                                i.fas.fa-sparkles.pr-2
+                                                span Feeds
 
                                     .d-flex.w-100
                                         div.menu-grid.user-menu-small

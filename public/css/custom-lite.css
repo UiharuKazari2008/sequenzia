@@ -56,6 +56,49 @@
     color: white;
 }
 
+.panel-header {
+    font-size: 14pt;
+    padding: .5em 1em;
+}
+
+.panel-upper {
+    margin-bottom: -5px;
+    padding-bottom: 5px;
+    position: relative;
+}
+.panel-lower {
+    margin-top: -5px;
+    padding-top: 5px;
+    position: relative;
+}
+.panel-1{
+    z-index: -1;
+}
+.panel-2{
+    z-index: -2;
+}
+.panel-3{
+    z-index: -3;
+}
+.panel-4{
+    z-index: -4;
+}
+.panel-5{
+    z-index: -5;
+}
+
+div#kioskAppButtons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+}
+
+
+
 .album-preview {
     display: block;
     height: 100%;
@@ -1845,6 +1888,19 @@ div#time {
         font-size: 16px;
     }
 
+    .panel-header {
+        font-size: 12pt;
+        padding: .3em 1em;
+    }
+    .panel-upper {
+        margin-bottom: -3px;
+        padding-bottom: 3px;
+    }
+    .panel-lower {
+        margin-top: -3px;
+        padding-top: 3px;
+    }
+
     .album-item {
         min-height: 100px;
         min-width: calc(25% - 0.5em);
@@ -2147,43 +2203,6 @@ div#time {
 .performance-mode .menu-container {
     background: black;
 }
-.panel-upper {
-    margin-bottom: -5px;
-    padding-bottom: 5px;
-    position: relative;
-}
-.panel-lower {
-    margin-top: -5px;
-    padding-top: 5px;
-    position: relative;
-}
-.panel-1{
-    z-index: -1;
-}
-.panel-2{
-    z-index: -2;
-}
-.panel-3{
-    z-index: -3;
-}
-.panel-4{
-    z-index: -4;
-}
-.panel-5{
-    z-index: -5;
-}
-
-div#kioskAppButtons {
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    align-content: center;
-    justify-content: space-evenly;
-    align-items: center;
-    width: 100%;
-}
-
-
 
 ul#accordionSidebar * {
     z-index: 5;

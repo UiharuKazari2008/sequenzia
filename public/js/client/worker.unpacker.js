@@ -4,7 +4,7 @@ const imageFiles = ['jpg','jpeg','jfif','png','webp','gif'];
 const videoFiles = ['mp4','mov','m4v', 'webm'];
 const audioFiles = ['mp3','m4a','wav', 'ogg', 'flac'];
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 6);
+const offlineContentDB = self.indexedDB.open("offlineContent", 7);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     console.error(`IndexedDB Is Not Available: Offline Content will not be available!`)
@@ -62,6 +62,12 @@ offlineContentDB.onupgradeneeded = event => {
         const offlineStorageData = db.createObjectStore("offline_actions", {keyPath: "id"});
         offlineStorageData.createIndex("id", "id", {unique: true});
         offlineStorageData.createIndex("action", "action", {unique: false});
+        offlineStorageData.transaction.oncomplete = event => {
+        }
+    }
+    if (event.oldVersion < 6) {
+        const offlineStorageData = db.createObjectStore("local_data", {keyPath: "key"});
+        offlineStorageData.createIndex("id", "id", {unique: true});
         offlineStorageData.transaction.oncomplete = event => {
         }
     }
