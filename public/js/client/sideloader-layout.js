@@ -14,6 +14,14 @@ let options = {
     thumbs: {
         autoStart: true
     },
+    video: {
+        tpl:
+            '<video class="fancybox-video" autoplay controls controlsList="nodownload" poster="{{poster}}">' +
+            '<source src="{{src}}" type="{{format}}" />' +
+            'Sorry, your browser doesn\'t support embedded videos, <a href="{{src}}">download</a> and watch with your favorite video player!' +
+            "</video>",
+        autoStart: false
+    }
 };
 if (window.navigator.standalone === true) {
     options.buttons = [

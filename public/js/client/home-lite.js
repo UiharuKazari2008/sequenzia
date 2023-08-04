@@ -670,13 +670,10 @@ async function setupKioskMode() {
 
                         setCookie("kiosk_enabled", 'true');
 
-                        $('#menuAccordion .collapse').removeClass('show');
-                        $('#kioskAccordion .collapse').removeClass('show');
-                        $('#masterAccordion .collapse').removeClass('show');
-
+                        $('.panel-root .collapse').removeClass('show');
+                        $('.panel-reset-show').addClass('show');
                         $('#homeBG').addClass('kisok');
-                        $('#menuItemMain, #masterNavList, #buttonsPage1, #locationTags').addClass('show');
-                        $('#deviceMenuButton, #deviceMenuButton2').removeClass('d-none');
+                        $('.kiosk-menu-button').removeClass('d-none');
                         $('#masterAccordion #kioskAccordion').removeClass('d-none').addClass('show');
                         $('#menuItemKiosk').addClass('show');
 
@@ -1424,13 +1421,10 @@ function switchToAmbientMode() {
         document.getElementById('mainContainer').classList.add('disabled-pointer')
         $('.ambient-items').fadeIn(500);
         $.when($('#mainContainer, #homeBg, #photoInfo').fadeOut(500)).done(() => {
-            $('#menuAccordion .collapse').removeClass('show');
-            $('#kioskAccordion .collapse').removeClass('show');
-            $('#masterAccordion .collapse').removeClass('show');
-            $('#menuItemMain, #masterNavList, #buttonsPage1, #locationTags').addClass('show');
+            $('.panel-root .collapse').removeClass('show');
+            $('.panel-reset-show').addClass('show');
             if (kioskMenuEnabled) {
                 $('#masterAccordion > #kioskAccordion').addClass('show');
-                $('#menuItemKiosk').addClass('show');
             } else {
                 $('#masterAccordion #menuAccordion').addClass('show');
             }

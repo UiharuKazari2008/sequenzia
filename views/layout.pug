@@ -1042,7 +1042,7 @@ html
                                                         a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
                                                             i.far.fa-check-to-slot
 
-                                                if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')) && path !== '/tvTheater' && path !== '/listTheater')
+                                                if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')) && path !== '/listTheater')
                                                     div.dropdown(style="display: contents;")
                                                         a#viewMenu.navbar-item.btn.btn-ice.py-0.px-2(title="Filter and View Options" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="viewMenu")
                                                             i.far.fa-filter
@@ -1092,6 +1092,30 @@ html
                                                                     a.dropdown-item(title="Low Artist Rating" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['rating', '0.5']]); return false;` role='button')
                                                                         i.fas.pr-2.fa-face-frown
                                                                         | Low
+                                                            else if (path === '/tvTheater')
+                                                                span.dropdown-header
+                                                                    | Sort
+                                                                if (params.getAll('reverse')[0] === 'true')
+                                                                    a.dropdown-item(title="Sort Descending" href='#_' onclick=`getNewContent(['offset', 'reverse'${(params.getAll('sort')[0] === 'random') ? ', \'sort\'' : ''}], []); return false;` role='button')
+                                                                        i.fas.fa-sort-amount-down.pr-2
+                                                                        | Descending (A-Z)
+                                                                else
+                                                                    a.dropdown-item(title="Sort Ascending" href='#_' onclick=`getNewContent(['offset'${(params.getAll('sort')[0] === 'random') ? ', \'sort\'' : ''}], [['reverse', 'true']]); return false;` role='button')
+                                                                        i.fas.fa-sort-amount-up.pr-2
+                                                                        | Ascending (Z-A)
+                                                                .dropdown-divider
+                                                                if (params.getAll('sort')[0] !== 'name')
+                                                                    a.dropdown-item(title="Sort by Series Name" href='#_' onclick=`getNewContent(['offset'], [['sort', 'name']]); return false;` role='button')
+                                                                        i.fas.fa-input-text.pr-2
+                                                                        | Series Name
+                                                                if (params.getAll('sort')[0] !== 'release')
+                                                                    a.dropdown-item(title="Sort by Modified" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'release']]); return false;` role='button')
+                                                                        i.fas.fa-calendar-day.pr-2
+                                                                        | Release Date
+                                                                if (params.getAll('sort')[0] !== 'updated')
+                                                                    a.dropdown-item(title="Sort by Modified" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'updated']]); return false;` role='button')
+                                                                        i.fas.fa-sync.pr-2
+                                                                        | Modified
 
                                                             else
                                                                 span.dropdown-header
