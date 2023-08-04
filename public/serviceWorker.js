@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v20-2-04AUG23-PATCH2'
+const cacheName = 'PRERELEASE-v20-2-04AUG23-PATCH3'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -155,7 +155,7 @@ let pushActionsActive = false;
 let pullActionsActive = false;
 let refreshCurrentExchange = null;
 
-const offlineContentDB = self.indexedDB.open("offlineContent", 7);
+const offlineContentDB = self.indexedDB.open("offlineContent", 8);
 offlineContentDB.onerror = event => {
     console.error(event.errorCode);
     broadcastAllMessage({type: 'NOTIFY_ERROR', message: `IndexedDB Is Not Available: Offline Content will not be available!`});
@@ -220,7 +220,7 @@ offlineContentDB.onupgradeneeded = event => {
         offlineStorageData.transaction.oncomplete = event => {
         }
     }
-    if (event.oldVersion < 6) {
+    if (event.oldVersion < 8) {
         const offlineStorageData = db.createObjectStore("local_data", {keyPath: "key"});
         offlineStorageData.createIndex("id", "id", {unique: true});
         offlineStorageData.transaction.oncomplete = event => {
