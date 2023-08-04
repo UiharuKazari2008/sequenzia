@@ -10,11 +10,11 @@ const { sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {
     function sendRequest(MessageBody, queue) {
-        sendData(queue || global.mq_discord_out, MessageBody, function (callback) {
+        sendData(queue || `${global.mq_discord_out}.sequenzia`, MessageBody, function (callback) {
             if (callback) {
-                printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info', MessageBody)
+                printLine("KanmiMQ", `Sent to ${global.mq_discord_out}`, 'info', MessageBody)
             } else {
-                printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error', MessageBody)
+                printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out}`, 'error', MessageBody)
             }
         })
     }
@@ -99,8 +99,8 @@ module.exports = async (req, res, next) => {
                             messageServerID: job.serverid,
                             messageType: 'command',
                             messageAction: 'RemovePost'
-                        })
-                        await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 0 WHERE id = ? AND channel = ?`, [job.messageid, job.channelid])
+                        }, global.mq_discord_out + '.backlog')
+                        await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [job.messageid, job.channelid])
                         if (req.body.batch) {
                             _return = 200
                         } else {
@@ -118,7 +118,7 @@ module.exports = async (req, res, next) => {
                             messageServerID: job.serverid,
                             messageType: 'command',
                             messageAction: (job.action === 'Thumbnail') ? 'CacheImage' : 'CacheVideo'
-                        })
+                        }, global.mq_discord_out + '.backlog')
                         if (req.body.batch) {
                             _return = 200
                         } else {
