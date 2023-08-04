@@ -675,6 +675,7 @@ async function setupKioskMode() {
                         $('.panel-reset-show').addClass('show');
                         $('.kiosk-menu-button').removeClass('d-none');
                         $('#masterAccordion > #kioskAccordion').removeClass('d-none').addClass('show');
+                        $('#masterAccordion > #menuAccordion').addClass('d-none').removeClass('show');
 
                         kiosk_settings = response.display_config
                         kiosk_padding = response.padding
