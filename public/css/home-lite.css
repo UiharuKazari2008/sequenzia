@@ -323,7 +323,7 @@ input.middle:focus {
     .menu-container {
         background: #e57f009c;
         box-shadow: 0 0 20px #885800;
-        border: solid 1px #ff971687;
+        border: solid 1px #ffa65445;
     }
     .menu-container #locationAccordion {
         background: #ffffff63;

@@ -44,12 +44,12 @@
     flex-wrap: wrap;
     width: 100%;
     height: 800px;
-    max-height: 50vh;
+    max-height: 30vh;
     color: white;
 }
 .album-item {
     min-height: 100px;
-    min-width: calc(25% - 0.5em);
+    min-width: calc(20% - 0.5em);
     margin-left: 0.25em;
     margin-right: 0.25em;
     margin-bottom: 0.5rem;
@@ -1846,19 +1846,19 @@ div#time {
     }
 
     .album-item {
-        min-height: 125px;
-        min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.5em);
+        min-height: 100px;
+        min-width: calc(25% - 0.5em);
         margin-left: 0.25em;
         margin-right: 0.25em;
         margin-bottom: 0.5rem;
     }
 
     .album-item:first-child  {
-        min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+        min-width: calc(25% - 0.25em);
         margin-left: 0;
     }
     .album-item:last-child  {
-        min-width: calc(33.3333333333333333333333333333333333333333333333333333% - 0.25em);
+        min-width: calc(25% - 0.25em);
         margin-right: 0;
     }
 
@@ -2135,11 +2135,11 @@ div#time {
     padding-bottom: calc(env(safe-area-inset-bottom) + 1em);
 }
 .menu-container {
-    background: #00000091;
+    background: #6b22007a;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 0 20px black;
-    border: solid 1px #1d1d1df2;
+    box-shadow: 0 0 20px #2e0f00;
+    border: solid 1px #ffa6547a;
 }
 .navi-items-menu .user-menu-item {
     max-width: 72px;

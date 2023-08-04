@@ -671,7 +671,7 @@ async function setupKioskMode() {
                         setCookie("kiosk_enabled", 'true');
 
                         $('#homeBG').addClass('kisok');
-                        $('.panel-root .collapse').removeClass('show');
+                        $('#masterAccordion .collapse').removeClass('show');
                         $('.panel-reset-show').addClass('show');
                         $('.kiosk-menu-button').removeClass('d-none');
                         $('#masterAccordion > #kioskAccordion').removeClass('d-none').addClass('show');
@@ -1421,9 +1421,10 @@ function switchToAmbientMode() {
         document.getElementById('mainContainer').classList.add('disabled-pointer')
         $('.ambient-items').fadeIn(500);
         $.when($('#mainContainer, #homeBg, #photoInfo').fadeOut(500)).done(() => {
-            $('.panel-root .collapse').removeClass('show');
+            $('#masterAccordion .collapse').removeClass('show');
             $('.panel-reset-show').addClass('show');
             if (kioskMenuEnabled) {
+                $('#masterAccordion > #menuAccordion').removeClass('show');
                 $('#masterAccordion > #kioskAccordion').addClass('show');
             } else {
                 $('#masterAccordion #menuAccordion').addClass('show');
