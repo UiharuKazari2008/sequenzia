@@ -1,3 +1,4 @@
+const web = require("../web.config.json");
 const {printLine} = require("./logSystem");
 const { sqlSimple, sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient');
 
@@ -59,7 +60,7 @@ module.exports = async (req, res, next) => {
             next();
         } else {
             if (!req.query.numdays)
-                req.query.numdays = '30';
+                req.query.numdays = web.default_homepage_days || '30';
             next();
         }
     } else {
