@@ -237,7 +237,7 @@ block content
                                         .row.m-0.review-menu-main(style="width: inherit;")
                                             a.reviewAccept.btn-links.p-3.mr-auto(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-check(style="font-size: 2em; color: #bfffbf;")
-                                            a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                            a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-cut(style="font-size: 2em;")
                                             a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
