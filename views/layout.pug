@@ -526,7 +526,9 @@ html
                                                     i.fas.fa-passport.mr-2
                                                     | Passports
                                             .row.w-100.position-absolute.mt-3.pb-3.user-card-list.m-0
-                                                each exchange, exchange_id in exchange_list
+                                                each exet in Object.entries(exchange_list).sort((a, b) => a[1].position - b[1].position)
+                                                    - exchange = exet[1]
+                                                    - exchange_id = exet[0]
                                                     div.user-info-bg.rounded.position-relative(class=`user-info-bg-${exchange_id}` onclick=`switchExchange("${exchange_id}"); return false;`)
                                                         div.user-info-backdrop.rounded
                                                         div.user-info-border.rounded
