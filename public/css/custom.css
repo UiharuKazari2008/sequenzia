@@ -3809,6 +3809,9 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
     div#menuItemWallet .user-menu-height {
         height: 310px;
     }
+    div#menuItemWallet .user-card-list {
+        height: 250px;
+    }
     .main-menu-items {
         flex-direction: column;
     }
