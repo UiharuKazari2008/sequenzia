@@ -968,7 +968,8 @@ html
                                             div.d-flex.flex-column.justify-content-center
                                                 h2.mb-1
                                                     if (this_exchnage !== 'master')
-                                                        i.fas.fa-link-horizontal.px-1
+                                                        a(href=this_exchnage.exchange.access_url target = "_blank" rel="noopener noreferrer")
+                                                            i.fas.fa-link-horizontal.px-1
                                                     if (thisServer.login === 1 )
                                                         i.fas.fa-key.px-1
                                                     span #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})

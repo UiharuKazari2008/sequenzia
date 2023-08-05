@@ -1676,7 +1676,8 @@ html
                                             else
                                                 i.fas.fa-wave-triangle.px-1(title="UltraCache is processing...")
                                             if (is_remote_exchange)
-                                                i.fas.fa-link-horizontal.px-1(title="Remote Exchange")
+                                                a(href=this_exchnage.exchange.access_url target = "_blank" rel="noopener noreferrer")
+                                                    i.fas.fa-link-horizontal.px-1(title="Remote Exchange")
 
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
