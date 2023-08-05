@@ -59,7 +59,7 @@ module.exports = async (req, res, next) => {
 
             next();
         } else {
-            if (!req.query.numdays)
+            if (!req.query.numdays && !web.no_day_limit_for_homepage)
                 req.query.numdays = web.default_homepage_days || '30';
             next();
         }
