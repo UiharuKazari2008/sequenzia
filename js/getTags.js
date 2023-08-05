@@ -133,7 +133,7 @@ module.exports = async (req, res, next) => {
                 baseQ += `(${_andStat.join(' OR ')}) AND`;
                 multiChannel = true;
             } else {
-                baseQ += `${thisUser.master.cache.channels_view}.channelid = ${req.query.channel} AND `;
+                baseQ += `${thisUser.master.cache.channels_view}.channelid = '${req.query.channel}' AND `;
             }
         } else if (req.query.folder) {
             const _ch = req.query.folder.trim().split(' ').filter(e => e.length > 0)

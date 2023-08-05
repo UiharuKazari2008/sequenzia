@@ -207,7 +207,7 @@ module.exports = async (req, res, next) => {
                 baseQ += `(${_andStat.join(' OR ')}) AND`;
                 multiChannel = true;
             } else {
-                baseQ += `channelid = ${req.query.channel} AND `;
+                baseQ += `channelid = '${req.query.channel}' AND `;
             }
             hideChannels = false;
             bypassNSFWFilter = true;
