@@ -860,7 +860,7 @@ async function handleExchange(req, res, next) {
             options.body = req.body;
             options.json = true;
         }
-        if (res.locals.json)
+        if (res.locals.json && !(req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqPaginator' ))
             options.json = true;
         request(global.Connected_Exchanges[req.session.active_exchange].base_url + req.originalUrl, options, async function (error, response, body) {
                 if (!error) {
@@ -870,7 +870,7 @@ async function handleExchange(req, res, next) {
                             await setCacheData(req.session.active_exchange + '-' + req.session.login_source + '-' + thisUser.master.discord.user.id, getCookies, false, req.session.active_exchange + '-' + thisUser.master.discord.user.id)
                         }
                         if (body) {
-                            if (res.locals.is_response_json) {
+                            if (res.locals.is_response_json && !(req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqPaginator' )) {
                                 res.locals.response = {
                                     ...body,
                                     exchange_list: thisUser,
