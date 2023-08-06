@@ -2195,7 +2195,7 @@ div#time {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 20px #2e0f00;
-    border: solid 1px #ffa6547a;
+    border: solid 1px #ffa6543b;
 }
 .navi-items-menu .user-menu-item {
     max-width: 72px;
