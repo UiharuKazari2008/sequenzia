@@ -587,7 +587,7 @@ html
                                     .d-flex.w-100.flex-column
                                         each exet in Object.entries(exchange_list).sort((a, b) => a[1].position - b[1].position)
                                             - exchange = exet[1]
-                                            - exchange_id = exet[0]
+                                            - this_exchnage = exet[0]
                                             if (exchange.exchange)
                                                 .navi-header.d-flex.flex-row
                                                     div.mr-auto
