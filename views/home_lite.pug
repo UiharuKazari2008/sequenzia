@@ -585,7 +585,9 @@ html
                                                 i.fas.fa-compass.pr-2
                                                 span Navigator
                                     .d-flex.w-100.flex-column
-                                        for exchange, this_exchnage in exchange_list
+                                        each exet in Object.entries(exchange_list).sort((a, b) => a[1].position - b[1].position)
+                                            - exchange = exet[1]
+                                            - exchange_id = exet[0]
                                             if (exchange.exchange)
                                                 .navi-header.d-flex.flex-row
                                                     div.mr-auto

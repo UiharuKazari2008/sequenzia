@@ -10,7 +10,9 @@ html
                     a.nav-link.no-homepage(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Homepage` href='#_' onclick='transitionToOOBPage("/"); return false;')
                         i.fas.fa-house
                         span.text-capitalize Home
-                for exchange, this_exchnage in exchange_list
+                each exet in Object.entries(exchange_list).sort((a, b) => a[1].position - b[1].position)
+                    - exchange = exet[1]
+                    - this_exchnage = exet[0]
                     if (exchange.sidebar && exchange.sidebar.length > 0)
                         if (this_exchnage !== 'master')
                             span.mt-2.d-block.ml-auto.mr-auto.badge #{exchange.exchange.name}

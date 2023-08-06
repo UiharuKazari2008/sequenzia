@@ -959,20 +959,25 @@ html
                                         i.fas.fa-server.pr-2
                                         | Storage Servers
                                 - full_server_list = [];
-                                each exchange, this_exchnage in exchange_list
-                                    each thisServer, thisIndex in exchange.discord.servers.list.filter(f => full_server_list.indexOf(f.id) === -1)
-                                        - full_server_list.push(thisServer.id)
+                                each exet in Object.entries(exchange_list).sort((a, b) => a[1].position - b[1].position)
+                                    - exchange = exet[1]
+                                    - this_exchnage = exet[0]
+                                    each thisServer, thisIndex in exchange.discord.servers.list.filter(f => full_server_list.indexOf(f.serverid) === -1)
+                                        - full_server_list.push(thisServer.serverid)
                                         .row.pl-3.pr-3.pt-2.flex-nowrap.d-flex(class=`${(thisIndex + 1 !== exchange.discord.servers.list.length) ? 'mb-2' : ''}`)
                                             div.mr-3
-                                                img(src=thisServer.icon style='height: 8em;' class=`${(webconf.square_server_icons_about) ? 'rounded' : 'rounded-circle'}`)
+                                                div.position-relative
+                                                    img(src=thisServer.icon style='height: 8em;' class=`${(webconf.square_server_icons_about) ? 'rounded' : 'rounded-circle'}`)
+                                                    div.position-absolute(style="top: 0; left: 0;").p-1.shadow-text.text-lg
+                                                        if (this_exchnage !== 'master')
+                                                            i.fas.fa-link-horizontal.px-1
+                                                        if (thisServer.login === 1)
+                                                            i.fas.fa-key.px-1
+                                                    div.position-absolute(style="top: 0; right: 0;").p-1.badge-primary.rounded.text-lg
+                                                        span #{thisServer.short_name.toUpperCase()}
                                             div.d-flex.flex-column.justify-content-center
                                                 h2.mb-1
-                                                    if (this_exchnage !== 'master')
-                                                        a(href=this_exchnage.exchange.access_url target = "_blank" rel="noopener noreferrer")
-                                                            i.fas.fa-link-horizontal.px-1
-                                                    if (thisServer.login === 1 )
-                                                        i.fas.fa-key.px-1
-                                                    span #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name} (#{thisServer.short_name.toUpperCase()})
+                                                    span #{(thisServer.nice_name) ? thisServer.nice_name : thisServer.name}
                                                 if (thisServer.nice_name && thisServer.name && thisServer.nice_name.toLowerCase() !== thisServer.name.toLowerCase())
                                                     h5 #{thisServer.name}
                                                 if (thisServer.usage && !webconf.hide_server_usage)
@@ -999,6 +1004,7 @@ html
                                     img.rounded-pill(src="static/img/profiles/emmy.gif" style='height: 8em;')
                                 div
                                     h2.mb-1 EmmyHeart
+                                    h5 Academy City Research
                             div.row.pl-3.pr-3.pt-2
                                 div.mr-3
                                     img.rounded-pill(src="static/img/profiles/sala.jpg" style='height: 8em;')
