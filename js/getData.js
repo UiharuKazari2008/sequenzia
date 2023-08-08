@@ -2001,13 +2001,13 @@ module.exports = async (req, res, next) => {
                                     decoded_content = decoded_content.split("\n").filter((e,i) => { if (i > 1) { return e } }).join("\n")
                                 }
                                 let clean_content = decoded_content.replace('/^[ ]+|[ ]+$/g', '').split("***").join("").split("**").join("").split("*").join("").split("`").join("").split("__").join("").split("~~").join("").split("||").join("").split("<#").join("").split("<!@").join("").split(">").join("")
-                                if (clean_content.includes('Twitter Image') && clean_content.split("\n").length > 1) {
+                                if ((clean_content.includes('Twitter Image') || clean_content.includes('Twitter Video')) && clean_content.split("\n").length > 1) {
                                     let _ca = clean_content.split("\n")
                                     _ca.shift()
                                     clean_content = _ca.join('\n')
                                 }
                                 const content_single = item.content_full.split('\n')[0]
-                                if (content_single.includes('Twitter Image')) {
+                                if (content_single.includes('Twitter Image') || content_single.includes('Twitter Video')) {
                                     if (content_single.includes('(@')) {
                                         user_search = content_single.split('(@').pop().split(')')[0]
                                         content_urls.push(`https://twitter.com/${user_search}`)
@@ -2398,7 +2398,7 @@ module.exports = async (req, res, next) => {
                                 realoffset++
                                 let decoded_content =  item.content_full.split('`').join('')
                                 let content_urls = []
-                                if (decoded_content.includes('Twitter Image')) {
+                                if (decoded_content.includes('Twitter Image') || decoded_content.includes('Twitter Video')) {
                                     content_urls.push(`https://twitter.com/${decoded_content.split('(@').pop().split(')')[0].split('***')[1]}`)
                                 } else {
                                     content_urls = Array.from(getUrls(decoded_content));
@@ -2426,7 +2426,7 @@ module.exports = async (req, res, next) => {
                                     decoded_content = decoded_content.split("\n").filter((e,i) => { if (i > 1) { return e } }).join("\n")
                                 }
                                 let clean_content = decoded_content.replace('/^[ ]+|[ ]+$/g', '').split("***").join("").split("**").join("").split("*").join("").split("`").join("").split("__").join("").split("~~").join("").split("||").join("").split("<#").join("").split("<!@").join("").split(">").join("")
-                                if (clean_content.includes('Twitter Image') && clean_content.split("\n").length > 1) {
+                                if ((clean_content.includes('Twitter Image') || clean_content.includes('Twitter Video')) && clean_content.split("\n").length > 1) {
                                     let _ca = clean_content.split("\n")
                                     _ca.shift()
                                     clean_content = _ca.join('\n')

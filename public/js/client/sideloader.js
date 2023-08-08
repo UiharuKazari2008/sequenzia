@@ -4330,7 +4330,7 @@ async function showSearchOptions(post) {
         }
         modalSearchByUser.classList.remove('hidden');
 
-        if (manageAllowed && postBody && postBody.includes('Twitter Image')) {
+        if (manageAllowed && postBody && (postBody.includes('Twitter Image') || postBody.includes('Twitter Video'))) {
             $('#noFunctions').addClass('hidden');
             $('#functionsList').removeClass('hidden');
             document.getElementById('twitterInteract').classList.remove('hidden');
@@ -4549,7 +4549,7 @@ async function showSearchOptions(post) {
         modalSearchByContent.classList.remove('hidden');
 
         modalSearchByChildren.classList.add('hidden');
-        if (postBody.includes('Twitter Image')) {
+        if (postBody.includes('Twitter Image') || postBody.includes('Twitter Video')) {
             if (postFilename && postFilename.length > 0) {
                 modalSearchByChildren.onclick = function() {
                     $('#searchModal').modal('hide');

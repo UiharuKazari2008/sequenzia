@@ -28,7 +28,7 @@ async function generateArtistIndex () {
                         }
 
                         // Twitter Author Search
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('Twitter Image** - ***') && e.content_full.includes(' (@')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && (e.content_full.includes('Twitter Image** - ***') || e.content_full.includes('Twitter Video** - ***')) && e.content_full.includes(' (@')).forEach(m => {
                             const a = m.content_full.split(' (@')[1].split(')')[0].toLowerCase().trim()
                             const af = m.content_full.split(' (@')[0].split('***')[1].trim()
 
@@ -41,7 +41,7 @@ async function generateArtistIndex () {
                                 proccssedEids.push(m.eid);
                             }
                         })
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('Twitter Image** - ***') && e.content_full.includes(' (') && !e.content_full.includes(' (@')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && (e.content_full.includes('Twitter Image** - ***') || e.content_full.includes('Twitter Video** - ***'))&& e.content_full.includes(' (') && !e.content_full.includes(' (@')).forEach(m => {
                             const a = m.content_full.split(' (')[1].split(')')[0].toLowerCase().trim()
                             const af = m.content_full.split(' (')[0].split('***')[1]
 
@@ -54,7 +54,7 @@ async function generateArtistIndex () {
                                 proccssedEids.push(m.eid);
                             }
                         })
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('Twitter Image** - ***') && e.content_full.includes('***') && !e.content_full.includes(' (') && !e.content_full.includes(' (@')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && (e.content_full.includes('Twitter Image** - ***') || e.content_full.includes('Twitter Video** - ***')) && e.content_full.includes('***') && !e.content_full.includes(' (') && !e.content_full.includes(' (@')).forEach(m => {
                             const a = m.content_full.split('***')[1].toLowerCase().trim()
                             if (artistsNames.indexOf(a.toLowerCase()) === -1) {
                                 artists.push({artist: a, type: 3, source: 1})
@@ -63,7 +63,7 @@ async function generateArtistIndex () {
                             }
                         })
                         // Pixiv User Search
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🎆 ') && e.content_full.includes(') - ') && !e.content_full.includes('Twitter Image**')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🎆 ') && e.content_full.includes(') - ') && !(e.content_full.includes('Twitter Image**') || e.content_full.includes('Twitter Video**'))).forEach(m => {
                             try {
                                 let content = m.content_full
                                 if (m.content_full.includes('🧩 File : ')) {
@@ -105,7 +105,7 @@ async function generateArtistIndex () {
                                 console.log(m.content_full)
                             }
                         })
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🎆 ') && e.content_full.includes(')** :') && !e.content_full.includes('Twitter Image**')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🎆 ') && e.content_full.includes(')** :') && !(e.content_full.includes('Twitter Image**') || e.content_full.includes('Twitter Video**'))).forEach(m => {
                             try {
                                 let content = m.content_full
                                 if (m.content_full.includes('🧩 File : ')) {
@@ -132,7 +132,7 @@ async function generateArtistIndex () {
                             }
                         })
                         // Flickr Search
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('https://www.flickr.com') && !e.content_full.includes('Twitter Image')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('https://www.flickr.com') && !(e.content_full.includes('Twitter Image') || e.content_full.includes('Twitter Video'))).forEach(m => {
                             try {
                                 let content = m.content_full
                                 if (m.content_full.includes('🧩 File : ')) {
@@ -158,7 +158,7 @@ async function generateArtistIndex () {
                             }
                         })
                         // Generic Downloads Search
-                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🖼 Image** - ***') && e.content_full.includes("' by ") && !e.content_full.includes('Twitter Image**')).forEach(m => {
+                        await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🖼 Image** - ***') && e.content_full.includes("' by ") && !(e.content_full.includes('Twitter Image**') || e.content_full.includes('Twitter Video**'))).forEach(m => {
                             try {
                                 let content = m.content_full
                                 if (m.content_full.includes('🧩 File : ')) {
