@@ -12,7 +12,7 @@
     printLine('DeepCache', `Sequenzia is initializing, please wait...`, 'warn');
     await app.cacheDatabase();
     const {sqlPromiseSafe} = require("./js/sqlClient");
-    const { clearAllLocks, clearAllCaches } = require('../js/redisClient');
+    const { clearAllLocks, clearAllCaches } = require('./js/redisClient');
     const path = require("path");
     const rimraf = require("rimraf");
 
