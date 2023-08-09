@@ -1039,7 +1039,7 @@ html
                                         div.menu-grid.user-menu-small
                                             if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
                                                 each thisChanel in active_exchange.review_channels
-                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href=`#/gallery?review_mode=true&sort=eid&${(thisChanel.vchannel) ? 'vchannel=' + thisChanel.vchannel : (thisChanel.channel) ? 'channel=' + thisChanel.channel : (thisChanel.folder) ? 'folder=' + encodeURIComponent(thisChanel.folder) : ''}`)
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href=`#/gallery?review_mode=true&sort=num_id&${(thisChanel.vchannel) ? 'vchannel=' + thisChanel.vchannel : (thisChanel.channel) ? 'channel=' + thisChanel.channel : (thisChanel.folder) ? 'folder=' + encodeURIComponent(thisChanel.folder) : ''}`)
                                                         i.fas(class=`${thisChanel.icon}`)
                                                         | #{thisChanel.name}
 
