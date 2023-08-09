@@ -3,7 +3,6 @@ const config = require('../host.config.json');
 const { printLine } = require("./logSystem");
 const { sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
-const getUrls = require('get-urls');
 const moment = require('moment');
 const useragent = require('express-useragent');
 

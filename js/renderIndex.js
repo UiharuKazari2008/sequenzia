@@ -1,12 +1,3 @@
-const global = require('../config.json');
-const config = require('../host.config.json');
-const web = require('../web.config.json');
-const { printLine } = require("./logSystem");
-const { sqlSimple, sqlSafe } = require('../js/sqlClient');
-const { sendData } = require('./mqAccess');
-const getUrls = require('get-urls');
-const moment = require('moment');
-
 module.exports = async (req, res, next) => {
 
     if (req.query.json && req.query.json === 'true') {

@@ -2024,7 +2024,7 @@ module.exports = async (req, res, next) => {
                                     } else {
                                         user_search = decoded_content.split('flickr.com/photos/').pop().split('/')[0]
                                     }
-                                    const _url = Array.from(getUrls(content_single))
+                                    const _url = Array.from(getUrls(content_single, { requireSchemeOrWww: true }))
                                     if (_url.length === 1) {
                                         content_urls = [_url[0]];
                                     } else if (_url.length > 1) {
@@ -2035,7 +2035,7 @@ module.exports = async (req, res, next) => {
                                         parent_search = decoded_content.split('\n')[0].split(') by ')[0].split(' (').pop()
                                     }
                                     user_search = decoded_content.split('** : ***')[0].split(') - ').pop()
-                                    content_urls = Array.from(getUrls(clean_content));
+                                    content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
                                     if (content_urls.length === 0) {
                                         const user = clean_content.split(' : ')[0].split(') - ').pop()
                                         const id = clean_content.split('[').pop().split(']')[0]
@@ -2046,7 +2046,7 @@ module.exports = async (req, res, next) => {
                                             content_urls.push(`https://www.pixiv.net/en/users/${user}`)
                                     }
                                 } else if (decoded_content.includes('://')) {
-                                    content_urls = Array.from(getUrls(clean_content));
+                                    content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
                                     if (decoded_content.includes(' by ')) {
                                         user_search = decoded_content.split(' by ').pop().split('\n')[0]
                                     }
@@ -2402,7 +2402,7 @@ module.exports = async (req, res, next) => {
                                 if (decoded_content.includes('Twitter Image') || decoded_content.includes('Twitter Video')) {
                                     content_urls.push(`https://twitter.com/${decoded_content.split('(@').pop().split(')')[0].split('***')[1]}`)
                                 } else {
-                                    content_urls = Array.from(getUrls(decoded_content));
+                                    content_urls = Array.from(getUrls(decoded_content, { requireSchemeOrWww: true }));
                                 }
                                 let filename = item.attachment_name
                                 let fileid = ''
