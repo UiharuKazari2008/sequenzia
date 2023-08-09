@@ -12,6 +12,7 @@
     printLine('DeepCache', `Sequenzia is initializing, please wait...`, 'warn');
     await app.cacheDatabase();
     const {sqlPromiseSafe} = require("./js/sqlClient");
+    const { clearAllLocks, clearAllCaches } = require('../js/redisClient');
     const path = require("path");
     const rimraf = require("rimraf");
 
@@ -38,7 +39,10 @@
         if (config.enable_maintenance) {
             await sqlPromiseSafe(`DELETE s1 FROM sequenzia_display_history s1, sequenzia_display_history s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.name = s2.name AND s1.user = s2.user`);
             await sqlPromiseSafe(`DELETE s1 FROM sequenzia_favorites s1, sequenzia_favorites s2 WHERE s1.date < s2.date AND s1.eid = s2.eid AND s1.userid = s2.userid`);
+            clearAllCaches();
         }
+        // Clear all cache locks
+        await clearAllLocks()
         // Clean out old files
         async function cleanCache() {
             if ((config.fw_serve || config.spanned_cache) && config.spanned_cache_max_age) {

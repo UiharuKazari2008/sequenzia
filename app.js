@@ -233,7 +233,7 @@ app.cacheDatabase = async function cacheDatabase() {
     app.set('users', users)
     app.set('userCache', userCache)
     if (!ready) {
-        printLine("Init", `Initial System Cacahe Complete, Server is now available!`, 'info');
+        printLine("Init", `Initial System Cache Complete, Server is now available!`, 'info');
     }
     ready = true;
 }

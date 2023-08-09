@@ -1760,6 +1760,7 @@ module.exports = async (req, res, next) => {
                 const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) || !meta ||
                     (meta && Date.now().valueOf() >= meta.expires))
                 let _return
+                console.log(`Cache Info: reCache - ${reCache} cacheEnabled - ${cacheEnabled}`, meta)
                 if (cacheEnabled && (await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
                     const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {

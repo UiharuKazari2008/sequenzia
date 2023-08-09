@@ -29,10 +29,31 @@ async function redisRetrieve(key) {
 async function redisDelete(key) {
     return await redis.del(key);
 };
+function clearAllLocks(key) {
+    redis.keys("lock-*", (err, keys) => {
+        keys.forEach(key => {
+            redis.del(key);
+        });
+    });
+    return false;
+};
+function clearAllCaches(key) {
+    redis.keys("meta-*", (err, keys) => {
+        keys.forEach(key => {
+            redis.del(key);
+        });
+    });
+    redis.keys("query-*", (err, keys) => {
+        keys.forEach(key => {
+            redis.del(key);
+        });
+    });
+    return false;
+};
 
 process.on('uncaughtException', function(err) {
     printLine("uncaughtException", err.message, "critical", err);
     process.exit(1)
 });
 
-module.exports = { redisStore, redisRetrieve, redisDelete };
+module.exports = { redisStore, redisRetrieve, redisDelete, clearAllLocks, clearAllCaches };

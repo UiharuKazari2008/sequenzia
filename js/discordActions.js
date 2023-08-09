@@ -341,7 +341,7 @@ module.exports = async (req, res, next) => {
                         if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
                             const downloadChannel = thisUser.master.discord.servers.download.filter(e => e.serverid === job.serverid);
                             if (downloadChannel.length > 0) {
-                                printLine("ActionParser", `Requested Pixiv to expand search for post ${job.id}`, 'info', job)
+                                printLine("ActionParser", `Requested Twitter to download user ${job.id}`, 'info', job)
                                 sendRequest({
                                     fromClient: `return.Sequenzia.${config.system_name}`,
                                     messageReturn: false,
@@ -354,7 +354,7 @@ module.exports = async (req, res, next) => {
                                 if (req.body.batch) {
                                     _return = 200
                                 } else {
-                                    res.status(200).send(`Started Search, this make take some time.<br/>Results will be in the servers downloads folder.`);
+                                    res.status(200).send(`Started Download, this make take some time.<br/>Results will be in the servers downloads folder.`);
                                 }
                             } else {
                                 if (req.body.batch) {
@@ -362,6 +362,33 @@ module.exports = async (req, res, next) => {
                                 } else {
                                     res.status(404).send(`Downloads channel was not found for this server!`);
                                 }
+                            }
+                        } else {
+                            if (req.body.batch) {
+                                _return = 400
+                            } else {
+                                res.status(400).send(`Not Authorised`);
+                            }
+                        }
+                        break;
+                    case 'twitterAction':
+                        if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
+                            printLine("ActionParser", `Requested Pixiv to expand search for post ${job.id}`, 'info', job)
+                            sendRequest({
+                                fromClient: `return.Sequenzia.${config.system_name}`,
+                                messageReturn: false,
+                                userID: job.id,
+                                messageChannelID: downloadChannel[0].channelid,
+                                messageDestinationID: downloadChannel[0].channelid,
+                                messageAction: job.remote_action,
+                                messageIntent: job.remote_intent,
+                                messageText: "" + body,
+                                accountID: parseInt(job.remote_account.toString())
+                            }, global.mq_twitter_in || 'inbox.twitter')
+                            if (req.body.batch) {
+                                _return = 200
+                            } else {
+                                res.status(200).send(`Action Reqested`);
                             }
                         } else {
                             if (req.body.batch) {
