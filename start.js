@@ -42,7 +42,7 @@
             clearAllCaches();
         }
         // Clear all cache locks
-        await clearAllLocks()
+        //await clearAllLocks()
         // Clean out old files
         async function cleanCache() {
             if ((config.fw_serve || config.spanned_cache) && config.spanned_cache_max_age) {
