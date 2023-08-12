@@ -1028,7 +1028,22 @@ html
                                 .h-100.w-100.rounded.position-absolute.top-left.animation-application.disabled-pointer
                                 div#menuItemReview.collapse.menu-object.panel-reset-show.show(class="collapse animated--fade-in" data-parent="#menuAccordion").w-100.p-3
                                     .d-flex.w-100
-                                        .flex-grow-1
+                                        .mr-auto
+                                            .d-flex.align-items-center
+                                                i.fas.fa-calendar-days.text-lg.pr-2
+                                                div#feedRangeSelector.btn-group.btn-group-toggle(data-toggle='buttons')
+                                                    label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-days-range='7' checked='')
+                                                        span  7
+                                                    label.btn.w-100.active
+                                                        input(type='radio' name='options' autocomplete='off' data-days-range='30')
+                                                        span  30
+                                                    label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-days-range='120')
+                                                        span  120
+                                                    label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-days-range='')
+                                                        span  All
 
                                         .d-flex.flex-column.justify-content-end.top-icon
                                             div
@@ -1039,7 +1054,7 @@ html
                                         div.menu-grid.user-menu-small
                                             if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
                                                 each thisChanel in active_exchange.review_channels
-                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href=`#/gallery?review_mode=true&sort=num_id&${(thisChanel.vchannel) ? 'vchannel=' + thisChanel.vchannel : (thisChanel.channel) ? 'channel=' + thisChanel.channel : (thisChanel.folder) ? 'folder=' + encodeURIComponent(thisChanel.folder) : ''}`)
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href="#_" onclick=`launchFeedURL([["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + encodeURIComponent(thisChanel.folder) : ''}"]]); return false;`)
                                                         i.fas(class=`${thisChanel.icon}`)
                                                         | #{thisChanel.name}
 

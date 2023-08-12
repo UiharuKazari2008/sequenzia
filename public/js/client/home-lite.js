@@ -524,6 +524,15 @@ function getHistory() {
     });
 }
 
+function launchFeedURL(url_parts) {
+    let adq = [['review_mode', 'true'], ['sort', 'num_id'], ...url_parts]
+    const dateRange = document.getElementById('feedRangeSelector').querySelector('.active > input').getAttribute('data-days-range')
+    if (dateRange !== '')
+        adq.push(["numdays",dateRange])
+    getNewContent([], adq, "#/gallery")
+    return false;
+}
+
 function toggleFavorite() {
     const channelid = document.getElementById('midSearch').getAttribute('channel');
     const eid = document.getElementById('midSearch').getAttribute('eid');

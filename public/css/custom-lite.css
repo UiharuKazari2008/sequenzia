@@ -1317,6 +1317,27 @@ a.badge-primary:focus, a.badge-primary.focus {
     text-decoration: none;
 }
 
+div#feedRangeSelector > .btn,
+div#feedRangeSelector > .btn:focus,
+div#feedRangeSelector > .btn:active {
+    background: #ffa5544f;
+    border: 1px solid #f07d1459;
+    border-left: none;
+    color: #ffa554;
+    padding: 0.25em 0.5em;
+}
+
+div#feedRangeSelector > .btn.active,
+div#feedRangeSelector > .btn.active:focus,
+div#feedRangeSelector > .btn.active:active {
+    background: #ffa554a8;
+    color: #6d3300;
+}
+
+div#feedRangeSelector > .btn.active:first-child {
+    border-left: 1px solid #f07d1459;
+}
+
 #sidebarToggleTop {
     font-size: 1.3em;
 }
