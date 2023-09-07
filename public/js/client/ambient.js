@@ -631,9 +631,9 @@ function getWeather() {
                         weatherLine += parseInt(response.temperature.toFixed(0).toString())
                     }
                     if (displayConfiguration.weatherFormat === 1) {
-                        weatherLine += '$$A24B@$$'
+                        weatherLine += '$$A24B@'
                     } else {
-                        weatherLine += '$$A24A@$$'
+                        weatherLine += '$$A24A@'
                     }
                     document.getElementById('weatherIconMin').classList = `wi ${response.weather_icon_class}`;
                     document.getElementById('weatherDataTemp').innerText = _temp;
