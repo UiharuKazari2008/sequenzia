@@ -631,7 +631,7 @@ function getWeather() {
                         weatherLine += parseInt(response.temperature.toFixed(0).toString())
                     }
                     if (displayConfiguration.weatherFormat === 1) {
-                        weatherLine += '$$A24B@$$'
+                        weatherLine += 'F'
                     } else {
                         weatherLine += '$$818E@$$'
                     }
