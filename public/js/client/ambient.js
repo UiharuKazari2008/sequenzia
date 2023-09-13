@@ -490,7 +490,7 @@ function pullImage(data) {
                 document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
                 if (displayConfiguration.displayImageInfo !== 0) {
                     if (remoteInfoCFD) {
-                        vfdInfo = `${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName} (${data.randomImagev2[0].date})`;
+                        vfdInfo = `${(data.randomImagev2[0].pinned) ? '$$819A@$$ ' : ''}${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName} (${data.randomImagev2[0].date})`;
                         $('#dataInfo').addClass('d-none').removeClass('d-flex');
                     } else {
                         vfdInfo = `${vfdDefaultLine}`;
