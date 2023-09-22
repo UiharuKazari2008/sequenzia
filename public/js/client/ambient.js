@@ -1318,7 +1318,7 @@ function sendLEDValues(values) {
                 'X-Requested-With': 'SequenziaXHR'
             },
             error: function (res) {
-                console.error('Failed to update VFD Display')
+                console.error('Failed to update LED Rings')
             }
         });
     }
@@ -1335,7 +1335,7 @@ function sendLEDStatic(values) {
                 'X-Requested-With': 'SequenziaXHR'
             },
             error: function (res) {
-                console.error('Failed to update VFD Display')
+                console.error('Failed to update LED Rings')
             }
         });
     }
