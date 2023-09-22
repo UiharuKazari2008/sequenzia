@@ -1224,27 +1224,31 @@ function getColorData(url) {
     image.src = url;
     image.crossOrigin = "Anonymous"
     image.onload = () => {
-        imageCanvas.width = image.width;
-        imageCanvas.height = image.height;
-        imageCtx.drawImage(image, 0, 0);
-        const center = {
-            x: image.width / 2,
-            y: image.height / 2,
-            w: image.width,
-            h: image.height,
-        };
-        const minDimension = Math.min(image.width, image.height);
-        const percentageDistance = 0.05 * minDimension;
-
-        for (let i = 0; i < circleCount; i++) {
-            const radius = (circleCount - i) * percentageDistance;
-            const colors = sampleColors(center, radius);
-            allColors.push(...colors);
-        }
-        const reorderedColors = reorderColors(allColors);
-        lastColorRingData = reorderedColors.join(' ');
-        sendLEDValues(lastColorRingData);
+        parseCanvasToHEX();
     }
+}
+function parseCanvasToHEX() {
+    const image = document.getElementById('imageHolder');
+    imageCanvas.width = image.width;
+    imageCanvas.height = image.height;
+    imageCtx.drawImage(image, 0, 0);
+    const center = {
+        x: image.width / 2,
+        y: image.height / 2,
+        w: image.width,
+        h: image.height,
+    };
+    const minDimension = Math.min(image.width, image.height);
+    const percentageDistance = 0.05 * minDimension;
+
+    for (let i = 0; i < circleCount; i++) {
+        const radius = (circleCount - i) * percentageDistance;
+        const colors = sampleColors(center, radius);
+        allColors.push(...colors);
+    }
+    const reorderedColors = reorderColors(allColors);
+    lastColorRingData = reorderedColors.join(' ');
+    sendLEDValues(lastColorRingData);
 }
 
 function rgbToHex(r, g, b) {
