@@ -378,6 +378,9 @@ function getNextImage() {
                             error: function (res) { console.error('Failed to update VFD Display') }
                         });
                     }
+                    if (remoteWACCALED) {
+                        sendLEDStatic("C91D22");
+                    }
                     document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                     document.getElementById('data1').classList.remove('hidden-on-boot')
                     document.getElementById('data1').innerText = 'No Response after 5 retries';
@@ -417,6 +420,9 @@ function getNextImage() {
                         },
                         error: function (res) { console.error('Failed to update VFD Display') }
                     });
+                }
+                if (remoteWACCALED) {
+                    sendLEDStatic("C91D22");
                 }
                 console.error('getImage Failed');
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
@@ -589,6 +595,9 @@ function pullImage(data) {
                         },
                         error: function (res) { console.error('Failed to update VFD Display') }
                     });
+                }
+                if (remoteWACCALED) {
+                    sendLEDStatic("C91D22");
                 }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').innerText = 'After 5 failed attempts, was unable to get a valid response';
@@ -1331,7 +1340,7 @@ function sendLEDStatic(values) {
     if (remoteWACCALED) {
         $.ajax({
             async: true,
-            url: `http://${remoteWACCALED}/setLED?ledBrightness=100&ledValues=${values}`,
+            url: `http://${remoteWACCALED}/setLEDColor?ledBrightness=100&ledColor=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1359,6 +1368,9 @@ $(document).ready(function () {
             },
             error: function (res) { console.error('Failed to update VFD Display') }
         });
+    }
+    if (remoteWACCALED) {
+        sendLEDStatic("f9c8a7");
     }
     let _refreshURL = '/discord/refresh'
     if (config.has('key')) {
@@ -1415,6 +1427,9 @@ $(document).ready(function () {
                         error: function (res) { console.error('Failed to update VFD Display') }
                     });
                 }
+                if (remoteWACCALED) {
+                    sendLEDStatic("C91D22");
+                }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
                 document.getElementById('data1').innerText = 'Failed to validate login';
@@ -1435,6 +1450,9 @@ $(document).ready(function () {
                     },
                     error: function (res) { console.error('Failed to update VFD Display') }
                 });
+            }
+            if (remoteWACCALED) {
+                sendLEDStatic("C91D22");
             }
             document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
             document.getElementById('data1').classList.remove('hidden-on-boot')
