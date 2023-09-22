@@ -1320,7 +1320,7 @@ function sampleColors(center, radius) {
     return colors;
 };
 function sendLEDValues(values) {
-    if (remoteWACCALED) {
+    if (remoteWACCALED && values.length > 1) {
         $.ajax({
             async: true,
             url: `http://${remoteWACCALED}/setLED?ledBrightness=100&ledValues=${values}`,
@@ -1414,6 +1414,7 @@ $(document).ready(function () {
                 dc();
                 dd();
                 ddw();
+                setInterval(() => {remoteWACCALED(lastColorRingData);}, 60000)
             } else {
                 if (remoteInfoCFD) {
                     $.ajax({async: true,
