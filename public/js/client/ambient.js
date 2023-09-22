@@ -1414,7 +1414,7 @@ $(document).ready(function () {
                 dc();
                 dd();
                 ddw();
-                setInterval(() => {remoteWACCALED(lastColorRingData);}, 60000)
+                setInterval(() => {remoteWACCALED(lastColorRingData);}, 60000);
             } else {
                 if (remoteInfoCFD) {
                     $.ajax({async: true,
