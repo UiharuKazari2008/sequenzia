@@ -38,6 +38,7 @@ let kioskOptions = new URLSearchParams(document.location.hash.substring(1));
 let lastURL = '';
 let displayMode = [];
 let remoteInfoCFD = false;
+let remoteWACCALED = false;
 let vfdWeather = '';
 let vfdInfo = '';
 let vfdDate = '';
@@ -67,6 +68,7 @@ let displayConfiguration = {
     weatherDisplay: 0,
     layoutMode: 0,
 }
+let lastColorRingData = '';
 
 const _sysHeight = window.innerHeight * window.devicePixelRatio;
 const _sysWidth = window.innerWidth * window.devicePixelRatio;
@@ -79,6 +81,9 @@ if (typeof overides !== 'undefined') {
 if (!config.has('displayname')) { config.set('displayname', 'Untitled') }
 if (config.has('info_vfd')) {
     remoteInfoCFD = config.getAll('info_vfd')[0]
+}
+if (config.has('led_server')) {
+    remoteWACCALED = config.getAll('led_server')[0]
 }
 if (config.has('info_vfd_default_line')) {
     vfdDefaultLine = config.getAll('info_vfd_default_line')[0]
@@ -326,6 +331,7 @@ function getNextImage() {
                                     error: function (res) { console.error('Failed to update VFD Display') }
                                 });
                             }
+
                             document.getElementById('data3').innerText = 'STANDBY MODE';
                             document.getElementById('data1').innerText = 'Master Unavailable';
                             document.getElementById('errorBanner').classList = 'warningBanner'
@@ -560,6 +566,9 @@ function pullImage(data) {
                             error: function (res) { console.error('Failed to update VFD Display') }
                         });
                     }, 700)
+                }
+                if (remoteWACCALED) {
+                    await getColorData(data.randomImagev2[0].fullImage);
                 }
             } else {
                 console.log(response);
@@ -1202,6 +1211,133 @@ function getVFDDate() {
             return '';
         default:
             return `${dow}day, ${mth} ${dy}`
+    }
+}
+
+const imageCanvas = document.getElementById('imageCanvas');
+const imageCtx = imageCanvas.getContext('2d');
+const sampleCount = 60;
+const circleCount = 8;
+let allColors = [];
+function getColorData(url) {
+    const image = document.getElementById('imageHolder');
+    image.src = url;
+    image.crossOrigin = "Anonymous"
+    image.onload = () => {
+        imageCanvas.width = image.width;
+        imageCanvas.height = image.height;
+        imageCtx.drawImage(image, 0, 0);
+        const center = {
+            x: image.width / 2,
+            y: image.height / 2,
+            w: image.width,
+            h: image.height,
+        };
+        const minDimension = Math.min(image.width, image.height);
+        const percentageDistance = 0.05 * minDimension;
+
+        for (let i = 0; i < circleCount; i++) {
+            const radius = (circleCount - i) * percentageDistance;
+            const colors = sampleColors(center, radius);
+            allColors.push(...colors);
+        }
+        const reorderedColors = reorderColors(allColors);
+        lastColorRingData = reorderedColors.join(' ');
+        sendLEDValues(lastColorRingData);
+    }
+}
+
+function rgbToHex(r, g, b) {
+    return "0x" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+}
+function reorderColors(allColors) {
+    const reordered = [];
+    for (let i = 0; i < sampleCount; i++) {
+        for (let j = 0; j < circleCount; j++) {
+            reordered.push(allColors[j * sampleCount + i]);
+        }
+    }
+    return reordered;
+}
+function sampleColorsNN(center, radius) {
+    let colors = [];
+    const neighborOffset = [
+        [-1, -1], [0, -1], [1, -1],
+        [-1,  0], [0,  0], [1,  0],
+        [-1,  1], [0,  1], [1,  1],
+        [0, -2]
+    ];
+
+    for (let i = 0; i < sampleCount; i++) {
+        const angle = (i / sampleCount) * 2 * Math.PI;
+        const x = center.x + radius * Math.cos(angle);
+        const y = center.y + radius * Math.sin(angle);
+
+        let rTotal = 0, gTotal = 0, bTotal = 0;
+        for (const offset of neighborOffset) {
+            const offsetX = x + offset[0];
+            const offsetY = y + offset[1];
+            const data = imageCtx.getImageData(offsetX, offsetY, 1, 1).data;
+            rTotal += data[0];
+            gTotal += data[1];
+            bTotal += data[2];
+        }
+
+        const rAvg = Math.round(rTotal / neighborOffset.length);
+        const gAvg = Math.round(gTotal / neighborOffset.length);
+        const bAvg = Math.round(bTotal / neighborOffset.length);
+
+        const hexColor = rgbToHex(rAvg, gAvg, bAvg);
+        colors.push(hexColor);
+    }
+
+    return colors;
+};
+function sampleColors(center, radius) {
+    const colors = [];
+    for (let i = 0; i < sampleCount; i++) {
+        const angle = ((i + 180) / sampleCount) * 2 * Math.PI;
+        const x = center.x + radius * Math.cos(angle);
+        const y = center.y + radius * Math.sin(angle);
+
+        const data = imageCtx.getImageData(x, y, 1, 1).data;
+        const hexColor = rgbToHex(data[0], data[1], data[2]);
+        colors.push(hexColor);
+    }
+    return colors;
+};
+function sendLEDValues(values) {
+    if (remoteWACCALED) {
+        $.ajax({
+            async: true,
+            url: `http://${remoteWACCALED}/setLED?ledBrightness=100&ledValues=${values}`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            error: function (res) {
+                console.error('Failed to update VFD Display')
+            }
+        });
+    }
+}
+function sendLEDStatic(values) {
+    if (remoteWACCALED) {
+        $.ajax({
+            async: true,
+            url: `http://${remoteWACCALED}/setLED?ledBrightness=100&ledValues=${values}`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            error: function (res) {
+                console.error('Failed to update VFD Display')
+            }
+        });
     }
 }
 
