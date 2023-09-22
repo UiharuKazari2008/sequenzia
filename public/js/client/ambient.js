@@ -1369,9 +1369,9 @@ $(document).ready(function () {
             error: function (res) { console.error('Failed to update VFD Display') }
         });
     }
-    if (remoteWACCALED) {
+    /*if (remoteWACCALED) {
         sendLEDStatic("f9c8a7");
-    }
+    }*/
     let _refreshURL = '/discord/refresh'
     if (config.has('key')) {
         _refreshURL += `?key=${config.getAll('key').pop()}`
