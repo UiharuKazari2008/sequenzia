@@ -1340,7 +1340,7 @@ function sendLEDStatic(values) {
     if (remoteWACCALED) {
         $.ajax({
             async: true,
-            url: `http://${remoteWACCALED}/setLEDColor?ledBrightness=100&ledColor=${values}`,
+            url: `http://${remoteWACCALED}/setLEDColor?ledBrightness=${(_night) ? '50' : '100'}&ledColor=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
