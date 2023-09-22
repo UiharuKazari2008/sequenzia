@@ -568,7 +568,7 @@ function pullImage(data) {
                     }, 700)
                 }
                 if (remoteWACCALED) {
-                    await getColorData(data.randomImagev2[0].fullImage);
+                    await getColorData(response);
                 }
             } else {
                 console.log(response);
