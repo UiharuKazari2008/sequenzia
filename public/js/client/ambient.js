@@ -1308,7 +1308,7 @@ function sampleColorsNN(center, radius) {
 function sampleColors(center, radius) {
     const colors = [];
     for (let i = 0; i < sampleCount; i++) {
-        const angle = ((i / sampleCount) * 2 * Math.PI);
+        const angle = ((i / sampleCount) * 2 * Math.PI) - (Math.PI / 4);
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
 
