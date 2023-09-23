@@ -1299,8 +1299,8 @@ async function parseCanvasToChunithm(image) {
 
     const colorValues = [];
 
-    for (let i = 0; i < gridHeight; i++) {
-        for (let j = 0; j < gridWidth; j++) {
+    for (let j = 0; j < gridWidth; j++) {
+        for (let i = 0; i < gridHeight; i++) {
             const x = startX + j * spacingX;
             const y = startY + i * spacingY;
 
@@ -1428,7 +1428,6 @@ function sampleAverageColor(image, x, y) {
 
     return [averageRed, averageGreen, averageBlue];
 }
-
 function sampleColorsForWACCA(center, radius, index) {
     const colors = [];
     for (let i = 0; i < sampleCount; i++) {
@@ -1443,6 +1442,7 @@ function sampleColorsForWACCA(center, radius, index) {
     }
     return colors;
 };
+
 function sendLEDValues(values) {
     if ((remoteWACCALED || remoteChunLED) && values.length > 1) {
         $.ajax({
@@ -1497,10 +1497,6 @@ function sendLEDReset() {
 
 $(document).ready(function () {
     // Init Check
-
-    if (remoteChunLED) {
-        sendLEDReset();
-    }
     if (remoteInfoCFD) {
         $.ajax({async: true,
             url: `http://${remoteInfoCFD}/setBoth?header=Sequenzia ADS&status=Starting...&keepAwake=true&brightness=3`,
