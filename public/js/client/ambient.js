@@ -1231,11 +1231,12 @@ let allColors = [];
 function getColorData(url) {
     const image = new Image();
     image.style.opacity = "0";
+    image.style.filter = "blur(8px)"
     image.src = url;
     image.crossOrigin = "Anonymous"
-    image.onload = () => {
+    setTimeout(() => {
         parseCanvasToHEX(image).then(() => image.remove());
-    }
+    }, 3000)
 }
 async function parseCanvasToHEX(image) {
     imageCanvas.width = image.width;
