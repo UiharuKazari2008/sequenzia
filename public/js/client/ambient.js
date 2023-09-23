@@ -1308,7 +1308,7 @@ function sendLEDValues(values) {
     if (remoteWACCALED && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${remoteWACCALED}/setLED?ledBrightness=${(_night) ? '64' : '128'}&ledValues=${values}`,
+            url: `http://${remoteWACCALED}/setLED?ledBrightness=${(_night) ? '64' : '128'}&ledValues=${values}&driveMode=1
             type: "GET", data: '',
             processData: false,
             contentType: false,
