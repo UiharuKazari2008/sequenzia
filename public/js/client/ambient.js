@@ -1240,7 +1240,7 @@ function getColorData(url) {
 async function parseCanvasToHEX(image) {
     imageCanvas.width = image.width;
     imageCanvas.height = image.height;
-    imageCtx.filter = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='0' y='0' width='10' height='1'%3E%3CfeGaussianBlur stdDeviation='15' result='b'/%3E%3CfeMorphology operator='dilate' radius='4'/%3E %3CfeMerge%3E%3CfeMergeNode/%3E%3CfeMergeNode in='b'/%3E%3C/feMerge%3E%3C/filter%3E%3C/svg%3E#a") saturate(1.2) contrast(1.2)`;
+    imageCtx.filter = `saturate(1.2) contrast(1.2)`;
     imageCtx.drawImage(image, 0, 0);
     const center = {
         x: image.width / 2,
