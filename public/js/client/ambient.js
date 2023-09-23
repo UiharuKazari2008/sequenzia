@@ -1250,7 +1250,7 @@ async function parseCanvasToHEX(image) {
     const startRadius = Math.min(image.width, image.height) / 2;
 
     for (let i = 0; i < circleCount; i++) {
-        const radius = startRadius - (i * 10);
+        const radius = startRadius - (i * 5);
         const colors = sampleColors(center, radius);
         allColors.push(...colors);
     }
@@ -1308,7 +1308,7 @@ function sampleColorsNN(center, radius) {
 function sampleColors(center, radius) {
     const colors = [];
     for (let i = 0; i < sampleCount; i++) {
-        const angle = ((i / sampleCount) * 2 * Math.PI) - (Math.PI / 2);
+        const angle = ((i / sampleCount) * 2 * Math.PI) - (Math.PI / 4);
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
 
