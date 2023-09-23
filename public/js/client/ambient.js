@@ -505,10 +505,10 @@ function pullImage(data) {
                     document.getElementById(element_to + 'port').src = response;
                     document.getElementById(element_to).classList.add('blur-this');
                 }
-                document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
                 if (remoteWACCALED || remoteChunLED) {
-                    getColorData(response);
+                    await getColorData(response);
                 }
+                document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
                 if (displayConfiguration.displayImageInfo !== 0) {
                     if (remoteInfoCFD) {
                         vfdInfo = `${(data.randomImagev2[0].pinned) ? '$$819A@$$ ' : ''}${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName} (${data.randomImagev2[0].date})`;
@@ -1239,13 +1239,11 @@ function getColorData(url) {
     image.style.opacity = "0";
     image.src = url;
     image.crossOrigin = "Anonymous"
-    setTimeout(() => {
-        if (remoteWACCALED) {
-            parseCanvasToWACCA(image).then(() => image.remove());
-        } else if (remoteChunLED) {
-            parseCanvasToChunithm(image).then(() => image.remove());
-        }
-    }, 3000)
+    if (remoteWACCALED) {
+        parseCanvasToWACCA(image).then(() => image.remove());
+    } else if (remoteChunLED) {
+        parseCanvasToChunithm(image).then(() => image.remove());
+    }
 }
 async function parseCanvasToWACCA(image) {
     imageCanvas.width = image.width;
@@ -1447,7 +1445,7 @@ function sendLEDValues(values) {
     if ((remoteWACCALED || remoteChunLED) && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${(remoteWACCALED || remoteChunLED)}/setLED?ledBrightness=${(remoteChunLED) ? ((_night) ? '32' : '64') : ((_night) ? '128' : '156')}&transition_time=5.0&ledValues=${values}`,
+            url: `http://${(remoteWACCALED || remoteChunLED)}/setLED?ledBrightness=${(remoteChunLED) ? ((_night) ? '32' : '64') : ((_night) ? '128' : '156')}&transition_time=2.0&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
