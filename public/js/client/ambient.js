@@ -1447,7 +1447,7 @@ function sendLEDValues(values) {
     if ((remoteWACCALED || remoteChunLED) && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${(remoteWACCALED || remoteChunLED)}/setLED?ledBrightness=${(_night) ? '32' : '128'}&ledValues=${values}`,
+            url: `http://${(remoteWACCALED || remoteChunLED)}/setLED?ledBrightness=${(remoteChunLED) ? ((_night) ? '32' : '64') : ((_night) ? '128' : '156')}&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1477,10 +1477,30 @@ function sendLEDStatic(values) {
         });
     }
 }
+function sendLEDReset() {
+    if (remoteChunLED) {
+        $.ajax({
+            async: true,
+            url: `http://${remoteChunLED}/resetLED`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            error: function (res) {
+                console.error('Failed to update LED Rings')
+            }
+        });
+    }
+}
 
 $(document).ready(function () {
     // Init Check
 
+    if (remoteChunLED) {
+        sendLEDReset();
+    }
     if (remoteInfoCFD) {
         $.ajax({async: true,
             url: `http://${remoteInfoCFD}/setBoth?header=Sequenzia ADS&status=Starting...&keepAwake=true&brightness=3`,
