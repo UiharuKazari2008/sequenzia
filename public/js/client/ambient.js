@@ -1280,7 +1280,7 @@ async function parseCanvasToChunithm(image) {
     const thresholdColor = '#170800';
     const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
     const maxBrightnessRatio = 0.5;
-    const aspectRatio = 1.77777;
+    const aspectRatio = 0.5625;
 
     let spacingX, spacingY, startX, startY;
     if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
@@ -1331,8 +1331,8 @@ async function parseCanvasToChunithm(image) {
         }
     }
 
-    colorValues.splice(50, 0, '0xFFA500', '0xFFA500', '0xFFA500');
-    colorValues.push('0xFFA500', '0xFFA500', '0xFFA500');
+    colorValues.splice(50, 0, '0xf99400', '0xf99400', '0xf99400');
+    colorValues.push('0xf99400', '0xf99400', '0xf99400');
 
     lastColorRingData = colorValues.join(' ');
     sendLEDValues(lastColorRingData);
