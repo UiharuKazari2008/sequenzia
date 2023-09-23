@@ -1251,7 +1251,7 @@ async function parseCanvasToHEX(image) {
     const startRadius = Math.min(image.width, image.height) / 2;
 
     for (let i = 0; i < circleCount; i++) {
-        const radius = startRadius - (i * 3);
+        const radius = startRadius - (i * 6);
         const colors = sampleColors(center, radius);
         allColors.unshift(...colors);
     }
@@ -1308,7 +1308,7 @@ function sendLEDValues(values) {
     if (remoteWACCALED && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${remoteWACCALED}/setLED?ledBrightness=${(_night) ? '64' : '128'}&ledValues=${values}&driveMode=1
+            url: `http://${remoteWACCALED}/setLED?ledBrightness=${(_night) ? '64' : '128'}&ledValues=${values}&driveMode=1&driveSettings=16
             type: "GET", data: '',
             processData: false,
             contentType: false,
