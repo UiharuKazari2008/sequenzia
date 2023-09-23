@@ -1359,7 +1359,7 @@ function sampleColors(center, radius, index) {
         const y = center.y + radius * Math.sin(angle);
 
         const data = sampleAverageColor(imageCtx, x, y);
-        const final = decreaseBrightness(data, ((index * 12) * 0.01))
+        const final = decreaseBrightness(data, (index * 12));
         const hexColor = rgbToHex(final[0], final[1], final[2]);
         colors.push(hexColor);
     }
