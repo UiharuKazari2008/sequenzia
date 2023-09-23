@@ -1234,11 +1234,10 @@ function getColorData(url) {
     image.src = url;
     image.crossOrigin = "Anonymous"
     image.onload = () => {
-        parseCanvasToHEX().then(() => image.remove());
+        parseCanvasToHEX(image).then(() => image.remove());
     }
 }
-async function parseCanvasToHEX() {
-    const image = document.getElementById('imageHolder');
+async function parseCanvasToHEX(image) {
     imageCanvas.width = image.width;
     imageCanvas.height = image.height;
     imageCtx.drawImage(image, 0, 0);
