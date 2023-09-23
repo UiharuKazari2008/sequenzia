@@ -39,6 +39,7 @@ let lastURL = '';
 let displayMode = [];
 let remoteInfoCFD = false;
 let remoteWACCALED = false;
+let remoteChunLED = false;
 let vfdWeather = '';
 let vfdInfo = '';
 let vfdDate = '';
@@ -82,8 +83,13 @@ if (!config.has('displayname')) { config.set('displayname', 'Untitled') }
 if (config.has('info_vfd')) {
     remoteInfoCFD = config.getAll('info_vfd')[0]
 }
-if (config.has('led_server')) {
-    remoteWACCALED = config.getAll('led_server')[0]
+if (config.has('led_server') && config.has('led_type')) {
+    const type = config.getAll('led_type')[0];
+    if (type === 'wacca') {
+        remoteWACCALED = config.getAll('led_server')[0]
+    } else if (type === 'chun') {
+        remoteChunLED = config.getAll('led_server')[0]
+    }
 }
 if (config.has('info_vfd_default_line')) {
     vfdDefaultLine = config.getAll('info_vfd_default_line')[0]
@@ -378,7 +384,7 @@ function getNextImage() {
                             error: function (res) { console.error('Failed to update VFD Display') }
                         });
                     }
-                    if (remoteWACCALED) {
+                    if (remoteWACCALED || remoteChunLED) {
                         sendLEDStatic("C91D22");
                     }
                     document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
@@ -421,7 +427,7 @@ function getNextImage() {
                         error: function (res) { console.error('Failed to update VFD Display') }
                     });
                 }
-                if (remoteWACCALED) {
+                if (remoteWACCALED || remoteChunLED) {
                     sendLEDStatic("C91D22");
                 }
                 console.error('getImage Failed');
@@ -573,7 +579,7 @@ function pullImage(data) {
                         });
                     }, 700)
                 }
-                if (remoteWACCALED) {
+                if (remoteWACCALED || remoteChunLED) {
                     await getColorData(response);
                 }
             } else {
@@ -596,7 +602,7 @@ function pullImage(data) {
                         error: function (res) { console.error('Failed to update VFD Display') }
                     });
                 }
-                if (remoteWACCALED) {
+                if (remoteWACCALED || remoteChunLED) {
                     sendLEDStatic("C91D22");
                 }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
@@ -1234,10 +1240,14 @@ function getColorData(url) {
     image.src = url;
     image.crossOrigin = "Anonymous"
     setTimeout(() => {
-        parseCanvasToHEX(image).then(() => image.remove());
+        if (remoteWACCALED) {
+            parseCanvasToWACCA(image).then(() => image.remove());
+        } else if (remoteChunLED) {
+            parseCanvasToChunithm(image).then(() => image.remove());
+        }
     }, 3000)
 }
-async function parseCanvasToHEX(image) {
+async function parseCanvasToWACCA(image) {
     imageCanvas.width = image.width;
     imageCanvas.height = image.height;
     imageCtx.filter = `saturate(1.2) contrast(1.2)`;
@@ -1252,11 +1262,79 @@ async function parseCanvasToHEX(image) {
 
     for (let i = 0; i < circleCount; i++) {
         const radius = startRadius - (i * 6);
-        const colors = sampleColors(center, radius, i);
+        const colors = sampleColorsForWACCA(center, radius, i);
         allColors.unshift(...colors);
     }
     const reorderedColors = reorderColors(allColors);
     lastColorRingData = reorderedColors.join(' ');
+    sendLEDValues(lastColorRingData);
+}
+async function parseCanvasToChunithm(image) {
+    imageCanvas.width = image.width;
+    imageCanvas.height = image.height;
+    imageCtx.filter = `saturate(1.2) contrast(1.2)`;
+    imageCtx.drawImage(image, 0, 0);
+
+    const gridWidth = 11;
+    const gridHeight = 10;
+    const thresholdColor = '#170800';
+    const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
+    const maxBrightnessRatio = 0.5;
+    const aspectRatio = 1.77777;
+
+    let spacingX, spacingY, startX, startY;
+    if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
+        // Constrained by width
+        spacingX = image.width / (gridWidth + 1);
+        spacingY = spacingX * aspectRatio;
+        startX = spacingX;
+        startY = (image.height - (spacingY * (gridHeight - 1))) / 2;
+    } else {
+        // Constrained by height
+        spacingY = image.height / (gridHeight + 1) / aspectRatio;
+        spacingX = spacingY * aspectRatio;
+        startX = (image.width - (spacingX * (gridWidth - 1))) / 2;
+        startY = spacingY;
+    }
+
+    const colorValues = [];
+
+    for (let i = 0; i < gridHeight; i++) {
+        for (let j = 0; j < gridWidth; j++) {
+            const x = startX + j * spacingX;
+            const y = startY + i * spacingY;
+
+            const pixelData = sampleAverageColor(imageCtx, x, y);
+            const brightness = 0.299 * pixelData[0] + 0.587 * pixelData[1] + 0.114 * pixelData[2];
+
+            let r = pixelData[0];
+            let g = pixelData[1];
+            let b = pixelData[2];
+
+            if (brightness > 255 * maxBrightnessRatio) {
+                // Scale down the RGB components to meet the 75% brightness threshold
+                const scale = (255 * maxBrightnessRatio) / brightness;
+                r = Math.round(r * scale);
+                g = Math.round(g * scale);
+                b = Math.round(b * scale);
+            }
+
+            if (brightness < thresholdBrightness) {
+                // Replace with threshold color if below minimum brightness
+                r = parseInt(thresholdColor.slice(1, 3), 16);
+                g = parseInt(thresholdColor.slice(3, 5), 16);
+                b = parseInt(thresholdColor.slice(5, 7), 16);
+            }
+
+            const hexColor = '0x' + ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
+            colorValues.push(hexColor);
+        }
+    }
+
+    colorValues.splice(50, 0, '0xFFA500', '0xFFA500', '0xFFA500');
+    colorValues.push('0xFFA500', '0xFFA500', '0xFFA500');
+
+    lastColorRingData = colorValues.join(' ');
     sendLEDValues(lastColorRingData);
 }
 function decreaseBrightness(rgb, percent) {
@@ -1351,7 +1429,7 @@ function sampleAverageColor(image, x, y) {
     return [averageRed, averageGreen, averageBlue];
 }
 
-function sampleColors(center, radius, index) {
+function sampleColorsForWACCA(center, radius, index) {
     const colors = [];
     for (let i = 0; i < sampleCount; i++) {
         const angle = ((i / sampleCount) * 2 * Math.PI) + (Math.PI / 2);
@@ -1366,10 +1444,10 @@ function sampleColors(center, radius, index) {
     return colors;
 };
 function sendLEDValues(values) {
-    if (remoteWACCALED && values.length > 1) {
+    if ((remoteWACCALED || remoteChunLED) && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${remoteWACCALED}/setLED?ledBrightness=${(_night) ? '32' : '128'}&ledValues=${values}`,
+            url: `http://${(remoteWACCALED || remoteChunLED)}/setLED?ledBrightness=${(_night) ? '32' : '128'}&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1383,10 +1461,10 @@ function sendLEDValues(values) {
     }
 }
 function sendLEDStatic(values) {
-    if (remoteWACCALED) {
+    if (remoteWACCALED || remoteChunLED) {
         $.ajax({
             async: true,
-            url: `http://${remoteWACCALED}/setLEDColor?ledBrightness=50&ledColor=${values}`,
+            url: `http://${(remoteWACCALED || remoteChunLED)}/setLEDColor?ledBrightness=50&ledColor=${values}${(remoteChunLED) ? '&bankSelect=2' : ''}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1415,7 +1493,7 @@ $(document).ready(function () {
             error: function (res) { console.error('Failed to update VFD Display') }
         });
     }
-    if (remoteWACCALED) {
+    if (remoteWACCALED || remoteChunLED) {
         sendLEDStatic(  "f99400");
     }
     let _refreshURL = '/discord/refresh'
@@ -1460,7 +1538,7 @@ $(document).ready(function () {
                 dc();
                 dd();
                 ddw();
-                if (remoteWACCALED) {
+                if (remoteWACCALED || remoteChunLED) {
                     setInterval(() => {
                         sendLEDValues(lastColorRingData);
                     }, 60000);
@@ -1478,7 +1556,7 @@ $(document).ready(function () {
                         error: function (res) { console.error('Failed to update VFD Display') }
                     });
                 }
-                if (remoteWACCALED) {
+                if (remoteWACCALED || remoteChunLED) {
                     sendLEDStatic("C91D22");
                 }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
@@ -1502,7 +1580,7 @@ $(document).ready(function () {
                     error: function (res) { console.error('Failed to update VFD Display') }
                 });
             }
-            if (remoteWACCALED) {
+            if (remoteWACCALED || remoteChunLED) {
                 sendLEDStatic("C91D22");
             }
             document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
