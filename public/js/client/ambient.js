@@ -1229,14 +1229,15 @@ const sampleCount = 60;
 const circleCount = 8;
 let allColors = [];
 function getColorData(url) {
-    const image = document.getElementById('imageHolder');
+    const image = new Image();
+    image.style.opacity = "0";
     image.src = url;
     image.crossOrigin = "Anonymous"
     image.onload = () => {
-        parseCanvasToHEX();
+        parseCanvasToHEX().then(() => image.remove());
     }
 }
-function parseCanvasToHEX() {
+async function parseCanvasToHEX() {
     const image = document.getElementById('imageHolder');
     imageCanvas.width = image.width;
     imageCanvas.height = image.height;
@@ -1247,11 +1248,10 @@ function parseCanvasToHEX() {
         w: image.width,
         h: image.height,
     };
-    const minDimension = Math.min(image.width, image.height);
-    const percentageDistance = 0.05 * minDimension;
+    const startRadius = Math.min(image.width, image.height) / 2;
 
     for (let i = 0; i < circleCount; i++) {
-        const radius = (circleCount - i) * percentageDistance;
+        const radius = startRadius - (i * 10);
         const colors = sampleColors(center, radius);
         allColors.push(...colors);
     }
