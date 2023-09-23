@@ -1250,7 +1250,7 @@ async function parseCanvasToHEX(image) {
     const startRadius = Math.min(image.width, image.height) / 2;
 
     for (let i = 0; i < circleCount; i++) {
-        const radius = startRadius - (i * 2);
+        const radius = startRadius - (i * 5);
         const colors = sampleColors(center, radius);
         allColors.push(...colors);
     }
@@ -1271,40 +1271,25 @@ function reorderColors(allColors) {
     }
     return reordered;
 }
-function sampleColorsNN(center, radius) {
-    let colors = [];
-    const neighborOffset = [
-        [-1, -1], [0, -1], [1, -1],
-        [-1,  0], [0,  0], [1,  0],
-        [-1,  1], [0,  1], [1,  1],
-        [0, -2]
-    ];
+function sampleAverageColor(image, x, y) {
+    const imageData = image.getImageData(x - 2, y - 2, 5, 5); // Sample a 5x5 region around (x, y)
+    let totalRed = 0;
+    let totalGreen = 0;
+    let totalBlue = 0;
 
-    for (let i = 0; i < sampleCount; i++) {
-        const angle = (i / sampleCount) * 2 * Math.PI;
-        const x = center.x + radius * Math.cos(angle);
-        const y = center.y + radius * Math.sin(angle);
-
-        let rTotal = 0, gTotal = 0, bTotal = 0;
-        for (const offset of neighborOffset) {
-            const offsetX = x + offset[0];
-            const offsetY = y + offset[1];
-            const data = imageCtx.getImageData(offsetX, offsetY, 1, 1).data;
-            rTotal += data[0];
-            gTotal += data[1];
-            bTotal += data[2];
-        }
-
-        const rAvg = Math.round(rTotal / neighborOffset.length);
-        const gAvg = Math.round(gTotal / neighborOffset.length);
-        const bAvg = Math.round(bTotal / neighborOffset.length);
-
-        const hexColor = rgbToHex(rAvg, gAvg, bAvg);
-        colors.push(hexColor);
+    for (let i = 0; i < imageData.data.length; i += 4) {
+        totalRed += imageData.data[i];
+        totalGreen += imageData.data[i + 1];
+        totalBlue += imageData.data[i + 2];
     }
 
-    return colors;
-};
+    const averageRed = Math.round(totalRed / 25);
+    const averageGreen = Math.round(totalGreen / 25);
+    const averageBlue = Math.round(totalBlue / 25);
+
+    return [averageRed, averageGreen, averageBlue];
+}
+
 function sampleColors(center, radius) {
     const colors = [];
     for (let i = 0; i < sampleCount; i++) {
@@ -1312,7 +1297,7 @@ function sampleColors(center, radius) {
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
 
-        const data = imageCtx.getImageData(x, y, 1, 1).data;
+        const data = sampleAverageColor(imageCtx, x, y);
         const hexColor = rgbToHex(data[0], data[1], data[2]);
         colors.push(hexColor);
     }
@@ -1369,7 +1354,7 @@ $(document).ready(function () {
         });
     }
     if (remoteWACCALED) {
-        sendLEDStatic("f99400");
+        sendLEDStatic(  "f99400");
     }
     let _refreshURL = '/discord/refresh'
     if (config.has('key')) {
