@@ -1328,9 +1328,9 @@ async function parseCanvasToChunithm(image) {
             const hexColor = ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
             const final = decreaseBrightness(hexColor, (i * 5));
             if ((j + 1) % 2 === 0) {
-                row.push('0x' + final);
-            } else {
                 row.unshift('0x' + final);
+            } else {
+                row.push('0x' + final);
             }
 
         }
