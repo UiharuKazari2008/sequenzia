@@ -1302,7 +1302,7 @@ async function parseCanvasToChunithm(image) {
             const x = startX + j * spacingX;
             const y = startY + i * spacingY;
 
-            const pixelData = sampleAverageColor(imageCtx, x, y, (((spacingX > spacingY) ? spacingX : spacingY) * 2));
+            const pixelData = sampleAverageColor(imageCtx, x, y, (spacingX > spacingY) ? spacingX : spacingY);
             const brightness = 0.299 * pixelData[0] + 0.587 * pixelData[1] + 0.114 * pixelData[2];
 
             let r = pixelData[0];
@@ -1433,7 +1433,7 @@ function sampleColorsForWACCA(center, radius, index) {
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
 
-        const final = sampleAverageColor(imageCtx, x, y, 12);
+        const final = sampleAverageColor(imageCtx, x, y, 6);
         //const final = decreaseBrightness(data, (index * 12));
         const hexColor = rgbToHex(final[0], final[1], final[2]);
         colors.push(hexColor);
