@@ -1410,7 +1410,7 @@ function sendLEDStatic(_values) {
         if (remoteWACCALED) {
             let colors = [];
             for (let i = 0; i < 480; i++) {
-                if ((i + 1) % 8 === 0) {
+                if ((i + 1) % 8 === 6 || (i + 1) % 8 === 7) {
                     colors.push(_values); // value
                 } else {
                     colors.push("0x000000"); // black
