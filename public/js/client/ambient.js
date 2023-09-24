@@ -1341,14 +1341,14 @@ function decreaseBrightness(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
     const _stage1 = stage1.clone();
     const _s1hsl = _stage1.toHsl();
-    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 8) : stage1;
+    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 16) : stage1;
     return stage2.toString().substring(1);
 }
 function decreaseBrightnessRGB(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
     const _stage1 = stage1.clone();
     const _s1hsl = _stage1.toHsl();
-    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 8) : stage1;
+    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 16) : stage1;
     const rgb = stage2.toRgb();
     return [rgb.r, rgb.g, rgb.b];
 }
