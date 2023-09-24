@@ -1337,7 +1337,7 @@ async function parseCanvasToChunithm(image) {
 }
 function decreaseBrightness(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
-    const stage2 = stage1.saturate(percent / 2);
+    const stage2 = stage1.saturate(percent / 8);
     return stage2.toString().substring(1);
 
 }
