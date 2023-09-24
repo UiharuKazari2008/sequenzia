@@ -1275,7 +1275,7 @@ async function parseCanvasToChunithm(image) {
 
     const gridWidth = 11;
     const gridHeight = 10;
-    const thresholdColor = '#0f0700';
+    const thresholdColor = '#000a17';
     const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
     const maxBrightnessRatio = 0.5;
     const aspectRatio = (9 / 16);
