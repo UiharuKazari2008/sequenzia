@@ -1355,12 +1355,12 @@ function reorderColors(allColors) {
     return reordered;
 }
 function sampleAverageColor(image, x, y) {
-    const imageData = image.getImageData(x - 2, y - 2, 10, 10); // Sample a 5x5 region around (x, y)
+    const imageData = image.getImageData(x - 2, y - 2, 5, 5); // Sample a 5x5 region around (x, y)
     let totalRed = 0;
     let totalGreen = 0;
     let totalBlue = 0;
 
-    for (let i = 0; i < imageData.data.length; i += 9) {
+    for (let i = 0; i < imageData.data.length; i += 4) {
         totalRed += imageData.data[i];
         totalGreen += imageData.data[i + 1];
         totalBlue += imageData.data[i + 2];
