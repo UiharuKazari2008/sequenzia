@@ -1278,7 +1278,7 @@ async function parseCanvasToChunithm(image) {
     const thresholdColor = '#170800';
     const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
     const maxBrightnessRatio = 0.5;
-    const aspectRatio = 0.5625;
+    const aspectRatio = 0.5;
 
     let spacingX, spacingY, startX, startY;
     if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
@@ -1325,7 +1325,7 @@ async function parseCanvasToChunithm(image) {
             }
 
             const hexColor = ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-            const final = decreaseBrightness(hexColor, (i * 7));
+            const final = decreaseBrightness(hexColor, (i * 5));
             colorValues.push('0x' + final);
         }
     }
