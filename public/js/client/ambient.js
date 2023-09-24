@@ -1259,7 +1259,7 @@ async function parseCanvasToWACCA(image) {
     const startRadius = Math.min(image.width, image.height) / 2;
 
     for (let i = 0; i < circleCount; i++) {
-        const radius = startRadius - (i * 6);
+        const radius = startRadius - (i * 3);
         const colors = sampleColorsForWACCA(center, radius, i);
         allColors.unshift(...colors);
     }
