@@ -1335,69 +1335,14 @@ async function parseCanvasToChunithm(image) {
     lastColorRingData = colorValues.join(' ');
     sendLEDValues(lastColorRingData);
 }
-function decreaseBrightness(rgb, percent) {
-    function hueToRgb(p, q, t) {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1 / 6) return p + (q - p) * 6 * t;
-        if (t < 1 / 2) return q;
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-        return p;
-    }
-    // Convert RGB to normalized values (0-1)
-    const r = rgb[0] / 255;
-    const g = rgb[1] / 255;
-    const b = rgb[2] / 255;
-
-    // Find the maximum and minimum RGB values
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-
-    // Calculate lightness
-    let l = (max + min) / 2;
-
-    // Decrease lightness by the specified percentage
-    l = l - (l * percent / 100);
-    l = Math.max(0, Math.min(1, l)); // Clamp lightness between 0 and 1
-
-    // Calculate saturation
-    let s;
-    const delta = max - min;
-    if (delta === 0) {
-        s = 0; // If max and min are equal, the color is grayscale, so saturation is 0
-    } else {
-        s = delta / (1 - Math.abs(2 * l - 1));
-    }
-
-    // Calculate hue
-    let h;
-    if (max === r) {
-        h = (g - b) / delta + (g < b ? 6 : 0);
-    } else if (max === g) {
-        h = (b - r) / delta + 2;
-    } else {
-        h = (r - g) / delta + 4;
-    }
-    h /= 6; // Normalize hue to 0-1 range
-
-    // Convert HSL back to RGB
-    let r1, g1, b1;
-    if (s === 0) {
-        r1 = g1 = b1 = l; // If saturation is 0, the color is grayscale
-    } else {
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
-        r1 = hueToRgb(p, q, h + 1 / 3);
-        g1 = hueToRgb(p, q, h);
-        b1 = hueToRgb(p, q, h - 1 / 3);
-    }
-
-    // Convert RGB values back to 0-255 range and return
-    return [Math.round(r1 * 255), Math.round(g1 * 255), Math.round(b1 * 255)];
+function decreaseBrightness(color, percent) {
+    const stage1 = tinycolor("#" + color).darken(percent);
+    const stage2 = stage1.saturate(percent / 2);
+    return stage2.toString().substring(1);
 
 }
 function rgbToHex(r, g, b) {
-    return "0x" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+    return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
 }
 function reorderColors(allColors) {
     let reordered = [];
@@ -1433,10 +1378,10 @@ function sampleColorsForWACCA(center, radius, index) {
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
 
-        const final = sampleAverageColor(imageCtx, x, y);
-        //const final = decreaseBrightness(data, (index * 12));
-        const hexColor = rgbToHex(final[0], final[1], final[2]);
-        colors.push(hexColor);
+        const data = sampleAverageColor(imageCtx, x, y);
+        const hexColor = rgbToHex(data[0], data[1], data[2]);
+        const final = decreaseBrightness(hexColor, (index * 12));
+        colors.push("0x" + final);
     }
     return colors;
 };
