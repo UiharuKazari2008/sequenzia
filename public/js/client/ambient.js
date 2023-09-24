@@ -1302,7 +1302,7 @@ async function parseCanvasToChunithm(image) {
             const x = startX + j * spacingX;
             const y = startY + i * spacingY;
 
-            const pixelData = sampleAverageColor(imageCtx, x, y, (spacingX > spacingY) ? spacingX : spacingY);
+            const pixelData = sampleAverageColor(imageCtx, x, y);
             const brightness = 0.299 * pixelData[0] + 0.587 * pixelData[1] + 0.114 * pixelData[2];
 
             let r = pixelData[0];
@@ -1408,13 +1408,13 @@ function reorderColors(allColors) {
     }
     return reordered;
 }
-function sampleAverageColor(image, x, y, spacing) {
-    const imageData = image.getImageData(x - 2, y - 2, spacing, spacing); // Sample a 5x5 region around (x, y)
+function sampleAverageColor(image, x, y) {
+    const imageData = image.getImageData(x - 2, y - 2, 5, 5); // Sample a 5x5 region around (x, y)
     let totalRed = 0;
     let totalGreen = 0;
     let totalBlue = 0;
 
-    for (let i = 0; i < imageData.data.length; i += (spacing - 1)) {
+    for (let i = 0; i < imageData.data.length; i += 4) {
         totalRed += imageData.data[i];
         totalGreen += imageData.data[i + 1];
         totalBlue += imageData.data[i + 2];
@@ -1433,7 +1433,7 @@ function sampleColorsForWACCA(center, radius, index) {
         const x = center.x + radius * Math.cos(angle);
         const y = center.y + radius * Math.sin(angle);
 
-        const final = sampleAverageColor(imageCtx, x, y, 6);
+        const final = sampleAverageColor(imageCtx, x, y);
         //const final = decreaseBrightness(data, (index * 12));
         const hexColor = rgbToHex(final[0], final[1], final[2]);
         colors.push(hexColor);
