@@ -1381,7 +1381,7 @@ function sampleColorsForWACCA(center, radius, index) {
 
         const data = sampleAverageColor(imageCtx, x, y);
         const hexColor = rgbToHex(data[0], data[1], data[2]);
-        const final = decreaseBrightness(hexColor, (index * 12));
+        const final = decreaseBrightness(hexColor, (index * 7.5));
         colors.push("0x" + final);
     }
     return colors;
@@ -1409,12 +1409,8 @@ function sendLEDStatic(_values) {
         let values = _values;
         if (remoteWACCALED) {
             let colors = [];
-            for (let i = 0; i < 480; i++) {
-                if ((i + 1) % 8 === 6 || (i + 1) % 8 === 7) {
-                    colors.push(_values); // value
-                } else {
-                    colors.push("0x000000"); // black
-                }
+            for (let i = 0; i < 8; i++) {
+                colors.push(`${_values} ${_values} 0x000000 0x000000 0x000000 0x000000 0x000000 0x000000`);
             }
             values = colors.join(" ");
         }
