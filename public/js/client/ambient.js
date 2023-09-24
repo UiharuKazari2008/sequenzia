@@ -1406,18 +1406,15 @@ function sendLEDValues(values) {
 }
 function sendLEDStatic(_values) {
     if (remoteWACCALED || remoteChunLED) {
-        let values = _values;
-        if (remoteWACCALED) {
-            let colors = [];
-            for (let i = 0; i < 8; i++) {
-                colors.push(`0x000000 0x000000 0x000000 0x000000 0x000000 0x000000 ${_values} ${_values} `);
-            }
-            values = colors.join(" ");
-        }
         const url = (() => {
-            if (remoteWACCALED)
-                return `http://${remoteWACCALED}/setLED?ledBrightness=50&ledValues=${values}`
-            return `http://${remoteChunLED}/setLEDColor?ledBrightness=50&ledColor=${values}&bankSelect=2`
+            if (remoteWACCALED) {
+                let colors = [];
+                for (let i = 0; i < 8; i++) {
+                    colors.push(`0x000000 0x000000 0x000000 0x000000 0x000000 0x000000 ${_values} ${_values} `);
+                }
+                return `http://${remoteWACCALED}/setLED?ledBrightness=50&ledValues=${colors.join(" ")}`
+            }
+            return `http://${remoteChunLED}/setLEDColor?ledBrightness=50&ledColor=${_values}&bankSelect=2`
         })()
         $.ajax({
             async: true,
