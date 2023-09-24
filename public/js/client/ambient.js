@@ -1297,8 +1297,8 @@ async function parseCanvasToChunithm(image) {
 
     const colorValues = [];
 
-    for (let j = 0; j < gridWidth; j++) {
-        for (let i = 0; i < gridHeight; i++) {
+    for (let j = 0; j < gridHeight; j++) {
+        for (let i = 0; i < gridWidth; i++) {
             const x = startX + j * spacingX;
             const y = startY + i * spacingY;
 
@@ -1325,7 +1325,7 @@ async function parseCanvasToChunithm(image) {
             }
 
             const hexColor = ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-            const final = decreaseBrightness(hexColor, (i * 7));
+            const final = decreaseBrightness(hexColor, (j * 7));
             colorValues.push('0x' + final);
         }
     }
