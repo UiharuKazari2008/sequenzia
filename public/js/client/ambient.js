@@ -1325,7 +1325,8 @@ async function parseCanvasToChunithm(image) {
             }
 
             const hexColor = '0x' + ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-            colorValues.push(hexColor);
+            const final = decreaseBrightness(hexColor, (i * 7));
+            colorValues.push(final);
         }
     }
 
@@ -1337,8 +1338,8 @@ async function parseCanvasToChunithm(image) {
 }
 function decreaseBrightness(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
-    //const stage2 = stage1.saturate(percent / 16);
-    const stage2 = stage1;
+    const slc = ((stage1.clone()).toHSL()).s
+    const stage2 = (slc > 0.6) ? stage1.saturate(percent / 8) : stage1;
     return stage2.toString().substring(1);
 
 }
@@ -1381,7 +1382,7 @@ function sampleColorsForWACCA(center, radius, index) {
 
         const data = sampleAverageColor(imageCtx, x, y);
         const hexColor = rgbToHex(data[0], data[1], data[2]);
-        const final = decreaseBrightness(hexColor, (index * 7.5));
+        const final = decreaseBrightness(hexColor, (index * 8));
         colors.push("0x" + final);
     }
     return colors;
