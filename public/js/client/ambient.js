@@ -1305,7 +1305,7 @@ async function parseCanvasToChunithm(image) {
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
-            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
+            const postColor = decreaseBrightnessRGB(hexColor, (i * 3));
             const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
 
             let r = postColor[0];
@@ -1348,7 +1348,7 @@ function decreaseBrightnessRGB(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
     const _stage1 = stage1.clone();
     const _s1hsl = _stage1.toHsl();
-    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 16) : stage1;
+    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 8) : stage1;
     const rgb = stage2.toRgb();
     return [rgb.r, rgb.g, rgb.b];
 }
