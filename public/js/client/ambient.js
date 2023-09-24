@@ -1337,7 +1337,8 @@ async function parseCanvasToChunithm(image) {
 }
 function decreaseBrightness(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
-    const stage2 = stage1.saturate(percent / 8);
+    //const stage2 = stage1.saturate(percent / 16);
+    const stage2 = stage1;
     return stage2.toString().substring(1);
 
 }
@@ -1403,8 +1404,20 @@ function sendLEDValues(values) {
         });
     }
 }
-function sendLEDStatic(values) {
+function sendLEDStatic(_values) {
     if (remoteWACCALED || remoteChunLED) {
+        let values = _values;
+        if (remoteWACCALED) {
+            let colors = [];
+            for (let i = 0; i < 480; i++) {
+                if ((i + 1) % 8 === 0) {
+                    colors.push(_values); // value
+                } else {
+                    colors.push("0x000000"); // black
+                }
+            }
+            values = colors.join(" ");
+        }
         $.ajax({
             async: true,
             url: `http://${(remoteWACCALED || remoteChunLED)}/setLEDColor?ledBrightness=50&ledColor=${values}${(remoteChunLED) ? '&bankSelect=2' : ''}`,
