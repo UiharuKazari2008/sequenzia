@@ -1275,10 +1275,10 @@ async function parseCanvasToChunithm(image) {
 
     const gridWidth = 11;
     const gridHeight = 10;
-    const thresholdColor = '#170800';
+    const thresholdColor = '#0f0700';
     const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
     const maxBrightnessRatio = 0.5;
-    const aspectRatio = 0.5;
+    const aspectRatio = (9 / 16);
 
     let spacingX, spacingY, startX, startY;
     if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
@@ -1304,19 +1304,13 @@ async function parseCanvasToChunithm(image) {
             const y = startY + i * spacingY;
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
-            const brightness = 0.299 * pixelData[0] + 0.587 * pixelData[1] + 0.114 * pixelData[2];
+            const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
+            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
+            const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
 
-            let r = pixelData[0];
-            let g = pixelData[1];
-            let b = pixelData[2];
-
-            if (brightness > 255 * maxBrightnessRatio) {
-                // Scale down the RGB components to meet the 75% brightness threshold
-                const scale = (255 * maxBrightnessRatio) / brightness;
-                r = Math.round(r * scale);
-                g = Math.round(g * scale);
-                b = Math.round(b * scale);
-            }
+            let r = postColor[0];
+            let g = postColor[1];
+            let b = postColor[2];
 
             if (brightness < thresholdBrightness) {
                 // Replace with threshold color if below minimum brightness
@@ -1325,8 +1319,8 @@ async function parseCanvasToChunithm(image) {
                 b = parseInt(thresholdColor.slice(5, 7), 16);
             }
 
-            const hexColor = ('000000' + ((r << 16) | (g << 8) | b).toString(16)).slice(-6);
-            const final = decreaseBrightness(hexColor, (i * 5));
+            const final = rgbToHex(r,g,b);
+
             if ((j + 1) % 2 === 0) {
                 row.unshift('0x' + final);
             } else {
@@ -1349,7 +1343,14 @@ function decreaseBrightness(color, percent) {
     const _s1hsl = _stage1.toHsl();
     const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 8) : stage1;
     return stage2.toString().substring(1);
-
+}
+function decreaseBrightnessRGB(color, percent) {
+    const stage1 = tinycolor("#" + color).darken(percent);
+    const _stage1 = stage1.clone();
+    const _s1hsl = _stage1.toHsl();
+    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 8) : stage1;
+    const rgb = stage2.toRgb();
+    return [rgb.r, rgb.g, rgb.b];
 }
 function rgbToHex(r, g, b) {
     return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
