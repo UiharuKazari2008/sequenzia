@@ -1410,13 +1410,18 @@ function sendLEDStatic(_values) {
         if (remoteWACCALED) {
             let colors = [];
             for (let i = 0; i < 8; i++) {
-                colors.push(`${_values} ${_values} 0x000000 0x000000 0x000000 0x000000 0x000000 0x000000`);
+                colors.push(`0x000000 0x000000 0x000000 0x000000 0x000000 0x000000 ${_values} ${_values} `);
             }
             values = colors.join(" ");
         }
+        const url = (() => {
+            if (remoteWACCALED)
+                return `http://${remoteWACCALED}/setLED?ledBrightness=50&ledValues=${values}`
+            return `http://${remoteChunLED}/setLEDColor?ledBrightness=50&ledColor=${values}&bankSelect=2`
+        })()
         $.ajax({
             async: true,
-            url: `http://${(remoteWACCALED || remoteChunLED)}/setLEDColor?ledBrightness=50&ledColor=${values}${(remoteChunLED) ? '&bankSelect=2' : ''}`,
+            url,
             type: "GET", data: '',
             processData: false,
             contentType: false,
