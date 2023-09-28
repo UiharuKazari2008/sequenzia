@@ -195,7 +195,7 @@ router.use('/parity', sessionVerification, handleExchange, readValidation, async
                 res.status(404).send(`File ${params[0]} does not exist`)
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
-                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/attachments${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/attachments${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop().split('?')[0] < y.split('.').pop().split('?')[0]) ? -1 : (y.split('.').pop().split('?')[0] > x.split('.').pop().split('?')[0]) ? 1 : 0)
 
                 printLine('ClientStreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
@@ -618,7 +618,7 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                                 "provider_name": webconfig.site_name,
                                 "provider_url": webconfig.base_url
                             }
-                            if (message.filecached === 1 && (message.real_filename.split('.').pop().toLowerCase() === 'webp' || message.real_filename.split('.').pop().toLowerCase() === 'png' || message.real_filename.split('.').pop().toLowerCase() === 'jpeg' || message.real_filename.split('.').pop().toLowerCase() === 'jpg' || message.real_filename.split('.').pop().toLowerCase() === 'gif')) {
+                            if (message.filecached === 1 && (message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'webp' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'png' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'jpeg' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'jpg' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'gif')) {
                                 obj.image = `/stream/${message.fileid}/${message.real_filename}`
                             }
                             sqlSafe(`SELECT * FROM kanmi_channels WHERE channelid = ?`, [message.channel], async (err, _channelInfo) => {

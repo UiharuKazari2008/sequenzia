@@ -49,7 +49,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                         filetypes: fileType
                     });
                     files.map(async (p, i, arr) => {
-                        if (arr.length === 1 && p.originalname.split('.').length > 1 && p.originalname.split('.').pop().toLowerCase().includes('zip') && req.query && req.query.package && req.query.package === 'true') {
+                        if (arr.length === 1 && p.originalname.split('.').length > 1 && p.originalname.split('.').pop().split('?')[0].toLowerCase().includes('zip') && req.query && req.query.package && req.query.package === 'true') {
                             printLine('Upload', `Incoming Package Upload`, 'info')
                             try {
                                 yauzl.open(p.path, {autoClose: true, lazyEntries: false, decodeStrings: true, validateEntrySizes: true, strictFileNames: false}, function(err, zipfile) {
@@ -67,7 +67,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                                                         res.status(500).send(err);
                                                     } else {
                                                         const real_filename = entry.fileName.split('/').pop();
-                                                        if (fileType && fileType === 'all' || (fileType && entry.fileName.split('.').length > 1 && fileType.includes(entry.fileName.split('.').pop()) && entry.fileName.substring(0,1) !== '.' )) {
+                                                        if (fileType && fileType === 'all' || (fileType && entry.fileName.split('.').length > 1 && fileType.includes(entry.fileName.split('.').pop().split('?')[0]) && entry.fileName.substring(0,1) !== '.' )) {
                                                             if (blocked_filenames.filter((e) => {return entry.fileName.toLowerCase().includes(e.toLowerCase())}).length === 0) {
                                                                 sendThisFile()
                                                             } else {
@@ -125,7 +125,7 @@ router.post('/files', sessionVerification, writeValidation, upload.array('files'
                             }
                         } else {
                             printLine('Upload', `Incoming File Upload`, 'info')
-                            if (fileType && fileType === 'all' || (fileType && p.originalname.split('.').length > 1 && fileType.includes(p.originalname.split('.').pop()) && p.originalname.substring(0,1) !== '.' )) {
+                            if (fileType && fileType === 'all' || (fileType && p.originalname.split('.').length > 1 && fileType.includes(p.originalname.split('.').pop().split('?')[0]) && p.originalname.substring(0,1) !== '.' )) {
                                 if (blocked_filenames.filter((e) => {return p.originalname.toLowerCase().includes(e)}).length === 0) {
                                     sendThisFile()
                                 } else {

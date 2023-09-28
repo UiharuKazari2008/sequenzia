@@ -3803,13 +3803,13 @@ async function showSearchOptions(post) {
     if (postFilename && postFilename.length > 0) {
         normalInfo.push('<div class="badge badge-light text-dark m-1 ">')
         if (postIsVideo) {
-            normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+            normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
         } else if (postIsAudio) {
-            normalInfo.push(`<i class="fa fa-file-audio pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
-        } else if (imageFiles.indexOf(postFilename.split('.').pop().toLowerCase()) !== -1) {
-            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+            normalInfo.push(`<i class="fa fa-file-audio pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
+        } else if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase()) !== -1) {
+            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
         } else {
-            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().toUpperCase()}</span>`)
+            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
         }
         normalInfo.push('</div>')
         advancedInfo.push(`<div><i class="fa fa-input-text pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);

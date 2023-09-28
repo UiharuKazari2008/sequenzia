@@ -965,6 +965,9 @@ module.exports = async (req, res, next) => {
                             "real_filename LIKE '%.mp4'",
                             "real_filename LIKE '%.mov'",
                             "real_filename LIKE '%.m4v'",
+                            "real_filename LIKE '%.mp4?%_'",
+                            "real_filename LIKE '%.mov?%_'",
+                            "real_filename LIKE '%.m4v?%_'",
                         ].join(' OR ') + ')',
                         "attachment_extra IS NULL"
                     ].join(' AND ') + ')',
@@ -972,12 +975,17 @@ module.exports = async (req, res, next) => {
                         '(' + [
                             "cache_proxy LIKE '%-t9-preview-video.jp%_'",
                             "cache_proxy LIKE '%-t9-preview-video.gif'",
-                            "cache_proxy LIKE '%-t9-preview-video.gifv'"
+                            "cache_proxy LIKE '%-t9-preview-video.gifv'",
+                            "cache_proxy LIKE '%-t9-preview-video.gif?%_'",
+                            "cache_proxy LIKE '%-t9-preview-video.gifv?%_'",
                         ].join(' OR ') + ')',
                         '(' + [
                             "attachment_name LIKE '%.mp4'",
                             "attachment_name LIKE '%.mov'",
                             "attachment_name LIKE '%.m4v'",
+                            "attachment_name LIKE '%.mp4?%_'",
+                            "attachment_name LIKE '%.mov?%_'",
+                            "attachment_name LIKE '%.m4v?%_'",
                         ].join(' OR ') + ')',
                         "attachment_extra IS NULL"
                     ].join(' AND ') + ')',
@@ -985,6 +993,9 @@ module.exports = async (req, res, next) => {
                     "attachment_name LIKE '%.jfif'",
                     "attachment_name LIKE '%.png'",
                     "attachment_name LIKE '%.gif'",
+                    "attachment_name LIKE '%.jfif?%_'",
+                    "attachment_name LIKE '%.png?%_'",
+                    "attachment_name LIKE '%.gif?%_'",
                     "attachment_name LIKE '%.web%_'",
                     "attachment_name = 'multi'",
                 ].join(' OR ')})`
@@ -998,6 +1009,9 @@ module.exports = async (req, res, next) => {
                     "attachment_name LIKE '%.jfif'",
                     "attachment_name LIKE '%.png'",
                     "attachment_name LIKE '%.gif'",
+                    "attachment_name LIKE '%.jfif?%_'",
+                    "attachment_name LIKE '%.png?%_'",
+                    "attachment_name LIKE '%.gif?%_'",
                     "attachment_name LIKE '%.web%_'",
                 ].join(' OR ')})`
             ].join(' AND ')
@@ -1013,6 +1027,9 @@ module.exports = async (req, res, next) => {
                             "attachment_name NOT LIKE '%.jfif'",
                             "attachment_name NOT LIKE '%.png'",
                             "attachment_name NOT LIKE '%.gif'",
+                            "attachment_name NOT LIKE '%.jfif?%_'",
+                            "attachment_name NOT LIKE '%.png?%_'",
+                            "attachment_name NOT LIKE '%.gif?%_'",
                             "attachment_name NOT LIKE '%.web%_'",
                             "attachment_name != 'multi'"
                         ].join(' AND ') + ')',
@@ -1022,6 +1039,9 @@ module.exports = async (req, res, next) => {
                             "real_filename NOT LIKE '%.jfif'",
                             "real_filename NOT LIKE '%.png'",
                             "real_filename NOT LIKE '%.gif'",
+                            "real_filename NOT LIKE '%.jfif?%_'",
+                            "real_filename NOT LIKE '%.png?%_'",
+                            "real_filename NOT LIKE '%.gif?%_'",
                             "real_filename NOT LIKE '%.web%_'",
                         ].join(' AND ') + ')'
                     ].join(' OR ') + ')'
@@ -2269,7 +2289,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
-                                            if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
+                                            if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().split('?')[0].toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
                                                 let ih = 512;
                                                 let iw = 512;
                                                 if (item.sizeW >= item.sizeH) {
@@ -2665,7 +2685,7 @@ module.exports = async (req, res, next) => {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         function getimageSizeParam() {
-                                            if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
+                                            if (item.sizeH && item.sizeW && Discord_CDN_Accepted_Files.indexOf(item.attachment_name.split('.').pop().split('?')[0].toLowerCase()) !== -1 && (item.sizeH > 512 || item.sizeW > 512)) {
                                                 let ih = 512;
                                                 let iw = 512;
                                                 if (item.sizeW >= item.sizeH) {

@@ -2543,10 +2543,10 @@ async function unpackFile() {
                                 if (activeSpannedJob && blobs.length === activeSpannedJob.expected_parts) {
                                     activeSpannedJob.progress = `100%`;
                                     let blobType = {}
-                                    if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = `video/${((activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'mov' || activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJob.filename.split('.').pop().toLowerCase().trim())}`;
-                                    if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = `audio/${activeSpannedJob.filename.split('.').pop().toLowerCase().trim()}`;
+                                    if (activeSpannedJob.play === 'video' || activeSpannedJob.play === 'kms-video' || videoFiles.indexOf(activeSpannedJob.filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1)
+                                        blobType.type = `video/${((activeSpannedJob.filename.split('.').pop().split('?')[0].toLowerCase().trim() === 'mov' || activeSpannedJob.filename.split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJob.filename.split('.').pop().toLowerCase().trim())}`;
+                                    if (activeSpannedJob.play === 'audio' || audioFiles.indexOf(activeSpannedJob.filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1)
+                                        blobType.type = `audio/${activeSpannedJob.filename.split('.').pop().split('?')[0].toLowerCase().trim()}`;
 
                                     const finalBlock = new Blob(blobs, blobType);
                                     if (browserStorageAvailable) {

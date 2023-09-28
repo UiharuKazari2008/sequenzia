@@ -425,7 +425,7 @@ html
                             if (uploadDestination !== '') {
                                 uploadModel.querySelector("#postButton").classList.remove('disabled')
                             }
-                            if ($(".custom-file-input")[0].files[0].name.split('.').pop().toLowerCase() === 'zip') {
+                            if ($(".custom-file-input")[0].files[0].name.split('.').pop().split('?')[0].toLowerCase() === 'zip') {
                                 $("#zipSelection").removeClass("hidden")
                             } else {
                                 $("#zipSelection").addClass("hidden")

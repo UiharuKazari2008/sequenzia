@@ -3,8 +3,8 @@ extends layout_lite
 block content
     if (results && results.length === 1 )
         - item = results[0]
-        - fullURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.full
-        - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
+        - fullURL = (item.entities.download && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif') ? item.entities.download : item.entities.full
+        - previewURL = (item.entities.download && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
         div.gallery-detail
             div.gallery-detail.sidebar
                 h3 Tags (MIITS)
@@ -133,7 +133,7 @@ block content
                     div.gallery.item(class=`${(res >= 4096) ? 'uhdq' : (res >= 1080) ? 'fhdq' : ''} `)
                         a.gallery.holder(href='/gallery/?search=eid:' + item.eid)
                             div.gallery.image(class=`${(item.flagged) ? 'flagged' : (item.pinned) ? 'favorite' : ''} `)
-                                - previewURL = (item.entities.download && item.entities.download.split('.').pop().toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
+                                - previewURL = (item.entities.download && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif') ? item.entities.download : item.entities.preview;
                                 img.gallery.preview-holder(src=previewURL)
                         a.gallery.bottom-bar(href=fileURL)
                             span.gallery.resolution #{item.entities.meta.height}x#{item.entities.meta.width}

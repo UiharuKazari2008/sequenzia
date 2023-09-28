@@ -105,13 +105,13 @@ module.exports = async (req, res, next) => {
                     podcastItem.enclosure = {
                         url: `${item.entities.download}${(!config.bypass_cds_check) ? "?key=" + thisUser.master.discord.user.token_static : ""}`,
                         size: item.entities.meta.filesize * 1024000,
-                        type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
+                        type: `audio/${item.entities.filename.split('.').pop().split('?')[0].toLowerCase()}`
                     }
                 } else if (item.entities.filename) {
                     podcastItem.enclosure = {
                         url: `${web.base_url}/stream/${item.entities.meta.fileid}/${encodeURIComponent(item.entities.filename)}${(!config.bypass_cds_check) ? "?key=" + thisUser.master.discord.user.token_static : ""}`,
                         size: item.entities.meta.filesize * 1024000,
-                        type: `audio/${item.entities.filename.split('.').pop().toLowerCase()}`
+                        type: `audio/${item.entities.filename.split('.').pop().split('?')[0].toLowerCase()}`
                     }
                 }
                 podcastResponse.addItem(podcastItem)

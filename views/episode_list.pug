@@ -72,7 +72,7 @@ block content
                                     - previewURL = item.entities.preview;
                                     if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
                                         - fileURL = item.entities.full
-                                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif')
                                         - fileURL = item.entities.download
                                         - previewURL = item.entities.download
                                     - isVideo = false
@@ -103,7 +103,7 @@ block content
                     - previewURL = item.entities.preview;
                     if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
                         - fileURL = item.entities.full
-                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif')
                         - fileURL = item.entities.download
                         - previewURL = item.entities.download
 
@@ -282,7 +282,7 @@ block content
                                         - previewURL = item.entities.preview;
                                         if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
                                             - fileURL = item.entities.full
-                                        if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                                        if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif')
                                             - fileURL = item.entities.download
                                             - previewURL = item.entities.download
 
@@ -365,7 +365,7 @@ block content
                 - previewURL = item.entities.preview;
                 if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
                     - fileURL = item.entities.full
-                if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif')
                     - fileURL = item.entities.download
                     - previewURL = item.entities.download
 
@@ -487,7 +487,7 @@ block content
                     - previewURL = item.entities.preview;
                     if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
                         - fileURL = item.entities.full
-                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().toLowerCase() === 'gif')
+                    if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif')
                         - fileURL = item.entities.download
                         - previewURL = item.entities.download
 

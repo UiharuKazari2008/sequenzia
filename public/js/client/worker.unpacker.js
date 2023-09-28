@@ -232,10 +232,10 @@ async function unpackFile(_requestedJob) {
                                 if (activeSpannedJobs[activeID] && blobs.length === activeSpannedJobs[activeID].expected_parts) {
                                     activeSpannedJobs[activeID].progress = `100%`;
                                     let blobType = {}
-                                    if (activeSpannedJobs[activeID].play === 'video' || activeSpannedJobs[activeID].play === 'kms-video' || videoFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = `video/${((activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim() === 'mov' || activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim())}`;
-                                    if (activeSpannedJobs[activeID].play === 'audio' || audioFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()) > -1)
-                                        blobType.type = `audio/${activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim()}`;
+                                    if (activeSpannedJobs[activeID].play === 'video' || activeSpannedJobs[activeID].play === 'kms-video' || videoFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1)
+                                        blobType.type = `video/${((activeSpannedJobs[activeID].filename.split('.').pop().split('?')[0].toLowerCase().trim() === 'mov' || activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim() === 'm4v') ? "mp4" : activeSpannedJobs[activeID].filename.split('.').pop().toLowerCase().trim())}`;
+                                    if (activeSpannedJobs[activeID].play === 'audio' || audioFiles.indexOf(activeSpannedJobs[activeID].filename.split('.').pop().split('?')[0].toLowerCase().trim()) > -1)
+                                        blobType.type = `audio/${activeSpannedJobs[activeID].filename.split('.').pop().split('?')[0].toLowerCase().trim()}`;
 
                                     const finalBlock = new Blob(blobs, blobType);
                                     blobs = null;
