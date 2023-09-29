@@ -1278,7 +1278,7 @@ async function parseCanvasToChunithm(image) {
     const thresholdColor = '#000a17';
     const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
     const maxBrightnessRatio = 0.5;
-    const aspectRatio = (9 / 16);
+    const aspectRatio = (16 / 9);
 
     let spacingX, spacingY, startX, startY;
     if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
@@ -1305,7 +1305,7 @@ async function parseCanvasToChunithm(image) {
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
-            const postColor = decreaseBrightnessRGB(hexColor, (i * 3));
+            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
             const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
 
             let r = postColor[0];
@@ -1341,7 +1341,7 @@ function decreaseBrightness(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
     const _stage1 = stage1.clone();
     const _s1hsl = _stage1.toHsl();
-    const stage2 = (_s1hsl.s > 0.6) ? stage1.saturate(percent / 16) : stage1;
+    const stage2 = (_s1hsl.s > 0.75) ? stage1.saturate(percent / 16) : stage1;
     return stage2.toString().substring(1);
 }
 function decreaseBrightnessRGB(color, percent) {
@@ -1391,7 +1391,7 @@ function sampleColorsForWACCA(center, radius, index) {
 
         const data = sampleAverageColor(imageCtx, x, y);
         const hexColor = rgbToHex(data[0], data[1], data[2]);
-        const final = decreaseBrightness(hexColor, (index * 8));
+        const final = decreaseBrightness(hexColor, (index * 9));
         colors.push("0x" + final);
     }
     return colors;
