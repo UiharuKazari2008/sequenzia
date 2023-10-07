@@ -1751,11 +1751,6 @@ function enableChunShimControl() {
     }
     function handleZoneTap(item_id, location) {
         const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item_id];
-        if (item_data.isExit) {
-            document.getElementById("ChunInfo").classList.add("hidden");
-            document.getElementById("ChunCotroller").classList.add("hidden");
-            socket.close(0);
-        }
         switch (item_data.type) {
             case "submenu":
                 menuBreadcrumbs.push(item_data.data);
@@ -1768,9 +1763,14 @@ function enableChunShimControl() {
                     type: "GET", data: '',
                     processData: false,
                     contentType: false,
-                    timeout: 2000,
+                    timeout: 5000,
                     headers: { 'X-Requested-With': 'SequenziaXHR' },
                     success: async function (response) {
+                        if (item_data.isExit) {
+                            document.getElementById("ChunInfo").classList.add("hidden");
+                            document.getElementById("ChunCotroller").classList.add("hidden");
+                            socket.close(0);
+                        }
                         console.log(response);
                     },
                     error: function (response) {
