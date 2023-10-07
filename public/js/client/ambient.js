@@ -1751,6 +1751,11 @@ function enableChunShimControl() {
     }
     function handleZoneTap(item_id, location) {
         const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item_id];
+        if (item_data.isExit) {
+            document.getElementById("ChunInfo").classList.add("hidden");
+            document.getElementById("ChunCotroller").classList.add("hidden");
+            socket.close(0);
+        }
         switch (item_data.type) {
             case "submenu":
                 menuBreadcrumbs.push(item_data.data);
@@ -1814,11 +1819,7 @@ function enableChunShimControl() {
                 console.log("Can't handle menu item type: " + item_data.type);
                 break;
         }
-        if (item_data.isExit) {
-            document.getElementById("ChunInfo").classList.add("hidden");
-            document.getElementById("ChunCotroller").classList.add("hidden");
-            socket.close(0);
-        } else if (item_data.return) {
+        if (item_data.return) {
             for (let i = 0; i < item_data.return; i++) {
                 if (menuBreadcrumbs.length !== 1) {
                     menuBreadcrumbs.pop();
