@@ -36,10 +36,12 @@ config.set('json', 'true');
 let kioskOptions = new URLSearchParams(document.location.hash.substring(1));
 
 let lastURL = '';
+let lastResponse;
 let displayMode = [];
 let remoteInfoCFD = false;
 let remoteWACCALED = false;
 let remoteChunLED = false;
+let remoteChunLEDGround = false;
 let vfdWeather = '';
 let vfdInfo = '';
 let vfdDate = '';
@@ -70,6 +72,7 @@ let displayConfiguration = {
     layoutMode: 0,
 }
 let lastColorRingData = '';
+let menuMap;
 
 const _sysHeight = window.innerHeight * window.devicePixelRatio;
 const _sysWidth = window.innerWidth * window.devicePixelRatio;
@@ -89,6 +92,30 @@ if (config.has('led_server') && config.has('led_type')) {
         remoteWACCALED = config.getAll('led_server')[0]
     } else if (type === 'chun') {
         remoteChunLED = config.getAll('led_server')[0]
+    }
+}
+if (config.has('special_mode')) {
+    const type = config.getAll('special_mode')[0];
+    if (type === 'wacca') {
+        // TODO
+    } else if (type === 'chun') {
+        remoteChunLEDGround = true;
+        $.ajax({
+            async: true,
+            url: `http://localhost:6833/get_special_menu/chun`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            timeout: 2000,
+            headers: { 'X-Requested-With': 'SequenziaXHR' },
+            success: async function (response) {
+                console.log(response);
+                menuMap = response;
+            },
+            error: function (response) {
+                console.log(response);
+            }
+        });
     }
 }
 if (config.has('info_vfd_default_line')) {
@@ -567,6 +594,7 @@ function pullImage(data) {
                     $('.hidden-on-boot').removeClass('hidden-on-boot')
                 }, 1700);
                 lastURL = data.randomImagev2[0].fullImage;
+                lastResponse = data;
                 if (remoteInfoCFD) {
                     vfdDate = getVFDDate()
                     setTimeout(function () {
@@ -1144,6 +1172,11 @@ function syncDisplaySettings() {
                     _bo.addClass('nost-layout');
                     _dz.addClass('nost-layout');
                     break;
+                case 4:
+                    _lm.addClass('chun-layout');
+                    _bo.addClass('chun-layout');
+                    _dz.addClass('chun-layout');
+                    break;
                 case 1:
                     _lm.addClass('wacca-layout');
                     break;
@@ -1459,6 +1492,428 @@ function sendLEDReset() {
     }
 }
 
+function enableChunShimControl() {
+    let touchZoneMap = {
+        "a": 1,
+        "1": 1,
+
+        "z": 2,
+        "q": 2,
+
+        "s": 3,
+        "2": 3,
+
+        "x": 4,
+        "w": 4,
+
+        "d": 5,
+        "3": 5,
+
+        "c": 6,
+        "e": 6,
+
+        "f": 7,
+        "4": 7,
+
+        "v": 8,
+        "r": 8,
+
+        "g": 9,
+        "5": 9,
+
+        "b": 10,
+        "t": 10,
+
+        "h": 11,
+        "6": 11,
+
+        "n": 12,
+        "y": 12,
+
+        "j": 13,
+        "7": 13,
+
+        "m": 14,
+        "u": 14,
+
+        "k": 15,
+        "8": 15,
+
+        "9": 16,
+        "i": 16
+    }
+    let touchLocationMap = {
+        "a": 1,
+        "1": 2,
+
+        "z": 1,
+        "q": 2,
+
+        "s": 1,
+        "2": 2,
+
+        "x": 1,
+        "w": 2,
+
+        "d": 1,
+        "3": 2,
+
+        "c": 1,
+        "e": 2,
+
+        "f": 1,
+        "4": 2,
+
+        "v": 1,
+        "r": 2,
+
+        "g": 1,
+        "5": 2,
+
+        "b": 1,
+        "t": 2,
+
+        "h": 1,
+        "6": 2,
+
+        "n": 1,
+        "y": 2,
+
+        "j": 1,
+        "7": 2,
+
+        "m": 1,
+        "u": 2,
+
+        "k": 1,
+        "8": 2,
+
+        "9": 1,
+        "i": 2
+    }
+    let zoneTouchMap = {};
+    Object.entries(touchZoneMap).map(e => {
+        zoneTouchMap[e[1]] = e[0];
+    })
+    let activeKeysTimeouts = {};
+    let activeZoneLinks = {};
+    let activeZoneMap = {};
+    let menuBreadcrumbs = ["mainmenu"];
+
+    function initLEDDriver() {
+        socket.send(new Uint8Array(['0x01', '0x11', 0]))
+    }
+    function sendLEDs(dataStream, brightness) {
+        let packet = ['0x01', '0x10', 103];
+        function convertToHex(value) {
+            // Ensure the input value is within the range [0, 100]
+            if (value < 0) value = 0;
+            if (value > 100) value = 100;
+
+            // Convert the value to a hexadecimal string
+            const hexValue = Math.round((value / 100) * 255).toString(16).toUpperCase();
+
+            // Pad the string with leading zeros if needed
+            const paddedHexValue = hexValue.length === 1 ? "0" + hexValue : hexValue;
+
+            // Return the result as a hexadecimal string
+            return "0x" + paddedHexValue;
+        }
+        packet.push(convertToHex(brightness || 100));
+        if (dataStream.length === 186) {
+            for (let i = 0; i < dataStream.length; i += 6) {
+                const color = dataStream.substring(i, i + 6);
+                let colorValue = [];
+                for (let j = 0; j < color.length; j += 2) {
+                    colorValue.push("0x" + color[j] + color[j + 1]);
+                }
+                packet.push(...colorValue);
+            }
+            packet.push(...["0xFF","0xFF","0xFF", "0x00","0x00","0x00", "0xFF","0xFF","0xFF"])
+            socket.send(new Uint8Array(packet))
+        } else {
+            console.log("Bad data stream length: " + dataStream.length)
+        }
+    }
+    function sendTouchZones() {
+        const touchZones = Array.from(document.getElementsByClassName('chun-touch-bg')).map(e => {
+            const touch_id = document.getElementById('chunTouchTap' + (e.id.split('chunTouchZone').pop()));
+            var hex = "";
+            if (touch_id.classList.contains('hidden-opacity')) {
+                const style = window.getComputedStyle(e);
+                let rgb = style.backgroundColor;
+                rgb = rgb.slice(4, -1).split(",");
+                for (var i = 0; i < 3; i++) {
+                    var decimal = parseInt(rgb[i]);
+                    hex += ("0" + decimal.toString(16)).slice(-2);
+                }
+            } else {
+                hex = "ffffff"
+            }
+            return hex;
+        }).join("")
+        const seperators = Array.from(document.getElementsByClassName('chun-seperator-bg')).map(e => {
+            const touch_id = document.getElementById('chunSepeTap' + (e.id.split('chunSepeZone').pop()));
+            var hex = "";
+            if (touch_id.classList.contains('hidden-opacity')) {
+                const style = window.getComputedStyle(e);
+                let rgb = style.backgroundColor;
+                rgb = rgb.slice(4, -1).split(",");
+                for (var i = 0; i < 3; i++) {
+                    var decimal = parseInt(rgb[i]);
+                    hex += ("0" + decimal.toString(16)).slice(-2);
+                }
+            } else {
+                hex = "ffffff"
+            }
+            return hex;
+        }).join("")
+        sendLEDs(touchZones + seperators, 100);
+    }
+
+    function loadMenuMaps() {
+        const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
+        activeZoneMap = {};
+        activeZoneLinks = {};
+        let i = 1;
+        $('#ChunInfoHolder').html(menuBreadcrumbs.map((e,i) => {
+            if (menuBreadcrumbs.length > 1 && e !== "mainmenu") {
+                const menu_item = menuMap[e];
+                let ele = '<div class="chun-menu-breadcrumb">';
+                if (menu_item["_title"]) {
+                    ele += `<span>${menu_item["_title"]}</span>`;
+                    if ((i + 1) !== menuBreadcrumbs.length)
+                        ele += `<i class="fas fa-chevron-right px-2"></i>`
+                }
+                ele += '</div>';
+                return ele
+            }
+            return '';
+        }).join(''))
+        if (menuBreadcrumbs.length > 1) {
+            document.getElementById("ChunInfo").classList.remove("hidden");
+        } else {
+            document.getElementById("ChunInfo").classList.add("hidden");
+        }
+        Object.entries(menu).filter(e => !e[0].startsWith("_")).map(e => {
+            let zones = [];
+            for (let j = 0; j < e[1].width; j++) {
+                activeZoneMap[i] = e[0];
+                zones.push(i);
+                document.getElementById('chunTouchZone' + i).style.backgroundColor = e[1].color;
+                if (j !== e[1].width - 1 && i !== 16) {
+                    document.getElementById('chunSepeZone' + i).style.backgroundColor = e[1].color;
+                    document.getElementById('chunSepeZone' + i).style.opacity = 1;
+                } else if (i !== 16) {
+                    document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
+                    document.getElementById('chunSepeZone' + i).style.opacity = 0;
+                }
+                i++;
+            }
+            activeZoneLinks[e[0]] = zones;
+        });
+        $('#ChunTextOverlays').html(
+            Object.entries(menu).filter(e => !e[0].startsWith("_")).map((e,i) => {
+                let ele = `<div class="chun-touch-overlay" style="width: ${(72.5 * e[1].width) + (8 * (e[1].width - 1))}px;">`
+                if (e[1].icon) {
+                    ele += `<i class="${e[1].icon}${(e[1].text) ? ' pr-2': ''}"></i>`
+                }
+                if (e[1].text) {
+                    ele += `<span>${e[1].text}</span>`
+                    if (e[1].icon && e[1].icon_dual) {
+                        ele += `<i class="${e[1].icon}${(e[1].text) ? ' pl-2': ''}"></i>`
+                    }
+                }
+                ele += '</div>'
+                if ((i + 1) !== Object.keys(menu).length) {
+                    ele += `<div class="chun-seperator-tap hidden-opacity"></div>`
+                }
+                return ele
+            }).join(''))
+        if (i !== 17) {
+            const last_index = i;
+            while (i <= 16) {
+                document.getElementById('chunTouchZone' + i).style.backgroundColor = "#000000";
+                if (i < 16) {
+                    document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
+                    document.getElementById('chunSepeZone' + i).style.opacity = 1;
+                } else if (menuBreadcrumbs[menuBreadcrumbs.length - 1] !== 'mainmenu') {
+                    document.getElementById('chunSepeZone15').style.backgroundColor = "#000000";
+                    document.getElementById('chunSepeZone15').style.opacity = 0;
+                    activeZoneMap["16"] = "_return";
+                    activeZoneLinks["_return"] = ["16"];
+                    document.getElementById('chunTouchZone16').style.backgroundColor = "#4a0000";
+                    $('#ChunTextOverlays').append(`<div class="chun-touch-overlay" style="margin-left: ${((16 - last_index) * 80.5) }px; width: 72.5px"><i class="fas fa-arrow-turn-down-left"/></div>`);
+                }
+                i++;
+            }
+        }
+    }
+    function handleZoneTap(item_id, location) {
+        const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item_id];
+        switch (item_data.type) {
+            case "submenu":
+                menuBreadcrumbs.push(item_data.data);
+                loadMenuMaps();
+                break;
+            case "url":
+                $.ajax({
+                    async: true,
+                    url: ((typeof item_data.data !== "string") ? item_data.data[location - 1] : item_data.data),
+                    type: "GET", data: '',
+                    processData: false,
+                    contentType: false,
+                    timeout: 2000,
+                    headers: { 'X-Requested-With': 'SequenziaXHR' },
+                    success: async function (response) {
+                        console.log(response);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+                break;
+            case "internal":
+                switch (item_data.data) {
+                    case "favorite":
+                        if (lastResponse && lastResponse.randomImagev2.pinned === false) {
+                            $.ajax({async: true,
+                                type: "post",
+                                url: "/actions/v1",
+                                data: {
+                                    'channelid': lastResponse.randomImagev2.channelid,
+                                    'messageid': lastResponse.randomImagev2.eid,
+                                    'action': "Pin",
+                                    'bypass': 'appIntent'
+                                },
+                                cache: false,
+                                headers: {
+                                    'X-Requested-With': 'SequenziaXHR'
+                                },
+                                success: function (res, txt, xhr) {
+                                    if (xhr.status < 400) {
+                                        console.log(res);
+                                        lastResponse.randomImagev2.pinned = true;
+                                        loadMenuMaps();
+                                    } else {
+                                        console.log(res.responseText);
+                                    }
+                                },
+                                error: function (xhr) {
+                                    console.error(xhr);
+                                }
+                            });
+                        }
+                        break;
+                    default:
+                        console.log("Can't handle internal action type: " + item_data.data);
+                        break;
+                }
+                break;
+            default:
+                console.log("Can't handle menu item type: " + item_data.type);
+                break;
+        }
+        if (item_data.return) {
+            for (let i = 0; i < item_data.return; i++) {
+                if (menuBreadcrumbs.length !== 1) {
+                    menuBreadcrumbs.pop();
+                }
+            }
+            loadMenuMaps();
+        }
+    }
+
+    const socket = new WebSocket('ws://localhost:7124');
+
+    socket.addEventListener('open', (event) => {
+        console.log('WebSocket connection established.');
+        socket.send(new Uint8Array(['0x01', '0x12', 4, '0x00', '0x00', '0x00', '0x00']))
+    });
+    socket.addEventListener('message', (event) => {
+        if (event.data instanceof Blob) {
+            // Convert the blob to an ArrayBuffer
+            const reader = new FileReader();
+            reader.onload = function () {
+                const hexString = (new Uint8Array(reader.result)).reduce((hex, value) => {
+                    return hex + (value < 16 ? '0' : '') + value.toString(16);
+                }, '').toUpperCase();
+                console.log('Hexadecimal string:', hexString);
+                const command = hexString.substring(2, 4);
+                const payload = hexString.substring(4, hexString.length);
+                switch (command) {
+                    case '1A':
+                        if (payload === `060000000051ED`) {
+                            console.log('Connected and Verified shim successfully!');
+                            initLEDDriver();
+                        } else {
+                            console.log('Bad ping response from shim successfully!');
+                        }
+                        break;
+                    case '19':
+                        console.log('Shim is ready for data!');
+                        document.getElementById("ChunCotroller").classList.remove("hidden");
+                        loadMenuMaps();
+                        setInterval(sendTouchZones, 33);
+                        break;
+                    default:
+                        console.log('Unknown Reponse Type: ' + command);
+                        break;
+                }
+            };
+            reader.readAsArrayBuffer(event.data);
+        }
+    });
+    socket.addEventListener('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+    socket.addEventListener('close', () => {
+        console.log('WebSocket connection closed.');
+    });
+    document.addEventListener("keydown", (event) => {
+        // Get the key that was pressed
+        const keyPressed = event.key;
+        if (touchZoneMap[keyPressed]) {
+            const zone = touchZoneMap[keyPressed];
+            const location = touchLocationMap[keyPressed];
+            const item = activeZoneMap[zone];
+            const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item];
+            if (!(item_data && item_data.no_tap_effect)) {
+                const linkedZones = activeZoneLinks[item]
+                linkedZones.map((e,i) => {
+                    document.getElementById('chunTouchTap' + e).classList.remove('hidden-opacity');
+                    if (e !== 16 && (i + 1) !== linkedZones.length) {
+                        document.getElementById('chunSepeTap' + e).classList.remove('hidden-opacity');
+                    }
+                })
+                activeKeysTimeouts[keyPressed] = setTimeout(() => {
+                    linkedZones.map((e,i) => {
+                        document.getElementById('chunTouchTap' + e).classList.add('hidden-opacity');
+                        if (e !== 16 && (i + 1) !== linkedZones.length) {
+                            document.getElementById('chunSepeTap' + e).classList.add('hidden-opacity');
+                        }
+                    })
+                    clearTimeout(activeKeysTimeouts[keyPressed]);
+                    delete activeKeysTimeouts[keyPressed];
+                    if (item === "_return") {
+                        if (menuBreadcrumbs.length !== 1) {
+                            menuBreadcrumbs.pop();
+                        }
+                        loadMenuMaps();
+                    } else if (item_data && item_data.type) {
+                            handleZoneTap(item, location);
+                    }
+                }, 250);
+            } else if (item_data && item_data.type) {
+                activeKeysTimeouts[keyPressed] = setTimeout(() => {
+                    handleZoneTap(item, location);
+                }, 250);
+            }
+            console.log("Touch Zone Pressed: " + zone, item, location);
+        }
+    });
+}
+
 $(document).ready(function () {
     // Init Check
     if (remoteInfoCFD) {
@@ -1475,6 +1930,9 @@ $(document).ready(function () {
     }
     if (remoteWACCALED || remoteChunLED) {
         sendLEDStatic(  "f99400");
+    }
+    if (remoteChunLEDGround) {
+        enableChunShimControl();
     }
     let _refreshURL = '/discord/refresh'
     if (config.has('key')) {

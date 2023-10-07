@@ -197,6 +197,9 @@ input:focus, textarea:focus, select:focus, button:focus, audio:focus, a:focus, v
 .hidden {
     display: none!important;
 }
+.hidden-opacity {
+    opacity: 0!important;
+}
 
 .hidden-default:not(.active) {
     display: none!important;
