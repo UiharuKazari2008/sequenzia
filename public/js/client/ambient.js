@@ -1676,10 +1676,12 @@ function enableChunShimControl() {
         const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
         activeZoneMap = {};
         activeZoneLinks = {};
-        if (pauseLEDUpdates === false && !(menu['_pause_leds'])) {
+        if (pauseLEDUpdates === true && !(menu['_pause_leds'])) {
+            pauseLEDUpdates = !!(menu['_pause_leds']);
             sendLEDValues(lastColorRingData);
+        } else {
+            pauseLEDUpdates = !!(menu['_pause_leds']);
         }
-        pauseLEDUpdates = !!(menu['_pause_leds']);
         if (pauseLEDUpdates) {
             sendLEDStatic(  "f99400");
             sendLEDStatic(  "000000", 1);
