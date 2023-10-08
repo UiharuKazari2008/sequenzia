@@ -532,7 +532,7 @@ function pullImage(data) {
                     document.getElementById(element_to + 'port').src = response;
                     document.getElementById(element_to).classList.add('blur-this');
                 }
-                if (remoteWACCALED || remoteChunLED) {
+                if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
                     await getColorData(response);
                 }
                 document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
@@ -1267,6 +1267,7 @@ const imageCtx = imageCanvas.getContext('2d');
 const sampleCount = 60;
 const circleCount = 8;
 let allColors = [];
+let pauseLEDUpdates = false;
 function getColorData(url) {
     const image = new Image();
     image.style.opacity = "0";
@@ -1751,10 +1752,31 @@ function enableChunShimControl() {
     }
     function handleZoneTap(item_id, location) {
         const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item_id];
+        pauseLEDUpdates = !!(item_data['pause_leds']);
         switch (item_data.type) {
             case "submenu":
-                menuBreadcrumbs.push(item_data.data);
-                loadMenuMaps();
+                if (menuMap[item_data.data]["_action_url"]) {
+                    $.ajax({
+                        async: true,
+                        url: menuMap[item_data.data]["_action_url"],
+                        type: "GET", data: '',
+                        processData: false,
+                        contentType: false,
+                        timeout: 5000,
+                        headers: { 'X-Requested-With': 'SequenziaXHR' },
+                        success: async function (response) {
+                            menuBreadcrumbs.push(item_data.data);
+                            loadMenuMaps();
+                            console.log(response);
+                        },
+                        error: function (response) {
+                            console.log(response);
+                        }
+                    });
+                } else {
+                    menuBreadcrumbs.push(item_data.data);
+                    loadMenuMaps();
+                }
                 break;
             case "url":
                 $.ajax({
@@ -1983,7 +2005,9 @@ $(document).ready(function () {
                 ddw();
                 if (remoteWACCALED || remoteChunLED) {
                     setInterval(() => {
-                        sendLEDValues(lastColorRingData);
+                        if (!pauseLEDUpdates) {
+                            sendLEDValues(lastColorRingData);
+                        }
                     }, 60000);
                 }
             } else {
