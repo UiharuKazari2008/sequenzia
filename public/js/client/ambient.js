@@ -1448,7 +1448,7 @@ function sendLEDValues(values) {
         });
     }
 }
-function sendLEDStatic(_values) {
+function sendLEDStatic(_values, bankSelect) {
     if (remoteWACCALED || remoteChunLED) {
         const url = (() => {
             if (remoteWACCALED) {
@@ -1458,7 +1458,7 @@ function sendLEDStatic(_values) {
                 }
                 return `http://${remoteWACCALED}/setLED?ledBrightness=50&ledValues=${colors.join(" ")}`
             }
-            return `http://${remoteChunLED}/setLEDColor?ledBrightness=50&ledColor=${_values}&bankSelect=2`
+            return `http://${remoteChunLED}/setLEDColor?ledBrightness=50&ledColor=${_values}&bankSelect=${bankSelect || 2}`
         })()
         $.ajax({
             async: true,
@@ -1676,6 +1676,14 @@ function enableChunShimControl() {
         const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
         activeZoneMap = {};
         activeZoneLinks = {};
+        if (pauseLEDUpdates === false && !(menu['pause_leds'])) {
+            sendLEDValues(lastColorRingData);
+        }
+        pauseLEDUpdates = !!(menu['pause_leds']);
+        if (pauseLEDUpdates) {
+            sendLEDStatic(  "f99400");
+            sendLEDStatic(  "000000", 1);
+        }
         let i = 1;
         $('#ChunInfoHolder').html(menuBreadcrumbs.map((e,i) => {
             if (menuBreadcrumbs.length > 1 && e !== "mainmenu") {
@@ -1752,7 +1760,6 @@ function enableChunShimControl() {
     }
     function handleZoneTap(item_id, location) {
         const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item_id];
-        pauseLEDUpdates = !!(item_data['pause_leds']);
         switch (item_data.type) {
             case "submenu":
                 if (menuMap[item_data.data]["_action_url"]) {
