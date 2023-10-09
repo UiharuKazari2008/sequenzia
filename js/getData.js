@@ -689,7 +689,7 @@ module.exports = async (req, res, next) => {
                 sqlquery.push(`date >= NOW() - INTERVAL ${numOfDays} DAY`);
                 android_uri.push(`numdays=${numOfDays}`);
             }
-        } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/start') {
+        } else if (!(req.query.channel || req.query.vchannel || req.query.folder) && (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/start')) {
             sqlquery.push(`date >= NOW() - INTERVAL 360 DAY`);
             android_uri.push(`numdays=360`);
         }
