@@ -1840,6 +1840,13 @@ function enableChunShimControl() {
                                     if (xhr.status < 400) {
                                         console.log(res);
                                         lastResponse.randomImagev2[0].pinned = true;
+                                        if (config.has('displayname')) {
+                                            document.getElementById('dataFav').classList.remove('d-none')
+                                            document.getElementById('dataFav').classList.add('mr-2')
+                                        } else {
+                                            document.getElementById('dataFav').classList.remove('d-none')
+                                            document.getElementById('dataFav').classList.remove('mr-2')
+                                        }
                                         loadMenuMaps();
                                     } else {
                                         console.log(res.responseText);
