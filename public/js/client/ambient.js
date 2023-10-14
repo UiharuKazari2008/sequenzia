@@ -1918,6 +1918,7 @@ function enableChunShimControl() {
     });
     document.addEventListener("keydown", (event) => {
         // Get the key that was pressed
+        kioskGainFocus();
         const keyPressed = event.key;
         if (touchZoneMap[keyPressed]) {
             const zone = touchZoneMap[keyPressed];
