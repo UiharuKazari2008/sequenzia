@@ -1768,6 +1768,10 @@ function enableChunShimControl() {
     }
     function handleZoneTap(item_id, location) {
         const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item_id];
+        if (item_data.fade_out) {
+            $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+            fadeActive = true;
+        }
         switch (item_data.type) {
             case "submenu":
                 if (menuMap[item_data.data]["_action_url"]) {
