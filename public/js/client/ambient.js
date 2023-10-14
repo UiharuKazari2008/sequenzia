@@ -1726,7 +1726,9 @@ function enableChunShimControl() {
         $('#ChunTextOverlays').html(
             Object.entries(menu).filter(e => !e[0].startsWith("_")).map((e,i) => {
                 let ele = `<div class="chun-touch-overlay" style="width: ${(72.5 * e[1].width) + (8 * (e[1].width - 1))}px;">`
-                if (e[1].icon) {
+                if (e[1].image) {
+                    ele += `<img style="${e[1].image_style}" class="${(e[1].text) ? ' pr-2': ''}" src="${e[1].image}"></img>`
+                }else if (e[1].icon) {
                     ele += `<i class="${e[1].icon}${(e[1].text) ? ' pr-2': ''}"></i>`
                 }
                 if (e[1].text) {

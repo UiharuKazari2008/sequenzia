@@ -690,7 +690,7 @@ async function setupKioskMode() {
                         kiosk_padding = response.padding
                         setCookie('kiosk_padding', JSON.stringify(response.padding));
 
-                        if (kiosk_padding.bottom) {
+                        if (kiosk_padding && kiosk_padding.bottom) {
                             let rule = '<style>'
                             rule += `#deadzoneOverlay { height: ${kiosk_padding.bottom}; }\n`
                             rule += `.fixed-bottom.ambient-items { margin-bottom: ${kiosk_padding.bottom}; }\n`
