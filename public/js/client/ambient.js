@@ -1676,6 +1676,10 @@ function enableChunShimControl() {
         const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
         activeZoneMap = {};
         activeZoneLinks = {};
+        if (menu['_fade_out']) {
+            $('#exitOverlay').removeClass('d-none').addClass("d-flex");
+            fadeActive = true;
+        }
         if (pauseLEDUpdates === true && !(menu['_pause_leds'])) {
             pauseLEDUpdates = !!(menu['_pause_leds']);
             sendLEDValues(lastColorRingData);
@@ -1814,13 +1818,13 @@ function enableChunShimControl() {
             case "internal":
                 switch (item_data.data) {
                     case "favorite":
-                        if (lastResponse && lastResponse.randomImagev2.pinned === false) {
+                        if (lastResponse && lastResponse.randomImagev2[0] && lastResponse.randomImagev2[0].pinned === false) {
                             $.ajax({async: true,
                                 type: "post",
                                 url: "/actions/v1",
                                 data: {
-                                    'channelid': lastResponse.randomImagev2.channelid,
-                                    'messageid': lastResponse.randomImagev2.eid,
+                                    'channelid': lastResponse.randomImagev2[0].channelid,
+                                    'messageid': lastResponse.randomImagev2[0].eid,
                                     'action': "Pin",
                                     'bypass': 'appIntent'
                                 },
@@ -1831,7 +1835,7 @@ function enableChunShimControl() {
                                 success: function (res, txt, xhr) {
                                     if (xhr.status < 400) {
                                         console.log(res);
-                                        lastResponse.randomImagev2.pinned = true;
+                                        lastResponse.randomImagev2[0].pinned = true;
                                         loadMenuMaps();
                                     } else {
                                         console.log(res.responseText);
