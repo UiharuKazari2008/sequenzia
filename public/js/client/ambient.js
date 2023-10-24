@@ -94,6 +94,11 @@ if (config.has('led_server') && config.has('led_type')) {
         remoteChunLED = config.getAll('led_server')[0]
     }
 }
+if (config.has('sys_plate')) {
+    const url_item = config.getAll('sys_plate')[0];
+    document.getElementById('ChunSystemPlate').src = `/static/img/kiosk_images/${url_item}.png`;
+    document.getElementById('ChunSystemPlate').classList.remove('hidden');
+}
 if (config.has('special_mode')) {
     const type = config.getAll('special_mode')[0];
     if (type === 'wacca') {
@@ -1494,6 +1499,7 @@ function sendLEDReset() {
 }
 
 function enableChunShimControl() {
+
     let touchZoneMap = {
         "a": 1,
         "1": 1,
