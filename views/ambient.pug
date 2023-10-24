@@ -48,6 +48,7 @@ html
         img#bg2port.portait-overlay.center-block(style='z-index: -102!important; opacity: 0;')
         img#imageHolder.position-absolute.fixed-top(style='z-index: -500!important;' crossOrigin="Anonymous")
         canvas#imageCanvas.position-absolute.fixed-top(style='z-index: -500!important;')
+        img#ChunSystemPlate.position-absolute.bottom-right.hidden(src='data:image/png;base64,0')
 
 
         #content-wrapper.container.p-4
@@ -121,7 +122,6 @@ html
                     #logoEnd.ml-auto.pt-2.d-none(style='opacity: .6').animated--fade-in.hidden-on-boot
                         img.shadow-txt.text-white(style="width: 280px;position: relative;top: 0.2em;" src=`/static/img/sequenzia-logo-nav.png`)
             #ChunInfo.fixed-bottom.d-flex.animated--fade-in.hidden
-                img#ChunSystemPlate.position-absolute.bottom-right.hidden(src='data:image/png;base64,0')
                 #ChunInfoData.flex-grow-1.px-3.d-flex
                 #ChunInfoHolder.px-3.d-flex
             #ChunCotroller.fixed-bottom.d-flex.hidden

@@ -284,11 +284,14 @@ a:active {
     color: #ff9b59;
 }
 
+div#ChunSystemPlate {
+    z-index: 10020;
+}
 div#ChunCotroller, div#ChunInfo {
     height: 77px;
     width: 1280px;
     left: 318px;
-    z-index: 5000;
+    z-index: 10020;
     backdrop-filter: blur(1);
 }
 div#ChunInfo {
