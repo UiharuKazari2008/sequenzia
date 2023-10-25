@@ -1884,9 +1884,55 @@ function enableChunShimControl() {
     }
 
     const socket = new WebSocket('ws://localhost:7124');
+    const bridge = new WebSocket('ws://localhost:6833');
+
+    bridge.addEventListener('open', (event) => {
+        console.log('Bridge connection established.');
+    });
+    bridge.addEventListener('message', (event) => {
+        if (event.data) {
+            try {
+                const data = JSON.parse(event.data.toString());
+                if (data.error) {
+                    console.error(`Error Message: ${data.reason}`);
+                } else if (data.item && data.menu) {
+                    const isUndo = (data.undo && menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][data.undo] !== undefined);
+                    const item = (isUndo) ? data.undo : data.item;
+                    if (!isUndo) {
+                        menuBreadcrumbs = ["mainmenu"];
+                        if (data.menu !== 'mainmenu')
+                            menuBreadcrumbs.push(data.menu);
+                    }
+                    const location = data.location || 0;
+                    const item_data = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]][item];
+                    if (!(item_data && item_data.no_tap_effect)) {
+                        if (item === "_return") {
+                            if (menuBreadcrumbs.length !== 1) {
+                                menuBreadcrumbs.pop();
+                            }
+                            loadMenuMaps();
+                        } else if (item_data && item_data.type) {
+                            handleZoneTap(item, location);
+                        }
+                    } else if (item_data && item_data.type) {
+                        handleZoneTap(item, location);
+                    }
+                    console.log("Remote Action Pressed: " + item, location);
+                }
+            } catch (e) {
+                console.error(`Failed to parse bridge message: ${e.message}`);
+            }
+        }
+    });
+    bridge.addEventListener('error', (error) => {
+        console.error('Bridge error:', error);
+    });
+    bridge.addEventListener('close', () => {
+        console.log('Bridge connection closed.');
+    });
 
     socket.addEventListener('open', (event) => {
-        console.log('WebSocket connection established.');
+        console.log('Slider connection established.');
         socket.send(new Uint8Array(['0x01', '0x12', 4, '0x00', '0x00', '0x00', '0x00']))
     });
     socket.addEventListener('message', (event) => {
@@ -1961,7 +2007,7 @@ function enableChunShimControl() {
                         }
                         loadMenuMaps();
                     } else if (item_data && item_data.type) {
-                            handleZoneTap(item, location);
+                      handleZoneTap(item, location);
                     }
                 }, 250);
             } else if (item_data && item_data.type) {
