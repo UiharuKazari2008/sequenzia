@@ -1890,6 +1890,7 @@ function enableChunShimControl() {
         console.log('Bridge connection established.');
     });
     bridge.addEventListener('message', (event) => {
+        console.log(event)
         if (event.data) {
             try {
                 const data = JSON.parse(event.data.toString());
