@@ -1320,19 +1320,19 @@ async function parseCanvasToChunithm(image) {
     const aspectRatio = (9 / 16);
 
     let spacingX, spacingY, startX, startY;
-    if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
+    //if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
         // Constrained by width
-        spacingX = image.width / (gridWidth + 1);
-        spacingY = spacingX * aspectRatio;
-        startX = spacingX;
-        startY = (image.height - (spacingY * (gridHeight - 1))) / 2;
-    } else {
+    //    spacingX = image.width / (gridWidth + 1);
+    //    spacingY = spacingX * aspectRatio;
+    //    startX = spacingX;
+    //    startY = (image.height - (spacingY * (gridHeight - 1))) / 2;
+    //} else {
         // Constrained by height
         spacingY = image.height / (gridHeight + 1) / aspectRatio;
         spacingX = spacingY * aspectRatio;
         startX = (image.width - (spacingX * (gridWidth - 1))) / 2;
         startY = spacingY;
-    }
+    //}
 
     const colorValues = [];
 
