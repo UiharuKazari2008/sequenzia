@@ -1884,7 +1884,7 @@ function enableChunShimControl() {
     }
 
     const socket = new WebSocket('ws://localhost:7124');
-    const bridge = new WebSocket('ws://localhost:6833');
+    const bridge = new WebSocket('ws://localhost:6834');
 
     bridge.addEventListener('open', (event) => {
         console.log('Bridge connection established.');
