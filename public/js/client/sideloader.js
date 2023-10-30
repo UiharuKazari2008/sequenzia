@@ -138,11 +138,12 @@ let unpackerWorker = null;
 let lastExchange = null;
 
 let fadeActive = false;
+let focusAction = null;
 let inactivityTime = 5 * 60 * 1000;
 let inactivityTimeout = null;
 let inactivityDelay = null;
 let inactivityLeave = null;
-function button_call(url, fade_in, exit_image) {
+function button_call(url, fade_in, exit_image, return_url) {
     if (fade_in === 1 || fade_in === 3) {
         noAmbientTimer = true;
         if (exit_image) {
@@ -151,6 +152,8 @@ function button_call(url, fade_in, exit_image) {
         $('#exitOverlay').removeClass('d-none').addClass("d-flex");
         if (fade_in === 3)
             fadeActive = true;
+        if (return_url)
+            focusAction = return_url;
     }
     $.ajax({async: true,
         url,
@@ -171,6 +174,8 @@ function button_call(url, fade_in, exit_image) {
                 $('#exitOverlay').removeClass('d-none').addClass("d-flex");
                 if (fade_in === 4)
                     fadeActive = true;
+                if (return_url)
+                    focusAction = return_url;
             }
         }
     });
@@ -198,6 +203,22 @@ function kioskGainFocus() {
         fadeActive = false;
         $('#exitOverlay').addClass('d-none').removeClass("d-flex");
         noAmbientTimer = false;
+    }
+    if (focusAction) {
+        $.ajax({async: true,
+            url: focusAction,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            error: function (res) { console.error('Failed to call button url') },
+            success: function (res, txt, xhr) {
+                console.log(xhr.status, txt)
+                focusAction = null;
+            }
+        });
     }
 }
 if (kioskMenuEnabled) {
@@ -230,9 +251,33 @@ if (kioskMenuEnabled) {
                 kioskbuttonsHTML.buttons = response.buttons.filter(e => !e.hide_in_app).map(b => {
                     let h = ''
                     if (b.url) {
-                        h += `<a class="btn-sm btn btn-primary" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        h += `<a class="btn-sm btn btn-primary" href="#_" onclick="button_call('${b.url}'`
+                        if (b.fade_out) { h += `, ${b.fade_out}` } else { h += ", 0" }
+                        if (b.fade_image) { h += `, '${b.fade_image}'` } else { h += ", undefined" }
+                        if (b.return_id) {
+                            h += `, 'http://127.0.0.1:6833/action/${b.return_id}'`
+                        } else if (b.return_mcu) {
+                            h += `, 'http://127.0.0.1:6833/mcu_link/${b.return_mcu}'`
+                        } else if (b.return_url) {
+                            h += `, '${b.return_url}'`
+                        } else {
+                            h += ", undefined"
+                        }
+                        h +=`); return false;">`
                     } else {
-                        h += `<a class="btn-sm btn btn-primary" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        h += `<a class="btn-sm btn btn-primary" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}'`
+                        if (b.fade_out) { h += `, ${b.fade_out}` } else { h += ", 0" }
+                        if (b.fade_image) { h += `, '${b.fade_image}'` } else { h += ", undefined" }
+                        if (b.return_id) {
+                            h += `, 'http://127.0.0.1:6833/action/${b.return_id}'`
+                        } else if (b.return_mcu) {
+                            h += `, 'http://127.0.0.1:6833/mcu_link/${b.return_mcu}'`
+                        } else if (b.return_url) {
+                            h += `, '${b.return_url}'`
+                        } else {
+                            h += ", undefined"
+                        }
+                        h +=`); return false;">`
                     }
                     if (b.fade_image) {
                         let preload = new Image();
@@ -245,9 +290,33 @@ if (kioskMenuEnabled) {
                 kioskbuttonsHTML.apps = response.applications.filter(e => !e.hide_in_app).map(b => {
                     let h = ''
                     if (b.url) {
-                        h += `<a class="user-menu-item user-menu-small" href="#_" onclick="button_call('${b.url}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        h += `<a class="user-menu-item user-menu-small" href="#_" onclick="button_call('${b.url}'`
+                        if (b.fade_out) { h += `, ${b.fade_out}` } else { h += ", 0" }
+                        if (b.fade_image) { h += `, '${b.fade_image}'` } else { h += ", undefined" }
+                        if (b.return_id) {
+                            h += `, 'http://127.0.0.1:6833/action/${b.return_id}'`
+                        } else if (b.return_mcu) {
+                            h += `, 'http://127.0.0.1:6833/mcu_link/${b.return_mcu}'`
+                        } else if (b.return_url) {
+                            h += `, '${b.return_url}'`
+                        } else {
+                            h += ", undefined"
+                        }
+                        h +=`); return false;">`
                     } else {
-                        h += `<a class="user-menu-item user-menu-small" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}', ${(b.fade_out) ? b.fade_out : '0'}${(b.fade_image) ? ", '" + b.fade_image + "'" : ''}); return false;">`
+                        h += `<a class="user-menu-item user-menu-small" href="#_" onclick="button_call('http://127.0.0.1:6833/action/${b.id}'`
+                        if (b.fade_out) { h += `, ${b.fade_out}` } else { h += ", 0" }
+                        if (b.fade_image) { h += `, '${b.fade_image}'` } else { h += ", undefined" }
+                        if (b.return_id) {
+                            h += `, 'http://127.0.0.1:6833/action/${b.return_id}'`
+                        } else if (b.return_mcu) {
+                            h += `, 'http://127.0.0.1:6833/mcu_link/${b.return_mcu}'`
+                        } else if (b.return_url) {
+                            h += `, '${b.return_url}'`
+                        } else {
+                            h += ", undefined"
+                        }
+                        h +=`); return false;">`
                     }
                     if (b.fade_image) {
                         let preload = new Image();
