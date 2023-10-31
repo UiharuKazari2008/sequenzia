@@ -1976,6 +1976,17 @@ function enableChunShimControl() {
                         handleZoneTap(item, location);
                     }
                     console.log("Remote Action Pressed: " + item, location);
+                } else if (data.menu) {
+                    const isUndo = (menuBreadcrumbs[menuBreadcrumbs.length - 1] !== "mainmenu");
+                    if (!isUndo) {
+                        menuBreadcrumbs = ["mainmenu"];
+                        if (data.menu !== 'mainmenu')
+                            menuBreadcrumbs.push(data.menu);
+                    } else {
+                        menuBreadcrumbs = ["mainmenu"];
+                    }
+                    loadMenuMaps();
+                    console.log("Remote Menu Load: " + data.menu);
                 }
             } catch (e) {
                 console.error(`Failed to parse bridge message: ${e.message}`);
