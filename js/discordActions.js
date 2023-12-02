@@ -23,6 +23,7 @@ module.exports = async (req, res, next) => {
                     case 'MovePost':
                         printLine("ActionParser", `Request to Move ${job.messageid} from ${job.channelid} to ${job.data}`, 'info', job)
                         const results = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE id = ? AND channel = ? LIMIT 1`, [job.messageid, job.channelid])
+                        await sqlPromiseSafe('DELETE FROM kanmi_cdn WHERE eid = (SELECT eid FROM kanmi_records where id = ?) LIMIT 1', [job.messageid]);
                         if (results.rows.length > 0) {
                             sendRequest({
                                 fromClient: `return.Sequenzia.${config.system_name}`,
@@ -49,6 +50,7 @@ module.exports = async (req, res, next) => {
                         }
                         break;
                     case 'RotatePost':
+                        await sqlPromiseSafe('DELETE FROM kanmi_cdn WHERE eid = (SELECT eid FROM kanmi_records where id = ?) LIMIT 1', [job.messageid]);
                         printLine("ActionParser", `Request to Rotate ${job.messageid}`, 'info', job)
                         sendRequest({
                             fromClient: `return.Sequenzia.${config.system_name}`,
@@ -67,6 +69,7 @@ module.exports = async (req, res, next) => {
                         }
                         break;
                     case 'ArchivePost':
+                        await sqlPromiseSafe('DELETE FROM kanmi_cdn WHERE eid = (SELECT eid FROM kanmi_records where id = ?) LIMIT 1', [job.messageid]);
                         printLine("ActionParser", `Request to Archive ${job.messageid} from ${job.channelid}`, 'info', job)
                         sendRequest({
                             fromClient: `return.Sequenzia.${config.system_name}`,
@@ -95,6 +98,7 @@ module.exports = async (req, res, next) => {
                             messageAction: 'RemovePost'
                         }, global.mq_discord_out + '.backlog')
                         await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [job.messageid, job.channelid])
+                        await sqlPromiseSafe('DELETE FROM kanmi_cdn WHERE eid = (SELECT eid FROM kanmi_records where id = ?) LIMIT 1', [job.messageid]);
                         if (req.body.batch) {
                             _return = 200
                         } else {
