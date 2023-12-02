@@ -1,9 +1,14 @@
 const https = require('https');
 const { printLine } = require("../js/logSystem");
+const config = require("../host.config.json");
 
 module.exports = async (req, res, next) => {
     if (res.locals.response.randomImagev2 && res.locals.response.randomImagev2.length > 0) {
-        const url = res.locals.response.randomImagev2[0].fullImage;
+
+        let url = res.locals.response.randomImagev2[0].fullImage;
+        const cdn_found = config.local_cdn_list.filter(e => url.startsWith(e.access_url));
+        if (cdn_found.length > 0)
+            url = url.replace(cdn_found[0].access_url, cdn_found[0].local_url);
         printLine('ProxyFile', `Starting download proxy for ${url}`, 'info');
         const request = https.get(url, {
             headers: {

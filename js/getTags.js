@@ -364,7 +364,8 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
-            const sqlResult = await sqlPromiseSimple(`${sqlCall} LIMIT ${limit} OFFSET ${offset}`)
+            const selectCDN = `SELECT * FROM kanmi_cdn WHERE refresh = 0 ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
+            const sqlResult = await sqlPromiseSimple(`SELECT rec.*, cdn.host AS cdn_host FROM (${sqlCall} LIMIT ${limit} OFFSET ${offset}) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`)
             async function parseResults(results) {
                 let page_title;
                 let full_title;
@@ -444,7 +445,9 @@ module.exports = async (req, res, next) => {
                     } else {
                         channelName = item.channel_nice
                     }
-                    if (item.cache_proxy !== null) {
+                    if (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
+                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.serverid}/${item.channelid}/${item.eid}.${((item.cache_proxy) ? item.cache_proxy : (item.attachment_hash.includes('/')) ? item.attachment_hash : item.attachment_name).split('?')[0].split('.').pop()}`
+                    } else if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
                     } else if (item.attachment_hash && item.attachment_name) {
                         function getimageSizeParam() {
