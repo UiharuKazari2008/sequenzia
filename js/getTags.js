@@ -364,7 +364,7 @@ module.exports = async (req, res, next) => {
                 res.end();
             }
         } else {
-            const selectCDN = `SELECT * FROM kanmi_cdn WHERE refresh = 0 ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
+            const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE refresh = 0 ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
             const sqlResult = await sqlPromiseSimple(`SELECT rec.*, cdn.host AS cdn_host FROM (${sqlCall} LIMIT ${limit} OFFSET ${offset}) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`)
             async function parseResults(results) {
                 let page_title;
