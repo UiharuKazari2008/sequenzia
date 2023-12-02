@@ -446,7 +446,7 @@ module.exports = async (req, res, next) => {
                         channelName = item.channel_nice
                     }
                     if (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.serverid}/${item.channelid}/${item.eid}.${((item.cache_proxy) ? item.cache_proxy : (item.attachment_hash.includes('/')) ? item.attachment_hash : item.attachment_name).split('?')[0].split('.').pop()}`
+                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.serverid}/${item.channelid}/${item.eid}.${((item.cache_proxy) ? item.cache_proxy : (item.attachment_hash.includes('/')) ? item.attachment_hash : item.attachment_name).split('?')[0].split('.').pop()}?${item.attachment_hash}`
                     } else if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
                     } else if (item.attachment_hash && item.attachment_name) {
