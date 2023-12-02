@@ -18,6 +18,9 @@ const cacheOptions = {
         'offline-content-albums',
     ],
     blockedCache: [
+        '/content/',
+        '/cdn/',
+        '/datacenter/',
         '/discord/',
         '/gallery',
         '/cards',
