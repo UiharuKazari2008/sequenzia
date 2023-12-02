@@ -361,7 +361,7 @@ router.use('/stream', sessionVerification, handleExchange, readValidation, async
                                     requestedHeaders['range'] = `bytes=${startByteOffset}-`
                                 }
                                 await new Promise((resolve) => {
-                                    const request = https.get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
+                                    const request = ((url.startsWith('https')) ? https : http).get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
                                         response.on('data', (data) => { passTrough.push(data) });
                                         response.on('end', () => {
                                             printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} - ${parityFiles[i]}`, 'info');
@@ -390,7 +390,7 @@ router.use('/stream', sessionVerification, handleExchange, readValidation, async
                                     'User-Agent': 'Sequenzia/v1.5 (JuneOS 1.7) Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36 Edg/92.0.902.73'
                                 }
                                 await new Promise((resolve) => {
-                                    const request = https.get(files[i], { headers: requestedHeaders }, async (response) => {
+                                    const request = ((url.startsWith('https')) ? https : http).get(files[i], { headers: requestedHeaders }, async (response) => {
                                         response.on('data', (data) => { fileCompleted.write(data) });
                                         response.on('end', () => {
                                             printLine('StreamFile', `Parity chunk complete for part #${parseInt(i) + 1}/${files.length} - ${files[i]}`, 'info');
@@ -452,7 +452,7 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                     const message = messages.pop();
                     async function returnContent(url) {
                         if (url) {
-                            const request = https.get(url, {
+                            const request = ((url.startsWith('https')) ? https : http).get(url, {
                                 headers: {
                                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                                     'accept-language': 'en-US,en;q=0.9',
@@ -549,7 +549,7 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                         }
                     }
                     async function returnOptiContent(url) {
-                        const request = https.get(url, {
+                        const request = ((url.startsWith('https')) ? https : http).get(url, {
                             headers: {
                                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                                 'accept-language': 'en-US,en;q=0.9',
@@ -744,7 +744,7 @@ router.use('/media_attachments', async function (req, res) {
         const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
         const url = 'https://media.discordapp.net/attachments/' + params.join('/') + '?' + query
         if (params.length === 3) {
-            const request = https.get(url, {
+            const request = ((url.startsWith('https')) ? https : http).get(url, {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                     'accept-language': 'en-US,en;q=0.9',
@@ -790,7 +790,7 @@ router.use('/avatars', async function (req, res) {
         const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
         const url = 'https://cdn.discordapp.com/avatars/' + params.join('/') + '?' + query
         if (params.length === 2) {
-            const request = https.get(url, {
+            const request = ((url.startsWith('https')) ? https : http).get(url, {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                     'accept-language': 'en-US,en;q=0.9',
@@ -836,7 +836,7 @@ router.use('/icons', async function (req, res) {
         const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
         const url = 'https://cdn.discordapp.com/icons/' + params.join('/') + '?' + query
         if (params.length === 2) {
-            const request = https.get(url, {
+            const request = ((url.startsWith('https')) ? https : http).get(url, {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                     'accept-language': 'en-US,en;q=0.9',

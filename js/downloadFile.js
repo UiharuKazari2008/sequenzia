@@ -1,4 +1,5 @@
 const https = require('https');
+const http = require('http');
 const { printLine } = require("../js/logSystem");
 const config = require("../host.config.json");
 
@@ -10,7 +11,7 @@ module.exports = async (req, res, next) => {
         if (cdn_found.length > 0)
             url = url.replace(cdn_found[0].access_url, cdn_found[0].local_url);
         printLine('ProxyFile', `Starting download proxy for ${url}`, 'info');
-        const request = https.get(url, {
+        const request = ((url.startsWith('https')) ? https : http).get(url, {
             headers: {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'accept-language': 'en-US,en;q=0.9',
