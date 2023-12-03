@@ -1209,7 +1209,7 @@ module.exports = async (req, res, next) => {
                     // Get Image Preview URL
                     let ranImage = '';
                     if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0) {
-                        ranImage = `${config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url}preview/${image.cdn_path}/${image.preview_hint}?${image.attachment_hash}`
+                        ranImage = `${config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url}preview/${image.path_hint}/${image.preview_hint}?${image.attachment_hash}`
                     } else if ( image.cache_proxy !== null) {
                         ranImage = image.cache_proxy.startsWith('http') ? image.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${image.cache_proxy}`
                     } else {
@@ -1253,7 +1253,7 @@ module.exports = async (req, res, next) => {
                     } else {
                         if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0) {
                             const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url
-                            ranfullImage = `${cdn_host}full/${image.cdn_path}/${image.full_hint}?${image.attachment_hash}`
+                            ranfullImage = `${cdn_host}full/${image.path_hint}/${image.full_hint}?${image.attachment_hash}`
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
@@ -1371,7 +1371,7 @@ module.exports = async (req, res, next) => {
                     // Get Image Preview URL
                     let ranImage = '';
                     if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0) {
-                        ranImage = `${config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url}preview/${image.cdn_path}/${image.preview_hint}?${image.attachment_hash}`
+                        ranImage = `${config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url}preview/${image.path_hint}/${image.preview_hint}?${image.attachment_hash}`
                     } else if ( image.cache_proxy !== null) {
                         ranImage = image.cache_proxy.startsWith('http') ? image.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${image.cache_proxy}`
                     } else {
@@ -1416,7 +1416,7 @@ module.exports = async (req, res, next) => {
                     } else {
                         if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0) {
                             const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url
-                            ranfullImage = `${cdn_host}full/${image.cdn_path}/${image.full_hint}?${image.attachment_hash}`
+                            ranfullImage = `${cdn_host}full/${image.path_hint}/${image.full_hint}?${image.attachment_hash}`
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
@@ -2284,7 +2284,7 @@ module.exports = async (req, res, next) => {
                                     let downloadimage = null
 
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                                        fullimage = fullimage = imageurl = downloadimage = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}full/${item.cdn_path}/${item.full_hint}?${item.attachment_hash}`
+                                        fullimage = fullimage = imageurl = downloadimage = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}full/${item.path_hint}/${item.full_hint}?${item.attachment_hash}`
                                     } else if (item.attachment_hash && item.attachment_name) {
                                         fullimage = fullimage = imageurl = downloadimage = `${(req.session && req.session.lite_mode === true) ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((item.attachment_hash.includes('/')) ? item.attachment_hash : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
                                     } else if (item.fileid) {
@@ -2299,7 +2299,7 @@ module.exports = async (req, res, next) => {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.cdn_path}/${item.preview_hint}?${item.attachment_hash}`
+                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.path_hint}/${item.preview_hint}?${item.attachment_hash}`
                                     } else if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
@@ -2696,13 +2696,13 @@ module.exports = async (req, res, next) => {
                                     downloadlink = `/content/link/${item.channel}/${item.id}/`
                                     if (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
                                         const cdn_host = config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url
-                                        fullurl = downloadurl = imageurl = `${cdn_host}full/${item.cdn_path}/${item.full_hint}?${item.attachment_hash}`
+                                        fullurl = downloadurl = imageurl = `${cdn_host}full/${item.path_hint}/${item.full_hint}?${item.attachment_hash}`
                                     } else {
                                         fullurl = downloadurl = imageurl = `${(req.session && req.session.lite_mode === true) ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((item.attachment_hash.includes('/')) ? `${item.attachment_hash}` : `${item.channel}/${item.attachment_hash}/${item.attachment_name}`)
                                     }
 
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.cdn_path}/${item.preview_hint}?${item.attachment_hash}`
+                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.path_hint}/${item.preview_hint}?${item.attachment_hash}`
                                     } else if (item.cache_proxy !== null) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {

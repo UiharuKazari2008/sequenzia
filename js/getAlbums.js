@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
                     res.json({ albums: album_rows });
                 } else {
                     const rows = album_rows.map(e => {
-                        let ranImage = (e.cdn_host !== null && config.local_cdn_list.filter(e => e.id === e.cdn_host).length > 0) ? `${config.local_cdn_list.filter(e => e.id === e.cdn_host)[0].access_url}preview/${e.cdn_path}/${e.preview_hint}?${e.attachment_hash}` : ( e.cache_proxy) ? e.cache_proxy.startsWith('http') ? e.cache_proxy : `https://media.discordapp.net/attachments${e.cache_proxy}` : (e.attachment_hash && e.attachment_name) ? `https://media.discordapp.net/attachments/` + ((e.attachment_hash.includes('/')) ? e.attachment_hash : `${e.channel}/${e.attachment_hash}/${e.attachment_name}`) : undefined
+                        let ranImage = (e.cdn_host !== null && config.local_cdn_list.filter(e => e.id === e.cdn_host).length > 0) ? `${config.local_cdn_list.filter(e => e.id === e.cdn_host)[0].access_url}preview/${e.path_hint}/${e.preview_hint}?${e.attachment_hash}` : ( e.cache_proxy) ? e.cache_proxy.startsWith('http') ? e.cache_proxy : `https://media.discordapp.net/attachments${e.cache_proxy}` : (e.attachment_hash && e.attachment_name) ? `https://media.discordapp.net/attachments/` + ((e.attachment_hash.includes('/')) ? e.attachment_hash : `${e.channel}/${e.attachment_hash}/${e.attachment_name}`) : undefined
                         return {
                             ...e,
                             user: (e.nice_name) ? e.nice_name : e.username,
