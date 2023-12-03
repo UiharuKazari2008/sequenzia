@@ -2219,6 +2219,7 @@ module.exports = async (req, res, next) => {
                                                     date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                                 },
                                                 flagged: (item.flagged === 1),
+                                                not_cdn_cached: (item.full_hint),
                                                 content: {
                                                     raw: item.content_full,
                                                     clean: clean_content,
@@ -2372,6 +2373,7 @@ module.exports = async (req, res, next) => {
                                             date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                         },
                                         flagged: (item.flagged === 1),
+                                        not_cdn_cached: (item.full_hint),
                                         content: {
                                             raw: item.content_full,
                                             clean: clean_content,
@@ -2639,6 +2641,7 @@ module.exports = async (req, res, next) => {
                                                 date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                             },
                                             flagged: (item.flagged === 1),
+                                            not_cdn_cached: (item.full_hint),
                                             content: {
                                                 raw: item.content_full,
                                                 clean: clean_content,
@@ -2771,6 +2774,7 @@ module.exports = async (req, res, next) => {
                                             date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                         },
                                         flagged: (item.flagged === 1),
+                                        not_cdn_cached: (item.full_hint),
                                         content: {
                                             raw: item.content_full,
                                             clean: clean_content,
@@ -2866,6 +2870,7 @@ module.exports = async (req, res, next) => {
                                             date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                         },
                                         flagged: (item.flagged === 1),
+                                        not_cdn_cached: (item.full_hint),
                                         content: {
                                             raw: item.content_full,
                                             clean: clean_content,

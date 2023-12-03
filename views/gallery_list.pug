@@ -97,6 +97,8 @@ block content
                                             //span.pr-1.text-ellipsis.no-dynamic-tiny(style='line-height: 1.1;') #{(item.history.name.startsWith('ADS')) ? item.history.name.split('-').splice(1).join('-') : item.history.name}#{(item.history.screen) ? ' (' + item.history.screen + ')' : ''}
                                         if (item.flagged)
                                             i.fas.fa-flag.text-danger
+                                        if (item.not_cdn_cached)
+                                            i.fas.fa-cloud
                                         i#offlineReady.fas.fa-bookmark.text-success.hidden
                                         i#offlineExpiring.fas.fa-clock.text-warning.hidden.ml-1
                                     div.d-inline-flex.ml-auto.shadow-text
