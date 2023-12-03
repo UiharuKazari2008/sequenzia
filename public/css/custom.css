@@ -2393,8 +2393,8 @@ footer .server-grid-parent {
 .modal-gradient {
     z-index: -1;
     background-image: linear-gradient(0deg, black, transparent);
-    backdrop-filter: blur(3px) saturate(2) brightness(1.2);
-    -webkit-backdrop-filter: blur(3px) saturate(2) brightness(1.2);
+    backdrop-filter: saturate(2) brightness(1.2);
+    -webkit-backdrop-filter: saturate(2) brightness(1.2);
 }
 
 .episode-number {
