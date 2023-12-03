@@ -1701,7 +1701,6 @@ select.form-control:focus::-ms-value {
 .warning-box-contents, .kiosk-buttons-container {
     background: #000000c9;
     border-radius: 0.75em;
-    backdrop-filter: blur(15px);
 }
 
 .warning-box-contents {
@@ -2194,8 +2193,6 @@ div#time {
     top: 0;
     left: 0;
     background-image: linear-gradient(90deg,#000000f2,#000000c4);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
     display: block;
     height: 100vh;
     width: 100vw;
@@ -2213,8 +2210,6 @@ div#time {
 }
 .menu-container {
     background: #6b22007a;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 0 20px #2e0f00;
     border: solid 1px #ffa6543b;
 }
