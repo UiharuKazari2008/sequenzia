@@ -349,7 +349,7 @@ color: #b3ff85;
     border-bottom: solid 1px #ff844e21;
 }
 .menu-open #topbarBackground {
-    background: #000000a1
+    background: #000000eb
 }
 #topbarUserBackground {
     opacity: 0.5;
@@ -4338,7 +4338,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         border-bottom: solid 1px #e3990859;
     }
     .menu-open #topbarBackground {
-        background: #9d5700a1;
+        background: #9d5700eb;
     }
     .bottom-bar #topbarBackground {
         border-bottom: none;
