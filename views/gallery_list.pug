@@ -219,6 +219,12 @@ block content
                                             if (item.meta.search)
                                                 .ml-auto
                                                 span.pr-2 #{item.meta.search}
+                                            if (item.entities.meta.fileid)
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
+                                                    i.btn-links.fas.fa-download
+                                            else
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                                    i.btn-links.fas.fa-download
 
 
                                         .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
