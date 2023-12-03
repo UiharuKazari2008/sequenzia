@@ -2209,6 +2209,8 @@ div#time {
     padding-bottom: calc(env(safe-area-inset-bottom) + 1em);
 }
 .menu-container {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     background: #6b22007a;
     box-shadow: 0 0 20px #2e0f00;
     border: solid 1px #ffa6543b;
