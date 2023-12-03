@@ -2299,7 +2299,7 @@ module.exports = async (req, res, next) => {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${image.cdn_path}/${image.preview_hint}?${item.attachment_hash}`
+                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.cdn_path}/${item.preview_hint}?${item.attachment_hash}`
                                     } else if (item.cache_proxy) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
@@ -2702,7 +2702,7 @@ module.exports = async (req, res, next) => {
                                     }
 
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${image.cdn_path}/${image.preview_hint}?${item.attachment_hash}`
+                                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.cdn_path}/${item.preview_hint}?${item.attachment_hash}`
                                     } else if (item.cache_proxy !== null) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     } else if (item.attachment_hash && item.attachment_name) {
