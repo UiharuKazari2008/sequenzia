@@ -2392,7 +2392,7 @@ footer .server-grid-parent {
 }
 .modal-gradient {
     z-index: -1;
-    background-image: linear-gradient(0deg, black, transparent);
+    background-image: linear-gradient(0deg, black, #0000007d);
     backdrop-filter: saturate(2) brightness(1.2);
     -webkit-backdrop-filter: saturate(2) brightness(1.2);
 }
