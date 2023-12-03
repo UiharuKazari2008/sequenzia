@@ -365,7 +365,7 @@ module.exports = async (req, res, next) => {
             }
         } else {
             const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE full = 1 ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
-            const sqlResult = await sqlPromiseSimple(`SELECT rec.*, cdn.host AS cdn_host FROM (${sqlCall} LIMIT ${limit} OFFSET ${offset}) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`)
+            const sqlResult = await sqlPromiseSimple(`SELECT rec.*, cdn.host AS cdn_host, cdn.full_hint, cdn.preview_hint, cdn.ext0_hint FROM (${sqlCall} LIMIT ${limit} OFFSET ${offset}) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`)
             async function parseResults(results) {
                 let page_title;
                 let full_title;
@@ -446,7 +446,7 @@ module.exports = async (req, res, next) => {
                         channelName = item.channel_nice
                     }
                     if (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) {
-                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.serverid}/${item.channelid}/${item.eid}.${((item.cache_proxy) ? item.cache_proxy : (item.attachment_hash.includes('/')) ? item.attachment_hash : item.attachment_name).split('?')[0].split('.').pop()}?${item.attachment_hash}`
+                        imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.cdn_path}/${item.preview_hint}?${item.attachment_hash}`
                     } else if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
                     } else if (item.attachment_hash && item.attachment_name) {
