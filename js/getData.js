@@ -2981,7 +2981,7 @@ module.exports = async (req, res, next) => {
                             theaters: (thisUser.master.media_groups && thisUser.master.media_groups.length > 0) ? thisUser.master.media_groups : [],
                             next_episode: thisUser.master.kongou_next_episode,
                             applications_list: thisUser.master.applications_list,
-                            ultraCache: messageResults.cache,
+                            ultraCache: (messageResults.cache) ? { id: md5(sqlCallNoPreLimit), time: messageResults.cache } : false,
                             exchange_list: thisUser,
                             is_remote_exchange: req.headers['x-sequenzia-exchange'] || false,
                             active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
@@ -3009,7 +3009,7 @@ module.exports = async (req, res, next) => {
                             active_svr: currentServerId,
                             active_pt: currentClassification,
                             active_icon: currentClassIcon,
-                            ultraCache: messageResults.cache,
+                            ultraCache: (messageResults.cache) ? { id: md5(sqlCallNoPreLimit), time: messageResults.cache } : false,
                             username: thisUser.master.discord.user.username,
                             folderInfo
                         })
@@ -3038,7 +3038,7 @@ module.exports = async (req, res, next) => {
                             write_channels: thisUser.master.discord.channels.write,
                             discord: thisUser.master.discord,
                             user: thisUser.master.user,
-                            ultraCache: messageResults.cache,
+                            ultraCache: (messageResults.cache) ? { id: md5(sqlCallNoPreLimit), time: messageResults.cache } : false,
                             login_source: req.session.login_source,
                             albums: (thisUser.master.albums && thisUser.master.albums.length > 0) ? thisUser.master.albums : [],
                             artists: (thisUser.master.artists && thisUser.master.artists.length > 0) ? thisUser.master.artists : [],
