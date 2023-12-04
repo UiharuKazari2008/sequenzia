@@ -137,14 +137,14 @@ html
             #bootBackdropSunrise
         .boot-logo-overlay.boot-logo-panel(style="display: none;" id=`kmsBootDisplay`)
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
-                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? '/media_attachments' + active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ((this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? '/media_attachments' + active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ((this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/kms-background.jpeg'});`)
                     div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
                     div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                     div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
                         div.d-flex(style="z-index: 1;")
-                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                     div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                        img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(active_exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                        img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(active_exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                         span.boot-status-holder.font-weight-bolder Kongou Media Project v9
                         .mt-1.boot-icons-holder.d-none
@@ -153,7 +153,7 @@ html
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                     div.boot-author-loog.p-2.position-absolute.bottom-left
-                        img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                        img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         .boot-logo-overlay.boot-logo-panel(id=`bootUpDisplay`)
             .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
                 div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.user.banner) ? active_exchange.user.banner : ((this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : '') + '/static/img/bootlogo-inner.jpeg'})`)
@@ -162,9 +162,9 @@ html
                         div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
                         div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
                             //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
-                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                         div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                            img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                            img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
                         div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
                             i.px-2.fas.fa-image
                             i.px-2.fas.fa-film
@@ -180,7 +180,7 @@ html
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                         //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
                     div.boot-author-loog.p-2.position-absolute.bottom-left
-                        img(src=`${(this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+                        img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
 
         #kmsBootDisplay.boot-logo-overlay(style="display: none;")
             .logo-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4

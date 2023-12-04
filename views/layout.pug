@@ -128,7 +128,7 @@ html
                                                 div.user-info-overlay.position-absolute.rounded
                                                 div.user-infocard-holder.d-flex.flex-column
                                                     .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                        img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                        img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${((exchange_id && exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
                                                         if (exchange.discord.user.membership)
                                                             if (exchange.discord.user.membership.background)
                                                                 div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
@@ -535,7 +535,7 @@ html
                                                         div.user-info-overlay.position-absolute.rounded
                                                         div.user-infocard-holder.d-flex.flex-column
                                                             .row.p-0.m-2(style="padding: 0.25em 0.5em;")
-                                                                img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${((exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
+                                                                img.sidebar-brand-logo.sequenzia-logo.shadow(src=`${((exchange_id && exchange_id !== 'master') ? '/cross-exchange/' + exchange_id : '')}/static/img/sequenzia-logo-nav.png` style='height: 28px; filter: drop-shadow(0px 0px 2px black);')
                                                                 if (exchange.discord.user.membership)
                                                                     if (exchange.discord.user.membership.background)
                                                                         div.badge.ml-auto.d-flex.align-items-center.justify-content-center(style=`font-size: 1em; ${(exchange.discord.user.membership.color) ? 'color: ' + exchange.discord.user.membership.color + '; ' : ''}background: ${exchange.discord.user.membership.background}`)
