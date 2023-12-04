@@ -775,7 +775,7 @@ async function requestCompleted (response, url, lastURL, push) {
             type: 'error',
             title: 'No Results Found',
             subtitle: 'Error',
-            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key_pass', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'fast_query', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
+            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Include NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key_pass', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'fast_query', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
             delay: 10000,
         });
         responseComplete = true
@@ -1383,7 +1383,7 @@ async function getSearchContent(element, tagsElement, exchange, url) {
             const _pathname = _url.split('?')[0];
             const _currentURL = window.location.hash.substring(1)
 
-            for (let e of ['search', 'offset', 'sort', 'numdays', 'minres', 'minhres', 'minwres', 'dark']) {
+            for (let e of ['search', 'offset', 'sort', 'numdays', 'maxres','minres', 'minhres', 'minwres', 'dark']) {
                 _params.delete(e);
             }
             if (_params.has('nsfw') &&

@@ -1365,8 +1365,10 @@ html
                                                                             | Resolution
                                                                             if (params.has('minres'))
                                                                                 span.pl-1 (#{params.getAll('minres')[0]}px)
-                                                                        if (params.has('minhres') || params.has('minwres') || params.has('minres'))
-                                                                            a.dropdown-item(title="Show all image resolutions" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], []); return false;`)
+                                                                            else if (params.has('maxres'))
+                                                                                span.pl-1 (Max #{params.getAll('maxres')[0]}px)
+                                                                        if (params.has('minhres') || params.has('minwres') || params.has('minres') || params.has('maxres'))
+                                                                            a.dropdown-item(title="Show all image resolutions" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres', 'maxres'], []); return false;`)
                                                                                 i.fas.fa-empty-set.pr-2
                                                                                 | Reset Filter
                                                                         form#resolution2Collapse.accordion.dropdown-item.p-0
@@ -1379,25 +1381,25 @@ html
                                                                                             i.fas.fa-chevron-right.ml-auto.align-self-center
                                                                                 #resolution2WidthBody.collapse(aria-labelledby=`resolution2WidthHeader` data-parent=`#resolution2Collapse`)
                                                                                     div.ml-2
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '720']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '720']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | HQ (720px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '900']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '900']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | HQ (900px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '1000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '1000']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | HD (1000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '2000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '2000']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | 2K (2000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '3000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '3000']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | 3K (3000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '4000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '4000']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | 4K (4000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minwres', '5000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minwres', '5000']]); return false;`)
                                                                                             i.fas.fa-ruler-horizontal.pr-2
                                                                                             | 5K (5000px+)
                                                                             .div
@@ -1409,25 +1411,25 @@ html
                                                                                             i.fas.fa-chevron-right.ml-auto.align-self-center
                                                                                 #resolution2HeightBody.collapse(aria-labelledby=`resolution2HeightHeader` data-parent=`#resolution2Collapse`)
                                                                                     div.ml-2
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '720']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '720']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | HQ (720px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '900']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '900']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | HQ (900px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '1000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '1000']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | HD (1000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '2000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '2000']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | 2K (2000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '3000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '3000']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | 3K (3000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '4000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '4000']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | 4K (4000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minhres', '5000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minhres', '5000']]); return false;`)
                                                                                             i.fas.fa-ruler-vertical.pr-2
                                                                                             | 5K (5000px+)
                                                                             .div
@@ -1439,25 +1441,25 @@ html
                                                                                             i.fas.fa-chevron-right.ml-auto.align-self-center
                                                                                 #resolution2CombindedBody.collapse(aria-labelledby=`resolution2CombindedHeader` data-parent=`#resolution2Collapse`)
                                                                                     div.ml-2
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '720']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '720']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | HQ (720px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '900']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 720px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '900']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | HQ (900px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '1000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 1080px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '1000']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | HD (1000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '2000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 2000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '2000']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | 2K (2000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '3000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 3000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '3000']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | 3K (3000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '4000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 4000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '4000']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | 4K (4000px+)
-                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'minres'], [['minres', '5000']]); return false;`)
+                                                                                        a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '5000']]); return false;`)
                                                                                             i.fas.fa-ruler-combined.pr-2
                                                                                             | 5K (5000px+)
                                                                         span.dropdown-header
@@ -1958,6 +1960,9 @@ html
                                                 if (params.has('minres'))
                                                     .text-warning.d-none.d-sm-inline Minimum Loose Resolution of #{params.getAll('minres')[0]}px
                                                     .text-warning.d-sm-none Min Res: #{params.getAll('minres')[0]}px
+                                                else if (params.has('maxres'))
+                                                    .text-warning.d-none.d-sm-inline Maximum Loose Resolution of #{params.getAll('maxres')[0]}px
+                                                    .text-warning.d-sm-none Max Res: #{params.getAll('maxres')[0]}px
                                                 else if (params.has('minhres'))
                                                     .text-warning.d-none.d-sm-inline Minimum Vertical Resolution of #{params.getAll('minhres')[0]}px
                                                     .text-warning.d-sm-none Min Vert: #{params.getAll('minhres')[0]}px
@@ -1965,7 +1970,7 @@ html
                                                     .text-warning.d-none.d-sm-inline Minimum Horizontal Resolution of #{params.getAll('minwres')[0]}px
                                                     .text-warning.d-sm-none Min Horiz: #{params.getAll('minwres')[0]}px
                                             .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Minimum Pixel Range" href='#_' onclick=`getNewContent(['offset', 'minres', 'minhres', 'minwres'], []); return false;`) Show All
+                                                a.text-warning.align-self-end.alert-btn(title="Remove Minimum Pixel Range" href='#_' onclick=`getNewContent(['offset', 'maxres', 'minres', 'minhres', 'minwres'], []); return false;`) Show All
                                 if (params.has('ratio'))
                                     .alert.alert-time-transparent(role="alert")
                                         .row

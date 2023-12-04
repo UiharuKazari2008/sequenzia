@@ -60,8 +60,8 @@ module.exports = async (req, res, next) => {
             const last = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE (user = ? AND date >= NOW() - INTERVAL 3 MINUTE) ORDER BY date DESC`, [thisUser.master.discord.user.id])
             if (last.rows.length > 0) {
                 const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
-                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
-                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
+                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
+                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
                 console.log(noLastTags)
                 console.log(noTags)
                 if (noLastTags === noTags) {
@@ -749,6 +749,44 @@ module.exports = async (req, res, next) => {
                 ].join(' OR ') + ')')
             }
             android_uri.push(`minres=${req.query.minres}`);
+        } else if (req.query.maxres) {
+            const thisResolution = parseInt(req.query.maxres);
+            if (req.query.ratio && !isNaN(thisResolution)) {
+                const _ratio = req.query.ratio.split('-');
+                if (_ratio.length > 1) {
+                    const lessThanRatio = parseFloat(_ratio[0]);
+                    const greaterThanRatio = parseFloat(_ratio[1]);
+                    if (!isNaN(lessThanRatio) && !isNaN(greaterThanRatio)) {
+                        if (lessThanRatio >= 1) {
+                            sqlquery.push(`sizeH <= ${thisResolution}`)
+                        }
+                        if (greaterThanRatio >= 1) {
+                            sqlquery.push(`sizeW <= ${thisResolution}`)
+
+                        }
+                    }
+                } else {
+                    const thisRatio = parseFloat(_ratio[0]);
+                    if (thisRatio >= 1) {
+                        sqlquery.push(`sizeH <= ${thisResolution}`)
+                    } else {
+                        sqlquery.push(`sizeW <= ${thisResolution}`)
+
+                    }
+                }
+            } else if (!isNaN(thisResolution)) {
+                sqlquery.push('(' + [
+                    '(' + [
+                        `sizeW <= ${thisResolution}`,
+                        `sizeR >= 1`,
+                    ].join(' AND ') + ')',
+                    '(' + [
+                        `sizeH <= ${thisResolution}`,
+                        `sizeR <= 1`,
+                    ].join(' AND ') + ')'
+                ].join(' OR ') + ')')
+            }
+            android_uri.push(`maxres=${req.query.maxres}`);
         } else {
             if (req.query.minhres) {
                 const thisResolution = parseInt(req.query.minhres);

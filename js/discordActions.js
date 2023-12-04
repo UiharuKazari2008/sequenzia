@@ -19,7 +19,7 @@ module.exports = async (req, res, next) => {
             let requestResults = {}
             await (((req.body.batch) ? [...req.body.batch] : [{...req.body}]).map(async (job, index, array) => {
                 let _return = 500;
-                switch (job.action) {
+                switch (job.action)  {
                     case 'MovePost':
                         printLine("ActionParser", `Request to Move ${job.messageid} from ${job.channelid} to ${job.data}`, 'info', job)
                         const results = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE id = ? AND channel = ? LIMIT 1`, [job.messageid, job.channelid])
@@ -267,7 +267,7 @@ module.exports = async (req, res, next) => {
                             }
                         }
                         break;
-                     case 'pixivDownloadUser':
+                    case 'pixivDownloadUser':
                         if (thisUser.master.discord && thisUser.master.discord.permissions.specialPermissions.indexOf('interact')) {
                             const downloadChannel = thisUser.master.discord.servers.download.filter(e => e.serverid === job.serverid);
                             if (downloadChannel.length > 0) {
