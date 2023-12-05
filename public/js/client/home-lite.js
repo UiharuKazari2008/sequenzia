@@ -527,8 +527,11 @@ function getHistory() {
 function launchFeedURL(url_parts) {
     let adq = [['review_mode', 'true'], ['sort', 'num_id'], ...url_parts]
     const dateRange = document.getElementById('feedRangeSelector').querySelector('.active > input').getAttribute('data-days-range')
+    const sizeRange = document.getElementById('feedSizeSelector').querySelector('.active > input').getAttribute('data-minres')
     if (dateRange !== '')
         adq.push(["numdays",dateRange])
+    if (sizeRange !== '')
+        adq.push(["minres",sizeRange])
     getNewContent([], adq, "#/gallery")
     return false;
 }

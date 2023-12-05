@@ -1034,16 +1034,31 @@ html
                                                 div#feedRangeSelector.btn-group.btn-group-toggle(data-toggle='buttons')
                                                     label.btn.w-100
                                                         input(type='radio' name='options' autocomplete='off' data-days-range='7' checked='')
-                                                        span  7
+                                                        span 7
                                                     label.btn.w-100.active
                                                         input(type='radio' name='options' autocomplete='off' data-days-range='30')
-                                                        span  30
+                                                        span 30
                                                     label.btn.w-100
                                                         input(type='radio' name='options' autocomplete='off' data-days-range='120')
-                                                        span  120
+                                                        span 120
                                                     label.btn.w-100
                                                         input(type='radio' name='options' autocomplete='off' data-days-range='')
-                                                        span  All
+                                                        span All
+                                            .d-flex.align-items-center.pl-2
+                                                i.fas.fa-ruler-combined.text-lg.pr-2
+                                                div#feedSizeSelector.btn-group.btn-group-toggle(data-toggle='buttons')
+                                                    label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-minres='' checked='')
+                                                        span All
+                                                    label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-minres='512')
+                                                        span 512px
+                                                    label.btn.w-100.active
+                                                        input(type='radio' name='options' autocomplete='off' data-minres='2000')
+                                                        span 2K
+                                                    label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-minres='4000')
+                                                        span 4K
 
                                         .d-flex.flex-column.justify-content-end.top-icon
                                             div

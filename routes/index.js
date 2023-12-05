@@ -12,6 +12,7 @@ const renderSidebar = require('../js/renderSidebar');
 const getHistory = require('../js/getHistory');
 const getAlbums = require('../js/getAlbums');
 const discordActions = require('../js/discordActions');
+const parseRequestedAction = require('../js/parseRequestedAction');
 const generalActions = require('../js/generalActions');
 const generateSidebar = require('../js/GenerateSideBar');
 const generateConfiguration = require('../js/generateADSRequest')
@@ -138,7 +139,7 @@ router.get('/login', (req, res) => {
     }
 });
 
-router.post('/actions/v2', sessionVerification, handleExchange, manageValidation, discordActions);
+router.post('/actions/v2', sessionVerification, handleExchange, manageValidation, parseRequestedAction, discordActions);
 router.post('/actions/v1', sessionVerification, handleExchange, generalActions);
 
 router.get('/status', sessionVerification, async (req, res) => {

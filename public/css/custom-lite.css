@@ -1319,7 +1319,10 @@ a.badge-primary:focus, a.badge-primary.focus {
 
 div#feedRangeSelector > .btn,
 div#feedRangeSelector > .btn:focus,
-div#feedRangeSelector > .btn:active {
+div#feedRangeSelector > .btn:active,
+div#feedSizeSelector > .btn,
+div#feedSizeSelector > .btn:focus,
+div#feedSizeSelector > .btn:active {
     background: #ffa5544f;
     border: 1px solid #f07d1459;
     border-left: none;
@@ -1329,12 +1332,16 @@ div#feedRangeSelector > .btn:active {
 
 div#feedRangeSelector > .btn.active,
 div#feedRangeSelector > .btn.active:focus,
-div#feedRangeSelector > .btn.active:active {
+div#feedRangeSelector > .btn.active:active,
+div#feedSizeSelector > .btn.active,
+div#feedSizeSelector > .btn.active:focus,
+div#feedSizeSelector > .btn.active:active {
     background: #ffa554a8;
     color: #6d3300;
 }
 
-div#feedRangeSelector > .btn.active:first-child {
+div#feedRangeSelector > .btn.active:first-child,
+div#feedSizeSelector > .btn.active:first-child {
     border-left: 1px solid #f07d1459;
 }
 
