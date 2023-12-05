@@ -362,7 +362,7 @@ router.use('/stream', sessionVerification, handleExchange, readValidation, async
                                     requestedHeaders['range'] = `bytes=${startByteOffset}-`
                                 }
                                 await new Promise((resolve) => {
-                                    const request = ((url.startsWith('https')) ? https : http).get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
+                                    const request = ((parityFiles[i].startsWith('https')) ? https : http).get(parityFiles[i], { headers: requestedHeaders }, async (response) => {
                                         response.on('data', (data) => { passTrough.push(data) });
                                         response.on('end', () => {
                                             printLine('StreamFile', `Parity Stream chunk complete for part #${parseInt(i) + 1}/${parityFiles.length} - ${parityFiles[i]}`, 'info');
