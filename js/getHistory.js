@@ -73,8 +73,8 @@ module.exports = async (req, res) => {
                                 }
 
                                 displayHistory.push({
-                                    preview: (x.cdn_host !== null && config.local_cdn_list.filter(e => e.id === x.cdn_host).length > 0) ? `${config.local_cdn_list.filter(e => e.id === x.cdn_host)[0].access_url}preview/${x.path_hint}/${x.preview_hint}?${x.attachment_hash}` : ((x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`)),
-                                    full: (x.cdn_host !== null && config.local_cdn_list.filter(e => e.id === x.cdn_host).length > 0) ? `${config.local_cdn_list.filter(e => e.id === x.cdn_host)[0].access_url}full/${x.path_hint}/${x.full_hint}?${x.attachment_hash}` : (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` :( `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`)),
+                                    preview: (x.cdn_host !== null && config.local_cdn_list.filter(e => e.id === x.cdn_host).length > 0 && x.preview_hint) ? `${config.local_cdn_list.filter(e => e.id === x.cdn_host)[0].access_url}preview/${x.path_hint}/${x.preview_hint}` : ((x.cache_proxy !== null) ? x.cache_proxy : `https://media.discordapp.net/attachments/` + ((x.attachment_hash.includes('/')) ? `${x.attachment_hash}${getimageSizeParam()}` : `${x.channel}/${x.attachment_hash}/${x.attachment_name}${getimageSizeParam()}`)),
+                                    full: (x.cdn_host !== null && config.local_cdn_list.filter(e => e.id === x.cdn_host).length > 0 && x.full_hint) ? `${config.local_cdn_list.filter(e => e.id === x.cdn_host)[0].access_url}full/${x.path_hint}/${x.full_hint}` : (x.filecached) ? `/stream/${x.fileid}/${x.real_filename}` :( `https://cdn.discordapp.com/attachments/` + ((x.attachment_hash.includes('/')) ? x.attachment_hash : `${x.channel}/${x.attachment_hash}/${x.attachment_name}`)),
                                     id: x.id,
                                     eid: x.eid,
                                     screen: x.screen_id,
@@ -157,8 +157,8 @@ module.exports = async (req, res) => {
                     let displayHistory = [];
                     history.forEach(x => {
                         let image
-                        if ( x.cdn_host !== null && config.local_cdn_list.filter(e => e.id === x.cdn_host).length > 0) {
-                            image = `${config.local_cdn_list.filter(e => e.id === x.cdn_host)[0].access_url}preview/${x.path_hint}/${x.preview_hint}?${x.attachment_hash}`
+                        if ( x.cdn_host !== null && config.local_cdn_list.filter(e => e.id === x.cdn_host).length > 0 && x.preview_hint) {
+                            image = `${config.local_cdn_list.filter(e => e.id === x.cdn_host)[0].access_url}preview/${x.path_hint}/${x.preview_hint}`
                         } else if (x.cache_proxy !== null) {
                             image = x.cache_proxy.startsWith('http') ? x.cache_proxy : `https://media.discordapp.net/attachments${x.cache_proxy}`
                         } else {
