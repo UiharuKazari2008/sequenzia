@@ -2424,7 +2424,7 @@ module.exports = async (req, res, next) => {
                                             urls: content_urls,
                                             search: user_search,
                                             parent_search: parent_search,
-                                            cached: isCached,
+                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached,
                                             proccessing: inprogress,
                                             tags: (item.tags) ? item.tags : [],
                                             rating: (item.tag_count) ? item.tag_count : null
@@ -2542,7 +2542,7 @@ module.exports = async (req, res, next) => {
 
                                 if (item.fileid !== null && item.attachment_hash !== null && item.attachment_name !== null && (item.attachment_name.includes('.jp') || item.attachment_name.includes('.jfif') || item.attachment_name.includes('.png') || item.attachment_name.includes('.gif'))) {
                                     _message_header = '🖼 Large Image'
-                                    if (isCached) {
+                                    if ((item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached) {
                                         _message_type = 'image-unpacked'
                                         _message_header += `(${filesize})`
                                     } else {
@@ -2825,7 +2825,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         meta: {
                                             urls: content_urls,
-                                            cached: isCached,
+                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached,
                                             proccessing: inprogress,
                                             message_type: _message_type,
                                             message_extra: _message_extra,
@@ -2923,7 +2923,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         meta: {
                                             urls: content_urls,
-                                            cached: isCached,
+                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached,
                                             proccessing: inprogress,
                                             message_type: _message_type,
                                             message_extra: _message_extra,
