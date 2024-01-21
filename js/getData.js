@@ -2424,7 +2424,7 @@ module.exports = async (req, res, next) => {
                                             urls: content_urls,
                                             search: user_search,
                                             parent_search: parent_search,
-                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached,
+                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) || isCached,
                                             proccessing: inprogress,
                                             tags: (item.tags) ? item.tags : [],
                                             rating: (item.tag_count) ? item.tag_count : null
@@ -2825,7 +2825,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         meta: {
                                             urls: content_urls,
-                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached,
+                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) || isCached,
                                             proccessing: inprogress,
                                             message_type: _message_type,
                                             message_extra: _message_extra,
@@ -2923,7 +2923,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         meta: {
                                             urls: content_urls,
-                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0) || isCached,
+                                            cached: (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) || isCached,
                                             proccessing: inprogress,
                                             message_type: _message_type,
                                             message_extra: _message_extra,
