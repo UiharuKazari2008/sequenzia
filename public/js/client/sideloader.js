@@ -4018,7 +4018,7 @@ async function showSearchOptions(post) {
             normalInfo.push('<div class="badge badge-warning text-dark m-1 ">')
             normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
             normalInfo.push('</div>')
-            if (postCached) {
+            if (postCached || (postDownload && postDownload.length > 0)) {
                 normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
                 normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Fast Access</span>`)
                 normalInfo.push('</div>')
