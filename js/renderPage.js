@@ -51,6 +51,14 @@ module.exports = async (req, res, next) => {
         webconf: web,
         query: req.query
     };
+    if (req.query.json_results === 'true') {
+        results = {
+            active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
+            ...res.locals.response,
+            webconf: web,
+            query: req.query
+        };
+    }
     if (res.locals.imagedata) {
         Object.assign(results, { imageData: res.locals.imagedata });
     }
