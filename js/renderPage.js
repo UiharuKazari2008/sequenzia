@@ -51,7 +51,7 @@ module.exports = async (req, res, next) => {
         webconf: web,
         query: req.query
     };
-    if (req.query.json_results === 'true') {
+    if (req.query.slim_results === 'true') {
         results = {
             active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
             ...res.locals.response,
