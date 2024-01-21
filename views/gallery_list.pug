@@ -132,7 +132,7 @@ block content
                                             a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
                                                 i.btn-links.fas.fa-download
                                         else
-                                            a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                            a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download=`${item.entities.filename}` target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                                                 i.btn-links.fas.fa-download
                         div.internal-lightbox
                             - showNSFW = ''
@@ -223,7 +223,7 @@ block content
                                                 a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
                                                     i.btn-links.fas.fa-download
                                             else
-                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download=`${item.entities.filename}` target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                                                     i.btn-links.fas.fa-download
 
 

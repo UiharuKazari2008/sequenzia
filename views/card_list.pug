@@ -83,7 +83,7 @@ block content
                                     i.fas.fa-download.pr-2
                                     | Download File
                             else if (item.meta.message_type === 'image-unpacked')
-                                a(href=item.entities.download target='_blank', rel='noopener noreferrer' download).btn.btn-success.d-block
+                                a(href=item.entities.download target='_blank', rel='noopener noreferrer' download=item.entities.filename).btn.btn-success.d-block
                                     i.fas.fa-download.pr-2
                                     | Download File
                             else if (item.meta.message_type === 'image-packed')
@@ -109,7 +109,7 @@ block content
                                 | Download File
                         else if (item.meta.message_type === 'file'|| item.meta.message_type === 'file-unpacked')
                             span.d-block.mb-1.text-center.font-italic #{item.entities.filename}
-                            a(id=`request-download-${item.id}` href=item.entities.download target='_blank', rel='noopener noreferrer' download).btn.btn-success.d-block
+                            a(id=`request-download-${item.id}` href=item.entities.download target='_blank', rel='noopener noreferrer' download=item.entities.filename).btn.btn-success.d-block
                                 i.fas.fa-download.pr-2
                                 | Download File
                         else if (item.meta.message_type === 'file-packed')
