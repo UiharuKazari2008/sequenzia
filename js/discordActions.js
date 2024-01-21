@@ -156,19 +156,21 @@ module.exports = async (req, res, next) => {
                     case 'RequestFile':
                     case 'DeCacheFile':
                         printLine("ActionParser", `Request to ${(job.action === 'RequestFile') ? 'Download' : 'Decache'} File ${job.messageid}:${job.channelid}"`, 'info', job)
-                        if (global.mq_fileworker_cds) {
-                            const foundMessages = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE id = ? AND channel = ? LIMIt 1`, [job.messageid, job.channelid])
+                        if (global.mq_master_cdn) {
+                            const foundMessages = await sqlPromiseSafe(`SELECT eid FROM kanmi_records WHERE id = ? AND channel = ? LIMIt 1`, [job.messageid, job.channelid])
                             if (foundMessages.rows && foundMessages.rows.length > 0) {
-                                sendData(global.mq_fileworker_cds, {
+                                sendData(global.mq_master_cdn, {
                                     fromClient: `return.Sequenzia.${config.system_name}`,
-                                    fileUUID: foundMessages.rows[0].fileid,
-                                    messageType: 'command',
-                                    messageAction: (job.action === 'RequestFile') ? 'CacheSpannedFile' : 'RemoveSpannedFile'
+                                    messageData: {
+                                        ...foundMessages.rows[0]
+                                    },
+                                    messageUpdate: {},
+                                    messageIntent: (job.action === 'RequestFile') ? 'DownloadMaster' : 'RemoveMaster'
                                 }, function (callback) {
                                     if (callback) {
-                                        printLine("KanmiMQ", `Sent to ${global.mq_fileworker_cds}`, 'info')
+                                        printLine("KanmiMQ", `Sent to ${global.mq_master_cdn}`, 'info')
                                     } else {
-                                        printLine("KanmiMQ", `Failed to send to ${global.mq_fileworker_cds}`, 'error')
+                                        printLine("KanmiMQ", `Failed to send to ${global.mq_master_cdn}`, 'error')
                                     }
                                 })
                                 if (req.body.batch) {
@@ -188,7 +190,7 @@ module.exports = async (req, res, next) => {
                             if (req.body.batch) {
                                 _return = 500
                             } else {
-                                res.status(500).send(`Server is not configured for CDS based file building`);
+                                res.status(500).send(`Server is not configured for CDN Master File storage`);
                             }
                         }
                         break;
