@@ -1289,7 +1289,7 @@ module.exports = async (req, res, next) => {
                         ranfullImage = `/content/full64/${image.channelid}/${image.id}`
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
-                        if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
+                        if (image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
                             const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url
                             ranfullImage = `${cdn_host}full/${image.path_hint}/${image.full_hint}`
                         } else if (image.filecached === 1) {
@@ -2334,7 +2334,7 @@ module.exports = async (req, res, next) => {
                                     if (isCached) {
                                         fullimage = (fullimage) ? fullimage : `/stream/${item.fileid}/${item.real_filename}`
                                     }
-                                    if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) {
+                                    if (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) {
                                         downloadimage = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}`
                                     } else if (item.fileid) {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
@@ -2779,7 +2779,9 @@ module.exports = async (req, res, next) => {
                                     }
                                     const extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
                                     let inprogress = false
-                                    if (item.fileid !== null) {
+                                    if (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) {
+                                        downloadurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}`
+                                    } else if (item.fileid !== null) {
                                         downloadurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
@@ -2876,7 +2878,9 @@ module.exports = async (req, res, next) => {
                                     if (item.cache_proxy !== null) {
                                         imageurl = item.cache_proxy.startsWith('http') ? item.cache_proxy : `${(req.session && req.session.lite_mode === true) ? '/media_attachments' : 'https://media.discordapp.net/attachments'}${item.cache_proxy}`
                                     }
-                                    if (item.fileid !== null) {
+                                    if (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) {
+                                        fullurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}`
+                                    } else if (item.fileid !== null) {
                                         fullurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
