@@ -900,7 +900,10 @@ async function handleExchange(req, res, next) {
 function manageValidation(req, res, next) {
     const thisUser = res.locals.thisUser;
     if (req.session && req.session.loggedin && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && thisUser.master.discord.user.known === true) {
-        if (req.body && (req.body.batch || req.body.serverid && req.body.channelid)) {
+        if (req.body.action && req.body.action === 'RemoveResults') {
+            printLine('PassportCheck-Manage', `User ${thisUser.master.discord.user.username} requested to do mass delete request, its the downstream parsers responsibility to verify access rights`, 'warn');
+            next();
+        } else if (req.body && (req.body.batch || req.body.serverid && req.body.channelid)) {
             if (req.body.action && req.body.action === 'RequestFile' || (thisUser.master.discord.channels.manage && thisUser.master.discord.channels.manage.length > 0 && ((req.body.batch && req.body.batch.filter(e => e.action !== 'RequestFile').map(e => e.channelid).filter(e => thisUser.master.discord.channels.manage.indexOf(e) === -1).length === 0) || thisUser.master.discord.channels.manage.indexOf(req.body.channelid) !== -1))) {
                 next();
             } else {
