@@ -80,32 +80,31 @@ block content
                                                 i.fas.fa-file.fa-2x
                             else if (item.entities.full && item.entities.full.length > 5 && (item.entities.download.toLowerCase().includes('.jp') || item.entities.download.toLowerCase().includes('.jfif') || item.entities.full.toLowerCase().includes('.png') || item.entities.full.toLowerCase().includes('.gif') || item.entities.full.toLowerCase().includes('.web')))
                                 td.preview-holder
-                                    div.preview-image.align-content-start(style=`background-image: url("${item.entities.full}")`)
-                                        if (item.meta.message_type === 'image')
-                                            div.preview-image.align-content-start(style=`background-image: url("${item.entities.full}")`)
-                                                i.fas.fa-image.fa-2x
-                                        else
-                                            div.preview-image.align-content-start
-                                                if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp3') || item.entities.preview.toLowerCase().includes('.m4a') || item.entities.preview.toLowerCase().includes('.flac') || item.entities.preview.toLowerCase().includes('.ogg')))
-                                                    i.fas.fa-music.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp3') || item.entities.filename.toLowerCase().includes('.m4a') || item.entities.filename.toLowerCase().includes('.flac') || item.entities.filename.toLowerCase().includes('.ogg')))
-                                                    i.fas.fa-music.fa-2x
-                                                else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp4') || item.entities.preview.toLowerCase().includes('.mov') || item.entities.preview.toLowerCase().includes('.m4v') || item.entities.preview.toLowerCase().includes('.ts') || item.entities.preview.toLowerCase().includes('.mkv')))
-                                                    i.fas.fa-film.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
-                                                    i.fas.fa-film.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.unity') || item.entities.filename.toLowerCase().includes('.unitypackage') || item.entities.filename.toLowerCase().includes('.material') || item.entities.filename.toLowerCase().includes('.shader') || item.entities.filename.toLowerCase().includes('.vrca') || item.entities.filename.toLowerCase().includes('.asset')))
-                                                    i.fab.fa-unity.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.blend') || item.entities.filename.toLowerCase().includes('.fbx') || item.entities.filename.toLowerCase().includes('.dae') || item.entities.filename.toLowerCase().includes('.obj') || item.entities.filename.toLowerCase().includes('.c4')))
-                                                    i.fas.fa-cube.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.zip') || item.entities.filename.toLowerCase().includes('.rar') || item.entities.filename.toLowerCase().includes('.7z')))
-                                                    i.fas.fa-file-archive.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.psd') || item.entities.filename.toLowerCase().includes('.psb')))
-                                                    i.fas.fa-layer-group.fa-2x
-                                                else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.iso') || item.entities.filename.toLowerCase().includes('.cd')))
-                                                    i.fas.fa-compact-disc.fa-2x
-                                                else
-                                                    i.fas.fa-file.fa-2x
+                                    if (item.meta.message_type === 'image')
+                                        div.preview-image.align-content-start(style=`background-image: url("${item.entities.full}")`)
+                                            i.fas.fa-image.fa-2x
+                                    else
+                                        div.preview-image.align-content-start
+                                            if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp3') || item.entities.preview.toLowerCase().includes('.m4a') || item.entities.preview.toLowerCase().includes('.flac') || item.entities.preview.toLowerCase().includes('.ogg')))
+                                                i.fas.fa-music.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp3') || item.entities.filename.toLowerCase().includes('.m4a') || item.entities.filename.toLowerCase().includes('.flac') || item.entities.filename.toLowerCase().includes('.ogg')))
+                                                i.fas.fa-music.fa-2x
+                                            else if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp4') || item.entities.preview.toLowerCase().includes('.mov') || item.entities.preview.toLowerCase().includes('.m4v') || item.entities.preview.toLowerCase().includes('.ts') || item.entities.preview.toLowerCase().includes('.mkv')))
+                                                i.fas.fa-film.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
+                                                i.fas.fa-film.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.unity') || item.entities.filename.toLowerCase().includes('.unitypackage') || item.entities.filename.toLowerCase().includes('.material') || item.entities.filename.toLowerCase().includes('.shader') || item.entities.filename.toLowerCase().includes('.vrca') || item.entities.filename.toLowerCase().includes('.asset')))
+                                                i.fab.fa-unity.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.blend') || item.entities.filename.toLowerCase().includes('.fbx') || item.entities.filename.toLowerCase().includes('.dae') || item.entities.filename.toLowerCase().includes('.obj') || item.entities.filename.toLowerCase().includes('.c4')))
+                                                i.fas.fa-cube.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.zip') || item.entities.filename.toLowerCase().includes('.rar') || item.entities.filename.toLowerCase().includes('.7z')))
+                                                i.fas.fa-file-archive.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.psd') || item.entities.filename.toLowerCase().includes('.psb')))
+                                                i.fas.fa-layer-group.fa-2x
+                                            else if (item.entities.filename !== null && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.iso') || item.entities.filename.toLowerCase().includes('.cd')))
+                                                i.fas.fa-compact-disc.fa-2x
+                                            else
+                                                i.fas.fa-file.fa-2x
                             else
                                 td.preview-icon
                                     if (item.entities.preview && item.entities.preview.length > 5 && (item.entities.preview.toLowerCase().includes('.mp3') || item.entities.preview.toLowerCase().includes('.m4a') || item.entities.preview.toLowerCase().includes('.flac') || item.entities.preview.toLowerCase().includes('.ogg')))
