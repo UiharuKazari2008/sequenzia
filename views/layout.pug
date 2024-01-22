@@ -1168,9 +1168,9 @@ html
                                                                         i.fas.fa-cloud.pr-2
                                                                         | Any Access
                                                                 else
-                                                                    a.dropdown-item(title="Show only Fast Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
+                                                                    a.dropdown-item(title="Show only Instant Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
                                                                         i.fas.fa-cloud-check.pr-2
-                                                                        | Fast Access
+                                                                        | Instant Access
                                                                 if (params.getAll('nsfw')[0] === 'true')
                                                                     a.dropdown-item(title="Show Only NSFW Results" href='#_' onclick=`getNewContent([], [['nsfw', 'only']])` role='button')
                                                                         i.fas.fa-shield-slash.pr-2
@@ -1898,7 +1898,7 @@ html
                                                 .glyphicon
                                                     i.fas.fa-cloud-check.text-warning
                                             .align-self-start.align-self-center
-                                                .text-warning Showing only Fast Access or Directly Accessible items
+                                                .text-warning Showing only Instant Access or Directly Accessible items
                                             .align-self-center.align-self-start.ml-auto.mr-1
                                                 a.text-warning.align-self-end.alert-btn(title="Remove Accessibility Requirements" href='#_' onclick=`getNewContent(['offset', 'cached'], []); return false;`) Show All
                                 if (params && params.has('history_numdays'))

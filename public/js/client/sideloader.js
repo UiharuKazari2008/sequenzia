@@ -4022,9 +4022,9 @@ async function showSearchOptions(post) {
             normalInfo.push('</div>')
             if (postCached || (postDownload && postDownload.length > 0)) {
                 normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
-                normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Fast Access</span>`)
+                normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Instant Access</span>`)
                 normalInfo.push('</div>')
-                modalDownloadButton.title = `Fast Access Download`
+                modalDownloadButton.title = `Instant Download`
                 modalDownloadButton.href = postDownload
                 if (postFilename && postFilename.length > 0) {
                     modalDownloadButton.download = postFilename

@@ -174,14 +174,14 @@ function selectedActionMenu(action) {
             actionModel.querySelector('#sectionIcon i').classList.add('fa-image')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'CompileSF') {
-            actionModel.querySelector("#ActionName").innerText = 'Compile'
-            actionModel.querySelector("#postID").innerText = `Compile Fast Access Cache ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
+            actionModel.querySelector("#ActionName").innerText = 'Download'
+            actionModel.querySelector("#postID").innerText = `Make Instant Access ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-bookmark')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'DecompileSF') {
             actionModel.querySelector("#ActionName").innerText = 'Remove'
-            actionModel.querySelector("#postID").innerText = `Remove Cache ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
+            actionModel.querySelector("#postID").innerText = `Remove Instant Access ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
             actionModel.querySelector('#sectionIcon i').classList.add('fa-bookmark-slash')
             actionModel.querySelector("#postButton").classList.remove("disabled");
