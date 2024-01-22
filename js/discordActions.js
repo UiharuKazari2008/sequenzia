@@ -119,13 +119,12 @@ module.exports = async (req, res, next) => {
                         break;
                     case 'RemoveResults':
                         printLine("ActionParser", `Request to all results based on cache ${job.cache}`, 'info', job)
-                        //meta-${thisUser.master.discord.user.id}-
                         const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${job.cache}`, true)
                         if (meta && meta.count && meta.count !== 0) {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
                             if (_return) {
                                 _return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).map(async l => {
-                                    /*sendRequest({
+                                    sendRequest({
                                         fromClient: `return.Sequenzia.${config.system_name}`,
                                         messageReturn: false,
                                         messageID: l.id,
@@ -134,8 +133,7 @@ module.exports = async (req, res, next) => {
                                         messageType: 'command',
                                         messageAction: 'RemovePost'
                                     }, global.mq_discord_out + '.backlog')
-                                    await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);*/
-                                    console.log(l.id)
+                                    await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);
                                 })
                                 console.log(_return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).length)
                                 res.status(200).send(`Requested to Delete Results`);
