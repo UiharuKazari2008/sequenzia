@@ -669,7 +669,7 @@ async function writeLoadingBar(){
 }
 function inferExchange(url, exchange, fast) {
     if ((url || exchange) && channel_to_exchange) {
-        const _params = new URLSearchParams(url.split('?').splice(1).join('?'));
+        const _params = new URLSearchParams((url) ? url.split('?').splice(1).join('?') : document.location.hash.split('?').splice(1).join('?'));
         console.log(_params.toString())
         if (exchange || (_params.has('channel') && channel_to_exchange[_params.getAll('channel')[0]])) {
             const next_exchange = exchange || channel_to_exchange[_params.getAll('channel')[0]];
