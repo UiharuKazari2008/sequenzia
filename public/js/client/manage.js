@@ -799,12 +799,16 @@ async function updateRecentPostDestinations() {
 }
 async function shiftRecentPostDestinations() {
     try {
+        console.log("postsDestination:", postsDestination);
+        console.log("recentPostDestination before:", recentPostDestination);
+
         if (recentPostDestination.indexOf(postsDestination) !== -1) {
             recentPostDestination.unshift(recentPostDestination.splice(recentPostDestination.indexOf(postsDestination), 1)[0]);
         } else {
             recentPostDestination.unshift(postsDestination)
         }
         recentPostDestination = recentPostDestination.slice(0,10).filter(e => e.length > 8)
+        console.log("recentPostDestination after:", recentPostDestination);
         setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
     } catch (e) {
         console.error("Failed to save recent destinations")
