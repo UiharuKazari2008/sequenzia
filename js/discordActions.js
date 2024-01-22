@@ -120,7 +120,7 @@ module.exports = async (req, res, next) => {
                     case 'RemoveResults':
                         printLine("ActionParser", `Request to all results based on cache ${job.cache}`, 'info', job)
                         //meta-${thisUser.master.discord.user.id}-
-                        const meta = getCacheData(`meta-${thisUser.master.discord.user.id}-${job.cache}`, true)
+                        const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${job.cache}`, true)
                         if (meta && meta.count && meta.count !== 0) {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
                             if (_return) {
