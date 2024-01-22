@@ -799,8 +799,10 @@ async function updateRecentPostDestinations() {
 }
 async function shiftRecentPostDestinations(input) {
     try {
-        if (recentPostDestination.indexOf(input || postsDestination) !== -1) {
-            recentPostDestination.unshift(recentPostDestination.splice(recentPostDestination.indexOf(input || postsDestination), 1)[0]);
+        const index = recentPostDestination.indexOf(input || postsDestination);
+        if (index !== -1) {
+            recentPostDestination.splice(index, 1);
+            recentPostDestination.unshift(input || postsDestination);
         } else {
             recentPostDestination.unshift(input || postsDestination)
         }
