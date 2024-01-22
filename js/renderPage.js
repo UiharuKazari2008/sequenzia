@@ -99,6 +99,9 @@ module.exports = async (req, res, next) => {
                 if (item.pinned) {
                     title = '⭐️ ' + title
                 }
+                if (!item.meta.cached) {
+                    title = title + ' ☁️'
+                }
                 let podcastItem = {
                     guid: item.id,
                     title,
