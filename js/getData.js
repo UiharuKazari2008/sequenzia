@@ -514,7 +514,7 @@ module.exports = async (req, res, next) => {
             } else if (_id.startsWith('!ed:')) {
                 _id = _id.split('!ed:')[1]
                 ts.push(`kanmi_records.tags NOT LIKE '%/%${_id};%'`)
-            } else if (_id.startsWith('lk:')) {
+            } else if (_id.startsWith('!lk:')) {
                 _id = _id.split('!lk:')[1]
                 ts.push(`kanmi_records.tags NOT LIKE '%/%${_id}%;%'`)
             } else if (_id.startsWith('!:')) {
