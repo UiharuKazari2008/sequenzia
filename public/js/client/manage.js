@@ -750,7 +750,7 @@ async function removeAllResultsDeep() {
                     'X-Requested-With': 'SequenziaXHR'
                 },
                 success: function (res, txt, xhr) {
-                    if (xhr.status === 202) {
+                    if (xhr.status === 200) {
                         $.toast({
                             type: 'success',
                             title: 'Removal is processing',
