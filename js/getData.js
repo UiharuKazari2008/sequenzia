@@ -411,6 +411,9 @@ module.exports = async (req, res, next) => {
                 sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content')
+            } else if (req.query.sort === 'rating_count') {
+                sqlorder.push('tag_num')
+                enablePrelimit = false;
             } else if (req.query.sort === 'rating') {
                 sqlorder.push('tag_count')
                 enablePrelimit = false;
@@ -654,6 +657,34 @@ module.exports = async (req, res, next) => {
                 sqlquery.push('( ' + getTags(tags_prev) + ' )')
             }
             android_uri.push(`tags=${req.query.tags}`);
+        }
+        if (req.query.min_tags) {
+            enablePrelimit = false;
+            const minTags = parseInt(req.query.min_tags);
+            if (!isNaN(minTags)) {
+                sqlquery.push(`tag_num >= ${minTags}`)
+            }
+        }
+        if (req.query.max_tags) {
+            enablePrelimit = false;
+            const maxTags = parseInt(req.query.max_tags);
+            if (!isNaN(maxTags)) {
+                sqlquery.push(`tag_num <= ${maxTags}`)
+            }
+        }
+        if (req.query.min_score) {
+            enablePrelimit = false;
+            const minTags = parseInt(req.query.min_score);
+            if (!isNaN(minTags)) {
+                sqlquery.push(`tag_count >= ${min_score}`)
+            }
+        }
+        if (req.query.max_score) {
+            enablePrelimit = false;
+            const maxTags = parseInt(req.query.max_score);
+            if (!isNaN(maxTags)) {
+                sqlquery.push(`tag_count <= ${max_score}`)
+            }
         }
         // Flagged
         if (req.query.flagged === 'true') {
@@ -1180,8 +1211,8 @@ module.exports = async (req, res, next) => {
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.master.user.id}'`;
 
         let sqlCall = (() => {
-            if (req.query.sort === 'rating')
-                return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            if (req.query.sort === 'rating' || req.query.sort === 'rating_count' || req.query.min_tags || req.query.max_tags || req.query.min_score || req.query.max_score)
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, COUNT(rating) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             if (req.query.fast_query && req.query.fast_query === '1') {
                 return `SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
             } else if (req.query.fast_query && req.query.fast_query === '2') {
@@ -1191,8 +1222,8 @@ module.exports = async (req, res, next) => {
             }
         })();
         let sqlCallNoPreLimit = (() => {
-            if (req.query.sort === 'rating')
-                return `SELECT * FROM (SELECT base_full.*, trate.tag_count FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            if (req.query.sort === 'rating' || req.query.sort === 'rating_count' || req.query.min_tags || req.query.max_tags || req.query.min_score || req.query.max_score)
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_count FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, COUNT(rating) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             if (req.query.fast_query && req.query.fast_query === '1') {
                 return `SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
             } else if (req.query.fast_query && req.query.fast_query === '2') {
@@ -2269,7 +2300,8 @@ module.exports = async (req, res, next) => {
                                                     search: user_search,
                                                     parent_search: parent_search,
                                                     tags: (item.tags) ? item.tags : [],
-                                                    rating: (item.tag_count) ? item.tag_count : null
+                                                    rating: (item.tag_count) ? item.tag_count : null,
+                                                    rating_count: (item.tag_num) ? item.tag_num : null,
                                                 },
                                                 media: {
                                                     season: item.season_num,
@@ -2427,7 +2459,8 @@ module.exports = async (req, res, next) => {
                                             cached: !!(item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) || isCached,
                                             proccessing: inprogress,
                                             tags: (item.tags) ? item.tags : [],
-                                            rating: (item.tag_count) ? item.tag_count : null
+                                            rating: (item.tag_count) ? item.tag_count : null,
+                                            rating_count: (item.tag_num) ? item.tag_num : null,
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2694,7 +2727,8 @@ module.exports = async (req, res, next) => {
                                                 message_extra: _message_extra,
                                                 message_header: _message_header,
                                                 tags: (item.tags) ? item.tags : [],
-                                                rating: (item.tag_count) ? item.tag_count : null
+                                                rating: (item.tag_count) ? item.tag_count : null,
+                                                rating_count: (item.tag_num) ? item.tag_num : null,
                                             },
                                             media: {
                                                 season: item.season_num,
@@ -2831,7 +2865,8 @@ module.exports = async (req, res, next) => {
                                             message_extra: _message_extra,
                                             message_header: _message_header,
                                             tags: (item.tags) ? item.tags : [],
-                                            rating: (item.tag_count) ? item.tag_count : null
+                                            rating: (item.tag_count) ? item.tag_count : null,
+                                            rating_count: (item.tag_num) ? item.tag_num : null,
                                         },
                                         media: {
                                             season: item.season_num,
@@ -2929,7 +2964,8 @@ module.exports = async (req, res, next) => {
                                             message_extra: _message_extra,
                                             message_header: _message_header,
                                             tags: (item.tags) ? item.tags : [],
-                                            rating: (item.tag_count) ? item.tag_count : null
+                                            rating: (item.tag_count) ? item.tag_count : null,
+                                            rating_count: (item.tag_num) ? item.tag_num : null,
                                         },
                                         media: {
                                             season: item.season_num,
