@@ -891,7 +891,7 @@ router.use('/cross-exchange/:exchnage_id', sessionVerification, async (req, res)
                         'x-sequenzia-key': global.Connected_Exchanges[req.params.exchnage_id].key,
                         'x-sequenzia-user': thisUser.master.discord.user.id,
                         'x-sequenzia-user-source': req.session.login_source,
-                        'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                        'User-Agent': 'Sequenzia Cross-Exchange v21.0',
                         'Cookie': cookieString || ''
                     }
                 }, async function (response) {

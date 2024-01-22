@@ -325,7 +325,7 @@ router.get('/exchange/:id', sessionVerification, async (req, res) => {
                 'x-sequenzia-key': global.Connected_Exchanges[req.params.id].key,
                 'x-sequenzia-user': thisUser.master.discord.user.id,
                 'x-sequenzia-user-Source': req.session.login_source,
-                'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                'User-Agent': 'Sequenzia Cross-Exchange v21.0',
                 'Cookie': cookieString || ''
             },
             json: true
@@ -808,7 +808,7 @@ async function crossSessionVerification(req, res, next) {
                     'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
                     'x-sequenzia-user': thisUser.master.discord.user.id,
                     'x-sequenzia-user-source': req.session.login_source,
-                    'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                    'User-Agent': 'Sequenzia Cross-Exchange v21.0',
                     'Cookie': cookieString || ''
                 },
                 json: true
@@ -848,7 +848,7 @@ async function handleExchange(req, res, next) {
                 'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
                 'x-sequenzia-user': thisUser.master.discord.user.id,
                 'x-sequenzia-user-source': req.session.login_source,
-                'User-Agent': 'Sequenzia Cross-Exchange v20.2',
+                'User-Agent': 'Sequenzia Cross-Exchange v21.0',
                 'Cookie': cookieString || ''
             }
         }

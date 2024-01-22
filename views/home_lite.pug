@@ -216,8 +216,8 @@ html
                                 img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
         if (active_exchange)
             #homeBg.background-image.overlay
-            #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
-            #fullBG.background-image.full-image-holder(style=`z-index: -101!important; background-image: url('/static/img/loading_bg.jpeg'); display: none;`)
+            #previewBG.background-image.blur-this(style=`z-index: -102!important; background-image: linear-gradient(134deg, #47035373, #b221072b); display: none;`)
+            #fullBG.background-image.full-image-holder(style=`z-index: -101!important; background-image: linear-gradient(134deg, #47035373, #b221072b); display: none;`)
             img#portraitBG.portait-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpeg')
             img#landscapeBG.landscape-overlay.full-image-holder.center-block(style="z-index: -100!important; display: none;" src='/static/img/loading_bg.jpeg')
             #cover.background-image(style=`z-index: -99!important; background-color: black`)
