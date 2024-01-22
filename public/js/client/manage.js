@@ -544,7 +544,7 @@ async function acceptMenu(serverid, channelid, messageid, fileStatus) {
         let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map(e => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations(); return false">` +
+                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations('${channelid}'); return false">` +
                     `    <span style="">${n}</span>` +
                     `</li>`
             }
@@ -797,18 +797,14 @@ async function updateRecentPostDestinations() {
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
 }
-async function shiftRecentPostDestinations() {
+async function shiftRecentPostDestinations(input) {
     try {
-        console.log("postsDestination:", postsDestination);
-        console.log("recentPostDestination before:", recentPostDestination);
-
-        if (recentPostDestination.indexOf(postsDestination) !== -1) {
-            recentPostDestination.unshift(recentPostDestination.splice(recentPostDestination.indexOf(postsDestination), 1)[0]);
+        if (recentPostDestination.indexOf(input || postsDestination) !== -1) {
+            recentPostDestination.unshift(recentPostDestination.splice(recentPostDestination.indexOf(input || postsDestination), 1)[0]);
         } else {
-            recentPostDestination.unshift(postsDestination)
+            recentPostDestination.unshift(input || postsDestination)
         }
         recentPostDestination = recentPostDestination.slice(0,10).filter(e => e.length > 8)
-        console.log("recentPostDestination after:", recentPostDestination);
         setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
     } catch (e) {
         console.error("Failed to save recent destinations")
