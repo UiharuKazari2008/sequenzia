@@ -1176,6 +1176,14 @@ html
                                                                     a.dropdown-item(title="Show only Instant Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
                                                                         i.fas.fa-cloud-check.pr-2
                                                                         | Instant Access
+                                                                if (params.getAll('no_mixed_media')[0] === 'true')
+                                                                    a.dropdown-item(title="Show All mixed media" href='#_' onclick=`getNewContent(['offset', 'cached'], [])`  role='button')
+                                                                        i.fas.fa-photo-video.pr-2
+                                                                        | Allow Mixed Media
+                                                                else
+                                                                    a.dropdown-item(title="Show only image files" href='#_' onclick=`getNewContent(['offset'], [['no_mixed_media', 'true']])` role='button')
+                                                                        i.fas.fa-film-slash.pr-2
+                                                                        | Images Only
                                                                 if (params.getAll('nsfw')[0] === 'true')
                                                                     a.dropdown-item(title="Show Only NSFW Results" href='#_' onclick=`getNewContent([], [['nsfw', 'only']])` role='button')
                                                                         i.fas.fa-shield-slash.pr-2

@@ -1021,54 +1021,71 @@ module.exports = async (req, res, next) => {
         }
         if (page_uri === '/gallery' || page_uri === '/listTheater') {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
-            execute = '(' + [
-                channelFilter,
-                `(${[
-                    '(' + [
+            if (req.query.no_mixed_media) {
+                execute = '(' + [
+                    channelFilter,
+                    `(${[
+                        "attachment_name LIKE '%.jp%_'",
+                        "attachment_name LIKE '%.jfif'",
+                        "attachment_name LIKE '%.png'",
+                        "attachment_name LIKE '%.gif'",
+                        "attachment_name LIKE '%.jfif?%_'",
+                        "attachment_name LIKE '%.png?%_'",
+                        "attachment_name LIKE '%.gif?%_'",
+                        "attachment_name LIKE '%.web%_'",
+                        "attachment_name = 'multi'",
+                    ].join(' OR ')})`
+                ].join(' AND ')
+            } else {
+                execute = '(' + [
+                    channelFilter,
+                    `(${[
                         '(' + [
-                            "cache_proxy LIKE '%-t9-preview-video.jp%_'",
-                            "cache_proxy LIKE '%-t9-preview-video.gif'",
-                            "cache_proxy LIKE '%-t9-preview-video.gifv'"
-                        ].join(' OR ') + ')',
+                            '(' + [
+                                "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                                "cache_proxy LIKE '%-t9-preview-video.gif'",
+                                "cache_proxy LIKE '%-t9-preview-video.gifv'"
+                            ].join(' OR ') + ')',
+                            '(' + [
+                                "real_filename LIKE '%.mp4'",
+                                "real_filename LIKE '%.mov'",
+                                "real_filename LIKE '%.m4v'",
+                                "real_filename LIKE '%.mp4?%_'",
+                                "real_filename LIKE '%.mov?%_'",
+                                "real_filename LIKE '%.m4v?%_'",
+                            ].join(' OR ') + ')',
+                            "attachment_extra IS NULL"
+                        ].join(' AND ') + ')',
                         '(' + [
-                            "real_filename LIKE '%.mp4'",
-                            "real_filename LIKE '%.mov'",
-                            "real_filename LIKE '%.m4v'",
-                            "real_filename LIKE '%.mp4?%_'",
-                            "real_filename LIKE '%.mov?%_'",
-                            "real_filename LIKE '%.m4v?%_'",
-                        ].join(' OR ') + ')',
-                        "attachment_extra IS NULL"
-                    ].join(' AND ') + ')',
-                    '(' + [
-                        '(' + [
-                            "cache_proxy LIKE '%-t9-preview-video.jp%_'",
-                            "cache_proxy LIKE '%-t9-preview-video.gif'",
-                            "cache_proxy LIKE '%-t9-preview-video.gifv'",
-                            "cache_proxy LIKE '%-t9-preview-video.gif?%_'",
-                            "cache_proxy LIKE '%-t9-preview-video.gifv?%_'",
-                        ].join(' OR ') + ')',
-                        '(' + [
-                            "attachment_name LIKE '%.mp4'",
-                            "attachment_name LIKE '%.mov'",
-                            "attachment_name LIKE '%.m4v'",
-                            "attachment_name LIKE '%.mp4?%_'",
-                            "attachment_name LIKE '%.mov?%_'",
-                            "attachment_name LIKE '%.m4v?%_'",
-                        ].join(' OR ') + ')',
-                        "attachment_extra IS NULL"
-                    ].join(' AND ') + ')',
-                    "attachment_name LIKE '%.jp%_'",
-                    "attachment_name LIKE '%.jfif'",
-                    "attachment_name LIKE '%.png'",
-                    "attachment_name LIKE '%.gif'",
-                    "attachment_name LIKE '%.jfif?%_'",
-                    "attachment_name LIKE '%.png?%_'",
-                    "attachment_name LIKE '%.gif?%_'",
-                    "attachment_name LIKE '%.web%_'",
-                    "attachment_name = 'multi'",
-                ].join(' OR ')})`
-            ].join(' AND ')
+                            '(' + [
+                                "cache_proxy LIKE '%-t9-preview-video.jp%_'",
+                                "cache_proxy LIKE '%-t9-preview-video.gif'",
+                                "cache_proxy LIKE '%-t9-preview-video.gifv'",
+                                "cache_proxy LIKE '%-t9-preview-video.gif?%_'",
+                                "cache_proxy LIKE '%-t9-preview-video.gifv?%_'",
+                            ].join(' OR ') + ')',
+                            '(' + [
+                                "attachment_name LIKE '%.mp4'",
+                                "attachment_name LIKE '%.mov'",
+                                "attachment_name LIKE '%.m4v'",
+                                "attachment_name LIKE '%.mp4?%_'",
+                                "attachment_name LIKE '%.mov?%_'",
+                                "attachment_name LIKE '%.m4v?%_'",
+                            ].join(' OR ') + ')',
+                            "attachment_extra IS NULL"
+                        ].join(' AND ') + ')',
+                        "attachment_name LIKE '%.jp%_'",
+                        "attachment_name LIKE '%.jfif'",
+                        "attachment_name LIKE '%.png'",
+                        "attachment_name LIKE '%.gif'",
+                        "attachment_name LIKE '%.jfif?%_'",
+                        "attachment_name LIKE '%.png?%_'",
+                        "attachment_name LIKE '%.gif?%_'",
+                        "attachment_name LIKE '%.web%_'",
+                        "attachment_name = 'multi'",
+                    ].join(' OR ')})`
+                ].join(' AND ')
+            }
         } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
