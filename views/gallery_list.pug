@@ -7,15 +7,18 @@ block content
             ul.my-errors
                 for error in errors
                     li= error.msg
-        - backgroundImg = results[Math.floor(Math.random() * results.length)].entities
-        -backgroundImgColor = 'rgba(' + ((backgroundImg.meta.color) ? `${backgroundImg.meta.color[0]}, ${backgroundImg.meta.color[1]}, ${backgroundImg.meta.color[2]}` : `0,0,0`) + ', 0.72)'
+        - imageWithColor = results.filter(f => !!f.entities.meta.color && f.entities.meta.color[3] === 1).map(j => `rgb(${j.entities.meta.color.slice(0,3).join(', ')})`)
+        - backgroundRandom = (imageWithColor) ? [imageWithColor[Math.floor(Math.random() * imageWithColor.length)], imageWithColor[Math.floor(Math.random() * imageWithColor.length)], imageWithColor[Math.floor(Math.random() * imageWithColor.length)], imageWithColor[Math.floor(Math.random() * imageWithColor.length)]] : [`rgba(255, 155, 0, 0.5)`]
         style.
-            .background-image:not(.overlay) {
-                background-image: url("!{(backgroundImg.ext_preview) ? backgroundImg.ext_preview : backgroundImg.preview }");
+            .background-image.bg-blur {
+                -webkit-filter: none!important;
+                filter: none!important;
             }
-
+            .background-image:not(.overlay) {
+                background-image: linear-gradient(110deg, !{backgroundRandom.join(', ')});
+            }
             .background-image.overlay {
-                background-image: linear-gradient(180deg, !{backgroundImgColor}, #00000000);
+                background-image: linear-gradient(180deg, #00000070 50%, #000000a1);
                 z-index: -99;
                 opacity: 1;
             }
