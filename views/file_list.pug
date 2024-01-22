@@ -140,10 +140,12 @@ block content
                                             i.fas.fa-file.fa-2x
 
                             td
-                                div.align-middle
-                                    span #{item.entities.filename}
-                                    if (!item.meta.cached)
+                                if (!item.meta.cached)
+                                    div.align-middle
+                                        span #{item.entities.filename}
                                         i.fas.fa-cloud.ml-1
+                                else
+                                    span.align-middle #{item.entities.filename}
                                 div.text-primary.d-flex
                                     if (thisImageManage)
                                         .file-select.d-inline-block.hidden
