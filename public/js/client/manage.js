@@ -732,6 +732,58 @@ async function setReviewChannel(chid, noSave) {
     }
     return false;
 }
+async function removeAllResultsDeep() {
+    const cacheElement = document.getElementById('ultraCache');
+    if (cacheElement) {
+        const ucID = cacheElement.getAttribute('data-ultracacheID');
+        if (ucID) {
+            $.ajax({async: true,
+                type: "post",
+                url: "/actions/v2",
+                data: {
+                    'cache': ucID,
+                    'action': 'RemoveResults'
+                },
+                json: true,
+                cache: false,
+                headers: {
+                    'X-Requested-With': 'SequenziaXHR'
+                },
+                success: function (res, txt, xhr) {
+                    if (xhr.status === 202) {
+                        $.toast({
+                            type: 'success',
+                            title: 'Removal is processing',
+                            subtitle: 'Now',
+                            content: `${res.status}`,
+                            delay: 5000,
+                        });
+                        console.log(res);
+                    } else {
+                        $.toast({
+                            type: 'error',
+                            title: 'Failed Actions',
+                            subtitle: 'Now',
+                            content: `${res.responseText}`,
+                            delay: 15000,
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    $.toast({
+                        type: 'error',
+                        title: 'Failed to complete action',
+                        subtitle: 'Now',
+                        content: `${xhr.responseText}`,
+                        delay: 5000,
+                    });
+                }
+            });
+        } else {
+
+        }
+    }
+}
 
 // Move Model Management
 async function updateRecentPostDestinations() {

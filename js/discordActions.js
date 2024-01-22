@@ -6,7 +6,23 @@ if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
 
 const { printLine } = require("./logSystem");
 const { sendData } = require('./mqAccess');
+const { redisRetrieve } = require('../js/redisClient');
 const { sqlPromiseSafe } = require('../js/sqlClient');
+const app = require("../app");
+const {md5} = require("request/lib/helpers");
+
+async function getCacheData(key, isJson, local) {
+    if (global.shared_cache) {
+        if (local && app.get(local))
+            return app.get(local)
+        const result = await redisRetrieve(key)
+        const parsed = (isJson) ? JSON.parse(result) : result
+        if (local)
+            app.set(local, parsed)
+        return parsed
+    }
+    return app.get(key)
+}
 
 module.exports = async (req, res, next) => {
     function sendRequest(MessageBody, queue) {
@@ -99,6 +115,33 @@ module.exports = async (req, res, next) => {
                             _return = 200
                         } else {
                             res.status(200).send(`Requested to Delete Message`);
+                        }
+                        break;
+                    case 'RemoveResults':
+                        printLine("ActionParser", `Request to all results based on cache ${job.cache}`, 'info', job)
+                        //meta-${thisUser.master.discord.user.id}-
+                        const meta = getCacheData(`meta-${thisUser.master.discord.user.id}-${job.cache}`, true)
+                        if (meta && meta.count && meta.count !== 0) {
+                            _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
+                            if (_return) {
+                                _return.rows.map(async l => {
+                                    sendRequest({
+                                        fromClient: `return.Sequenzia.${config.system_name}`,
+                                        messageReturn: false,
+                                        messageID: l.id,
+                                        messageChannelID: l.channel,
+                                        messageServerID: l.server,
+                                        messageType: 'command',
+                                        messageAction: 'RemovePost'
+                                    }, global.mq_discord_out + '.backlog')
+                                    await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);
+                                })
+                                res.status(200).send(`Requested to Delete Results`);
+                            } else {
+                                res.status(500).send(`Data is missing or empty`);
+                            }
+                        } else {
+                            res.status(500).send(`Cache is missing or empty`);
                         }
                         break;
                     case 'Thumbnail':
