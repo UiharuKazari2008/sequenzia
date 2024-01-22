@@ -53,6 +53,8 @@ html
                         title= `${webconf.site_name} - Latest Media`
                     else if (params && (params.getAll('sort')[0] === 'rating'))
                         title= `${webconf.site_name} - MIITS Score`
+                    else if (params && (params.getAll('sort')[0] === 'rating_count'))
+                        title= `${webconf.site_name} - Tag Count`
                     else if (path === '/tvTheater' || path === '/listTheater')
                         title= `${webconf.site_name} - Theater`
                     else
@@ -865,6 +867,9 @@ html
                                                     else if (params && (params.getAll('sort')[0] === 'rating'))
                                                         i.far.fa-hundred-points.mr-2
                                                         span(title='MIITS Score based on overall tags rating').text-uppercase MIITS Score
+                                                    else if (params && (params.getAll('sort')[0] === 'rating_count'))
+                                                        i.far.fa-hundred-points.mr-2
+                                                        span(title='Overall tags count').text-uppercase Tag Count
                                                     else
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
