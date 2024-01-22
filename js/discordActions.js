@@ -125,7 +125,7 @@ module.exports = async (req, res, next) => {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
                             if (_return) {
                                 _return.rows.map(async l => {
-                                    sendRequest({
+                                    /*sendRequest({
                                         fromClient: `return.Sequenzia.${config.system_name}`,
                                         messageReturn: false,
                                         messageID: l.id,
@@ -134,8 +134,10 @@ module.exports = async (req, res, next) => {
                                         messageType: 'command',
                                         messageAction: 'RemovePost'
                                     }, global.mq_discord_out + '.backlog')
-                                    await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);
+                                    await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);*/
+                                    console.log(l.id)
                                 })
+                                console.log(_return.rows.length)
                                 res.status(200).send(`Requested to Delete Results`);
                             } else {
                                 res.status(500).send(`Data is missing or empty`);
