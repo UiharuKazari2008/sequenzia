@@ -249,7 +249,7 @@ block content
                                                 i.btn-links.fas.fa-cut(style="font-size: 2em;")
                                             a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
-                        a.lightbox(href=(isVideo && item.entities.meta.fileid) ? '#_' : fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? undefined : "gallery", onclick=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? `openPreviewUnpacking("${item.id}"); return false;` : undefined)
+                        a.lightbox(href=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? '#_' : fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? undefined : "gallery", onclick=((isVideo && item.entities.meta.fileid && !item.meta.cached) ? `openPreviewUnpacking("${item.id}"); return false;` : undefined))
                             - positionImage = ''
                             - noHoverClass = ''
                             if (!isVideo)
