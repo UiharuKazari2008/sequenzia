@@ -1945,14 +1945,16 @@ async function cacheEpisodeOffline(element, noConfirm, preemptive, noDialog, exp
         const eid = element.getAttribute('data-msg-eid');
         const fileExists = await kernelRequestData({type: 'GET_STORAGE_FILE', eid: eid});
         const meta = extractMetaFromElement(element, (preemptive && !fileExists), expires);
-        if (!noDialog)
-            $('#offlineFileStartedModal').modal('show')
-        kernelRequestData({
-            type: 'SAVE_STORAGE_KMS_EPISODE',
-            meta,
-            play,
-            noconfirm: noConfirm
-        })
+        if (meta && meta.required_build) {
+            if (!noDialog)
+                $('#offlineFileStartedModal').modal('show')
+            kernelRequestData({
+                type: 'SAVE_STORAGE_KMS_EPISODE',
+                meta,
+                play,
+                noconfirm: noConfirm
+            })
+        }
     }
 }
 async function toggleEpisodeOffline(id) {
