@@ -715,6 +715,12 @@ h6.dropdown-header.text-capitalize.channel-selector {
     overflow-x: hidden;
 }
 
+.scroll-overflow {
+    overflow-x: auto;
+    overflow-y: scroll;
+    white-space: nowrap;
+    flex-wrap: wrap;
+}
 footer.sticky-footer {
     padding: 2rem 0 8rem 0;
     flex-shrink: 0;
