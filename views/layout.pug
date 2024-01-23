@@ -253,6 +253,10 @@ html
                                                         a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
                                                             i.fa-light.fa-fw.fa-archive
                                                             | Albums
+                                                        if (exchange.review_channels && exchange.review_channels.length > 0)
+                                                            a.user-menu-item(title="Feeds" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemReview${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                                i.fa-light.fa-fw.fa-sparkles
+                                                                | Feeds
                                                         if (exchange.artists && exchange.artists.length > 0)
                                                             a.user-menu-item(title="Artists" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemArtists${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 i.fa-light.fa-fw.fa-address-book
@@ -264,10 +268,10 @@ html
                                                         a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory` onClick=`getHistory(); return false;`)
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
-                                                        a.user-menu-item(title="I'm feeling lucky!" href=`#_` onclick=`getNewContent([],[['sort','random']],'/gallery'); return false;`)
-                                                            i.fa-light.fa-fw.fa-dice
-                                                            | Random
-                                                        // ADD CMS MENU HERE
+                                                        if (exchange.review_channels && exchange.review_channels.length === 0)
+                                                            a.user-menu-item(title="I'm feeling lucky!" href=`#_` onclick=`getNewContent([],[['sort','random']],'/gallery'); return false;`)
+                                                                i.fa-light.fa-fw.fa-dice
+                                                                | Random
                                                         if (enableUploadTools && (params && (path === '/gallery' || path === '/files' || path === '/cards' || path === '/listTheater' || path === '/tvTheater')) && (exchange_id === 'master'))
                                                             if (write_channels && write_channels.length > 0 && !(manage_channels && manage_channels.length > 0) && !(download && download.length > 0))
                                                                 if (active_ch && params && !(params.getAll('channel')[0] === 'random' || !(params.has('channel') || params.has('folder') || params.has('album') || params.has('album_name'))))
@@ -519,6 +523,40 @@ html
                                                                     | #{thisTheater.name}
                                                         else
                                                             h2 No Theaters Available
+                                        if (exchange.review_channels && exchange.review_channels.length > 0)
+                                            div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemReview${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                div.position-relative.user-menu-height(style="width: 100%;")
+                                                    .d-flex.w-100.align-items-center
+                                                        a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
+                                                            i.fas.fa-arrow-left.fa-fw
+                                                        .d-flex.align-items-center.ml-2(style='max-width: 180px;')
+                                                            div.feedRangeSelector.btn-group.btn-group-toggle(data-toggle='buttons' id=`feedRangeSelector${(exchange_id !== 'master') ? exchange_id : ''}`)
+                                                                label.btn.w-100.active
+                                                                    input(type='radio' name='options' autocomplete='off' data-days-range='1' checked='')
+                                                                    span Today
+                                                                label.btn.w-100
+                                                                    input(type='radio' name='options' autocomplete='off' data-days-range='7')
+                                                                    span 7
+                                                                label.btn.w-100
+                                                                    input(type='radio' name='options' autocomplete='off' data-days-range='30')
+                                                                    span 30
+                                                                label.btn.w-100
+                                                                    input(type='radio' name='options' autocomplete='off' data-days-range='120')
+                                                                    span 120
+                                                                label.btn.w-100
+                                                                    input(type='radio' name='options' autocomplete='off' data-days-range='')
+                                                                    span All
+                                                        h4.text-primary.ml-auto.mb-0
+                                                            i.fas.fa-sparkles.mr-sm-2
+                                                            span.d-none.d-sm-inline Feeds
+                                                    .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
+                                                        .menu-grid
+                                                            if (exchange.review_channels && exchange.review_channels.length > 0)
+                                                                each thisChanel in exchange.review_channels
+                                                                    a.user-menu-item.user-menu-small(title=`Review ${thisChanel.name}` href="#_" onclick=`launchFeedURL('${(exchange_id !== 'master') ? exchange_id : ''}', [["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + thisChanel.folder : ''}"]]); return false;`)
+                                                                        i.fa-light(class=`${thisChanel.icon}`)
+                                                                        | #{thisChanel.name}
+
                                     div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -618,9 +656,16 @@ html
                                                     span.d-none.d-sm-inline Settings
                                             .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                 .menu-grid
+                                                    if (params && path !== '/artists')
+                                                        a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
+                                                            i.fa-light.fa-sliders-h
+                                                            | Display
                                                     a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
                                                         i.fa-light.fa-sd-card
                                                         | Storage
+                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Offline Pages" href='#_' onclick="requestSyncPages(); return false;")
+                                                        i.fa-light.fa-sync
+                                                        | Sync
                                                     if (login_source && login_source < 900)
                                                         a.user-menu-item.user-menu-small(title="Hide Channels you don't frequently view" href='#_' onclick=`$("#userMenu").collapse("hide"); $('#hiddenChannelModel').modal('show'); return false;`)
                                                             i.fa-light.fa-compass-slash
@@ -648,16 +693,12 @@ html
                                                     | Tools
                                             .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                 .menu-grid
-                                                    if (params && path !== '/artists')
-                                                        a.user-menu-item.user-menu-small(title="Display Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemDisplay")
-                                                            i.fa-light.fa-sliders-h
-                                                            | Display
+                                                    a.user-menu-item(class=`user-menu-overlow-icon-2${(next_episode) ? '-nep' : ''}` title="Show Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemHistory" onClick='getHistory(); return false;')
+                                                        i.fa-light.fa-fw.fa-history
+                                                        | History
                                                     a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`$('#cachePageModal').modal('show'); return false;`)
                                                         i.fa-light.fa-bookmark
                                                         | Offline
-                                                    a.user-menu-item.user-menu-small(data-placement="left" title="Refresh Offline Pages" href='#_' onclick="requestSyncPages(); return false;")
-                                                        i.fa-light.fa-sync
-                                                        | Sync
                                                     if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                         a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
                                                             i.fa-light.fa-download
@@ -672,13 +713,11 @@ html
                                                         a.user-menu-item.user-menu-small.hide-review(title="Send current page results to an Ambient Display or Photo Frame" href='#_' role='button' onclick="$('#userMenu').collapse('hide'); loadADSDisplays(); return false;")
                                                             i.fa-light.fa-image-landscape
                                                             | Set Frame
-                                                    a.user-menu-item(class=`user-menu-overlow-icon-2${(next_episode) ? '-nep' : ''}` title="Show Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemHistory" onClick='getHistory(); return false;')
-                                                        i.fa-light.fa-fw.fa-history
-                                                        | History
+
                                     div#menuItemDisplay.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
-                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemTools")
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                     i.fas.fa-arrow-left.fa-fw
                                                 if (!(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                     form.form-group.mb-0.mt-0.ml-2(onsubmit="return false;" method="POST")

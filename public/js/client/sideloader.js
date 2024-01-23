@@ -1348,6 +1348,14 @@ function getMoreContent(remove, add, url, keep) {
     });
     return false;
 }
+function launchFeedURL(exchange, url_parts) {
+    let adq = [['review_mode', 'true'], ['sort', 'num_id'], ...url_parts]
+    const dateRange = document.getElementById('feedRangeSelector' + exchange).querySelector('.active > input').getAttribute('data-days-range')
+    if (dateRange !== '')
+        adq.push(["numdays",dateRange])
+    getNewContent([], adq, "/gallery")
+    return false;
+}
 async function getSearchContent(element, tagsElement, exchange, url) {
     const searchText = document.getElementById(element).value;
     const searchTags = (tagsElement) ? document.getElementById(tagsElement).value : undefined;
