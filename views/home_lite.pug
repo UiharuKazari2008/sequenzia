@@ -1033,9 +1033,12 @@ html
                                                 i.fas.fa-calendar-days.text-lg.pr-2
                                                 div#feedRangeSelector.btn-group.btn-group-toggle(data-toggle='buttons')
                                                     label.btn.w-100
+                                                        input(type='radio' name='options' autocomplete='off' data-days-range='1')
+                                                        span Today
+                                                    label.btn.w-100.active
                                                         input(type='radio' name='options' autocomplete='off' data-days-range='7' checked='')
                                                         span 7
-                                                    label.btn.w-100.active
+                                                    label.btn.w-100
                                                         input(type='radio' name='options' autocomplete='off' data-days-range='30')
                                                         span 30
                                                     label.btn.w-100
@@ -1051,8 +1054,8 @@ html
                                                         input(type='radio' name='options' autocomplete='off' data-minres='' checked='')
                                                         span All
                                                     label.btn.w-100
-                                                        input(type='radio' name='options' autocomplete='off' data-minres='512')
-                                                        span 512px
+                                                        input(type='radio' name='options' autocomplete='off' data-minres='1000')
+                                                        span 1K
                                                     label.btn.w-100.active
                                                         input(type='radio' name='options' autocomplete='off' data-minres='2000')
                                                         span 2K
