@@ -440,7 +440,7 @@ async function enableReviewMode(setFromDialog) {
         $('.done-btns').addClass("hidden");
         $('.hide-review').addClass("hidden");
         document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
-        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).slice(1,5).map(e => {
+        const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).slice(1,recentReviewDestination.length - 1).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
