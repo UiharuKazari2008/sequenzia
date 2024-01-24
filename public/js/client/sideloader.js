@@ -3776,6 +3776,7 @@ async function showSearchOptions(post) {
     const postIsVideo = _post.getAttribute('data-msg-isvideo') + '' === 'true';
     const postIsAudio = _post.getAttribute('data-msg-isaudio') + '' === 'true';
     const nsfwString = _post.getAttribute('data-nsfw-string');
+    const safetyClass = _post.getAttribute('data-safety-class');
     const manageAllowed = _post.getAttribute('data-msg-manage') + '' === 'true';
 
     const searchUser = _post.getAttribute('data-search-user');
@@ -4667,12 +4668,16 @@ async function showSearchOptions(post) {
     }
     if (postTags && postTags.length > 0) {
         modelTagsHeader.classList.remove('hidden');
-        modelTagsHolder.innerHTML = postTags.split('; ').map(e => {
+        modelTagsHolder.innerHTML = postTags.split('; ').map((e,i,a) => {
             const rating = parseFloat(e.split('/')[1]) * 100;
-            const name = e.split('/').slice(2).join('/');
+            let name = e.split('/').slice(2).join('/');
+            if (a.length === i + 1 && name.endsWith(';'))
+                name = name.slice(0, name.length - 1);
             const type = ((t) => {
                 switch (t) {
                     case 3:
+                        if (name.startsWith('st_'))
+                            return ['fa-file-circle-info', 'Safety Classification', 'bg-warning', 'text-gray-900']
                         return ['fa-file-circle-info','System','bg-warning','text-gray-900']
                     case 2:
                         return ['fa-person','Character','bg-success','text-gray-900']
