@@ -4668,7 +4668,7 @@ async function showSearchOptions(post) {
     }
     if (postTags && postTags.length > 0) {
         modelTagsHeader.classList.remove('hidden');
-        modelTagsHolder.innerHTML = postTags.split('; ').map((e,i,a) => {
+        modelTagsHolder.innerHTML = postTags.split('; ').filter(e => e.split('/').length === 3).map((e,i,a) => {
             const rating = parseFloat(e.split('/')[1]) * 100;
             let name = e.split('/').slice(2).join('/');
             if (a.length === i + 1 && name.endsWith(';'))
