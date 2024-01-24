@@ -998,9 +998,9 @@ module.exports = async (req, res, next) => {
             hideChannels = false;
         }
         // Where Exec
-        if (thisUser.master.disabled_channels && thisUser.master.disabled_channels.length > 0 && hideChannels) {
+        if (!req.query.inc_omitted && thisUser.master.disabled_channels && thisUser.master.disabled_channels.length > 0 && hideChannels) {
             baseQ += '( ' + thisUser.master.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ` ) AND ${thisUser.master.cache.channels_view}.media_group IS NULL AND `
-        } else if (hideChannels) {
+        } else if (!req.query.inc_omitted && hideChannels) {
             baseQ += `( ${thisUser.master.cache.channels_view}.media_group IS NULL ) AND `
         }
         let channelFilter = `${baseQ}`
