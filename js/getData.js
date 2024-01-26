@@ -1150,12 +1150,16 @@ module.exports = async (req, res, next) => {
         }
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
-            'kanmi_records.*',
-            'IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename',
-            `IFNULL(SUBSTRING_INDEX(IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)), '.', -1),NULL) AS fileext`,
-            'CONVERT(kanmi_records.id,SIGNED) AS num_id',
-            `${thisUser.master.cache.channels_view}.*`
+            'kanmi_records.*'
         ];
+        if (req.query.sort === 'name' || req.query.sort === 'file') {
+            sqlFields.push('IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename');
+        } else if (req.query.sort === 'ext') {
+            sqlFields.push(`IFNULL(SUBSTRING_INDEX(IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)), '.', -1),NULL) AS fileext`);
+        } else if (req.query.sort === 'id') {
+            sqlFields.push('CONVERT(kanmi_records.id,SIGNED) AS num_id');
+        }
+        sqlFields.push(`${thisUser.master.cache.channels_view}.*`)
         const sqlAlbumFields = [
             'sequenzia_album_items.eid',
             'sequenzia_albums.privacy AS album_privacy',

@@ -1736,9 +1736,9 @@ html
                                             if (params.has('nsfw'))
                                                 i.fas.fa-exclamation-triangle.px-1(title=`NSFW Results Enabled`)
                                             if (ultraCache)
-                                                i#ultraCache.fas.fa-bolt.px-1(title=`UltraCache - ${ultraCache.time}m`, data-ultracacheID=ultraCache.id)
+                                                i#ultraCache.fas.fa-bolt.px-1(title=`UltraCache Results - ${ultraCache.time}m`, data-ultracacheID=ultraCache.id)
                                             else
-                                                i#ultraCache.fas.fa-wave-triangle.px-1(title="UltraCache is processing...")
+                                                i#ultraCache.fas.fa-wave-triangle.px-1(title="Direct Query Results")
                                             if (is_remote_exchange)
                                                 a(href=active_exchange.exchange.access_url target = "_blank" rel="noopener noreferrer")
                                                     i.fas.fa-link-horizontal.px-1(title="Remote Exchange" style="font-size: initial;")
