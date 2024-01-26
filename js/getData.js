@@ -736,12 +736,16 @@ module.exports = async (req, res, next) => {
             } else {
                 const _ratioE = req.query.ratio.split('+');
                 if (_ratioE.length > 1) {
+                    let _r = [];
                     _ratioE.map(e => {
                         const thisRatio = parseFloat(e);
                         if (!isNaN(thisRatio)) {
-                            sqlquery.push(`sizeR = ${thisRatio}`)
+                            _r.push(`sizeR = ${thisRatio}`)
                         }
                     })
+                    if (_r.length > 0) {
+                        sqlquery.push(`(${_r.join(' OR ')})`)
+                    }
                 } else {
                     const thisRatio = parseFloat(_ratio[0]);
                     if (!isNaN(thisRatio)) {
