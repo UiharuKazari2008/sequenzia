@@ -734,9 +734,19 @@ module.exports = async (req, res, next) => {
                     sqlquery.push(`sizeR BETWEEN '${lessThanRatio}' AND '${greaterThanRatio}'`)
                 }
             } else {
-                const thisRatio = parseFloat(_ratio[0]);
-                if (!isNaN(thisRatio)) {
-                    sqlquery.push(`sizeR = ${thisRatio}`)
+                const _ratioE = req.query.ratio.split('+');
+                if (_ratioE.length > 1) {
+                    _ratioE.map(e => {
+                        const thisRatio = parseFloat(e);
+                        if (!isNaN(thisRatio)) {
+                            sqlquery.push(`sizeR = ${thisRatio}`)
+                        }
+                    })
+                } else {
+                    const thisRatio = parseFloat(_ratio[0]);
+                    if (!isNaN(thisRatio)) {
+                        sqlquery.push(`sizeR = ${thisRatio}`)
+                    }
                 }
             }
             android_uri.push(`ratio=${req.query.ratio}`);
