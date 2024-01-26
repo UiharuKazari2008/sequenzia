@@ -77,6 +77,7 @@ let kongouMediaCache = null;
 let kongouMediaActiveURL = null;
 let currentMediaMetadata = {};
 let actionHandlers = [];
+let requested_review_mode = false;
 
 let postsActions = [];
 let apiActions = {};
@@ -985,10 +986,13 @@ async function requestCompleted (response, url, lastURL, push) {
                         if (!offlinePage) {
                             if (initialLoad)
                                 document.getElementById('bootLoaderStatus').innerText = 'Restoring Panels...';
-                            if (inReviewMode) {
+                            if (inReviewMode && requested_review_mode === false) {
                                 enableReviewMode();
                             } else if (url.includes('review_mode=true')) {
+                                requested_review_mode = true;
                                 setupReviewMode();
+                            } else if (requested_review_mode === true) {
+                                requested_review_mode = false;
                             }
                             updateActionsPanel();
                             updateNotficationsPanel();
