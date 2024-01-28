@@ -734,7 +734,7 @@ module.exports = async (req, res, next) => {
                     sqlquery.push(`sizeR BETWEEN '${lessThanRatio}' AND '${greaterThanRatio}'`)
                 }
             } else {
-                const _ratioE = req.query.ratio.split('+');
+                const _ratioE = req.query.ratio.split(' ');
                 if (_ratioE.length > 1) {
                     let _r = [];
                     _ratioE.map(e => {
