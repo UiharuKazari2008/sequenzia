@@ -1487,8 +1487,8 @@ function sampleColorsForWACCA(center, radius, index) {
 
         const data = sampleAverageColor(imageCtx, x, y);
         const hexColor = rgbToHex(data[0], data[1], data[2]);
-        const final = decreaseBrightness(hexColor, (index * 9));
-        colors.push("0x" + final);
+        //const final = decreaseBrightness(hexColor, (index * 9));
+        colors.push("0x" + hexColor);
     }
     return colors;
 };
