@@ -1380,9 +1380,12 @@ async function parseCanvasToWACCA(image) {
         h: image.height,
     };
     const startRadius = Math.min(image.width, image.height) / 2;
+    const minDimension = Math.min(image.width, image.height);
+    const percentageDistance = 0.05 * minDimension;
 
     for (let i = 0; i < circleCount; i++) {
-        const radius = startRadius - (i * 3);
+        //const radius = startRadius - (i * 3);
+        const radius = (circleCount - i) * percentageDistance;
         const colors = sampleColorsForWACCA(center, radius, i);
         allColors.unshift(...colors);
     }
