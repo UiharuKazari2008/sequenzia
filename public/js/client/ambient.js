@@ -1467,12 +1467,11 @@ async function parseCanvasToChunithm(image) {
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
-            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
-            const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
+            const brightness = 0.299 * hexColor[0] + 0.587 * hexColor[1] + 0.114 * hexColor[2];
 
-            let r = postColor[0];
-            let g = postColor[1];
-            let b = postColor[2];
+            let r = hexColor[0];
+            let g = hexColor[1];
+            let b = hexColor[2];
 
             if (brightness < thresholdBrightness) {
                 // Replace with threshold color if below minimum brightness
@@ -1490,12 +1489,11 @@ async function parseCanvasToChunithm(image) {
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
-            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
-            const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
+            const brightness = 0.299 * hexColor[0] + 0.587 * hexColor[1] + 0.114 * hexColor[2];
 
-            let r = postColor[0];
-            let g = postColor[1];
-            let b = postColor[2];
+            let r = hexColor[0];
+            let g = hexColor[1];
+            let b = hexColor[2];
 
             if (brightness < thresholdBrightness) {
                 // Replace with threshold color if below minimum brightness
