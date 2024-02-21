@@ -1482,7 +1482,7 @@ async function parseCanvasToChunithm(image) {
             }
 
             const final = rgbToHex(r,g,b);
-            colorValues2.push('0x' + final);
+            colorValues2.unshift('0x' + final);
         }
         for (let i = 0; i < sideHeight; i++) {
             const x = finalX;
@@ -1505,7 +1505,7 @@ async function parseCanvasToChunithm(image) {
             }
 
             const final = rgbToHex(r,g,b);
-            colorValues2.push('0x' + final);
+            colorValues2.unshift('0x' + final);
         }
     }
 
