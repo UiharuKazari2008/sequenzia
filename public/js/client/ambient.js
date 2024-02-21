@@ -41,7 +41,9 @@ let displayMode = [];
 let remoteInfoCFD = false;
 let remoteWACCALED = false;
 let remoteChunLED = false;
+let remoteChunLEDSide = false;
 let remoteChunLEDGround = false;
+let localLEDDriver = false;
 let vfdWeather = '';
 let vfdInfo = '';
 let vfdDate = '';
@@ -72,6 +74,7 @@ let displayConfiguration = {
     layoutMode: 0,
 }
 let lastColorRingData = '';
+let lastColorSideData = '';
 let menuMap;
 
 const _sysHeight = window.innerHeight * window.devicePixelRatio;
@@ -89,9 +92,27 @@ if (config.has('info_vfd')) {
 if (config.has('led_server') && config.has('led_type')) {
     const type = config.getAll('led_type')[0];
     if (type === 'wacca') {
-        remoteWACCALED = config.getAll('led_server')[0]
+        if (config.getAll('led_server')[0] === "localhost") {
+            remoteWACCALED = "localhost:6833";
+            localLEDDriver = true;
+        } else {
+            remoteWACCALED = config.getAll('led_server')[0]
+        }
     } else if (type === 'chun') {
-        remoteChunLED = config.getAll('led_server')[0]
+        if (config.getAll('led_server')[0] === "localhost") {
+            remoteChunLED = "localhost:6833";
+            localLEDDriver = true;
+        } else {
+            remoteChunLED = config.getAll('led_server')[0]
+        }
+    } else if (type === 'chun_cvt') {
+        remoteChunLEDSide = true;
+        if (config.getAll('led_server')[0] === "localhost") {
+            remoteChunLED = "localhost:6833";
+            localLEDDriver = true;
+        } else {
+            remoteChunLED = config.getAll('led_server')[0]
+        }
     }
 }
 if (config.has('sys_plate')) {
@@ -418,6 +439,8 @@ function getNextImage() {
                     }
                     if (remoteWACCALED || remoteChunLED) {
                         sendLEDStatic("C91D22");
+                        if (remoteChunLEDSide)
+                            sendLEDStatic(  "C91D22", 10);
                     }
                     document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                     document.getElementById('data1').classList.remove('hidden-on-boot')
@@ -461,6 +484,8 @@ function getNextImage() {
                 }
                 if (remoteWACCALED || remoteChunLED) {
                     sendLEDStatic("C91D22");
+                    if (remoteChunLEDSide)
+                        sendLEDStatic(  "C91D22", 10);
                 }
                 console.error('getImage Failed');
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
@@ -637,6 +662,8 @@ function pullImage(data) {
                 }
                 if (remoteWACCALED || remoteChunLED) {
                     sendLEDStatic("C91D22");
+                    if (remoteChunLEDSide)
+                        sendLEDStatic(  "C91D22", 10);
                 }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').innerText = 'After 5 failed attempts, was unable to get a valid response';
@@ -1371,28 +1398,33 @@ async function parseCanvasToChunithm(image) {
 
     const gridWidth = 11;
     const gridHeight = 10;
+    const sideHeight = 45;
     const thresholdColor = '#00060c';
     const thresholdBrightness = 0.299 * parseInt(thresholdColor.slice(1, 3), 16) + 0.587 * parseInt(thresholdColor.slice(3, 5), 16) + 0.114 * parseInt(thresholdColor.slice(5, 7), 16);
     const maxBrightnessRatio = 0.5;
     const aspectRatio = (9 / 16);
 
-    let spacingX, spacingY, startX, startY;
+    let spacingX, spacingY, spacingY2, startX, startY;
     if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
         // Constrained by width
         spacingX = image.width / (gridWidth + 1);
         spacingY = spacingX * aspectRatio;
+        spacingY2 = spacingX * aspectRatio;
         startX = spacingX;
         startY = (image.height - (spacingY * (gridHeight - 1))) / 2;
     } else {
         // Constrained by height
         spacingY = image.height / (gridHeight + 1) / aspectRatio;
+        spacingY2 = image.height / (sideHeight + 1) / aspectRatio;
         spacingX = spacingY * aspectRatio;
         startX = (image.width - (spacingX * (gridWidth - 1))) / 2;
         startY = spacingY;
     }
 
     const colorValues = [];
+    const colorValues2 = [];
 
+    let finalX
     for (let j = 0; j < gridWidth; j++) {
         let row = [];
         for (let i = 0; i < gridHeight; i++) {
@@ -1422,16 +1454,70 @@ async function parseCanvasToChunithm(image) {
             } else {
                 row.push('0x' + final);
             }
+            finalX = x;
 
         }
         colorValues.push(...row);
+    }
+    if (remoteChunLEDSide) {
+        let row = [];
+        for (let i = 0; i < sideHeight; i++) {
+            const x = startX;
+            const y = startY + i * spacingY;
+
+            const pixelData = sampleAverageColor(imageCtx, x, y);
+            const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
+            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
+            const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
+
+            let r = postColor[0];
+            let g = postColor[1];
+            let b = postColor[2];
+
+            if (brightness < thresholdBrightness) {
+                // Replace with threshold color if below minimum brightness
+                r = parseInt(thresholdColor.slice(1, 3), 16);
+                g = parseInt(thresholdColor.slice(3, 5), 16);
+                b = parseInt(thresholdColor.slice(5, 7), 16);
+            }
+
+            const final = rgbToHex(r,g,b);
+            colorValues2.push('0x' + final);
+        }
+        for (let i = 0; i < sideHeight; i++) {
+            const x = finalX;
+            const y = startY + i * spacingY;
+
+            const pixelData = sampleAverageColor(imageCtx, x, y);
+            const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
+            const postColor = decreaseBrightnessRGB(hexColor, (i * 5));
+            const brightness = 0.299 * postColor[0] + 0.587 * postColor[1] + 0.114 * postColor[2];
+
+            let r = postColor[0];
+            let g = postColor[1];
+            let b = postColor[2];
+
+            if (brightness < thresholdBrightness) {
+                // Replace with threshold color if below minimum brightness
+                r = parseInt(thresholdColor.slice(1, 3), 16);
+                g = parseInt(thresholdColor.slice(3, 5), 16);
+                b = parseInt(thresholdColor.slice(5, 7), 16);
+            }
+
+            const final = rgbToHex(r,g,b);
+            colorValues2.push('0x' + final);
+        }
     }
 
     colorValues.splice(50, 0, '0xf99400', '0xf99400', '0xf99400');
     colorValues.push('0xf99400', '0xf99400', '0xf99400');
 
     lastColorRingData = colorValues.join(' ');
+    if (remoteChunLEDSide)
+        lastColorSideData = colorValues2.join(' ');
     sendLEDValues(lastColorRingData);
+    if (remoteChunLEDSide)
+        sendLEDSideValues(lastColorSideData);
 }
 function decreaseBrightness(color, percent) {
     const stage1 = tinycolor("#" + color).darken(percent);
@@ -1497,7 +1583,7 @@ function sendLEDValues(values) {
     if ((remoteWACCALED || remoteChunLED) && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${(remoteWACCALED || remoteChunLED)}/setLED?ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
+            url: `http://${(remoteWACCALED || remoteChunLED)}/${(localLEDDriver) ? 'led_data' : 'setLED'}?ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1506,6 +1592,23 @@ function sendLEDValues(values) {
             },
             error: function (res) {
                 console.error('Failed to update LED Rings')
+            }
+        });
+    }
+}
+function sendLEDSideValues(values) {
+    if (remoteChunLED && remoteChunLEDSide && values.length > 1) {
+        $.ajax({
+            async: true,
+            url: `http://${remoteChunLED}/${(localLEDDriver) ? 'led_data?bankSelect=10&' : 'setLED?'}ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            error: function (res) {
+                console.error('Failed to update LED Sidebars')
             }
         });
     }
@@ -1518,30 +1621,13 @@ function sendLEDStatic(_values, bankSelect) {
                 for (let i = 0; i < 60; i++) {
                     colors.push(`0x000000 0x000000 0x000000 0x000000 0x000000 0x000000 ${_values} ${_values}`);
                 }
-                return `http://${remoteWACCALED}/setLED?ledBrightness=50&ledValues=${colors.join(" ")}`
+                return `http://${remoteWACCALED}/${(localLEDDriver) ? 'led_data' : 'setLED'}?ledBrightness=50&ledValues=${colors.join(" ")}`
             }
-            return `http://${remoteChunLED}/setLEDColor?ledBrightness=50&ledColor=${_values}&bankSelect=${bankSelect || 2}`
+            return `http://${remoteChunLED}/${(localLEDDriver) ? 'led_data' : 'setLEDColor'}?ledBrightness=50&ledColor=${_values}&bankSelect=${bankSelect || 2}`
         })()
         $.ajax({
             async: true,
             url,
-            type: "GET", data: '',
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR'
-            },
-            error: function (res) {
-                console.error('Failed to update LED Rings')
-            }
-        });
-    }
-}
-function sendLEDReset() {
-    if (remoteChunLED) {
-        $.ajax({
-            async: true,
-            url: `http://${remoteChunLED}/resetLED`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1746,11 +1832,15 @@ function enableChunShimControl() {
         if (pauseLEDUpdates === true && !(menu['_pause_leds'])) {
             pauseLEDUpdates = !!(menu['_pause_leds']);
             sendLEDValues(lastColorRingData);
+            if (remoteChunLEDSide)
+                sendLEDSideValues(lastColorSideData);
         } else {
             pauseLEDUpdates = !!(menu['_pause_leds']);
         }
         if (pauseLEDUpdates) {
             sendLEDStatic(  "f99400");
+            if (remoteChunLEDSide)
+                sendLEDStatic(  "000000", 10);
             sendLEDStatic(  "000000", 1);
         }
         let i = 1;
@@ -2105,6 +2195,8 @@ $(document).ready(function () {
     }
     if (remoteWACCALED || remoteChunLED) {
         sendLEDStatic(  "f99400");
+        if (remoteChunLEDSide)
+            sendLEDStatic(  "f99400", 10);
     }
     if (remoteChunLEDGround) {
         enableChunShimControl();
@@ -2155,6 +2247,8 @@ $(document).ready(function () {
                     setInterval(() => {
                         if (!pauseLEDUpdates) {
                             sendLEDValues(lastColorRingData);
+                            if (remoteChunLEDSide)
+                                sendLEDSideValues(lastColorSideData);
                         }
                     }, 60000);
                 }
@@ -2173,6 +2267,8 @@ $(document).ready(function () {
                 }
                 if (remoteWACCALED || remoteChunLED) {
                     sendLEDStatic("C91D22");
+                    if (remoteChunLEDSide)
+                        sendLEDStatic(  "C91D22", 10);
                 }
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
@@ -2197,6 +2293,8 @@ $(document).ready(function () {
             }
             if (remoteWACCALED || remoteChunLED) {
                 sendLEDStatic("C91D22");
+                if (remoteChunLEDSide)
+                    sendLEDStatic(  "C91D22", 10);
             }
             document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
             document.getElementById('data1').classList.remove('hidden-on-boot')
