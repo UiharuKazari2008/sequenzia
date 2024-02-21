@@ -1461,7 +1461,7 @@ async function parseCanvasToChunithm(image) {
         }
         colorValues.push(...row);
     }
-    if (remoteChunLEDSide) {
+/*    if (remoteChunLEDSide) {
         for (let i = 0; i < sideHeight; i++) {
             const x = startX;
             const y = startY2 + i * spacingY2;
@@ -1506,6 +1506,9 @@ async function parseCanvasToChunithm(image) {
             const final = rgbToHex(r,g,b);
             colorValues2.unshift('0x' + final);
         }
+    }*/
+    for (let i = 0; i < sideHeight; i++) {
+        colorValues2.push('0xf99400', '0xf99400');
     }
 
     colorValues.splice(50, 0, '0xf99400', '0xf99400', '0xf99400');
