@@ -1600,7 +1600,7 @@ function sendLEDSideValues(values) {
     if (remoteChunLED && remoteChunLEDSide && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${remoteChunLED}/${(localLEDDriver) ? 'led_data?bankSelect=10&' : 'setLED?'}ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
+            url: `http://${remoteChunLED}/${(localLEDDriver) ? 'led_data?bankSelect=10&' : 'setLED?'}full_stream=true&ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
