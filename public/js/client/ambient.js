@@ -1463,7 +1463,7 @@ async function parseCanvasToChunithm(image) {
         let row = [];
         for (let i = 0; i < sideHeight; i++) {
             const x = startX;
-            const y = startY + i * spacingY;
+            const y = startY + i * spacingY2;
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
@@ -1485,7 +1485,7 @@ async function parseCanvasToChunithm(image) {
         }
         for (let i = 0; i < sideHeight; i++) {
             const x = finalX;
-            const y = startY + i * spacingY;
+            const y = startY + i * spacingY2;
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
