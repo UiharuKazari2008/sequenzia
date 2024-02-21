@@ -1409,14 +1409,14 @@ async function parseCanvasToChunithm(image) {
         // Constrained by width
         spacingX = image.width / (gridWidth + 1);
         spacingY = spacingX * aspectRatio;
-        spacingY2 = spacingX * aspectRatio;
+        spacingY2 = spacingY;
         startX = spacingX;
         startY = (image.height - (spacingY * (gridHeight - 1))) / 2;
         startY2 = (image.height - (spacingY2 * (sideHeight - 1))) / 2;
     } else {
         // Constrained by height
-        spacingY = image.height / (gridHeight + 1) / aspectRatio;
-        spacingY2 = image.height / (sideHeight + 1) / aspectRatio;
+        spacingY = image.height / (gridHeight + 1);
+        spacingY2 = image.height / (sideHeight + 1);
         spacingX = spacingY * aspectRatio;
         startX = (image.width - (spacingX * (gridWidth - 1))) / 2;
         startY = spacingY;
@@ -1462,7 +1462,6 @@ async function parseCanvasToChunithm(image) {
         colorValues.push(...row);
     }
     if (remoteChunLEDSide) {
-        let row = [];
         for (let i = 0; i < sideHeight; i++) {
             const x = startX;
             const y = startY2 + i * spacingY2;
