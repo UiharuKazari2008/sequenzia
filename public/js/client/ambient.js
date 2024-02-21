@@ -1404,7 +1404,7 @@ async function parseCanvasToChunithm(image) {
     const maxBrightnessRatio = 0.5;
     const aspectRatio = (9 / 16);
 
-    let spacingX, spacingY, spacingY2, startX, startY;
+    let spacingX, spacingY, spacingY2, startX, startY, startY2;
     if (image.width / gridWidth < image.height / (gridHeight * aspectRatio)) {
         // Constrained by width
         spacingX = image.width / (gridWidth + 1);
@@ -1412,6 +1412,7 @@ async function parseCanvasToChunithm(image) {
         spacingY2 = spacingX * aspectRatio;
         startX = spacingX;
         startY = (image.height - (spacingY * (gridHeight - 1))) / 2;
+        startY2 = (image.height - (spacingY2 * (sideHeight - 1))) / 2;
     } else {
         // Constrained by height
         spacingY = image.height / (gridHeight + 1) / aspectRatio;
@@ -1419,6 +1420,7 @@ async function parseCanvasToChunithm(image) {
         spacingX = spacingY * aspectRatio;
         startX = (image.width - (spacingX * (gridWidth - 1))) / 2;
         startY = spacingY;
+        startY2 = spacingY2;
     }
 
     const colorValues = [];
@@ -1463,7 +1465,7 @@ async function parseCanvasToChunithm(image) {
         let row = [];
         for (let i = 0; i < sideHeight; i++) {
             const x = startX;
-            const y = startY + i * spacingY2;
+            const y = startY2 + i * spacingY2;
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
@@ -1485,7 +1487,7 @@ async function parseCanvasToChunithm(image) {
         }
         for (let i = 0; i < sideHeight; i++) {
             const x = finalX;
-            const y = startY + i * spacingY2;
+            const y = startY2 + i * spacingY2;
 
             const pixelData = sampleAverageColor(imageCtx, x, y);
             const hexColor = ('000000' + ((pixelData[0] << 16) | (pixelData[1] << 8) | pixelData[2]).toString(16)).slice(-6);
