@@ -445,7 +445,8 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
         const ua = (source) ? useragent.parse(source) : undefined
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (req.query && params.length > 2 && params[0] !== '' && params[2] !== '') {
-            sqlSafe(`SELECT * FROM kanmi_records WHERE id = ? LIMIT 1`, [ params[2]], async (err, messages) => {
+            const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
+            sqlSafe(`SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.full_hint, cdn.mfull_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE id = ? LIMIT 1) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`, [ params[2]], async (err, messages) => {
                 if (err) {
                     res.status(404).send('Message not found');
                     printLine('ProxyFile', `Message ID was not found, can not download`, 'error');
@@ -590,7 +591,9 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                         });
                     }
                     if (params[0] === 'full' || params[0] === 'full64') {
-                        if (message.filecached && (global.fw_serve || global.spanned_cache)) {
+                        if ( message.cdn_host !== null && config.local_cdn_list.filter(e => e.id === message.cdn_host).length > 0 && message.full_hint) {
+                            returnContent(`${config.local_cdn_list.filter(e => e.id === message.cdn_host)[0].access_url}preview/${message.path_hint}/${message.full_hint}`);
+                        } else if (message.filecached && (global.fw_serve || global.spanned_cache)) {
                             returnContent();
                         } else if (message.attachment_hash) {
                             returnContent(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
@@ -599,7 +602,9 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                             printLine('ProxyFile', `No full content exists`, 'error');
                         }
                     } else if (params[0] === 'proxy') {
-                        if (message.cache_proxy) {
+                        if ( message.cdn_host !== null && config.local_cdn_list.filter(e => e.id === message.cdn_host).length > 0 && message.preview_hint) {
+                            returnContent(`${config.local_cdn_list.filter(e => e.id === message.cdn_host)[0].access_url}preview/${message.path_hint}/${message.preview_hint}`);
+                        } else if (message.cache_proxy) {
                             returnOptiContent(message.cache_proxy.startsWith('http') ? message.cache_proxy : `https://media.discordapp.net/attachments${message.cache_proxy}`);
                         } else if (message.attachment_hash) {
                             returnOptiContent(`https://media.discordapp.net/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
@@ -669,6 +674,8 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                                     complete();
                                 }
                             })
+                        } else if (message.fileid !== null && message.cdn_host !== null && config.local_cdn_list.filter(e => e.id === message.cdn_host).length > 0 && message.mfull_hint) {
+                            returnContent(`${config.local_cdn_list.filter(e => e.id === message.cdn_host)[0].access_url}preview/${message.path_hint}/${message.mfull_hint}`);
                         } else if (message.fileid !== null) {
                             res.redirect(`/stream/${message.fileid}/${message.real_filename}`);
                         } else if (message.attachment_hash !== null) {
