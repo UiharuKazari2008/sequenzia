@@ -2293,7 +2293,10 @@ module.exports = async (req, res, next) => {
                                             if (imageurl === undefined) {
                                                 imageurl = attachment[1]
                                             }
-                                            const extended_previews = (item.data && item.data.preview_image && item.data.preview_image[index]) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image[index] : undefined
+                                            let extended_previews = (item.data && item.data.preview_image && item.data.preview_image[index]) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image[index] : undefined
+                                            if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.ext_0_hint) {
+                                                extended_previews = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}extended_preview/${item.path_hint}/${item.ext_0_hint}`
+                                            }
                                             const _date = moment(Date.parse(item.date))
                                             resultsArray.push({
                                                 id: item.id,
@@ -2447,7 +2450,10 @@ module.exports = async (req, res, next) => {
                                         }, function (ok) { })
                                     }
                                     const _date = moment(Date.parse(item.date))
-                                    const extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
+                                    let extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
+                                    if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.ext_0_hint) {
+                                        extended_previews = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}extended_preview/${item.path_hint}/${item.ext_0_hint}`
+                                    }
                                     resultsArray.push({
                                         id: item.id,
                                         eid: item.eid,
@@ -2716,8 +2722,10 @@ module.exports = async (req, res, next) => {
                                         }, function (ok) { })
                                     }
                                 }
-                                const extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined;
-
+                                let extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined;
+                                if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.ext_0_hint) {
+                                    extended_previews = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}extended_preview/${item.path_hint}/${item.ext_0_hint}`
+                                }
                                 if (item.attachment_extra !== null) {
                                     // Unpack data here
                                     const extractedItems = JSON.parse(item.attachment_extra)
@@ -2849,7 +2857,10 @@ module.exports = async (req, res, next) => {
                                             }, function (ok) { })
                                         }
                                     }
-                                    const extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
+                                    let extended_previews = (item.data && item.data.preview_image) ? `${(req.session && req.session.lite_mode === true) ? '' : 'https://media.discordapp.net'}` + item.data.preview_image : undefined
+                                    if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.ext_0_hint) {
+                                        extended_previews = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}extended_preview/${item.path_hint}/${item.ext_0_hint}`
+                                    }
                                     let inprogress = false
                                     if (item.fileid !== null && item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.mfull_hint) {
                                         downloadurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}`
