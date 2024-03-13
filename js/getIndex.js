@@ -277,6 +277,7 @@ module.exports = async (req, res, next) => {
         }
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
+            'kanmi_records.eid',
             'kanmi_records.attachment_hash',
             'kanmi_records.attachment_name',
             'kanmi_records.cache_proxy',
@@ -309,7 +310,8 @@ module.exports = async (req, res, next) => {
             `kanmi_records.channel = ${thisUser.master.cache.channels_view}.channelid`
         ].join(' AND ');
 
-        const sqlCall = `SELECT * FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))) x LEFT OUTER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${thisUser.master.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY ${sqlorder}`
+        const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
+        const sqlCall = `SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))) x LEFT OUTER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${thisUser.master.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY ${sqlorder}) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`
 
         if (req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqPaginator' ) {
             if (req.session.pageinatorEnable && req.session.pageinatorEnable === true) {
@@ -452,7 +454,10 @@ module.exports = async (req, res, next) => {
                     } else {
                         channelName = item.channel_nice
                     }
-                    if (item.cache_proxy !== null) {
+                    if (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.preview_hint) {
+                        const cdn_host = config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url
+                        imageurl = `${cdn_host}preview/${image.path_hint}/${image.preview_hint}`
+                    } else if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
                     } else if (item.attachment_hash && item.attachment_name) {
                         function getimageSizeParam() {
