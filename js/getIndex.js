@@ -456,7 +456,7 @@ module.exports = async (req, res, next) => {
                     }
                     if (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.preview_hint) {
                         const cdn_host = config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url
-                        imageurl = `${cdn_host}preview/${image.path_hint}/${image.preview_hint}`
+                        imageurl = `${cdn_host}preview/${item.path_hint}/${item.preview_hint}`
                     } else if (item.cache_proxy !== null) {
                         imageurl = (item.cache_proxy.startsWith('http') ? item.cache_proxy : `https://media.discordapp.net/attachments${item.cache_proxy}`);
                     } else if (item.attachment_hash && item.attachment_name) {
