@@ -1237,8 +1237,9 @@ module.exports = async (req, res, next) => {
                 ])
             }
         }
+        const selectAuxCDN = `SELECT * FROM kanmi_aux_cdn WHERE ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') : ''}`
         const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
-        const selectBase = `SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
+        const selectBase = `SELECT rec2.*, cdn2.host AS cdn_host_aux, cdn2.dat_0_hint, cdn2.dat_1_hint FROM (SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))` + ((sqlorder.trim().length > 0 && enablePrelimit) ? ` ORDER BY ${sqlorder}` : '') + ((enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : '') + `) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)) rec2 LEFT OUTER JOIN (${selectAuxCDN}) cdn2 ON (rec2.show_id = cdn2.record_int)`;
         const selectBaseNoPreLimit = `SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
         const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy = 0))`
@@ -2349,10 +2350,10 @@ module.exports = async (req, res, next) => {
                                                         id: item.show_id,
                                                         name: item.show_name,
                                                         original_name: item.show_original_name,
-                                                        background: item.show_background,
                                                         nsfw: item.show_nsfw,
                                                         subtitled: item.show_subtitled,
-                                                        poster: item.show_poster,
+                                                        background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                        poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                         meta: item.show_data
                                                     },
                                                     watched: item.wathched_percent,
@@ -2512,10 +2513,10 @@ module.exports = async (req, res, next) => {
                                                 id: item.show_id,
                                                 name: item.show_name,
                                                 original_name: item.show_original_name,
-                                                background: item.show_background,
                                                 nsfw: item.show_nsfw,
                                                 subtitled: item.show_subtitled,
-                                                poster: item.show_poster,
+                                                background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                 meta: item.show_data
                                             },
                                             watched: item.wathched_percent,
@@ -2783,10 +2784,10 @@ module.exports = async (req, res, next) => {
                                                     id: item.show_id,
                                                     name: item.show_name,
                                                     original_name: item.show_original_name,
-                                                    background: item.show_background,
                                                     nsfw: item.show_nsfw,
                                                     subtitled: item.show_subtitled,
-                                                    poster: item.show_poster,
+                                                    background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                    poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                     meta: item.show_data
                                                 },
                                                 watched: item.wathched_percent,
@@ -2925,10 +2926,10 @@ module.exports = async (req, res, next) => {
                                                 id: item.show_id,
                                                 name: item.show_name,
                                                 original_name: item.show_original_name,
-                                                background: item.show_background,
                                                 nsfw: item.show_nsfw,
                                                 subtitled: item.show_subtitled,
-                                                poster: item.show_poster,
+                                                background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                 meta: item.show_data
                                             },
                                             watched: item.wathched_percent,
@@ -3025,10 +3026,10 @@ module.exports = async (req, res, next) => {
                                                 id: item.show_id,
                                                 name: item.show_name,
                                                 original_name: item.show_original_name,
-                                                background: item.show_background,
                                                 nsfw: item.show_nsfw,
                                                 subtitled: item.show_subtitled,
-                                                poster: item.show_poster,
+                                                background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                 meta: item.show_data
                                             },
                                             watched: item.wathched_percent,
