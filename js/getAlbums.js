@@ -42,7 +42,6 @@ module.exports = async (req, res) => {
                 sqlQuery = `SELECT x.*, y.found_aid FROM (${sqlQuery}) x LEFT OUTER JOIN (SELECT aid AS found_aid FROM sequenzia_album_items WHERE eid = '${req.query.messageid}') y ON (x.aid = y.found_aid)`
             }
             sqlQuery += ' ORDER BY name ASC'
-            console.log(q);
             const query = await sqlPromiseSimple(sqlQuery);
 
             if (query && query.rows && query.rows.length > 0) {
