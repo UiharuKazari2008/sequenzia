@@ -7,7 +7,7 @@ block content
             ul.my-errors
                 for error in errors
                     li= error.msg
-        - backgrounds = results.filter(e => !!e.background || !!e.cache_background).map(e => (e.cache_background) ? 'https://media.discordapp.net/attachments' + e.cache_background : e.background.pop())
+        - backgrounds = results.filter(e => !!e.background || !!e.cache_background).map(e => (e.cache_background) ? e.cache_background : e.background.pop())
         - backgroundImg = backgrounds[Math.floor(Math.random() * backgrounds.length)]
         style.
             .background-image:not(.overlay) {
