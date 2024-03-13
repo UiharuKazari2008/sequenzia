@@ -179,40 +179,20 @@ router.use('/parity', sessionVerification, handleExchange, readValidation, async
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
-        if (params.length > 0) {
-            const results = await (() => {
-                if (global.bypass_cds_check) {
-                    return sqlPromiseSafe(`SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ? ORDER BY paritycount ASC LIMIT 1) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid) ORDER BY part_url`, [params[0], params[0]])
-                } else {
-                    return sqlPromiseSafe(`SELECT rk.* FROM (SELECT DISTINCT channelid FROM ${thisUser.master.cache.channels_view}) auth INNER JOIN (SELECT records.*, spfp.part_url FROM (SELECT * FROM kanmi_records WHERE fileid = ? ORDER BY paritycount ASC LIMIT 1) records LEFT OUTER JOIN (SELECT url AS part_url, fileid FROM discord_multipart_files WHERE fileid = ? AND valid = 1) spfp ON (spfp.fileid = records.fileid)) rk ON (auth.channelid = rk.channel) ORDER BY part_url`, [params[0], params[0]])
-                }
-            })()
+        if (params.length > 0 && config.sbi_interfaces && config.sbi_interfaces.discord) {
             if (!config.disable_esm && req.session.esm_key)
                 await sqlPromiseSafe(`INSERT INTO sequenzia_cds_audit SET esm_id = ?, fileid = ?`, [req.session.esm_key, params[0]])
-            if (results.error) {
-                res.status(500)
-                console.error(results.error)
-            } else if (results.rows.length === 0) {
-                res.status(404).send(`File ${params[0]} does not exist`)
-            } else if (results.rows.length > 1) {
-                const file = results.rows[0]
-                const files = results.rows.map(e => `${(global.proxy_host) ? global.proxy_host : ''}/attachments${e.part_url.split('attachments').pop()}`).sort((x, y) => (x.split('.').pop().split('?')[0] < y.split('.').pop().split('?')[0]) ? -1 : (y.split('.').pop().split('?')[0] > x.split('.').pop().split('?')[0]) ? 1 : 0)
-
-                printLine('ClientStreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
-                if (file.fileid && !(file.paritycount && file.paritycount !== results.rows.length)) {
-                    res.status(200).json({
-                        parts: files,
-                        expected_parts: file.paritycount || files.length,
-                        filename: file.real_filename
-                    })
-                } else {
-                    res.status(415).send('This content is not streamable or is damaged!')
-                }
-            } else {
-                res.status(415).send('This content is not streamable')
-            }
+            const sbi_services = config.sbi_interfaces.discord
+            const discord_host = sbi_services[Math.floor(Math.random() * sbi_services.length)]
+            const request = ((url.startsWith('https')) ? https : http).get(`http://${discord_host}/get/spanned_file?uuid=${params[0]}`, async function (response) {
+                response.pipe(res);
+            });
+            request.on('error', function (e) {
+                res.status(500).send("Internal Communication Error");
+                console.error(e);
+            });
         } else {
-            res.status(400).send('Invalid Request')
+                res.status(400).send('Invalid Request');
         }
         return false
     } catch (err) {
