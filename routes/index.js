@@ -184,7 +184,7 @@ router.use('/parity', sessionVerification, handleExchange, readValidation, async
                 await sqlPromiseSafe(`INSERT INTO sequenzia_cds_audit SET esm_id = ?, fileid = ?`, [req.session.esm_key, params[0]])
             const sbi_services = config.sbi_interfaces.discord
             const discord_host = sbi_services[Math.floor(Math.random() * sbi_services.length)]
-            const request = ((url.startsWith('https')) ? https : http).get(`http://${discord_host}/get/spanned_file?uuid=${params[0]}`, async function (response) {
+            const request = http.get(`http://${discord_host}/get/spanned_file?uuid=${params[0]}`, async function (response) {
                 response.pipe(res);
             });
             request.on('error', function (e) {
