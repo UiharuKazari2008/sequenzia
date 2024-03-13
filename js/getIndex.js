@@ -311,7 +311,7 @@ module.exports = async (req, res, next) => {
         ].join(' AND ');
 
         const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
-        const sqlCall = `SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))) x LEFT OUTER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${thisUser.master.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY ${sqlorder}) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`
+        const sqlCall = `SELECT * FROM (SELECT rec.*, cdn.host AS cdn_host, cdn.path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT ${sqlFields} FROM ${sqlTables} WHERE (${execute} AND (${sqlWhere}))) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)) x LEFT OUTER JOIN (SELECT id AS fav_id, date AS fav_date FROM sequenzia_artists_favorites WHERE userid = "${thisUser.master.discord.user.id}") y ON x.artist_id = y.fav_id ORDER BY ${sqlorder}`
 
         if (req.headers['x-requested-page'] && req.headers['x-requested-page'] === 'SeqPaginator' ) {
             if (req.session.pageinatorEnable && req.session.pageinatorEnable === true) {
