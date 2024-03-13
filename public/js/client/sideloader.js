@@ -1911,9 +1911,9 @@ function extractMetaFromElement(e, preemptive, expires) {
     if (postDownload && !(postFilID && !postCached) && !required_build)
         fullItem = replaceDiscordCDN(postDownload);
     if (postKMSJSON && postKMSJSON.show.poster)
-        kongouPoster = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.poster}`)
+        kongouPoster = postKMSJSON.show.poster
     if (postKMSJSON && postKMSJSON.show.background)
-        kongouBackdrop = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.background}`)
+        kongouBackdrop = postKMSJSON.show.background
 
     return {
         full_url: fullItem,
@@ -2492,7 +2492,7 @@ async function generateEpisodeHTML(url) {
                 if (episodes && episodes.episodes && episodes.show && resultRows.length > 0) {
                     document.getElementById('contentBlock').innerHTML = `<style>
 .background-image:not(.overlay) {
-    background-image: url("https://media.discordapp.net/attachments${episodes.show.background}");
+    background-image: url("${episodes.show.background}");
 }
 
 .background-image.overlay {
@@ -2528,7 +2528,7 @@ async function generateEpisodeHTML(url) {
 </style><div class="show-header p-3">
 <div class="show-preview" style="background-image : url('${episodes.episodes[0].preview_url}');"></div>
 <div class="show-preview-overlay"></div>
-<div class="d-none d-sm-block show-poster mr-1"><img src="/media_attachments${episodes.show.poster}" /></div>
+<div class="d-none d-sm-block show-poster mr-1"><img src="${episodes.show.poster}" /></div>
 <div class="show-info px-2 w-100">
     <div class="show-title"><a class="text-white" href="https://themoviedb.org/${(episodes.show.meta.seasons) ? 'tv' : 'movie'}/${episodes.show.id}" target="_blank" rel="noopener noreferrer"><span>${episodes.show.original_name}</span></a></div>
     <div class="show-og-title"><span>${episodes.show.name}</span></div>
@@ -3201,7 +3201,7 @@ async function openKMSPlayer(messageid, seriesId) {
         currentMediaMetadata.title = (postKMSJSON.meta.name || 'No Title') + ((postKMSJSON.season && postKMSJSON.episode) ? ' (' + postKMSJSON.season + 'x' + postKMSJSON.episode + ')' : '');
         currentMediaMetadata.album = "Sequenzia x Kongou";
         if (postKMSJSON.show.poster) {
-            currentMediaMetadata.artwork = [ { src: `https://media.discordapp.net/attachments${postKMSJSON.show.poster}?height=580&width=384`, type: 'image/jpeg' } ];
+            currentMediaMetadata.artwork = [ { src: `${postKMSJSON.show.poster}`, type: 'image/jpeg' } ];
         } else {
             currentMediaMetadata.artwork = [];
         }
@@ -3983,7 +3983,7 @@ async function showSearchOptions(post) {
     }
     if (postKMSJSON) {
         modelKMSRow.classList.remove('hidden');
-        modelKMSPoster.src = (postKMSJSON.show.poster) ? `https://media.discordapp.net/attachments${postKMSJSON.show.poster}` : ''
+        modelKMSPoster.src = (postKMSJSON.show.poster) ? `${postKMSJSON.show.poster}` : ''
         modelKMSBaseName.innerText = postKMSJSON.show.name || 'Unknown Series'
         modelKMSEpisodeName.innerText = postKMSJSON.meta.name || 'Unknown Episode'
         modelKMSEpisodeNumber.innerText = (postKMSJSON.season && postKMSJSON.episode) ? postKMSJSON.season + 'x' + postKMSJSON.episode : ''

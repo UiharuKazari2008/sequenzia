@@ -28,7 +28,7 @@ html
             each thisServer, thisIndex in exchange.discord.servers.list
                 link(rel='preload', href=`${thisServer.icon}` as='image')
             if (exchange.kongou_next_episode)
-                link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? '/media_attachments' + exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
+                link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
         if (applications_list && applications_list.length > 0)
             each app in applications_list
                 if (app.images)

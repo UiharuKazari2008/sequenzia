@@ -40,7 +40,7 @@ block content
                             .show-preview(style=`background-image : url("${(show[0].media.show.background) ? 'https://media.discordapp.net/attachments' + show[0].media.show.background : showData.background.pop() }");`)
                             .show-preview-overlay
                             .d-none.d-sm-block.show-poster.mr-1
-                                img(src=`${(show[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + show[0].media.show.poster + '?height=580&width=384' : showData.poster[0]}`)
+                                img(src=`${(show[0].media.show.poster) ? show[0].media.show.poster + '?height=580&width=384' : showData.poster[0]}`)
                             .show-info.px-2.d-flex.flex-column.w-100
                                 .show-title
                                     if (nextEpisode[0].media.meta.name)
@@ -213,7 +213,7 @@ block content
                 .show-preview(style=`background-image : url("${banner[0].entities.preview}");`)
                 .show-preview-overlay
                 .d-none.d-sm-block.show-poster.mr-1
-                    img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
+                    img(src=`${(results[0].media.show.poster) ? results[0].media.show.poster : showData.poster[0]}`)
                 .show-info.px-2.d-flex.flex-column.w-100
                     .show-title
                         a(href=`https://themoviedb.org/tv/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white
@@ -455,7 +455,7 @@ block content
                 .show-preview(style=`background-image : url("${results[0].entities.preview}");`)
                 .show-preview-overlay
                 .d-none.d-sm-block.show-poster.mr-1
-                    img(src=`${(results[0].media.show.poster) ? 'https://media.discordapp.net/attachments' + results[0].media.show.poster : showData.poster[0]}`)
+                    img(src=`${(results[0].media.show.poster) ? results[0].media.show.poster : showData.poster[0]}`)
                 .show-info.px-2.w-100
                     .show-title
                         a(href=`https://themoviedb.org/movie/${showData.id}` target="_blank" rel="noopener noreferrer" ).text-white

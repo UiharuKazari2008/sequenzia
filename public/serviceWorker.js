@@ -994,10 +994,10 @@ async function extractMetaFromElement(e, preemptive, expires) {
     if (postKMSJSON) {
         kongouisMovie = (!!postKMSJSON.show)
         if (postKMSJSON.show.poster) {
-            kongouPoster = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.poster}`)
+            kongouPoster = postKMSJSON.show.poster
         }
         if (postKMSJSON.show.background) {
-            kongouBackdrop = replaceDiscordCDN(`https://media.discordapp.net/attachments${postKMSJSON.show.background}`)
+            kongouBackdrop = postKMSJSON.show.background
         }
     }
 

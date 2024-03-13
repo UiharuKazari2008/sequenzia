@@ -161,7 +161,7 @@ html
                                                                 span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
                                             if (exchange.kongou_next_episode)
                                                 div.outer-menu-next-episode(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
-                                                    img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
+                                                    img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                             div.position-relative.user-menu-height(class=`${((search_prev && search_prev !== '')) ? 'dual-search' : ''}`)
                                                 .row.w-100.ml-0.mr-0
                                                     .col-auto.p-0
@@ -299,7 +299,7 @@ html
                                             .d-flex.w-100
                                                 if (exchange.kongou_next_episode)
                                                     div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
-                                                        img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
+                                                        img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                 div.position-relative.user-menu-height(style="width: 100%;")
                                                     .d-flex.w-100#appMenuRow1.align-items-center
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
@@ -314,7 +314,7 @@ html
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
                                                         if (exchange.kongou_next_episode)
                                                             div.inner-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
-                                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? 'https://media.discordapp.net/attachments' + exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
+                                                                img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                         if (exchange.media_groups && exchange.media_groups.length > 0)
                                                             .menu-grid.kms-main-grid.mt-auto.ml-auto.mr-auto
                                                                 a.user-menu-item.user-menu-small(title="Continue Ongoing Series" href=`#_` onclick=`getNewContent([],[['watch_history','none']],'/listTheater'); return false;`)
