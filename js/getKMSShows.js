@@ -180,8 +180,8 @@ module.exports = async (req, res, next) => {
                                 group_isMovie: (item.group_type === 1),
                                 group_nsfw: item.group_nsfw,
                                 group_icon: item.icon,
-                                cache_background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && e.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${e.dat_1_hint}` : item.background,
-                                cache_poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && e.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${e.dat_0_hint}` : item.poster,
+                                cache_background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.background,
+                                cache_poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.poster,
                                 subtitled: item.series_subtitled,
                                 nsfw: item.series_nsfw,
                             })
