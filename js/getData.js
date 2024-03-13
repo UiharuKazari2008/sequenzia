@@ -2352,8 +2352,8 @@ module.exports = async (req, res, next) => {
                                                         original_name: item.show_original_name,
                                                         nsfw: item.show_nsfw,
                                                         subtitled: item.show_subtitled,
-                                                        background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
-                                                        poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
+                                                        background: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                        poster: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                         meta: item.show_data
                                                     },
                                                     watched: item.wathched_percent,
@@ -2515,8 +2515,8 @@ module.exports = async (req, res, next) => {
                                                 original_name: item.show_original_name,
                                                 nsfw: item.show_nsfw,
                                                 subtitled: item.show_subtitled,
-                                                background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
-                                                poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
+                                                background: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                poster: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                 meta: item.show_data
                                             },
                                             watched: item.wathched_percent,
@@ -2786,8 +2786,8 @@ module.exports = async (req, res, next) => {
                                                     original_name: item.show_original_name,
                                                     nsfw: item.show_nsfw,
                                                     subtitled: item.show_subtitled,
-                                                    background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
-                                                    poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
+                                                    background: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                    poster: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                     meta: item.show_data
                                                 },
                                                 watched: item.wathched_percent,
@@ -2928,8 +2928,8 @@ module.exports = async (req, res, next) => {
                                                 original_name: item.show_original_name,
                                                 nsfw: item.show_nsfw,
                                                 subtitled: item.show_subtitled,
-                                                background: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
-                                                poster: (item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
+                                                background: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_1_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/backdrop/${item.dat_1_hint}` : item.show_background,
+                                                poster: (item.cdn_host_aux !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host_aux).length > 0 && item.dat_0_hint) ? `${config.local_cdn_list.filter(e => e.id === item.cdn_host_aux)[0].access_url}kongou/poster/${item.dat_0_hint}` : item.show_poster,
                                                 meta: item.show_data
                                             },
                                             watched: item.wathched_percent,
