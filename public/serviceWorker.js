@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v21-28JAN24'
+const cacheName = 'PRERELEASE-v21-14MAR24'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -140,6 +140,7 @@ const cacheOptions = {
         'https://fonts.googleapis.com/css2?family=Comfortaa&family=Poppins&display=swap',
     ]
 };
+let cdnEndpoints = [];
 let swDebugMode = (origin && (origin.includes('localhost')));
 let swUseInternalUnpacker = false;
 let browserStorageAvailable = false;
@@ -241,9 +242,9 @@ function selectCache(url) {
     const uri = url.split(origin).pop().toString()
     if (cacheOptions.configCache.filter(b => uri.startsWith(b)).length > 0 || uri === '/home')
         return cacheOptions.cacheConfig
-    if ((uri.startsWith('/attachments/') || uri.startsWith('/full_attachments/')) && !url.includes('.discordapp.'))
+    if (cdnEndpoints.filter(c => uri.startsWith(c)).length > 0 && (uri.startsWith('/full/') || uri.startsWith('/master/')) && url.endsWith('#PLEASE_CACHE_THIS'))
         return cacheOptions.tempCacheCDN
-    if (uri.startsWith('/media_attachments/') && !url.includes('.discordapp.'))
+    if (cdnEndpoints.filter(c => uri.startsWith(c)).length > 0 && (uri.startsWith('/preview/') || uri.startsWith('/extended_preview/') || uri.startsWith('/kongou/') || uri.startsWith('/user/')) && url.endsWith('#PLEASE_CACHE_THIS'))
         return cacheOptions.tempCacheProxy
     if (url.toString().startsWith(cacheOptions.cdnCache.cdn))
         return cacheOptions.tempCacheCDN
@@ -258,7 +259,7 @@ async function handleResponse(url, response, reqType) {
     if (response.status < 204 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !(
-            (uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/'))
+            ((cdnEndpoints.filter(c => uri.startsWith(c)).length > 0 && url.endsWith('#PLEASE_CACHE_THIS')) || uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/'))
             && (uri.includes('JFS_') || uri.includes('PARITY_'))
         ) && !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
 
@@ -266,7 +267,7 @@ async function handleResponse(url, response, reqType) {
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
         const copy = response.clone();
-        const cacheURL = (url.includes('/full_attachments/')) ? '/full_attachments/' + url.split('/full_attachments/').pop() : (url.includes('/media_attachments/')) ? '/media_attachments/' + url.split('/media_attachments/').pop() : url;
+        const cacheURL = ((url.includes('/full_attachments/')) ? '/full_attachments/' + url.split('/full_attachments/').pop() : (url.includes('/media_attachments/')) ? '/media_attachments/' + url.split('/media_attachments/').pop() : url).replace('#PLEASE_CACHE_THIS', '');
         const cache = await caches.open(selectedCache)
         await cache.put(cacheURL, copy)
         if (url.includes('/homeImage')) {
@@ -296,10 +297,10 @@ async function handleHomeImageCachesEvent(url, selectedCache, lastResponse) {
         if (json.randomImagev2 && json.randomImagev2.length > 0) {
             const previewImage = replaceDiscordCDN(json.randomImagev2[0].previewImage);
             const fullImage = replaceDiscordCDN(json.randomImagev2[0].fullImage);
-            const previewImageResults = await fetch(previewImage)
+            const previewImageResults = await fetch(previewImage + '#PLEASE_CACHE_THIS')
             if (previewImageResults && previewImageResults.status < 204)
                 caches.open(selectedCache).then(cache => cache.put(previewImage, previewImageResults));
-            const fullImageResults = await fetch(fullImage)
+            const fullImageResults = await fetch(fullImage + '#PLEASE_CACHE_THIS')
             if (fullImageResults && fullImageResults.status < 204)
                 caches.open(selectedCache).then(cache => cache.put(fullImage, fullImageResults));
             if (swDebugMode)
@@ -452,6 +453,8 @@ self.addEventListener('install', event => {
 });
 self.addEventListener('activate', e => {
     console.log('JulyOS Kernel Started');
+    // Sync Configuration
+    syncConfig();
     // Remove unwanted caches
     e.waitUntil(async function() {
         if (self.registration.navigationPreload) {
@@ -925,6 +928,28 @@ self.addEventListener('message', async (event) => {
 self.addEventListener('backgroundfetchsuccess', event => {
     console.log('[Service Worker]: Background Fetch Success', event.registration);
 });
+
+async function syncConfig() {
+    const response = await fetch(new Request(`/system/sw-config`, {
+        type: 'GET',
+        redirect: "follow",
+        headers: {
+            'X-Requested-With': 'SequenziaXHR',
+            'x-Requested-Page': 'SeqServiceWorker'
+        }
+    }))
+    if (response.status < 204) {
+        try {
+            const o = JSON.parse((await response.text()).toString());
+            if (o.cdn_urls) {
+                cdnEndpoints = o.cdn_urls;
+            }
+        } catch (e) {
+            console.error(e);
+            broadcastAllMessage({type: 'STATUS_UNPACKER_FAILED', action: 'UNCAUGHT_ERROR', message: e.message, fileid: activeID});
+        }
+    }
+}
 
 function expireTempCache() {
     Promise.all([cacheOptions.tempCacheCDN, cacheOptions.tempCacheProxy].map(async cacheName => {
@@ -1789,7 +1814,7 @@ async function deleteOfflineData(url) {
     }
 }
 
-async function fetchBackground(name, save, url, request, options) {
+async function fetchBackground(name, save, url, request, options, timeout) {
     const offlineFile = await getDataIfAvailable(url)
     if (offlineFile) {
         if (swDebugMode)
@@ -1800,8 +1825,11 @@ async function fetchBackground(name, save, url, request, options) {
         return self.registration.backgroundFetch.fetch(name, (request || url), options);
     } else {
         try {
-            const response = await fetch((request || url), options)
+            const responseController = new AbortController()
+            const responseTimeout = setTimeout(() => responseController.abort(), timeout || 90000)
+            const response = await fetch((request || url), {...options, signal: responseController.signal})
             if (response && response.status < 204) {
+                clearTimeout(responseTimeout);
                 if (save) {
                     const copy = await response.clone();
                     const blob = await copy.blob();
@@ -1818,6 +1846,7 @@ async function fetchBackground(name, save, url, request, options) {
                 }
                 return response
             } else {
+                clearTimeout(responseTimeout);
                 if (swDebugMode)
                     console.log('JulyOS Internal Kernel: Offline - ' + url);
                 return new Response(null, {
@@ -1840,17 +1869,17 @@ async function cacheFileURL(object, page_item) {
             let fetchKMSResults = {}
             if ((object.id && offlineMessages.indexOf(object.id) === -1) || !object.id) {
                 if (object.full_url && !(object.full_url.includes('/stream') && object.required_build))
-                    fetchResults["full_url"] = (await fetchBackground(`${object.id}-full_url`, true, object.full_url)).status
+                    fetchResults["full_url"] = (await fetchBackground(`${object.id}-full_url`, true, object.full_url + '#PLEASE_CACHE_THIS')).status
                 if (object.preview_url)
-                    fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, true, object.preview_url)).status
+                    fetchResults["preview_url"] = (await fetchBackground(`${object.id}-preview_url`, true, object.preview_url + '#PLEASE_CACHE_THIS')).status
                 if (object.extpreview_url)
-                    fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, true, object.extpreview_url)).status
+                    fetchResults["extpreview_url"] = (await fetchBackground(`${object.id}-extpreview_url`, true, object.extpreview_url + '#PLEASE_CACHE_THIS')).status
                 if (object.kongou_poster_url) {
-                    fetchKMSResults["kongou_poster_url_0"] = (await fetchBackground(`${object.id}-kongou_poster_url_0`, true, object.kongou_poster_url + '?height=580&width=384')).status
-                    fetchKMSResults["kongou_poster_url_1"] = (await fetchBackground(`${object.id}-kongou_poster_url_1`, true, object.kongou_poster_url)).status
+                    fetchKMSResults["kongou_poster_url_0"] = (await fetchBackground(`${object.id}-kongou_poster_url_0`, true, object.kongou_poster_url + '?height=580&width=384' + '#PLEASE_CACHE_THIS')).status
+                    fetchKMSResults["kongou_poster_url_1"] = (await fetchBackground(`${object.id}-kongou_poster_url_1`, true, object.kongou_poster_url + '#PLEASE_CACHE_THIS')).status
                 }
                 if (object.kongou_backdrop_url)
-                    fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, true, object.kongou_backdrop_url)).status
+                    fetchKMSResults["kongou_backdrop_url"] = (await fetchBackground(`${object.id}-kongou_backdrop_url`, true, object.kongou_backdrop_url + '#PLEASE_CACHE_THIS')).status
                 if (object.required_build) {
                     const windows = (await self.clients.matchAll({ type: 'window', includeUncontrolled: true })).filter(e => e.url.includes('juneOS'))
                     const unpackerJob = {
@@ -2457,7 +2486,7 @@ async function unpackFile() {
                         'X-Requested-With': 'SequenziaXHR',
                         'x-Requested-Page': 'SeqClientUnpacker'
                     }
-                }))
+                }), undefined, 600000)
                 if (response.status < 204) {
                     try {
                         const object = JSON.parse((await response.text()).toString());

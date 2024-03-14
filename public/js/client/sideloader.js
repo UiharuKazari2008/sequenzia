@@ -456,8 +456,7 @@ let bannerEID
 function startBannerCropper(eid) {
     bannerEID = eid;
     const image = document.getElementById('bannerCropperModal').querySelector('img');
-    const _h = document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.split('attachments/').pop()
-    const href = (!_h.startsWith('http')) ? ('/full_attachments/' + _h) : _h;
+    const href = document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href
     image.src = href;
     $('#bannerCropperModal').modal('show');
     bannerCropper = new Cropper(image, {
@@ -530,8 +529,7 @@ let avatarEID
 function startAvatarCropper(eid) {
     avatarEID = eid;
     const image = document.getElementById('avatarCropperModal').querySelector('img');
-    const _h = document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.split('attachments/').pop()
-    const href = (!_h.startsWith('http')) ? ('/full_attachments/' + _h) : _h;
+    const href = document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href
     image.src = href;
     $('#avatarCropperModal').modal('show');
     avatarCropper = new Cropper(image, {

@@ -81,6 +81,12 @@ async function deleteCacheData(key, local) {
     return app.delete(key)
 }
 
+router.get('/system/sw-config', (req, res) => {
+    res.status(200).json({
+        cdn_urls: config.local_cdn_list.map(e => e.access_url)
+    })
+})
+
 router.get(['/home', '/', '/juneOS'], sessionVerification, generateSidebar, ajaxChecker);
 router.get(['/gallery', '/files', '/cards',  '/listTheater', '/start', '/pages'], sessionVerification, ajaxChecker, getImages, handleExchange, renderResults);
 router.get(['/tvTheater'], sessionVerification, ajaxChecker, getKMSListing, handleExchange, renderResults);

@@ -135,15 +135,19 @@ async function unpackFile(_requestedJob) {
 
         return await new Promise(async (job) => {
             try {
+                const responseController = new AbortController()
+                const responseTimeout = setTimeout(() => responseController.abort(), 600000)
                 const response = await fetch( new Request(`/parity/${activeID}`, {
                     type: 'GET',
                     redirect: "follow",
                     headers: {
                         'X-Requested-With': 'SequenziaXHR',
                         'x-Requested-Page': 'SeqClientUnpacker'
-                    }
+                    },
+                    signal: responseController.signal
                 }))
                 if (response.status < 300) {
+                    clearTimeout(responseTimeout);
                     try {
                         const object = JSON.parse((await response.text()).toString());
                         activeSpannedJobs[activeID] = {
@@ -282,6 +286,7 @@ async function unpackFile(_requestedJob) {
                         job(false);
                     }
                 } else {
+                    clearTimeout(responseTimeout);
                     console.error(`Failed to get parity information to compile file ${activeID}`);
                     postMessage({type: 'STATUS_UNPACKER_FAILED', action: 'GET_METADATA', message: (await response.text()), fileid: activeID})
                     job(false);
