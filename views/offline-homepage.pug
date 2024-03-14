@@ -14,9 +14,9 @@ html
         link(rel='preload', href="/static/img/seq-mascot.png" as='image')
         each exchange, exchange_id in exchange_list
             if (exchange.user && exchange.user.banner)
-                link(rel='preload', href=`${exchange.user.banner}` as='image')
+                link(rel='preload', href=`${exchange.user.banner}#PLEASE_CACHE_THIS` as='image')
             if (exchange.user && exchange.user.avatar)
-                link(rel='preload', href=`${exchange.user.avatar}` as='image')
+                link(rel='preload', href=`${exchange.user.avatar}#PLEASE_CACHE_THIS` as='image')
             each thisServer, thisIndex in exchange.discord.servers.list
                 link(rel='preload', href=`${thisServer.icon}` as='image')
         meta(charset='utf-8')
