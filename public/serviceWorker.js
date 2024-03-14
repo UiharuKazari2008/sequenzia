@@ -949,6 +949,7 @@ async function syncConfig() {
             broadcastAllMessage({type: 'STATUS_UNPACKER_FAILED', action: 'UNCAUGHT_ERROR', message: e.message, fileid: activeID});
         }
     }
+    return false;
 }
 
 function expireTempCache() {
