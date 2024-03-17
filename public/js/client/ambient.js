@@ -147,6 +147,15 @@ if (config.has('special_mode')) {
 if (config.has('info_vfd_default_line')) {
     vfdDefaultLine = config.getAll('info_vfd_default_line')[0]
 }
+let bright_min;
+if (config.has('bright_min')) {
+    bright_min = config.getAll('bright_min')[0]
+}
+let bright_max;
+if (config.has('bright_max')) {
+    bright_max = config.getAll('bright_max')[0]
+}
+
 
 function dct() {
     const d = new Date();
@@ -1588,7 +1597,7 @@ function sendLEDValues(values) {
     if ((remoteWACCALED || remoteChunLED) && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${(remoteWACCALED || remoteChunLED)}/${(localLEDDriver) ? 'led_data' : 'setLED'}?ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
+            url: `http://${(remoteWACCALED || remoteChunLED)}/${(localLEDDriver) ? 'led_data' : 'setLED'}?ledBrightness=${(remoteChunLED) ? ((_night) ? (bright_min || '24') : (bright_max || '64')) : ((_night) ? (bright_min || '128') :( bright_max || '255'))}&transition_time=2.0&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
@@ -1605,7 +1614,7 @@ function sendLEDSideValues(values) {
     if (remoteChunLED && remoteChunLEDSide && values.length > 1) {
         $.ajax({
             async: true,
-            url: `http://${remoteChunLED}/${(localLEDDriver) ? 'led_data?bankSelect=10&' : 'setLED?'}full_stream=true&ledBrightness=${(remoteChunLED) ? ((_night) ? '24' : '64') : ((_night) ? '128' : '255')}&transition_time=2.0&ledValues=${values}`,
+            url: `http://${remoteChunLED}/${(localLEDDriver) ? 'led_data?bankSelect=10&' : 'setLED?'}full_stream=true&ledBrightness=${(remoteChunLED) ? ((_night) ? (bright_min || '24') : (bright_max || '64')) : ((_night) ? (bright_min || '128') : (bright_max || '255'))}&transition_time=2.0&ledValues=${values}`,
             type: "GET", data: '',
             processData: false,
             contentType: false,
