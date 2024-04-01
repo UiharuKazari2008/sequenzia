@@ -22,7 +22,7 @@ html
                     link(rel='preload', href=`${exchange.user.avatar}#PLEASE_CACHE_THIS` as='image')
                 each thisServer, thisIndex in exchange.discord.servers.list
                     link(rel='preload', href=`${thisServer.icon}` as='image')
-                if (exchange.kongou_next_episode)
+                if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
                     link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
             if (applications_list && applications_list.length > 0)
                 each app in applications_list
@@ -158,7 +158,7 @@ html
                                 div.d-flex(style="z-index: 1;")
                                     img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongoumedialogo-menu.png` style="width: 280px; height: auto; filter: drop-shadow(0px 0px 14px black);")
                             div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
-                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? 'd-none' : ''}`).h-100.rounded
                             div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                                 span.boot-status-holder.font-weight-bolder Kongou Media Project v9
                                 .mt-1.boot-icons-holder.d-none
@@ -177,7 +177,7 @@ html
                                 div.d-flex(style="z-index: 1;")
                                     img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);" id=`appBootLogo${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
                             div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block.hidden(id=`appBootAccent${(this_exchnage && this_exchnage !== 'master') ? this_exchnage : ''}`)
-                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode) ? 'd-none' : ''}`).h-100.rounded
+                                img(src=`${(this_exchnage && this_exchnage !== 'master') ? '/cross-exchange/' + this_exchnage : ''}/static/img/kongou-group.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);" class=`${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? 'd-none' : ''}`).h-100.rounded
                             div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
                                 span.boot-status-holder.font-weight-bolder JuneApp Platform v1
                                 .mt-1.boot-icons-holder.d-none
@@ -894,7 +894,7 @@ html
                                                 //span.d-sm-none Theater
                                     .d-flex.w-100.mb-3
                                         .d-flex.w-100
-                                            if (active_exchange.kongou_next_episode && active_exchange.kongou_next_episode.show_id)
+                                            if (active_exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
                                                 div.pl-2(onclick=`getNewContent([],[["show_id","${active_exchange.kongou_next_episode.show_id}"]${(active_exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!active_exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ''}`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(src=`${(active_exchange.kongou_next_episode.poster) ? active_exchange.kongou_next_episode.poster : active_exchange.kongou_next_episode.data.poster[0]}`)
                                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)

@@ -159,7 +159,7 @@ html
                                                                     //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                                             div.text-ellipsis.shadow-text.user-infocard-info
                                                                 span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
-                                            if (exchange.kongou_next_episode)
+                                            if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
                                                 div.outer-menu-next-episode(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                             div.position-relative.user-menu-height(class=`${((search_prev && search_prev !== '')) ? 'dual-search' : ''}`)
@@ -232,7 +232,7 @@ html
                                                             a.user-menu-item(title="Return to Sequenzia Menu" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                                 i.fa-light.fa-fw.fa-browser
                                                                 | App Menu
-                                                        a.user-menu-item(class=`user-menu-overlow-icon-1${(exchange.kongou_next_episode) ? '-nep' : ''}` title="Return to Homescreen" href='#_' onclick="transitionToOOBPage('/home'); return false;")
+                                                        a.user-menu-item(class=`user-menu-overlow-icon-1${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? '-nep' : ''}` title="Return to Homescreen" href='#_' onclick="transitionToOOBPage('/home'); return false;")
                                                             i.fa-light.fa-fw.fa-home
                                                             | Home
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
@@ -265,7 +265,7 @@ html
                                                             a.user-menu-item(title="Index" href=`#_` onclick=`getNewContent([],[],'/artists'); return false;`)
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
-                                                        a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory` onClick=`getHistory(); return false;`)
+                                                        a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory` onClick=`getHistory(); return false;`)
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
                                                         if (exchange.review_channels && exchange.review_channels.length === 0)
@@ -297,7 +297,7 @@ html
                                                             | Settings
                                         div.w-100(class=`collapse` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`).kms-main-menu.animated--grow-in
                                             .d-flex.w-100
-                                                if (exchange.kongou_next_episode)
+                                                if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
                                                     div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                         img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                 div.position-relative.user-menu-height(style="width: 100%;")
@@ -312,7 +312,7 @@ html
                                                         h4.text-primary.ml-auto.mb-0
                                                             img.kms-menu-logo(src='/static/img/kongoumedialogo-menu-dark.png' style="height: 1.6em;")
                                                     .row.w-100.position-absolute.pb-3(style='bottom: 0; left: 0;').d-flex.justify-content-center.ml-0.mr-0
-                                                        if (exchange.kongou_next_episode)
+                                                        if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
                                                             div.inner-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                                 img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                         if (exchange.media_groups && exchange.media_groups.length > 0)
