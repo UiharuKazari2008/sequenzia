@@ -154,7 +154,7 @@ module.exports = async (req, res, next) => {
                         console.log(nextEpisodeView.rows)
                         thisUser.kongou_next_episode = nextEpisodeView.rows[0];
                     } else {
-                        thisUser.kongou_next_episode = {};
+                        thisUser.kongou_next_episode = undefined;
                     }
                     break;
                 case 'GetWatchHistory':
