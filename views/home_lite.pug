@@ -23,7 +23,7 @@ html
                 each thisServer, thisIndex in exchange.discord.servers.list
                     link(rel='preload', href=`${thisServer.icon}` as='image')
                 if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
-                    link(rel='preload', href=`${(exchange.kongou_next_episode) ? (exchange.kongou_next_episode.background) ? exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
+                    link(rel='preload', href=`${(exchange.kongou_next_episode && exchange.kongou_next_episode.data) ? (exchange.kongou_next_episode.background) ? exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
             if (applications_list && applications_list.length > 0)
                 each app in applications_list
                     if (app.images)
@@ -895,7 +895,7 @@ html
                                     .d-flex.w-100.mb-3
                                         .d-flex.w-100
                                             if (active_exchange.kongou_next_episode && active_exchange.kongou_next_episode.data)
-                                                div.pl-2(onclick=`getNewContent([],[["show_id","${active_exchange.kongou_next_episode.show_id}"]${(active_exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!active_exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ''}`)
+                                                div.pl-2(onclick=`getNewContent([],[["show_id","${active_exchange.kongou_next_episode.show_id}"]${(active_exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!active_exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(active_exchange.kongou_next_episode && active_exchange.kongou_next_episode.data) ? (active_exchange.kongou_next_episode.background) ? active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ''}`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(src=`${(active_exchange.kongou_next_episode.poster) ? active_exchange.kongou_next_episode.poster : active_exchange.kongou_next_episode.data.poster[0]}`)
                                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
                                                 div.menu-grid.user-menu-small.mt-auto.mb-auto.kms-main-grid.ml-auto.mr-auto
