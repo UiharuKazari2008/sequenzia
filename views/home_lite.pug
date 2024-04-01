@@ -894,7 +894,7 @@ html
                                                 //span.d-sm-none Theater
                                     .d-flex.w-100.mb-3
                                         .d-flex.w-100
-                                            if (active_exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
+                                            if (active_exchange.kongou_next_episode && active_exchange.kongou_next_episode.data)
                                                 div.pl-2(onclick=`getNewContent([],[["show_id","${active_exchange.kongou_next_episode.show_id}"]${(active_exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!active_exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')` data-show-background=`${(active_exchange.kongou_next_episode) ? (active_exchange.kongou_next_episode.background) ? active_exchange.kongou_next_episode.background : active_exchange.kongou_next_episode.data.background[0] : ''}`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(src=`${(active_exchange.kongou_next_episode.poster) ? active_exchange.kongou_next_episode.poster : active_exchange.kongou_next_episode.data.poster[0]}`)
                                             if (active_exchange.media_groups && active_exchange.media_groups.length > 0)
