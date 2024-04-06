@@ -1841,7 +1841,7 @@ function enableChunShimControl() {
         const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
         if (!colors_only) {
             rainbowValues = [];
-            clearInterval(rainbowController);
+            clearTimeout(rainbowController);
             rainbowController = null;
         }
         activeZoneMap = {};
