@@ -1895,7 +1895,9 @@ function enableChunShimControl() {
                     enableRainbowMode = e[1].rainbow;
                     if (rainbowValues[i]) {
                         hexColor = rainbowValues[i];
-                        hexColor = adjustHexColor(hexColor, ((e[1].rainbow_step || 1) * j));
+                        const deg = ((e[1].rainbow_step || 1) + ((e[1].rainbow_sep) ? (i + e[1].rainbow_sep) : 0));
+                        console.log(deg)
+                        hexColor = adjustHexColor(hexColor, deg);
                     }
                     rainbowValues[i] = hexColor;
                 }
