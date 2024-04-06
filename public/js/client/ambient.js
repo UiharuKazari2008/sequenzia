@@ -2072,13 +2072,13 @@ function enableChunShimControl() {
     }
     function adjustHexColor(hexColor, deg = 1) {
         // Convert hex to RGB
-        let r = parseInt(hexColor.substring(0,2), 16);
-        let g = parseInt(hexColor.substring(2,4), 16);
-        let b = parseInt(hexColor.substring(4,6), 16);
+        let r = parseInt(hexColor.substring(1, 3), 16) / 255;
+        let g = parseInt(hexColor.substring(3, 5), 16) / 255;
+        let b = parseInt(hexColor.substring(5, 7), 16) / 255;
 
         // Convert RGB to HSL
-        r /= 255, g /= 255, b /= 255;
-        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let max = Math.max(r, g, b);
+        let min = Math.min(r, g, b);
         let h, s, l = (max + min) / 2;
 
         if (max === min) {
@@ -2097,33 +2097,20 @@ function enableChunShimControl() {
         // Adjust hue (degrees)
         h = (h * 360 + deg) % 360;
 
-        // Convert HSL back to RGB
-        let c = (1 - Math.abs(2 * l - 1)) * s;
-        let x = c * (1 - Math.abs((h / 60) % 2 - 1));
-        let m = l - c / 2;
-        let r1, g1, b1;
-        if (0 <= h && h < 60) {
-            r1 = c; g1 = x; b1 = 0;
-        } else if (60 <= h && h < 120) {
-            r1 = x; g1 = c; b1 = 0;
-        } else if (120 <= h && h < 180) {
-            r1 = 0; g1 = c; b1 = x;
-        } else if (180 <= h && h < 240) {
-            r1 = 0; g1 = x; b1 = c;
-        } else if (240 <= h && h < 300) {
-            r1 = x; g1 = 0; b1 = c;
-        } else {
-            r1 = c; g1 = 0; b1 = x;
-        }
+        // Convert HSL to RGB
+        let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        let p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
 
         // Convert RGB to hex
-        r = Math.round((r1 + m) * 255).toString(16).padStart(2, '0');
-        g = Math.round((g1 + m) * 255).toString(16).padStart(2, '0');
-        b = Math.round((b1 + m) * 255).toString(16).padStart(2, '0');
+        r = Math.round(r * 255).toString(16).padStart(2, '0');
+        g = Math.round(g * 255).toString(16).padStart(2, '0');
+        b = Math.round(b * 255).toString(16).padStart(2, '0');
 
-        return r + g + b;
+        return `#${r}${g}${b}`;
     }
-
 
     function hue2rgb(p, q, t) {
         if (t < 0) t += 1;
