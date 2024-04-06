@@ -1896,7 +1896,6 @@ function enableChunShimControl() {
                     if (rainbowValues[i]) {
                         hexColor = rainbowValues[i];
                         const deg = ((e[1].rainbow_step || 1) + ((e[1].rainbow_sep) ? (i + e[1].rainbow_sep) : 0));
-                        console.log(deg)
                         hexColor = adjustHexColor(hexColor, deg);
                     }
                     rainbowValues[i] = hexColor;
@@ -1951,11 +1950,10 @@ function enableChunShimControl() {
                 i++;
             }
         }
-        if (!colors_only && enableRainbowMode) {
-            rainbowController = setInterval(() => {
+        if (enableRainbowMode) {
+            rainbowController = setTimeout(() => {
                 if (!pauseLEDUpdates) {
                     loadMenuMaps(true);
-                    console.log(rainbowValues)
                 }
             }, enableRainbowMode)
         }
