@@ -1895,7 +1895,7 @@ function enableChunShimControl() {
                     enableRainbowMode = e[1].rainbow;
                     if (rainbowValues[i]) {
                         hexColor = rainbowValues[i];
-                        hexColor = adjustHexColor(hexColor);
+                        hexColor = adjustHexColor(hexColor, e[1].rainbow_step || undefined);
                     }
                     rainbowValues[i] = hexColor;
                 }
@@ -2067,7 +2067,7 @@ function enableChunShimControl() {
             loadMenuMaps();
         }
     }
-    function adjustHexColor(hexColor) {
+    function adjustHexColor(hexColor, deg = 1) {
         // Convert hex to RGB
         let r = parseInt(hexColor.substring(1, 3), 16) / 255;
         let g = parseInt(hexColor.substring(3, 5), 16) / 255;
@@ -2092,7 +2092,7 @@ function enableChunShimControl() {
         }
 
         // Increment hue by 1 degree
-        h = (h + 1/360) % 1;
+        h = (h + 1/360) % deg;
 
         // Convert HSL to RGB
         let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
