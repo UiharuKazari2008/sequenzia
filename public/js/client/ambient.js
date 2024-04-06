@@ -1763,6 +1763,8 @@ function enableChunShimControl() {
     let activeZoneLinks = {};
     let activeZoneMap = {};
     let menuBreadcrumbs = ["mainmenu"];
+    let rainbowController = null;
+    let rainbowValues = [];
 
     function initLEDDriver() {
         socket.send(new Uint8Array(['0x01', '0x11', 0]))
@@ -1835,10 +1837,16 @@ function enableChunShimControl() {
         sendLEDs(touchZones + seperators, 100);
     }
 
-    function loadMenuMaps() {
+    function loadMenuMaps(colors_only) {
         const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
+        if (!colors_only) {
+            rainbowValues = [];
+            clearInterval(rainbowController);
+            rainbowController = null;
+        }
         activeZoneMap = {};
         activeZoneLinks = {};
+        let enableRainbowMode = false;
         if (menu['_fade_out']) {
             $('#exitOverlay').removeClass('d-none').addClass("d-flex");
             fadeActive = true;
@@ -1882,9 +1890,18 @@ function enableChunShimControl() {
             for (let j = 0; j < e[1].width; j++) {
                 activeZoneMap[i] = e[0];
                 zones.push(i);
-                document.getElementById('chunTouchZone' + i).style.backgroundColor = e[1].color;
+                let hexColor = e[1].color;
+                if (e[1].rainbow) {
+                    enableRainbowMode = e[1].rainbow;
+                    if (rainbowValues[i]) {
+                        hexColor = rainbowValues[i];
+                        hexColor = adjustHexColor(hexColor);
+                    }
+                    rainbowValues[i] = hexColor;
+                }
+                document.getElementById('chunTouchZone' + i).style.backgroundColor = hexColor;
                 if (j !== e[1].width - 1 && i !== 16) {
-                    document.getElementById('chunSepeZone' + i).style.backgroundColor = e[1].color;
+                    document.getElementById('chunSepeZone' + i).style.backgroundColor = hexColor;
                     document.getElementById('chunSepeZone' + i).style.opacity = 1;
                 } else if (i !== 16) {
                     document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
@@ -1931,6 +1948,13 @@ function enableChunShimControl() {
                 }
                 i++;
             }
+        }
+        if (!colors_only && enableRainbowMode) {
+            rainbowController = setInterval(() => {
+                if (!pauseLEDUpdates) {
+                    loadMenuMaps(true);
+                }
+            }, enableRainbowMode)
         }
     }
     function handleZoneTap(item_id, location) {
@@ -2043,6 +2067,64 @@ function enableChunShimControl() {
             loadMenuMaps();
         }
     }
+    function adjustHexColor(hexColor) {
+        // Convert hex to RGB
+        let r = parseInt(hexColor.substring(1, 3), 16) / 255;
+        let g = parseInt(hexColor.substring(3, 5), 16) / 255;
+        let b = parseInt(hexColor.substring(5, 7), 16) / 255;
+
+        // Convert RGB to HSL
+        let max = Math.max(r, g, b);
+        let min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0; // achromatic
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+
+        // Increment hue by 1 degree
+        h = (h + 1/360) % 1;
+
+        // Convert HSL to RGB
+        let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        let p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+
+        // Convert RGB to hex
+        r = Math.round(r * 255).toString(16).padStart(2, '0');
+        g = Math.round(g * 255).toString(16).padStart(2, '0');
+        b = Math.round(b * 255).toString(16).padStart(2, '0');
+
+        return `#${r}${g}${b}`;
+    }
+
+    function hue2rgb(p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+    }
+
+// Example usage
+    let hexColor = "#ff0000"; // Red
+    for (let i = 0; i < 360; i++) {
+        hexColor = adjustHexColor(hexColor);
+        console.log(hexColor);
+    }
+
 
     const socket = new WebSocket('ws://localhost:7124');
     const bridge = new WebSocket('ws://localhost:6834');
