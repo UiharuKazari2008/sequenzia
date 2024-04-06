@@ -1953,6 +1953,7 @@ function enableChunShimControl() {
             rainbowController = setInterval(() => {
                 if (!pauseLEDUpdates) {
                     loadMenuMaps(true);
+                    console.log(rainbowValues)
                 }
             }, enableRainbowMode)
         }
