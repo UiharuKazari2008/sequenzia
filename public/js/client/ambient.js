@@ -1807,8 +1807,7 @@ function enableChunShimControl() {
             var hex = "";
             if (touch_id.classList.contains('hidden-opacity')) {
                 const style = window.getComputedStyle(e);
-                console.log(style)
-                let rgb = style.backgroundColor;
+                let rgb = (style.background && style.background.includes('linear-gradient')) ? style.background.split(',')[1] : style.backgroundColor;
                 rgb = rgb.slice(4, -1).split(",");
                 for (var i = 0; i < 3; i++) {
                     var decimal = parseInt(rgb[i]);
@@ -1907,7 +1906,7 @@ function enableChunShimControl() {
                     }
                     document.getElementById('chunTouchZone' + i).style.width = (j !== e[1].width - 1) ? "80.5px" : undefined;
                     document.getElementById('chunTouchZone' + i).style.backgroundColor = undefined;
-                    document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor}) !important`;
+                    document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor})`;
                     if (j !== e[1].width - 1 && i !== 16) {
                         document.getElementById('chunSepeZone' + i).style.width = "0px";
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = hexColor;
