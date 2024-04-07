@@ -1891,10 +1891,7 @@ function enableChunShimControl() {
                 activeZoneMap[i] = e[0];
                 zones.push(i);
                 let hexColor = e[1].color;
-                if (i !== 16) {
-                    document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
-                    document.getElementById('chunSepeZone' + i).style.opacity = 0;
-                } else if (e[1].rainbow) {
+                if (e[1].rainbow) {
                     enableRainbowMode = e[1].rainbow;
                     let nextColor = null;
                     if (rainbowValues[i]) {
@@ -1911,6 +1908,9 @@ function enableChunShimControl() {
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = undefined;
                         document.getElementById('chunSepeZone' + i).style.background = `linear-gradient(45deg, ${hexColor}, ${nextColor})`;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
+                    } else if (i !== 16) {
+                        document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
+                        document.getElementById('chunSepeZone' + i).style.opacity = 0;
                     }
                     rainbowValues[i] = hexColor;
                 } else {
@@ -1918,6 +1918,9 @@ function enableChunShimControl() {
                     if (j !== e[1].width - 1 && i !== 16) {
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = hexColor;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
+                    } else if (i !== 16) {
+                        document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
+                        document.getElementById('chunSepeZone' + i).style.opacity = 0;
                     }
                 }
                 i++;
