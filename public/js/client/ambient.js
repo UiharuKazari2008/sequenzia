@@ -1807,7 +1807,7 @@ function enableChunShimControl() {
             var hex = "";
             if (touch_id.classList.contains('hidden-opacity')) {
                 const style = window.getComputedStyle(e);
-                let rgb = style.backgroundColor;
+                let rgb = (style.background && style.background.includes('linear-gradient')) ? style.background.split(', ')[1] : style.backgroundColor;
                 rgb = rgb.slice(4, -1).split(",");
                 for (var i = 0; i < 3; i++) {
                     var decimal = parseInt(rgb[i]);
@@ -1907,7 +1907,7 @@ function enableChunShimControl() {
                     if (j !== e[1].width - 1) {
                         document.getElementById('chunTouchZone' + i).style.width = "80.5px";
                     }
-                    document.getElementById('chunTouchZone' + i).style.backgroundColor = hexColor;
+                    document.getElementById('chunTouchZone' + i).style.backgroundColor = undefined;
                     document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor}) !important`;
                     if (j !== e[1].width - 1 && i !== 16) {
                         document.getElementById('chunSepeZone' + i).style.width = "0px";
