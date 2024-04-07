@@ -1904,7 +1904,7 @@ function enableChunShimControl() {
                         hexColor = nextColor = adjustHexColor(hexColor, ((e[1].rainbow_sep) ? (i * e[1].rainbow_sep) : 0));
                     }
                     document.getElementById('chunTouchZone' + i).style.width = (j !== e[1].width - 1) ? "80.5px" : undefined;
-                    document.getElementById('chunTouchZone' + i).style.backgroundColor = undefined;
+                    delete document.getElementById('chunTouchZone' + i).style.backgroundColor;
                     document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor})`;
                     if (j !== e[1].width - 1 && i !== 16) {
                         document.getElementById('chunSepeZone' + i).style.width = "0px";
@@ -1916,11 +1916,11 @@ function enableChunShimControl() {
                     }
                     rainbowValues[i] = hexColor;
                 } else {
-                    document.getElementById('chunTouchZone' + i).style.width = undefined;
-                    document.getElementById('chunTouchZone' + i).style.background = undefined;
+                    delete document.getElementById('chunTouchZone' + i).style.width;
+                    delete document.getElementById('chunTouchZone' + i).style.background;
                     document.getElementById('chunTouchZone' + i).style.backgroundColor = hexColor;
                     if (j !== e[1].width - 1 && i !== 16) {
-                        document.getElementById('chunSepeZone' + i).style.width = undefined;
+                        delete document.getElementById('chunSepeZone' + i).style.width;
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = hexColor;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
                     } else if (i !== 16) {
