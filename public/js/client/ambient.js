@@ -1904,10 +1904,13 @@ function enableChunShimControl() {
                         hexColor = adjustHexColor(hexColor, ((e[1].rainbow_sep) ? (i * e[1].rainbow_sep) : 0));
                         nextColor = adjustHexColor(hexColor, ((e[1].rainbow_sep) ? ((i + 1) * e[1].rainbow_sep) : 0));
                     }
+                    if (j !== e[1].width - 1) {
+                        document.getElementById('chunTouchZone' + i).style.width = "80.5px";
+                    }
                     document.getElementById('chunTouchZone' + i).style.backgroundColor = hexColor;
                     document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor}) !important`;
                     if (j !== e[1].width - 1 && i !== 16) {
-                        document.getElementById('chunSepeZone' + i).style.background = undefined;
+                        document.getElementById('chunSepeZone' + i).style.width = "0px";
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = nextColor;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
                     } else if (i !== 16) {
@@ -1916,10 +1919,11 @@ function enableChunShimControl() {
                     }
                     rainbowValues[i] = hexColor;
                 } else {
+                    document.getElementById('chunSepeZone' + i).style.width = undefined;
+                    document.getElementById('chunTouchZone' + i).style.width = undefined;
                     document.getElementById('chunTouchZone' + i).style.background = undefined;
                     document.getElementById('chunTouchZone' + i).style.backgroundColor = hexColor;
                     if (j !== e[1].width - 1 && i !== 16) {
-                        document.getElementById('chunSepeZone' + i).style.background = undefined;
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = hexColor;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
                     } else if (i !== 16) {
