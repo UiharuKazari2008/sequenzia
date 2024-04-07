@@ -1808,7 +1808,7 @@ function enableChunShimControl() {
             if (touch_id.classList.contains('hidden-opacity')) {
                 const style = window.getComputedStyle(e);
                 console.log(style.background.split(','))
-                let rgb = (style.background && style.background.includes('linear-gradient')) ? style.background.split(',')[1] : style.backgroundColor;
+                let rgb = (style.background && style.background.includes('linear-gradient')) ? style.background.split('linear-gradient(90deg, ')[1].split('), ')[0] + ')' : style.backgroundColor;
                 rgb = rgb.slice(4, -1).split(",");
                 for (var i = 0; i < 3; i++) {
                     var decimal = parseInt(rgb[i]);
