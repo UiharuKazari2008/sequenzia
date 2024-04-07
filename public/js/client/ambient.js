@@ -1919,14 +1919,15 @@ function enableChunShimControl() {
                     }
                     rainbowValues[i] = hexColor;
                 } else {
-                    document.getElementById('chunSepeZone' + i).style.width = undefined;
                     document.getElementById('chunTouchZone' + i).style.width = undefined;
                     document.getElementById('chunTouchZone' + i).style.background = undefined;
                     document.getElementById('chunTouchZone' + i).style.backgroundColor = hexColor;
                     if (j !== e[1].width - 1 && i !== 16) {
+                        document.getElementById('chunSepeZone' + i).style.width = undefined;
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = hexColor;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
                     } else if (i !== 16) {
+                        document.getElementById('chunSepeZone' + i).style.width = undefined;
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
                         document.getElementById('chunSepeZone' + i).style.opacity = 0;
                     }
