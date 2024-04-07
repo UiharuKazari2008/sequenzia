@@ -1903,10 +1903,10 @@ function enableChunShimControl() {
                         nextColor = adjustHexColor(hexColor, ((e[1].rainbow_sep) ? ((i + 1) * e[1].rainbow_sep) : 0));
                     }
                     document.getElementById('chunTouchZone' + i).style.backgroundColor = undefined;
-                    document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(0deg, ${hexColor}, ${nextColor})`;
+                    document.getElementById('chunTouchZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor})`;
                     if (j !== e[1].width - 1 && i !== 16) {
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = undefined;
-                        document.getElementById('chunSepeZone' + i).style.background = `linear-gradient(0deg, ${hexColor}, ${nextColor})`;
+                        document.getElementById('chunSepeZone' + i).style.background = `linear-gradient(90deg, ${hexColor}, ${nextColor})`;
                         document.getElementById('chunSepeZone' + i).style.opacity = 1;
                     } else if (i !== 16) {
                         document.getElementById('chunSepeZone' + i).style.backgroundColor = "#000000";
