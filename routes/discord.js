@@ -697,9 +697,9 @@ async function sessionVerification(req, res, next) {
         config.Authorized_Exchange[req.headers['x-sequenzia-exchange']].key === req.headers['x-sequenzia-key'] && thisUser &&
         thisUser.master.discord.user.id === req.headers['x-sequenzia-user']) {
         next()
-    } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || bypass_esm)) {
+    } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (bypass_esm || await esmVerify(req.session.userid, req))))) {
         next()
-    } else if (req.session && req.session.userid && thisUser && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || bypass_esm)) {
+    } else if (req.session && req.session.userid && thisUser && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && ((req.session.esm_verified && (bypass_esm || await esmVerify(req.session.userid, req))))) {
         if (thisUser.master.discord.channels.read && thisUser.master.discord.channels.read.length > 0) {
             next();
         } else if (req.originalUrl && req.originalUrl === '/home') {
