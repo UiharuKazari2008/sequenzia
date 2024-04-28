@@ -666,12 +666,14 @@ function sessionTransfer(req) {
 }
 async function sessionVerification(req, res, next) {
     let thisUser = null;
+    let bypass_esm = config.disable_esm
     if (req.session && req.session.userid) {
         thisUser = app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data)[0];
         if (thisUser) {
             res.locals.thisUser = thisUser;
             req.session.loggedin = true;
             req.session.esm_verified = true;
+            bypass_esm = true;
             printLine('PassportCheck', `Passed Session created for ${thisUser.master.discord.user.username}`, 'warn');
         }
     } else if (req.headers['x-sequenzia-exchange'] && req.headers['x-sequenzia-key'] && req.headers['x-sequenzia-user'] &&
@@ -695,9 +697,9 @@ async function sessionVerification(req, res, next) {
         config.Authorized_Exchange[req.headers['x-sequenzia-exchange']].key === req.headers['x-sequenzia-key'] && thisUser &&
         thisUser.master.discord.user.id === req.headers['x-sequenzia-user']) {
         next()
-    } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
+    } else if (config.bypass_cds_check && (req.originalUrl.startsWith('/stream') || req.originalUrl.startsWith('/content')) && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || bypass_esm)) {
         next()
-    } else if (req.session && req.session.userid && thisUser && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || config.disable_esm)) {
+    } else if (req.session && req.session.userid && thisUser && thisUser.master && thisUser.master.discord && thisUser.master.discord.user.id && ((req.session.esm_verified && (await esmVerify(req.session.userid, req))) || bypass_esm)) {
         if (thisUser.master.discord.channels.read && thisUser.master.discord.channels.read.length > 0) {
             next();
         } else if (req.originalUrl && req.originalUrl === '/home') {
