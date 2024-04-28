@@ -1837,7 +1837,7 @@ function enableChunShimControl() {
         sendLEDs(touchZones + seperators, 100);
     }
 
-    function loadMenuMaps(colors_only) {
+    function loadMenuMaps(colors_only = false) {
         const menu = menuMap[menuBreadcrumbs[menuBreadcrumbs.length - 1]];
         if (!colors_only) {
             rainbowValues = [];
