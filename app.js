@@ -287,6 +287,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             })
         } else {
             printLine('SessionTransfer', `Transfer session failed, Missing User Token`, 'debug');
+            console.log(thisUser.discord.user)
             loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
         }
     } else if (req.query.code) {
@@ -340,6 +341,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             }
         } else {
             printLine('SessionTransfer', `Transfer session failed, Missing User Token`, 'debug');
+            console.log(thisUser.discord.user)
             res.status(401).send('Session is not valid!')
         }
     } else {
