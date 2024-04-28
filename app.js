@@ -250,7 +250,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
         if (!thisUser)
             res.status(403).send('User account can not correlated to a valid user!')
         const device = req.query.deviceID
-        if (thisUser.discord && thisUser.discord.user.token) {
+        if (thisUser.master && thisUser.master.discord.user.token) {
             sessionStore.get(device, (error, session1) => {
                 if (error) {
                     printLine('SessionTransfer', `Transfer session failed, Can't get active session data- ${error.message}`, 'debug');
@@ -270,7 +270,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                     sessionStore.set(device, {
                         cookie: { path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null },
-                        userid: thisUser.discord.user.id,
+                        userid: thisUser.master.discord.user.id,
                         login_source: (req.session && req.session.login_source) ? req.session.login_source : 100,
                         device: 'notInteractive',
                         goto: passURL,
@@ -287,14 +287,13 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             })
         } else {
             printLine('SessionTransfer', `Transfer session failed, Missing User Token`, 'debug');
-            console.log(thisUser.discord.user)
             loginPage(req, res, { authfailedDevice: true, keepSession: true, noQRCode: true });
         }
     } else if (req.query.code) {
         const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data.master)[0];
         if (!thisUser)
             res.status(403).send('User account can not correlated to a valid user!')
-        if (thisUser.discord && thisUser.discord.user.token) {
+        if (thisUser.master && thisUser.master.discord.user.token) {
             const code = (typeof req.query.code === 'string') ? req.query.code.toUpperCase() : req.query.code[0].toUpperCase();
             const IDfromCode = await sqlPromiseSafe(`SELECT session FROM sequenzia_login_codes WHERE code = ? LIMIT 1`, [code])
             if (IDfromCode && IDfromCode.rows.length > 0) {
@@ -318,7 +317,7 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
 
                         sessionStore.set(device, {
                             cookie: {path: '/', httpOnly: true, secure: (config.use_secure_cookie) ? true : undefined, maxAge: null},
-                            userid: thisUser.discord.user.id,
+                            userid: thisUser.master.discord.user.id,
                             login_source: (req.session && req.session.login_source) ? req.session.login_source : 100,
                             device: 'notInteractive',
                             goto: passURL,
@@ -341,7 +340,6 @@ app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
             }
         } else {
             printLine('SessionTransfer', `Transfer session failed, Missing User Token`, 'debug');
-            console.log(thisUser.discord.user)
             res.status(401).send('Session is not valid!')
         }
     } else {
