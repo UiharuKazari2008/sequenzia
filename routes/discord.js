@@ -444,7 +444,7 @@ async function roleGeneration(id, res, req, type, authToken) {
                 (config.esm_allow_ip && config.esm_allow_ip.map(f => ip_address.startsWith(f)).filter(f => !!f).length > 0 ) ||
                 (ua && geo &&
                     (!geo.proxy || config.esm_geo_allow_vpn || geo.org === 'Cloudflare WARP') &&
-                    (!geo.hosting || config.esm_geo_allow_hosted) &&
+                    (!geo.hosting || config.esm_geo_allow_hosted || (geo.org === 'Google LLC' && ua && ua.includes('FeedFetcher-Google'))) &&
                     (!config.esm_geo_blocked_asn || (config.esm_geo_blocked_asn && config.esm_geo_blocked_asn.indexOf(geo.asname) === -1)) &&
                     (!config.esm_geo_blocked_country || (config.esm_geo_blocked_country && config.esm_geo_blocked_country.indexOf(geo.country) === -1))
                 )
