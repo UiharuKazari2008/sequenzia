@@ -128,7 +128,7 @@ module.exports = async (req, res, next) => {
                 podcastResponse.addItem(podcastItem)
             })
         }
-        res.header("Content-Type", "text/xml").send(podcastResponse.buildXml());
+        res.header("Content-Type", "text/xml").send((podcastResponse.buildXml()).replace('rel="self"', ""));
     } else if (req.query.responseType && ['xml', 'json', 'atom'].indexOf(req.query.responseType) !== -1 ) {
         if (thisUser.master.discord.user.token_login && thisUser.master.discord.user.token_static) {
             const serverIcon = (results.page_image) ? results.page_image : (results.active_svr) ? (web.server_avatar_overides && web.server_avatar_overides[results.active_svr]) ? web.server_avatar_overides[results.active_svr] : thisUser.master.discord.servers.list.filter(e => e.serverid === results.active_svr).map(e => e.icon) : req.protocol + '://' + req.get('host') + '/static/img/sequenzia-logo-podcast.png';
