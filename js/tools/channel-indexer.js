@@ -205,9 +205,9 @@ async function generateArtistIndex () {
                                     if (at.type === 1) {
                                         _artist = at.artist;
                                         _name = at.name;
-                                        _url = `https://twitter.com/${at.artist}/media`;
+                                        _url = `https://x.com/${at.artist}/media`;
                                     } else if (at.type === 2) {
-                                        _url = `https://twitter.com/${at.artist}/media`;
+                                        _url = `https://x.com/${at.artist}/media`;
                                         _artist = at.artist;
                                     } else {
                                         _name = at.artist;

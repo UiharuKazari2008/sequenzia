@@ -248,7 +248,7 @@ module.exports = async (req, res, next) => {
                         } else {
                             printLine("ActionParser", `Request to Download URL ${job.url}"`, 'info', job)
                             let url = job.url.substring(0, 1900);
-                            if (job.url.includes("twitter.com") && job.url.includes('/photo')) {
+                            if (job.url.includes("x.com") && job.url.includes('/photo')) {
                                 url = url.split('/photo')[0];
                             }
                             let messageText = 'REQUEST ' +  url;

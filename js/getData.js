@@ -2152,10 +2152,10 @@ module.exports = async (req, res, next) => {
                                 if (content_single.includes('Twitter Image') || content_single.includes('Twitter Video')) {
                                     if (content_single.includes('(@')) {
                                         user_search = content_single.split('(@').pop().split(')')[0]
-                                        content_urls.push(`https://twitter.com/${user_search}`)
+                                        content_urls.push(`https://x.com/${user_search}`)
                                     } else if (content_single.includes('RT @')) {
                                         user_search = content_single.split('RT @').pop().split(': ')[0]
-                                        content_urls.push(`https://twitter.com/${user_search}`)
+                                        content_urls.push(`https://x.com/${user_search}`)
                                     } else {
                                         user_search = content_single.split('***')[1]
                                     }
@@ -2559,7 +2559,7 @@ module.exports = async (req, res, next) => {
                                 let decoded_content =  item.content_full.split('`').join('')
                                 let content_urls = []
                                 if (decoded_content.includes('Twitter Image') || decoded_content.includes('Twitter Video')) {
-                                    content_urls.push(`https://twitter.com/${decoded_content.split('(@').pop().split(')')[0].split('***')[1]}`)
+                                    content_urls.push(`https://x.com/${decoded_content.split('(@').pop().split(')')[0].split('***')[1]}`)
                                 } else {
                                     content_urls = Array.from(getUrls(decoded_content, { requireSchemeOrWww: true }));
                                 }
