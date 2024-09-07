@@ -134,9 +134,7 @@ router.get('/destroy', catchAsync(async (req, res) => {
     }
 }));
 router.get('/callback', catchAsync(async (req, res) => {
-/*
     try {
-*/
         if (!req.query.code) {
             printLine('SessionCallback', `Failed to get valid response code to create session`, 'error');
             res.status(500).send('Failed to get response code')
@@ -161,12 +159,12 @@ router.get('/callback', catchAsync(async (req, res) => {
             printLine('SessionCallback', `Saved Persistent Token to cookies`, 'debug', json);
             await checkAccessToken(json.access_token, req, res, true)
         }
-/*    } catch (err) {
+    } catch (err) {
         res.status(500).json({
             state: 'HALTED',
             message: err.message,
         });
-    }*/
+    }
 }));
 if (!!config.enable_impersonation) {
     printLine("Init", `User Impersonation is ENABLED! You should never enable this on a non-localhost instance for testing only!`, 'critical');

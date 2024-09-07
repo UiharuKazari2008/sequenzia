@@ -61,7 +61,7 @@ app.use(async function (req, res, next) {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.locals.ua = req.get('User-Agent');
-    if (res.locals.ua.toLowerCase().includes("pocketcasts") || (res.locals.ua.toLowerCase().includes("bot") && !res.locals.ua.toLowerCase().includes("discord"))) {
+    if (!res.locals.ua || res.locals.ua.toLowerCase().includes("pocketcasts") || (res.locals.ua.toLowerCase().includes("bot") && !res.locals.ua.toLowerCase().includes("discord"))) {
         res.status(444).end();
     } else {
         if (typeof req.session !== 'undefined' && req.session.userid)
