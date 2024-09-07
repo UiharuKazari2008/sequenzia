@@ -117,10 +117,6 @@ module.exports = async (req, res, next) => {
         return app.delete(key)
     }
 
-    console.log(req.query);
-
-
-
     if (req.session.active_exchange && req.session.active_exchange !== 'master') {
         res.locals.json = true;
         res.locals.is_response_json = true;
