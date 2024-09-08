@@ -427,7 +427,7 @@ module.exports = async (req, res, next) => {
                     break;
                 case 'SetUserBanner':
                     if (req.body.eid && req.body.crop) {
-                        const foundMessages = await sqlPromiseSafe(`SELECT rec.*, path_hint, cdn.mfull_hint, cdn.full_hint FROM (SELECT * FROM kanmi_records WHERE eid = ? LIMIT 1) rec LEFT JOIN (SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}) cdn ON (rec.eid = cdn.eid)`, [req.body.eid])
+                        const foundMessages = await sqlPromiseSafe(`SELECT rec.*, cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint FROM (SELECT * FROM kanmi_records WHERE eid = ? LIMIT 1) rec LEFT JOIN (SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}) cdn ON (rec.eid = cdn.eid)`, [req.body.eid])
                         if (foundMessages.rows && foundMessages.rows.length > 0) {
                             console.log(foundMessages.rows[0])
                             sendData(global.mq_discord_out + '.priority', {
