@@ -2441,7 +2441,7 @@ module.exports = async (req, res, next) => {
                                             item.colorB,
                                             item.dark_color
                                         ]
-                                    } else {
+                                    } else if (global.enable_polyfill_proxy_request) {
                                         sendData(global.mq_discord_out, {
                                             fromClient : `return.Sequenzia.${config.system_name}`,
                                             messageReturn: false,
