@@ -432,7 +432,7 @@ module.exports = async (req, res, next) => {
                             console.log(foundMessages.rows[0])
                             sendData(global.mq_discord_out + '.priority', {
                                 fromClient: `return.Sequenzia.${config.system_name}`,
-                                imageURL: `${config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].access_url}${(foundMessages.rows[0].mfull_hint) ? 'master' : 'full'}/${foundMessages.rows[0].path_hint}/${foundMessages.rows[0].mfull_hint) ? foundMessages.rows[0].mfull_hint : foundMessages.rows[0].full_hint}`,
+                                imageURL: `${config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].local_url || config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].access_url}${(foundMessages.rows[0].mfull_hint) ? 'master' : 'full'}/${foundMessages.rows[0].path_hint}/${foundMessages.rows[0].mfull_hint) ? foundMessages.rows[0].mfull_hint : foundMessages.rows[0].full_hint}`,
                                 imageCrop: req.body.crop,
                                 userId: thisUser.discord.user.id,
                                 messageChannelID: "0",
@@ -474,7 +474,7 @@ module.exports = async (req, res, next) => {
                             console.log(foundMessages.rows[0])
                             sendData(global.mq_discord_out + '.priority', {
                                 fromClient: `return.Sequenzia.${config.system_name}`,
-                                imageURL: `${config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].access_url}${(foundMessages.rows[0].mfull_hint) ? 'master' : 'full'}/${foundMessages.rows[0].path_hint}/${foundMessages.rows[0].mfull_hint) ? foundMessages.rows[0].mfull_hint : foundMessages.rows[0].full_hint}`,
+                                imageURL: `${config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].local_url || config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].access_url}${(foundMessages.rows[0].mfull_hint) ? 'master' : 'full'}/${foundMessages.rows[0].path_hint}/${foundMessages.rows[0].mfull_hint) ? foundMessages.rows[0].mfull_hint : foundMessages.rows[0].full_hint}`,
                                 imageCrop: req.body.crop,
                                 userId: thisUser.discord.user.id,
                                 messageChannelID: "0",
