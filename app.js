@@ -360,14 +360,14 @@ app.get('/static/*', (req, res, next) => {
 
 })
 app.use('/', express.static('public'));
-app.get('*', function(req, res){
+app.get('*', function(req, res) {
     if (req.session && req.session.userid) {
         res.sendStatus(404);
         console.error(`Not Routed - ${req.path}`)
     } else {
         printLine('ExpressCore', `Invalid URL requested from non-authenticated user - ${req.url}`, 'warn');
         if (hasPlaceholder) {
-            res.status(200).sendFile("./placeholder.jpg");
+            res.status(200).sendFile(path.resolve("./placeholder.jpg"));
         } else {
             res.status(200).send('{');
         }
