@@ -427,12 +427,12 @@ module.exports = async (req, res, next) => {
                     break;
                 case 'SetUserBanner':
                     if (req.body.eid && req.body.crop) {
-                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM kanmi_records WHERE eid = ? LIMIt 1`, [req.body.eid])
+                        const foundMessages = await sqlPromiseSafe(`SELECT rec.*, path_hint, cdn.mfull_hint, cdn.full_hint FROM (SELECT * FROM kanmi_records WHERE eid = ? LIMIT 1) rec LEFT JOIN (SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}} cdn ON (rec.eid = cdn.eid)`, [req.body.eid])
                         if (foundMessages.rows && foundMessages.rows.length > 0) {
                             console.log(foundMessages.rows[0])
                             sendData(global.mq_discord_out + '.priority', {
                                 fromClient: `return.Sequenzia.${config.system_name}`,
-                                imageURL: ( foundMessages.rows[0].cache_proxy) ? foundMessages.rows[0].cache_proxy.startsWith('http') ? foundMessages.rows[0].cache_proxy : `https://cdn.discordapp.com/attachments${foundMessages.rows[0].cache_proxy}` : (foundMessages.rows[0].attachment_hash && foundMessages.rows[0].attachment_name) ? `https://cdn.discordapp.com/attachments/` + ((foundMessages.rows[0].attachment_hash.includes('/')) ? foundMessages.rows[0].attachment_hash : `${foundMessages.rows[0].channel}/${foundMessages.rows[0].attachment_hash}/${foundMessages.rows[0].attachment_name}`) : undefined,
+                                imageURL: `${config.local_cdn_list.filter(e => e.id === foundMessages.rows[0].cdn_host)[0].access_url}${(foundMessages.rows[0].mfull_hint) ? 'master' : 'full'}/${foundMessages.rows[0].path_hint}/${foundMessages.rows[0].mfull_hint}`,
                                 imageCrop: req.body.crop,
                                 userId: thisUser.discord.user.id,
                                 messageChannelID: "0",
