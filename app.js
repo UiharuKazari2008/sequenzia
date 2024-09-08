@@ -50,6 +50,7 @@ const noSessionTrandferURL = [
     '/ping',
 ];
 let ready = false;
+const hasPlaceholder = (fs.existsSync("./placeholder.jpg"))
 
 app.use(async function (req, res, next) {
     res.setHeader('X-Powered-By', 'Kanmi Digital Media Management System');
@@ -365,6 +366,11 @@ app.get('*', function(req, res){
         console.error(`Not Routed - ${req.path}`)
     } else {
         printLine('ExpressCore', `Invalid URL requested from non-authenticated user - ${req.url}`, 'warn');
+        if (hasPlaceholder) {
+            res.status(200).sendFile("./placeholder.jpg");
+        } else {
+            res.status(200).send('{');
+        }
     }
 });
 module.exports = app;
