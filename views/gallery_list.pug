@@ -103,7 +103,7 @@ block content
                                         if (item.flagged)
                                             i.fas.fa-flag.text-danger
                                         if (item.not_cdn_cached)
-                                            i.fas.fa-cloud
+                                            i.fas.fa-cloud-slash
                                         i#offlineReady.fas.fa-bookmark.text-success.hidden
                                         i#offlineExpiring.fas.fa-clock.text-warning.hidden.ml-1
                                     div.d-inline-flex.ml-auto.shadow-text
@@ -233,7 +233,9 @@ block content
 
 
                                         .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
-                                            .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
+                                            .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
+                                                a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`rotateItem(-90, "${item.id}"); return false;`)
+                                                    i.fas.fa-rotate-left(style="font-size: 2em; color: #80fff2;")
                                                 a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
 
@@ -241,7 +243,9 @@ block content
                                                 a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector(".lightbox").click()` style="position: absolute;top: 40%;")
                                                     i.btn-links.fas.fa-search(style="font-size: 2em;")
 
-                                            .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-end(style="height: inherit;").position-relative
+                                            .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
+                                                a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
+                                                    i.fas.fa-rotate-right(style="font-size: 2em; color: #80fff2;")
                                                 a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ff90a8;")
 

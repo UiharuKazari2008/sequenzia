@@ -2146,12 +2146,13 @@ module.exports = async (req, res, next) => {
                                 }
                                 const content_single = item.content_full.split('\n')[0]
                                 if (content_single.includes('Twitter Image') || content_single.includes('Twitter Video')) {
+                                    const possible_sf = item.attachment_name.split('.')[0].split('-').pop();
                                     if (content_single.includes('(@')) {
                                         user_search = content_single.split('(@').pop().split(')')[0]
-                                        content_urls.push(`https://x.com/${user_search}`)
+                                        content_urls.push(`https://x.com/${user_search}${(!isNaN(parseInt(possible_sf))) ? '/status/' + possible_sf : ''}`)
                                     } else if (content_single.includes('RT @')) {
                                         user_search = content_single.split('RT @').pop().split(': ')[0]
-                                        content_urls.push(`https://x.com/${user_search}`)
+                                        content_urls.push(`https://x.com/${user_search}${(!isNaN(parseInt(possible_sf))) ? '/status/' + possible_sf : ''}`)
                                     } else {
                                         user_search = content_single.split('***')[1]
                                     }
@@ -2555,7 +2556,8 @@ module.exports = async (req, res, next) => {
                                 let decoded_content =  item.content_full.split('`').join('')
                                 let content_urls = []
                                 if (decoded_content.includes('Twitter Image') || decoded_content.includes('Twitter Video')) {
-                                    content_urls.push(`https://x.com/${decoded_content.split('(@').pop().split(')')[0].split('***')[1]}`)
+                                    const possible_sf = item.attachment_name.split('.')[0].split('-').pop();
+                                    content_urls.push(`https://x.com/${decoded_content.split('(@').pop().split(')')[0].split('***')[1]}${(!isNaN(parseInt(possible_sf))) ? '/status/' + possible_sf : ''}`)
                                 } else {
                                     content_urls = Array.from(getUrls(decoded_content, { requireSchemeOrWww: true }));
                                 }

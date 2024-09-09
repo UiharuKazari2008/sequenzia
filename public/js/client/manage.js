@@ -56,7 +56,21 @@ async function proccessPost(alt) {
                 }
             } else {
                 let data = undefined
-                if (actionSelection === 'RenamePost') { data = newFileName  } else if (actionSelection === 'EditTextPost') { data = newContents  } else if (actionSelection === 'RotatePost') { data = imageRotate } else if (actionSelection === 'MovePost') { data = postsDestination } else { data = null }
+                if (actionSelection === 'RenamePost') {
+                    data = newFileName
+                } else if (actionSelection === 'EditTextPost') {
+                    data = newContents
+                } else if (actionSelection === 'RotatePost') {
+                    data = imageRotate
+                } else if (actionSelection === 'MovePost') {
+                    data = { dest: postsDestination };
+                    const element = document.querySelector(`#message-${post.messageid} #postImage`);
+                    const cr = (element && element.style && element.style.rotate) ? parseInt(element.style.rotate.split('deg')[0].toString()) : 0;
+                    if (cr && cr !== 0)
+                        data.deg = cr;
+                } else {
+                    data = null
+                }
                 if (actionSelection === 'MovePost' || actionSelection === 'RemovePost' || actionSelection === 'ArchivePost') {
                     document.getElementById(`message-${post.messageid}`).classList.add('hidden')
                 }
@@ -495,8 +509,8 @@ async function acceptItem(serverid, channelid, messageid, direct, fileStatus) {
     if (reviewDestination && reviewDestination.length > 1) {
         pageType = $.history.url().split('?')[0].substring(1)
         if (direct) {
-            document.getElementById(`message-${messageid}`).classList.add('hidden')
-            queueAction(serverid, channelid, messageid, 'MovePost', reviewDestination, true)
+            document.getElementById(`message-${messageid}`).classList.add('hidden');
+            queueAction(serverid, channelid, messageid, 'MovePost', getImageRotation(reviewDestination, messageid), true)
         } else {
             try {
                 const _post = document.getElementById(`message-${messageid}`);
@@ -554,7 +568,7 @@ async function acceptMenu(serverid, channelid, messageid, fileStatus) {
         let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map(e => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', '${e}'); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations('${e}'); return false">` +
+                return `<li class="list-group-item p-2" href="#" style="font-size: small; background-color: ${n.toRGB()}" onclick="queueAction('${serverid}', '${channelid}', '${messageid}', 'MovePost', getImageRotation('${e}', '${messageid}')); document.getElementById('message-${messageid}').classList.add('hidden'); shiftRecentPostDestinations('${e}'); return false">` +
                     `    <span style="">${n}</span>` +
                     `</li>`
             }
@@ -646,13 +660,21 @@ async function acceptAllItems(direction, id) {
             const messageid = el.getAttribute('data-msg-id')
             if (serverid && channelid && messageid) {
                 document.getElementById(`message-${messageid}`).classList.add('hidden');
-                queueAction(serverid, channelid, messageid, 'MovePost', reviewDestination, true, true);
+                queueAction(serverid, channelid, messageid, 'MovePost', getImageRotation(reviewDestination, messageid), true, true);
                 itemCount.push(messageid)
             }
         })
         undoActions.push(itemCount);
     }
     return false;
+}
+function getImageRotation(dest, id) {
+    let obj = { dest: dest };
+    const element = document.querySelector(`#message-${id} #postImage`);
+    const cr = (element && element.style && element.style.rotate) ? parseInt(element.style.rotate.split('deg')[0].toString()) : 0;
+    if (cr && cr !== 0)
+        obj.deg = cr;
+    return obj
 }
 async function moveAllItems() {
     if (postsDestination !== '') {
@@ -708,6 +730,12 @@ async function moveAllItems() {
         $('#actionModel').modal('show');
     }
     return false;
+}
+async function rotateItem(deg, id) {
+    const element = document.querySelector(`#message-${id} #postImage`);
+    const cr = (element && element.style && element.style.rotate) ? parseInt(element.style.rotate.split('deg')[0].toString()) : 0;
+    console.log(id, element, cr);
+    $(`#message-${id} #postImage`)[0].style.rotate = ((cr >= 270 && deg > 0) ? 0 : (cr === 0 && deg < 0) ? 270 : cr + deg) + 'deg';
 }
 async function setReviewChannel(chid, noSave) {
     const chname = setupReviewModel.querySelector("#destination-" + chid).getAttribute('data-ch-name')

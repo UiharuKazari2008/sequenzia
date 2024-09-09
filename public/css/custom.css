@@ -921,6 +921,7 @@ tr.dense-table a:visited:active:hover, tr.dense-table a {
 
 #postImage {
     z-index: -8;
+    position: relative;
 }
 
 #postImageVideo {
