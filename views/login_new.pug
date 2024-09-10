@@ -183,13 +183,13 @@ html
                                         div#collapseQRCode.login-qr.collapse(style='display: none')
                                             img(src=login_image style='padding-bottom: 1em;')
                                     div.login-button
-                                        a.acceptBtn.discord(href='/discord/login')
-                                            i.fab.fa-discord
-                                            span Discord
+                                        a.acceptBtn(href='/discord/login')
+                                            i.fas.fa-key
+                                            span Login
                                         if (show_user_list)
-                                            a.acceptBtn.discord(href='/discord/users')
+                                            a.acceptBtn(href='/discord/users')
                                                 i.fas.fa-key
-                                                span Login As
+                                                span Impersonate
                                         if (login_image)
                                             a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
                                                 i.fas.fa-qrcode
