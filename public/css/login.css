@@ -357,6 +357,18 @@ img.bottom-logo {
 }
 
 @media (max-width: 640px) {
+    .extraBanners .banner {
+        height: 35px;
+    }
+    .extraBanners .banner img {
+        height: 24px;
+    }
+    .extraBanners .banner span {
+        font-size: 14pt;
+    }
+    .extraBanners .banner .arrow {
+        font-size: 12pt;
+    }
     .login-banner-holder {
         position: absolute;
     }
