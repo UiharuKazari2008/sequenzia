@@ -56,11 +56,31 @@ html
                 background: url("!{loginImage}") center fixed
             }
         if (banner)
-            div(style="display: block; position: fixed; left: 0; width: 100vw; z-index: 100000;")
-                div(style="color: white;background: #930000;font-size: 1.35em;text-align: center;")
+            .login-banner-holder
+                .login-banner
                     span !{banner}
+        .fixed-bottom
+            .bottom-logo
+                span Powered by:
+                img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
+            .bottom-data-plate
+                span v22.0
         #container
             #inviteContainer
+                if (login_banners)
+                    .extraBanners
+                        for banner in login_banners
+                            .banner(onclick=`window.location.href = "${banner.url}"; return false;` style=`background-color: ${banner.background}; color: ${banner.color}`)
+                                if (banner.text)
+                                    div.holder.span
+                                        img(src=banner.image)
+                                        .text
+                                            span !{banner.text}
+                                else
+                                    div.holder
+                                        img(src=banner.image)
+                                div.arrow
+                                    i.fas.fa-chevron-right.pl-2
                 .acceptContainer
                     .logo-container
                         img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)

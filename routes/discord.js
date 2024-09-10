@@ -325,7 +325,7 @@ router.get('/exchange/:id', sessionVerification, async (req, res) => {
                 'x-sequenzia-key': global.Connected_Exchanges[req.params.id].key,
                 'x-sequenzia-user': thisUser.master.discord.user.id,
                 'x-sequenzia-user-Source': req.session.login_source,
-                'User-Agent': 'Sequenzia Cross-Exchange v21.0',
+                'User-Agent': 'Sequenzia Cross-Exchange v22.0',
                 'Cookie': cookieString || ''
             },
             json: true
@@ -566,6 +566,9 @@ async function loginPage(req, res, obj) {
         } else {
             _obj.show_user_list = true
         }
+    }
+    if (!!webconfig.login_banners && webconfig.login_banners.length > 0) {
+        _obj.login_banners = webconfig.login_banners;
     }
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
@@ -813,7 +816,7 @@ async function crossSessionVerification(req, res, next) {
                     'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
                     'x-sequenzia-user': thisUser.master.discord.user.id,
                     'x-sequenzia-user-source': req.session.login_source,
-                    'User-Agent': 'Sequenzia Cross-Exchange v21.0',
+                    'User-Agent': 'Sequenzia Cross-Exchange v22.0',
                     'Cookie': cookieString || ''
                 },
                 json: true
@@ -853,7 +856,7 @@ async function handleExchange(req, res, next) {
                 'x-sequenzia-key': global.Connected_Exchanges[req.session.active_exchange].key,
                 'x-sequenzia-user': thisUser.master.discord.user.id,
                 'x-sequenzia-user-source': req.session.login_source,
-                'User-Agent': 'Sequenzia Cross-Exchange v21.0',
+                'User-Agent': 'Sequenzia Cross-Exchange v22.0',
                 'Cookie': cookieString || ''
             }
         }

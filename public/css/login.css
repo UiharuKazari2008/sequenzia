@@ -237,6 +237,47 @@ i.fas, i.fab {
     justify-content: center;
     align-content: center;
 }
+.fixed-bottom {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    display: flex;
+    flex-direction: row;
+}
+div.bottom-logo {
+    padding: 2em;
+    opacity: .5;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+    cursor: pointer;
+    justify-content: end;
+    align-items: flex-start;
+}
+div.bottom-data-plate {
+    padding: 2em;
+    opacity: .5;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+    cursor: pointer;
+    justify-content: end;
+    align-items: flex-end;
+    margin-left: auto;
+}
+img.bottom-logo {
+    width: 250px;
+    margin-left: -.3em;
+    margin-bottom: -0.6em;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+}
 .register {
     color: #aaa;
     font-size: 12px;
@@ -257,13 +298,78 @@ i.fas, i.fab {
 .register a:hover {
     box-shadow: inset 0 -2px 0 #fff;
 }
+
+.extraBanners {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.extraBanners .banner {
+    height: 52px;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.extraBanners .banner .holder {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 1em;
+}
+
+.extraBanners .banner .holder.span {
+    justify-content: space-between;
+}
+
+.extraBanners .banner .holder.span .text {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.extraBanners .banner img {
+    height: 38px;
+}
+.extraBanners .banner span {
+    font-size: 18pt;
+    padding: 0 0.5rem;
+}
+
+.extraBanners .banner .arrow {
+    text-align: center;
+    font-size: 18pt;
+}
+.login-banner-holder {
+    display: block;
+    left: 0;
+    width: 100vw;
+    z-index: 100000;
+}
+.login-banner {
+    color: white;
+    background: #930000;
+    font-size: 1.35em;
+    text-align: center;
+}
+
 @media (max-width: 640px) {
+    .login-banner-holder {
+        position: absolute;
+    }
     #container {
         align-items: center;
     }
     #inviteContainer {
         height: auto;
         width: auto;
+        flex-direction: column-reverse;
+    }
+    .extraBanners {
+        position: relative;
     }
     .logoContainer {
         display: none!important;
