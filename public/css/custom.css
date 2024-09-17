@@ -2356,6 +2356,7 @@ footer .server-grid-parent {
 
 .server-grid-child > img {
     box-shadow: 6px 2px 11px 0 #00000054;
+    background: #6a2e00;
 }
 
 .userDropdown.collapsed > i {
