@@ -483,7 +483,7 @@ async function enableReviewMode(setFromDialog) {
         document.getElementById('reviewRecentDestinations').innerHTML = (rdest.length > 0) ? rdest : ''
         document.getElementById('recentDestinationsDropdown').innerHTML = (rmenudest.length > 0) ? rmenudest : ''
         document.getElementById('reviewBtns').classList.remove("hidden");
-        document.getElementById('reviewPanel').classList.remove("hidden");
+        document.getElementById('reviewPanel').classList.add("d-smd-block");
         $('#setupReviewModel').modal('hide');
     } else {
         setupReviewMode(true);
