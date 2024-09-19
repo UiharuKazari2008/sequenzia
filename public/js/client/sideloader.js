@@ -5447,13 +5447,20 @@ async function undoPendingAction() {
 async function updateActionsPanel() {
     if (document.getElementById('actionPanel')) {
         if (Object.keys(apiActions).length > 0) {
-            $('#actionPanel').removeClass('hidden')
+            if (!inReviewMode) {
+                $('#actionPanel').removeClass('hidden')
+            } else {
+                $('#actionPanel').addClass('hidden')
+            }
             savePendingActions();
         } else {
             $('#actionPanel').addClass('hidden')
         }
-        document.getElementById('pendingActionsIndicator').innerText = Object.keys(apiActions).length
+        document.querySelectorAll('.pendingActionsIndicator').forEach(e => {
+            e.innerText = Object.keys(apiActions).length
+        })
     }
+    return false;
     /*if (Object.keys(apiActions).length !== 0) {
         const keys = Object.values(apiActions).reverse().map((item) => {
             let results = [`<a class="action-item" href='#_' onclick="cancelPendingAction(${item.messageid}); return false;" role='button')>`]

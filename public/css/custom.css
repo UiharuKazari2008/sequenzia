@@ -2854,6 +2854,13 @@ body.kms-play-open:not(.kms-play-pip) {
     font-size: 1.2em;
 }
 
+#reviewPanel {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
 .storage-usage-holder {
     width: 100%;
     height: 2em;

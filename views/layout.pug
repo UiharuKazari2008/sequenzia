@@ -1004,7 +1004,7 @@ html
                                                 div.dropdown(style="display: contents;")
                                                     a#pendingActionsMenu.navbar-item.btn.btn-ice.py-0.px-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
                                                         i.fas.fa-clipboard.pr-1
-                                                        span#pendingActionsIndicator.badge.badge-primary ...
+                                                        span.pendingActionsIndicator.badge.badge-primary ...
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
                                                         a.dropdown-item(onclick="commitPendingActions(); return false;")
                                                             i.fas.fa-inbox-out.pr-2
@@ -1031,7 +1031,7 @@ html
                                                 div.dropdown(style="display: contents;")
                                                     a#pendingActionsMenu.navbar-item.btn.btn-ice.py-0.px-2.fa-bounce(title="Active Tasks" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="pendingActionsMenu")
                                                         i.fas.fa-clipboard.pr-1
-                                                        span#pendingActionsIndicator.badge.badge-primary ...
+                                                        span.pendingActionsIndicator.badge.badge-primary ...
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
                                                         a.dropdown-item(onclick="commitPendingActions(); return false;")
                                                             i.fas.fa-inbox-out.pr-2
@@ -1039,17 +1039,27 @@ html
                                                         a.dropdown-item(onclick="cancelPendingAction(-1); return false;")
                                                             i.fas.fa-trash-alt.pr-2
                                                             span Cancel
-                                            div#reviewPanel.d-none
+                                            div#reviewPanel.hidden
+                                                a.navbar-item.btn.btn-ice.py-0.px-2(title="Undo the last action" href='#_' onclick='undoPendingAction(); return false;')
+                                                    i.far.fa-trash-can-undo
                                                 div.dropdown(style="display: contents;")
-                                                    span.badge.bg-translucent.border-warning.navbar-item.btn.btn-admin.mr-2(title="Review Mode Controls" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="reviewMenu")
-                                                        i.fas.fa-check-to-slot.pr-2
-                                                        span#reviewDestinationNameMenu
+                                                    span.badge.navbar-item.btn.btn-admin.mr-2.push-up(style="background: #000000e8; padding: .25em .5em; display: inline-flex; align-items: flex-end;" title="Review Mode Controls" href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' aria-labelledby="reviewMenu")
+                                                        span.pendingActionsIndicator.badge(style="top: 0rem;") ...
+                                                        span#reviewDestinationNameMenu.ml-2.d-none.d-smd-block
                                                     .dropdown-menu.shadow.dropdown-menu-right.animated--grow-in(aria-labelledby="pendingActionsMenu")
+                                                        span.dropdown-header Destinations
                                                         #recentDestinationsDropdown(style="display: contents;")
                                                         .dropdown-divider
+                                                        a.dropdown-item(onclick="commitPendingActions(); return false;")
+                                                            i.fas.fa-inbox-out.pr-2
+                                                            span Commit Actions
+                                                        a.dropdown-item(onclick="cancelPendingAction(-1); return false;")
+                                                            i.fas.fa-trash-alt.pr-2
+                                                            span Clear Actions
+                                                        .dropdown-divider
                                                         a.dropdown-item(title="Setup Review Mode" href='#_' onclick='setupReviewMode(true); return false;')
-                                                            i.fas.fa-cog.pr-2
-                                                            span Destination
+                                                            i.fas.fa-folder-plus.pr-2
+                                                            span Add Destination
                                                         a.dropdown-item(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
                                                             i.fas.fa-times.pr-2
                                                             span Exit
@@ -2156,12 +2166,12 @@ html
                                     h3
                                         i.fas.fa-check-to-slot.pr-2
                                         span#reviewDestinationName NaN
-                                .col-auto.p-0.d-flex
+                                //.col-auto.p-0.d-flex
                                     a.btn.btn-primary.mr-1.w-100(title="Setup Review Mode" href='#_' onclick='setupReviewMode(true); return false;')
                                         i.fas.fa-cog
                                     a.btn.btn-primary.ml-1.w-100(title="Leave Review Mode" href='#_' onclick='disableReviewMode(); return false;')
                                         i.fas.fa-times
-                            div#reviewRecentDestinations.scroll-overflow.align-items-center.mt-2
+                            div#reviewRecentDestinations.scroll-overflow.align-items-center.mt-2.d-none
 
                         #contentBlock.animated--grow-in
                             block content

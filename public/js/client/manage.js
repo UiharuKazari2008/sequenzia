@@ -389,11 +389,6 @@ async function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
 
-    if (recentPostDestination && recentPostDestination.length > 0) {
-        const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
-        document.getElementById('dynamicStyle').innerHTML = '<style>.last-move i { color: ' + n.toRGB() + ' !important; }</style>'
-    }
-
     const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
         enableReviewMode();
@@ -412,6 +407,7 @@ async function setupReviewMode(bypass) {
         setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
         $('#setupReviewModel').modal('show');
     }
+    generateReviewStyle();
     return false;
 }
 async function enableReviewMode(setFromDialog) {
@@ -483,12 +479,29 @@ async function enableReviewMode(setFromDialog) {
         document.getElementById('reviewRecentDestinations').innerHTML = (rdest.length > 0) ? rdest : ''
         document.getElementById('recentDestinationsDropdown').innerHTML = (rmenudest.length > 0) ? rmenudest : ''
         document.getElementById('reviewBtns').classList.remove("hidden");
-        document.getElementById('reviewPanel').classList.add("d-smd-block");
+        document.getElementById('reviewPanel').classList.remove("hidden");
+        generateReviewStyle();
+        updateActionsPanel();
         $('#setupReviewModel').modal('hide');
     } else {
         setupReviewMode(true);
     }
     return false;
+}
+async function generateReviewStyle() {
+    let html = '<style>';
+    if (recentPostDestination && recentPostDestination.length > 0) {
+        const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
+        html += '.last-move i { color: ' + n.toRGB() + ' !important; }\n';
+    }
+    if (reviewDestination !== '') {
+        const n = actionModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name');
+        html += '#reviewDestinationNameMenu, #reviewPanel > div > span > i { color: ' + n.toRGB() + ' !important; }\n';
+        html += '#reviewPanel .pendingActionsIndicator { background: ' + n.toRGB() + ' !important; color: black; }\n';
+        html += 'div#reviewPanel > div > span { border-color: ' + n.toRGB() + ' !important; }\n';
+    }
+    html += "</style>";
+    document.getElementById('dynamicStyle').innerHTML = html;
 }
 async function disableReviewMode() {
     inReviewMode = false;
@@ -515,12 +528,13 @@ async function disableReviewMode() {
             el.classList.add("hidden");
         });
     }
+    updateActionsPanel();
     try {
         $('.hide-review').removeClass("hidden");
         $('.edit-btns').removeClass("hidden");
         $('.done-btns').addClass("hidden");
         document.getElementById('reviewBtns').classList.add("hidden");
-        document.getElementById('reviewPanel').classList.remove("d-smd-block");
+        document.getElementById('reviewPanel').classList.add("hidden");
     } catch (e) {
         console.log('Failed to reset button groups')
     }
@@ -868,9 +882,7 @@ async function updateRecentPostDestinations() {
         }
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
-
-    const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
-    document.getElementById('dynamicStyle').innerHTML = '<style>.last-move i { color: ' + n.toRGB() + ' !important; }</style>'
+    generateReviewStyle();
 }
 async function shiftRecentPostDestinations(input) {
     try {
@@ -883,8 +895,7 @@ async function shiftRecentPostDestinations(input) {
         }
         recentPostDestination = recentPostDestination.slice(0,10).filter(e => e.length > 8)
         setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
-        const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
-        document.getElementById('dynamicStyle').innerHTML = '<style>.last-move i { color: ' + n.toRGB() + ' !important; }</style>'
+        generateReviewStyle();
     } catch (e) {
         console.error("Failed to save recent destinations")
         console.error(e)
