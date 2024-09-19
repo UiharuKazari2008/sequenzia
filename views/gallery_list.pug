@@ -22,6 +22,8 @@ block content
                 z-index: -99;
                 opacity: 1;
             }
+        #dynamicStyle.hidden
+
         div.tz-gallery
             div.row
                 each item, indexImage in results
@@ -224,12 +226,12 @@ block content
                                             if (item.meta.search)
                                                 .ml-auto
                                                 span.pr-2 #{item.meta.search}
-                                            if (item.entities.meta.fileid)
-                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
-                                                    i.btn-links.fas.fa-download
-                                            else
-                                                a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download=`${item.entities.filename}` target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
-                                                    i.btn-links.fas.fa-download
+                                            //if (item.entities.meta.fileid)
+                                            //    a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
+                                            //        i.btn-links.fas.fa-download
+                                            //else
+                                            //    a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download=`${item.entities.filename}` target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                            //        i.btn-links.fas.fa-download
 
 
                                         .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
@@ -240,8 +242,10 @@ block content
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
 
                                             .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
-                                                a.reviewPreview.btn-links.p-2.ml-auto.mr-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector(".lightbox").click()` style="position: absolute;top: 40%;")
+                                                a.reviewPreview.btn-links.p-2.ml-auto.mr-auto.mt-auto.mb-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector(".lightbox").click()`)
                                                     i.btn-links.fas.fa-search(style="font-size: 2em;")
+                                                a.reviewMove.btn-links.px-2.no-dynamic-tiny.last-move(title="Move Item" href='#_' onclick=`acceptLastDestination("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
+                                                    i.btn-links.fas.fa-folder-check(style="font-size: 2em;")
 
                                             .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
                                                 a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
@@ -283,7 +287,7 @@ block content
                             else
                                 div#postBackground
                 if (req_uri && ((((req_uri.includes('channel=random') || !(req_uri.includes('channel=') || req_uri.includes('folder=')) ) && req_uri.includes('sort=random')) || req_uri.includes('sort=random')) && !search_prev))
-                    .col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
+                    .col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3.hide-review
                         .square.bottomBtn
                             .internal-button.center-block
                                 if (req_uri && req_uri.includes('sort=random'))
@@ -293,7 +297,7 @@ block content
                                     a(title="Refresh" href='#_' onClick="getNewContent([], [['refresh','true']]);")
                                         i.fa.fa-sync
                 else if (nexturl !== 'NA')
-                    #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3
+                    #LoadNextPage.col-button.col-12.col-sm-6.col-md-6.col-lg-4.col-xl-3.hide-review
                         .square.bottomBtn(style='border: 0;' onclick=`getMoreContent([], [${nexturl}]); return false;`)
                             .internal-button.center-block
                                 div

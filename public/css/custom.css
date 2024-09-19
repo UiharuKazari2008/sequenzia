@@ -2909,6 +2909,12 @@ body.kms-play-open:not(.kms-play-pip) {
     border-left: 1px solid #f07d1459;
 }
 
+.col-dynamic-tiny .review-item,
+.col-dynamic-small .review-item {
+    opacity: 0.6;
+}
+
+
 img#kmsInfoPoster {
     height: 128px;
 }

@@ -388,6 +388,12 @@ async function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#channelSelector").classList.add('btn-success')
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
+
+    if (recentPostDestination && recentPostDestination.length > 0) {
+        const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
+        document.getElementById('dynamicStyle').innerHTML = '<style>.last-move i { color: ' + n.toRGB() + ' !important; }</style>'
+    }
+
     const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
         enableReviewMode();
@@ -450,10 +456,11 @@ async function enableReviewMode(setFromDialog) {
                 el.classList.add("hidden");
             });
         }
-        $('.edit-btns').removeClass("hidden");
+        $('.edit-btns, #reviewPanel').removeClass("hidden");
         $('.done-btns').addClass("hidden");
         $('.hide-review').addClass("hidden");
         document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
+        document.getElementById("reviewDestinationNameMenu").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
         const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).slice(1,recentReviewDestination.length).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
@@ -463,7 +470,18 @@ async function enableReviewMode(setFromDialog) {
             }
             return ''
         }).join('\n')
+        const rmenudest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).slice(1,recentReviewDestination.length).map(e => {
+            const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<a class="dropdown-item" href="#" style="color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                    `    <i class="fas fa-folder"></i>` +
+                    `    <span>${n}</span>` +
+                    `</a>`
+            }
+            return ''
+        }).join('\n')
         document.getElementById('reviewRecentDestinations').innerHTML = (rdest.length > 0) ? rdest : ''
+        document.getElementById('recentDestinationsDropdown').innerHTML = (rmenudest.length > 0) ? rmenudest : ''
         document.getElementById('reviewBtns').classList.remove("hidden");
         $('#setupReviewModel').modal('hide');
     } else {
@@ -499,7 +517,7 @@ async function disableReviewMode() {
     try {
         $('.hide-review').removeClass("hidden");
         $('.edit-btns').removeClass("hidden");
-        $('.done-btns').addClass("hidden");
+        $('.done-btns, #reviewPanel').addClass("hidden");
         document.getElementById('reviewBtns').classList.add("hidden");
     } catch (e) {
         console.log('Failed to reset button groups')
@@ -577,6 +595,20 @@ async function acceptMenu(serverid, channelid, messageid, fileStatus) {
         if (rdest.length > 0) {
             destinationMenu.innerHTML = ['<div class="card"><ul class="list-group list-group-flush" style="overflow-y: scroll;">', ...rdest, '</ul></div>'].join('\n')
             $(`#imageMove-${messageid}`).collapse('show');
+        } else {
+            acceptItem(serverid, channelid, messageid, false, fileStatus);
+        }
+    } else {
+        acceptItem(serverid, channelid, messageid, false, fileStatus);
+    }
+    return false;
+}
+async function acceptLastDestination(serverid, channelid, messageid, fileStatus) {
+    if (recentPostDestination && recentPostDestination.length > 0) {
+        let rdest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))[0]
+        if (rdest) {
+            queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${rdest}`, `${messageid}`));
+            document.getElementById(`message-${messageid}`).classList.add('hidden');
         } else {
             acceptItem(serverid, channelid, messageid, false, fileStatus);
         }
@@ -834,6 +866,9 @@ async function updateRecentPostDestinations() {
         }
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+
+    const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
+    document.getElementById('dynamicStyle').innerHTML = '<style>.last-move i { color: ' + n.toRGB() + ' !important; }</style>'
 }
 async function shiftRecentPostDestinations(input) {
     try {
@@ -846,6 +881,8 @@ async function shiftRecentPostDestinations(input) {
         }
         recentPostDestination = recentPostDestination.slice(0,10).filter(e => e.length > 8)
         setCookie('recentPostDestination', JSON.stringify(recentPostDestination));
+        const n = actionModel.querySelector("#destination-" + recentPostDestination[0]).getAttribute('data-ch-name');
+        document.getElementById('dynamicStyle').innerHTML = '<style>.last-move i { color: ' + n.toRGB() + ' !important; }</style>'
     } catch (e) {
         console.error("Failed to save recent destinations")
         console.error(e)

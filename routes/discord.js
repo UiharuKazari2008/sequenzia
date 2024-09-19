@@ -677,7 +677,7 @@ async function sessionVerification(req, res, next) {
             req.session.loggedin = true;
             req.session.esm_verified = true;
             bypass_esm = true;
-            printLine('PassportCheck', `Passed Session created for ${thisUser.master.discord.user.username}`, 'warn');
+            //printLine('PassportCheck', `Passed Session created for ${thisUser.master.discord.user.username}`, 'warn');
         }
     } else if (req.headers['x-sequenzia-exchange'] && req.headers['x-sequenzia-key'] && req.headers['x-sequenzia-user'] &&
         config.Authorized_Exchange && config.Authorized_Exchange[req.headers['x-sequenzia-exchange']] &&
