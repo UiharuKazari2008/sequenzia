@@ -520,7 +520,7 @@ async function disableReviewMode() {
         $('.edit-btns').removeClass("hidden");
         $('.done-btns').addClass("hidden");
         document.getElementById('reviewBtns').classList.add("hidden");
-        document.getElementById('reviewPanel').classList.add("hidden");
+        document.getElementById('reviewPanel').classList.remove("d-smd-block");
     } catch (e) {
         console.log('Failed to reset button groups')
     }
