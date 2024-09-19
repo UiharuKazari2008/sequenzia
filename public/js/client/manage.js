@@ -456,7 +456,7 @@ async function enableReviewMode(setFromDialog) {
                 el.classList.add("hidden");
             });
         }
-        $('.edit-btns, #reviewPanel').removeClass("hidden");
+        $('.edit-btns').removeClass("hidden");
         $('.done-btns').addClass("hidden");
         $('.hide-review').addClass("hidden");
         document.getElementById("reviewDestinationName").innerText = setupReviewModel.querySelector("#selectedChannel").innerText;
@@ -483,6 +483,7 @@ async function enableReviewMode(setFromDialog) {
         document.getElementById('reviewRecentDestinations').innerHTML = (rdest.length > 0) ? rdest : ''
         document.getElementById('recentDestinationsDropdown').innerHTML = (rmenudest.length > 0) ? rmenudest : ''
         document.getElementById('reviewBtns').classList.remove("hidden");
+        document.getElementById('reviewPanel').classList.remove("hidden");
         $('#setupReviewModel').modal('hide');
     } else {
         setupReviewMode(true);
@@ -517,8 +518,9 @@ async function disableReviewMode() {
     try {
         $('.hide-review').removeClass("hidden");
         $('.edit-btns').removeClass("hidden");
-        $('.done-btns, #reviewPanel').addClass("hidden");
+        $('.done-btns').addClass("hidden");
         document.getElementById('reviewBtns').classList.add("hidden");
+        document.getElementById('reviewPanel').classList.add("hidden");
     } catch (e) {
         console.log('Failed to reset button groups')
     }
