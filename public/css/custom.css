@@ -4566,3 +4566,33 @@ footer .sequenzia-logo {
         display: none;
     }
 }
+
+@media (min-width: 700px) {
+    .d-smd-none {
+        display: none !important;
+    }
+    .d-smd-inline {
+        display: inline !important;
+    }
+    .d-smd-inline-block {
+        display: inline-block !important;
+    }
+    .d-smd-block {
+        display: block !important;
+    }
+    .d-smd-table {
+        display: table !important;
+    }
+    .d-smd-table-row {
+        display: table-row !important;
+    }
+    .d-smd-table-cell {
+        display: table-cell !important;
+    }
+    .d-smd-flex {
+        display: flex !important;
+    }
+    .d-smd-inline-flex {
+        display: inline-flex !important;
+    }
+}
