@@ -5690,6 +5690,7 @@ function registerUserMenuHandlers() {
             console.error('Failed to set correct background')
         }
         $('#mainMenuBar').removeClass('top-padding-safety');
+        $('.show-menu-open-display').removeClass('d-none');
         $('.show-menu-open').removeClass('hidden');
         //$('#topbarBackground').fadeIn();
         $('#topbar').addClass('shadow').addClass('menu-open');
@@ -5699,6 +5700,7 @@ function registerUserMenuHandlers() {
     $('#userMenu').on('hidden.bs.collapse', function () {
         if (!($('#userMenu').hasClass('show'))) {
             $('.show-menu-open').addClass('hidden');
+            $('.show-menu-open-display').addClass('d-none');
             goToMainMain(true);
             $('#mainMenuBar').addClass('top-padding-safety');
             $('#topbar').removeClass('menu-open')

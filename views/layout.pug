@@ -1121,8 +1121,24 @@ html
                                                         i.far.fa-grid
                                                     a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setImageLayout(1); return false;` title="Large Grid")
                                                         i.far.fa-grid-2
+                                                    a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setPageLayout(true); return false;` title="Full width")
+                                                        i.far.fa-distribute-spacing-horizontal
+                                        if (!appData || (path && (path === '/tvTheater' || path === '/listTheater')))
+                                            li.nav-item.no-arrow.d-none.d-lg-block
+                                                span.badge.bg-translucent.py-0.px-1.mr-2
+                                                    if (path !== '/gallery')
+                                                        a.navbar-item.btn.btn-admin.py-0.px-2(title="View results as a gallery" href='#_' onclick=`getNewContent(['offset'], [], "/gallery?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
+                                                            i.fa-duotone.fa-folder-image
+                                                    if (path !== '/files')
+                                                        a.navbar-item.btn.btn-admin.py-0.px-2(title="View results as file list" href='#_' onclick=`getNewContent(['offset'], [], "/files?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
+                                                            i.fa-duotone.fa-folder
+                                                    if (path !== '/cards')
+                                                        a.navbar-item.btn.btn-admin.py-0.px-2(title="View results as a cards list" href='#_' onclick=`getNewContent(['offset'], [], "/cards?${(req_uri.split('?').length > 1) ? req_uri.split('?').pop() : ''}"); return false;` role='button')
+                                                            i.fa-duotone.fa-folder-grid
+
+
                                         li.nav-item.no-arrow.edit-btns
-                                            span.badge.bg-translucent.py-0.px-1.mr-2.show-menu-open.hidden
+                                            span.badge.bg-translucent.py-0.px-1.mr-2.show-menu-open-display.d-none.d-lg-block
                                                 .btn-group.p-0(style="display: contents;")
                                                     if (path !== '/artists' && path !== '/tvTheater' && path !== '/listTheater' && results && results.length > 1)
                                                         a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
