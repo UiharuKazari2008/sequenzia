@@ -1526,7 +1526,11 @@ module.exports = async (req, res, next) => {
                     } else {
                         if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
                             const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0].access_url
-                            ranfullImage = `${cdn_host}full/${image.path_hint}/${image.full_hint}`
+                            if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
+                                ranfullImage = `${cdn_host}ads-gen/${image.path_hint}/${image.full_hint}`
+                            } else {
+                                ranfullImage = `${cdn_host}full/${image.path_hint}/${image.full_hint}`
+                            }
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
