@@ -8,8 +8,13 @@ module.exports = async (req, res, next) => {
 
         let url = res.locals.response.randomImagev2[0].fullImage;
         const cdn_found = config.local_cdn_list.filter(e => url.startsWith(e.access_url));
-        if (cdn_found.length > 0)
-            url = (url.replace(cdn_found[0].access_url, cdn_found[0].local_url))
+        if (cdn_found.length > 0) {
+            if (cdn_found[0].gen_url && req.query.generateImage && req.query.width && req.query.height) {
+                url = (url.replace(cdn_found[0].access_url, cdn_found[0].gen_url)) + "&width=" + req.query.width + "&height=" + req.query.height
+            } else {
+                url = (url.replace(cdn_found[0].access_url, cdn_found[0].local_url))
+            }
+        }
         printLine('ProxyFile', `Starting download proxy for ${url}`, 'info');
         const request = ((url.startsWith('https')) ? https : http).get(url, {
             headers: {
