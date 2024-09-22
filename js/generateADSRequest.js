@@ -7,7 +7,7 @@ module.exports = async (req, res, next) => {
 
     if (req.query.device) {
         if (req.query.device.includes('iPad') || req.query.device.includes('Mac') || req.query.device.includes('Tablet') || req.query.device.includes('Desktop')) {
-            if (!req.query.ratio) { req.query.ratio = '0.65-1'; }
+            if (!req.query.generateImage && !req.query.ratio) { req.query.ratio = '0.65-1'; }
             if (!req.query.displayname) {
                 if (req.query.device.includes('Mac') || req.query.device.includes('Desktop')) {
                     req.query.displayname = `ADSMicro-${req.query.device}`;
@@ -16,7 +16,7 @@ module.exports = async (req, res, next) => {
                 }
             }
         } else if (req.query.device.includes('iPhone') || req.query.device.includes('Phone')) {
-            if (!req.query.ratio) { req.query.ratio = '1-3'; }
+            if (!req.query.generateImage && !req.query.ratio) { req.query.ratio = '1-3'; }
             if (!req.query.displayname) { req.query.displayname = `ADSMobile-${req.query.device}` }
         }
         next();
