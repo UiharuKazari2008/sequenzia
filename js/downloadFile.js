@@ -11,6 +11,8 @@ module.exports = async (req, res, next) => {
         if (cdn_found.length > 0) {
             if (cdn_found[0].gen_url && req.query.generateImage && req.query.width && req.query.height) {
                 url = (url.replace(cdn_found[0].access_url, cdn_found[0].gen_url)) + "?width=" + req.query.width + "&height=" + req.query.height
+                if (req.query.dark)
+                    url += '&dark=' + req.query.dark
             } else {
                 url = (url.replace(cdn_found[0].access_url, cdn_found[0].local_url))
             }
