@@ -2195,7 +2195,7 @@ module.exports = async (req, res, next) => {
                                     if (decoded_content.split('\n')[0].endsWith(')')) {
                                         parent_search = decoded_content.split('\n')[0]
                                     }
-                                    user_search = decoded_content.split('**🎏 ')[0].split(' (')[0]
+                                    user_search = decoded_content.split('🎏 ').pop().split(' (')[0]
                                     content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
                                 } else if (decoded_content.includes('://')) {
                                     content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
