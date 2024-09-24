@@ -2191,7 +2191,7 @@ module.exports = async (req, res, next) => {
                                         if (!isNaN(parseInt(user)))
                                             content_urls.push(`https://www.pixiv.net/en/users/${user}`)
                                     }
-                                } else if (decoded_content.includes('**🎏 ') && decoded_content.includes(' (')) {
+                                } else if (decoded_content.includes('**🎏 ')) {
                                     if (decoded_content.split('\n')[0].endsWith(')')) {
                                         parent_search = decoded_content.split('\n')[0]
                                     }
