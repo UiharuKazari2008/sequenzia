@@ -361,7 +361,7 @@ module.exports = async (req, res, next) => {
         }
         // Show only Cached
         if (req.query && req.query.cached && req.query.cached === 'true') {
-            sqlquery.push('((fileid IS NOT NULL AND filecached = 1) OR (cdn_host IS NOT NULL AND (full = 1 OR mfull = 1)))')
+            sqlquery.push('((fileid IS NOT NULL AND filecached = 1) OR (cdn.host IS NOT NULL AND (cdn.full = 1 OR cdn.mfull = 1)))')
         }
 
         // History
