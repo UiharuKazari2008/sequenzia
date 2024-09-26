@@ -1701,9 +1701,9 @@ html
                                                                             a.dropdown-item(title="Show Artists from here" href='#_' onclick=`getNewContent([], [${(params.has('channel')) ? '["channel", "' + params.getAll('channel')[0] + '"]' : (params.has('folder')) ? '["folder", "' + params.getAll('folder')[0] + '"]' : ''}], '/artists', true); return false;`)
                                                                                 i.fas.fa-address-book.pr-2
                                                                                 | Artists
-                                                if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
-                                                    a.navbar-item.btn.btn-ice.py-0.px-2.show-menu-open-display.d-none.d-lg-block(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
-                                                        i.far.fa-info-circle
+                                                    if (results && params && !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
+                                                        a.navbar-item.btn.btn-ice.py-0.px-2.show-menu-open-display.d-none.d-lg-block(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target='#showResultsWarningsFull')
+                                                            i.far.fa-info-circle
                                         li.nav-item.no-arrow.hidden.done-btns
                                             if (results && (params && (path === '/gallery' || path === '/files' || path === '/cards')) && results.length > 1)
                                                 span.badge.bg-translucent.py-0.px-1.mr-2
