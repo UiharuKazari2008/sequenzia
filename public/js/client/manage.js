@@ -706,6 +706,7 @@ async function bypassAllItems(direction, id) {
             const messageid = el.getAttribute('data-msg-id')
             if (messageid) {
                 document.getElementById(`message-${messageid}`).classList.add('hidden');
+                itemCount.push(messageid)
             }
         })
         undoActions.push(itemCount);
