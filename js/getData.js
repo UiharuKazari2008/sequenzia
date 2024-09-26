@@ -1264,8 +1264,8 @@ module.exports = async (req, res, next) => {
             } else {
                 return `SELECT *
                         FROM (SELECT *
-                              FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav  ${(req.query && req.query.cached && req.query.cached === 'true') ? "WHERE (full = 1 OR mfull = 1)" : ""}
-                              ON (base.eid = fav.fav_id) ${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf
+                              FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav
+                              ON (base.eid = fav.fav_id) ${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ')  : ''} ${(req.query && req.query.cached && req.query.cached === 'true') ? (((sqlFavWhere.length > 0) ? "WHERE" : " AND") + " (full = 1 OR mfull = 1)") : ""}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf
                         ON (i_wfav.eid = his_wconf.history_eid) ${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             }
         })();
