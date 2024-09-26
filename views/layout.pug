@@ -238,16 +238,16 @@ html
                                                         a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                             i.fa-light.fa-compass.fa-fw
                                                             | Directory
-                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#_` onclick=`getNewContent([],[['numdays','60'],['sort','eid']],'/gallery'); return false;`)
+                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#_` onclick=`getNewContent([],[['cached','true'],['numdays','60'],['sort','eid']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-photo-video
                                                             | Gallery
-                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#_` onclick=`getNewContent([],[['numdays','60'],['sort','eid'],['filesonly','true']],'/files'); return false;`)
+                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#_` onclick=`getNewContent([],[['cached','true'],['numdays','60'],['sort','eid'],['filesonly','true']],'/files'); return false;`)
                                                             i.fa-light.fa-fw.fa-files
                                                             | Files
                                                         a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`)
                                                             i.fa-light.fa-fw.fa-ticket
                                                             | Theater
-                                                        a.user-menu-item(title="Your Favorites" href=`#_` onclick=`getNewContent([],[['pins','true'],['sort','fav']],'/gallery'); return false;`)
+                                                        a.user-menu-item(title="Your Favorites" href=`#_` onclick=`getNewContent([],[['cached','true'],['pins','true'],['sort','fav']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-star
                                                             | Favorites
                                                         a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
