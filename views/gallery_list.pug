@@ -250,6 +250,8 @@ block content
                                             .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
                                                 a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
                                                     i.fas.fa-rotate-right(style="font-size: 2em; color: #80fff2;")
+                                                a.reviewAccept.btn-links.p-2(title="Bypass All Items Before" href='#_' onclick=`scrollToTop(); bypassAllItems(2, "${item.id}"); return false;`)
+                                                    i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ffffff;")
                                                 a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ff90a8;")
 

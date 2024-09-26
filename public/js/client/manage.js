@@ -677,6 +677,41 @@ async function rejectAllItems(direction, id) {
     }
     return false;
 }
+async function bypassAllItems(direction, id) {
+    let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image:not(.hidden)'))
+    switch (direction) {
+        case 1:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(index)
+            } else {
+                pageItems = []
+            }
+            break;
+        case 2:
+            if (id) {
+                const index = pageItems.map(e => e.id).indexOf(`message-${id}`)
+                pageItems = pageItems.slice(0, index + 1)
+            } else {
+                pageItems = []
+            }
+            break;
+        default:
+            break;
+    }
+    //document.querySelector('#LoadNextPage > div').click();
+    if (reviewDestination && reviewDestination.length > 1) {
+        let itemCount = [];
+        pageItems.forEach(el => {
+            const messageid = el.getAttribute('data-msg-id')
+            if (messageid) {
+                document.getElementById(`message-${messageid}`).classList.add('hidden');
+            }
+        })
+        undoActions.push(itemCount);
+    }
+    return false;
+}
 async function acceptAllItems(direction, id) {
     let pageItems = Array.from(document.querySelectorAll('[data-msg-id].col-image:not(.hidden)'))
     switch (direction) {
