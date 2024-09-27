@@ -2423,7 +2423,7 @@ module.exports = async (req, res, next) => {
                                         downloadimage = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}?version=${item.id}`
                                     } else if (item.fileid) {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
-                                    } else if (item.attachment_hash) {
+                                    } else if (item.attachment_hash && item.cdn_host === null) {
                                         downloadimage = `/file_gateway/${item.channel}/${item.eid}/${attachment_name}`
                                     }
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.preview_hint) {
@@ -2883,7 +2883,7 @@ module.exports = async (req, res, next) => {
                                         downloadurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}`
                                     } else if (item.fileid !== null) {
                                         downloadurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
-                                    } else if (item.attachment_hash) {
+                                    } else if (item.attachment_hash && item.cdn_host === null) {
                                         downloadimage = `/file_gateway/${item.channel}/${item.eid}/${attachment_name}`
                                     }
                                     resultsArray.push({
