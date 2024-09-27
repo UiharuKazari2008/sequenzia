@@ -1157,7 +1157,7 @@ module.exports = async (req, res, next) => {
         let sqlFields, sqlTables, sqlWhere
         sqlFields = [
             'kanmi_records.*',
-            'IF(kanmi_records.auth_expire > NOW(), 1, 0) AS auth_valid'
+            'IF(kanmi_records.attachment_auth_ex > NOW(), 1, 0) AS auth_valid'
         ];
         if (req.query.sort === 'name' || req.query.sort === 'file') {
             sqlFields.push('IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename');
