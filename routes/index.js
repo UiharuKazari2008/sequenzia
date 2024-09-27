@@ -181,6 +181,34 @@ router.get('/status', sessionVerification, async (req, res) => {
         });
     }
 });
+router.use('/access_url', sessionVerification, handleExchange, readValidation, async (req, res) => {
+    try {
+        const thisUser = res.locals.thisUser
+        const params = req.path.substr(1, req.path.length - 1).split('/')
+        if (params.length > 0 && config.sbi_interfaces && config.sbi_interfaces.discord) {
+            /*if (!config.disable_esm && req.session.esm_key)
+                await sqlPromiseSafe(`INSERT INTO sequenzia_cds_audit SET esm_id = ?, fileid = ?`, [req.session.esm_key, params[0]])*/
+            const sbi_services = config.sbi_interfaces.discord
+            const discord_host = sbi_services[Math.floor(Math.random() * sbi_services.length)]
+            const request = http.get(`http://${discord_host}/get/file_url/${params[0]}/${params[1]}${(global.proxy_host) ? '?proxy=' + encodeURIComponent(global.proxy_host) : ''}`, async function (response) {
+                response.pipe(res);
+            });
+            request.on('error', function (e) {
+                res.status(500).send("Internal Communication Error");
+                console.error(e);
+            });
+        } else {
+                res.status(400).send('Invalid Request');
+        }
+        return false
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+        console.error(err)
+    }
+});
 router.use('/parity', sessionVerification, handleExchange, readValidation, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
