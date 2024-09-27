@@ -190,7 +190,7 @@ router.use('/file_gateway', sessionVerification, handleExchange, readValidation,
                 await sqlPromiseSafe(`INSERT INTO sequenzia_cds_audit SET esm_id = ?, fileid = ?`, [req.session.esm_key, params[0]])*/
             const sbi_services = config.sbi_interfaces.discord
             const discord_host = sbi_services[Math.floor(Math.random() * sbi_services.length)]
-            const requestUrl = `http://${discord_host}/get/file_url/${params[0]}/${params[1]}${(global.proxy_host) ? '?proxy=' + encodeURIComponent(global.proxy_host) : ''}`;
+            const requestUrl = `http://${discord_host}/get/file_url/${params[0]}/${params[1]}`;
 
             http.get(requestUrl, function(response) {
                 let data = '';
