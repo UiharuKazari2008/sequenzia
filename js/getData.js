@@ -1414,7 +1414,7 @@ module.exports = async (req, res, next) => {
                     randomImage: images,
                     randomImagev2: imagesArray,
                     server: thisUser.master.server_list,
-                    download: thisUser.master.discord.servers.download,
+                    download
                     manage_channels: thisUser.master.discord.channels.manage,
                     write_channels: thisUser.master.discord.channels.write,
                     discord: thisUser.master.discord,
@@ -2423,6 +2423,8 @@ module.exports = async (req, res, next) => {
                                         downloadimage = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}?version=${item.id}`
                                     } else if (item.fileid) {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
+                                    } else if (item.attachment_hash) {
+                                        downloadimage = `/attachments_url/${item.channel}/${item.eid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.preview_hint) {
                                         imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.path_hint}/${item.preview_hint}?version=${item.id}`
@@ -2881,6 +2883,8 @@ module.exports = async (req, res, next) => {
                                         downloadurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}master/${item.path_hint}/${item.mfull_hint}`
                                     } else if (item.fileid !== null) {
                                         downloadurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
+                                    } else if (item.attachment_hash) {
+                                        downloadimage = `/attachments_url/${item.channel}/${item.eid}/${encodeURIComponent(item.real_filename)}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
