@@ -1414,7 +1414,7 @@ module.exports = async (req, res, next) => {
                     randomImage: images,
                     randomImagev2: imagesArray,
                     server: thisUser.master.server_list,
-                    download
+                    download: thisUser.master.discord.servers.download,
                     manage_channels: thisUser.master.discord.channels.manage,
                     write_channels: thisUser.master.discord.channels.write,
                     discord: thisUser.master.discord,
