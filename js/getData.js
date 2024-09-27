@@ -2424,7 +2424,7 @@ module.exports = async (req, res, next) => {
                                     } else if (item.fileid) {
                                         downloadimage = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     } else if (item.attachment_hash && item.cdn_host === null) {
-                                        downloadimage = `/file_gateway/${item.channel}/${item.eid}/${attachment_name}`
+                                        downloadimage = `/file_gateway/${item.channel}/${item.eid}/${item.attachment_name}`
                                     }
                                     if ( item.cdn_host !== null && config.local_cdn_list.filter(e => e.id === item.cdn_host).length > 0 && item.preview_hint) {
                                         imageurl = `${config.local_cdn_list.filter(e => e.id === item.cdn_host)[0].access_url}preview/${item.path_hint}/${item.preview_hint}?version=${item.id}`
@@ -2884,7 +2884,7 @@ module.exports = async (req, res, next) => {
                                     } else if (item.fileid !== null) {
                                         downloadurl = `/stream/${item.fileid}/${encodeURIComponent(item.real_filename)}`
                                     } else if (item.attachment_hash && item.cdn_host === null) {
-                                        downloadimage = `/file_gateway/${item.channel}/${item.eid}/${attachment_name}`
+                                        downloadimage = `/file_gateway/${item.channel}/${item.eid}/${item.attachment_name}`
                                     }
                                     resultsArray.push({
                                         id: item.id,
