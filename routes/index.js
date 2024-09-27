@@ -181,7 +181,7 @@ router.get('/status', sessionVerification, async (req, res) => {
         });
     }
 });
-router.use('/attachments_url', sessionVerification, handleExchange, readValidation, async (req, res) => {
+router.use('/file_gateway', sessionVerification, handleExchange, readValidation, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         const params = req.path.substr(1, req.path.length - 1).split('/')
