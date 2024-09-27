@@ -30,6 +30,7 @@ const cacheOptions = {
         '/tvTheater',
         '/albums',
         '/login',
+        '/file_gateway',
         '/device-login',
         '/actions/',
         '/status',
