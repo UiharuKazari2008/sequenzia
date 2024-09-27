@@ -190,10 +190,27 @@ router.use('/file_gateway', sessionVerification, handleExchange, readValidation,
                 await sqlPromiseSafe(`INSERT INTO sequenzia_cds_audit SET esm_id = ?, fileid = ?`, [req.session.esm_key, params[0]])*/
             const sbi_services = config.sbi_interfaces.discord
             const discord_host = sbi_services[Math.floor(Math.random() * sbi_services.length)]
-            const request = http.get(`http://${discord_host}/get/file_url/${params[0]}/${params[1]}${(global.proxy_host) ? '?proxy=' + encodeURIComponent(global.proxy_host) : ''}`, async function (response) {
-                response.pipe(res);
-            });
-            request.on('error', function (e) {
+            const requestUrl = `http://${discord_host}/get/file_url/${params[0]}/${params[1]}${(global.proxy_host) ? '?proxy=' + encodeURIComponent(global.proxy_host) : ''}`;
+
+            http.get(requestUrl, function(response) {
+                let data = '';
+                response.on('data', chunk => { data += chunk; });
+                response.on('end', () => {
+                    try {
+                        const parsedData = JSON.parse(data);
+                        const { status, message, url } = parsedData;
+
+                        if (url) {
+                            res.redirect(url);
+                        } else {
+                            res.status(status || 500).send(message || "An unknown error occurred.");
+                        }
+                    } catch (e) {
+                        res.status(500).send("Discord I/O returned invalid data.");
+                        console.error("Error parsing response:", e);
+                    }
+                });
+            }).on('error', function (e) {
                 res.status(500).send("Internal Communication Error");
                 console.error(e);
             });
