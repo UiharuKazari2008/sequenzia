@@ -1779,9 +1779,7 @@ async function startDownloadingFiles() {
         downloadModel.querySelector("#downloadProgText").innerText = `Downloading "${downloadAllController.urls[i].split('/').pop()}"...`
         await new Promise(ok => {
             const url = (() => {
-                if (downloadAllController.urls[i].includes('discordapp.com/')) {
-                    return `${document.location.protocol}//${document.location.host}/attachments${downloadAllController.urls[i].split('attachments').pop()}`
-                } else if (downloadAllController.urls[i].startsWith(`${document.location.protocol}//${document.location.host}/`)) {
+                if (downloadAllController.urls[i].includes('discordapp.com/') || downloadAllController.urls[i].includes('/full/') || downloadAllController.urls[i].includes('/mfull/') || downloadAllController.urls[i].includes('/file_gateway/')) {
                     return downloadAllController.urls[i]
                 } else {
                     return undefined
