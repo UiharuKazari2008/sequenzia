@@ -291,7 +291,7 @@ router.use('/stream', sessionVerification, handleExchange, readValidation, async
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
                 const files = results.rows
-                    .map(e => (((e.startsWith("/")) ? "https://cdn.discordapp.com/attachments" : "") + e.part_url))
+                    .map(e => (((e.part_url.startsWith("/")) ? "https://cdn.discordapp.com/attachments" : "") + e.part_url))
                     .sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
 
                 printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
