@@ -290,7 +290,9 @@ router.use('/stream', sessionVerification, handleExchange, readValidation, async
                 res.status(404).send(`File ${params[0]} does not exist`)
             } else if (results.rows.length > 1) {
                 const file = results.rows[0]
-                const files = results.rows.map(e => e.part_url).sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
+                const files = results.rows
+                    .map(e => (((e.startsWith("/")) ? "https://cdn.discordapp.com/attachments" : "") + e.part_url))
+                    .sort((x, y) => (x.split('.').pop() < y.split('.').pop()) ? -1 : (y.split('.').pop() > x.split('.').pop()) ? 1 : 0)
 
                 printLine('StreamFile', `Requested ${file.fileid}: ${file.paritycount} Parts, ${results.rows.length} Available`, 'info');
                 if ((global.fw_serve || global.spanned_cache) && fs.existsSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`)) && (fs.statSync(path.join((global.fw_serve) ? global.fw_serve : global.spanned_cache, `.${file.fileid}`))).size > 100  && !(req.query && req.query.rebuild && req.query.rebuild === 'true')) {
