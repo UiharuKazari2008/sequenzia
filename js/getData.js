@@ -2192,8 +2192,8 @@ module.exports = async (req, res, next) => {
                                     if (decoded_content.split('\n').pop().includes('//e-hentai.org/g/')) {
                                         parent_search = decoded_content.split('\n').pop().split('/g/')[1].split('`')[0];
                                     }
-                                    if (decoded_content.includes(' - (')) {
-                                        user_search = decoded_content.split(' - (').pop().split(')')[0]
+                                    if (decoded_content.includes(' - ')) {
+                                        user_search = decoded_content.split(' - ').pop().split(' (')[0].trim()
                                     }
                                     content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
                                 } else if (decoded_content.includes('**🎏 ')) {
