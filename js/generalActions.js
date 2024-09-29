@@ -254,6 +254,41 @@ module.exports = async (req, res, next) => {
                         }
                     });
                     break;
+                case 'CollItemAddBulk':
+                    sqlSafe(`SELECT DISTINCT eid FROM sequenzia_album_items, sequenzia_albums WHERE sequenzia_album_items.aid = ? AND sequenzia_albums.aid = sequenzia_album_items.aid AND sequenzia_albums.owner = ? AND eid IN (${req.body.messagelist.join(', ')}) LIMIT 1`, [req.body.albumid, thisUser.discord.user.id], async (err, found) => {
+                        if (err) {
+                            printLine("ActionParser", `Unable to update ${req.body.albumid}:${req.body.channelid} to ${req.body.data}: ${err.sqlMessage}`, 'error', err)
+                            res.status(500).send('Database Error');
+                        } else if (req.body.messagelist && req.body.messagelist.length === 0) {
+                            res.status(400).send(`Missing array of messages for bulk action`);
+                        } else {
+                            printLine("ActionParser", `Request to Bulk Add ${req.body.messagelist.length} Messages to Album ${req.body.albumid}`, 'info', req.body)
+                            let itemsToAdd = req.body.messagelist;
+                            const existingItems = found.map(e => e.eid);
+                            if (found.length !== 0)
+                                itemsToAdd = itemsToAdd.filter(e => existingItems.indexOf(e) === -1).map(e => {
+                                    return {
+                                        eid: e,
+                                        aid: req.body.albumid
+                                    }
+                                });
+                            if (itemsToAdd.length > 0) {
+                                sqlSafe(`INSERT INTO sequenzia_album_items (eid, aid) VALUES (?, ?)`, [itemsToAdd], (err, result) => {
+                                    if (err) {
+                                        printLine("ActionParser", `Unable to build add ${itemsToAdd.length} items to ${req.body.data} for ${thisUser.discord.user.id}: ${err.sqlMessage}`, 'error', err)
+                                        res.status(500).send('Database Error');
+                                    } else if (result.affectedRows && result.affectedRows > 0) {
+                                        res.status(200).send(`Added ${itemsToAdd} messages to album`);
+                                    } else {
+                                        res.status(500).send(`Unable to add to album`);
+                                    }
+                                })
+                            } else {
+                                res.status(200).send(`Already added to album!`);
+                            }
+                        }
+                    })
+                    break;
                 case 'CollItemAdd':
                 case 'CollItemRemove':
                 case 'CollItemToggle':

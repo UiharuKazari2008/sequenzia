@@ -69,7 +69,7 @@ div
                     if (album.found_aid)
                         - classList = 'active'
                     div.list-group-item.d-flex.list-group-item.list-group-item-action(class=classList).justify-content-between.p-0
-                        a.inner-item.w-100.d-flex.align-items-center(href='#_' onclick=`toggleAlbumItem("${album.aid}", "${id}"); return false;` class=`${(album.found_aid) ? 'pr-0' : ''}`)
+                        a.inner-item.w-100.d-flex.align-items-center(href='#_' onclick=`toggleAlbumItem("${album.aid}"${(id) ? ', "' + id + '"' : ''}); return false;` class=`${(album.found_aid) ? 'pr-0' : ''}`)
                             div.pr-2
                                 if (album.uri === 'gallery')
                                     i.fas.fa-photo-video
@@ -88,6 +88,6 @@ div
                                     i.fas.fa-lock
                                 else
                                     i.fas.fa-globe-americas
-                        if (album.found_aid)
+                        if (album.found_aid && id)
                             a.inner-item.d-flex.align-items-center(href='#_' onclick=`bumpAlbumItem("${album.aid}", "${id}"); return false;`)
                                 i.fas.fa-up-to-line

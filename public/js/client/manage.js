@@ -1035,11 +1035,11 @@ $('#albumItemModal').on('hidden.bs.modal', function (e) {
     lastMessageAlbum = undefined;
     $(`#albumItemBody`).html('<span>Please Wait...</span>');
 })
-function refreshAlbumsList(messageid) {
+function refreshAlbumsList(messageid, bulk) {
     if (messageid)
         lastMessageAlbum = messageid;
     $.ajax({async: true,
-        url: `/albums?command=getAll${(lastMessageAlbum) ? '&messageid=' + lastMessageAlbum : '&manage=true'}`,
+        url: `/albums?command=getAll${(bulk) ? "" : ((lastMessageAlbum) ? '&messageid=' + lastMessageAlbum : '&manage=true')}`,
         type: "GET", data: '',
         processData: false,
         contentType: false,
@@ -1231,14 +1231,20 @@ function deleteAlbum(aid) {
     }
 }
 async function toggleAlbumItem(aid, eid) {
+    let data = {
+        'albumid': aid,
+        'action': 'CollItemToggle'
+    }
+    if (postsActions.length > 0) {
+        data.messagelist = postsActions.map(e => e.messageid);
+        data.action = "CollItemAddBulk"
+    } else {
+        data.messageid = eid
+    }
     $.ajax({async: true,
         url: `/actions/v1`,
         type: "post",
-        data: {
-            'albumid': aid,
-            'messageid': eid,
-            'action': 'CollItemToggle'
-        },
+        data,
         cache: false,
         headers: {
             'X-Requested-With': 'SequenziaXHR'
