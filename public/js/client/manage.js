@@ -1252,6 +1252,12 @@ async function toggleAlbumItem(aid, eid) {
         success: function (response, textStatus, xhr) {
             if (xhr.status < 400) {
                 $(`#albumItemModal`).modal('hide');
+                if (postsActions.length > 0) {
+                    postsActions.map(e => {
+                        document.getElementById('message-' + e.messageid).querySelector('#unCheckItem').classList.add('hidden')
+                        document.getElementById('message-' + e.messageid).querySelector('#checkItem').classList.remove('hidden')
+                    })
+                }
             } else {
                 $(`#albumItemModal`).modal('hide');
                 $.toast({
