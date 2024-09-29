@@ -1236,7 +1236,7 @@ async function toggleAlbumItem(aid, eid) {
         'action': 'CollItemToggle'
     }
     if (postsActions.length > 0) {
-        data.messagelist = postsActions.map(e => e.messageid);
+        data.messagelist = postsActions.map(e => document.getElementById(`message-${e.messageid}`).getAttribute('data-msg-eid'));
         data.action = "CollItemAddBulk"
     } else {
         data.messageid = eid
