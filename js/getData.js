@@ -402,7 +402,7 @@ module.exports = async (req, res, next) => {
             } else if (req.query.sort === 'ext') {
                 sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
-                sqlorder.push('content')
+                sqlorder.push('full_content')
             } else if (req.query.sort === 'rating_count') {
                 sqlorder.push('tag_num')
                 enablePrelimit = false;
@@ -2188,6 +2188,14 @@ module.exports = async (req, res, next) => {
                                         if (!isNaN(parseInt(user)))
                                             content_urls.push(`https://www.pixiv.net/en/users/${user}`)
                                     }
+                                } else if (decoded_content.startsWith('🐼 ')) {
+                                    if (decoded_content.split('\n').pop().includes('//e-hentai.org/g/')) {
+                                        parent_search = decoded_content.split('\n').pop().split('/g/')[1].split('`')[0];
+                                    }
+                                    if (decoded_content.includes(' - (')) {
+                                        user_search = decoded_content.split(' - (').pop().split(')')[0]
+                                    }
+                                    content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
                                 } else if (decoded_content.includes('**🎏 ')) {
                                     if (decoded_content.split('\n')[0].endsWith(')')) {
                                         parent_search = decoded_content.split('\n')[0]
