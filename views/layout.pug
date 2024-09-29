@@ -201,7 +201,7 @@ html
                                                                                 i.far.fa-image.fa-sm.align-middle.nav-item
                                                                             a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}", "/files"); return false;`)
                                                                                 i.far.fa-folder.fa-sm.align-middle.nav-item
-                                                            div(class=`collapse ${!((search_prev && search_prev !== '') || (path && (path !== '/gallery'))) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationTags${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            div(class=`collapse ${(!(search_prev && search_prev !== '') && (path && (path === '/gallery'))) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationTags${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100.flex-nowrap
                                                                         .input-group-prepend
