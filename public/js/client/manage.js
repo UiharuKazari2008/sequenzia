@@ -1257,6 +1257,7 @@ async function toggleAlbumItem(aid, eid) {
                         document.getElementById('message-' + e.messageid).querySelector('#unCheckItem').classList.add('hidden')
                         document.getElementById('message-' + e.messageid).querySelector('#checkItem').classList.remove('hidden')
                     })
+                    postsActions = [];
                 }
             } else {
                 $(`#albumItemModal`).modal('hide');
