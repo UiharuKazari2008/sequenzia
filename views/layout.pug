@@ -1721,10 +1721,10 @@ html
                                                     a#deSelectAll1.navbar-item.btn.btn-admin.py-0.px-2(title="Deselect All" href='#_' onclick='deselectAllPoststoMode(); return false;').hidden
                                                         i.far.fa-check-square.align-middle
 
-                                                    a.navbar-item.btn.btn-admin.py-0.px-2(title="Add to Album" href='#_' onclick='addSelectedToAlbum(); return false;')
+                                                    a.navbar-item.btn.btn-admin.py-0.px-2(title="Add to Album" href='#_' onclick='refreshAlbumsList(null, true); return false;')
                                                         i.far.fa-archive.align-middle
                                                     if (enableManageTools)
-                                                        a.navbar-item.btn.btn-admin.py-0.px-2(title="Manage Messages" href='#_' onclick='refreshAlbumsList(null, true); return false;')
+                                                        a.navbar-item.btn.btn-admin.py-0.px-2(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
                                                             i.far.fa-paste.align-middle
                                                     a.navbar-item.btn.btn-admin.py-0.px-2(title="Offline Messages" href='#_' onclick='offlineSelectedItems(); return false;')
                                                         i.far.fa-bookmark.align-middle
