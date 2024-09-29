@@ -266,9 +266,9 @@ module.exports = async (req, res, next) => {
                             let itemsToAdd = req.body.messagelist;
                             const existingItems = found.map(e => e.eid);
                             if (found.length !== 0)
-                                itemsToAdd = itemsToAdd.filter(e => existingItems.indexOf(e) === -1).map(e => `(${e}, ${req.body.albumid})`);
+                                itemsToAdd = itemsToAdd.filter(e => existingItems.indexOf(e) === -1);
                             if (itemsToAdd.length > 0) {
-                                sqlSafe(`INSERT INTO sequenzia_album_items (eid, aid) VALUES ${itemsToAdd.join(', ')}`, (err, result) => {
+                                sqlSafe(`INSERT INTO sequenzia_album_items (eid, aid) VALUES ${itemsToAdd.map(e => `(${e}, ${req.body.albumid})`).join(', ')}`, (err, result) => {
                                     if (err) {
                                         printLine("ActionParser", `Unable to build add ${itemsToAdd.length} items to ${req.body.data} for ${thisUser.discord.user.id}: ${err.sqlMessage}`, 'error', err)
                                         res.status(500).send('Database Error');
