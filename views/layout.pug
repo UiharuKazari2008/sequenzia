@@ -178,12 +178,18 @@ html
                                                                                 i.far.fa-map.align-middle
                                                                             a.btn.input-group-text.bg-transparent.border-0.pl-0(title="Search Tags" href='#_' class="collapsed" data-toggle="collapse" data-target=`#locationTags${(exchange_id !== 'master') ? exchange_id :''}` onclick=`$('#menuItemMain${(exchange_id !== 'master') ? exchange_id :''} .user-menu-height').removeClass('dual-search'); return false;`)
                                                                                 i.far.fa-chevron-up.align-middle
-                                                                        div.d-flex.flex-column.w-100.justify-content-between.flex-xl-row
+                                                                        if (path && (path === '/gallery'))
+                                                                            div.d-flex.flex-column.w-100.justify-content-between.flex-xl-row
+                                                                                div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                                    input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                                    i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                                                div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
+                                                                                    input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                                                    i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
+                                                                        else
                                                                             div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
-                                                                                input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
-                                                                                i.far.fa-tags.position-absolute.pr-3(style="opacity: 50%; right: 0;")
-                                                                            div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
-                                                                                input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
+                                                                                input.form-control.top-menu-search-bar.hidden(id=`dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                                input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch2${(exchange_id !== 'master') ? exchange_id : ''}` type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
                                                                                 i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
                                                                         input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "${exchange_id}"); return false;`)
                                                                         .input-group-append
@@ -1792,12 +1798,12 @@ html
                                             if (params.has('nsfw'))
                                                 i.fas.fa-exclamation-triangle.px-1(title=`NSFW Results Enabled`)
                                             if (ultraCache)
-                                                i#ultraCache.fas.fa-bolt.px-1(title=`UltraCache Results - ${ultraCache.time}m`, data-ultracacheID=ultraCache.id)
+                                                i#ultraCache.fas.fa-bolt.px-1(title=`UltraCache Query - ${ultraCache.time}m`, data-ultracacheID=ultraCache.id)
                                             else
-                                                i#ultraCache.fas.fa-wave-triangle.px-1(title="Direct Query Results")
+                                                i#ultraCache.fas.fa-wave-triangle.px-1(title="Direct Query")
                                             if (is_remote_exchange)
                                                 a(href=active_exchange.exchange.access_url target = "_blank" rel="noopener noreferrer")
-                                                    i.fas.fa-link-horizontal.px-1(title="Remote Exchange" style="font-size: initial;")
+                                                    i.fas.fa-link-horizontal.px-1(title="Remote Connection" style="font-size: initial;")
                                 if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
                                     ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis.ml-1(style='display: none;')
                                         li.nav-item.no-arrow
