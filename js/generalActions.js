@@ -264,10 +264,8 @@ module.exports = async (req, res, next) => {
                                 res.status(500).send('Database Error');
                             } else {
                                 printLine("ActionParser", `Request to Bulk Add ${req.body.messagelist.length} Messages to Album ${req.body.albumid}`, 'info', req.body)
-                                let itemsToAdd = req.body.messagelist;
                                 const existingItems = found.map(e => e.eid);
-                                if (existingItems.length > 0)
-                                    itemsToAdd = itemsToAdd.filter(e => existingItems.indexOf(e) === -1);
+                                let itemsToAdd = req.body.messagelist.filter(e => existingItems.indexOf(e) === -1);;
                                 if (itemsToAdd.length > 0) {
                                     sqlSimple(`INSERT INTO sequenzia_album_items (eid, aid) VALUES ${itemsToAdd.map(e => `(${e}, ${req.body.albumid})`).join(', ')}`, (err, result) => {
                                         if (err) {
