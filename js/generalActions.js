@@ -2,7 +2,7 @@ const global = require('../config.json');
 const config = require('../host.config.json');
 const { printLine } = require("./logSystem");
 const { sendData } = require('./mqAccess');
-const { sqlSafe, sqlPromiseSimple, sqlPromiseSafe } = require('./sqlClient');
+const { sqlSafe, sqlPromiseSimple, sqlPromiseSafe, sqlSimple} = require('./sqlClient');
 
 module.exports = async (req, res, next) => {
     try {
@@ -268,7 +268,7 @@ module.exports = async (req, res, next) => {
                             if (found.length !== 0)
                                 itemsToAdd = itemsToAdd.filter(e => existingItems.indexOf(e) === -1);
                             if (itemsToAdd.length > 0) {
-                                sqlSafe(`INSERT INTO sequenzia_album_items (eid, aid) VALUES ${itemsToAdd.map(e => `(${e}, ${req.body.albumid})`).join(', ')}`, (err, result) => {
+                                sqlSimple(`INSERT INTO sequenzia_album_items (eid, aid) VALUES ${itemsToAdd.map(e => `(${e}, ${req.body.albumid})`).join(', ')}`, (err, result) => {
                                     if (err) {
                                         printLine("ActionParser", `Unable to build add ${itemsToAdd.length} items to ${req.body.data} for ${thisUser.discord.user.id}: ${err.sqlMessage}`, 'error', err)
                                         res.status(500).send('Database Error');
