@@ -1,3 +1,16 @@
+let showError = false;
+window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+    if (showError) {
+        $.toast({
+            type: 'error',
+            title: 'Application Error',
+            subtitle: lineNumber,
+            content: `<b>${errorMsg}</b><br/><a class="btn btn-danger w-100" href="#_" onclick="clearKernelCache(); return false;"><i class="fas fa-monitor-waveform pr-2"></i>Reinstall Kernel</a>`,
+            delay: 10000,
+        });
+    }
+}
+
 function setCookie(cname, cvalue, exdays) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
