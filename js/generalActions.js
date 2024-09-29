@@ -273,7 +273,7 @@ module.exports = async (req, res, next) => {
                                     }
                                 });
                             if (itemsToAdd.length > 0) {
-                                sqlSafe(`INSERT INTO sequenzia_album_items (eid, aid) VALUES (?, ?)`, [itemsToAdd], (err, result) => {
+                                sqlSafe(`INSERT INTO sequenzia_album_items (eid, aid) VALUES (?, ?)`, itemsToAdd, (err, result) => {
                                     if (err) {
                                         printLine("ActionParser", `Unable to build add ${itemsToAdd.length} items to ${req.body.data} for ${thisUser.discord.user.id}: ${err.sqlMessage}`, 'error', err)
                                         res.status(500).send('Database Error');
