@@ -170,7 +170,7 @@ html
                                                                 i.far.fa-fw.fa-browser
                                                     .col.p-0
                                                         div.w-100(id=`locationAccordion${(exchange_id !== 'master') ? exchange_id :''}`)
-                                                            div(class=`collapse ${((search_prev && search_prev !== '')) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationSearch${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            div(class=`collapse ${((search_prev && search_prev !== '') || (path && (path !== '/gallery'))) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationSearch${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100.flex-nowrap
                                                                         .input-group-prepend.flex-column.flex-sm-row.justify-content-center
@@ -188,7 +188,7 @@ html
                                                                                     i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
                                                                         else
                                                                             div.w-100.d-flex.flex-row.justify-content-between.align-items-center.position-relative
-                                                                                input.form-control.top-menu-search-bar.hidden(id=`dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value=tags_prev)
+                                                                                input.form-control.top-menu-search-bar.hidden(id=`dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}` type='text' placeholder='Tags' aria-label='Tags' aria-describedby='basic-addon2' name="searchtags" value="")
                                                                                 input.form-control.top-menu-search-bar.border-0.w-100.p-0(id=`dropdownSearch2${(exchange_id !== 'master') ? exchange_id : ''}` type='text' placeholder='SDQ' aria-label='Search' aria-describedby='basic-addon2' name="searchterm" value=search_prev)
                                                                                 i.far.fa-search.position-absolute.pr-3(style="opacity: 50%; right: 0;")
                                                                         input(type="submit" style="display: none" onclick=`getSearchContent("dropdownSearch2", "dropdownSearch4", "${exchange_id}"); return false;`)
@@ -201,7 +201,7 @@ html
                                                                                 i.far.fa-image.fa-sm.align-middle.nav-item
                                                                             a.btn.input-group-text.top-menu-search-bar.border-0(title="Search for Files" href='#_', onclick=`getSearchContent("dropdownSearch2${(exchange_id !== 'master') ? exchange_id :''}", "dropdownSearch4${(exchange_id !== 'master') ? exchange_id :''}", "${exchange_id}", "/files"); return false;`)
                                                                                 i.far.fa-folder.fa-sm.align-middle.nav-item
-                                                            div(class=`collapse ${!(search_prev && search_prev !== '') ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationTags${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                            div(class=`collapse ${!((search_prev && search_prev !== '') || (path && (path !== '/gallery'))) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationTags${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100.flex-nowrap
                                                                         .input-group-prepend
