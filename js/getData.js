@@ -163,6 +163,11 @@ module.exports = async (req, res, next) => {
         let offset = 0;
         let tagSearch = [];
         let tag_list = [];
+        let sqlTables, sqlWhere
+        let sqlFields = [
+            'kanmi_records.*',
+            'IF(kanmi_records.attachment_auth_ex > NOW(), 1, 0) AS auth_valid'
+        ];
 
         let _dn = 'Untitled'
         if (req.query.displayname) {
@@ -403,6 +408,10 @@ module.exports = async (req, res, next) => {
                 sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content_full')
+            } else if (req.query.sort === 'post_index') {
+                sqlFields.push('CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index');
+                sqlorder.push('post_index');
+                sqlorder.push('filename');
             } else if (req.query.sort === 'rating_count') {
                 sqlorder.push('tag_num')
                 enablePrelimit = false;
@@ -1154,11 +1163,6 @@ module.exports = async (req, res, next) => {
         } else {
             execute += ')'
         }
-        let sqlFields, sqlTables, sqlWhere
-        sqlFields = [
-            'kanmi_records.*',
-            'IF(kanmi_records.attachment_auth_ex > NOW(), 1, 0) AS auth_valid'
-        ];
         if (req.query.sort === 'name' || req.query.sort === 'file') {
             sqlFields.push('IFNULL(kanmi_records.real_filename,IFNULL(kanmi_records.attachment_name,NULL)) AS filename');
         } else if (req.query.sort === 'ext') {
