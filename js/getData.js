@@ -410,7 +410,7 @@ module.exports = async (req, res, next) => {
                 sqlorder.push('content_full')
             } else if (req.query.sort === 'post_index') {
                 sqlFields.push('CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index');
-                sqlorder.push('post_index, filename');
+                sqlorder.push('post_index');
             } else if (req.query.sort === 'rating_count') {
                 sqlorder.push('tag_num')
                 enablePrelimit = false;
