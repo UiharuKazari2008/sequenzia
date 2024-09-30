@@ -402,7 +402,7 @@ module.exports = async (req, res, next) => {
             } else if (req.query.sort === 'ext') {
                 sqlorder.push('fileext')
             } else if (req.query.sort === 'content') {
-                sqlorder.push('full_content')
+                sqlorder.push('content_full')
             } else if (req.query.sort === 'rating_count') {
                 sqlorder.push('tag_num')
                 enablePrelimit = false;
