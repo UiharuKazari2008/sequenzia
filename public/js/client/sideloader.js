@@ -4588,7 +4588,7 @@ async function showSearchOptions(post) {
     if (searchParent && searchParent.length > 0) {
         modalSearchByParent.onclick = function() {
             $('#searchModal').modal('hide');
-            window.location.assign(`#${getLocation()}search=${encodeURIComponent('text:' + decodeURIComponent(searchParent))}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(`#${getLocation()}sort=post_index&reverse=true&search=${encodeURIComponent('text:' + decodeURIComponent(searchParent))}${(nsfwString) ? nsfwString : ''}`);
             return false;
         }
         modalSearchByParent.classList.remove('hidden')
