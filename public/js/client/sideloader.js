@@ -4588,7 +4588,7 @@ async function showSearchOptions(post) {
     if (searchParent && searchParent.length > 0) {
         modalSearchByParent.onclick = function() {
             $('#searchModal').modal('hide');
-            window.location.assign(`#${getLocation()}sort=post_index&reverse=true&search=${encodeURIComponent('text:' + decodeURIComponent(searchParent))}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(`#${getLocation(null, null, ['sort', 'reverse'])}sort=post_index&reverse=true&search=${encodeURIComponent('text:' + decodeURIComponent(searchParent))}${(nsfwString) ? nsfwString : ''}`);
             return false;
         }
         modalSearchByParent.classList.remove('hidden')
@@ -4746,11 +4746,14 @@ async function showSearchOptions(post) {
     $('#searchModal').modal('show');
     return false;
 }
-function getLocation(url, tags) {
+function getLocation(url, tags, remove) {
     const l = document.getElementById(((tags) ? 'tag' : 'search') + 'LocationSelection').querySelector('.active').getAttribute('data-search-location')
     if (l.split('?').pop().length > 0) {
         const _p = new URLSearchParams('?' + l.split('?').pop())
         _p.delete((tags) ? 'tags' : 'search');
+        if (remove) {
+            remove.map(e => _p.delete(e));
+        }
         return l.split('?')[0] + '?' + _p.toString() + '&'
     } else {
         return l
