@@ -4420,7 +4420,7 @@ async function showSearchOptions(post) {
         modalSearchByUser.querySelector('span').innerText = `Artist (${(artistStrting.length > 16) ? artistStrting.slice(0,16) + '...' : artistStrting})`;
         modalSearchByUser.onclick = function() {
             $('#searchModal').modal('hide');
-            window.location.assign(`#${getLocation()}search=${encodeURIComponent('artist:' + searchUser)}${(nsfwString) ? nsfwString : ''}`);
+            window.location.assign(`#${getLocation()}search=${encodeURIComponent('artist:' + artistStrting)}${(nsfwString) ? nsfwString : ''}`);
             return false;
         }
         modalSearchByUser.classList.remove('hidden');
