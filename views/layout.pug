@@ -43,6 +43,12 @@ html
                             title= `${webconf.site_name} - Search`
                     else if (params && path === '/artists')
                         title= `${webconf.site_name} - Artists`
+                    else if (params && params.has('day'))
+                        title= `${webconf.site_name} - Today over the Years`
+                    else if (params && params.has('month'))
+                        title= `${webconf.site_name} - This Month over the Years`
+                    else if (params && params.has('week'))
+                        title= `${webconf.site_name} - This Week over the Years`
                     else if (params && params.getAll('sort')[0] === 'random')
                         title= `${webconf.site_name} - I'm Feeling Lucky`
                     else if (params.has('color'))
@@ -877,18 +883,48 @@ html
                                                         else
                                                             i.far.fa-ticket.mr-2
                                                             span(title='Theater Shelf').text-uppercase Theater Shelf
-                                                    else if (params && params.getAll('sort')[0] === 'random')
-                                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                    else if (params && params.has('day'))
+                                                        if (params && params.getAll('sort')[0] === 'random')
+                                                            i.far.fa-dice.mr-2
+                                                        else if (webconf && webconf.pinned_user && params && params.getAll('pins')[0] === webconf.pinned_user)
+                                                            i.far.fa-thumbtack.mr-2
+                                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
                                                         else
+                                                            i.far.fa-location-dot.mr-2
+                                                        span(title='Images in order of upload').text-uppercase Today over the Years
+                                                    else if (params && params.has('week'))
+                                                        if (params && params.getAll('sort')[0] === 'random')
                                                             i.far.fa-dice.mr-2
-                                                        span(title='Random selection of items from the database').text-uppercase I'm Feeling Lucky
+                                                        else if (webconf && webconf.pinned_user && params && params.getAll('pins')[0] === webconf.pinned_user)
+                                                            i.far.fa-thumbtack.mr-2
+                                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                            i.far.fa-star.mr-2
+                                                        else
+                                                            i.far.fa-location-dot.mr-2
+                                                        span(title='Images in order of upload').text-uppercase This week over the Years
+                                                    else if (params && params.has('month'))
+                                                        if (params && params.getAll('sort')[0] === 'random')
+                                                            i.far.fa-dice.mr-2
+                                                        else if (webconf && webconf.pinned_user && params && params.getAll('pins')[0] === webconf.pinned_user)
+                                                            i.far.fa-thumbtack.mr-2
+                                                        else if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                            i.far.fa-star.mr-2
+                                                        else
+                                                            i.far.fa-location-dot.mr-2
+                                                        span(title='Images in order of upload').text-uppercase This month over the Years
                                                     else if (tags_prev)
                                                         if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
                                                             i.far.fa-star.mr-2
                                                         else
                                                             i.far.fa-tags.mr-2
                                                         span.text-uppercase !{tags_prev}
+                                                    else if (params && params.getAll('sort')[0] === 'random')
+                                                        if (params && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                            i.far.fa-star.mr-2
+                                                        else
+                                                            i.far.fa-dice.mr-2
+                                                        span(title='Random selection of items from the database').text-uppercase I'm Feeling Lucky
                                                     else if (params && params.getAll('sort')[0] === 'fav')
                                                         if (webconf && webconf.pinned_user && params && params.getAll('pins')[0] === webconf.pinned_user)
                                                             i.far.fa-thumbtack.mr-2
@@ -2044,6 +2080,39 @@ html
                                                 .text-warning Showing only Instant Access or Directly Accessible items
                                             .align-self-center.align-self-start.ml-auto.mr-1
                                                 a.text-warning.align-self-end.alert-btn(title="Remove Accessibility Requirements" href='#_' onclick=`getNewContent(['offset', 'cached'], []); return false;`) Show All
+                                if (params && params.has('month'))
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-location-dot.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning.d-none.d-sm-inline Results shown are from #{(params.getAll('month')[0] === 'true') ? 'the current month' : params.getAll('month')[0] + ' month'} over the years
+                                                .text-warning.d-sm-none #{(params.getAll('month')[0] === 'true') ? 'This Month' : params.getAll('month')[0] + ' Month'} over the years
+                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'month', 'year'], []); return false;`) Show All
+                                if (params && params.has('day'))
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-location-dot.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning.d-none.d-sm-inline Results shown are from #{(params.getAll('day')[0] === 'true') ? 'today' : params.getAll('day')[0] + ' day'} over the years
+                                                .text-warning.d-sm-none #{(params.getAll('day')[0] === 'true') ? 'Today' : params.getAll('day')[0] + ' Day'} over the years
+                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'day'], []); return false;`) Show All
+                                if (params && params.has('week'))
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-location-dot.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning.d-none.d-sm-inline Results shown are from this week over the years
+                                                .text-warning.d-sm-none This week over the years
+                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'week'], []); return false;`) Show All
                                 if (params && params.has('history_numdays'))
                                     - const days = parseInt(params.getAll('history_numdays')[0]);
                                     .alert.alert-time-transparent(role="alert")
@@ -2080,39 +2149,6 @@ html
                                                 .text-warning.d-sm-none #{days} Days
                                             .align-self-center.align-self-start.ml-auto.mr-1
                                                 a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'fav_numdays', 'history_numdays', 'numdays'], []); return false;`) Show All
-                                else if (params && params.has('month'))
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-location-dot.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning.d-none.d-sm-inline Results shown are from #{(params.getAll('month')[0] === 'true') ? 'the current month' : params.getAll('month')[0] + ' month'} over the years
-                                                .text-warning.d-sm-none #{(params.getAll('month')[0] === 'true') ? 'This Month' : params.getAll('month')[0] + ' Month'} over the years
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'month', 'year'], []); return false;`) Show All
-                                    if (params && params.has('day'))
-                                        .alert.alert-time-transparent(role="alert")
-                                            .row
-                                                .col-auto.align-self-start.align-self-center
-                                                    .glyphicon
-                                                        i.fas.fa-location-dot.text-warning
-                                                .align-self-start.align-self-center
-                                                    .text-warning.d-none.d-sm-inline Results shown are from #{(params.getAll('day')[0] === 'true') ? 'Today' : params.getAll('day')[0] + ' day'} over the years
-                                                    .text-warning.d-sm-none #{(params.getAll('day')[0] === 'true') ? 'Today' : params.getAll('day')[0] + ' Day'} over the years
-                                                .align-self-center.align-self-start.ml-auto.mr-1
-                                                    a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'day'], []); return false;`) Show All
-                                else if (params && params.has('week'))
-                                    .alert.alert-time-transparent(role="alert")
-                                        .row
-                                            .col-auto.align-self-start.align-self-center
-                                                .glyphicon
-                                                    i.fas.fa-location-dot.text-warning
-                                            .align-self-start.align-self-center
-                                                .text-warning.d-none.d-sm-inline Results shown are from this week over the years
-                                                .text-warning.d-sm-none This week over the years
-                                            .align-self-center.align-self-start.ml-auto.mr-1
-                                                a.text-warning.align-self-end.alert-btn(title="Remove Date Range" href='#_' onclick=`getNewContent(['offset', 'week'], []); return false;`) Show All
                                 else if (params && params.has('datestart'))
                                     - const datestart = params.getAll('datestart')[0]
                                     - const dateend = params.getAll('dateend')[0]
