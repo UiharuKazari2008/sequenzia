@@ -389,7 +389,7 @@ async function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
 
-    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
         enableReviewMode();
     } else {
@@ -411,7 +411,7 @@ async function setupReviewMode(bypass) {
     return false;
 }
 async function enableReviewMode(setFromDialog) {
-    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
         setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
     if (reviewDestination && reviewDestination.length > 1) {
@@ -844,7 +844,7 @@ async function setReviewChannel(chid, noSave) {
     }
     if (!noSave) {
         try {
-            const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+            const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
             reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
             setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
         } catch (e) {
