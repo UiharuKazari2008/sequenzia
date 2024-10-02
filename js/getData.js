@@ -701,7 +701,6 @@ module.exports = async (req, res, next) => {
             } else {
                 sqlquery.push(`date BETWEEN '${req.query.datestart}' AND '${req.query.dateend}'`);
             }
-
         } else if (req.query.history_numdays) {
             const numOfDays = parseInt(req.query.history_numdays)
             if (!isNaN(numOfDays) && numOfDays >= 1 && numOfDays <= 1000) {
@@ -719,6 +718,33 @@ module.exports = async (req, res, next) => {
             if (!isNaN(numOfDays) && numOfDays >= 1 && numOfDays <= 1000) {
                 sqlquery.push(`date >= NOW() - INTERVAL ${numOfDays} DAY`);
                 android_uri.push(`numdays=${numOfDays}`);
+            }
+        } else if (req.query.week || req.query.month || req.query.day || req.query.year) {
+            if (req.query.week && req.query.week === "true") {
+                sqlquery.push(`WHERE WEEK(date) = WEEK(NOW());`);
+                android_uri.push(`week=true`);
+            } else {
+                if (req.query.month && req.query.month === "true") {
+                    sqlquery.push(`WHERE MONTH(date) = MONTH(NOW());`);
+                    android_uri.push(`month=true`);
+                } else if (req.query.month && !isNaN(parseInt(req.query.month)) && parseInt(req.query.month) >= 1 && parseInt(req.query.month) <= 12) {
+                    sqlquery.push(`WHERE MONTH(date) = MONTH('2015-${parseInt(req.query.month)}-1 00:00:00');`);
+                    android_uri.push(`month=` + req.query.month);
+                }
+                if (req.query.day && req.query.day === "true") {
+                    sqlquery.push(`WHERE DAY(date) = DAY(NOW());`);
+                    android_uri.push(`day=true`);
+                } else if (req.query.day && !isNaN(parseInt(req.query.day)) && parseInt(req.query.day) >= 1 && parseInt(req.query.day) <= 31) {
+                    sqlquery.push(`WHERE DAY(date) = DAY('2015-12-${parseInt(req.query.day)} 00:00:00');`);
+                    android_uri.push(`day=` + req.query.day);
+                }
+            }
+            if (req.query.year && req.query.year === "true") {
+                sqlquery.push(`WHERE YEAR(date) = YEAR(NOW());`);
+                android_uri.push(`year=true`);
+            } else if (req.query.year && !isNaN(parseInt(req.query.year)) && parseInt(req.query.year) >= 1969 && parseInt(req.query.year) <= 4000) {
+                sqlquery.push(`WHERE YEAR(date) = YEAR('${parseInt(req.query.year)}-12-1 00:00:00');`);
+                android_uri.push(`year=` + req.query.year);
             }
         } else if (!(req.query.channel || req.query.vchannel || req.query.folder) && (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/start')) {
             sqlquery.push(`date >= NOW() - INTERVAL 360 DAY`);
