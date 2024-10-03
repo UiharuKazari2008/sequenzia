@@ -6667,3 +6667,268 @@ window.onbeforeunload = function (e) {
         return 'WARNING: There are active files being unpacked in the compiler. If you close the application the tasks will be canceled!';
     }
 };
+
+function isNotTextbox() {
+    let focusedElement = document.activeElement;
+    return !(focusedElement && focusedElement.tagName === 'INPUT' ||
+        focusedElement.tagName === 'TEXTAREA' ||
+        focusedElement.isContentEditable)
+}
+
+// Open Navigator
+$(document).bind('keyup', 'shift+d', () => {
+    if (isNotTextbox())
+        $(document).scrollTop(0); toggleMenu();
+});
+// Refresh Page
+$(document).bind('keyup', 'shift+,', () => {
+    if (isNotTextbox) {
+        getNewContent([], [['refresh','true']]);
+    }
+});
+// Go to last page
+$(document).bind('keyup', ',', () => {
+    if (isNotTextbox) {
+        history.go(-1);
+    }
+});
+// Go to next page
+$(document).bind('keyup', '.', () => {
+    if (isNotTextbox) {
+        const nb = $("#nextPage")
+        if (nb) {
+            nb.click();
+        }
+    }
+});
+
+
+// Open Menu
+$(document).bind('keyup', 'shift+x', () => {
+    if (isNotTextbox())
+        $('[title="User Account and Settings"]').click()
+});
+
+// Open Latest Media // Accept Images Before
+$(document).bind('keyup', 'shift+q', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Recently Uploaded Media"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    $('div.col-image:hover [title="Accept All Items Before"].reviewAccept').click()
+                    $.snack('success', `Accept Left`, 2000);
+                }
+            }
+        }
+    }
+});
+// Open Latest Files // Move Image Menu
+$(document).bind('keyup', 'shift+w', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Recently Uploaded Files"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if ($('.review-item-panel').hasClass('show')) {
+                        $('div.col-image:hover [title="Move Item"].reviewMove').click()
+                    }
+                }
+            }
+        }
+    }
+});
+// Open Theaters
+$(document).bind('keyup', 'shift+e', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Theaters"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    $('div.col-image:hover [title="Bypass All Items Before"].reviewReject').click()
+                    $.snack('info', `Bypass Left`, 2000);
+                }
+            }
+        }
+    }
+});
+// Open Favorites // Enter Review Mode // Reject Images Before
+$(document).bind('keyup', 'shift+r', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Your Favorites"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    $('div.col-image:hover [title="Reject All Items Before"].reviewReject').click()
+                    $.snack('error', `Reject Left`, 2000);
+                }
+            } else {
+                $("#userMenu").collapse("hide");
+                setupReviewMode();
+            }
+        }
+    }
+});
+// Open Albums
+$(document).bind('keyup', 'shift+t', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Albums"]').click();
+});
+// Open Feeds
+$(document).bind('keyup', 'shift+y', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Feeds"]').click();
+});
+// Open Artists
+$(document).bind('keyup', 'shift+u', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Artists"]').click();
+});
+// Open History
+$(document).bind('keyup', 'shift+i', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Show History"]').click();
+});
+// Open Apps
+$(document).bind('keyup', 'shift+o', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Installed Applications"]').click();
+});
+// Open Tools
+$(document).bind('keyup', 'shift+p', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Tools"]').click();
+});
+// Open Settings
+$(document).bind('keyup', 'shift+.', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="User and Session Options"]').click();
+});
+
+// Hover Controls //
+// Favorite Image
+$(document).bind('keyup', 'a', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Toggle Favorite"].no-dynamic-tiny').click()
+        }
+    }
+});
+// Add to Album
+$(document).bind('keyup', 's', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Add or Remove from Album"].no-dynamic-tiny').click()
+        }
+    }
+});
+// Open Info Dialog (Search Menu) / Reject Item
+$(document).bind('keyup', 'd', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            $('[data-parent="#findMenus"].show').removeClass('show');
+            $('#searchCollapse').addClass('show');
+        }
+    }
+});
+// Open Info Dialog (Manage Menu)
+$(document).bind('keyup', 'f', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            $('[data-parent="#findMenus"].show').removeClass('show');
+            $('#toolboxCollapse').addClass('show');
+        }
+    }
+});
+
+// Accept Image
+$(document).bind('keyup', 'q', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('div.col-image:hover [title="Accept Item"].reviewAccept').click()
+                $.snack('success', `Accept Image`, 2000);
+            }
+        }
+    }
+});
+// Move Image to last destination
+$(document).bind('keyup', 'w', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        if ($('.review-item-panel').hasClass('show')) {
+            const hi = $('div.col-image:hover');
+            if (hi) {
+                $('div.col-image:hover [title="Move Item to last destination"].reviewMove').click();
+                if (recentPostDestination && recentPostDestination.length > 0) {
+                    const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                    const dest = actionModel.querySelector("#destination-" + last[0]);
+                    if (dest) {
+                        const name = dest.getAttribute("data-ch-name");
+                        $.snack('info', `Moved to ${name}`, 2000);
+                    }
+                }
+            }
+        }
+    }
+});
+// Reject Image
+$(document).bind('keyup', 'r', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('div.col-image:hover [title="Reject Item"].reviewReject').click()
+                $.snack('error', `Reject Image`, 2000);
+            }
+        }
+    }
+});
+// Rotate Left
+$(document).bind('keyup', 'shift+a', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi)
+                    $('div.col-image:hover [title="Rotate Left"].reviewAccept').click()
+            }
+        }
+    }
+});
+// Rotate Right
+$(document).bind('keyup', 'shift+f', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi)
+                    $('div.col-image:hover [title="Rotate Right"].reviewAccept').click()
+            }
+        }
+    }
+});
+// Undo Last Action
+$(document).bind('keyup', 'shift+z', () => {
+    if (isNotTextbox()) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('#reviewPanel [title="Undo the last action"]').click();
+            }
+        }
+    }
+});

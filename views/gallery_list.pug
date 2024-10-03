@@ -236,7 +236,7 @@ block content
 
                                         .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
                                             .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
-                                                a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`rotateItem(-90, "${item.id}"); return false;`)
+                                                a.reviewAccept.btn-links.p-2(title="Rotate Left" href='#_' onclick=`rotateItem(-90, "${item.id}"); return false;`)
                                                     i.fas.fa-rotate-left(style="font-size: 2em; color: #80fff2;")
                                                 a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
@@ -244,15 +244,15 @@ block content
                                             .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
                                                 a.reviewPreview.btn-links.p-2.ml-auto.mr-auto.mt-auto.mb-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector(".lightbox").click()`)
                                                     i.btn-links.fas.fa-search(style="font-size: 2em;")
-                                                a.reviewMove.btn-links.px-2.no-dynamic-tiny.last-move(title="Move Item" href='#_' onclick=`acceptLastDestination("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
+                                                a.reviewMove.btn-links.px-2.no-dynamic-tiny.last-move(title="Move Item to last destination" href='#_' onclick=`acceptLastDestination("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
                                                     i.btn-links.fas.fa-folder(style="font-size: 2em;")
 
                                             .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
-                                                a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
+                                                a.reviewAccept.btn-links.p-2(title="Rotate Right" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
                                                     i.fas.fa-rotate-right(style="font-size: 2em; color: #80fff2;")
-                                                a.reviewAccept.btn-links.p-2(title="Bypass All Items Before" href='#_' onclick=`scrollToTop(); bypassAllItems(2, "${item.id}"); return false;`)
+                                                a.reviewReject.btn-links.p-2(title="Bypass All Items Before" href='#_' onclick=`scrollToTop(); bypassAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ffffff;")
-                                                a.reviewAccept.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
+                                                a.reviewReject.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ff90a8;")
 
 

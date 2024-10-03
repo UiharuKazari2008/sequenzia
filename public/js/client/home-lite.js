@@ -1947,3 +1947,117 @@ $('#menuItemImageHistory').on('show.bs.collapse', function () {
         getHistory();
     }
 })
+
+function isNotTextbox() {
+    let focusedElement = document.activeElement;
+    return !(focusedElement && focusedElement.tagName === 'INPUT' ||
+        focusedElement.tagName === 'TEXTAREA' ||
+        focusedElement.isContentEditable)
+}
+// Favorite Image
+$(document).bind('keyup', 'f', () => {
+    if (isNotTextbox) {
+        toggleFavorite();
+    }
+});
+// Go to Image
+$(document).bind('keyup', 'g', () => {
+    if (isNotTextbox) {
+        $('.ajax-imageLink')[0].click();
+    }
+});
+// Focus on Tags
+$(document).bind('keyup', 't', () => {
+    if (isNotTextbox) {
+        if ($('#locationTags').hasClass('show')) {
+            $('input#dropdownSearch3').trigger('focus');
+        } else {
+            $('input#dropdownSearch4').trigger('focus');
+        }
+    }
+});
+// Focus on Search
+$(document).bind('keyup', 's', () => {
+    if (isNotTextbox) {
+        if (!($('#locationSearch').hasClass('show'))) {
+            $('#AdvancedSearch').click();
+        }
+        $('input#dropdownSearch2').trigger('focus');
+    }
+});
+// Resume Activity
+$(document).bind('keyup', 'c', () => {
+    if (isNotTextbox) {
+        $('#naviResume .navi-last > div > a[onclick]').click();
+    }
+});
+// Open Navigator
+$(document).bind('keyup', 'shift+d', () => {
+    if (isNotTextbox())
+        $('#navigatorButton').click();
+});
+// Open Latest Media
+$(document).bind('keyup', 'shift+q', () => {
+    if (isNotTextbox())
+        window.location.href=$('#mediaButton')[0].href;
+});
+// Open Latest Files
+$(document).bind('keyup', 'shift+w', () => {
+    if (isNotTextbox())
+        window.location.href=$('#filesButton')[0].href;
+});
+// Open Favorites
+$(document).bind('keyup', 'shift+e', () => {
+    if (isNotTextbox())
+        window.location.href=$('#favoritesButton')[0].href;
+});
+// Open Random Images
+$(document).bind('keyup', 'shift+r', () => {
+    if (isNotTextbox())
+        window.location.href=$('#randomButton')[0].href;
+});
+// Open Artists
+$(document).bind('keyup', 'shift+t', () => {
+    if (isNotTextbox()) {
+        $('[data-parent="#masterAccordion"].show').removeClass('show');
+        $('#menuAccordion').addClass('show');
+        $('#artistsButton').click();
+    }
+});
+// Open History
+$(document).bind('keyup', 'shift+y', () => {
+    if (isNotTextbox()) {
+        $('[data-parent="#masterAccordion"].show').removeClass('show');
+        $('#menuAccordion').addClass('show');
+        $('#historyButton').click();
+    }
+});
+
+// Main Menu Blade
+$(document).bind('keyup', 'shift+z', () => {
+    if (isNotTextbox()) {
+        $('[data-parent="#masterAccordion"].show').removeClass('show');
+        $('#menuAccordion').addClass('show');
+    }
+});
+// KMS Blade
+$(document).bind('keyup', 'shift+x', () => {
+    if (isNotTextbox()) {
+        $('[data-parent="#masterAccordion"].show').removeClass('show');
+        $('#kmsAccordion').addClass('show');
+    }
+});
+// Albums Blade
+$(document).bind('keyup', 'shift+c', () => {
+    if (isNotTextbox()) {
+        $('[data-parent="#masterAccordion"].show').removeClass('show');
+        $('#albumsAccordion').addClass('show');
+    }
+});
+// Timeline Blade
+$(document).bind('keyup', 'shift+v', () => {
+    if (isNotTextbox()) {
+        $('[data-parent="#masterAccordion"].show').removeClass('show');
+        $('#timelineAccordion').addClass('show');
+    }
+});

@@ -80,6 +80,7 @@ html
         link(rel='preload', href='/static/vendor/jquery/jquery.min.js' as='script')
         link(rel='preload', href='/static/js/sb-admin-2.min.js' as='script')
         link(rel='preload', href='/static/vendor/bootstrap/js/bootstrap.bundle.min.js' as='script')
+        link(rel='preload', href='/static/vendor/jquery/jquery.hotkeys.min.js' as='script')
         //link(rel='preload', href='/static/vendor/jquery-easing/jquery.easing.min.js' as='script')
 
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
@@ -93,6 +94,7 @@ html
         script(src="/static/vendor/jquery/jquery.min.js")
         script(src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
         script(type='text/javascript' src="/static/js/toast.min.js")
+        script(type='text/javascript' src="/static/vendor/jquery/jquery.hotkeys.min.js")
         script(type='text/javascript' src="/js/client/home-lite.min.js")
         link(rel='preload', href="/static/img/boot-logo.png" as='image')
 
@@ -383,23 +385,23 @@ html
                             div#menuItemMain(class="collapse show animated--grow-in" data-parent="#menuAccordion").panel-reset-show.menu-glow.w-100.p-3
                                 #mainUserButtons.d-flex(class=`${(!active_exchange) ? 'hidden':''}`).flex-column.w-100
                                     .menu-grid.main-menu-grid.menu-icons.py-1
-                                        a.hover-color(data-placement="top" title='Navigator' class="collapsed" data-toggle="collapse" data-target="#masterNavList")
+                                        a#navigatorButton.hover-color(data-placement="top" title='Navigator' class="collapsed" data-toggle="collapse" data-target="#masterNavList")
                                             i.fa-light.fa-compass
-                                        a.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&cached=true&sort=eid')
+                                        a#mediaButton.hover-color(data-placement="top" title='Latest Media', href='#/gallery?numdays=60&cached=true&sort=eid')
                                             i.fa-light.fa-photo-video
-                                        a.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&cached=true&sort=eid&filesonly=true`)
+                                        a#filesButton.hover-color(data-placement="top" title='Latest Files', href=`#/files?numdays=60&cached=true&sort=eid&filesonly=true`)
                                             i.fa-light.fa-files
-                                        a.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&cached=true&pins=true')
+                                        a#favoritesButton.hover-color(data-placement="top" title="Your Favorites", href='#/gallery?sort=fav&cached=true&pins=true')
                                             i.fa-light.fa-star
-                                        a.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=randomcached=true&')
+                                        a#randomButton.hover-color(data-placement="top" title="I'm Feeling Lucky", href='#/gallery?sort=randomcached=true&')
                                             i.fa-light.fa-dice
-                                        a.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
+                                        a#artistsButton.hover-color(data-placement="top" title="Artists", href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemArtists")
                                             i.fa-light.fa-address-book
-                                        a.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
+                                        a#historyButton.hover-color(data-placement="top" title="Image History" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemImageHistory" onClick='getHistory(); return false;')
                                             i.fa-light.fa-history
-                                        a.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;")
+                                        a#offlineButton.hover-color(data-placement="top" title="Launch Offline Files" href='#_' onclick="transitionToOOBPage('/offline#/gallery?'); return false;")
                                             i.fa-light.fa-bookmark
-                                        a.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
+                                        a#appsButton.hover-color(data-placement="top" title="Applications" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemApps")
                                             i.fa-light.fa-browsers
                                         a.hover-color.align-items-center.justify-content-center(data-placement="top" title="Settings" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAccount" onclick="document.getElementById('mainContainer').classList.add('show-menu-buttons'); return false;").p-0
                                             if (user)
@@ -449,7 +451,7 @@ html
                                                         .input-group-append
                                                             a.btn.input-group-text.top-menu-search-bar.border-0.bg-transparent(title="Search Everywhere"  href='#_', onclick=`getSearchContent("dropdownSearch2", "dropdownSearch3", "/gallery"); return false;`)
                                                                 i.far.fa-search.fa-sm.align-middle.nav-item.input-group-append
-                                                            a.btn.input-group-text.bg-transparent.border-0(title="Advanced Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
+                                                            a#AdvancedSearch.btn.input-group-text.bg-transparent.border-0(title="Advanced Search" href='#_' class="collapsed" data-toggle="collapse" data-target="#locationSearch" onclick="$('#menuItemMain .user-menu-height').addClass('dual-search'); return false;")
                                                                 i.far.fa-chevron-down.align-middle
 
                                 #loginUserButtons.d-flex.py-1(class=`${(active_exchange && active_exchange.discord) ? 'hidden':''}`).flex-column.flex-sm-row.w-100
