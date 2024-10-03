@@ -6862,6 +6862,90 @@ $(document).bind('keyup', 'shift+5', () => {
         }
     }
 });
+$(document).bind('keyup', 'shift+6', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 5;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+7', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 6;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+8', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 7;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
 
 // Open Menu
 $(document).bind('keyup', 'shift+x', () => {

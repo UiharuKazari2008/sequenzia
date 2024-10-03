@@ -405,7 +405,7 @@ async function setupReviewMode(bypass) {
             return ''
         }).join('\n')
         setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
-        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map((e,i) => {
+        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="destination-name">` +
@@ -486,7 +486,7 @@ async function enableReviewMode(setFromDialog) {
             }
             return ''
         }).join('\n')
-        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map((e,i) => {
+        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
                 return `<div class="destination-name">` +
@@ -938,7 +938,7 @@ async function updateRecentPostDestinations() {
         }
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
-    let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map((e,i) => {
+    let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
         const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
         if (n) {
             return `<div class="destination-name">` +
