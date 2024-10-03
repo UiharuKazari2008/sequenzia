@@ -405,6 +405,16 @@ async function setupReviewMode(bypass) {
             return ''
         }).join('\n')
         setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map((e,i) => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<div class="destination-name">` +
+                    `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
+                    `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                    `</div>`
+            }
+        }).join('\n')
+        document.getElementById('recentOverlay').innerHTML = '<div class="recent-destination-list">' + ((ldest.length > 0) ? ldest : '<span>No Recent Destinations</span>') + '</div>'
         $('#setupReviewModel').modal('show');
     }
     generateReviewStyle();
@@ -476,6 +486,16 @@ async function enableReviewMode(setFromDialog) {
             }
             return ''
         }).join('\n')
+        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map((e,i) => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<div class="destination-name">` +
+                    `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
+                    `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                    `</div>`
+            }
+        }).join('\n')
+        document.getElementById('recentOverlay').innerHTML = '<div class="recent-destination-list">' + ((ldest.length > 0) ? ldest : '<span>No Recent Destinations</span>') + '</div>'
         document.getElementById('reviewRecentDestinations').innerHTML = (rdest.length > 0) ? rdest : ''
         document.getElementById('recentDestinationsDropdown').innerHTML = (rmenudest.length > 0) ? rmenudest : ''
         document.getElementById('reviewBtns').classList.remove("hidden");
@@ -918,6 +938,16 @@ async function updateRecentPostDestinations() {
         }
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+    let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).map((e,i) => {
+        const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+        if (n) {
+            return `<div class="destination-name">` +
+                `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
+                `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                `</div>`
+        }
+    }).join('\n')
+    document.getElementById('recentOverlay').innerHTML = '<div class="recent-destination-list">' + ((ldest.length > 0) ? ldest : '<span>No Recent Destinations</span>') + '</div>'
     generateReviewStyle();
 }
 async function shiftRecentPostDestinations(input) {

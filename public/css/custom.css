@@ -2123,13 +2123,15 @@ div#exitOverlay {
 
 .bottom-bar .page-navigator,
 .bottom-bar .scrollBtn,
-.bottom-bar .music-player {
+.bottom-bar .music-player,
+.bottom-bar #recentOverlay {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 2.25rem + 1.5rem);
 }
 
 .bottom-bar.menu-open .page-navigator,
 .bottom-bar.menu-open .scrollBtn,
-.bottom-bar.menu-open .music-player {
+.bottom-bar.menu-open .music-player,
+.bottom-bar.menu-open #recentOverlay {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 190px + 2.25rem + 1.5rem);
 }
 
@@ -3110,6 +3112,20 @@ div#menuItemWallet .user-card-list {
     height: 175px;
     flex-direction: column;
     align-content: start;
+}
+
+div#recentOverlay {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+    z-index: 500;
+    left: 0;
+    margin: 2em;
+    display: block;
+    padding: 1em;
+    font-size: 10pt;
+    background: #000000a8;
+    color: coral;
+    border: #ffffff26 1px solid;
 }
 
 .user-card-list > div > .user-info-backdrop,
@@ -4427,6 +4443,10 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         background: rgba(255, 119, 0, 0.66);
         color: #ffffff;
         text-shadow: 0 0 4px rgba(255, 255, 255, 0.47);
+    }
+    #recentOverlay {
+        background: rgba(255, 119, 0, 0.66);
+        color: #ffffff;
     }
     .performance-mode .bottomBtn,
     .performance-mode .bottomBtn:hover {
