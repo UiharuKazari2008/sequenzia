@@ -6707,24 +6707,29 @@ function isNotTextbox() {
 }
 
 // Open Navigator
-$(document).bind('keyup', 'shift+d', () => {
+$(document).bind('keydown', 'shift+d', () => {
     if (isNotTextbox())
         $(document).scrollTop(0); toggleMenu();
 });
 // Refresh Page
-$(document).bind('keyup', 'shift+,', () => {
+$(document).bind('keydown', 'shift+,', () => {
     if (isNotTextbox) {
         getNewContent([], [['refresh','true']]);
     }
 });
 // Go to last page
-$(document).bind('keyup', ',', () => {
+$(document).bind('keydown', ',', () => {
     if (isNotTextbox) {
-        history.go(-1);
+        const pb = $("#prevPage")
+        if (pb) {
+            pb.click();
+        } else {
+            history.go(-1);
+        }
     }
 });
 // Go to next page
-$(document).bind('keyup', '.', () => {
+$(document).bind('keydown', '.', () => {
     if (isNotTextbox) {
         const nb = $("#nextPage")
         if (nb) {
@@ -6753,7 +6758,7 @@ $(document).bind('keyup', 'shift', () => {
     }
 });
 // Move to recent destination
-$(document).bind('keyup', 'shift+1', () => {
+$(document).bind('keydown', 'shift+1', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6781,7 +6786,7 @@ $(document).bind('keyup', 'shift+1', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+2', () => {
+$(document).bind('keydown', 'shift+2', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6809,7 +6814,7 @@ $(document).bind('keyup', 'shift+2', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+3', () => {
+$(document).bind('keydown', 'shift+3', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6837,7 +6842,7 @@ $(document).bind('keyup', 'shift+3', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+4', () => {
+$(document).bind('keydown', 'shift+4', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6865,7 +6870,7 @@ $(document).bind('keyup', 'shift+4', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+5', () => {
+$(document).bind('keydown', 'shift+5', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6893,7 +6898,7 @@ $(document).bind('keyup', 'shift+5', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+6', () => {
+$(document).bind('keydown', 'shift+6', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6921,7 +6926,7 @@ $(document).bind('keyup', 'shift+6', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+7', () => {
+$(document).bind('keydown', 'shift+7', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6949,7 +6954,7 @@ $(document).bind('keyup', 'shift+7', () => {
         }
     }
 });
-$(document).bind('keyup', 'shift+8', () => {
+$(document).bind('keydown', 'shift+8', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -6979,13 +6984,13 @@ $(document).bind('keyup', 'shift+8', () => {
 });
 
 // Open Menu
-$(document).bind('keyup', 'shift+x', () => {
+$(document).bind('keydown', 'shift+x', () => {
     if (isNotTextbox())
         $('[title="User Account and Settings"]').click()
 });
 
 // Open Latest Media // Accept Images Before
-$(document).bind('keyup', 'shift+q', () => {
+$(document).bind('keydown', 'shift+q', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
             $('.main-menu-items.show [title="Recently Uploaded Media"]').click();
@@ -7001,7 +7006,7 @@ $(document).bind('keyup', 'shift+q', () => {
     }
 });
 // Open Latest Files // Move Image Menu
-$(document).bind('keyup', 'shift+w', () => {
+$(document).bind('keydown', 'shift+w', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
             $('.main-menu-items.show [title="Recently Uploaded Files"]').click();
@@ -7018,7 +7023,7 @@ $(document).bind('keyup', 'shift+w', () => {
     }
 });
 // Open Theaters
-$(document).bind('keyup', 'shift+e', () => {
+$(document).bind('keydown', 'shift+e', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
             $('.main-menu-items.show [title="Theaters"]').click();
@@ -7034,7 +7039,7 @@ $(document).bind('keyup', 'shift+e', () => {
     }
 });
 // Open Favorites // Enter Review Mode // Reject Images Before
-$(document).bind('keyup', 'shift+r', () => {
+$(document).bind('keydown', 'shift+r', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
             $('.main-menu-items.show [title="Your Favorites"]').click();
@@ -7053,7 +7058,7 @@ $(document).bind('keyup', 'shift+r', () => {
     }
 });
 // Open Albums // Show Review Controls
-$(document).bind('keyup', 'shift+t', () => {
+$(document).bind('keydown', 'shift+t', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
             $('.main-menu-items.show [title="Albums"]').click();
@@ -7065,39 +7070,39 @@ $(document).bind('keyup', 'shift+t', () => {
     }
 });
 // Open Feeds
-$(document).bind('keyup', 'shift+y', () => {
+$(document).bind('keydown', 'shift+y', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
         $('.main-menu-items.show [title="Feeds"]').click();
 });
 // Open Artists
-$(document).bind('keyup', 'shift+u', () => {
+$(document).bind('keydown', 'shift+u', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
         $('.main-menu-items.show [title="Artists"]').click();
 });
 // Open History
-$(document).bind('keyup', 'shift+i', () => {
+$(document).bind('keydown', 'shift+i', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
         $('.main-menu-items.show [title="Show History"]').click();
 });
 // Open Apps
-$(document).bind('keyup', 'shift+o', () => {
+$(document).bind('keydown', 'shift+o', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
         $('.main-menu-items.show [title="Installed Applications"]').click();
 });
 // Open Tools
-$(document).bind('keyup', 'shift+p', () => {
+$(document).bind('keydown', 'shift+p', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
         $('.main-menu-items.show [title="Tools"]').click();
 });
 // Open Settings
-$(document).bind('keyup', 'shift+.', () => {
+$(document).bind('keydown', 'shift+.', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
         $('.main-menu-items.show [title="User and Session Options"]').click();
 });
 
 // Hover Controls //
 // Favorite Image
-$(document).bind('keyup', 'a', () => {
+$(document).bind('keydown', 'a', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7106,7 +7111,7 @@ $(document).bind('keyup', 'a', () => {
     }
 });
 // Add to Album
-$(document).bind('keyup', 's', () => {
+$(document).bind('keydown', 's', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7115,7 +7120,7 @@ $(document).bind('keyup', 's', () => {
     }
 });
 // Open Info Dialog (Search Menu) / Reject Item
-$(document).bind('keyup', 'd', () => {
+$(document).bind('keydown', 'd', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7126,7 +7131,7 @@ $(document).bind('keyup', 'd', () => {
     }
 });
 // Open Info Dialog (Manage Menu)
-$(document).bind('keyup', 'f', () => {
+$(document).bind('keydown', 'f', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7138,7 +7143,7 @@ $(document).bind('keyup', 'f', () => {
 });
 
 // Accept Image
-$(document).bind('keyup', 'q', () => {
+$(document).bind('keydown', 'q', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7150,7 +7155,7 @@ $(document).bind('keyup', 'q', () => {
     }
 });
 // Move Image to last destination
-$(document).bind('keyup', 'w', () => {
+$(document).bind('keydown', 'w', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         if ($('.review-item-panel').hasClass('show')) {
             const hi = $('div.col-image:hover');
@@ -7169,7 +7174,7 @@ $(document).bind('keyup', 'w', () => {
     }
 });
 // Show Image
-$(document).bind('keyup', 'e', () => {
+$(document).bind('keydown', 'e', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7180,7 +7185,7 @@ $(document).bind('keyup', 'e', () => {
     }
 });
 // Reject Image
-$(document).bind('keyup', 'r', () => {
+$(document).bind('keydown', 'r', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
@@ -7192,7 +7197,7 @@ $(document).bind('keyup', 'r', () => {
     }
 });
 // Rotate Left
-$(document).bind('keyup', 'shift+a', () => {
+$(document).bind('keydown', 'shift+a', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -7204,7 +7209,7 @@ $(document).bind('keyup', 'shift+a', () => {
     }
 });
 // Rotate Right
-$(document).bind('keyup', 'shift+f', () => {
+$(document).bind('keydown', 'shift+f', () => {
     if (isNotTextbox) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
@@ -7216,7 +7221,7 @@ $(document).bind('keyup', 'shift+f', () => {
     }
 });
 // Undo Last Action
-$(document).bind('keyup', 'z', () => {
+$(document).bind('keydown', 'z', () => {
     if (isNotTextbox()) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
