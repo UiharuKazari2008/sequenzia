@@ -4742,9 +4742,9 @@ async function showSearchOptions(post) {
     if (postStaticTags && postStaticTags.length > 0) {
         modelStaticTagsHolder.classList.remove('hidden');
         modelStaticTagsHolder.innerHTML = postStaticTags.slice(1, postStaticTags.length - 1).split(';').filter(e => !!e).map((e,i,a) => {
-            let tagObj = [`<div class="bg-gray-100 badge mx-1 mb-1" title="Static Tag">`]
+            let tagObj = [`<div class="bg-warning badge mx-1 mb-1" title="Static Tag">`]
             tagObj.push(`<a class="text-gray-900" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-            tagObj.push(`<i class="fas fa-tag pr-1"></i><span>${e}</span>`)
+            tagObj.push(`<i class="fas fa-hashtag-lock pr-1"></i><span>${e}</span>`)
             tagObj.push("</a>")
             if (cur.has('tags')) {
                 tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
