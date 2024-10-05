@@ -787,7 +787,7 @@ async function requestCompleted (response, url, lastURL, push) {
             type: 'error',
             title: 'No Results Found',
             subtitle: 'Error',
-            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Global Search + NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key_pass', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'fast_query', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true'],['inc_omitted', 'true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
+            content: `<p>Nothing was found, Please try another option or search term</p><br/><a class="btn btn-danger w-100 mb-2" href='#_' onclick="getNewContent([],[['nsfw','true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Global Search + NSFW</a><br/><a class="btn btn-danger w-100" href='#_' onclick="getNewContent(['limit', 'responseType', 'key_pass', 'key', 'blind_key', 'offset', 'sort', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'require_score', 'newest', 'displaySlave', 'flagged', 'fast_query', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'],[['nsfw','true'],['inc_omitted', 'true']],'${url}'); return false;"><i class="fas fa-turn-down-left pr-2"></i>Without Filters</a>`,
             delay: 10000,
         });
         responseComplete = true
@@ -1406,7 +1406,7 @@ async function getSearchContent(element, tagsElement, exchange, url) {
             const _pathname = _url.split('?')[0];
             const _currentURL = window.location.hash.substring(1)
 
-            for (let e of ['search', 'offset', 'sort', 'numdays', 'maxres','minres', 'minhres', 'minwres', 'dark']) {
+            for (let e of ['search', 'offset', 'sort', 'numdays', 'day', 'week', 'month', 'year', 'maxres','minres', 'minhres', 'minwres', 'dark']) {
                 _params.delete(e);
             }
             if (_params.has('nsfw') &&
@@ -5757,9 +5757,9 @@ function registerDateHandlers() {
             const startDate = start.format('YYYY-MM-DD');
             const endDate = end.format('YYYY-MM-DD');
             if (startDate === moment().add(1, 'days').format('YYYY-MM-DD') && endDate === moment().add(1, 'days').format('YYYY-MM-DD') ) {
-                getNewContent(['datestart', 'dateend', 'numdays', 'offset'], []);
+                getNewContent(['datestart', 'dateend', 'numdays', 'day', 'week', 'month', 'year', 'offset'], []);
             } else {
-                getNewContent(['datestart', 'dateend', 'numdays', 'offset'], [['datestart', startDate], ['dateend', endDate]]);
+                getNewContent(['datestart', 'dateend', 'numdays', 'day', 'week', 'month', 'year', 'offset'], [['datestart', startDate], ['dateend', endDate]]);
             }
         } else {
             getNewContent([], []);
@@ -6668,3 +6668,530 @@ window.onbeforeunload = function (e) {
         return 'WARNING: There are active files being unpacked in the compiler. If you close the application the tasks will be canceled!';
     }
 };
+
+function isNotTextbox() {
+    let focusedElement = document.activeElement;
+    return !(focusedElement && focusedElement.tagName === 'INPUT' ||
+        focusedElement.tagName === 'TEXTAREA' ||
+        focusedElement.isContentEditable)
+}
+
+// Open Navigator
+$(document).bind('keyup', 'shift+d', () => {
+    if (isNotTextbox())
+        $(document).scrollTop(0); toggleMenu();
+});
+// Refresh Page
+$(document).bind('keyup', 'shift+,', () => {
+    if (isNotTextbox) {
+        getNewContent([], [['refresh','true']]);
+    }
+});
+// Go to last page
+$(document).bind('keyup', ',', () => {
+    if (isNotTextbox) {
+        history.go(-1);
+    }
+});
+// Go to next page
+$(document).bind('keyup', '.', () => {
+    if (isNotTextbox) {
+        const nb = $("#nextPage")
+        if (nb) {
+            nb.click();
+        }
+    }
+});
+
+// Show Overlay
+$(document).bind('keydown', 'shift', () => {
+    if (isNotTextbox()) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('#recentOverlay').removeClass('hidden')
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift', () => {
+    if (isNotTextbox()) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('#recentOverlay').addClass('hidden')
+            }
+        }
+    }
+});
+// Move to recent destination
+$(document).bind('keyup', 'shift+1', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 0;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+2', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 1;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+3', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 2;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+4', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 3;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+5', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 4;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+6', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 5;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+7', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 6;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+$(document).bind('keyup', 'shift+8', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if (recentPostDestination && recentPostDestination.length > 0) {
+                        const destID = 7;
+                        const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                        if (last[destID]) {
+                            const dest = actionModel.querySelector("#destination-" + last[destID]);
+                            if (dest) {
+                                const channelid = hi[0].getAttribute('data-msg-channel');
+                                const serverid = hi[0].getAttribute('data-msg-server');
+                                const messageid = hi[0].getAttribute('data-msg-id');
+                                queueAction(`${serverid}`, `${channelid}`, `${messageid}`, 'MovePost', getImageRotation(`${last[destID]}`, `${messageid}`));
+                                document.getElementById(`message-${messageid}`).classList.add('hidden');
+
+                                const name = dest.getAttribute("data-ch-name");
+                                $.snack('info', `Moved to ${name}`, 2000);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Open Menu
+$(document).bind('keyup', 'shift+x', () => {
+    if (isNotTextbox())
+        $('[title="User Account and Settings"]').click()
+});
+
+// Open Latest Media // Accept Images Before
+$(document).bind('keyup', 'shift+q', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Recently Uploaded Media"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    $('div.col-image:hover [title="Accept All Items Before"].reviewAccept').click()
+                    $.snack('success', `Accept Left`, 2000);
+                }
+            }
+        }
+    }
+});
+// Open Latest Files // Move Image Menu
+$(document).bind('keyup', 'shift+w', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Recently Uploaded Files"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    if ($('.review-item-panel').hasClass('show')) {
+                        $('div.col-image:hover [title="Move Item"].reviewMove').click()
+                    }
+                }
+            }
+        }
+    }
+});
+// Open Theaters
+$(document).bind('keyup', 'shift+e', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Theaters"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    $('div.col-image:hover [title="Bypass All Items Before"].reviewReject').click()
+                    $.snack('info', `Bypass Left`, 2000);
+                }
+            }
+        }
+    }
+});
+// Open Favorites // Enter Review Mode // Reject Images Before
+$(document).bind('keyup', 'shift+r', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Your Favorites"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi) {
+                    $('div.col-image:hover [title="Reject All Items Before"].reviewReject').click()
+                    $.snack('error', `Reject Left`, 2000);
+                }
+            } else {
+                $("#userMenu").collapse("hide");
+                setupReviewMode();
+            }
+        }
+    }
+});
+// Open Albums // Show Review Controls
+$(document).bind('keyup', 'shift+t', () => {
+    if (isNotTextbox()) {
+        if ($('#userMenu').hasClass('show')) {
+            $('.main-menu-items.show [title="Albums"]').click();
+        } else if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('#reviewPanel [title="Review Mode Controls"]').click();
+            }
+        }
+    }
+});
+// Open Feeds
+$(document).bind('keyup', 'shift+y', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Feeds"]').click();
+});
+// Open Artists
+$(document).bind('keyup', 'shift+u', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Artists"]').click();
+});
+// Open History
+$(document).bind('keyup', 'shift+i', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Show History"]').click();
+});
+// Open Apps
+$(document).bind('keyup', 'shift+o', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Installed Applications"]').click();
+});
+// Open Tools
+$(document).bind('keyup', 'shift+p', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="Tools"]').click();
+});
+// Open Settings
+$(document).bind('keyup', 'shift+.', () => {
+    if (isNotTextbox() && $('#userMenu').hasClass('show'))
+        $('.main-menu-items.show [title="User and Session Options"]').click();
+});
+
+// Hover Controls //
+// Favorite Image
+$(document).bind('keyup', 'a', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Toggle Favorite"].no-dynamic-tiny').click()
+        }
+    }
+});
+// Add to Album
+$(document).bind('keyup', 's', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Add or Remove from Album"].no-dynamic-tiny').click()
+        }
+    }
+});
+// Open Info Dialog (Search Menu) / Reject Item
+$(document).bind('keyup', 'd', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            $('[data-parent="#findMenus"].show').removeClass('show');
+            $('#searchCollapse').addClass('show');
+        }
+    }
+});
+// Open Info Dialog (Manage Menu)
+$(document).bind('keyup', 'f', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            $('[data-parent="#findMenus"].show').removeClass('show');
+            $('#toolboxCollapse').addClass('show');
+        }
+    }
+});
+
+// Accept Image
+$(document).bind('keyup', 'q', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('div.col-image:hover [title="Accept Item"].reviewAccept').click()
+                $.snack('success', `Accept Image`, 2000);
+            }
+        }
+    }
+});
+// Move Image to last destination
+$(document).bind('keyup', 'w', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        if ($('.review-item-panel').hasClass('show')) {
+            const hi = $('div.col-image:hover');
+            if (hi) {
+                $('div.col-image:hover [title="Move Item to last destination"].reviewMove').click();
+                if (recentPostDestination && recentPostDestination.length > 0) {
+                    const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
+                    const dest = actionModel.querySelector("#destination-" + last[0]);
+                    if (dest) {
+                        const name = dest.getAttribute("data-ch-name");
+                        $.snack('info', `Moved to ${name}`, 2000);
+                    }
+                }
+            }
+        }
+    }
+});
+// Show Image
+$(document).bind('keyup', 'e', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('div.col-image:hover [title="Preview Item"].reviewPreview').click()
+            }
+        }
+    }
+});
+// Reject Image
+$(document).bind('keyup', 'r', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('div.col-image:hover [title="Reject Item"].reviewReject').click()
+                $.snack('error', `Reject Image`, 2000);
+            }
+        }
+    }
+});
+// Rotate Left
+$(document).bind('keyup', 'shift+a', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi)
+                    $('div.col-image:hover [title="Rotate Left"].reviewAccept').click()
+            }
+        }
+    }
+});
+// Rotate Right
+$(document).bind('keyup', 'shift+f', () => {
+    if (isNotTextbox) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                const hi = $('div.col-image:hover');
+                if (hi)
+                    $('div.col-image:hover [title="Rotate Right"].reviewAccept').click()
+            }
+        }
+    }
+});
+// Undo Last Action
+$(document).bind('keyup', 'shift+z', () => {
+    if (isNotTextbox()) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                $('#reviewPanel [title="Undo the last action"]').click();
+            }
+        }
+    }
+});

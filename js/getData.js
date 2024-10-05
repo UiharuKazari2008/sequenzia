@@ -60,8 +60,8 @@ module.exports = async (req, res, next) => {
             const last = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE (user = ? AND date >= NOW() - INTERVAL 3 MINUTE) ORDER BY date DESC`, [thisUser.master.discord.user.id])
             if (last.rows.length > 0) {
                 const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
-                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
-                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
+                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
+                const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
                 console.log(noLastTags)
                 console.log(noTags)
                 if (noLastTags === noTags) {
@@ -721,29 +721,29 @@ module.exports = async (req, res, next) => {
             }
         } else if (req.query.week || req.query.month || req.query.day || req.query.year) {
             if (req.query.week && req.query.week === "true") {
-                sqlquery.push(`WHERE WEEK(date) = WEEK(NOW());`);
+                sqlquery.push(`WEEK(date) = WEEK(NOW())`);
                 android_uri.push(`week=true`);
             } else {
                 if (req.query.month && req.query.month === "true") {
-                    sqlquery.push(`WHERE MONTH(date) = MONTH(NOW());`);
+                    sqlquery.push(`MONTH(date) = MONTH(NOW())`);
                     android_uri.push(`month=true`);
                 } else if (req.query.month && !isNaN(parseInt(req.query.month)) && parseInt(req.query.month) >= 1 && parseInt(req.query.month) <= 12) {
-                    sqlquery.push(`WHERE MONTH(date) = MONTH('2015-${parseInt(req.query.month)}-1 00:00:00');`);
+                    sqlquery.push(`MONTH(date) = MONTH('2015-${parseInt(req.query.month)}-1 00:00:00')`);
                     android_uri.push(`month=` + req.query.month);
                 }
                 if (req.query.day && req.query.day === "true") {
-                    sqlquery.push(`WHERE DAY(date) = DAY(NOW());`);
+                    sqlquery.push(`DAY(date) = DAY(NOW())`);
                     android_uri.push(`day=true`);
                 } else if (req.query.day && !isNaN(parseInt(req.query.day)) && parseInt(req.query.day) >= 1 && parseInt(req.query.day) <= 31) {
-                    sqlquery.push(`WHERE DAY(date) = DAY('2015-12-${parseInt(req.query.day)} 00:00:00');`);
+                    sqlquery.push(`DAY(date) = DAY('2015-12-${parseInt(req.query.day)} 00:00:00')`);
                     android_uri.push(`day=` + req.query.day);
                 }
             }
             if (req.query.year && req.query.year === "true") {
-                sqlquery.push(`WHERE YEAR(date) = YEAR(NOW());`);
+                sqlquery.push(`YEAR(date) = YEAR(NOW())`);
                 android_uri.push(`year=true`);
             } else if (req.query.year && !isNaN(parseInt(req.query.year)) && parseInt(req.query.year) >= 1969 && parseInt(req.query.year) <= 4000) {
-                sqlquery.push(`WHERE YEAR(date) = YEAR('${parseInt(req.query.year)}-12-1 00:00:00');`);
+                sqlquery.push(`YEAR(date) = YEAR('${parseInt(req.query.year)}-12-1 00:00:00')`);
                 android_uri.push(`year=` + req.query.year);
             }
         } else if (!(req.query.channel || req.query.vchannel || req.query.folder) && (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/start')) {

@@ -389,7 +389,7 @@ async function setupReviewMode(bypass) {
         setupReviewModel.querySelector("#selectedChannel").innerText = setupReviewModel.querySelector("#destination-" + reviewDestination).getAttribute('data-ch-name')
     }
 
-    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
         enableReviewMode();
     } else {
@@ -405,13 +405,23 @@ async function setupReviewMode(bypass) {
             return ''
         }).join('\n')
         setupReviewModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<div class="destination-name">` +
+                    `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
+                    `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                    `</div>`
+            }
+        }).join('\n')
+        document.getElementById('recentOverlay').innerHTML = '<div class="recent-destination-list">' + ((ldest.length > 0) ? ldest : '<span>No Recent Destinations</span>') + '</div>'
         $('#setupReviewModel').modal('show');
     }
     generateReviewStyle();
     return false;
 }
 async function enableReviewMode(setFromDialog) {
-    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+    const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
         setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
     if (reviewDestination && reviewDestination.length > 1) {
@@ -476,6 +486,16 @@ async function enableReviewMode(setFromDialog) {
             }
             return ''
         }).join('\n')
+        let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
+            const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+            if (n) {
+                return `<div class="destination-name">` +
+                    `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
+                    `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                    `</div>`
+            }
+        }).join('\n')
+        document.getElementById('recentOverlay').innerHTML = '<div class="recent-destination-list">' + ((ldest.length > 0) ? ldest : '<span>No Recent Destinations</span>') + '</div>'
         document.getElementById('reviewRecentDestinations').innerHTML = (rdest.length > 0) ? rdest : ''
         document.getElementById('recentDestinationsDropdown').innerHTML = (rmenudest.length > 0) ? rmenudest : ''
         document.getElementById('reviewBtns').classList.remove("hidden");
@@ -844,7 +864,7 @@ async function setReviewChannel(chid, noSave) {
     }
     if (!noSave) {
         try {
-            const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
+            const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
             reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] = chid
             setCookie('reviewDestinationMap', JSON.stringify(reviewDestinationMap));
         } catch (e) {
@@ -918,6 +938,16 @@ async function updateRecentPostDestinations() {
         }
     }).join('\n')
     actionModel.querySelector('#recentDestionations').innerHTML = (rdest.length > 0) ? rdest : '<span>No Recents</span>'
+    let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
+        const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
+        if (n) {
+            return `<div class="destination-name">` +
+                `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
+                `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                `</div>`
+        }
+    }).join('\n')
+    document.getElementById('recentOverlay').innerHTML = '<div class="recent-destination-list">' + ((ldest.length > 0) ? ldest : '<span>No Recent Destinations</span>') + '</div>'
     generateReviewStyle();
 }
 async function shiftRecentPostDestinations(input) {
