@@ -4758,6 +4758,8 @@ async function showSearchOptions(post) {
             return tagObj.join("")
         }).join('\n');
         modelStaticTagsHolder.classList.remove('hidden');
+        if (modelTagsHolder.innerHTML !== '')
+            modelStaticTagsHolder.classList.add('mb-3');
     } else {
         modelStaticTagsHolder.innerHTML = '';
         modelStaticTagsHolder.classList.add('hidden');
