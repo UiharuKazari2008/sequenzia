@@ -3838,6 +3838,7 @@ async function showSearchOptions(post) {
     const modalSearchSNAO = document.getElementById(`sausenaoRequest`);
     const modelTagsHeader = document.getElementById(`tagsHeader`);
     const modelTagsHolder = document.getElementById(`tagsHolder`);
+    const modelStaticTagsHolder = document.getElementById(`tagsStaticHolder`);
     const modelManageButtons = document.getElementById(`manageButtons`);
 
     const modelKMSRow = document.getElementById(`kmsContent`);
@@ -4736,6 +4737,33 @@ async function showSearchOptions(post) {
         modelTagsHolder.innerHTML = '';
         modelTagsHeader.classList.add('hidden');
         modelTagsHolder.classList.add('hidden');
+    }
+
+    if (postStaticTags && postStaticTags.length > 0) {
+        modelStaticTagsHolder.classList.remove('hidden');
+        modelStaticTagsHolder.innerHTML = postStaticTags.slice(1, postStaticTags.length - 1).split(';').filter(e => !!e).map((e,i,a) => {
+            let tagObj = [`<div class="bg-gray-100 badge mx-1 mb-1" title="Static Tag">`]
+            tagObj.push(`<a class="text-gray-900" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+            tagObj.push(`<i class="fas fa-tag pr-1"></i><span>${e}</span>`)
+            tagObj.push("</a>")
+            if (cur.has('tags')) {
+                tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
+                tagObj.push("</a>")
+                tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                tagObj.push(`<i class="fas fa-circle-plus"></i>`)
+                tagObj.push("</a>")
+            }
+            tagObj.push("</div>")
+            return tagObj.join("")
+        }).join('\n');
+        modelStaticTagsHolder.classList.remove('hidden');
+    } else {
+        modelStaticTagsHolder.innerHTML = '';
+        modelStaticTagsHolder.classList.add('hidden');
+        if (modelTagsHolder.innerHTML !== '') {
+            modelTagsHeader.classList.add('hidden');
+        }
     }
 
     advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);
