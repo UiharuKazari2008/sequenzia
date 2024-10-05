@@ -7214,7 +7214,7 @@ $(document).bind('keyup', 'shift+f', () => {
     }
 });
 // Undo Last Action
-$(document).bind('keyup', 'shift+z', () => {
+$(document).bind('keyup', 'z', () => {
     if (isNotTextbox()) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
