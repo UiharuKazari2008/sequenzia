@@ -510,27 +510,27 @@ module.exports = async (req, res, next) => {
                 }
             } else if (_id.startsWith('!st:')) {
                 _id = _id.split('!st:')[1]
-                ts.push(`kanmi_records.tags NOT LIKE '%/${_id}%;%'`)
+                ts.push(`(kanmi_records.tags NOT LIKE '%/${_id}%;%' OR kanmi_records.post_tags LIKE '%;%${_id};%')`)
             } else if (_id.startsWith('!ed:')) {
                 _id = _id.split('!ed:')[1]
-                ts.push(`kanmi_records.tags NOT LIKE '%/%${_id};%'`)
+                ts.push(`(kanmi_records.tags NOT LIKE '%/%${_id};%' OR kanmi_records.post_tags NOT LIKE '%;%${_id};%')`)
             } else if (_id.startsWith('!lk:')) {
                 _id = _id.split('!lk:')[1]
-                ts.push(`kanmi_records.tags NOT LIKE '%/%${_id}%;%'`)
+                ts.push(`(kanmi_records.tags NOT LIKE '%/%${_id}%;%' OR kanmi_records.post_tags NOT LIKE '%;${_id};%')`)
             } else if (_id.startsWith('!:')) {
                 _id = _id.split('!:')[1]
-                ts.push(`kanmi_records.tags NOT LIKE '%/${_id};%'`)
+                ts.push(`(kanmi_records.tags NOT LIKE '%/${_id};%' OR kanmi_records.post_tags NOT LIKE '%;${_id};%')`)
             } else if (_id.startsWith('st:')) {
                 _id = _id.split('st:')[1]
-                ts.push(`kanmi_records.tags LIKE '%/${_id}%;%'`)
+                ts.push(`(kanmi_records.tags LIKE '%/${_id}%;%' OR kanmi_records.post_tags LIKE '%;${_id}%;%')`)
             } else if (_id.startsWith('ed:')) {
                 _id = _id.split('ed:')[1]
-                ts.push(`kanmi_records.tags LIKE '%/%${_id};%'`)
+                ts.push(`(kanmi_records.tags LIKE '%/%${_id};%' OR kanmi_records.post_tags LIKE '%;%${_id};%')`)
             } else if (_id.startsWith('lk:')) {
                 _id = _id.split('lk:')[1]
-                ts.push(`kanmi_records.tags LIKE '%/%${_id}%;%'`)
+                ts.push(`(kanmi_records.tags LIKE '%/%${_id}%;%' OR kanmi_records.post_tags LIKE '%;%${_id}%;%')`)
             } else if (_id.length > 0) {
-                ts.push(`kanmi_records.tags LIKE '%/${_id};%'`)
+                ts.push(`(kanmi_records.tags LIKE '%/${_id};%' OR kanmi_records.post_tags LIKE '%;${_id};%')`)
             }
             tag_list.push(_id);
             if (ts.length > 1) {
@@ -2390,6 +2390,7 @@ module.exports = async (req, res, next) => {
                                                     parent_search: parent_search,
                                                     safety: (item.safety) ? item.safety : 0,
                                                     tags: (item.tags) ? item.tags : [],
+                                                    static_tags: (item.static_tags) ? item.static_tags : [],
                                                     rating: (item.tag_count) ? item.tag_count : null,
                                                     rating_count: (item.tag_num) ? item.tag_num : null,
                                                 },
@@ -2555,6 +2556,7 @@ module.exports = async (req, res, next) => {
                                             proccessing: inprogress,
                                             safety: (item.safety) ? item.safety : 0,
                                             tags: (item.tags) ? item.tags : [],
+                                            static_tags: (item.static_tags) ? item.static_tags : [],
                                             rating: (item.tag_count) ? item.tag_count : null,
                                             rating_count: (item.tag_num) ? item.tag_num : null,
                                         },
@@ -2827,6 +2829,7 @@ module.exports = async (req, res, next) => {
                                                 message_header: _message_header,
                                                 safety: (item.safety) ? item.safety : 0,
                                                 tags: (item.tags) ? item.tags : [],
+                                                static_tags: (item.static_tags) ? item.static_tags : [],
                                                 rating: (item.tag_count) ? item.tag_count : null,
                                                 rating_count: (item.tag_num) ? item.tag_num : null,
                                             },
@@ -2971,6 +2974,7 @@ module.exports = async (req, res, next) => {
                                             message_header: _message_header,
                                             safety: (item.safety) ? item.safety : 0,
                                             tags: (item.tags) ? item.tags : [],
+                                            static_tags: (item.static_tags) ? item.static_tags : [],
                                             rating: (item.tag_count) ? item.tag_count : null,
                                             rating_count: (item.tag_num) ? item.tag_num : null,
                                         },
@@ -3071,6 +3075,7 @@ module.exports = async (req, res, next) => {
                                             message_header: _message_header,
                                             safety: (item.safety) ? item.safety : 0,
                                             tags: (item.tags) ? item.tags : [],
+                                            static_tags: (item.static_tags) ? item.static_tags : [],
                                             rating: (item.tag_count) ? item.tag_count : null,
                                             rating_count: (item.tag_num) ? item.tag_num : null,
                                         },

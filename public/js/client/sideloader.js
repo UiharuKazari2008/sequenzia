@@ -3768,6 +3768,7 @@ async function showSearchOptions(post) {
     const postFullImage = _post.getAttribute('data-msg-url-full');
     const postAuthorImage = _post.getAttribute('data-msg-author-img');
     const postTags = _post.getAttribute('data-tags');
+    const postStaticTags = _post.getAttribute('data-static-tags');
     const postKMSJSON = (() => {
         const _data = _post.getAttribute('data-kms-json');
         if (_data && _data.length > 2) {
