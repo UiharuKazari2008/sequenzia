@@ -4761,7 +4761,7 @@ async function showSearchOptions(post) {
     } else {
         modelStaticTagsHolder.innerHTML = '';
         modelStaticTagsHolder.classList.add('hidden');
-        if (modelTagsHolder.innerHTML !== '') {
+        if (modelTagsHolder.innerHTML === '') {
             modelTagsHeader.classList.add('hidden');
         }
     }
