@@ -33,6 +33,8 @@ module.exports = async (req, res, next) => {
 
         if (thisUser.master && thisUser.master.user && (req.session.login_source < 900 || (req.headers && req.headers['x-bypass-warning'] && req.headers['x-bypass-warning'] === 'appIntent'))) {
             let requestResults = {}
+            let movedResults = {}
+            let removedResults = {}
             await (((req.body.batch) ? [...req.body.batch] : [{...req.body}]).map(async (job, index, array) => {
                 let _return = 500;
                 switch (job.action)  {
@@ -55,6 +57,7 @@ module.exports = async (req, res, next) => {
                             } else {
                                 res.status(200).send(`Message Moved to ${job.data}`);
                             }
+                            await sqlPromiseSafe(`UPDATE kanmi_records SET n_channel = ? WHERE id = ? AND channel = ?`, [job.data, job.messageid, job.channelid])
                         } else {
                             printLine("ActionParser", `No Results for ${job.messageid}:${job.channelid} to move`, 'error')
                             if (req.body.batch) {
