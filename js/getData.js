@@ -1208,7 +1208,7 @@ module.exports = async (req, res, next) => {
             thisUser.master.cache.channels_view
         ];
         sqlWhere = [
-            `kanmi_records.channel = ${thisUser.master.cache.channels_view}.channelid`,
+            `IF(kanmi_records.n_channel IS NOT NULL, kanmi_records.n_channel, kanmi_records.channel) = ${thisUser.master.cache.channels_view}.channelid`,
             "kanmi_records.hidden != 1"
         ];
 
