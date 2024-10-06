@@ -7178,9 +7178,7 @@ $(document).bind('keydown', 'e', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
-            if ($('.review-item-panel').hasClass('show')) {
-                $('div.col-image:hover [title="Preview Item"].reviewPreview').click()
-            }
+            $('div.col-image:hover .lightbox').click()
         }
     }
 });
