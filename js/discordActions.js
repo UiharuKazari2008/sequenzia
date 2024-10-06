@@ -57,7 +57,7 @@ module.exports = async (req, res, next) => {
                             } else {
                                 res.status(200).send(`Message Moved to ${job.data}`);
                             }
-                            await sqlPromiseSafe(`UPDATE kanmi_records SET n_channel = ? WHERE id = ? AND channel = ?`, [job.data, job.messageid, job.channelid])
+                            await sqlPromiseSafe(`UPDATE kanmi_records SET n_channel = ? WHERE id = ? AND channel = ?`, [job.data.dest, job.messageid, job.channelid])
                         } else {
                             printLine("ActionParser", `No Results for ${job.messageid}:${job.channelid} to move`, 'error')
                             if (req.body.batch) {

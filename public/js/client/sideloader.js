@@ -6737,6 +6737,16 @@ $(document).bind('keydown', '.', () => {
         }
     }
 });
+$(document).bind('keydown', 'space', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        if ($('.review-item-panel').hasClass('show') && document.querySelectorAll('.col-image:not(.hidden)').length === 0) {
+            const nb = $("#nextPage")
+            if (nb) {
+                nb.click();
+            }
+        }
+    }
+});
 
 // Show Overlay
 $(document).bind('keydown', 'shift', () => {
