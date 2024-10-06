@@ -2542,6 +2542,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         not_cdn_cached: (!item.cdn_host),
+                                        discord_accessable: !!item.auth_valid,
                                         content: {
                                             raw: item.content_full,
                                             clean: clean_content,
@@ -2959,6 +2960,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         not_cdn_cached: (!item.cdn_host),
+                                        discord_accessable: !!item.auth_valid,
                                         content: {
                                             raw: item.content_full,
                                             clean: clean_content,
@@ -3060,6 +3062,7 @@ module.exports = async (req, res, next) => {
                                         },
                                         flagged: (item.flagged === 1),
                                         not_cdn_cached: (!item.cdn_host),
+                                        discord_accessable: !!item.auth_valid,
                                         content: {
                                             raw: item.content_full,
                                             clean: clean_content,

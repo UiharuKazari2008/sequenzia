@@ -144,7 +144,11 @@ block content
                                 if (!item.meta.cached)
                                     div.align-middle
                                         span #{item.entities.filename}
-                                        i.fas.fa-cloud-slash.ml-1
+
+                                        if (item.discord_accessable)
+                                            i.fas.fa-cloud.ml-1
+                                        else
+                                            i.fas.fa-cloud-slash.ml-1
                                 else
                                     span.align-middle #{item.entities.filename}
                                 div.text-primary.d-flex
