@@ -7032,6 +7032,16 @@ $(document).bind('keydown', 'shift+w', () => {
         }
     }
 });
+// Change Destination
+$(document).bind('keydown', 'alt+w', () => {
+    if (isNotTextbox()) {
+        if (window.location.hash.startsWith("#/gallery")) {
+            if ($('.review-item-panel').hasClass('show')) {
+                setupReviewMode(true);
+            }
+        }
+    }
+});
 // Open Theaters
 $(document).bind('keydown', 'shift+e', () => {
     if (isNotTextbox()) {
