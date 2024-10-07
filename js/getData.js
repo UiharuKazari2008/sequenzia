@@ -166,6 +166,7 @@ module.exports = async (req, res, next) => {
         let sqlTables, sqlWhere
         let sqlFields = [
             'kanmi_records.*',
+            'CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index',
             'IF(kanmi_records.attachment_auth_ex > NOW(), 1, 0) AS auth_valid'
         ];
 
@@ -409,7 +410,6 @@ module.exports = async (req, res, next) => {
             } else if (req.query.sort === 'content') {
                 sqlorder.push('content_full')
             } else if (req.query.sort === 'post_index') {
-                sqlFields.push('CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index');
                 sqlorder.push('post_index');
             } else if (req.query.sort === 'rating_count') {
                 sqlorder.push('tag_num')
@@ -1060,6 +1060,9 @@ module.exports = async (req, res, next) => {
             channelFilter += `( channel_nsfw = 0 )`;
         }
         if (page_uri === '/gallery' || page_uri === '/listTheater') {
+            if (req.query && req.query.min_posts) {
+                sqlquery.push(`(content_full REGEXP '\\\\(1/[0-9]+\\\\)' OR content_full NOT REGEXP '\\\\([0-9]+/[0-9]+\\\\)')`)
+            }
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             if (req.query.no_mixed_media) {
                 execute = '(' + [
@@ -2361,6 +2364,7 @@ module.exports = async (req, res, next) => {
                                                     preview: attachment[2],
                                                     ext_preview: extended_previews,
                                                     filename: item.attachment_name,
+                                                    expandable: (item.post_index && item.post_index > 0),
                                                     meta: {
                                                         width: item.sizeW,
                                                         height: item.sizeH,
@@ -2521,6 +2525,7 @@ module.exports = async (req, res, next) => {
                                             preview: imageurl,
                                             ext_preview: extended_previews,
                                             filename: filename,
+                                            expandable: (item.post_index && item.post_index > 0),
                                             meta: {
                                                 width: item.sizeW,
                                                 height: item.sizeH,
@@ -2800,6 +2805,7 @@ module.exports = async (req, res, next) => {
                                                 preview: attachment[2],
                                                 ext_preview: extended_previews,
                                                 filename: item.attachment_name,
+                                                expandable: (item.post_index && item.post_index > 0),
                                                 meta: {
                                                     width: item.sizeW,
                                                     height: item.sizeH,
@@ -2940,6 +2946,7 @@ module.exports = async (req, res, next) => {
                                             preview: imageurl,
                                             ext_preview: extended_previews,
                                             filename: filename,
+                                            expandable: (item.post_index && item.post_index > 0),
                                             meta: {
                                                 width: item.sizeW,
                                                 height: item.sizeH,
@@ -3042,6 +3049,7 @@ module.exports = async (req, res, next) => {
                                             download: fullurl,
                                             preview: imageurl,
                                             filename: filename,
+                                            expandable: (item.post_index && item.post_index > 0),
                                             meta: {
                                                 width: item.sizeW,
                                                 height: item.sizeH,

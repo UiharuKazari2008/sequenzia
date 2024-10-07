@@ -1328,6 +1328,14 @@ html
                                                                         a.dropdown-item(title="Show only Instant Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
                                                                             i.fas.fa-cloud-check.pr-2
                                                                             | Instant Access
+                                                                    if (params.getAll('min_posts')[0] === 'true')
+                                                                        a.dropdown-item(title="Expand Posts to there normal state" href='#_' onclick=`getNewContent(['offset', 'min_posts'], [])`  role='button')
+                                                                            i.fas.fa-empty-set.pr-2
+                                                                            | Expand Posts
+                                                                    else
+                                                                        a.dropdown-item(title="Minimise Posts to there parents" href='#_' onclick=`getNewContent(['offset'], [['min_posts', 'true']])` role='button')
+                                                                            i.fas.fa-layer-group.pr-2
+                                                                            | Min. Posts
                                                                     if (params.getAll('no_mixed_media')[0] === 'true')
                                                                         a.dropdown-item(title="Show All mixed media" href='#_' onclick=`getNewContent(['offset', 'cached'], [])`  role='button')
                                                                             i.fas.fa-photo-video.pr-2
@@ -1812,6 +1820,8 @@ html
                                                     i.fas.fa-binary.px-1
                                                 if (params.getAll('cached')[0] === 'true')
                                                     i.fas.fa-cloud-check.px-1
+                                                if (params.getAll('min_posts')[0] === 'true')
+                                                    i.fas.fa-layer-group.px-1
                                                 if (params.getAll('sort')[0] === 'post_index' && params.has('search') && params.getAll('reverse')[0] === 'true')
                                                     i.fas.fa-arrow-down-1-9.px-1
                                                 else if (params.getAll('sort')[0] === 'post_index' && params.has('search'))
@@ -2080,6 +2090,16 @@ html
                                                 .text-warning Showing only Instant Access or Directly Accessible items
                                             .align-self-center.align-self-start.ml-auto.mr-1
                                                 a.text-warning.align-self-end.alert-btn(title="Remove Accessibility Requirements" href='#_' onclick=`getNewContent(['offset', 'cached'], []); return false;`) Show All
+                                if (params && params.has('min_posts') && params.getAll('min_posts')[0] === 'true')
+                                    .alert.alert-time-transparent(role="alert")
+                                        .row
+                                            .col-auto.align-self-start.align-self-center
+                                                .glyphicon
+                                                    i.fas.fa-layer-group.text-warning
+                                            .align-self-start.align-self-center
+                                                .text-warning Multi-Page Posts are compressed
+                                            .align-self-center.align-self-start.ml-auto.mr-1
+                                                a.text-warning.align-self-end.alert-btn(title="Expand all posts" href='#_' onclick=`getNewContent(['offset', 'min_posts'], []); return false;`) Show All
                                 if (params && params.has('month'))
                                     .alert.alert-time-transparent(role="alert")
                                         .row
