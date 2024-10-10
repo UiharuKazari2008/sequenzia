@@ -21,6 +21,8 @@ html
         link(rel='preload', href="/static/img/kongou-group.png" as='image')
         link(rel='preload', href="/static/img/seq-mascot.png" as='image')
         each exchange, exchange_id in exchange_list
+            if (exchange_id === 'master')
+                meta(name='user_id', content=active_exchange.user.id)
             if (exchange.user && exchange.user.banner)
                 link(rel='preload', href=`${exchange.user.banner}#PLEASE_CACHE_THIS` as='image')
             if (exchange.user && exchange.user.avatar)

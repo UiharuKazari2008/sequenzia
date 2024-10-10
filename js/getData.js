@@ -1387,7 +1387,7 @@ module.exports = async (req, res, next) => {
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
-                            ranfullImage = `${web.base_url}/wallpaper/${image.eid}.png`
+                            ranfullImage = `${web.base_url}/wallpaper/${thisUser.master.discord.user.id}/${image.eid}.png`
                             if (req.query.width && req.query.height) {
                                 ranfullImage += `?width=${req.query.width}&height=${req.query.height}`
                             }
@@ -1555,7 +1555,7 @@ module.exports = async (req, res, next) => {
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
                         if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
-                            ranfullImage = `${web.base_url}/wallpaper/${image.eid}.png`
+                            ranfullImage = `${web.base_url}/wallpaper/${thisUser.master.discord.user.id}/${image.eid}.png`
                             if (req.query.width && req.query.height) {
                                 ranfullImage += `?width=${req.query.width}&height=${req.query.height}`
                             }

@@ -868,9 +868,8 @@ router.use('/media_attachments', async function (req, res) {
         });
     }
 });
-router.get('/wallpaper/:eid', sessionVerification, async function (req, res) {
+router.get('/wallpaper/:user/:eid', async function (req, res) {
     try {
-        const thisUser = res.locals.thisUser
         const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
         const q = `SELECT IF(rec.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid, rec.*, cdn.host AS cdn_host, cdn.path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE eid = ?) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
         const record = await sqlPromiseSafe(q, [req.params.eid.split('.')[0]])
@@ -882,7 +881,7 @@ router.get('/wallpaper/:eid', sessionVerification, async function (req, res) {
                 c: image.channel,
                 m: image.master_hint,
                 n: image.attachment_name,
-                u: thisUser.master.discord.user.id,
+                u: req.params.user,
                 e: image.eid,
             }
             let opts = {}

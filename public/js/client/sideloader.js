@@ -571,16 +571,6 @@ function clearWallpaperCropper(eid, type) {
         });
     }
 }
-function launchWallpaperGenerator(eid) {
-    const image = document.getElementById('wallpaperModal').querySelector('img');
-    const href = document.querySelector(`[data-msg-eid="${eid}"]`).getAttribute('data-msg-url-preview')
-    image.src = href;
-    let url = `/wallpaper/${eid}.png?`;
-    url += 'width=' + (window.screen.width * window.devicePixelRatio) + '&';
-    url += 'height=' + (window.screen.height * window.devicePixelRatio) + '&';
-    document.getElementById('wallpaperDownload').href = url;
-    $('#wallpaperModal').modal('show');
-}
 let bannerCropper
 let bannerEID
 function startBannerCropper(eid) {
@@ -3869,7 +3859,8 @@ async function showSearchOptions(post) {
     pageType = (pageType === 'tvTheater' || pageType === 'listTheater') ? 'files' : pageType;
     const cur = new URLSearchParams('?' + window.location.hash.split('?').pop())
     const _post = document.getElementById(`message-${post}`);
-    const _model = document.getElementById('searchModal')
+    const _model = document.getElementById('searchModal');
+    const myUserID = document.querySelector('meta[name="user_id"]').content;
     const postChannel = _post.getAttribute('data-msg-channel');
     const postServer = _post.getAttribute('data-msg-server');
     const postChannelString = _post.getAttribute('data-msg-channel-string');
@@ -4281,7 +4272,7 @@ async function showSearchOptions(post) {
         return false;
     }
 
-    let downloadWallpaperURL = `/wallpaper/${postEID}.png?`;
+    let downloadWallpaperURL = `/wallpaper/${myUserID}/${postEID}.png?`;
     const deviceWidth = (window.screen.width * window.devicePixelRatio);
     const deviceHeight = (window.screen.height * window.devicePixelRatio);
     downloadWallpaperURL += 'width=' + deviceWidth + '&';
