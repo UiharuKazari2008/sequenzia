@@ -499,7 +499,7 @@ function completeWallpaperCropper() {
             url: "/actions/v1",
             data: {
                 'action': 'SetWallaperCrop',
-                'eid': bannerEID,
+                'eid': wallpaperEID,
                 type: wallpaperMode,
                 crop: [
                     croppedImage.y.toFixed(),
