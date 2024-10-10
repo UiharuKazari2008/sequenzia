@@ -1394,7 +1394,7 @@ module.exports = async (req, res, next) => {
                                 } else {
                                     ranfullImage = cdn_host.gen_access_url
                                 }
-                                ranfullImage = `ads-gen/local/${thisUser.master.discord.user.id}/${image.eid}/${image.path_hint}/${image.full_hint}`
+                                ranfullImage += `ads-gen/local/${thisUser.master.discord.user.id}/${image.eid}/${image.path_hint}/${image.full_hint}`
                             } else {
                                 ranfullImage = `${cdn_host.access_url}full/${image.path_hint}/${image.full_hint}`
                             }
@@ -1406,7 +1406,7 @@ module.exports = async (req, res, next) => {
                             } else {
                                 ranfullImage = config.local_cdn_list.filter(e => !!e.gen_url)[0].gen_access_url
                             }
-                            ranfullImage = `ads-gen/discord/${thisUser.master.discord.user.id}/${image.eid}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
+                            ranfullImage += `ads-gen/discord/${thisUser.master.discord.user.id}/${image.eid}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
                             if (req.query.width && req.query.height) {
                                 ranfullImage += ((!ranfullImage.endsWith('&') ? "&" : "")) + "width=" + req.query.width + "&height=" + req.query.height
                             } else {
@@ -1576,7 +1576,7 @@ module.exports = async (req, res, next) => {
                                 } else {
                                     ranfullImage = cdn_host.gen_access_url
                                 }
-                                ranfullImage = `ads-gen/local/${thisUser.master.discord.user.id}/${image.eid}/${image.path_hint}/${image.full_hint}`
+                                ranfullImage += `ads-gen/local/${thisUser.master.discord.user.id}/${image.eid}/${image.path_hint}/${image.full_hint}`
                                 if (req.query.width && req.query.height) {
                                     ranfullImage += "?width=" + req.query.width + "&height=" + req.query.height
                                 }
@@ -1592,7 +1592,7 @@ module.exports = async (req, res, next) => {
                                 } else {
                                     ranfullImage = config.local_cdn_list.filter(e => !!e.gen_url)[0].gen_access_url
                                 }
-                                ranfullImage = `ads-gen/discord/${thisUser.master.discord.user.id}/${image.eid}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
+                                ranfullImage += `ads-gen/discord/${thisUser.master.discord.user.id}/${image.eid}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
                                 if (req.query.width && req.query.height) {
                                     ranfullImage += ((!ranfullImage.endsWith('&') ? "&" : "")) + "width=" + req.query.width + "&height=" + req.query.height
                                 }
