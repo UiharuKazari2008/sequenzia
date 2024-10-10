@@ -455,6 +455,21 @@ module.exports = async (req, res, next) => {
                         }
                     })
                     break;
+                case 'SetWallaperCrop':
+                    if (req.body.eid && req.body.crop && req.body.type) {
+                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
+                        if (foundMessages.rows && foundMessages.rows.length > 0) {
+                            console.log(foundMessages.rows[0])
+                            await sqlPromiseSafe(`UPDATE sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ? WHERE user = ? AND eid = ? AND type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], thisUser.discord.user.id, req.body.eid, req.body.type])
+                            res.status(200).send("Image Crop Saved");
+                        } else {
+                            await sqlPromiseSafe(`INSERT INTO sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ?, user = ?, eid = ?, type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], thisUser.discord.user.id, req.body.eid, req.body.type])
+                            res.status(200).send("Image Crop Saved");
+                        }
+                    } else {
+                        res.status(400).send('Invalid Request');
+                    }
+                    break;
                 case 'SetUserBanner':
                     if (req.body.eid && req.body.crop) {
                         const foundMessages = await sqlPromiseSafe(`SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint FROM (SELECT * FROM kanmi_records WHERE eid = ? LIMIT 1) rec LEFT JOIN (SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}) cdn ON (rec.eid = cdn.eid)`, [req.body.eid])

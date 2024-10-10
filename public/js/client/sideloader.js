@@ -466,8 +466,10 @@ function disablePerformanceMode() {
 
 let wallpaperCropper
 let wallpaperEID
+let wallpaperMode
 function startWallpaperCropper(eid, type) {
     wallpaperEID = eid;
+    wallpaperMode = (type) ? 1 : 0;
     const image = document.getElementById('wallpaperCropperModal').querySelector('img');
     const href = document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.replace('https://cdn.discordapp.com/attachments/', '/attachments/').replace('https://media.discordapp.net/attachments/', '/media_attachments/')
     image.src = href;
@@ -480,6 +482,57 @@ function startWallpaperCropper(eid, type) {
         rotatable: true,
         scalable: true,
     });
+}
+function cancelWallpaperCropper() {
+    wallpaperCropper.destroy();
+    wallpaperCropper = null;
+    wallpaperEID = null;
+    wallpaperMode = null;
+    $('#wallpaperCropperModal').modal('hide');
+    $("#wallpaperCropperModal .cropper-container").html("<img></img>")
+}
+function completeWallpaperCropper() {
+    if (wallpaperCropper && wallpaperEID && wallpaperMode) {
+        const croppedImage = wallpaperCropper.getData(true);
+        $.ajax({async: true,
+            type: "post",
+            url: "/actions/v1",
+            data: {
+                'action': 'SetWallaperCrop',
+                'eid': bannerEID,
+                type: wallpaperMode,
+                crop: [
+                    croppedImage.y.toFixed(),
+                    croppedImage.x.toFixed(),
+                    croppedImage.height.toFixed(),
+                    croppedImage.width.toFixed(),
+                    croppedImage.rotate.toFixed(),
+                ]
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    if (confirm) { $.snack('success', `${res}`, 5000) };
+                } else {
+                    if (confirm) { $.snack('error', `${res}`, 5000) };
+                }
+                cancelWallpaperCropper();
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                cancelWallpaperCropper();
+            }
+        });
+    }
 }
 let bannerCropper
 let bannerEID
@@ -4178,11 +4231,11 @@ async function showSearchOptions(post) {
         return false;
     }
     modalSetWallpaper.onclick = function() {
-        startWallpaperCropper(postEID, true);
+        startWallpaperCropper(postEID, false);
         return false;
     }
     modalSetPhone.onclick = function() {
-        startWallpaperCropper(postEID, false);
+        startWallpaperCropper(postEID, true);
         return false;
     }
     if (postChannelString && postChannelString.length > 0) {
