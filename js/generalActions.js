@@ -457,9 +457,9 @@ module.exports = async (req, res, next) => {
                     break;
                 case 'RemoveWallaperCrop':
                     if (req.body.eid && req.body.type) {
-                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
+                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, ((req.body.type) ? 1 : 0)])
                         if (foundMessages.rows && foundMessages.rows.length > 0) {
-                            await sqlPromiseSafe(`DELETE FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
+                            await sqlPromiseSafe(`DELETE FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, ((req.body.type) ? 1 : 0)])
                             res.status(200).send("Image Crop Saved");
                         } else {
                             res.status(404).send("Image Crop Not Found");
