@@ -464,6 +464,23 @@ function disablePerformanceMode() {
     setCookie("performaceMode", "false");
 }
 
+let wallpaperCropper
+let wallpaperEID
+function startWallpaperCropper(eid, type) {
+    wallpaperEID = eid;
+    const image = document.getElementById('wallpaperCropperModal').querySelector('img');
+    const href = document.querySelector(`[data-msg-eid="${eid}"] > .lightbox`).href.replace('https://cdn.discordapp.com/attachments/', '/attachments/').replace('https://media.discordapp.net/attachments/', '/media_attachments/')
+    image.src = href;
+    $('#wallpaperCropperModal').modal('show');
+    wallpaperCropper = new Cropper(image, {
+        aspectRatio: ((type) ? (9/ 16) : (16 / 9)),
+        viewMode: 1,
+        responsive: true,
+        checkOrientation: true,
+        rotatable: true,
+        scalable: true,
+    });
+}
 let bannerCropper
 let bannerEID
 function startBannerCropper(eid) {
@@ -3835,6 +3852,8 @@ async function showSearchOptions(post) {
     const modalRepair = document.getElementById(`infoRepair`);
     const modalSetAvatar = document.getElementById(`setAsAvatar`);
     const modalSetBanner = document.getElementById(`setAsBanner`);
+    const modalSetPhone = document.getElementById(`setPhoneCrop`);
+    const modalSetWallpaper = document.getElementById(`setWallpaperCrop`);
     const modalSearchSNAO = document.getElementById(`sausenaoRequest`);
     const modelTagsHeader = document.getElementById(`tagsHeader`);
     const modelTagsHolder = document.getElementById(`tagsHolder`);
@@ -4156,6 +4175,14 @@ async function showSearchOptions(post) {
     }
     modalSetBanner.onclick = function() {
         startBannerCropper(postEID);
+        return false;
+    }
+    modalSetWallpaper.onclick = function() {
+        startWallpaperCropper(postEID, true);
+        return false;
+    }
+    modalSetPhone.onclick = function() {
+        startWallpaperCropper(postEID, false);
         return false;
     }
     if (postChannelString && postChannelString.length > 0) {
