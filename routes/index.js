@@ -518,7 +518,7 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (req.query && params.length > 2 && params[0] !== '' && params[2] !== '') {
             const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
-            sqlSafe(`SELECT rec.*, IF(rec.attachment_auth_ex > NOW() - INTERVAL 1 HOUR, 1, 0) AS auth_valid, cdn.host AS cdn_host, cdn.path_hint, cdn.full_hint, cdn.mfull_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE id = ? LIMIT 1) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`, [ params[2]], async (err, messages) => {
+            sqlSafe(`SELECT rec.*, IF(rec.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid, cdn.host AS cdn_host, cdn.path_hint, cdn.full_hint, cdn.mfull_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE id = ? LIMIT 1) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`, [ params[2]], async (err, messages) => {
                 if (err) {
                     res.status(404).send('Message not found');
                     printLine('ProxyFile', `Message ID was not found, can not download`, 'error');

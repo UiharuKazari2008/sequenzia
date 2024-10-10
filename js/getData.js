@@ -167,7 +167,7 @@ module.exports = async (req, res, next) => {
         let sqlFields = [
             'kanmi_records.*',
             'CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index',
-            'IF(kanmi_records.attachment_auth_ex > NOW() - INTERVAL 1 HOUR, 1, 0) AS auth_valid'
+            'IF(kanmi_records.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid'
         ];
 
         let _dn = 'Untitled'
