@@ -1400,7 +1400,7 @@ module.exports = async (req, res, next) => {
                             }
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
-                        } else {
+                        } else if (config.local_cdn_list.filter(e => !!e.gen_local_url && !!e.gen_access_url).length > 0) {
                             if (page_uri === '/ambient-get') {
                                 ranfullImage = config.local_cdn_list.filter(e => !!e.gen_local_url)[0].gen_local_url
                             } else {
@@ -1586,7 +1586,7 @@ module.exports = async (req, res, next) => {
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
-                            if (config.local_cdn_list.filter(e => !!e.local_cdn_list && !!e.gen_access_url).length > 0 && req.query && req.query.generateImage && req.query.generateImage === 'true') {
+                            if (config.local_cdn_list.filter(e => !!e.gen_local_url && !!e.gen_access_url).length > 0 && req.query && req.query.generateImage && req.query.generateImage === 'true') {
                                 if (page_uri === '/ambient-get') {
                                     ranfullImage = config.local_cdn_list.filter(e => !!e.gen_local_url)[0].gen_local_url
                                 } else {
