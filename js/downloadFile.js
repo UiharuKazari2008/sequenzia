@@ -7,14 +7,13 @@ module.exports = async (req, res, next) => {
     if (res.locals.response.randomImagev2 && res.locals.response.randomImagev2.length > 0) {
 
         let url = res.locals.response.randomImagev2[0].fullImage;
+        if (res.locals.ads_url) {
+            url = res.locals.ads_url;
+        }
         const cdn_found = config.local_cdn_list.filter(e => url.startsWith(e.access_url));
         if (cdn_found.length > 0) {
-            if (cdn_found[0].gen_url && req.query.generateImage && req.query.width && req.query.height) {
-                url = (url.replace(cdn_found[0].access_url, cdn_found[0].gen_url)) + "?width=" + req.query.width + "&height=" + req.query.height
-                if (req.query.genDark)
-                    url += '&dark=' + req.query.genDark
-                if (req.query.dark)
-                    url += '&dark=' + req.query.dark
+            if (cdn_found[0].gen_access_url && req.query.generateImage && req.query.width && req.query.height) {
+                url = (url.replace(cdn_found[0].gen_access_url, cdn_found[0].gen_local_url)) + "?width=" + req.query.width + "&height=" + req.query.height
             } else {
                 url = (url.replace(cdn_found[0].access_url, cdn_found[0].local_url))
             }

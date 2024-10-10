@@ -7,6 +7,7 @@ const getIndex = require('../js/getIndex');
 const getKMSListing = require('../js/getKMSShows');
 const renderResults = require('../js/renderPage');
 const downloadResults = require('../js/downloadFile');
+const getADSURL = require('../js/getADSGenURL');
 const renderIndex = require('../js/renderIndex');
 const renderSidebar = require('../js/renderSidebar');
 const getHistory = require('../js/getHistory');
@@ -868,65 +869,11 @@ router.use('/media_attachments', async function (req, res) {
         });
     }
 });
-router.get('/wallpaper/:user/:eid', async function (req, res) {
-    try {
-        const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
-        const q = `SELECT IF(rec.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid, rec.*, cdn.host AS cdn_host, cdn.path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE eid = ?) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
-        const record = await sqlPromiseSafe(q, [req.params.eid.split('.')[0]])
-        if (record.rows.length !== 0) {
-            const image = record.rows[0]
-            let returnedUrl = '';
-            let data = {
-                s: image.server,
-                c: image.channel,
-                m: image.master_hint,
-                n: image.attachment_name,
-                u: req.params.user,
-                e: image.eid,
-            }
-            let opts = {}
-            if (image.colorR && image.colorG && image.colorB)
-                opts.tint = { r: image.colorR, g: image.colorG, b: image.colorB, d: image.dark_color }
-            if (image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
-                const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
-                returnedUrl = cdn_host.gen_access_url + 'ads-gen/'
-                data.t = 0;
-                data.p = image.path_hint;
-                data.f = image.full_hint;
-                data.m = image.master_hint;
-                if (image.real_filename)
-                    data.n = image.real_filename
-            } else {
-                returnedUrl = config.local_cdn_list.filter(e => !!e.gen_access_url)[0].gen_access_url + 'ads-gen/'
-                data.t = 1;
-                if ((image.attachment_hash.includes('/'))) {
-                    const a = image.attachment_hash.split('/')
-                    data.c = a[0];
-                    data.p = a[1];
-                    data.n = a[2];
-                } else {
-                    data.p = image.attachment_hash;
-                }
-                if (image.auth_valid)
-                    data.a = image.attachment_auth
-            }
-            if (req.query.width && req.query.height) {
-                data.w = req.query.width;
-                data.h = req.query.height;
-            }
-            data.o = opts;
-            const query = Buffer.from(JSON.stringify(data)).toString('base64');
-            returnedUrl += `${encodeURIComponent(query)}/${(image.real_filename || image.attachment_name).split('.')[0]}.png${(req.query.noDownload) ? '?noDownload=true' : ''}`;
-            res.redirect(returnedUrl);
-        } else {
-            res.status(404).send('Unknown Item');
-        }
-    } catch (err) {
-        res.status(500).json({
-            state: 'HALTED',
-            message: err.message,
-        });
-    }
+router.get('/wallpaper/:user/:eid', getADSURL, async function (req, res) {
+    if (res.locals.ads_url)
+        res.redirect(res.locals.ads_url);
+    else
+        res.status(404).send('Unknown Item');
 });
 router.use('/avatars', async function (req, res) {
     try {
@@ -1091,7 +1038,7 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
 router.get(['/ads-micro', '/ads-widget'], sessionVerification, generateConfiguration, getImages, handleExchange, downloadResults, renderResults);
 router.get('/ambient-refresh', sessionVerification, getImages, handleExchange, renderResults);
 router.get('/ambient-remote-refresh', sessionVerification, generateConfiguration, getImages, handleExchange, renderResults);
-router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, handleExchange, downloadResults);
+router.get('/ambient-get', sessionVerification, generateConfiguration, getImages, handleExchange, getADSURL, downloadResults);
 router.get('/ambient-history', sessionVerification, handleExchange, async (req, res) => {
     try {
         await getHistory(req, res)
