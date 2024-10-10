@@ -477,7 +477,9 @@ function startWallpaperCropper(eid, type) {
     wallpaperCropper = new Cropper(image, {
         aspectRatio: ((type) ? (9/ 16) : (16 / 9)),
         viewMode: 1,
-        responsive: true,
+        responsive: false,
+        restore: false,
+        checkCrossOrigin: false,
         checkOrientation: true,
         rotatable: true,
         scalable: true,
@@ -580,7 +582,9 @@ function startBannerCropper(eid) {
     bannerCropper = new Cropper(image, {
         aspectRatio: 16 / 9,
         viewMode: 1,
-        responsive: true,
+        responsive: false,
+        restore: false,
+        checkCrossOrigin: false,
         checkOrientation: true,
         rotatable: false,
         scalable: false,
@@ -653,7 +657,9 @@ function startAvatarCropper(eid) {
     avatarCropper = new Cropper(image, {
         aspectRatio: 1 / 1,
         viewMode: 1,
-        responsive: true,
+        responsive: false,
+        restore: false,
+        checkCrossOrigin: false,
         checkOrientation: true,
         rotatable: false,
         scalable: false,

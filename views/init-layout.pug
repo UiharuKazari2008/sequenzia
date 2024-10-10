@@ -819,6 +819,11 @@ html
                         div.row.pl-3.pr-3
                             div.cropper-container.w-100
                                 img(src="").w-100
+                        div.row.pl-3.pr-3.mt-2
+                            button.btn.btn-primary.mr-1(type='button' onclick='wallpaperCropper.rotate(-90); return false;')
+                                i.fas.fa-arrow-rotate-left
+                            button.btn.btn-primary.mr-1(type='button' onclick='wallpaperCropper.rotate(90); return false;')
+                                i.fas.fa-arrow-rotate-right
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal' onclick='cancelWallpaperCropper(); return false;') Cancel
                         a.btn.btn-success(title="Apply Banner Image" href='#_' onclick='completeWallpaperCropper(); return false;')
