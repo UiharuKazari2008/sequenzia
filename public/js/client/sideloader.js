@@ -494,7 +494,7 @@ function cancelWallpaperCropper() {
     $("#wallpaperCropperModal .cropper-container").html("<img></img>")
 }
 function completeWallpaperCropper() {
-    if (wallpaperCropper && wallpaperEID && wallpaperMode) {
+    if (wallpaperCropper && wallpaperEID) {
         const croppedImage = wallpaperCropper.getData(true);
         $.ajax({async: true,
             type: "post",
