@@ -7275,8 +7275,19 @@ $(document).bind('keydown', 'd', () => {
         }
     }
 });
-// Open Info Dialog (Manage Menu)
+// Open Info Dialog (Customize Menu)
 $(document).bind('keydown', 'f', () => {
+    if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
+        const hi = $('div.col-image:hover');
+        if (hi) {
+            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            $('[data-parent="#findMenus"].show').removeClass('show');
+            $('#customizeCollapse').addClass('show');
+        }
+    }
+});
+// Open Info Dialog (Manage Menu)
+$(document).bind('keydown', 'g', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
