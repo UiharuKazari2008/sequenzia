@@ -885,6 +885,9 @@ router.get('/wallpaper/:eid', sessionVerification, async function (req, res) {
                 u: thisUser.master.discord.user.id,
                 e: image.eid,
             }
+            let opts = {}
+            if (image.colorR && image.colorG && image.colorB)
+                opts.tint = { r: image.colorR, g: image.colorG, b: image.colorB, d: image.dark_color }
             if (image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
                 const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
                 returnedUrl = cdn_host.gen_access_url + 'ads-gen/'
@@ -912,6 +915,7 @@ router.get('/wallpaper/:eid', sessionVerification, async function (req, res) {
                 data.w = req.query.width;
                 data.h = req.query.height;
             }
+            data.o = opts;
             const query = Buffer.from(JSON.stringify(data)).toString('base64');
             returnedUrl += `${encodeURIComponent(query)}/${(image.real_filename || image.attachment_name).split('.')[0]}.png`;
             res.redirect(returnedUrl);
