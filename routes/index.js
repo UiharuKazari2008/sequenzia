@@ -917,7 +917,7 @@ router.get('/wallpaper/:eid', sessionVerification, async function (req, res) {
             }
             data.o = opts;
             const query = Buffer.from(JSON.stringify(data)).toString('base64');
-            returnedUrl += `${encodeURIComponent(query)}/${(image.real_filename || image.attachment_name).split('.')[0]}.png`;
+            returnedUrl += `${encodeURIComponent(query)}/${(image.real_filename || image.attachment_name).split('.')[0]}.png${(req.query.noDownload) ? '?noDownload=true' : ''}`;
             res.redirect(returnedUrl);
         } else {
             res.status(404).send('Unknown Item');

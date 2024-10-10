@@ -1386,32 +1386,18 @@ module.exports = async (req, res, next) => {
                         ranfullImage = `/content/full64/${image.channelid}/${image.id}`
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
-                        if (image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
-                            const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
-                            if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
-                                if (page_uri === '/ambient-get') {
-                                    ranfullImage = cdn_host.gen_local_url
-                                } else {
-                                    ranfullImage = cdn_host.gen_access_url
-                                }
-                                ranfullImage += `ads-gen/local/${thisUser.master.discord.user.id}/${image.eid}/${image.path_hint}/${image.full_hint}`
-                            } else {
-                                ranfullImage = `${cdn_host.access_url}full/${image.path_hint}/${image.full_hint}`
+                        if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
+                            ranfullImage = `${web.base_url}/wallpaper/${image.eid}.png`
+                            if (req.query.width && req.query.height) {
+                                ranfullImage += `?width=${req.query.width}&height=${req.query.height}`
                             }
+                        } else if (image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
+                            const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
+                            ranfullImage = `${cdn_host.access_url}full/${image.path_hint}/${image.full_hint}`
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
-                        } else if (config.local_cdn_list.filter(e => !!e.gen_local_url && !!e.gen_access_url).length > 0) {
-                            if (page_uri === '/ambient-get') {
-                                ranfullImage = config.local_cdn_list.filter(e => !!e.gen_local_url)[0].gen_local_url
-                            } else {
-                                ranfullImage = config.local_cdn_list.filter(e => !!e.gen_access_url)[0].gen_access_url
-                            }
-                            ranfullImage += `ads-gen/discord/${thisUser.master.discord.user.id}/${image.eid}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
-                            if (req.query.width && req.query.height) {
-                                ranfullImage += ((!ranfullImage.endsWith('&') ? "&" : "")) + "width=" + req.query.width + "&height=" + req.query.height
-                            } else {
-                                ranfullImage = `${(req.session && req.session.lite_mode === true) ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
-                            }
+                        } else {
+                            ranfullImage = `${(req.session && req.session.lite_mode === true) ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
                         }
                     }
 
@@ -1568,37 +1554,18 @@ module.exports = async (req, res, next) => {
                         ranfullImage = `/content/full64/${image.channelid}/${image.id}`
                         ranfullImagePerma = `/content/link/${image.channelid}/${image.id}`
                     } else {
-                        if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
-                            const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
-                            if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
-                                if (page_uri === '/ambient-get') {
-                                    ranfullImage = cdn_host.gen_local_url
-                                } else {
-                                    ranfullImage = cdn_host.gen_access_url
-                                }
-                                ranfullImage += `ads-gen/local/${thisUser.master.discord.user.id}/${image.eid}/${image.path_hint}/${image.full_hint}`
-                                if (req.query.width && req.query.height) {
-                                    ranfullImage += "?width=" + req.query.width + "&height=" + req.query.height
-                                }
-                            } else {
-                                ranfullImage = `${cdn_host.access_url}full/${image.path_hint}/${image.full_hint}`
+                        if (req.query && req.query.generateImage && req.query.generateImage === 'true') {
+                            ranfullImage = `${web.base_url}/wallpaper/${image.eid}.png`
+                            if (req.query.width && req.query.height) {
+                                ranfullImage += `?width=${req.query.width}&height=${req.query.height}`
                             }
+                        } else if ( image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
+                            const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
+                            ranfullImage = `${cdn_host.access_url}full/${image.path_hint}/${image.full_hint}`
                         } else if (image.filecached === 1) {
                             ranfullImage = `/stream/${image.fileid}/${image.real_filename}`
                         } else {
-                            if (config.local_cdn_list.filter(e => !!e.gen_local_url && !!e.gen_access_url).length > 0 && req.query && req.query.generateImage && req.query.generateImage === 'true') {
-                                if (page_uri === '/ambient-get') {
-                                    ranfullImage = config.local_cdn_list.filter(e => !!e.gen_local_url)[0].gen_local_url
-                                } else {
-                                    ranfullImage = config.local_cdn_list.filter(e => !!e.gen_access_url)[0].gen_access_url
-                                }
-                                ranfullImage += `ads-gen/discord/${thisUser.master.discord.user.id}/${image.eid}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
-                                if (req.query.width && req.query.height) {
-                                    ranfullImage += ((!ranfullImage.endsWith('&') ? "&" : "")) + "width=" + req.query.width + "&height=" + req.query.height
-                                }
-                            } else {
-                                ranfullImage = `${(req.session && req.session.lite_mode === true) ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
-                            }
+                            ranfullImage = `${(req.session && req.session.lite_mode === true) ? '/attachments' : 'https://cdn.discordapp.com/attachments'}/` + ((image.attachment_hash.includes('/')) ? image.attachment_hash : `${image.channelid}/${image.attachment_hash}/${image.attachment_name}${(image.auth_valid) ? '?' + image.attachment_auth : ''}`)
                         }
                     }
 
