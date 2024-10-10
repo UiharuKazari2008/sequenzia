@@ -80,6 +80,45 @@ async function deleteCacheData(key, local) {
     }
     return app.delete(key)
 }
+async function getDiscordURL(url) {
+    if (!global.discord_user_token)
+        return url;
+    return new Promise(async ok => {
+        const params = new URLSearchParams('?' + inputUrl.split('?')[1]);
+        if (params.get('ex') && params.get('is') && params.get('hm')) {
+            const expires = new Date(parseInt(params.get('ex') || '', 16) * 1000);
+            if (expires.getTime() > Date.now()) {
+                ok(ok);
+                return false;
+            }
+        }
+        const payload = {
+            method: 'POST',
+            headers: {
+                'Authorization': `${global.discord_user_token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ attachment_urls: [url] })
+        };
+
+        const response = await fetch('https://discord.com/api/v9/attachments/refresh-urls', payload);
+
+        if (response.status !== 200) {
+            ok(false);
+            return false;
+        }
+
+        const json = await response.json();
+
+        if (Array.isArray(json.refreshed_urls) && json.refreshed_urls[0].refreshed) {
+            const refreshed_url = new URL(json.refreshed_urls[0].refreshed);
+            ok(refreshed_url.href);
+        } else {
+            ok(false);
+        }
+        return false;
+    });
+}
 
 router.get('/system/sw-config', (req, res) => {
     res.status(200).json({
@@ -479,7 +518,7 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (req.query && params.length > 2 && params[0] !== '' && params[2] !== '') {
             const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
-            sqlSafe(`SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.full_hint, cdn.mfull_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE id = ? LIMIT 1) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`, [ params[2]], async (err, messages) => {
+            sqlSafe(`SELECT rec.*, IF(rec.attachment_auth_ex > NOW() - INTERVAL 1 HOUR, 1, 0) AS auth_valid, cdn.host AS cdn_host, cdn.path_hint, cdn.full_hint, cdn.mfull_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE id = ? LIMIT 1) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`, [ params[2]], async (err, messages) => {
                 if (err) {
                     res.status(404).send('Message not found');
                     printLine('ProxyFile', `Message ID was not found, can not download`, 'error');
@@ -629,7 +668,8 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                         } else if (message.filecached && (global.fw_serve || global.spanned_cache)) {
                             returnContent();
                         } else if (message.attachment_hash) {
-                            returnContent(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
+                            const url = await getDiscordURL(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}${(message.auth_valid) ? '?' + message.attachment_auth : ''}`));
+                            returnContent(url);
                         } else {
                             res.status(404).send('Data not available');
                             printLine('ProxyFile', `No full content exists`, 'error');
@@ -639,8 +679,9 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                             returnContent(`${config.local_cdn_list.filter(e => e.id === message.cdn_host)[0].access_url}preview/${message.path_hint}/${message.preview_hint}`);
                         } else if (message.cache_proxy) {
                             returnOptiContent(message.cache_proxy.startsWith('http') ? message.cache_proxy : `https://media.discordapp.net/attachments${message.cache_proxy}`);
-                        } else if (message.attachment_hash) {
-                            returnOptiContent(`https://media.discordapp.net/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
+                        } else if (message.attachment_hash && message.auth_valid) {
+                            const url = await getDiscordURL(`https://media.discordapp.net/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}${(message.auth_valid) ? '?' + message.attachment_auth : ''}`));
+                            returnOptiContent(url);
                         } else {
                             res.status(404).send('Data not available');
                             printLine('ProxyFile', `No proxy content exists`, 'error');
@@ -711,8 +752,9 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                             returnContent(`${config.local_cdn_list.filter(e => e.id === message.cdn_host)[0].access_url}preview/${message.path_hint}/${message.mfull_hint}`);
                         } else if (message.fileid !== null) {
                             res.redirect(`/stream/${message.fileid}/${message.real_filename}`);
-                        } else if (message.attachment_hash !== null) {
-                            res.redirect(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}`));
+                        } else if (message.attachment_hash) {
+                            const url = await getDiscordURL(`https://cdn.discordapp.com/attachments/` + ((message.attachment_hash.includes('/')) ? message.attachment_hash : `${message.channel}/${message.attachment_hash}/${message.attachment_name}${(message.auth_valid) ? '?' + message.attachment_auth : ''}`));
+                            res.redirect(url);
                         } else {
                             res.status(404).send('Item does not have any valid content to serve');
                         }
@@ -739,7 +781,8 @@ router.use(['/attachments', '/full_attachments'], async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         if (params.length === 3) {
-            const request = https.get('https://cdn.discordapp.com/attachments/' + params.join('/'), {
+            const url = await getDiscordURL('https://cdn.discordapp.com/attachments/' + params.join('/'));
+            const request = https.get(url, {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                     'accept-language': 'en-US,en;q=0.9',
@@ -783,7 +826,7 @@ router.use('/media_attachments', async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
         const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
-        const url = 'https://media.discordapp.net/attachments/' + params.join('/') + '?' + query
+        const url = await getDiscordURL('https://media.discordapp.net/attachments/' + params.join('/') + '?' + query);
         if (params.length === 3) {
             const request = ((url.startsWith('https')) ? https : http).get(url, {
                 headers: {
