@@ -534,15 +534,15 @@ function completeWallpaperCropper() {
         });
     }
 }
-function clearWallpaperCropper() {
-    if (wallpaperEID && wallpaperMode) {
+function clearWallpaperCropper(eid, type) {
+    if (eid) {
         $.ajax({async: true,
             type: "post",
             url: "/actions/v1",
             data: {
                 'action': 'RemoveWallaperCrop',
-                'eid': wallpaperEID,
-                type: wallpaperMode
+                'eid': eid,
+                type: type
             },
             cache: false,
             headers: {
