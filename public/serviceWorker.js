@@ -261,7 +261,10 @@ async function handleResponse(url, response, reqType) {
     if (response.status < 204 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
         !(
-            ((cdnEndpoints.filter(c => uri.startsWith(c)).length > 0 && url.endsWith('#PLEASE_CACHE_THIS')) || uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/'))
+            (
+                (cdnEndpoints.filter(c => uri.startsWith(c)).length > 0 && url.endsWith('#PLEASE_CACHE_THIS')) ||
+                uri.includes('/attachments/') || uri.includes('/full_attachments/') ||
+                uri.includes('/media_attachments/'))
             && (uri.includes('JFS_') || uri.includes('PARITY_'))
         ) && !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
 

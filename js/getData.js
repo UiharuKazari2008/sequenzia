@@ -1039,7 +1039,7 @@ module.exports = async (req, res, next) => {
         }
         // Where Exec
         if (!req.query.inc_omitted && thisUser.master.disabled_channels && thisUser.master.disabled_channels.length > 0 && hideChannels) {
-            baseQ += '( ' + thisUser.master.disabled_channels.map(e => `channel_eid != '${e}'`).join(' AND ') + ` ) AND ${thisUser.master.cache.channels_view}.media_group IS NULL AND `
+            baseQ += 'channel_eid NOT IN (' + thisUser.master.disabled_channels.map(e => `'${e}'`).join(', ') + `) AND ${thisUser.master.cache.channels_view}.media_group IS NULL AND `
         } else if (!req.query.inc_omitted && hideChannels) {
             baseQ += `( ${thisUser.master.cache.channels_view}.media_group IS NULL ) AND `
         }
