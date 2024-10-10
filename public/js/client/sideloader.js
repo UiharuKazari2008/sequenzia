@@ -571,6 +571,16 @@ function clearWallpaperCropper(eid, type) {
         });
     }
 }
+function launchWallpaperGenerator(eid) {
+    const image = document.getElementById('wallpaperModal').querySelector('img');
+    const href = document.querySelector(`[data-msg-eid="${eid}"]`).getAttribute('data-msg-url-preview')
+    image.src = href;
+    let url = `/wallpaper/${eid}.png?`;
+    url += 'width=' + (window.screen.width * window.devicePixelRatio) + '&';
+    url += 'height=' + (window.screen.height * window.devicePixelRatio) + '&';
+    document.getElementById('wallpaperDownload').href = url;
+    $('#wallpaperModal').modal('show');
+}
 let bannerCropper
 let bannerEID
 function startBannerCropper(eid) {
@@ -3946,6 +3956,7 @@ async function showSearchOptions(post) {
     const modalRepair = document.getElementById(`infoRepair`);
     const modalSetAvatar = document.getElementById(`setAsAvatar`);
     const modalSetBanner = document.getElementById(`setAsBanner`);
+    const modalGetWallpaper = document.getElementById(`getAsWallpaper`);
     const modalSetPhone = document.getElementById(`setPhoneCrop`);
     const modalRemovePhone = document.getElementById(`removePhoneCrop`);
     const modalRemoveWallpaper = document.getElementById(`removeWallpaperCrop`);
@@ -4269,6 +4280,16 @@ async function showSearchOptions(post) {
         startAvatarCropper(postEID);
         return false;
     }
+
+    let downloadWallpaperURL = `/wallpaper/${postEID}.png?`;
+    const deviceWidth = (window.screen.width * window.devicePixelRatio);
+    const deviceHeight = (window.screen.height * window.devicePixelRatio);
+    downloadWallpaperURL += 'width=' + deviceWidth + '&';
+    downloadWallpaperURL += 'height=' + deviceHeight + '&';
+    modalGetWallpaper.href = downloadWallpaperURL;
+    modalGetWallpaper.download = postEID + '.png';
+    modalGetWallpaper.querySelector('span').innerText = `Download Wallpaper (${deviceWidth}x${deviceHeight})`
+
     modalSetBanner.onclick = function() {
         startBannerCropper(postEID);
         return false;

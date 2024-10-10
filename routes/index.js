@@ -868,6 +868,63 @@ router.use('/media_attachments', async function (req, res) {
         });
     }
 });
+router.get('/wallpaper/:eid', sessionVerification, async function (req, res) {
+    try {
+        const thisUser = res.locals.thisUser
+        const selectCDN = `SELECT * FROM kanmi_records_cdn WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
+        const q = `SELECT IF(rec.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid, rec.*, cdn.host AS cdn_host, cdn.path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT * FROM kanmi_records WHERE eid = ?) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
+        const record = await sqlPromiseSafe(q, [req.params.eid.split('.')[0]])
+        if (record.rows.length !== 0) {
+            const image = record.rows[0]
+            let returnedUrl = '';
+            let data = {
+                s: image.server,
+                c: image.channel,
+                m: image.master_hint,
+                n: image.attachment_name,
+                u: thisUser.master.discord.user.id,
+                e: image.eid,
+            }
+            if (image.cdn_host !== null && config.local_cdn_list.filter(e => e.id === image.cdn_host).length > 0 && image.full_hint) {
+                const cdn_host = config.local_cdn_list.filter(e => e.id === image.cdn_host)[0]
+                returnedUrl = cdn_host.gen_access_url + 'ads-gen/'
+                data.t = 0;
+                data.p = image.path_hint;
+                data.f = image.full_hint;
+                data.m = image.master_hint;
+                if (image.real_filename)
+                    data.n = image.real_filename
+            } else {
+                returnedUrl = config.local_cdn_list.filter(e => !!e.gen_access_url)[0].gen_access_url + 'ads-gen/'
+                data.t = 1;
+                if ((image.attachment_hash.includes('/'))) {
+                    const a = image.attachment_hash.split('/')
+                    data.c = a[0];
+                    data.p = a[1];
+                    data.n = a[2];
+                } else {
+                    data.p = image.attachment_hash;
+                }
+                if (image.auth_valid)
+                    data.a = image.attachment_auth
+            }
+            if (req.query.width && req.query.height) {
+                data.w = req.query.width;
+                data.h = req.query.height;
+            }
+            const query = Buffer.from(JSON.stringify(data)).toString('base64');
+            returnedUrl += `${encodeURIComponent(query)}/${(image.real_filename || image.attachment_name).split('.')[0]}.png`;
+            res.redirect(returnedUrl);
+        } else {
+            res.status(404).send('Unknown Item');
+        }
+    } catch (err) {
+        res.status(500).json({
+            state: 'HALTED',
+            message: err.message,
+        });
+    }
+});
 router.use('/avatars', async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
