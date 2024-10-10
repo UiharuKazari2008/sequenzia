@@ -534,6 +534,41 @@ function completeWallpaperCropper() {
         });
     }
 }
+function clearWallpaperCropper() {
+    if (wallpaperEID && wallpaperMode) {
+        $.ajax({async: true,
+            type: "post",
+            url: "/actions/v1",
+            data: {
+                'action': 'RemoveWallaperCrop',
+                'eid': wallpaperEID,
+                type: wallpaperMode
+            },
+            cache: false,
+            headers: {
+                'X-Requested-With': 'SequenziaXHR'
+            },
+            success: function (res, txt, xhr) {
+                if (xhr.status < 400) {
+                    if (confirm) { $.snack('success', `${res}`, 5000) };
+                } else {
+                    if (confirm) { $.snack('error', `${res}`, 5000) };
+                }
+                cancelWallpaperCropper();
+            },
+            error: function (xhr) {
+                $.toast({
+                    type: 'error',
+                    title: 'Failed to complete action',
+                    subtitle: 'Now',
+                    content: `${xhr.responseText}`,
+                    delay: 5000,
+                });
+                cancelWallpaperCropper();
+            }
+        });
+    }
+}
 let bannerCropper
 let bannerEID
 function startBannerCropper(eid) {
@@ -3906,6 +3941,8 @@ async function showSearchOptions(post) {
     const modalSetAvatar = document.getElementById(`setAsAvatar`);
     const modalSetBanner = document.getElementById(`setAsBanner`);
     const modalSetPhone = document.getElementById(`setPhoneCrop`);
+    const modalRemovePhone = document.getElementById(`removePhoneCrop`);
+    const modalRemoveWallpaper = document.getElementById(`removeWallpaperCrop`);
     const modalSetWallpaper = document.getElementById(`setWallpaperCrop`);
     const modalSearchSNAO = document.getElementById(`sausenaoRequest`);
     const modelTagsHeader = document.getElementById(`tagsHeader`);
@@ -4228,6 +4265,14 @@ async function showSearchOptions(post) {
     }
     modalSetBanner.onclick = function() {
         startBannerCropper(postEID);
+        return false;
+    }
+    modalRemoveWallpaper.onclick = function() {
+        clearWallpaperCropper(postEID, false);
+        return false;
+    }
+    modalRemovePhone.onclick = function() {
+        clearWallpaperCropper(postEID, true);
         return false;
     }
     modalSetWallpaper.onclick = function() {

@@ -455,11 +455,23 @@ module.exports = async (req, res, next) => {
                         }
                     })
                     break;
+                case 'RemoveWallaperCrop':
+                    if (req.body.eid && req.body.crop && req.body.type) {
+                        const foundMessages = await sqlPromiseSafe(`SELECT * FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
+                        if (foundMessages.rows && foundMessages.rows.length > 0) {
+                            await sqlPromiseSafe(`DELETE FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
+                            res.status(200).send("Image Crop Saved");
+                        } else {
+                            res.status(404).send("Image Crop Not Found");
+                        }
+                    } else {
+                        res.status(400).send('Invalid Request');
+                    }
+                    break;
                 case 'SetWallaperCrop':
                     if (req.body.eid && req.body.crop && req.body.type) {
                         const foundMessages = await sqlPromiseSafe(`SELECT * FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
                         if (foundMessages.rows && foundMessages.rows.length > 0) {
-                            console.log(foundMessages.rows[0])
                             await sqlPromiseSafe(`UPDATE sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ? WHERE user = ? AND eid = ? AND type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], thisUser.discord.user.id, req.body.eid, req.body.type])
                             res.status(200).send("Image Crop Saved");
                         } else {
