@@ -60,7 +60,7 @@ module.exports = async (req, res, next) => {
             const last = await sqlPromiseSafe(`SELECT * FROM sequenzia_navigation_history WHERE (user = ? AND date >= NOW() - INTERVAL 3 MINUTE) ORDER BY date DESC`, [thisUser.master.discord.user.id])
             if (last.rows.length > 0) {
                 const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
-                const noTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
+                const noTags     = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
                 const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
                 console.log(noLastTags)
                 console.log(noTags)
@@ -991,6 +991,21 @@ module.exports = async (req, res, next) => {
         if (req.query.group) {
             bypassNSFWFilter = true;
             sqlquery.push(`${thisUser.master.cache.channels_view}.media_group = '${req.query.group}' AND ${thisUser.master.cache.channels_view}.media_group = kongou_media_groups.media_group`)
+        }
+        if (req.query.cropped) {
+            if (req.query.cropped === 'mobile') {
+                sqlquery.push(`eid IN (SELECT eid FROM sequenzia_wallpaper_crop WHERE user = '${thisUser.master.discord.user.id}' AND type = 1)`)
+            } else if (req.query.cropped === 'wide') {
+                sqlquery.push(`eid IN (SELECT eid FROM sequenzia_wallpaper_crop WHERE user = '${thisUser.master.discord.user.id}' AND type = 0)`)
+            } else if (req.query.cropped === 'true') {
+                sqlquery.push(`eid IN (SELECT eid FROM sequenzia_wallpaper_crop)`)
+            } else if (req.query.cropped === 'false') {
+                sqlquery.push(`eid NOT IN (SELECT eid FROM sequenzia_wallpaper_crop)`)
+            } else if (req.query.cropped === 'false-mobile') {
+                sqlquery.push(`eid NOT IN (SELECT eid FROM sequenzia_wallpaper_crop AND type = 1)`)
+            } else if (req.query.cropped === 'false-wide') {
+                sqlquery.push(`eid NOT IN (SELECT eid FROM sequenzia_wallpaper_crop AND type = 0)`)
+            }
         }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             bypassNSFWFilter = true;

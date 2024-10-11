@@ -1295,7 +1295,58 @@ html
                                                                         a.dropdown-item(title="Randomize" href='#_' onclick=`getNewContent(['offset'], [['sort', 'random']])` role='button')
                                                                             i.fas.fa-dice.pr-2
                                                                             | Random
-                                                                    .dropdown-divider
+                                                                    if (params.getAll('sort')[0] !== 'random')
+                                                                        .dropdown-divider
+                                                                        if (params.getAll('sort')[0] !== 'eid')
+                                                                            a.dropdown-item(title="Sort by creation" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'eid']]); return false;` role='button')
+                                                                                i.fas.fa-stream.pr-2
+                                                                                | Uploaded
+                                                                        if (params.getAll('sort')[0] !== 'id')
+                                                                            a.dropdown-item(title="Sort by modified" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'id']]); return false;` role='button')
+                                                                                i.fas.fa-sync.pr-2
+                                                                                | Modified
+                                                                        if (params.getAll('sort')[0] !== 'date')
+                                                                            a.dropdown-item(title="Sort by date" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'date']]); return false;` role='button')
+                                                                                i.fas.fa-file.pr-2
+                                                                                | Originated
+                                                                        if (params.getAll('sort')[0] !== 'post_index' && params.has('search'))
+                                                                            a.dropdown-item(title="Sort by original order from source post" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'post_index']]); return false;` role='button')
+                                                                                i.fas.fa-arrow-down-1-9.pr-2
+                                                                                | Original Order
+                                                                        if (!(params.getAll('sort')[0] === 'album') && params.has('album'))
+                                                                            a.dropdown-item(title="Sort by date added to Album" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'album']]); return false;` role='button')
+                                                                                i.fas.fa-archive.pr-2
+                                                                                | Added
+                                                                        if (!(params.getAll('sort')[0] === 'fav') && params.has('pins') && params.getAll('pins')[0] !== 'false')
+                                                                            a.dropdown-item(title="Sort by date Favoured" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'fav']]); return false;` role='button')
+                                                                                i.fas.fa-star.pr-2
+                                                                                | Favoured
+                                                                        if (!(params.getAll('sort')[0] === 'rating'))
+                                                                            a.dropdown-item(title="Sort by MIITS Tag Score" href='#_' data-toggle='modal' data-target='#emiitsWarning' role='button')
+                                                                                i.fas.fa-hundred-points.pr-2
+                                                                                | Score (E-MIITS)
+                                                                        if (!(params.getAll('sort')[0] === 'history') && (params.has('displayname') || params.getAll('history')[0] === 'only'))
+                                                                            a.dropdown-item(title="Sort by date last displayed" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'history']]); return false;` role='button')
+                                                                                i.fas.fa-history.pr-2
+                                                                                | Last Shown
+                                                                        if (params.getAll('sort')[0] !== 'content')
+                                                                            a.dropdown-item(title="Sort by message content" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'content']]); return false;` role='button')
+                                                                                i.fas.fa-envelope.pr-2
+                                                                                | Full Text
+                                                                        if (params.getAll('sort')[0] !== 'name' && params.getAll('sort')[0] !== 'file')
+                                                                            a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
+                                                                                i.fas.fa-input-text.pr-2
+                                                                                | File Name
+                                                                        if (params.getAll('sort')[0] !== 'ext')
+                                                                            a.dropdown-item(title="Sort by File Extension" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'ext']]); return false;` role='button')
+                                                                                i.fas.fa-photo-film-music.pr-2
+                                                                                | File Extension
+                                                                        if (params.getAll('sort')[0] !== 'size')
+                                                                            a.dropdown-item(title="Sort by File Size" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'size']]); return false;` role='button')
+                                                                                i.fas.fa-hdd.pr-2
+                                                                                | File Size
+                                                                    span.dropdown-header
+                                                                        | Filters
                                                                     if (params.getAll('pins')[0] === 'false')
                                                                         a.dropdown-item(title="Show All" href='#_' onclick=`getNewContent(['offset', 'pins'], [])`  role='button')
                                                                             i.fas.fa-empty-set.pr-2
@@ -1351,7 +1402,6 @@ html
                                                                         a.dropdown-item(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['nsfw'], [])`  role='button')
                                                                             i.fas.fa-shield-cat.pr-2
                                                                             | No NSFW
-
                                                                     else if (params.getAll('nsfw')[0] === 'only')
                                                                         a.dropdown-item(title="Remove NSFW Results" href='#_' onclick=`getNewContent(['nsfw'], [])`  role='button')
                                                                             i.fas.fa-shield-cat.pr-2
@@ -1363,56 +1413,6 @@ html
                                                                         a.dropdown-item(title="Show Only NSFW Results" href='#_' onclick=`getNewContent([], [['nsfw', 'only']])` role='button')
                                                                             i.fas.fa-shield-slash.pr-2
                                                                             | Only NSFW
-                                                                    .dropdown-divider
-                                                                    if (params.getAll('sort')[0] !== 'random')
-                                                                        if (params.getAll('sort')[0] !== 'eid')
-                                                                            a.dropdown-item(title="Sort by creation" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'eid']]); return false;` role='button')
-                                                                                i.fas.fa-stream.pr-2
-                                                                                | Uploaded
-                                                                        if (params.getAll('sort')[0] !== 'id')
-                                                                            a.dropdown-item(title="Sort by modified" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'id']]); return false;` role='button')
-                                                                                i.fas.fa-sync.pr-2
-                                                                                | Modified
-                                                                        if (params.getAll('sort')[0] !== 'date')
-                                                                            a.dropdown-item(title="Sort by date" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'date']]); return false;` role='button')
-                                                                                i.fas.fa-file.pr-2
-                                                                                | Originated
-                                                                        if (params.getAll('sort')[0] !== 'post_index' && params.has('search'))
-                                                                            a.dropdown-item(title="Sort by original order from source post" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'post_index']]); return false;` role='button')
-                                                                                i.fas.fa-arrow-down-1-9.pr-2
-                                                                                | Original Order
-                                                                        if (!(params.getAll('sort')[0] === 'album') && params.has('album'))
-                                                                            a.dropdown-item(title="Sort by date added to Album" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'album']]); return false;` role='button')
-                                                                                i.fas.fa-archive.pr-2
-                                                                                | Added
-                                                                        if (!(params.getAll('sort')[0] === 'fav') && params.has('pins') && params.getAll('pins')[0] !== 'false')
-                                                                            a.dropdown-item(title="Sort by date Favoured" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'fav']]); return false;` role='button')
-                                                                                i.fas.fa-star.pr-2
-                                                                                | Favoured
-                                                                        if (!(params.getAll('sort')[0] === 'rating'))
-                                                                            a.dropdown-item(title="Sort by MIITS Tag Score" href='#_' data-toggle='modal' data-target='#emiitsWarning' role='button')
-                                                                                i.fas.fa-hundred-points.pr-2
-                                                                                | Score (E-MIITS)
-                                                                        if (!(params.getAll('sort')[0] === 'history') && (params.has('displayname') || params.getAll('history')[0] === 'only'))
-                                                                            a.dropdown-item(title="Sort by date last displayed" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'history']]); return false;` role='button')
-                                                                                i.fas.fa-history.pr-2
-                                                                                | Last Shown
-                                                                        if (params.getAll('sort')[0] !== 'content')
-                                                                            a.dropdown-item(title="Sort by message content" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'content']]); return false;` role='button')
-                                                                                i.fas.fa-envelope.pr-2
-                                                                                | Full Text
-                                                                        if (params.getAll('sort')[0] !== 'name' && params.getAll('sort')[0] !== 'file')
-                                                                            a.dropdown-item(title="Sort by File Name" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'name']]); return false;` role='button')
-                                                                                i.fas.fa-input-text.pr-2
-                                                                                | File Name
-                                                                        if (params.getAll('sort')[0] !== 'ext')
-                                                                            a.dropdown-item(title="Sort by File Extension" href='#_' onclick=`getNewContent(['offset'], [['reverse', 'true'],['sort', 'ext']]); return false;` role='button')
-                                                                                i.fas.fa-photo-film-music.pr-2
-                                                                                | File Extension
-                                                                        if (params.getAll('sort')[0] !== 'size')
-                                                                            a.dropdown-item(title="Sort by File Size" href='#_' onclick=`getNewContent(['offset', 'reverse'], [['sort', 'size']]); return false;` role='button')
-                                                                                i.fas.fa-hdd.pr-2
-                                                                                | File Size
                                                                     if (req_uri)
                                                                         if (params && (path === '/gallery' || path === '/files' || path === '/cards'))
                                                                             span.dropdown-header
@@ -1649,6 +1649,46 @@ html
                                                                                             a.dropdown-item.pr-1(title="Show images larger then 5000px" href='#_' onclick=`getNewContent(['offset', 'minwres', 'minhres', 'maxres', 'minres'], [['minres', '5000']]); return false;`)
                                                                                                 i.fas.fa-ruler-combined.pr-2
                                                                                                 | 5K (5000px+)
+                                                                            span.dropdown-header
+                                                                                | Wallpaper Crop
+                                                                            if (params.getAll('cropped')[0])
+                                                                                a.dropdown-item(title="Show all results regardless of crop" href='#_' onclick=`getNewContent(['offset', 'cropped'], [])`  role='button')
+                                                                                    i.fas.fa-empty-set.pr-2
+                                                                                    | Show All
+                                                                            if (params.getAll('cropped')[0] !== 'true')
+                                                                                a.dropdown-item(title="Show posts with any wallpaper crop" href='#_' onclick=`getNewContent(['offset'], [['cropped', 'true']])` role='button')
+                                                                                    i.fas.fa-crop.pr-2
+                                                                                    | Any
+                                                                            if (params.getAll('cropped')[0] !== 'mobile')
+                                                                                a.dropdown-item(title="Show posts with a portrait wallpaper crop" href='#_' onclick=`getNewContent(['offset'], [['cropped', 'mobile']])` role='button')
+                                                                                    i.fas.fa-mobile-screen-button.pr-2
+                                                                                    | Mobile
+                                                                            if (params.getAll('cropped')[0] !== 'wide')
+                                                                                a.dropdown-item(title="Show posts with a widescreen wallpaper crop" href='#_' onclick=`getNewContent(['offset'], [['cropped', 'wide']])` role='button')
+                                                                                    i.fas.fa-display.pr-2
+                                                                                    | Widescreem
+                                                                            form#cropCollapse.accordion.dropdown-item.p-0
+                                                                                .div
+                                                                                    #croppedNoneHeader.collapsed
+                                                                                        .mb-0.mr-auto
+                                                                                            button.dropdown-item(type='button' data-toggle='collapse' data-target=`#croppedNoneBody`).d-inline-flex
+                                                                                                i.fas.pr-2.fa-crop.align-self-center
+                                                                                                | Uncropped
+                                                                                                i.fas.fa-chevron-right.ml-auto.align-self-center
+                                                                                    #croppedNoneBody.collapse(aria-labelledby=`croppedNoneHeader` data-parent=`#cropCollapse`)
+                                                                                        div.ml-2
+                                                                                            if (params.getAll('cropped')[0] !== 'false')
+                                                                                                a.dropdown-item(title="Show posts without any wallpaper crop" href='#_' onclick=`getNewContent(['offset'], [['cropped', 'false']])` role='button')
+                                                                                                    i.fas.fa-crop.pr-2
+                                                                                                    | Any
+                                                                                            if (params.getAll('cropped')[0] !== 'false-mobile')
+                                                                                                a.dropdown-item(title="Show posts without mobile wallpaper crop" href='#_' onclick=`getNewContent(['offset'], [['cropped', 'false-mobile']])` role='button')
+                                                                                                    i.fas.fa-mobile-screen-button.pr-2
+                                                                                                    | Mobile
+                                                                                            if (params.getAll('cropped')[0] !== 'false-mobile')
+                                                                                                a.dropdown-item(title="Show posts without widescreen wallpaper crop" href='#_' onclick=`getNewContent(['offset'], [['cropped', 'false-wide']])` role='button')
+                                                                                                    i.fas.fa-display.pr-2
+                                                                                                    | Widescreen
                                                                             span.dropdown-header
                                                                                 | Aspect Ratio
                                                                                 if (params.has('ratio'))
@@ -2738,13 +2778,13 @@ html
                                                         div.mb-2.d-flex.flex-row
                                                             .w-100.mr-1.d-inline-flex
                                                                 a#setPhoneCrop.btn.btn-primary(href='#_' role='button').w-100.mr-1
-                                                                    i.fas.fa-cut.pr-2
+                                                                    i.fas.fa-crop.pr-2
                                                                     span Portrait
                                                                 a#removePhoneCrop.btn.btn-danger(href='#_' role='button')
                                                                     i.fas.fa-trash
                                                             .w-100.ml-1.d-inline-flex
                                                                 a#setWallpaperCrop.btn.btn-primary(href='#_' role='button').w-100.mr-1
-                                                                    i.fas.fa-cut.pr-2
+                                                                    i.fas.fa-crop.pr-2
                                                                     span Landscape
                                                                 a#removeWallpaperCrop.btn.btn-danger(href='#_' role='button')
                                                                     i.fas.fa-trash

@@ -475,8 +475,11 @@ function startWallpaperCropper(eid, type) {
     image.src = href;
     $('#wallpaperCropperModal').modal('show');
     wallpaperCropper = new Cropper(image, {
-        aspectRatio: ((type) ? (9 / 16) : (16 / 10)),
+        initialAspectRatio: ((type) ? (9 / 16) : (16 / 9)),
         viewMode: 1,
+        autoCropArea: 1,
+        minContainerWidth: 300,
+        minContainerHeight: 450,
         responsive: false,
         restore: false,
         checkCrossOrigin: false,
