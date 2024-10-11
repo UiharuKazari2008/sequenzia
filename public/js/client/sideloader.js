@@ -512,6 +512,8 @@ function completeWallpaperCropper() {
                     croppedImage.height.toFixed(),
                     croppedImage.width.toFixed(),
                     croppedImage.rotate.toFixed(),
+                    croppedImage.scaleX.toFixed(),
+                    croppedImage.scaleY.toFixed(),
                 ]
             },
             cache: false,

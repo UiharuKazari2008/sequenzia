@@ -472,10 +472,10 @@ module.exports = async (req, res, next) => {
                     if (req.body.eid && req.body.crop && req.body.type) {
                         const foundMessages = await sqlPromiseSafe(`SELECT * FROM sequenzia_wallpaper_crop WHERE user = ? AND eid = ? AND type = ?`, [thisUser.discord.user.id, req.body.eid, req.body.type])
                         if (foundMessages.rows && foundMessages.rows.length > 0) {
-                            await sqlPromiseSafe(`UPDATE sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ? WHERE user = ? AND eid = ? AND type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], thisUser.discord.user.id, req.body.eid, req.body.type])
+                            await sqlPromiseSafe(`UPDATE sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ?, sx = ?, sy = ? WHERE user = ? AND eid = ? AND type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], req.body.crop[5], req.body.crop[6], thisUser.discord.user.id, req.body.eid, req.body.type])
                             res.status(200).send("Image Crop Saved");
                         } else {
-                            await sqlPromiseSafe(`INSERT INTO sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ?, user = ?, eid = ?, type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], thisUser.discord.user.id, req.body.eid, req.body.type])
+                            await sqlPromiseSafe(`INSERT INTO sequenzia_wallpaper_crop SET y = ?, x = ?, h = ?, w = ?, r = ?, sx = ?, sy = ?, user = ?, eid = ?, type = ?`, [req.body.crop[0], req.body.crop[1], req.body.crop[2], req.body.crop[3], req.body.crop[4], req.body.crop[5], req.body.crop[6], thisUser.discord.user.id, req.body.eid, req.body.type])
                             res.status(200).send("Image Crop Saved");
                         }
                     } else {
