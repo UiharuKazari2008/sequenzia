@@ -826,8 +826,10 @@ html
                                 i.fas.fa-arrow-rotate-left
                             button.btn.btn-primary.mr-1(type='button' onclick='wallpaperCropper.rotate(90); return false;')
                                 i.fas.fa-arrow-rotate-right
-                            button.btn.btn-primary.mr-1(type='button' onclick='wallpaperCropper.scale(-1,1); return false;')
+                            button.btn.btn-primary.mr-1(type='button' onclick='wallpaperCropper.scaleX(wallpaperCropper.getData().scaleX * -1); return false;')
                                 i.fas.fa-arrows-left-right-to-line
+                            button.btn.btn-primary.mr-1(type='button' onclick='wallpaperCropper.scaleY(wallpaperCropper.getData().scaleY * -1); return false;')
+                                i.fas.fa-arrow-up-arrow-down
                     .modal-footer
                         button.btn.btn-secondary(type='button' data-dismiss='modal' onclick='cancelWallpaperCropper(); return false;') Cancel
                         a.btn.btn-success(title="Apply Banner Image" href='#_' onclick='completeWallpaperCropper(); return false;')
