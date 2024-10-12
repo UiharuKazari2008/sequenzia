@@ -553,9 +553,6 @@ function pullImage(data) {
         processData: false,
         contentType: false,
         responseType: "arraybuffer",
-        headers: {
-            'X-Requested-With': 'SequenziaXHR'
-        },
         success: async function (response,  textStatus, xhr) {
             if (xhr.status < 400) {
                 failCount = 0;
@@ -1375,7 +1372,6 @@ function getColorData(url) {
                 image.style.opacity = "0";
                 image.src = response;
                 image.crossOrigin = "Anonymous"
-                console.log(image);
                 if (remoteWACCALED) {
                     parseCanvasToWACCA(image).then(() => image.remove());
                 } else if (remoteChunLED) {
@@ -1617,9 +1613,6 @@ function sendLEDValues(values) {
             type: "GET", data: '',
             processData: false,
             contentType: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR'
-            },
             error: function (res) {
                 console.error('Failed to update LED Rings')
             }
@@ -1634,9 +1627,6 @@ function sendLEDSideValues(values) {
             type: "GET", data: '',
             processData: false,
             contentType: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR'
-            },
             error: function (res) {
                 console.error('Failed to update LED Sidebars')
             }
@@ -1661,9 +1651,6 @@ function sendLEDStatic(_values, bankSelect) {
             type: "GET", data: '',
             processData: false,
             contentType: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR'
-            },
             error: function (res) {
                 console.error('Failed to update LED Rings')
             }
