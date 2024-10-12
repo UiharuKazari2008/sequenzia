@@ -1396,6 +1396,7 @@ module.exports = async (req, res, next) => {
 
                     // Get Full Image URL
                     let ranfullImage = '';
+                    let ranrealImage = `/content/full64/${image.channelid}/${image.id}`;
                     let ranfullImagePerma = '';
                     if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh') && !(req.query && req.query.nocds && req.query.nocds === 'true')) {
                         ranfullImage = `/content/full64/${image.channelid}/${image.id}`
@@ -1423,6 +1424,7 @@ module.exports = async (req, res, next) => {
                     imagesArray.push({
                         id: image.id,
                         eid: image.eid,
+                        actualImage: ranrealImage,
                         fullImage: ranFullImage,
                         previewImage: ranImage,
                         content: contentText,
@@ -1566,6 +1568,7 @@ module.exports = async (req, res, next) => {
 
                     // Get Full Image URL
                     let ranfullImage = '';
+                    let ranrealImage = `/content/full64/${image.channelid}/${image.id}`;
                     let ranfullImagePerma = '';
                     if ((page_uri === '/ambient-refresh' || page_uri === '/ambient-remote-refresh') && !(req.query && req.query.nocds && req.query.nocds === 'true')) {
                         ranfullImage = `/content/full64/${image.channelid}/${image.id}`
@@ -1614,6 +1617,7 @@ module.exports = async (req, res, next) => {
                     imagesArray.push({
                         id: image.id,
                         eid: image.eid,
+                        actualImage: ranrealImage,
                         fullImage: ranfullImage,
                         previewImage: ranImage,
                         content: contentText,
