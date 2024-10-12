@@ -539,7 +539,7 @@ function getImageDimensions(file) {
     })
 }
 function pullImage(data) {
-    let _imageURL = `${data.randomImagev2[0].fullImage}?base64=true&height=${_sysHeight}&width=${_sysWidth}`;
+    let _imageURL = `${data.randomImagev2[0].fullImage}?base64=true&no_crop=true&height=${_sysHeight}&width=${_sysWidth}`;
     if (displayConfiguration.imageFormat && displayConfiguration.imageFormat.length >= 3) {
         _imageURL += `&format=${displayConfiguration.imageFormat}`
     }
