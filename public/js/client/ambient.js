@@ -569,7 +569,7 @@ function pullImage(data) {
                     element_from = 'bg2';
                 }
                 if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
-                    await getColorData(data.randomImagev2[0].preview);
+                    await getColorData(data.randomImagev2[0].previewImage);
                 }
                 document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
                 if (displayConfiguration.displayImageInfo !== 0) {
@@ -1362,15 +1362,32 @@ const circleCount = 8;
 let allColors = [];
 let pauseLEDUpdates = false;
 function getColorData(url) {
-    const image = new Image();
-    image.style.opacity = "0";
-    image.src = url;
-    image.crossOrigin = "Anonymous"
-    if (remoteWACCALED) {
-        parseCanvasToWACCA(image).then(() => image.remove());
-    } else if (remoteChunLED) {
-        parseCanvasToChunithm(image).then(() => image.remove());
-    }
+    $.ajax({async: true,
+        url,
+        type: "GET", data: '',
+        processData: false,
+        contentType: false,
+        responseType: "arraybuffer",
+        success: async function (response,  textStatus, xhr) {
+            if (xhr.status < 400) {
+                const image = new Image(response);
+                image.style.opacity = "0";
+                image.src = url;
+                image.crossOrigin = "Anonymous"
+                if (remoteWACCALED) {
+                    parseCanvasToWACCA(image).then(() => image.remove());
+                } else if (remoteChunLED) {
+                    parseCanvasToChunithm(image).then(() => image.remove());
+                }
+            } else {
+                console.error('getColorData Failed', response)
+                console.log(response);
+            }
+        },
+        error: function (response) {
+            console.error('getColorData Failed', response)
+        }
+    });
 }
 async function parseCanvasToWACCA(image) {
     imageCanvas.width = image.width;
