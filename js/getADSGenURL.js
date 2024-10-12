@@ -61,6 +61,10 @@ module.exports = async (req, res, next) => {
                     if (image.auth_valid)
                         data.a = image.attachment_auth
                 }
+                if (req.query.format)
+                    opts.format = req.query.format;
+                if (req.query.base64)
+                    data.r = true;
                 if (req.query.width && req.query.height) {
                     data.w = req.query.width;
                     data.h = req.query.height;

@@ -348,7 +348,7 @@ function getNextImage() {
         }
     }
     $.ajax({async: true,
-        url: `/ambient-remote-refresh?${config.toString()}`,
+        url: `/ambient-remote-refresh?nocds=true&generateImage=true&${config.toString()}`,
         type: "GET", data: '',
         processData: false,
         contentType: false,
@@ -539,7 +539,7 @@ function getImageDimensions(file) {
     })
 }
 function pullImage(data) {
-    let _imageURL = `${data.randomImagev2[0].fullImage}?mh=${_sysHeight}&mw=${_sysWidth}`;
+    let _imageURL = `${data.randomImagev2[0].fullImage}?base64=true&height=${_sysHeight}&width=${_sysWidth}`;
     if (displayConfiguration.imageFormat && displayConfiguration.imageFormat.length >= 3) {
         _imageURL += `&format=${displayConfiguration.imageFormat}`
     }
@@ -557,7 +557,7 @@ function pullImage(data) {
             if (xhr.status < 400) {
                 failCount = 0;
                 const dimensions = await getImageDimensions(response)
-                const aspectRatio = dimensions.h / dimensions.w
+                //const aspectRatio = dimensions.h / dimensions.w
                 let element_to = '';
                 let element_from = '';
                 if (document.getElementById("bg2").style.opacity === '0') {
@@ -567,10 +567,10 @@ function pullImage(data) {
                     element_to = 'bg1';
                     element_from = 'bg2';
                 }
-                if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
+                /*if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
                     document.getElementById(element_to + 'port').src = response;
                     document.getElementById(element_to).classList.add('blur-this');
-                }
+                }*/
                 if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
                     await getColorData(response);
                 }
@@ -612,14 +612,14 @@ function pullImage(data) {
                 }
                 if (element_to === 'bg1') {
                     $('#' + element_to).animate({ opacity: 1 }, 1500);
-                    if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
+                    /*if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
                         $('#' + element_to + 'port').animate({opacity: 1}, 1500);
-                    }
+                    }*/
                 } else {
                     document.getElementById(element_to).style.opacity = '1';
-                    if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
+                    /*if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
                         document.getElementById(element_to + 'port').style.opacity = '1';
-                    }
+                    }*/
                     $('#' + element_from).animate({ opacity: 0 }, 1500);
                     $('#' + element_from + 'port').animate({ opacity: 0 }, 1500);
                 }
