@@ -156,8 +156,8 @@ html
 
                                                     .row.p-0.user-infocard-row1(style='width: calc(100% - 1.125em);')
                                                         .col-auto.p-0
-                                                            img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar)
-                                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column
+                                                            img.user-infocard-icon(class=`${(webconf.square_user_icons_card) ? 'rounded' : 'rounded-circle'}` src=exchange.user.avatar).animated--fade-in-slow
+                                                        .col.p-0.pl-2.text-ellipsis.d-flex.mt-auto.flex-column.animated--fade-in-slow
                                                             div.text-center.text-ellipsis.align-middle.mr-auto
                                                                 if (login_source && login_source > 101)
                                                                     span.badge.font-weight-bold.text-uppercase.badge-danger.mr-1 NOT VERIFIED
@@ -168,7 +168,7 @@ html
                                                             div.text-ellipsis.shadow-text.user-infocard-info
                                                                 span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
                                             if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
-                                                div.outer-menu-next-episode(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
+                                                div.outer-menu-next-episode.animated--fade-in-slow(style='margin: calc(env(safe-area-inset-top,0) + .75em) 0 .75em .75em;' onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                     img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                             div.position-relative.user-menu-height(class=`${((search_prev && search_prev !== '')) ? 'dual-search' : ''}`)
                                                 .row.w-100.ml-0.mr-0
@@ -177,7 +177,7 @@ html
                                                             a(title="Return to Application Menu" class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(true); return false;').mr-1
                                                                 i.far.fa-fw.fa-browser
                                                     .col.p-0
-                                                        div.w-100(id=`locationAccordion${(exchange_id !== 'master') ? exchange_id :''}`)
+                                                        div.w-100(id=`locationAccordion${(exchange_id !== 'master') ? exchange_id :''}`).animated--fade-in-slow
                                                             div(class=`collapse ${((search_prev && search_prev !== '') || (path && (path !== '/gallery'))) ? 'show' : ''}` data-parent=`#locationAccordion${(exchange_id !== 'master') ? exchange_id :''}` id=`locationSearch${(exchange_id !== 'master') ? exchange_id :''}`)
                                                                 form.col.form-inline.navbar-search.top-menu-search-bar(onsubmit="return false;" method="post" style="width: 100%;" )
                                                                     .input-group.w-100.flex-nowrap
@@ -246,10 +246,10 @@ html
                                                             a.user-menu-item(title="Return to Sequenzia Menu" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemMain")
                                                                 i.fa-light.fa-fw.fa-browser
                                                                 | App Menu
-                                                        a.user-menu-item(class=`user-menu-overlow-icon-1${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? '-nep' : ''}` title="Return to Homescreen" href='#_' onclick="transitionToOOBPage('/home'); return false;")
+                                                        //a.user-menu-item(class=`user-menu-overlow-icon-1${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? '-nep' : ''}` title="Return to Homescreen" href='#_' onclick="transitionToOOBPage('/home'); return false;")
                                                             i.fa-light.fa-fw.fa-home
                                                             | Home
-                                                        a.user-menu-item(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
+                                                        a.user-menu-item.d-lg-none(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                             i.fa-light.fa-compass.fa-fw
                                                             | Directory
                                                         a.user-menu-item(title="Recently Uploaded Media" href=`#_` onclick=`getNewContent([],[['cached','true'],['numdays','60'],['sort','eid']],'/gallery'); return false;`)
@@ -279,7 +279,7 @@ html
                                                             a.user-menu-item(title="Index" href=`#_` onclick=`getNewContent([],[],'/artists'); return false;`)
                                                                 i.fa-light.fa-fw.fa-address-book
                                                                 | Artists
-                                                        a.user-menu-item(class=`user-menu-overlow-icon-2${(exchange.kongou_next_episode && exchange.kongou_next_episode.show_id) ? '-nep' : ''}`  title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory` onClick=`getHistory(); return false;`)
+                                                        a.user-menu-item.d-none.d-lg-inline-grid(title="Show History" href='#_' data-toggle="collapse" data-target=`#menuItemHistory` onClick=`getHistory(); return false;`)
                                                             i.fa-light.fa-fw.fa-history
                                                             | History
                                                         if (exchange.review_channels && exchange.review_channels.length === 0)
@@ -312,10 +312,10 @@ html
                                         div.w-100(class=`collapse` data-parent="#menuAccordion" id=`${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`).kms-main-menu.animated--grow-in
                                             .d-flex.w-100
                                                 if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
-                                                    div.mr-3.outer-menu-next-episode(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
+                                                    div.mr-3.outer-menu-next-episode.animated--fade-in-slow(onclick=`getNewContent([],[["show_id","${exchange.kongou_next_episode.show_id}"]${(exchange.kongou_next_episode.nsfw === 1) ? ',["nsfw","true"]' : ''}${(!exchange.kongou_next_episode.data.seasons) ? ',["sort","name"]' : ''}],'/listTheater')`)
                                                         img.border-left-warning.rounded.kongou-next-episode-image(src=`${(exchange.kongou_next_episode.poster) ? exchange.kongou_next_episode.poster : exchange.kongou_next_episode.data.poster[0]}`)
                                                 div.position-relative.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100#appMenuRow1.align-items-center
+                                                    .d-flex.w-100#appMenuRow1.align-items-center.animated--fade-in-slow
                                                         if (path && (path === '/tvTheater' || path === '/listTheater'))
                                                             a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;').d-flex.align-items-center.py-0
                                                                 i.fas.fa-house.fa-fw.d-none
@@ -352,7 +352,7 @@ html
                                                                 span No Library Access
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemUpload${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
+                                                .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                     a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
@@ -390,7 +390,7 @@ html
 
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
+                                                .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                     a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick=`getAlbumDirectory(); return false;`).ml-2
@@ -439,7 +439,7 @@ html
                                                             span No Albums
                                         div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemArtists${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
+                                                .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                     a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     a(class="btn btn-primary" title="Artist Index" href='#_' onclick=`getNewContent([],[],'/artists'); return false;`).ml-2
@@ -491,7 +491,7 @@ html
                                                         h2 No Favorite Artists!
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemApps${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
+                                                .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                     a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
@@ -522,7 +522,7 @@ html
                                                                         | #{thisApp.name}
                                         div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemMediaGroups${(exchange_id !== 'master') ? exchange_id : ''}`)
                                             div.position-relative.user-menu-height(style="width: 100%;")
-                                                .d-flex.w-100.align-items-center
+                                                .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                     a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id : ''}`)
                                                         i.fas.fa-arrow-left.fa-fw
                                                     h4.text-primary.ml-auto.mb-0
@@ -540,7 +540,7 @@ html
                                         if (exchange.review_channels && exchange.review_channels.length > 0)
                                             div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemReview${(exchange_id !== 'master') ? exchange_id : ''}`)
                                                 div.position-relative.user-menu-height(style="width: 100%;")
-                                                    .d-flex.w-100.align-items-center
+                                                    .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                         a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                             i.fas.fa-arrow-left.fa-fw
                                                         .d-flex.align-items-center.ml-2(style='max-width: 180px;')
@@ -573,7 +573,7 @@ html
 
                                     div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
-                                            .d-flex.w-100.align-items-center
+                                            .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                 a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 h4.text-primary.ml-auto.mb-0
@@ -620,7 +620,7 @@ html
                                                                         span.p-0.font-weight-light.d-inline.user-infocard-username #{exchange.user.username}
                                     div.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemHistory`)
                                         div.position-relative.user-menu-height(style="width: 100%;")
-                                            .d-flex.w-100.align-items-center
+                                            .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                 a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 a(class="btn btn-primary" title="Show All Image History" href=`#_` onclick=`getNewContent([],[['history_numdays','90'],['sort','history'],['history','only'],['displayname','*']],'/gallery'); return false;`).ml-2
@@ -656,7 +656,7 @@ html
                                                     .menu-grid#appMenuRow2Grid
                                     div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
-                                            .d-flex.w-100.align-items-center
+                                            .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                 a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 .input-group.ml-2(style='max-width: 180px;')
@@ -702,7 +702,7 @@ html
                                                         | Logout
                                     div#menuItemTools.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
-                                            .d-flex.w-100.align-items-center
+                                            .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                 a(class="btn btn-primary collapsed" href='#_' onclick='goToMainMain(); return false;')
                                                     i.fas.fa-arrow-left.fa-fw
                                                 h4.text-primary.ml-auto.mb-0
@@ -733,7 +733,7 @@ html
 
                                     div#menuItemDisplay.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.user-menu-height(style="width: 100%;")
-                                            .d-flex.w-100.align-items-center
+                                            .d-flex.w-100.align-items-center.animated--fade-in-slow
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                     i.fas.fa-arrow-left.fa-fw
                                                 if (!(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
