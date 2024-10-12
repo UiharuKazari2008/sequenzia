@@ -58,10 +58,20 @@ div
                                             else
                                                 option(value='2') Unlisted
                                 div.form-row
-                                    a#albumCreateButton.btn.btn-danger.ml-auto.mr-1(href='#_' target="_blank" rel="noopener noreferrer" onclick=`deleteAlbum("${album.aid}"); return false;`)
+                                    a#albumCreateButton.btn.btn-primary.mr-auto(href='#_' onclick=`getNewContent([], [['album', '${album.aid}']], "/${album.uri}"); return false;`)
+                                        if (album.uri === 'gallery')
+                                            i.pr-2.fas.fa-photo-video
+                                        else if (album.uri === 'files')
+                                            i.pr-2.fas.fa-folder
+                                        else if (album.uri === 'cards')
+                                            i.pr-2.fas.fa-envelope
+                                        else
+                                            i.pr-2.fas.fa-question
+                                        | View
+                                    a#albumCreateButton.btn.btn-danger.mr-1(href='#_' onclick=`deleteAlbum("${album.aid}"); return false;`)
                                         i.pr-2.fas.fa-trash-alt
                                         | Delete
-                                    a#albumCreateButton.btn.btn-success.ml-1.mr-1(href='#_' target="_blank" rel="noopener noreferrer" onclick=`updateAlbum("${album.aid}"); return false;` )
+                                    a#albumCreateButton.btn.btn-success.ml-1.mr-1(href='#_' onclick=`updateAlbum("${album.aid}"); return false;` )
                                         i.pr-2.fas.fa-edit
                                         | Update
         else
