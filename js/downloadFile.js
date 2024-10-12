@@ -58,16 +58,13 @@ module.exports = async (req, res, next) => {
                     });
                 }
             } else {
-                if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
-                    res.locals.imagedata = undefined;
-                    next();
-                } else {
-                    if (!req.originalUrl.includes('/ambient-get'))
-                        res.status(500);
+                if (!req.originalUrl.includes('/ambient-get'))
+                    res.status(200);
+                response.on('data', (data) => { res.write(data) });
+                response.on('end', () => {
+                    printLine('ProxyFile', `Data written to client!`, 'info');
                     res.end();
-                }
-                printLine('ProxyFile', `Failed to stream file request - No Data`, 'error');
-                console.log(response.rawHeaders)
+                });
             }
         });
         request.on('error', function (e) {
