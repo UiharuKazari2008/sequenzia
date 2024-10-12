@@ -550,6 +550,9 @@ function pullImage(data) {
         processData: false,
         contentType: false,
         responseType: "arraybuffer",
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
         success: async function (response,  textStatus, xhr) {
             if (xhr.status < 400) {
                 failCount = 0;

@@ -36,7 +36,7 @@ module.exports = async (req, res, next) => {
         }, async function (response) {
             const contentType = response.headers['content-type'];
             if (contentType) {
-                if ((req.query.base64 && req.query.base64 === 'true') || req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
+                if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
                     response.setEncoding('base64');
                     let imageData = "data:" + contentType + ";base64,";
                     response.on('data', (data) => { imageData += data});

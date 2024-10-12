@@ -869,12 +869,7 @@ router.use('/media_attachments', async function (req, res) {
         });
     }
 });
-router.get('/wallpaper/:user/:eid', getADSURL, async function (req, res) {
-    if (res.locals.ads_url)
-        res.redirect(res.locals.ads_url);
-    else
-        res.status(404).send('Unknown Item');
-});
+router.get('/wallpaper/:user/:eid', getADSURL, downloadResults);
 router.use('/avatars', async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
