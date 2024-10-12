@@ -1287,7 +1287,7 @@ module.exports = async (req, res, next) => {
         })();
         const selectBaseNoPreLimit = `SELECT rec.*, cdn.host AS cdn_host, path_hint, cdn.mfull_hint, cdn.full_hint, cdn.preview_hint, cdn.ext_0_hint FROM (SELECT x.*, y.data FROM (SELECT ${sqlFields.join(', ')} FROM ${sqlTables.join(', ')} WHERE (${execute} AND (${sqlWhere.join(' AND ')}))) x LEFT OUTER JOIN (SELECT * FROM kanmi_records_extended) y ON (x.eid = y.eid)) rec LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
         const selectFavorites = `SELECT DISTINCT eid AS fav_id, date AS fav_date FROM sequenzia_favorites WHERE userid = '${pinsUser}'`;
-        const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy = 0))`
+        const selectAlbums = `SELECT DISTINCT ${sqlAlbumFields} FROM sequenzia_albums, sequenzia_album_items WHERE (sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy != 1))`
         const selectHistory = `SELECT DISTINCT eid AS history_eid, date AS history_date, user AS history_user, name AS history_name, screen AS history_screen FROM sequenzia_display_history WHERE (${sqlHistoryWhere.join(' AND ')}) ORDER BY ${sqlHistorySort} LIMIT ${(req.query.displaySlave) ? 2 : 100000}`;
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.master.user.id}'`;
 
@@ -1865,12 +1865,12 @@ module.exports = async (req, res, next) => {
                     sqlTables.push('sequenzia_album_items');
                     sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
-                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
+                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND (${sqlAlbumWhere}) AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy != 1)`;
                 } else if (req.query.album_name) {
                     sqlTables.push('sequenzia_album_items');
                     sqlTables.push('sequenzia_albums');
                     sqlCountFeild = 'sequenzia_album_items.date';
-                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy = 0)`;
+                    favmatch += `AND sequenzia_album_items.eid = kanmi_records.eid AND sequenzia_album_items.aid = sequenzia_albums.aid AND sequenzia_albums.name = '${req.query.album_name}' AND (sequenzia_albums.owner = '${thisUser.master.discord.user.id}' OR sequenzia_albums.privacy != 1)`;
                 } else if ((page_uri === '/listTheater' || req.query.show_id || req.query.group) && (req.query.show_id !== 'unmatched')) {
                     sqlCountFeild = 'kongou_episodes.eid';
                 }

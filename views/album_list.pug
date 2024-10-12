@@ -17,8 +17,10 @@ div
                             span.mr-auto #{album.name}
                             span.pr-2 (ID: #{album.aid})
                             div.pl-2
-                                if (album.privacy)
+                                if (album.privacy === 1)
                                     i.fas.fa-lock
+                                else if (album.privacy === 2)
+                                    i.fas.fa-link
                                 else
                                     i.fas.fa-globe-americas
                         div.collapse(aria-labelledby=`album-${album.aid}-Menu` data-parent=`#albumManager` id=`album-${album.aid}-Collapse`)
@@ -52,9 +54,9 @@ div
                                             else
                                                 option(value='0' ) Public
                                             if (album.privacy === 2)
-                                                option(value='2' selected isabled) Unlisted
+                                                option(value='2' selected) Unlisted
                                             else
-                                                option(value='2' disabled) Unlisted
+                                                option(value='2') Unlisted
                                 div.form-row
                                     a#albumCreateButton.btn.btn-danger.ml-auto.mr-1(href='#_' target="_blank" rel="noopener noreferrer" onclick=`deleteAlbum("${album.aid}"); return false;`)
                                         i.pr-2.fas.fa-trash-alt
@@ -84,8 +86,10 @@ div
                                 div.pl-2
                                     i.fas.fa-check-circle
                             div.pl-2
-                                if (album.privacy)
+                                if (album.privacy === 1)
                                     i.fas.fa-lock
+                                else if (album.privacy === 2)
+                                    i.fas.fa-link
                                 else
                                     i.fas.fa-globe-americas
                         if (album.found_aid && id)
