@@ -4,11 +4,13 @@ const { printLine } = require("../js/logSystem");
 const config = require("../host.config.json");
 
 module.exports = async (req, res, next) => {
-    if (res.locals.response.randomImagev2 && res.locals.response.randomImagev2.length > 0) {
+    if (res.locals.ads_url || (res.locals.response.randomImagev2 && res.locals.response.randomImagev2.length > 0)) {
 
-        let url = res.locals.response.randomImagev2[0].fullImage;
+        let url
         if (res.locals.ads_url) {
             url = res.locals.ads_url;
+        } else {
+            url = res.locals.response.randomImagev2[0].fullImage
         }
         const cdn_found = config.local_cdn_list.filter(e => url.startsWith(e.access_url));
         if (cdn_found.length > 0) {
