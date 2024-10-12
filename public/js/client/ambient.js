@@ -543,7 +543,7 @@ function pullImage(data) {
     if (displayConfiguration.imageFormat && displayConfiguration.imageFormat.length >= 3) {
         _imageURL += `&format=${displayConfiguration.imageFormat}`
     }
-    if (displayConfiguration.darkImages === 1 && _night !== undefined) {
+    if (displayConfiguration.darkOverlay === 1 && _night !== undefined) {
         _imageURL += `&display_dark=${_night}`
     }
     console.log(`Image URL: ${_imageURL}`);
