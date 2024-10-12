@@ -22,6 +22,7 @@ html
         link(rel='manifest' href='/static/manifest.json')
         title= `${webconf.site_name}`
         link(rel='stylesheet', href='/static/css/sb-admin-2.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
         link(rel='stylesheet', href='/static/css/weather-icons.min.css')
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/all.min.css")
@@ -30,13 +31,62 @@ html
         link(rel="stylesheet", href="/static/css/instance-custom.css")
         link(rel="stylesheet", href="/css/ambient.min.css")
         link(rel="stylesheet", href="/static/css/instance-ambient.css")
+        link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
+        link(rel='preload', href="/static/img/bootlogo-inner.jpeg" as='image')
+        link(rel='preload', href="/static/img/acr-logo.png" as='image')
+        link(rel='preload', href="/static/img/seq-mascot.png" as='image')
+        meta(name='user_id', content=active_exchange.user.id)
+        if (active_exchange.user && active_exchange.user.banner)
+            link(rel='preload', href=`${active_exchange.user.banner}#PLEASE_CACHE_THIS` as='image')
+        if (active_exchange.user && active_exchange.user.avatar)
+            link(rel='preload', href=`${active_exchange.user.avatar}#PLEASE_CACHE_THIS` as='image')
+        each thisServer, thisIndex in active_exchange.discord.servers.list
+            link(rel='preload', href=`${thisServer.icon}` as='image')
         style.
             .background-image {
                 transform: none;
             }
     body
+        style#colorStyle.
+            body {
+                color: white;
+            }
         #exitOverlay.animated--fade-in.align-items-center.justify-content-center.d-none
             img#exitImage(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=")
+        //#bootBackdrop.boot-logo-overlay
+            #bootBackdropSunrise
+        .boot-logo-overlay.boot-logo-panel(id=`bootUpDisplay`)
+            .boot-container.ml-auto.mr-auto.mt-auto.mb-auto.p-4
+                div.boot-dialog.d-flex.flex-column.rounded.position-relative(style=`background-image: url(${(active_exchange.user.banner) ? active_exchange.user.banner : '/static/img/bootlogo-inner.jpeg'})`)
+                    div.boot-accents.d-flex.ml-5.mt-auto.mb-auto.ml-sm-5.flex-column.mr-auto.ml-auto
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.w-100(style="border: 1px solid #ffffff5c; z-index: 3;")
+                        div.bottom-right.h-100.p-0.position-absolute.rounded.shine-effect.w-100(style="z-index: 2;")
+                        div.boot-logo-holder.d-flex(style="z-index: 1; padding-left: 0.4rem;")
+                            //span.sequenzia-logo.shadow-txt(style="font-size: 3em;position: relative;top: 0.2em;/* line-height: 1em; */color: unset;text-shadow: 0px 0px 14px black;") sequenzia
+                            img(src=`/static/img/sequenzia-logo-nav.png` style="width: 240px; height: auto; filter: drop-shadow(0px 0px 14px black);")
+                        div.boot-overlay-logo.p-0.position-absolute.bottom-right.text-right.overflow-hidden.h-100.w-100.d-none.d-sm-block
+                            img(src=`/static/img/seq-mascot.png` style="filter: drop-shadow(0px 0px 10px #ffffff75);").h-100.rounded
+                        div.boot-logo-subtext.d-flex(style="text-shadow: 0px 0px 14px black; font-size: 2em; z-index: 1;").mt-1
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
+                        span.boot-status-holder.font-weight-bolder Ambient Display v3
+                        .mt-1.boot-icons-holder.d-none
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                            i.fas.fa-circle(style="opacity: 50%").pl-2
+                        //.boot-loader-bar.ml-auto.mr-auto.rounded.mt-1
+                    div.boot-author-loog.p-2.position-absolute.bottom-left
+                        img(src=`/static/img/acr-logo.png` style="width: 250px; height: auto; filter: drop-shadow(0px 0px 7px black);")
+        script.
+            document.getElementById('bootUpDisplay').style.display = 'flex';
+            document.getElementById('bootUpDisplay').querySelector('.boot-status-holder').setAttribute('id', 'bootLoaderStatus');
+            document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').classList.remove('d-none');
+            document.getElementById('bootUpDisplay').querySelector('.boot-icons-holder').setAttribute('id', 'bootStatusIcons');
         #deadzoneOverlay
         #roundedOverlay
         #overlayCycle
@@ -61,8 +111,6 @@ html
                     .kiosk-buttons-container.d-flex.flex-column.align-items-center
                         span.p-4 Invalid Kiosk Config
             .fixed-top.m-5.animated--fade-in.hidden-on-boot.align-items-start.d-flex
-                #logoTop.d-none.justify-content-end.pr-4(style='opacity: .6')
-                    img.shadow-txt.text-white(style="width: 280px;position: relative;top: 0.2em;" src=`/static/img/sequenzia-logo-nav.png`)
                 #warningBox.warning-box-contents.d-none.justify-content-end
                     .align-items-center.d-flex
                         i#warningIcon.pr-2.fas.fa-search
@@ -70,9 +118,8 @@ html
                 #displayInfo.d-flex.justify-content-end.hover-show.ml-auto.d-none(style='opacity: .4;')
                     span#displayName.align-self-center(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
                 #userInfo.d-flex.justify-content-end.hover-show.ml-auto(style='opacity: .4;')
-                    span.align-self-center(style='font-size: 1.6em; color: white; font-weight: 300; padding: 0 0.5em 0 0; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;') #{user.username}
                     a#userDropdown.pr-0(href='#_' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                        img.img-profile.rounded-circle(src=user.avatar style='width: 2.5em; box-shadow: 0 0 8px black; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
+                        img.rounded-circle(src=user.avatar style='width: 3em; box-shadow: 0 0 8px black; -webkit-text-stroke: 1px #00000069; text-shadow: 0px 0px 10px #000000a6;')
                     // Dropdown - User Information
                     .dropdown-menu.dropdown-menu-tas.shadow(aria-labelledby='userDropdown')
                         a.dropdown-item.only-standalone(title="Reload Application" href='#_' onclick='location.reload(); return false;')
@@ -82,8 +129,8 @@ html
                             i.fas.fa-sign-out-alt.fa-sm.fa-fw.mr-2.text-danger
                             | Logout
             #BottomSestion.fixed-bottom.d-flex.m-5
-                .flex-grow-1.align-self-end(style='opacity: .6').animated--fade-in.hidden-on-boot
-                    img#logoStart.shadow-txt.text-white(style="width: 280px;position: relative;top: 0.2em;" src=`/static/img/sequenzia-logo-nav.png`)
+                .flex-grow-1.align-self-end(style='opacity: .8')
+                    i#loadingWheel.fa-duotone.fa-loader.fa-spin-pulse.fa-2x
                 #sideData.justify-content-end.flex-column.d-flex.pr-4
                     #dateInfo.clock-date.clock.ml-auto.animated--fade-in.hidden-on-boot
                         span#day.shadow-txt
@@ -108,17 +155,15 @@ html
                                 i#weatherIconMin
                         #timeInfo.clock-time.clock
                             span#time.shadow-txt
-                    #dataInfo.ml-auto.pt-1(style='opacity: 0.4; font-size: 1.3rem; font-weight: 100;')
-                        .d-inline-flex.animated--fade-in.hidden-on-boot
+                    #dataInfo.ml-auto.pt-1(style='opacity: .8; font-size: 1.3rem; font-weight: 100;').hidden-on-boot
+                        .d-inline-flex.animated--fade-in
                             i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center.d-none(style='font-size: 16px; vertical-align: middle;')
                             i#dataIcon.shadow-txt.fas.fa-search.shadow-txt.align-self-center.d-none(style='font-size: 16px; vertical-align: middle; opacity: 0.25;')
                         span#data2.shadow-txt.pr-2.pl-1(style='opacity: 0.25')
-                        span#data3.shadow-txt Booting...
-                        .d-inline-block.p-2.align-self-center.animated--fade-in.hidden-on-boot
+                        span#data3.shadow-txt
+                        .d-inline-block.p-2.align-self-center.animated--fade-in
                             i.fas.fa-circle.shadow-txt(style='font-size: 8px; vertical-align: middle;')
-                        span#data1.text-capitalize.shadow-txt.animated--fade-in.hidden-on-boot
-                    #logoEnd.ml-auto.pt-2.d-none(style='opacity: .6').animated--fade-in.hidden-on-boot
-                        img.shadow-txt.text-white(style="width: 280px;position: relative;top: 0.2em;" src=`/static/img/sequenzia-logo-nav.png`)
+                        span#data1.text-capitalize.shadow-txt.animated--fade-in
             #ChunInfo.fixed-bottom.d-flex.animated--fade-in.hidden
                 #ChunInfoData.flex-grow-1.px-3.d-flex
                 #ChunInfoHolder.px-3.d-flex
@@ -209,4 +254,5 @@ html
     script(src="/static/js/moment.min.js")
     script(src="/static/js/sb-admin-2.js")
     script(src="/js/client/ambient.min.js")
+    script(type='text/javascript' src="/static/js/toast.min.js")
 

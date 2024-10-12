@@ -196,12 +196,7 @@ function saveDisplayConfig(name, index) {
     } else {
         results.displayOverlay = 1;
     }
-    if (!name.startsWith('Homepage') && (!name.startsWith('ADS') || name.startsWith('ADSWidget') || name.startsWith('ADSMicro')) &&
-        !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayLogo').value.toString()))) {
-        results.displayLogo = parseInt(setthingsForm.querySelector('#optionsDisplayLogo').value.toString());
-    } else {
-        results.displayLogo = 1;
-    }
+    results.displayLogo = 1;
     if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayScale').value.toString()))) {
         results.enableScale = parseInt(setthingsForm.querySelector('#optionsDisplayScale').value.toString());

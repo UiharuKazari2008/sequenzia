@@ -1022,6 +1022,8 @@ router.get(['/ambient', '/ads-lite'], sessionVerification, async (req, res) => {
     try {
         const thisUser = res.locals.thisUser
         res.render('ambient', {
+            active_exchange_id: 'master',
+            active_exchange: thisUser.master,
             discord: thisUser.master.discord,
             user: thisUser.master.user,
             login_source: req.session.login_source,

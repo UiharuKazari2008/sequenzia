@@ -34,7 +34,7 @@ let config = new URLSearchParams(location.search);
 config.delete('history');
 config.set('json', 'true');
 let kioskOptions = new URLSearchParams(document.location.hash.substring(1));
-
+const loadWheel = $('#loadingWheel');
 let lastURL = '';
 let lastResponse;
 let displayMode = [];
@@ -62,7 +62,6 @@ let displayConfiguration = {
     displayClock: 1,
     displayDate: 1,
     displayOverlay: 1,
-    displayLogo: 1,
     enableScale: 1,
     displayAspectCorrect: 1,
     darkImages: 0,
@@ -337,6 +336,7 @@ if (config.has('displayname')) {
 }
 
 function getNextImage() {
+    loadWheel.fadeIn();
     clearTimeout(nextImageTimer);
     nextImageTimer = null;
     let imageURL = ''
@@ -357,8 +357,11 @@ function getNextImage() {
         },
         success: async function (response) {
             if (response.randomImagev2 && response.randomImagev2.length > 0) {
+
                 if (response.randomImagev2[0].fullImage !== lastURL) {
                     if (response.configuration && response.configuration.refreshTime && response.configuration.refreshTime >= 1) {
+                        document.getElementById('bootStatusIcons').children[1].style.opacity = 1;
+                        document.getElementById('bootLoaderStatus').innerText = 'Configuring...';
                         console.log(response.configuration)
                         if (typeof overides !== 'undefined') {
                             displayConfiguration = {...response.configuration, ...overides};
@@ -368,13 +371,19 @@ function getNextImage() {
                         await setupKioskMode();
                         await syncDisplaySettings();
                     } else {
+                        document.getElementById('bootStatusIcons').children[1].style.opacity = 1;
                         console.error('No remote configuration available at this time')
                     }
+                    document.getElementById('bootStatusIcons').children[2].style.opacity = 1;
+                    document.getElementById('bootLoaderStatus').innerText = 'Downloading...';
+                    console.log(response.randomImagev2[0])
                     if (failCount <= 5) {
                         await pullImage(response);
+                        loadWheel.fadeOut();
                     }
                 } else {
                     console.log('getImage Same Image');
+                    loadWheel.fadeOut();
                 }
 
                 let nextRefreshTime = (displayConfiguration.refreshTime) ? Math.abs(parseInt(displayConfiguration.refreshTime.toString()) * 60000) : 900000;
@@ -399,7 +408,7 @@ function getNextImage() {
                                     error: function (res) { console.error('Failed to update VFD Display') }
                                 });
                             }
-
+                            $('#dataInfo').removeClass('hidden-on-boot');
                             document.getElementById('data3').innerText = 'STANDBY MODE';
                             document.getElementById('data1').innerText = 'Master Unavailable';
                             document.getElementById('errorBanner').classList = 'warningBanner'
@@ -424,6 +433,7 @@ function getNextImage() {
 
                     console.log(response);
                     nextImageTimer = setTimeout(getNextImage, 60000);
+                    $('#dataInfo').removeClass('hidden-on-boot');
                     document.getElementById('data3').innerText = 'SYSTEM RETRY';
                     document.getElementById('data1').classList.remove('hidden-on-boot')
                     document.getElementById('data1').innerText = 'No Data Available';
@@ -436,7 +446,7 @@ function getNextImage() {
                     console.log(response);
                     if (remoteInfoCFD) {
                         $.ajax({async: true,
-                            url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=No Response after 5 retries&keepAwake=true&brightness=3`,
+                            url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=Network Error&keepAwake=true&brightness=3`,
                             type: "GET", data: '',
                             processData: false,
                             contentType: false,
@@ -451,12 +461,18 @@ function getNextImage() {
                         if (remoteChunLEDSide)
                             sendLEDStatic(  "C91D22", 10);
                     }
+                    $('#dataInfo').removeClass('hidden-on-boot');
                     document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                     document.getElementById('data1').classList.remove('hidden-on-boot')
-                    document.getElementById('data1').innerText = 'No Response after 5 retries';
+                    document.getElementById('data1').innerText = 'Network Error';
                     document.getElementById('data2').classList.remove('d-none');
                     document.getElementById('data2').innerText = response.responseText;
                     document.getElementById('errorBanner').classList = 'errorBanner'
+
+                    loadWheel.removeClass('fa-loader');
+                    loadWheel.removeClass('fa-spin-pulse');
+                    loadWheel.addClass('fa-triangle-exclamation');
+                    loadWheel.addClass('fa-fade');
                     setTimeout(function () {
                         location.reload();
                     }, 300000);
@@ -470,6 +486,7 @@ function getNextImage() {
 
                 console.log(response);
                 nextImageTimer = setTimeout(getNextImage, 60000);
+                $('#dataInfo').removeClass('hidden-on-boot');
                 document.getElementById('data3').innerText = 'SYSTEM RETRY';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
                 document.getElementById('data1').innerText = 'Data Processing Error';
@@ -497,6 +514,7 @@ function getNextImage() {
                         sendLEDStatic(  "C91D22", 10);
                 }
                 console.error('getImage Failed');
+                $('#dataInfo').removeClass('hidden-on-boot');
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
                 document.getElementById('data1').innerText = 'Data Processing Error';
@@ -507,6 +525,10 @@ function getNextImage() {
                 nextImageTimer = setTimeout(function () {
                     location.reload();
                 }, 300000);
+                loadWheel.removeClass('fa-loader');
+                loadWheel.removeClass('fa-spin-pulse');
+                loadWheel.addClass('fa-triangle-exclamation');
+                loadWheel.addClass('fa-fade');
             }
         }
     });
@@ -538,6 +560,68 @@ function getImageDimensions(file) {
         i.src = file
     })
 }
+
+function rgbToHsl(r, g, b) {
+    r /= 255, g /= 255, b /= 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max == min) {
+        h = s = 0; // achromatic
+    } else {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    return [h * 360, s, l]; // h in degrees
+}
+function hslToRgb(h, s, l) {
+    let r, g, b;
+    h /= 360; // convert back to fraction
+
+    if (s == 0) {
+        r = g = b = l; // achromatic
+    } else {
+        function hue2rgb(p, q, t) {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+        }
+
+        let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        let p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+function brightenAndSaturate(r, g, b, minBrightness = 0) {
+    let [h, s, l] = rgbToHsl(r, g, b);
+    l = Math.max(minBrightness, Math.min(l + 0.2, 1)); // increase brightness but not below minBrightness
+    s = Math.min(s + 0.2, 1); // increase saturation
+
+    let brightness = Math.sqrt(
+        0.299 * r * r +
+        0.587 * g * g +
+        0.114 * b * b
+    ) / 255;
+
+    return {
+        rgb: hslToRgb(h, s, l),
+        hsl: { h, s, l },
+        brightness: brightness
+    };
+}
 function pullImage(data) {
     let _imageURL = `${data.randomImagev2[0].fullImage}?base64=true&no_crop=true&height=${_sysHeight}&width=${_sysWidth}`;
     if (displayConfiguration.imageFormat && displayConfiguration.imageFormat.length >= 3) {
@@ -547,83 +631,129 @@ function pullImage(data) {
         _imageURL += `&display_dark=${_night}`
     }
     console.log(`Image URL: ${_imageURL}`);
-    $.ajax({async: true,
-        url: _imageURL,
-        type: "GET", data: '',
-        processData: false,
-        contentType: false,
-        responseType: "arraybuffer",
-        success: async function (response,  textStatus, xhr) {
-            if (xhr.status < 400) {
-                failCount = 0;
-                let element_to = '';
-                let element_from = '';
-                if (document.getElementById("bg2").style.opacity === '0') {
-                    element_to = 'bg2';
-                    element_from = 'bg1';
-                } else {
-                    element_to = 'bg1';
-                    element_from = 'bg2';
-                }
-                if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
-                    await getColorData(data.randomImagev2[0].actualImage);
-                }
-                document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
-                if (displayConfiguration.displayImageInfo !== 0) {
-                    if (remoteInfoCFD) {
-                        vfdInfo = `${(data.randomImagev2[0].pinned) ? '$$819A@$$ ' : ''}${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName} (${data.randomImagev2[0].date})`;
-                        $('#dataInfo').addClass('d-none').removeClass('d-flex');
+    return new Promise(ok => {
+        $.ajax({async: true,
+            url: _imageURL,
+            type: "GET", data: '',
+            processData: false,
+            contentType: false,
+            responseType: "arraybuffer",
+            success: async function (response,  textStatus, xhr) {
+                if (xhr.status < 400) {
+                    document.getElementById('bootStatusIcons').children[3].style.opacity = 1;
+                    document.getElementById('bootLoaderStatus').innerText = 'Finalization...';
+                    failCount = 0;
+                    let element_to = '';
+                    let element_from = '';
+                    if (document.getElementById("bg2").style.opacity === '0') {
+                        element_to = 'bg2';
+                        element_from = 'bg1';
                     } else {
-                        vfdInfo = `${vfdDefaultLine}`;
-                        setTimeout(function () {
-                            document.getElementById('data1').innerText = `${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName}`;
-                            document.getElementById('data3').innerText = data.randomImagev2[0].date;
-                            if (data.randomImagev2[0].pinned) {
-                                if (config.has('displayname')) {
-                                    document.getElementById('dataFav').classList.remove('d-none')
-                                    document.getElementById('dataFav').classList.add('mr-2')
+                        element_to = 'bg1';
+                        element_from = 'bg2';
+                    }
+                    if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
+                        await getColorData(data.randomImagev2[0].actualImage);
+                    }
+                    document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
+                    if (displayConfiguration.displayImageInfo !== 0) {
+                        if (remoteInfoCFD) {
+                            vfdInfo = `${(data.randomImagev2[0].pinned) ? '$$819A@$$ ' : ''}${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName} (${data.randomImagev2[0].date})`;
+                            $('#dataInfo').addClass('d-none').removeClass('d-flex');
+                        } else {
+                            vfdInfo = `${vfdDefaultLine}`;
+                            setTimeout(function () {
+                                document.getElementById('data1').innerText = `${data.randomImagev2[0].className} / ${data.randomImagev2[0].channelName}`;
+                                document.getElementById('data3').innerText = data.randomImagev2[0].date;
+                                if (data.randomImagev2[0].pinned) {
+                                    if (config.has('displayname')) {
+                                        document.getElementById('dataFav').classList.remove('d-none')
+                                        document.getElementById('dataFav').classList.add('mr-2')
+                                    } else {
+                                        document.getElementById('dataFav').classList.remove('d-none')
+                                        document.getElementById('dataFav').classList.remove('mr-2')
+                                    }
                                 } else {
-                                    document.getElementById('dataFav').classList.remove('d-none')
+                                    document.getElementById('dataFav').classList.add('d-none')
                                     document.getElementById('dataFav').classList.remove('mr-2')
                                 }
-                            } else {
-                                document.getElementById('dataFav').classList.add('d-none')
-                                document.getElementById('dataFav').classList.remove('mr-2')
-                            }
-                            if (config.has('displayname')) {
-                                document.getElementById('data2').classList.add('d-none');
-                                document.getElementById('dataIcon').classList.add('d-none');
-                            } else {
-                                document.getElementById('data2').innerText = data.randomImagev2[0].eid;
-                                if (data.randomImagev2[0].pinned) {
-                                    document.getElementById('dataIcon').classList.add('d-none')
+                                if (config.has('displayname')) {
+                                    document.getElementById('data2').classList.add('d-none');
+                                    document.getElementById('dataIcon').classList.add('d-none');
                                 } else {
-                                    document.getElementById('dataIcon').classList.remove('d-none')
+                                    document.getElementById('data2').innerText = data.randomImagev2[0].eid;
+                                    if (data.randomImagev2[0].pinned) {
+                                        document.getElementById('dataIcon').classList.add('d-none')
+                                    } else {
+                                        document.getElementById('dataIcon').classList.remove('d-none')
+                                    }
                                 }
-                            }
+                            }, 700)
+                        }
+                    }
+                    if (element_to === 'bg1') {
+                        $('#' + element_to).animate({ opacity: 1 }, 1500);
+                    } else {
+                        document.getElementById(element_to).style.opacity = '1';
+                        $('#' + element_from).animate({ opacity: 0 }, 1500);
+                    }
+                    if (data.randomImagev2[0].colorR) {
+                        let { rgb, hsl, brightness } = brightenAndSaturate(data.randomImagev2[0].colorR, data.randomImagev2[0].colorG, data.randomImagev2[0].colorB, 0.85);
+                        console.log(`New RGB color - R: ${rgb[0]}, G: ${rgb[1]}, B: ${rgb[2]}`);
+                        console.log(`HSL values - H: ${hsl.h} degrees, S: ${hsl.s}, L: ${hsl.l}`);
+                        console.log(`Brightness: ${brightness}`);
+                        document.getElementById('colorStyle').innerHTML = `#sideData {
+                        color: rgb(${rgb.join(', ')});
+                    }`
+                    }
+                    console.log('setImage OK')
+                    if (document.getElementById('bootUpDisplay').style && document.getElementById('bootUpDisplay').style.display !== 'none') {
+                        if (remoteChunLEDGround) {
+                            enableChunShimControl();
+                        }
+                        document.getElementById('bootLoaderStatus').innerText = 'Complete!';
+                        setTimeout(() => {
+                            $.when($(`.boot-logo-panel`).fadeOut(500)).done(() => {
+
+                            });
+                        }, 2000);
+                    }
+                    setTimeout(function () {
+                        document.getElementById(element_from).style.opacity = '0';
+                        document.getElementById(element_from).style.backgroundImage = '';
+                        document.getElementById(element_from).classList.remove('blur-this');
+                        $('.hidden-on-boot').removeClass('hidden-on-boot')
+                    }, 1700);
+                    lastURL = data.randomImagev2[0].fullImage;
+                    lastResponse = data;
+                    ok();
+                    if (remoteInfoCFD) {
+                        vfdDate = getVFDDate()
+                        setTimeout(function () {
+                            $.ajax({async: true,
+                                url: `http://${remoteInfoCFD}/setBoth?header=${(vfdDate.length > 0) ? vfdDate : vfdDefaultLine}&status=${vfdInfo}${(vfdInfo.length > 0 && vfdWeather.length > 0) ? ' // ' : ''}${vfdWeather}&keepAwake=true&brightness=1`,
+                                type: "GET", data: '',
+                                processData: false,
+                                contentType: false,
+                                headers: {
+                                    'X-Requested-With': 'SequenziaXHR'
+                                },
+                                error: function (res) { console.error('Failed to update VFD Display') }
+                            });
                         }, 700)
                     }
-                }
-                if (element_to === 'bg1') {
-                    $('#' + element_to).animate({ opacity: 1 }, 1500);
                 } else {
-                    document.getElementById(element_to).style.opacity = '1';
-                    $('#' + element_from).animate({ opacity: 0 }, 1500);
+                    ok();
+                    console.log(response);
+                    failCount++
                 }
-                console.log('setImage OK')
-                setTimeout(function () {
-                    document.getElementById(element_from).style.opacity = '0';
-                    document.getElementById(element_from).style.backgroundImage = '';
-                    document.getElementById(element_from).classList.remove('blur-this');
-                    $('.hidden-on-boot').removeClass('hidden-on-boot')
-                }, 1700);
-                lastURL = data.randomImagev2[0].fullImage;
-                lastResponse = data;
-                if (remoteInfoCFD) {
-                    vfdDate = getVFDDate()
-                    setTimeout(function () {
+            },
+            error: function (response) {
+                console.error('setImage Failed')
+                if (failCount !== 5) {
+                    if (remoteInfoCFD) {
                         $.ajax({async: true,
-                            url: `http://${remoteInfoCFD}/setBoth?header=${(vfdDate.length > 0) ? vfdDate : vfdDefaultLine}&status=${vfdInfo}${(vfdInfo.length > 0 && vfdWeather.length > 0) ? ' // ' : ''}${vfdWeather}&keepAwake=true&brightness=1`,
+                            url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=Network Failure&keepAwake=true&brightness=3`,
                             type: "GET", data: '',
                             processData: false,
                             contentType: false,
@@ -632,46 +762,32 @@ function pullImage(data) {
                             },
                             error: function (res) { console.error('Failed to update VFD Display') }
                         });
-                    }, 700)
+                    }
+                    if (remoteWACCALED || remoteChunLED) {
+                        sendLEDStatic("C91D22");
+                        if (remoteChunLEDSide)
+                            sendLEDStatic(  "C91D22", 10);
+                    }
+                    $('#dataInfo').removeClass('hidden-on-boot');
+                    document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
+                    document.getElementById('data1').innerText = 'Network Failure';
+                    document.getElementById('data1').classList.remove('hidden-on-boot')
+                    document.getElementById('data2').classList.remove('d-none');
+                    document.getElementById('data2').innerText = response.responseText;
+                    document.getElementById('errorBanner').classList = 'errorBanner'
+                    loadWheel.removeClass('fa-loader');
+                    loadWheel.removeClass('fa-spin-pulse');
+                    loadWheel.addClass('fa-triangle-exclamation');
+                    loadWheel.addClass('fa-fade');
+                    setTimeout(function () {
+                        location.reload();
+                    }, 300000);
                 }
-            } else {
-                console.log(response);
                 failCount++
+                ok();
             }
-        },
-        error: function (response) {
-            console.error('setImage Failed')
-            if (failCount !== 5) {
-                if (remoteInfoCFD) {
-                    $.ajax({async: true,
-                        url: `http://${remoteInfoCFD}/setBoth?header=SYSTEM LOCKOUT&status=After 5 failed attempts, was unable to get a valid response&keepAwake=true&brightness=3`,
-                        type: "GET", data: '',
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            'X-Requested-With': 'SequenziaXHR'
-                        },
-                        error: function (res) { console.error('Failed to update VFD Display') }
-                    });
-                }
-                if (remoteWACCALED || remoteChunLED) {
-                    sendLEDStatic("C91D22");
-                    if (remoteChunLEDSide)
-                        sendLEDStatic(  "C91D22", 10);
-                }
-                document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
-                document.getElementById('data1').innerText = 'After 5 failed attempts, was unable to get a valid response';
-                document.getElementById('data1').classList.remove('hidden-on-boot')
-                document.getElementById('data2').classList.remove('d-none');
-                document.getElementById('data2').innerText = response.responseText;
-                document.getElementById('errorBanner').classList = 'errorBanner'
-                setTimeout(function () {
-                    location.reload();
-                }, 300000);
-            }
-            failCount++
-        }
-    });
+        });
+    })
 }
 
 async function getWeather() {
@@ -1107,41 +1223,6 @@ async function syncDisplaySettings() {
         }
     } catch (e) {
         console.error(`Failed to setup Overlay: ${e.message}`);
-        document.getElementById('errorBanner').classList = 'warningBanner'
-        setTimeout(() => {
-            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
-                document.getElementById('errorBanner').classList = '';
-            }
-        }, 180000)
-    }
-    try {
-        let _ll = $('#logoStart');
-        let _lt = $('#logoTop');
-        let _lb = $('#logoEnd');
-        switch (parseInt(displayConfiguration.displayLogo.toString())) {
-            case 3:
-                _ll.addClass('d-none');
-                _lb.addClass('d-none');
-                _lt.addClass('d-none');
-                break;
-            case 2:
-                _ll.addClass('d-none');
-                _lb.addClass('d-none');
-                _lt.removeClass('d-none').addClass('d-flex').addClass('shadow-blk');
-                break;
-            case 0:
-                _ll.addClass('d-none');
-                _lt.addClass('d-none').removeClass('shadow-blk');
-                _lb.removeClass('d-none');
-                break;
-            default:
-                _ll.removeClass('d-none');
-                _lt.addClass('d-none').removeClass('shadow-blk');
-                _lb.addClass('d-none');
-                break;
-        }
-    } catch (e) {
-        console.error(`Failed to setup Logo: ${e.message}`);
         document.getElementById('errorBanner').classList = 'warningBanner'
         setTimeout(() => {
             if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
@@ -2305,6 +2386,19 @@ function enableChunShimControl() {
 }
 
 $(document).ready(function () {
+    $.toastDefaults = {
+        position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
+        dismissible: true,
+        stackable: true,
+        pauseDelayOnHover: true,
+        style: {
+            toast: '', /** Classes you want to apply separated my a space to each created toast element (.toast) **/
+            info: '',  /** Classes you want to apply separated my a space to modify the "info" type style  **/
+            success: '', /** Classes you want to apply separated my a space to modify the "success" type style  **/
+            warning: '', /** Classes you want to apply separated my a space to modify the "warning" type style  **/
+            error: '', /** Classes you want to apply separated my a space to modify the "error" type style  **/
+        }
+    };
     // Init Check
     if (remoteInfoCFD) {
         $.ajax({async: true,
@@ -2318,13 +2412,11 @@ $(document).ready(function () {
             error: function (res) { console.error('Failed to update VFD Display') }
         });
     }
+    document.getElementById('bootLoaderStatus').innerText = 'Booting...';
     if (remoteWACCALED || remoteChunLED) {
         sendLEDStatic(  "f99400");
         if (remoteChunLEDSide)
             sendLEDStatic(  "f99400", 10);
-    }
-    if (remoteChunLEDGround) {
-        enableChunShimControl();
     }
     let _refreshURL = '/discord/refresh'
     if (config.has('key')) {
@@ -2340,7 +2432,8 @@ $(document).ready(function () {
         },
         success: function (res, txt, xhr) {
             if (xhr.status === 200) {
-                document.getElementById('data3').innerText = "Configuring...";
+                document.getElementById('bootStatusIcons').children[0].style.opacity = 1;
+                document.getElementById('bootLoaderStatus').innerText = 'Configuring...';
                 if (remoteInfoCFD) {
                     $.ajax({async: true,
                         url: `http://${remoteInfoCFD}/setBoth?header=Sequenzia ADS&status=Configuring...&keepAwake=true&brightness=3`,
@@ -2354,14 +2447,6 @@ $(document).ready(function () {
                     });
                 }
                 console.log("Getting first image...");
-                try {
-                    console.log("Changing system logo...");
-                    if (config.has('logoFile')) {
-                        $('img[src="/static/img/sequenzia-logo-nav.png"]').each((i,e) => { e.src = "/static/img/" + config.getAll('logoFile')[0] })
-                    }
-                } catch (e) {
-                    console.error(e)
-                }
                 getNextImage();
 
 
@@ -2395,12 +2480,18 @@ $(document).ready(function () {
                     if (remoteChunLEDSide)
                         sendLEDStatic(  "C91D22", 10);
                 }
+                $('#dataInfo').removeClass('hidden-on-boot');
                 document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
                 document.getElementById('data1').classList.remove('hidden-on-boot')
                 document.getElementById('data1').innerText = 'Failed to validate login';
                 document.getElementById('data2').classList.remove('d-none');
                 document.getElementById('data2').innerText = res.responseText;
                 document.getElementById('errorBanner').classList = 'errorBanner';
+
+                loadWheel.removeClass('fa-loader');
+                loadWheel.removeClass('fa-spin-pulse');
+                loadWheel.addClass('fa-triangle-exclamation');
+                loadWheel.addClass('fa-fade');
             }
         },
         error: function (res) {
@@ -2421,12 +2512,18 @@ $(document).ready(function () {
                 if (remoteChunLEDSide)
                     sendLEDStatic(  "C91D22", 10);
             }
+            $('#dataInfo').removeClass('hidden-on-boot');
             document.getElementById('data3').innerText = 'SYSTEM LOCKOUT';
             document.getElementById('data1').classList.remove('hidden-on-boot')
             document.getElementById('data1').innerText = 'Account Login Failure';
             document.getElementById('data2').classList.remove('d-none');
             document.getElementById('data2').innerText = res.responseText;
             document.getElementById('errorBanner').classList = 'errorBanner';
+
+            loadWheel.removeClass('fa-loader');
+            loadWheel.removeClass('fa-spin-pulse');
+            loadWheel.addClass('fa-triangle-exclamation');
+            loadWheel.addClass('fa-fade');
         }
     });
 });
