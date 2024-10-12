@@ -543,6 +543,9 @@ function pullImage(data) {
     if (displayConfiguration.imageFormat && displayConfiguration.imageFormat.length >= 3) {
         _imageURL += `&format=${displayConfiguration.imageFormat}`
     }
+    if (displayConfiguration.darkImages === 1 && _night !== undefined) {
+        _imageURL += `&display_dark=${_night}`
+    }
     console.log(`Image URL: ${_imageURL}`);
     $.ajax({async: true,
         url: _imageURL,
@@ -556,8 +559,6 @@ function pullImage(data) {
         success: async function (response,  textStatus, xhr) {
             if (xhr.status < 400) {
                 failCount = 0;
-                const dimensions = await getImageDimensions(response)
-                //const aspectRatio = dimensions.h / dimensions.w
                 let element_to = '';
                 let element_from = '';
                 if (document.getElementById("bg2").style.opacity === '0') {
@@ -567,10 +568,6 @@ function pullImage(data) {
                     element_to = 'bg1';
                     element_from = 'bg2';
                 }
-                /*if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
-                    document.getElementById(element_to + 'port').src = response;
-                    document.getElementById(element_to).classList.add('blur-this');
-                }*/
                 if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
                     await getColorData(response);
                 }
@@ -612,24 +609,15 @@ function pullImage(data) {
                 }
                 if (element_to === 'bg1') {
                     $('#' + element_to).animate({ opacity: 1 }, 1500);
-                    /*if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
-                        $('#' + element_to + 'port').animate({opacity: 1}, 1500);
-                    }*/
                 } else {
                     document.getElementById(element_to).style.opacity = '1';
-                    /*if (aspectRatio > 0.97 && displayConfiguration.displayAspectCorrect === 1) {
-                        document.getElementById(element_to + 'port').style.opacity = '1';
-                    }*/
                     $('#' + element_from).animate({ opacity: 0 }, 1500);
-                    $('#' + element_from + 'port').animate({ opacity: 0 }, 1500);
                 }
                 console.log('setImage OK')
                 setTimeout(function () {
                     document.getElementById(element_from).style.opacity = '0';
                     document.getElementById(element_from).style.backgroundImage = '';
                     document.getElementById(element_from).classList.remove('blur-this');
-                    document.getElementById(element_from + 'port').src = '';
-                    document.getElementById(element_from + 'port').style.opacity = '0';
                     $('.hidden-on-boot').removeClass('hidden-on-boot')
                 }, 1700);
                 lastURL = data.randomImagev2[0].fullImage;
@@ -689,93 +677,100 @@ function pullImage(data) {
     });
 }
 
-function getWeather() {
-    if (displayConfiguration.location) {
-        let weatherOptions = new URLSearchParams();
-        weatherOptions.set('address', displayConfiguration.location);
-        if (displayConfiguration.weatherFormat === 1) {
-            document.getElementById('weatherFormat').classList.add('wi-fahrenheit')
-            document.getElementById('weatherFormat').classList.remove('wi-celsius')
-            weatherOptions.set('imperial', 'true');
-        } else {
-            document.getElementById('weatherFormat').classList.add('wi-celsius')
-            document.getElementById('weatherFormat').classList.remove('wi-fahrenheit')
-        }
-        $.ajax({async: true,
-            url: `/acc/weather?${weatherOptions.toString()}`,
-            type: "GET", data: '',
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-Requested-With': 'SequenziaXHR'
-            },
-            success: function (response) {
-                if (response.temperature !== undefined) {
-                    let weatherLine = '';
-                    document.getElementById('weatherInfo').classList.remove('hidden');
-                    document.getElementById('weatherDataCond').innerText = response.weather_name;
-                    weatherLine += response.weather_name + ' '
-                    let _temp
-                    if (displayConfiguration.weatherFeelLike === 1) {
-                        _temp = parseInt(response.temperature_feel.toFixed(0).toString());
-                        weatherLine += parseInt(response.temperature_feel.toFixed(0).toString())
-                    } else {
-                        _temp = parseInt(response.temperature.toFixed(0).toString());
-                        weatherLine += parseInt(response.temperature.toFixed(0).toString())
-                    }
-                    if (displayConfiguration.weatherFormat === 1) {
-                        weatherLine += 'F'
-                    } else {
-                        weatherLine += '$$818E@$$'
-                    }
-                    document.getElementById('weatherIconMin').classList = `wi ${response.weather_icon_class}`;
-                    document.getElementById('weatherDataTemp').innerText = _temp;
-                    document.getElementById('weatherDataLo').innerText = `LO ${parseInt(response.temperature_min.toFixed(0).toString())}`;
-                    document.getElementById('weatherDataHi').innerText = `HI ${parseInt(response.temperature_max.toFixed(0).toString())}`;
-
-                    if (displayConfiguration.darkOverlay === 1) {
-                        if (response.sys_night) {
-                            document.getElementById('overlayCycle').classList = `night-overlay`;
-                            _night = true;
+async function getWeather() {
+    return new Promise(ok => {
+        if (displayConfiguration.location) {
+            let weatherOptions = new URLSearchParams();
+            weatherOptions.set('address', displayConfiguration.location);
+            if (displayConfiguration.weatherFormat === 1) {
+                document.getElementById('weatherFormat').classList.add('wi-fahrenheit')
+                document.getElementById('weatherFormat').classList.remove('wi-celsius')
+                weatherOptions.set('imperial', 'true');
+            } else {
+                document.getElementById('weatherFormat').classList.add('wi-celsius')
+                document.getElementById('weatherFormat').classList.remove('wi-fahrenheit')
+            }
+            $.ajax({
+                async: true,
+                url: `/acc/weather?${weatherOptions.toString()}`,
+                type: "GET", data: '',
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'SequenziaXHR'
+                },
+                success: function (response) {
+                    if (response.temperature !== undefined) {
+                        let weatherLine = '';
+                        document.getElementById('weatherInfo').classList.remove('hidden');
+                        document.getElementById('weatherDataCond').innerText = response.weather_name;
+                        weatherLine += response.weather_name + ' '
+                        let _temp
+                        if (displayConfiguration.weatherFeelLike === 1) {
+                            _temp = parseInt(response.temperature_feel.toFixed(0).toString());
+                            weatherLine += parseInt(response.temperature_feel.toFixed(0).toString())
                         } else {
-                            document.getElementById('overlayCycle').classList = `day-overlay`;
-                            _night = false;
+                            _temp = parseInt(response.temperature.toFixed(0).toString());
+                            weatherLine += parseInt(response.temperature.toFixed(0).toString())
+                        }
+                        if (displayConfiguration.weatherFormat === 1) {
+                            weatherLine += 'F'
+                        } else {
+                            weatherLine += '$$818E@$$'
+                        }
+                        document.getElementById('weatherIconMin').classList = `wi ${response.weather_icon_class}`;
+                        document.getElementById('weatherDataTemp').innerText = _temp;
+                        document.getElementById('weatherDataLo').innerText = `LO ${parseInt(response.temperature_min.toFixed(0).toString())}`;
+                        document.getElementById('weatherDataHi').innerText = `HI ${parseInt(response.temperature_max.toFixed(0).toString())}`;
+
+                        if (displayConfiguration.darkOverlay === 1) {
+                            if (response.sys_night) {
+                                document.getElementById('overlayCycle').classList = `night-overlay`;
+                                _night = true;
+                            } else {
+                                document.getElementById('overlayCycle').classList = `day-overlay`;
+                                _night = false;
+                            }
+                        } else {
+                            document.getElementById('overlayCycle').classList = "";
+                        }
+                        ok(true);
+
+                        console.log('Weather OK');
+                        vfdWeather = weatherLine;
+                        vfdDate = getVFDDate();
+                        if (remoteInfoCFD) {
+                            $.ajax({
+                                async: true,
+                                url: `http://${remoteInfoCFD}/setBoth?header=${(vfdDate.length > 0) ? vfdDate : vfdDefaultLine}&status=${vfdInfo}${(vfdInfo.length > 0 && vfdWeather.length > 0) ? ' // ' : ''}${vfdWeather}&keepAwake=true&brightness=1`,
+                                type: "GET", data: '',
+                                processData: false,
+                                contentType: false,
+                                headers: {
+                                    'X-Requested-With': 'SequenziaXHR'
+                                },
+                                error: function (res) {
+                                    console.error('Failed to update VFD Display')
+                                }
+                            });
                         }
                     } else {
-                        document.getElementById('overlayCycle').classList = "";
+                        console.error('Weather ERROR');
+                        console.log(response);
+                        ok(false);
                     }
-
-                    console.log('Weather OK');
-                    vfdWeather = weatherLine;
-                    vfdDate = getVFDDate();
-                    if (remoteInfoCFD) {
-                        $.ajax({
-                            async: true,
-                            url: `http://${remoteInfoCFD}/setBoth?header=${(vfdDate.length > 0) ? vfdDate : vfdDefaultLine}&status=${vfdInfo}${(vfdInfo.length > 0 && vfdWeather.length > 0) ? ' // ' : ''}${vfdWeather}&keepAwake=true&brightness=1`,
-                            type: "GET", data: '',
-                            processData: false,
-                            contentType: false,
-                            headers: {
-                                'X-Requested-With': 'SequenziaXHR'
-                            },
-                            error: function (res) {
-                                console.error('Failed to update VFD Display')
-                            }
-                        });
-                    }
-                } else {
+                },
+                error: function (response) {
                     console.error('Weather ERROR');
                     console.log(response);
+                    ok(false);
                 }
-            },
-            error: function (response) {
-                console.error('Weather ERROR');
-                console.log(response);
-            }
-        });
-    } else {
-        console.log('No Weather Location');
-    }
+            });
+        } else {
+            console.log('No Weather Location');
+            ok(false);
+        }
+    })
 }
 function kioskGainFocus() {
     if (fadeActive) {
@@ -979,7 +974,7 @@ function button_call(url, fade_in, exit_image, return_url) {
     });
     return false;
 }
-function syncDisplaySettings() {
+async function syncDisplaySettings() {
     try {
         let _ui = $('#userInfo');
         let _di = $('#displayInfo');
@@ -1327,7 +1322,7 @@ function syncDisplaySettings() {
         if (displayConfiguration.location) {
             if (!_weather) {
                 _weather = setInterval(getWeather, 900000);
-                getWeather();
+                await getWeather();
             }
         }
     } catch (e) {

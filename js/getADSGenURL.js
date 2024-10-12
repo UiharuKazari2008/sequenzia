@@ -65,6 +65,8 @@ module.exports = async (req, res, next) => {
                     opts.format = req.query.format;
                 if (req.query.base64)
                     data.r = true;
+                if (req.query.display_dark)
+                    opts.ovr_dark = (req.query.display_dark === 'true');
                 if (req.query.width && req.query.height) {
                     data.w = req.query.width;
                     data.h = req.query.height;
