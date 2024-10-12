@@ -1370,7 +1370,7 @@ function getColorData(url) {
         responseType: "arraybuffer",
         success: async function (response,  textStatus, xhr) {
             if (xhr.status < 400) {
-                console.error('getColorData Got');
+                console.log('getColorData Got');
                 const image = new Image(response);
                 image.style.opacity = "0";
                 image.src = url;
@@ -1414,7 +1414,7 @@ async function parseCanvasToWACCA(image) {
     }
     const reorderedColors = reorderColors(allColors);
     lastColorRingData = reorderedColors.join(' ');
-    console.error('getColorData OK');
+    console.log('getColorData OK');
     sendLEDValues(lastColorRingData);
 }
 async function parseCanvasToChunithm(image) {
@@ -1541,7 +1541,7 @@ async function parseCanvasToChunithm(image) {
     colorValues.splice(50, 0, '0xf99400', '0xf99400', '0xf99400');
     colorValues.push('0xf99400', '0xf99400', '0xf99400');
 
-    console.error('getColorData OK');
+    console.log('getColorData OK');
     lastColorRingData = colorValues.join(' ');
     if (remoteChunLEDSide)
         lastColorSideData = colorValues2.join(' ');
