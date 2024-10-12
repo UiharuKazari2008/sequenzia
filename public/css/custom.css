@@ -3271,7 +3271,7 @@ div#recentOverlay {
         display: none!important;
     }*/
 }
-@media (max-width:1730px) {
+@media (max-width:1736px) {
     .user-info-bg, .user-info-backdrop, .user-info-overlay, .user-info-border {
         min-width: 300px;
     }
