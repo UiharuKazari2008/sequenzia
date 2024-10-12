@@ -85,7 +85,7 @@ async function getDiscordURL(url) {
     if (!global.discord_user_token)
         return url;
     return new Promise(async ok => {
-        const params = new URLSearchParams('?' + inputUrl.split('?')[1]);
+        const params = new URLSearchParams('?' + url.split('?')[1]);
         if (params.get('ex') && params.get('is') && params.get('hm')) {
             const expires = new Date(parseInt(params.get('ex') || '', 16) * 1000);
             if (expires.getTime() > Date.now()) {
