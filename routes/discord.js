@@ -886,19 +886,26 @@ async function handleExchange(req, res, next) {
                                     active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
                                 }
                                 next();
-                            } else {
-                                res.status(response.statusCode).send(body)
+                                if (!req.originalUrl.includes('/ambient-get'))
+                                    res.status(response.statusCode)
+                                res.send(body);
                             }
                         } else {
-                            res.status(401).send('Exchange failed to return data!');
+                            if (!req.originalUrl.includes('/ambient-get'))
+                                res.status(401);
+                            res.send('Exchange failed to return data!');
                         }
                     } catch (err) {
                         console.error(err);
-                        res.status(500).send('Communication with exchange failed!');
+                        if (!req.originalUrl.includes('/ambient-get'))
+                            res.status(500);
+                        res.send('Communication with exchange failed!');
                     }
                 } else {
                     console.error(error)
-                    res.status(500).send('Communication with exchange failed!');
+                    if (!req.originalUrl.includes('/ambient-get'))
+                        res.status(500)
+                    res.send('Communication with exchange failed!');
                 }
             });
     } else {

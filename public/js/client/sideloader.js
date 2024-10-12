@@ -1790,7 +1790,7 @@ function showAddressInput(suffix) {
 function feedContent(type) {
     document.getElementById('feedURLdiv').classList.remove('d-none');
     $.ajax({async: true,
-        url: `https://${document.location.host}/discord/token?action=get`,
+        url: `/discord/token?action=get`,
         type: "GET", data: '',
         processData: false,
         contentType: false,
@@ -4981,7 +4981,7 @@ function switchExchange(exchange_id, automatic) {
 function showAuthManager() {
     $('#authenticationModel').modal('show');
     $.ajax({async: true,
-        url: `https://${document.location.host}/discord/token?action=get`,
+        url: `/discord/token?action=get`,
         type: "GET", data: '',
         processData: false,
         contentType: false,
@@ -5000,7 +5000,7 @@ function showAuthManager() {
 function authwareManager(action) {
     $('#authenticationModel').modal('show');
     $.ajax({async: true,
-        url: `https://${document.location.host}/discord/token?action=${action}`,
+        url: `/discord/token?action=${action}`,
         type: "GET", data: '',
         processData: false,
         contentType: false,

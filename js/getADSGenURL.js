@@ -11,18 +11,18 @@ module.exports = async (req, res, next) => {
                 eid = en[0];
             }
             const selectCDN = `SELECT *
-                           FROM kanmi_records_cdn
-                           WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
+                               FROM kanmi_records_cdn
+                               WHERE (full = 1 OR mfull = 1) ${(config.local_cdn_list && config.local_cdn_list.length > 0) ? 'AND (' + config.local_cdn_list.map(e => 'host = ' + e.id).join(' OR ') + ')' : ''}`
             const q = `SELECT IF(rec.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid,
-                          rec.*,
-                          cdn.host                                                   AS cdn_host,
-                          cdn.path_hint,
-                          cdn.mfull_hint,
-                          cdn.full_hint,
-                          cdn.preview_hint,
-                          cdn.ext_0_hint
-                   FROM (SELECT * FROM kanmi_records WHERE eid = ?) rec
-                            LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
+                              rec.*,
+                              cdn.host                                                   AS cdn_host,
+                              cdn.path_hint,
+                              cdn.mfull_hint,
+                              cdn.full_hint,
+                              cdn.preview_hint,
+                              cdn.ext_0_hint
+                       FROM (SELECT * FROM kanmi_records WHERE eid = ?) rec
+                                LEFT OUTER JOIN (${selectCDN}) cdn ON (rec.eid = cdn.eid)`;
             const record = await sqlPromiseSafe(q, [eid])
             if (record.rows.length !== 0) {
                 const image = record.rows[0]
@@ -69,17 +69,23 @@ module.exports = async (req, res, next) => {
                 const query = Buffer.from(JSON.stringify(data)).toString('base64');
                 returnedUrl += `${encodeURIComponent(query)}/${(image.real_filename || image.attachment_name).split('.')[0]}.png${(req.query.noDownload) ? '?noDownload=true' : ''}`;
                 res.locals.ads_url = returnedUrl;
-            } else {
+            } else if (!req.originalUrl.includes('/ambient-get')) {
                 res.status(404).send('Unknown Item');
+            } else {
+                res.end();
             }
             next();
         } else {
             next();
         }
     } catch (err) {
-        res.status(500).json({
-            state: 'HALTED',
-            message: err.message,
-        });
+        if (!req.originalUrl.includes('/ambient-get')) {
+            res.status(500).json({
+                state: 'HALTED',
+                message: err.message,
+            });
+        } else {
+            res.end();
+        }
     }
 }

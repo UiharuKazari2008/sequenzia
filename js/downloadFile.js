@@ -46,15 +46,23 @@ module.exports = async (req, res, next) => {
                         next();
                     });
                 } else {
+                    if (!req.originalUrl.includes('/ambient-get'))
+                        res.status(200);
                     res.setHeader('Content-Type', contentType);
-                    response.pipe(res);
+                    response.on('data', (data) => { res.write(data) });
+                    response.on('end', () => {
+                        printLine('ProxyFile', `Data written to client!`, 'info');
+                        res.end();
+                    });
                 }
             } else {
                 if (req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget')) {
                     res.locals.imagedata = undefined;
                     next();
                 } else {
-                    res.status(500).end();
+                    if (!req.originalUrl.includes('/ambient-get'))
+                        res.status(500);
+                    res.end();
                 }
                 printLine('ProxyFile', `Failed to stream file request - No Data`, 'error');
                 console.log(response.rawHeaders)
@@ -65,7 +73,11 @@ module.exports = async (req, res, next) => {
                 res.locals.imagedata = undefined;
                 next();
             } else {
-                res.status(500).send('Error during downloading image');
+                if (!req.originalUrl.includes('/ambient-get')) {
+                    res.status(500).send('Error during downloading image');
+                } else {
+                    res.end();
+                }
             }
             printLine('ProxyFile', `Failed to stream file request - ${e.message}`, 'error');
         });
@@ -74,7 +86,11 @@ module.exports = async (req, res, next) => {
             res.locals.imagedata = undefined;
             next();
         } else {
-            res.status(404).send("No Results")
+            if (!req.originalUrl.includes('/ambient-get')) {
+                res.status(404).send("No Results");
+            } else {
+                res.end();
+            }
         }
     }
     if (!(req.originalUrl.includes('/ads-micro') || req.originalUrl.includes('/ads-widget'))) {

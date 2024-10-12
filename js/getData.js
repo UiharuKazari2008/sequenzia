@@ -1515,6 +1515,8 @@ module.exports = async (req, res, next) => {
         } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             debugTimes.sql_query = new Date();
             let ambientSQL = `${sqlCall} LIMIT ${sqllimit}`
+            if (page_uri === '/ambient-get')
+                res.status(200);
             const imageResults = await sqlPromiseSimple(ambientSQL)
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
             debugTimes.post_proccessing = new Date();
