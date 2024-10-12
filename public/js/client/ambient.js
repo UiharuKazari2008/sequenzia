@@ -1390,6 +1390,7 @@ function getColorData(url) {
 async function parseCanvasToWACCA(image) {
     imageCanvas.width = image.width;
     imageCanvas.height = image.height;
+    console.log(image.height, image.width);
     imageCtx.filter = `saturate(1.2) contrast(1.2)`;
     imageCtx.drawImage(image, 0, 0);
     const center = {
@@ -1417,6 +1418,7 @@ async function parseCanvasToChunithm(image) {
     imageCanvas.width = image.width;
     imageCanvas.height = image.height;
     imageCtx.filter = `saturate(1.2) contrast(1.2)`;
+    console.log(image.height, image.width);
     imageCtx.drawImage(image, 0, 0);
 
     const gridWidth = 11;
