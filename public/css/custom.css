@@ -3839,7 +3839,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         margin-bottom: .5rem;
     }
 }
-@media (max-width: 700px) {
+@media (max-width: 708px) {
     #mainMenuBar #menuBodyImageHistory .album-item, #mainMenuBar .album-item {
         min-width: calc(25% - 0.5rem);
     }
