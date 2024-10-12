@@ -1359,6 +1359,7 @@ const circleCount = 8;
 let allColors = [];
 let pauseLEDUpdates = false;
 function getColorData(url) {
+    console.log(url);
     $.ajax({async: true,
         url,
         type: "GET", data: '',
