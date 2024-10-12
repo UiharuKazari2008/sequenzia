@@ -569,7 +569,7 @@ function pullImage(data) {
                     element_from = 'bg2';
                 }
                 if ((remoteWACCALED || remoteChunLED) && !pauseLEDUpdates) {
-                    await getColorData(data.randomImagev2[0].previewImage);
+                    await getColorData(data.randomImagev2[0].actualImage);
                 }
                 document.getElementById(element_to).style.backgroundImage = "url('" + response + "')";
                 if (displayConfiguration.displayImageInfo !== 0) {
