@@ -1371,15 +1371,17 @@ function getColorData(url) {
                 console.log('getColorData Got');
                 const image = new Image();
                 //image.style.opacity = "0";
-                image.src = response;
                 image.crossOrigin = "Anonymous"
-                if (remoteWACCALED) {
-                    parseCanvasToWACCA(image);
-                    //parseCanvasToWACCA(image).then(() => image.remove());
-                } else if (remoteChunLED) {
-                    parseCanvasToChunithm(image);
-                    //parseCanvasToChunithm(image).then(() => image.remove());
-                }
+                image.src = response;
+                image.onload = () => {
+                    if (remoteWACCALED) {
+                        parseCanvasToWACCA(image);
+                        //parseCanvasToWACCA(image).then(() => image.remove());
+                    } else if (remoteChunLED) {
+                        parseCanvasToChunithm(image);
+                        //parseCanvasToChunithm(image).then(() => image.remove());
+                    }
+                };
             } else {
                 console.error('getColorData Failed', response);
                 console.log(response);
