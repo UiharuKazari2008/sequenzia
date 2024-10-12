@@ -1370,16 +1370,13 @@ function getColorData(url) {
             if (xhr.status < 400) {
                 console.log('getColorData Got');
                 const image = new Image();
-                //image.style.opacity = "0";
                 image.crossOrigin = "Anonymous"
                 image.src = response;
                 image.onload = () => {
                     if (remoteWACCALED) {
-                        parseCanvasToWACCA(image);
-                        //parseCanvasToWACCA(image).then(() => image.remove());
+                        parseCanvasToWACCA(image).then(() => image.remove());
                     } else if (remoteChunLED) {
-                        parseCanvasToChunithm(image);
-                        //parseCanvasToChunithm(image).then(() => image.remove());
+                        parseCanvasToChunithm(image).then(() => image.remove());
                     }
                 };
             } else {
