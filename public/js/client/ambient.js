@@ -1369,7 +1369,7 @@ function getColorData(url) {
             if (xhr.status < 400) {
                 console.log('getColorData Got');
                 const image = new Image();
-                //image.style.opacity = "0";
+                //
                 image.src = response;
                 image.crossOrigin = "Anonymous"
                 if (remoteWACCALED) {
