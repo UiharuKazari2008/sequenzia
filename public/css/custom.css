@@ -3746,7 +3746,7 @@ nav > .col > ul > #topAddressBarInfo > #titleExtra {
         height: 205px;
     }
 }
-@media (max-width: 945px) {
+@media (max-width: 957px) {
     :not(.user-card-list) > div > .user-info-backdrop,
     :not(.user-card-list) > div > .user-info-overlay,
     :not(.user-card-list) > div > .user-info-border,
