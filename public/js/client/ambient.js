@@ -1371,9 +1371,9 @@ function getColorData(url) {
         success: async function (response,  textStatus, xhr) {
             if (xhr.status < 400) {
                 console.log('getColorData Got');
-                const image = new Image(response);
+                const image = new Image();
                 image.style.opacity = "0";
-                image.src = url;
+                image.src = response;
                 image.crossOrigin = "Anonymous"
                 console.log(image);
                 if (remoteWACCALED) {
