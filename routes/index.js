@@ -691,13 +691,13 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                         if ((ua && ua.isBot || (ua.source && ua.source.toLowerCase().includes('discord'))) || (req.query.json && req.query.json === 'true')) {
                             let obj = {
                                 description: message.content_full,
-                                site_title: webconfig.site_name,
+                                site_title: web.site_name,
                                 msg_id: message.id,
                                 msg_channel: message.channel,
                             }
                             let json = {
-                                "provider_name": webconfig.site_name,
-                                "provider_url": webconfig.base_url
+                                "provider_name": web.site_name,
+                                "provider_url": web.base_url
                             }
                             if (message.filecached === 1 && (message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'webp' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'png' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'jpeg' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'jpg' || message.real_filename.split('.').pop().split('?')[0].toLowerCase() === 'gif')) {
                                 obj.image = `/stream/${message.fileid}/${message.real_filename}`
@@ -732,7 +732,7 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
                                                     })
                                                 }
                                                 if (message.real_filename) {
-                                                    obj.site_title = `${webconfig.site_name} - ${channelName}`
+                                                    obj.site_title = `${web.site_name} - ${channelName}`
                                                     obj.title = message.real_filename
                                                     json.author_name = channelName
                                                 } else {
