@@ -14,7 +14,7 @@ module.exports = async (req, res, next) => {
         }
         const cdn_found = config.local_cdn_list.filter(e => url.startsWith(e.access_url));
         if (cdn_found.length > 0) {
-            if (cdn_found[0].gen_access_url && req.query.generateImage && req.query.width && req.query.height) {
+            if (res.locals.ads_url || (cdn_found[0].gen_access_url && req.query.generateImage && req.query.width && req.query.height)) {
                 url = (url.replace(cdn_found[0].gen_access_url, cdn_found[0].gen_local_url)) + "?width=" + req.query.width + "&height=" + req.query.height
             } else {
                 url = (url.replace(cdn_found[0].access_url, cdn_found[0].local_url))
