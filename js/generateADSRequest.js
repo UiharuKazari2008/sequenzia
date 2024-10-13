@@ -19,7 +19,23 @@ module.exports = async (req, res, next) => {
             if (!req.query.generateImage && !req.query.ratio) { req.query.ratio = '1-3'; }
             if (!req.query.displayname) { req.query.displayname = `ADSMobile-${req.query.device}` }
         }
-        next();
+        const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.master.discord.user.id, req.query.displayname]);
+        if (displayConfig && displayConfig.rows.length > 0) {
+            const thisConfig = displayConfig.rows[0];
+            if (thisConfig.requestOptions) {
+                const options = new URLSearchParams(thisConfig.requestOptions.trim());
+                options.forEach((value, key) => {
+                    req.query[key] = value;
+                });
+                if (req.query.displaySlave) {
+                    req.query.history = undefined;
+                }
+                printLine('ADSRequest', `Generated ADS Request Parameters => "${options.toString()}"`, 'debug')
+            }
+            next();
+        } else {
+            next();
+        }
     } else if (req.query.displayname) {
         const displayConfig = await sqlPromiseSafe('SELECT * FROM sequenzia_display_config WHERE user = ? AND name = ? LIMIT 1', [thisUser.master.discord.user.id, req.query.displayname]);
         if (displayConfig && displayConfig.rows.length > 0) {
