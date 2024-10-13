@@ -3250,9 +3250,11 @@ div#fbInfo .modal-background {
     margin-top: 0.25rem
 }
 
-div#fbInfo .modal-background,
-div#fbInfo .modal-gradient {
+div#fbInfo .modal-background {
     height: 30vw;
+}
+div#fbInfo .modal-gradient {
+    height: calc(30vw + 2px);
 }
 
 .fancybox-caption {
@@ -3271,9 +3273,11 @@ div#fbInfo .modal-gradient {
         width: 450px;
     }
 
-    div#fbInfo .modal-background,
-    div#fbInfo .modal-gradient {
+    div#fbInfo .modal-background {
         height: 450px;
+    }
+    div#fbInfo .modal-gradient {
+        height: 452px;
     }
 }
 .info-sidebar-check {
