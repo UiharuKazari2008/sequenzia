@@ -1722,7 +1722,7 @@
           self.setContent(
             slide,
             slide.opts.video.tpl
-            .replace(/\{\{src\}\}/gi, slide.src)
+            .replace(/\{\{src\}\}/gi, slide.src.split('#')[0])
             .replace("{{format}}", slide.opts.videoFormat || slide.opts.video.format || "")
             .replace("{{poster}}", slide.thumb || "")
           );
