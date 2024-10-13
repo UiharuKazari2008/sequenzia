@@ -246,7 +246,6 @@ if (web.enable_brags) {
 
         app.set('total_counts', counts.rows[0])
         app.set('server_list', servers.rows)
-        console.log(counts.rows[0])
     }
     app.total_counts();
     setInterval(app.total_counts, 300000)
