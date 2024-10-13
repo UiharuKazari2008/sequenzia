@@ -1920,7 +1920,7 @@ html
                                 if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
                                     ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis.ml-1(style='display: none;')
                                         li.nav-item.no-arrow
-                                            i.fas.fa-arrow-down-arrow-up.fa-fade
+                                            i.fa-duotone.fa-loader.fa-spin-pulse
 
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
@@ -2861,6 +2861,257 @@ html
                                                         div#advancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
                                         .modal-background
                                         .modal-gradient
+                        //#infoDialog.hidden
+                            .info-dialog-container
+                                div.row.px-3
+                                    div#infoDialogauthorData.mt-1.w-100.d-flex.flex-row.align-items-start
+                                        img(style='height: 48px;').rounded-circle.pr-2.shadow-blk
+                                        span(style='font-size: 1.5em;').text-ellipsis.align-self-center.shadow-text
+                                div.row.px-2.flex-nowrap.mb-1.mt-2(style='display: flex; justify-content: space-evenly; align-content: center; flex-direction: row; align-items: center;')
+                                    a#infoDialogtoggleFavoritePost.btn.text-white(role="button" href='#__')
+                                        i.fas.fa-star.shadow-text
+                                    a#infoDialogaddFlagPost.btn.text-white(role="button" href='#__')
+                                        i.fas.fa-flag.shadow-text
+                                    a#infoDialoggoToPostLocation.btn.text-white(href='#__' role='button')
+                                        i.fas.fa-directions.shadow-text
+                                    a#infoDialoggoToPostSource.btn.text-white(href='#__' role='button').hidden
+                                        i.fas.fa-link.shadow-text
+                                    a#infoDialoggoToHistoryDisplay.btn.text-white(href='#__' role='button')
+                                        i.fas.fa-history.shadow-text
+                                    a#infoDialoggoToPlay.btn.text-white(href='#__' role='button')
+                                        i.fas.fa-play.shadow-text
+                                    a#infoDialoggoToDownload.btn.text-white(href='#__' role='button' target="_blank" rel="noopener noreferrer")
+                                        i.fas.fa-download.shadow-text
+                                    a#infoDialogmakeOffline.btn.text-white(href='#__' role='button')
+                                        i.fas.fa-bookmark.shadow-text
+                                #infoDialogkeepExpireingFile.row.pl-3.pr-3.hidden
+                                    a.btn.btn-primary(data-toggle='collapse' href='#__' role='button').mb-2.w-100
+                                        i.fas.fa-clock.pr-2
+                                        span Keep Offline File
+                                div.row.px-3
+                                    span#infoDialoginfoFilename.text-center.w-100.font-italic.text-lg.shadow-text
+                                div.row.px-3
+                                    div#infoDialograwInfoContent.mt-2.text-center.w-100
+                                div.row.px-3
+                                    div#infoDialograwBodyContent.mt-1.text-center.w-100
+                                        div.card-ui(style='max-height: 600px; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere')
+                                .row.px-3.mb-2
+                                    #infoDialogtagCollapse.pt-3.hidden
+                                        div
+                                            div#infoDialogtagsStaticHolder.d-flex.flex-wrap.justify-content-center(style="font-size: 1.2em;")
+                                            div#infoDialogtagsHolder.d-flex.flex-wrap.justify-content-center(style="font-size: 1.2em;")
+                                            div
+                                                span.text-success.text-xs Powered by Mugino MIITS
+                                        div#infoDialogtagLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
+                                            label#infoDialogtagFilterPost.btn.btn-info.w-100
+                                                input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                                span  Post
+                                            label#infoDialogtagFilterCurrent.btn.btn-info.w-100.active
+                                                input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                                span  Session
+                                            label#infoDialogtagFilterEverywhere.btn.btn-info.w-100
+                                                input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                                span  Everywhere
+                                #infoDialogfindMenus.accordion.row.pl-3.pr-3.mt-2
+                                    div.w-100
+                                        #infoDialogsearchHeader
+                                            h3.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#infoDialogsearchCollapse')
+                                                    i.fas.pr-2.fa-search
+                                                    | Search
+                                                    i.fas.fa-chevron-right.pl-2
+                                        #infoDialogsearchCollapse.show.collapse(data-parent='#infoDialogfindMenus').w-100
+                                            div.mt-1
+                                                a#infoDialogsearchUseChannel.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-folder.pr-2
+                                                    span Use Channel
+                                            div.mt-1
+                                                a#infoDialogsausenaoRequest.btn.btn-primary(href='#__' target="_blank" rel="noopener noreferrer" role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-telescope.pr-2
+                                                    span SauseNAO
+                                            div.mt-1
+                                                a#infoDialogsearchByParent.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-level-up-alt.pr-2
+                                                    span Parent Post
+                                                a#infoDialogsearchByUser.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-user.pr-2
+                                                    span Artist
+                                                a#infoDialogsearchByChildren.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-object-group.pr-2
+                                                    span Post Chain
+                                                a#infoDialogsearchByColor.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-swatchbook.pr-2
+                                                    span Similar Color
+                                                a#infoDialogsearchByID.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-asterisk.pr-2
+                                                    span Related IDs
+                                                a#infoDialogsearchByContents.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                    i.fas.fa-font-case.pr-2
+                                                    span Contents
+                                                a#infoDialogsearchSelectedText.btn.btn-primary(href='#_' role='button').mb-2.w-100
+                                                    i.fas.fa-i-cursor.pr-2
+                                                    span Selected Text
+                                            div#infoDialogsearchLocationSelection.btn-group.btn-group-toggle.mt-2.w-100(data-toggle='buttons')
+                                                label#infoDialogsearchFilterPost.btn.btn-info.w-100
+                                                    input(type='radio' name='options' autocomplete='off' data-search-location='' checked='')
+                                                    span  Post
+                                                label#infoDialogsearchFilterCurrent.btn.btn-info.w-100.active
+                                                    input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                                    span  Session
+                                                label#infoDialogsearchFilterEverywhere.btn.btn-info.w-100
+                                                    input(type='radio' name='options' autocomplete='off' data-search-location='')
+                                                    span  Everywhere
+
+                                    div.w-100
+                                        #infoDialogalbumHeader
+                                            h3.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#infoDialogalbumCollapse')
+                                                    i.fas.pr-2.fa-archive
+                                                    | Albums
+                                                    i.fas.fa-chevron-right.pl-2
+                                        #infoDialogalbumCollapse.collapse(data-parent='#infoDialogfindMenus').w-100
+                                            div.mt-1.d-flex
+                                                .ml-auto.mr-auto.flex-row
+                                                    i.fa-duotone.fa-loader.fa-spin-pulse
+                                                    span.ml-1 Please Wait...
+
+                                    div.w-100
+                                        #infoDialogfunctionsHeader
+                                            h3.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#infoDialogfunctionsCollapse')
+                                                    i.fas.pr-2.fa-function
+                                                    | Functions
+                                                    i.fas.fa-chevron-right.pl-2
+                                        #infoDialogfunctionsCollapse.collapse(data-parent='#infoDialogfindMenus').w-100
+                                            div#infoDialognoFunctions.mt-1
+                                                div.my-2.d-flex.flex-row.justify-content-center
+                                                    i.fas.fa-empty-set.pr-2
+                                                    span No Functions Available!
+                                            div#infoDialogfunctionsList.mt-1.hidden
+                                                div.d-flex.flex-column
+                                                    div#infoDialogtwitterInteract.d-inline-flex.flex-row.hidden
+                                                        a#infoDialogtwitterLike.btn.btn-primary.disabled(href='#_' role='button').mb-2.w-100
+                                                            i.fas.fa-heart
+                                                        a#infoDialogtwitterRT.btn.btn-primary.disabled(href='#_' role='button').mb-2.w-100.mx-2
+                                                            i.fas.fa-retweet
+                                                        a#infoDialogtwitterLikeRT.btn.btn-primary.disabled(href='#_' role='button').mb-2.w-100
+                                                            i.pr-2.fas.fa-heart
+                                                            i.fas.fa-retweet
+                                                    div#infoDialogtwitterListCtrl.d-inline-flex.flex-row.hidden
+                                                        a#infoDialogtwitterLAdd.btn.btn-primary.disabled(href='#_' role='button').mb-2.w-100
+                                                            i.pr-2.fas.fa-user-plus
+                                                            span Add
+                                                        a#infoDialogtwitterLRm.btn.btn-primary.disabled(href='#_' role='button').mb-2.w-100.mx-2
+                                                            i.pr-2.fas.fa-user-xmark
+                                                            span Remove
+                                                        a#infoDialogtwitterUserBlock.btn.btn-primary.disabled(href='#_' role='button').mb-2.w-100
+                                                            i.pr-2.fas.fa-user-slash
+                                                            span Block
+                                                    a#infoDialogtwitterDownloadUser.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                        i.pr-2.fas.fa-download
+                                                        span Download User
+
+                                                    a#infoDialogopenPixiv.btn.btn-primary(href='#__' target="_blank" rel="noopener noreferrer" role='button').mb-2.w-100.hidden
+                                                        i.pr-2.fas.fa-arrow-up-right-from-square
+                                                        span Open Illustration
+                                                    a#infoDialogpixivFollow.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                        i.pr-2.fas.fa-user-plus
+                                                        span Follow User
+                                                    a#infoDialogpixivExpand.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                        i.pr-2.fas.fa-sparkles
+                                                        span Expand Search
+                                                    a#infoDialogpixivDownloadUser.btn.btn-primary(href='#_' role='button').mb-2.w-100.hidden
+                                                        i.pr-2.fas.fa-download
+                                                        span Download User
+
+                                    div.w-100
+                                        #infoDialogcustomizeHeader
+                                            h3.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#infoDialogcustomizeCollapse')
+                                                    i.fas.pr-2.fa-swatchbook
+                                                    | Services
+                                                    i.fas.fa-chevron-right.pl-2
+                                        #infoDialogcustomizeCollapse.collapse(data-parent='#infoDialogfindMenus').w-100
+                                            div.mt-1
+                                                div.mb-2.d-flex.flex-row
+                                                    a#infoDialoggetAsWallpaper.btn.btn-success(href='#__' role='button' target="_blank" rel="noopener noreferrer").w-100.mr-1
+                                                        i.fas.fa-download.pr-2
+                                                        span Download Wallpaper
+                                                div.mb-2.d-flex.flex-row
+                                                    .w-100.mr-1.d-inline-flex
+                                                        a#infoDialogsetPhoneCrop.btn.btn-primary(href='#_' role='button').w-100.mr-1
+                                                            i.fas.fa-crop.pr-2
+                                                            span Portrait
+                                                        a#infoDialogremovePhoneCrop.btn.btn-danger(href='#_' role='button')
+                                                            i.fas.fa-trash
+                                                    .w-100.ml-1.d-inline-flex
+                                                        a#infoDialogsetWallpaperCrop.btn.btn-primary(href='#_' role='button').w-100.mr-1
+                                                            i.fas.fa-crop.pr-2
+                                                            span Landscape
+                                                        a#infoDialogremoveWallpaperCrop.btn.btn-danger(href='#_' role='button')
+                                                            i.fas.fa-trash
+                                                div.mb-2.d-flex.flex-row
+                                                    a#infoDialogsetAsAvatar.btn.btn-primary(href='#_' role='button').w-100.mr-1
+                                                        i.fas.fa-address-card.pr-2
+                                                        span Set Avatar
+                                                    a#infoDialogsetAsBanner.btn.btn-primary(href='#_' role='button').w-100.ml-1
+                                                        i.fas.fa-address-card.pr-2
+                                                        span Set Banner
+                                                div.d-flex.flex-row.mb-2
+                                                    a#infoDialogupscaleRequest.btn.btn-primary(href='#_' role='button').w-100
+                                                        i.fas.fa-high-definition.pr-2
+                                                        span Upscale Image
+                                                div.d-flex.flex-row
+
+                                    div#infoDialogmanageButtons.w-100
+                                        #infoDialogtoolboxHeader
+                                            h3.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#infoDialogtoolboxCollapse')
+                                                    i.fas.pr-2.fa-toolbox
+                                                    | Manage
+                                                    i.fas.fa-chevron-right.pl-2
+                                        #infoDialogtoolboxCollapse.collapse(data-parent='#infoDialogfindMenus').w-100.px-2
+                                            .row.flex-nowrap.mt-1
+                                                a#infoDialoginfoMove.btn.btn-danger.mx-1.mb-2(title="Move Item" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-cut.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Move
+                                                a#infoDialoginfoEditText.btn.btn-danger.mx-1.mb-2(title="Edit Item Contents" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-square-quote.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Edit
+                                                a#infoDialoginfoRename.btn.btn-danger.mx-1.mb-2(title="Rename Item" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-input-text.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Rename
+                                                a#infoDialoginfoRotae.btn.btn-danger.mx-1.mb-2(title="Rotate Image" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-undo.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Rotate
+                                            .row.flex-nowrap
+                                                a#infoDialoginfoRepair.btn.btn-danger.mx-1.mb-2(title="Repair Thumbnail" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-image-slash.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Thumb
+                                                a#infoDialoginfoCompile.btn.btn-danger.mx-1.mb-2(title="Compile Spanned File" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-cloud-check.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Cache
+                                                a#infoDialoginfoDecompile.btn.btn-danger.mx-1.mb-2(title="Remove Cached Spanned File" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-cloud-xmark.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline DeCache
+                                                a#infoDialoginfoDelete.btn.btn-danger.mx-1.mb-2(title="Archive or Delete Item(s)" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-trash.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Delete
+                                                a#infoDialoginfoReport.btn.btn-danger.mx-1.mb-2(title="Clear Reported Item(s)" href='#_').w-100.text-ellipsis
+                                                    i.fas.fa-flag.pr-0.pr-sm-2
+                                                    span.d-none.d-sm-inline Clear
+                                    div.w-100
+                                        #infoDialogdebugHeader
+                                            h3.mb-0
+                                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#infoDialogdebugCollapse')
+                                                    i.fas.pr-2.fa-info-circle
+                                                    | Debug
+                                                    i.fas.fa-chevron-right.pl-2
+                                        #infoDialogdebugCollapse.collapse(data-parent='#infoDialogfindMenus').w-100
+                                            div.mt-1
+                                                div#infoDialogadvancedInfoBlock.text-center.w-100.d-flex.flex-column.flex-wrap.align-items-start
+                            .modal-background
+                            .modal-gradient
                         #appModal.modal.fade(tabindex='-1' role='dialog' aria-hidden='true')
                             .modal-dialog.modal-dialog-scrollable.modal-sm(role='document')
                                 .modal-content

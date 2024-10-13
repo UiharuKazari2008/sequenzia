@@ -3213,6 +3213,86 @@ div#recentOverlay {
     margin: 0 .25em;
 }
 
+.fancybox-container {
+    z-index: 1100;
+}
+.modal {
+    z-index: 1250;
+}
+.modal-backdrop {
+    z-index: 1240;
+}
+div#fbInfo .info-dialog-container {
+    z-index: 3;
+    position: relative;
+}
+div#fbInfo .modal-gradient {
+    z-index: 2;
+}
+div#fbInfo .modal-background {
+    z-index: 1;
+}
+
+.fancybox-inner {
+    width: calc(100% - 30vw);
+}
+.info-container {
+    padding: 10px;
+    background: black;
+    height: 100%;
+    right: 0;
+    position: absolute;
+    width: 30vw;
+    overflow: auto;
+}
+#infoDialogalbumCollapse .list-group {
+    margin-top: 0.25rem
+}
+
+div#fbInfo .modal-background,
+div#fbInfo .modal-gradient {
+    height: 30vw;
+}
+
+.fancybox-caption {
+    display: none;
+}
+@media (min-width:1400px) {
+    .fancybox-inner {
+        width: calc(100% - 450px);
+    }
+    .info-container {
+        padding: 10px;
+        background: black;
+        height: 100%;
+        right: 0;
+        position: absolute;
+        width: 450px;
+    }
+
+    div#fbInfo .modal-background,
+    div#fbInfo .modal-gradient {
+        height: 450px;
+    }
+}
+.info-sidebar-check {
+    display: none;
+}
+@media (max-width:1200px) {
+    .info-sidebar-check {
+        display: revert;
+    }
+    .fancybox-caption {
+        display: block;
+    }
+    .fancybox-inner {
+        width: 100%;
+    }
+    .info-container {
+        display: none;
+    }
+}
+
 @keyframes animateBg {
     0% {
         background-position: 0 0;

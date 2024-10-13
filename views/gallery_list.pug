@@ -31,7 +31,7 @@ block content
                     - fileURL = item.entities.full
                     - previewURL = item.entities.preview;
                     if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')))
-                        - fileURL = item.entities.full
+                        - fileURL = item.entities.full + '#' + item.id
                     if (item.entities.download && item.entities.filename.length > 5 && (item.entities.filename.toLowerCase().includes('.mp4') || item.entities.filename.toLowerCase().includes('.mov') || item.entities.filename.toLowerCase().includes('.m4v') || item.entities.filename.toLowerCase().includes('.ts') || item.entities.filename.toLowerCase().includes('.mkv')) && item.meta.cached)
                         - fileURL = item.entities.download
                     if (item.entities.download && !item.entities.download.includes('discordapp') && item.entities.download.split('.').pop().split('?')[0].toLowerCase() === 'gif')
@@ -130,7 +130,7 @@ block content
                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
                                             a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.btn-links.fas.fa-archive
-                                        a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && login_source && login_source < 900)}); return false;`)
+                                        a.btn.btn-links.goto-link.info-sidebar-check(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showInfoDialog('${item.id}'); return false;`)
                                             i.btn-links.fas.fa-info-circle
                                     div.right-links.row-1
                                         //if (isVideo && item.entities.meta.fileid)
@@ -226,7 +226,7 @@ block content
                                                 if (item.meta.search)
                                                     a.btn.btn-links.goto-link(data-placement="top" title=`Search by this user` href='#_' onclick=`getNewContent([],[['channel','${item.channel.id}'],['search', 'artist:${encodeURIComponent(item.meta.search)}']${(req_uri.includes('review_mode=true')) ? ', [\'review_mode\', \'true\']' : ''}],'/gallery'); return false;`)
                                                         i.btn-links.fas.fa-user
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showSearchOptions('${item.id}', ${(thisImageManage && login_source && login_source < 900)}); return false;`)
+                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showInfoDialog('${item.id}'); return false;`)
                                                     i.btn-links.fas.fa-info-circle
                                             if (item.meta.search)
                                                 .ml-auto
@@ -269,7 +269,7 @@ block content
                                                 i.btn-links.fas.fa-cut(style="font-size: 2em;")
                                             a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
-                        a.lightbox(href=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? '#_' : fileURL, data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? undefined : "gallery", onclick=((isVideo && item.entities.meta.fileid && !item.meta.cached) ? `openPreviewUnpacking("${item.id}"); return false;` : undefined))
+                        a.lightbox(href=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? '#_' : (fileURL + '#' + item.id), data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? undefined : "gallery", onclick=((isVideo && item.entities.meta.fileid && !item.meta.cached) ? `openPreviewUnpacking("${item.id}"); return false;` : undefined))
                             - positionImage = ''
                             - noHoverClass = ''
                             if (!isVideo)

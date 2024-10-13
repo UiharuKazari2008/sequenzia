@@ -1,3 +1,144 @@
+// DO NOT FUCKING EDIT THE INFO DIALOG CONTENTS WITHOUT EDITING THE LAYOUT.PUG FILE YOU RETARD!!!
+// EDIT THERE AND COMPILE THE PUG TO HTML ====> https://pughtml.com/
+const infodialog = '<div class="info-dialog-container">\n' +
+    '    <div class="row px-3">\n' +
+    '        <div class="mt-1 w-100 d-flex flex-row align-items-start" id="infoDialogauthorData"><img class="rounded-circle pr-2 shadow-blk" style="height: 48px;" /><span class="text-ellipsis align-self-center shadow-text" style="font-size: 1.5em;"></span></div>\n' +
+    '    </div>\n' +
+    '    <div class="row px-2 flex-nowrap mb-1 mt-2" style="display: flex; justify-content: space-evenly; align-content: center; flex-direction: row; align-items: center;"><a class="btn text-white" id="infoDialogtoggleFavoritePost" role="button" href="#__"><i class="fas fa-star shadow-text"></i></a><a class="btn text-white" id="infoDialogaddFlagPost" role="button" href="#__"><i class="fas fa-flag shadow-text"></i></a>\n' +
+    '        <a\n' +
+    '            class="btn text-white" id="infoDialoggoToPostLocation" href="#__" role="button"><i class="fas fa-directions shadow-text"></i></a><a class="btn text-white hidden" id="infoDialoggoToPostSource" href="#__" role="button"><i class="fas fa-link shadow-text"></i></a><a class="btn text-white" id="infoDialoggoToHistoryDisplay" href="#__"\n' +
+    '                role="button"><i class="fas fa-history shadow-text"></i></a><a class="btn text-white" id="infoDialoggoToPlay" href="#__" role="button"><i class="fas fa-play shadow-text"></i></a><a class="btn text-white" id="infoDialoggoToDownload" href="#__"\n' +
+    '                role="button" target="_blank" rel="noopener noreferrer"><i class="fas fa-download shadow-text"></i></a><a class="btn text-white" id="infoDialogmakeOffline" href="#__" role="button"><i class="fas fa-bookmark shadow-text"></i></a></div>\n' +
+    '    <div\n' +
+    '        class="row pl-3 pr-3 hidden" id="infoDialogkeepExpireingFile"><a class="btn btn-primary mb-2 w-100" data-toggle="collapse" href="#__" role="button"><i class="fas fa-clock pr-2"></i><span>Keep Offline File</span></a></div>\n' +
+    '<div class="row px-3"><span class="text-center w-100 font-italic text-lg shadow-text" id="infoDialoginfoFilename"></span></div>\n' +
+    '<div class="row px-3">\n' +
+    '    <div class="mt-2 text-center w-100" id="infoDialograwInfoContent"></div>\n' +
+    '</div>\n' +
+    '<div class="row px-3">\n' +
+    '    <div class="mt-1 text-center w-100" id="infoDialograwBodyContent">\n' +
+    '        <div class="card-ui" style="max-height: 600px; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere"></div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '<div class="row px-3 mb-2">\n' +
+    '    <div class="pt-3 hidden" id="infoDialogtagCollapse">\n' +
+    '        <div>\n' +
+    '            <div class="d-flex flex-wrap justify-content-center" id="infoDialogtagsStaticHolder" style="font-size: 1.2em;"></div>\n' +
+    '            <div class="d-flex flex-wrap justify-content-center" id="infoDialogtagsHolder" style="font-size: 1.2em;"></div>\n' +
+    '            <div><span class="text-success text-xs">Powered by Mugino MIITS</span></div>\n' +
+    '        </div>\n' +
+    '        <div class="btn-group btn-group-toggle mt-2 w-100" id="infoDialogtagLocationSelection" data-toggle="buttons"><label class="btn btn-info w-100" id="infoDialogtagFilterPost"><input type="radio" name="options" autocomplete="off" data-search-location="" checked=""/><span> Post</span></label><label class="btn btn-info w-100 active" id="infoDialogtagFilterCurrent"><input type="radio" name="options" autocomplete="off" data-search-location=""/><span> Session</span></label>\n' +
+    '            <label\n' +
+    '                class="btn btn-info w-100" id="infoDialogtagFilterEverywhere"><input type="radio" name="options" autocomplete="off" data-search-location="" /><span> Everywhere</span></label>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '<div class="accordion row pl-3 pr-3 mt-2" id="infoDialogfindMenus">\n' +
+    '    <div class="w-100">\n' +
+    '        <div id="infoDialogsearchHeader">\n' +
+    '            <h3 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#infoDialogsearchCollapse"><i class="fas pr-2 fa-search"></i>Search<i class="fas fa-chevron-right pl-2"></i></button></h3>\n' +
+    '        </div>\n' +
+    '        <div class="show collapse w-100" id="infoDialogsearchCollapse" data-parent="#infoDialogfindMenus">\n' +
+    '            <div class="mt-1"><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsearchUseChannel" href="#_" role="button"><i class="fas fa-folder pr-2"></i><span>Use Channel</span></a></div>\n' +
+    '            <div class="mt-1"><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsausenaoRequest" href="#__" target="_blank" rel="noopener noreferrer" role="button"><i class="fas fa-telescope pr-2"></i><span>SauseNAO</span></a></div>\n' +
+    '            <div class="mt-1"><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsearchByParent" href="#_" role="button"><i class="fas fa-level-up-alt pr-2"></i><span>Parent Post</span></a><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsearchByUser"\n' +
+    '                    href="#_" role="button"><i class="fas fa-user pr-2"></i><span>Artist</span></a><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsearchByChildren" href="#_" role="button"><i class="fas fa-object-group pr-2"></i><span>Post Chain</span></a>\n' +
+    '                <a\n' +
+    '                    class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsearchByColor" href="#_" role="button"><i class="fas fa-swatchbook pr-2"></i><span>Similar Color</span></a><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogsearchByID" href="#_" role="button"><i class="fas fa-asterisk pr-2"></i><span>Related IDs</span></a><a class="btn btn-primary mb-2 w-100 hidden"\n' +
+    '                        id="infoDialogsearchByContents" href="#_" role="button"><i class="fas fa-font-case pr-2"></i><span>Contents</span></a><a class="btn btn-primary mb-2 w-100" id="infoDialogsearchSelectedText" href="#_" role="button"><i class="fas fa-i-cursor pr-2"></i><span>Selected Text</span></a></div>\n' +
+    '            <div\n' +
+    '                class="btn-group btn-group-toggle mt-2 w-100" id="infoDialogsearchLocationSelection" data-toggle="buttons"><label class="btn btn-info w-100" id="infoDialogsearchFilterPost"><input type="radio" name="options" autocomplete="off" data-search-location="" checked=""/><span> Post</span></label><label class="btn btn-info w-100 active" id="infoDialogsearchFilterCurrent"><input type="radio" name="options" autocomplete="off" data-search-location=""/><span> Session</span></label>\n' +
+    '                <label\n' +
+    '                    class="btn btn-info w-100" id="infoDialogsearchFilterEverywhere"><input type="radio" name="options" autocomplete="off" data-search-location="" /><span> Everywhere</span></label>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '<div class="w-100">\n' +
+    '    <div id="infoDialogalbumHeader">\n' +
+    '        <h3 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#infoDialogalbumCollapse"><i class="fas pr-2 fa-archive"></i>Albums<i class="fas fa-chevron-right pl-2"></i></button></h3>\n' +
+    '    </div>\n' +
+    '    <div class="collapse w-100" id="infoDialogalbumCollapse" data-parent="#infoDialogfindMenus">\n' +
+    '        <div class="mt-1 d-flex">\n' +
+    '            <div class="ml-auto mr-auto flex-row"><i class="fa-duotone fa-loader fa-spin-pulse"></i><span class="ml-1">Please Wait...</span></div>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '<div class="w-100">\n' +
+    '    <div id="infoDialogfunctionsHeader">\n' +
+    '        <h3 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#infoDialogfunctionsCollapse"><i class="fas pr-2 fa-function"></i>Functions<i class="fas fa-chevron-right pl-2"></i></button></h3>\n' +
+    '    </div>\n' +
+    '    <div class="collapse w-100" id="infoDialogfunctionsCollapse" data-parent="#infoDialogfindMenus">\n' +
+    '        <div class="mt-1" id="infoDialognoFunctions">\n' +
+    '            <div class="my-2 d-flex flex-row justify-content-center"><i class="fas fa-empty-set pr-2"></i><span>No Functions Available!</span></div>\n' +
+    '        </div>\n' +
+    '        <div class="mt-1 hidden" id="infoDialogfunctionsList">\n' +
+    '            <div class="d-flex flex-column">\n' +
+    '                <div class="d-inline-flex flex-row hidden" id="infoDialogtwitterInteract"><a class="btn btn-primary disabled mb-2 w-100" id="infoDialogtwitterLike" href="#_" role="button"><i class="fas fa-heart"></i></a><a class="btn btn-primary disabled mb-2 w-100 mx-2" id="infoDialogtwitterRT" href="#_" role="button"><i class="fas fa-retweet"></i></a>\n' +
+    '                    <a\n' +
+    '                        class="btn btn-primary disabled mb-2 w-100" id="infoDialogtwitterLikeRT" href="#_" role="button"><i class="pr-2 fas fa-heart"></i><i class="fas fa-retweet"></i></a>\n' +
+    '                </div>\n' +
+    '                <div class="d-inline-flex flex-row hidden" id="infoDialogtwitterListCtrl"><a class="btn btn-primary disabled mb-2 w-100" id="infoDialogtwitterLAdd" href="#_" role="button"><i class="pr-2 fas fa-user-plus"></i><span>Add</span></a><a class="btn btn-primary disabled mb-2 w-100 mx-2" id="infoDialogtwitterLRm" href="#_"\n' +
+    '                        role="button"><i class="pr-2 fas fa-user-xmark"></i><span>Remove</span></a><a class="btn btn-primary disabled mb-2 w-100" id="infoDialogtwitterUserBlock" href="#_" role="button"><i class="pr-2 fas fa-user-slash"></i><span>Block</span></a></div>\n' +
+    '                <a\n' +
+    '                    class="btn btn-primary mb-2 w-100 hidden" id="infoDialogtwitterDownloadUser" href="#_" role="button"><i class="pr-2 fas fa-download"></i><span>Download User</span></a><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogopenPixiv" href="#__" target="_blank" rel="noopener noreferrer" role="button"><i class="pr-2 fas fa-arrow-up-right-from-square"></i><span>Open Illustration</span></a>\n' +
+    '                    <a\n' +
+    '                        class="btn btn-primary mb-2 w-100 hidden" id="infoDialogpixivFollow" href="#_" role="button"><i class="pr-2 fas fa-user-plus"></i><span>Follow User</span></a><a class="btn btn-primary mb-2 w-100 hidden" id="infoDialogpixivExpand" href="#_" role="button"><i class="pr-2 fas fa-sparkles"></i><span>Expand Search</span></a><a class="btn btn-primary mb-2 w-100 hidden"\n' +
+    '                            id="infoDialogpixivDownloadUser" href="#_" role="button"><i class="pr-2 fas fa-download"></i><span>Download User</span></a></div>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '<div class="w-100">\n' +
+    '    <div id="infoDialogcustomizeHeader">\n' +
+    '        <h3 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#infoDialogcustomizeCollapse"><i class="fas pr-2 fa-swatchbook"></i>Services<i class="fas fa-chevron-right pl-2"></i></button></h3>\n' +
+    '    </div>\n' +
+    '    <div class="collapse w-100" id="infoDialogcustomizeCollapse" data-parent="#infoDialogfindMenus">\n' +
+    '        <div class="mt-1">\n' +
+    '            <div class="mb-2 d-flex flex-row"><a class="btn btn-success w-100 mr-1" id="infoDialoggetAsWallpaper" href="#__" role="button" target="_blank" rel="noopener noreferrer"><i class="fas fa-download pr-2"></i><span>Download Wallpaper</span></a></div>\n' +
+    '            <div class="mb-2 d-flex flex-row">\n' +
+    '                <div class="w-100 mr-1 d-inline-flex"><a class="btn btn-primary w-100 mr-1" id="infoDialogsetPhoneCrop" href="#_" role="button"><i class="fas fa-crop pr-2"></i><span>Portrait</span></a><a class="btn btn-danger" id="infoDialogremovePhoneCrop" href="#_" role="button"><i class="fas fa-trash"></i></a></div>\n' +
+    '                <div\n' +
+    '                    class="w-100 ml-1 d-inline-flex"><a class="btn btn-primary w-100 mr-1" id="infoDialogsetWallpaperCrop" href="#_" role="button"><i class="fas fa-crop pr-2"></i><span>Landscape</span></a><a class="btn btn-danger" id="infoDialogremoveWallpaperCrop" href="#_" role="button"><i class="fas fa-trash"></i></a></div>\n' +
+    '        </div>\n' +
+    '        <div class="mb-2 d-flex flex-row"><a class="btn btn-primary w-100 mr-1" id="infoDialogsetAsAvatar" href="#_" role="button"><i class="fas fa-address-card pr-2"></i><span>Set Avatar</span></a><a class="btn btn-primary w-100 ml-1" id="infoDialogsetAsBanner" href="#_" role="button"><i class="fas fa-address-card pr-2"></i><span>Set Banner</span></a></div>\n' +
+    '        <div\n' +
+    '            class="d-flex flex-row mb-2"><a class="btn btn-primary w-100" id="infoDialogupscaleRequest" href="#_" role="button"><i class="fas fa-high-definition pr-2"></i><span>Upscale Image</span></a></div>\n' +
+    '    <div class="d-flex flex-row"></div>\n' +
+    '</div>\n' +
+    '</div>\n' +
+    '</div>\n' +
+    '<div class="w-100" id="infoDialogmanageButtons">\n' +
+    '    <div id="infoDialogtoolboxHeader">\n' +
+    '        <h3 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#infoDialogtoolboxCollapse"><i class="fas pr-2 fa-toolbox"></i>Manage<i class="fas fa-chevron-right pl-2"></i></button></h3>\n' +
+    '    </div>\n' +
+    '    <div class="collapse w-100 px-2" id="infoDialogtoolboxCollapse" data-parent="#infoDialogfindMenus">\n' +
+    '        <div class="row flex-nowrap mt-1"><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoMove" title="Move Item" href="#_"><i class="fas fa-cut pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Move</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis"\n' +
+    '                id="infoDialoginfoEditText" title="Edit Item Contents" href="#_"><i class="fas fa-square-quote pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Edit</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoRename"\n' +
+    '                title="Rename Item" href="#_"><i class="fas fa-input-text pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Rename</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoRotae" title="Rotate Image" href="#_"><i class="fas fa-undo pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Rotate</span></a></div>\n' +
+    '        <div\n' +
+    '            class="row flex-nowrap"><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoRepair" title="Repair Thumbnail" href="#_"><i class="fas fa-image-slash pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Thumb</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis"\n' +
+    '                id="infoDialoginfoCompile" title="Compile Spanned File" href="#_"><i class="fas fa-cloud-check pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Cache</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoDecompile"\n' +
+    '                title="Remove Cached Spanned File" href="#_"><i class="fas fa-cloud-xmark pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">DeCache</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoDelete" title="Archive or Delete Item(s)"\n' +
+    '                href="#_"><i class="fas fa-trash pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Delete</span></a><a class="btn btn-danger mx-1 mb-2 w-100 text-ellipsis" id="infoDialoginfoReport" title="Clear Reported Item(s)" href="#_"><i class="fas fa-flag pr-0 pr-sm-2"></i><span class="d-none d-sm-inline">Clear</span></a></div>\n' +
+    '</div>\n' +
+    '</div>\n' +
+    '<div class="w-100">\n' +
+    '    <div id="infoDialogdebugHeader">\n' +
+    '        <h3 class="mb-0"><button class="btn btn-link" type="button" data-toggle="collapse" data-target="#infoDialogdebugCollapse"><i class="fas pr-2 fa-info-circle"></i>Debug<i class="fas fa-chevron-right pl-2"></i></button></h3>\n' +
+    '    </div>\n' +
+    '    <div class="collapse w-100" id="infoDialogdebugCollapse" data-parent="#infoDialogfindMenus">\n' +
+    '        <div class="mt-1">\n' +
+    '            <div class="text-center w-100 d-flex flex-column flex-wrap align-items-start" id="infoDialogadvancedInfoBlock"></div>\n' +
+    '        </div>\n' +
+    '    </div>\n' +
+    '</div>\n' +
+    '</div>\n' +
+    '</div>\n' +
+    '<div class="modal-background"></div>\n' +
+    '<div class="modal-gradient"></div>'
+    // DO NOT FUCKING EDIT THE INFO DIALOG CONTENTS WITHOUT EDITING THE LAYOUT.PUG FILE YOU RETARD!!!
+    // EDIT THERE AND COMPILE THE PUG TO HTML ====> https://pughtml.com/
+
+let loadImageData = null;
 let options = {
     hash: false,
     selector : '[data-fancybox=gallery]',
@@ -7,13 +148,35 @@ let options = {
     image: {
         preload: false
     },
-    defaultType: "image",
-    animationEffect: "zoom",
-    transitionEffect: "slide",
-    wheel: "auto",
     thumbs: {
         autoStart: true
     },
+    buttons: [
+        "zoom",
+        "slideShow",
+        "thumbs",
+        "close"
+    ],
+    defaultType: "image",
+    animationEffect: "zoom",
+    animationDuration: 500,
+    transitionEffect: "tube",
+    wheel: "auto",
+    // DO NOT FUCKING EDIT THE INFO DIALOG CONTENTS WITHOUT EDITING THE LAYOUT.PUG FILE YOU RETARD!!!
+    // EDIT THERE AND COMPILE THE PUG TO HTML  ====> https://pughtml.com/
+    baseTpl: '<div class="fancybox-container" role="dialog" tabindex="-1">' +
+        '<div class="fancybox-bg"></div>' +
+        '<div class="fancybox-inner">' +
+        '<div class="fancybox-infobar"><span data-fancybox-index></span>&nbsp;/&nbsp;<span data-fancybox-count></span></div>' +
+        '<div class="fancybox-toolbar">{{buttons}}</div>' +
+        '<div class="fancybox-navigation">{{arrows}}</div>' +
+        '<div class="fancybox-stage"></div>' +
+        '<div class="fancybox-caption"><div class="fancybox-caption__body"></div></div>' +
+        "</div>" +
+        '<div id="fbInfo" class="info-container">' + infodialog+ '</div>' +
+        "</div>",
+    // DO NOT FUCKING EDIT THE INFO DIALOG CONTENTS WITHOUT EDITING THE LAYOUT.PUG FILE YOU RETARD!!!
+    // EDIT THERE AND COMPILE THE PUG TO HTML  ====> https://pughtml.com/
     video: {
         tpl:
             '<video class="fancybox-video" autoplay controls controlsList="nodownload" poster="{{poster}}">' +
@@ -21,6 +184,33 @@ let options = {
             'Sorry, your browser doesn\'t support embedded videos, <a href="{{src}}">download</a> and watch with your favorite video player!' +
             "</video>",
         autoStart: false
+    },
+    beforeClose: function () {
+        (async () => {
+            $('#fbInfo').fadeOut(200);
+        })()
+        return true;
+    },
+    beforeShow: function(current, previous) {
+        if (fancyboxpendingmenu) {
+            $('[data-parent="#infoDialogfindMenus"].show').removeClass('show');
+            $('#infoDialog' + fancyboxpendingmenu).addClass('show');
+        }
+        if (current.current && current.current.src) {
+            const messageid = current.current.src.split('#').pop()
+            if (!document.querySelector('#fbInfo.shown')) {
+                document.getElementById('fbInfo').classList.add('shown')
+                showSearchOptions(document.getElementById('message-' + messageid), true);
+            } else {
+                $('.info-dialog-container').fadeTo(250, 0.25);
+                clearTimeout(loadImageData);
+                loadImageData = setTimeout(() => {
+                    $('.info-dialog-container').fadeTo(250, 1);
+                    showSearchOptions(document.getElementById('message-' + messageid), true);
+                }, 1000)
+            }
+        }
+        return true;
     }
 };
 if (window.navigator.standalone === true) {

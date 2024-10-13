@@ -308,9 +308,7 @@ const videobox = $().fancybox({
     },
     touch: false,
     buttons: [
-        "slideShow",
         "fullScreen",
-        "download",
         "thumbs",
         "close"
     ]

@@ -72,9 +72,9 @@
     // and they will be placed into toolbar (class="fancybox-toolbar"` element)
     buttons: [
       "zoom",
-      //"share",
+      "share",
       "slideShow",
-      //"fullScreen",
+      "fullScreen",
       //"download",
       "thumbs",
       "close"
@@ -2172,7 +2172,7 @@
           clearTimeout(volumeAdjustTimout);
           volumeAdjustTimout = setTimeout(() => {setCookie("userVolume", vid.volume)}, 500);
         }
-        
+
         $(content)[0].volume = (getCookie("userVolume") !== null) ? parseFloat(getCookie("userVolume")) : 0.5
 
         $(content).wrap("<div></div>");
@@ -5018,14 +5018,14 @@
       }
     },
 
-    "afterKeydown.fb": function (e, instance, current, keypress, keycode) {
+    /*"afterKeydown.fb": function (e, instance, current, keypress, keycode) {
       // "F"
       if (instance && instance.FullScreen && keycode === 70) {
         keypress.preventDefault();
 
         instance.FullScreen.toggle();
       }
-    },
+    },*/
 
     "beforeClose.fb": function (e, instance) {
       if (instance && instance.FullScreen && instance.$refs.container.hasClass("fancybox-is-fullscreen")) {
@@ -5265,7 +5265,7 @@
       }
     },
 
-    "afterKeydown.fb": function (e, instance, current, keypress, keycode) {
+    /*"afterKeydown.fb": function (e, instance, current, keypress, keycode) {
       var Thumbs = instance && instance.Thumbs;
 
       // "G"
@@ -5274,7 +5274,7 @@
 
         Thumbs.toggle();
       }
-    },
+    },*/
 
     "beforeClose.fb": function (e, instance) {
       var Thumbs = instance && instance.Thumbs;

@@ -1065,11 +1065,11 @@ $('#albumItemModal').on('hidden.bs.modal', function (e) {
     lastMessageAlbum = undefined;
     $(`#albumItemBody`).html('<span>Please Wait...</span>');
 })
-function refreshAlbumsList(messageid, bulk) {
+function refreshAlbumsList(messageid, bulk, alt) {
     if (messageid)
         lastMessageAlbum = messageid;
     $.ajax({async: true,
-        url: `/albums?command=getAll${(bulk) ? "" : ((lastMessageAlbum) ? '&messageid=' + lastMessageAlbum : '&manage=true')}`,
+        url: `/albums?command=getAll${(bulk) ? "" : ((lastMessageAlbum) ? '&messageid=' + lastMessageAlbum : '&manage=true')}${(alt) ? ('&display=' + alt) : ''}`,
         type: "GET", data: '',
         processData: false,
         contentType: false,
@@ -1078,16 +1078,17 @@ function refreshAlbumsList(messageid, bulk) {
         },
         success: function (response, textStatus, xhr) {
             if (xhr.status < 400) {
-                $(`#albumItemBody`).html(response);
+                $('#' + (alt || `albumItemBody`)).html(response);
             } else {
-                $(`#albumItemBody`).html('<span>Failed to get valid albums list via AJAX</span>');
+                $('#' + (alt || `albumItemBody`)).html('<span>Failed to get valid albums list via AJAX</span>');
             }
         },
         error: function (xhr) {
-            $(`#albumItemBody`).html('<span>Failed to get albums list via AJAX</span>');
+            $('#' + (alt || `albumItemBody`)).html('<span>Failed to get albums list via AJAX</span>');
         }
     });
-    $('#albumItemModal').modal('show');
+    if (!alt)
+        $('#albumItemModal').modal('show');
 }
 function getAlbumDirectory() {
     $.ajax({async: true,
@@ -1281,7 +1282,15 @@ async function toggleAlbumItem(aid, eid) {
         },
         success: function (response, textStatus, xhr) {
             if (xhr.status < 400) {
-                $(`#albumItemModal`).modal('hide');
+                if (!!document.querySelector('.fancybox-container')) {
+                    if (response.includes('Added')) {
+                        $(`#albumManage-${aid}`).addClass('active');
+                    } else {
+                        $(`#albumManage-${aid}`).removeClass('active');
+                    }
+                } else {
+                    $(`#albumItemModal`).modal('hide');
+                }
                 if (postsActions.length > 0) {
                     postsActions.map(e => {
                         document.getElementById('message-' + e.messageid).querySelector('#unCheckItem').classList.add('hidden')
@@ -1290,7 +1299,11 @@ async function toggleAlbumItem(aid, eid) {
                     postsActions = [];
                 }
             } else {
-                $(`#albumItemModal`).modal('hide');
+                if (!!document.querySelector('.fancybox-container')) {
+
+                } else {
+                    $(`#albumItemModal`).modal('hide');
+                }
                 $.toast({
                     type: 'error',
                     title: 'Failed to manage album',
@@ -1301,7 +1314,11 @@ async function toggleAlbumItem(aid, eid) {
             }
         },
         error: function (xhr) {
-            $(`#albumItemModal`).modal('hide');
+            if (!!document.querySelector('.fancybox-container')) {
+
+            } else {
+                $(`#albumItemModal`).modal('hide');
+            }
             $.toast({
                 type: 'error',
                 title: 'Failed to manage album',
@@ -1327,9 +1344,17 @@ async function bumpAlbumItem(aid, eid) {
         },
         success: function (response, textStatus, xhr) {
             if (xhr.status < 400) {
-                $(`#albumItemModal`).modal('hide');
+                if (!!document.querySelector('.fancybox-container')) {
+                    $.snack('success', `Item Bumped`, 1500)
+                } else {
+                    $(`#albumItemModal`).modal('hide');
+                }
             } else {
-                $(`#albumItemModal`).modal('hide');
+                if (!!document.querySelector('.fancybox-container')) {
+
+                } else {
+                    $(`#albumItemModal`).modal('hide');
+                }
                 $.toast({
                     type: 'error',
                     title: 'Failed to manage album',
@@ -1340,7 +1365,11 @@ async function bumpAlbumItem(aid, eid) {
             }
         },
         error: function (xhr) {
-            $(`#albumItemModal`).modal('hide');
+            if (!!document.querySelector('.fancybox-container')) {
+
+            } else {
+                $(`#albumItemModal`).modal('hide');
+            }
             $.toast({
                 type: 'error',
                 title: 'Failed to manage album',

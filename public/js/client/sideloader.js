@@ -150,6 +150,7 @@ let extratitlewidth = 0
 const networkKernelChannel = new MessageChannel();
 let unpackerWorker = null;
 let lastExchange = null;
+let fancyboxpendingmenu = null;
 
 let fadeActive = false;
 let focusAction = null;
@@ -3859,11 +3860,19 @@ async function updateNotficationsPanel() {
         }
     }
 }
-async function showSearchOptions(post) {
+async function showInfoDialog(post) {
+    if (window.innerWidth > 1200) {
+        $(`#message-${post} .lightbox`).click()
+    } else {
+        showSearchOptions(post);
+    }
+}
+let loadAlbumData = null;
+async function showSearchOptions(post, isInfoDialog = false) {
     pageType = $.history.url().split('?')[0].substring(1);
     pageType = (pageType === 'tvTheater' || pageType === 'listTheater') ? 'files' : pageType;
     const cur = new URLSearchParams('?' + window.location.hash.split('?').pop())
-    const _post = document.getElementById(`message-${post}`);
+    const _post = ((isInfoDialog) ? post : document.getElementById(`message-${post}`));
     const _model = document.getElementById('searchModal');
     const myUserID = document.querySelector('meta[name="user_id"]').content;
     const postChannel = _post.getAttribute('data-msg-channel');
@@ -3916,52 +3925,53 @@ async function showSearchOptions(post) {
     const searchSource = _post.getAttribute('data-search-source');
     const resolutionRatio = _post.getAttribute('data-msg-res');
     const fileSize = _post.getAttribute('data-msg-filesize');
+    const isFav = _post.querySelector('div.links-container i.btn-links.fas.fa-star');
 
-    const modalGoToPostLocation = document.getElementById(`goToPostLocation`);
-    const modalSearchSelectedText = document.getElementById(`searchSelectedText`);
-    const modalGoToHistoryDisplay = document.getElementById(`goToHistoryDisplay`);
-    const modalDownloadButton = document.getElementById(`goToDownload`);
-    const modalOfflineThisButton = document.getElementById(`makeOffline`);
-    const modalPlayButton = document.getElementById(`goToPlay`);
-    const modalGoToPostSource = document.getElementById(`goToPostSource`);
-    const modalKeepExpireingSection = document.getElementById(`keepExpireingFile`);
+    const modalGoToPostLocation = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}goToPostLocation`);
+    const modalSearchSelectedText = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchSelectedText`);
+    const modalGoToHistoryDisplay = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}goToHistoryDisplay`);
+    const modalDownloadButton = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}goToDownload`);
+    const modalOfflineThisButton = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}makeOffline`);
+    const modalPlayButton = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}goToPlay`);
+    const modalGoToPostSource = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}goToPostSource`);
+    const modalKeepExpireingSection = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}keepExpireingFile`);
     const modalKeepExpireingButton = modalKeepExpireingSection.querySelector('a');
-    const modelSearchUseChannel = document.getElementById(`searchUseChannel`);
-    const modalSearchByUser = document.getElementById(`searchByUser`);
-    const modalSearchByParent = document.getElementById(`searchByParent`);
-    const modalSearchByColor = document.getElementById(`searchByColor`);
-    const modalSearchByID = document.getElementById(`searchByID`);
-    const modalSearchByContent = document.getElementById(`searchByContents`);
-    const modalSearchByChildren = document.getElementById(`searchByChildren`);
-    const modalBodyRaw = document.getElementById(`rawBodyContent`);
-    const modalInfoRaw = document.getElementById(`rawInfoContent`);
-    const modalAuthorData = document.getElementById(`authorData`);
-    const modalAdvRaw = document.getElementById(`advancedInfoBlock`);
-    const modalToggleFav = document.getElementById(`toggleFavoritePost`);
-    const modalAddFlag = document.getElementById(`addFlagPost`);
-    const modalToggleAlbum = document.getElementById(`manageAlbumPost`);
-    const modalFilename = document.getElementById(`infoFilename`);
-    const modalMove = document.getElementById(`infoMove`);
-    const modalDelete = document.getElementById(`infoDelete`);
-    const modalRename = document.getElementById(`infoRename`);
-    const modalEditText = document.getElementById(`infoEditText`);
-    const modalCompile = document.getElementById(`infoCompile`);
-    const modalDecompile = document.getElementById(`infoDecompile`);
-    const modalRotate = document.getElementById(`infoRotae`);
-    const modalReport = document.getElementById(`infoReport`);
-    const modalRepair = document.getElementById(`infoRepair`);
-    const modalSetAvatar = document.getElementById(`setAsAvatar`);
-    const modalSetBanner = document.getElementById(`setAsBanner`);
-    const modalGetWallpaper = document.getElementById(`getAsWallpaper`);
-    const modalSetPhone = document.getElementById(`setPhoneCrop`);
-    const modalRemovePhone = document.getElementById(`removePhoneCrop`);
-    const modalRemoveWallpaper = document.getElementById(`removeWallpaperCrop`);
-    const modalSetWallpaper = document.getElementById(`setWallpaperCrop`);
-    const modalSearchSNAO = document.getElementById(`sausenaoRequest`);
-    const modelTagsHeader = document.getElementById(`tagsHeader`);
-    const modelTagsHolder = document.getElementById(`tagsHolder`);
-    const modelStaticTagsHolder = document.getElementById(`tagsStaticHolder`);
-    const modelManageButtons = document.getElementById(`manageButtons`);
+    const modelSearchUseChannel = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchUseChannel`);
+    const modalSearchByUser = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByUser`);
+    const modalSearchByParent = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByParent`);
+    const modalSearchByColor = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByColor`);
+    const modalSearchByID = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByID`);
+    const modalSearchByContent = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByContents`);
+    const modalSearchByChildren = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByChildren`);
+    const modalBodyRaw = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}rawBodyContent`);
+    const modalInfoRaw = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}rawInfoContent`);
+    const modalAuthorData = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}authorData`);
+    const modalAdvRaw = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}advancedInfoBlock`);
+    const modalToggleFav = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}toggleFavoritePost`);
+    const modalAddFlag = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}addFlagPost`);
+    const modalToggleAlbum = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}manageAlbumPost`);
+    const modalFilename = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoFilename`);
+    const modalMove = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoMove`);
+    const modalDelete = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoDelete`);
+    const modalRename = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoRename`);
+    const modalEditText = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoEditText`);
+    const modalCompile = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoCompile`);
+    const modalDecompile = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoDecompile`);
+    const modalRotate = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoRotae`);
+    const modalReport = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoReport`);
+    const modalRepair = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}infoRepair`);
+    const modalSetAvatar = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}setAsAvatar`);
+    const modalSetBanner = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}setAsBanner`);
+    const modalGetWallpaper = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}getAsWallpaper`);
+    const modalSetPhone = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}setPhoneCrop`);
+    const modalRemovePhone = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}removePhoneCrop`);
+    const modalRemoveWallpaper = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}removeWallpaperCrop`);
+    const modalSetWallpaper = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}setWallpaperCrop`);
+    const modalSearchSNAO = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}sausenaoRequest`);
+    const modelTagsHeader = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagsHeader`);
+    const modelTagsHolder = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagsHolder`);
+    const modelStaticTagsHolder = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagsStaticHolder`);
+    const modelManageButtons = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}manageButtons`);
 
     const modelKMSRow = document.getElementById(`kmsContent`);
     const modelKMSPoster = document.getElementById(`kmsInfoPoster`);
@@ -3972,6 +3982,23 @@ async function showSearchOptions(post) {
 
     let normalInfo = [];
     let advancedInfo = [];
+
+    if (isInfoDialog) {
+        document.getElementById('infoDialogalbumHeader').onclick = function() {
+            if (!(document.getElementById('infoDialogalbumCollapse').classList.contains('show'))) {
+                refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+            }
+        }
+        if (fancyboxpendingmenu && fancyboxpendingmenu === 'albumCollapse') {
+            refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+        } else if (document.getElementById('infoDialogalbumCollapse').classList.contains('show')) {
+            $('#infoDialogalbumCollapse > div')[0].style.opacity = '0.5';
+            clearTimeout(loadAlbumData);
+            loadAlbumData = setTimeout(() => {
+                refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+            }, 2000)
+        }
+    }
 
     document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
     document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
@@ -3984,7 +4011,7 @@ async function showSearchOptions(post) {
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
 
-    if (postPreviewImage) {
+    if (!isInfoDialog && postPreviewImage) {
         if (postPreviewImage.split('?')[0].endsWith('.jpg') ||
             postPreviewImage.split('?')[0].endsWith('.jpeg') ||
             postPreviewImage.split('?')[0].endsWith('.jfif') ||
@@ -3996,7 +4023,7 @@ async function showSearchOptions(post) {
             _model.querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
         }
     } else {
-        _model.querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
+        ((isInfoDialog) ? document.getElementById('fbInfo') : _model).querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
     }
 
     if (resolutionRatio && resolutionRatio.length > 0) {
@@ -4114,7 +4141,7 @@ async function showSearchOptions(post) {
         modalDownloadButton.onclick = null;
         modalPlayButton.classList.add('hidden')
     }
-    if (postKMSJSON) {
+    if (!isInfoDialog && postKMSJSON) {
         modelKMSRow.classList.remove('hidden');
         modelKMSPoster.src = (postKMSJSON.show.poster) ? `${postKMSJSON.show.poster}` : ''
         modelKMSBaseName.innerText = postKMSJSON.show.name || 'Unknown Series'
@@ -4122,7 +4149,7 @@ async function showSearchOptions(post) {
         modelKMSEpisodeNumber.innerText = (postKMSJSON.season && postKMSJSON.episode) ? postKMSJSON.season + 'x' + postKMSJSON.episode : ''
         modelKMSEpisodeDescription.innerText = postKMSJSON.meta.description || 'No Episode Description'
         normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas fa-tv pr-1"></i><span>Kongou Media Meta</span></div>`);
-    } else {
+    } else if (!isInfoDialog) {
         modelKMSRow.classList.add('hidden');
     }
     if (postFilID && postFilID.length > 0) {
@@ -4264,9 +4291,16 @@ async function showSearchOptions(post) {
         toggleFavorite(`${postChannel}`, `${postEID}`);
         return false;
     }
-    modalToggleAlbum.onclick = function() {
-        refreshAlbumsList(`${postEID}`);
-        return false;
+    if (isFav.classList.contains('favorited')) {
+        modalToggleFav.querySelector('.fa-star').classList.add('favorited');
+    } else {
+        modalToggleFav.querySelector('.fa-star').classList.remove('favorited');
+    }
+    if (modalToggleAlbum) {
+        modalToggleAlbum.onclick = function () {
+            refreshAlbumsList(`${postEID}`);
+            return false;
+        }
     }
     modalAddFlag.onclick = function() {
         sendBasic(postChannel, postID, "Report", true);
@@ -4830,7 +4864,11 @@ async function showSearchOptions(post) {
         modalSearchByChildren.classList.add('hidden');
     }
     if (postTags && postTags.length > 0) {
-        modelTagsHeader.classList.remove('hidden');
+        if (isInfoDialog) {
+            document.getElementById('infoDialogtagCollapse').classList.remove('hidden');
+        } else {
+            modelTagsHeader.classList.remove('hidden');
+        }
         modelTagsHolder.innerHTML = postTags.split('; ').filter(e => e.split('/').length === 3).map((e,i,a) => {
             const rating = parseFloat(e.split('/')[1]) * 100;
             let name = e.split('/').slice(2).join('/');
@@ -4883,7 +4921,11 @@ async function showSearchOptions(post) {
         modelTagsHolder.classList.remove('hidden');
     } else {
         modelTagsHolder.innerHTML = '';
-        modelTagsHeader.classList.add('hidden');
+        if (isInfoDialog) {
+            document.getElementById('infoDialogtagCollapse').classList.add('hidden');
+        } else {
+            modelTagsHeader.classList.add('hidden');
+        }
         modelTagsHolder.classList.add('hidden');
     }
 
@@ -4922,7 +4964,10 @@ async function showSearchOptions(post) {
 
     modalInfoRaw.innerHTML = normalInfo.join('');
     modalAdvRaw.innerHTML = advancedInfo.join('');
-    $('#searchModal').modal('show');
+    if (!isInfoDialog)
+        $('#searchModal').modal('show');
+
+    fancyboxpendingmenu = null;
     return false;
 }
 function getLocation(url, tags, remove) {
@@ -7272,9 +7317,14 @@ $(document).bind('keydown', 'shift+.', () => {
 // Favorite Image
 $(document).bind('keydown', 'a', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
-        const hi = $('div.col-image:hover');
-        if (hi) {
-            $('div.col-image:hover [title="Toggle Favorite"].no-dynamic-tiny').click()
+        if (!!document.querySelector('.fancybox-container') &&
+            !!document.getElementById('infoDialogtoggleFavoritePost')) {
+            document.getElementById('infoDialogtoggleFavoritePost').click();
+        } else {
+            const hi = $('div.col-image:hover');
+            if (hi) {
+                $('div.col-image:hover [title="Toggle Favorite"].no-dynamic-tiny').click()
+            }
         }
     }
 });
@@ -7283,7 +7333,20 @@ $(document).bind('keydown', 's', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
-            $('div.col-image:hover [title="Add or Remove from Album"].no-dynamic-tiny').click()
+            if (window.innerWidth > 1200) {
+                if (!!document.querySelector('.fancybox-container')) {
+                    if (!(document.getElementById('infoDialogalbumCollapse').classList.contains('show'))) {
+                        document.getElementById('infoDialogalbumHeader').click();
+                        $('[data-parent="#infoDialogfindMenus"].show').removeClass('show');
+                        $('#infoDialogalbumCollapse').addClass('show');
+                    }
+                } else {
+                    fancyboxpendingmenu = 'albumCollapse';
+                    $('div.col-image:hover .lightbox').click()
+                }
+            } else {
+                $('div.col-image:hover [title="Add or Remove from Album"].no-dynamic-tiny').click()
+            }
         }
     }
 });
@@ -7292,9 +7355,19 @@ $(document).bind('keydown', 'd', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
-            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
             $('[data-parent="#findMenus"].show').removeClass('show');
             $('#searchCollapse').addClass('show');
+            if (window.innerWidth > 1200) {
+                if (!!document.querySelector('.fancybox-container')) {
+                    $('[data-parent="#infoDialogfindMenus"].show').removeClass('show');
+                    $('#infoDialogsearchCollapse').addClass('show');
+                } else {
+                    fancyboxpendingmenu = 'searchCollapse';
+                    $('div.col-image:hover .lightbox').click()
+                }
+            } else {
+                $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            }
         }
     }
 });
@@ -7303,9 +7376,19 @@ $(document).bind('keydown', 'f', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
-            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
             $('[data-parent="#findMenus"].show').removeClass('show');
             $('#customizeCollapse').addClass('show');
+            if (window.innerWidth > 1200) {
+                if (!!document.querySelector('.fancybox-container')) {
+                    $('[data-parent="#infoDialogfindMenus"].show').removeClass('show');
+                    $('#infoDialogcustomizeCollapse').addClass('show');
+                } else {
+                    fancyboxpendingmenu = 'customizeCollapse';
+                    $('div.col-image:hover .lightbox').click()
+                }
+            } else {
+                $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            }
         }
     }
 });
@@ -7314,9 +7397,19 @@ $(document).bind('keydown', 'g', () => {
     if (isNotTextbox && window.location.hash.startsWith("#/gallery")) {
         const hi = $('div.col-image:hover');
         if (hi) {
-            $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
             $('[data-parent="#findMenus"].show').removeClass('show');
             $('#toolboxCollapse').addClass('show');
+            if (window.innerWidth > 1200) {
+                if (!!document.querySelector('.fancybox-container')) {
+                    $('[data-parent="#infoDialogfindMenus"].show').removeClass('show');
+                    $('#infoDialogtoolboxCollapse').addClass('show');
+                } else {
+                    fancyboxpendingmenu = 'toolboxCollapse';
+                    $('div.col-image:hover .lightbox').click()
+}
+            } else {
+                $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+            }
         }
     }
 });

@@ -80,7 +80,7 @@ div
                     - classList = ''
                     if (album.found_aid)
                         - classList = 'active'
-                    div.list-group-item.d-flex.list-group-item.list-group-item-action(class=classList).justify-content-between.p-0
+                    div.list-group-item.d-flex.list-group-item.list-group-item-action(id=`albumManage-${album.aid}` class=classList).justify-content-between.p-0
                         a.inner-item.w-100.d-flex.align-items-center(href='#_' onclick=`toggleAlbumItem("${album.aid}"${(id) ? ', "' + id + '"' : ''}); return false;` class=`${(album.found_aid) ? 'pr-0' : ''}`)
                             div.pr-2
                                 if (album.uri === 'gallery')
