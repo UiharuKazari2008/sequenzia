@@ -57,15 +57,15 @@ block content
                             i.fas.fa-address-book.fa-sm.align-middle.nav-item(style='font-size: 1.3em;')
 
             .row.justify-content-center.mt-2.mb-1
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Recent Photos" href='#_', onclick=`getNewContent([], [['cached','true'], ['numdays','60']], "/gallery"); return false;`)
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Recent Photos" href='#_', onclick=`getNewContent([], [['numdays','60']], "/gallery"); return false;`)
                     i.fas.fa-clock
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Latest Media" href='#_', onclick=`getNewContent([], [['cached','true'], ['numdays','60'], ['sort', 'eid']], "/gallery"); return false;`)
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Latest Media" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid']], "/gallery"); return false;`)
                     i.fas.fa-photo-video
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Latest Files" href='#_', onclick=`getNewContent([], [['cached','true'], ['numdays','60'], ['sort', 'eid'], ['filesonly', 'true']], "/files"); return false;`)
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Latest Files" href='#_', onclick=`getNewContent([], [['numdays','60'], ['sort', 'eid'], ['filesonly', 'true']], "/files"); return false;`)
                     i.fas.fa-folder
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Favorite Photos" href='#_', onclick=`getNewContent([], [['cached','true'], ['sort', 'fav'], ['pins', 'true']], "/gallery"); return false;`)
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Favorite Photos" href='#_', onclick=`getNewContent([], [['sort', 'fav'], ['pins', 'true']], "/gallery"); return false;`)
                     i.fas.fa-star
-                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Random Photos" href='#_', onclick=`getNewContent([], [['cached','true'], ['sort', 'random']], "/gallery"); return false;`)
+                a.btn.btn-lucky.btn-home-small.nav-link.col.mr-1(title="Random Photos" href='#_', onclick=`getNewContent([], [['sort', 'random']], "/gallery"); return false;`)
                     i.fas.fa-dice
                 a.home-img.btn.btn-lucky.btn-home-small.nav-link.col.mr-1.d-sm-none(title="Show Background Image" href='#_', onclick=`$('#previewImage').slideToggle(); return false;`)
                     i.fas.fa-image

@@ -252,16 +252,16 @@ html
                                                         a.user-menu-item.d-lg-none(title="Browse Folders" href='#_' role='button' accesskey="," onclick="$(document).scrollTop(0); toggleMenu();")
                                                             i.fa-light.fa-compass.fa-fw
                                                             | Directory
-                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#_` onclick=`getNewContent([],[['cached','true'],['numdays','60'],['sort','eid']],'/gallery'); return false;`)
+                                                        a.user-menu-item(title="Recently Uploaded Media" href=`#_` onclick=`getNewContent([],[['numdays','60'],['sort','eid']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-photo-video
                                                             | Gallery
-                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#_` onclick=`getNewContent([],[['cached','true'],['numdays','60'],['sort','eid'],['filesonly','true']],'/files'); return false;`)
+                                                        a.user-menu-item(title="Recently Uploaded Files" href=`#_` onclick=`getNewContent([],[['numdays','60'],['sort','eid'],['filesonly','true']],'/files'); return false;`)
                                                             i.fa-light.fa-fw.fa-files
                                                             | Files
                                                         a.user-menu-item(title="Theaters" href='#_' class="collapsed" data-toggle="collapse" data-target=`#${(path && (path === '/tvTheater' || path === '/listTheater')) ? 'menuItemMain' : 'menuItemTheater'}${(exchange_id !== 'master') ? exchange_id :''}`)
                                                             i.fa-light.fa-fw.fa-ticket
                                                             | Theater
-                                                        a.user-menu-item(title="Your Favorites" href=`#_` onclick=`getNewContent([],[['cached','true'],['pins','true'],['sort','fav']],'/gallery'); return false;`)
+                                                        a.user-menu-item(title="Your Favorites" href=`#_` onclick=`getNewContent([],[['pins','true'],['sort','fav']],'/gallery'); return false;`)
                                                             i.fa-light.fa-fw.fa-star
                                                             | Favorites
                                                         a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target=`#menuItemAlbums${(exchange_id !== 'master') ? exchange_id :''}`)
@@ -1374,11 +1374,11 @@ html
                                                                         a.dropdown-item(title="Show only items that have a MITTS Score and Tags" href='#_' onclick=`` role='button')
                                                                             i.fas.fa-tags.pr-2
                                                                             | Require Tags
-                                                                    if (params.getAll('cached')[0] === 'true')
+                                                                    //if (params.getAll('cached')[0] === 'true')
                                                                         a.dropdown-item(title="Show All regardless of accessibility" href='#_' onclick=`getNewContent(['offset', 'cached'], [])`  role='button')
                                                                             i.fas.fa-cloud.pr-2
                                                                             | Any Access
-                                                                    else
+                                                                    //else
                                                                         a.dropdown-item(title="Show only Instant Access or Directly Accessible items" href='#_' onclick=`getNewContent(['offset'], [['cached', 'true']])` role='button')
                                                                             i.fas.fa-cloud-check.pr-2
                                                                             | Instant Access
@@ -1389,9 +1389,9 @@ html
                                                                     else
                                                                         a.dropdown-item(title="Minimise Posts to there parents" href='#_' onclick=`getNewContent(['offset'], [['min_posts', 'true']])` role='button')
                                                                             i.fas.fa-layer-group.pr-2
-                                                                            | Min. Posts
+                                                                            | Shows Groups
                                                                     if (params.getAll('no_mixed_media')[0] === 'true')
-                                                                        a.dropdown-item(title="Show All mixed media" href='#_' onclick=`getNewContent(['offset', 'cached'], [])`  role='button')
+                                                                        a.dropdown-item(title="Show All mixed media" href='#_' onclick=`getNewContent(['offset', 'no_mixed_media'], [])`  role='button')
                                                                             i.fas.fa-photo-video.pr-2
                                                                             | Allow Mixed Media
                                                                     else
