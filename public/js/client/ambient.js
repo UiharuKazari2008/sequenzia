@@ -60,6 +60,7 @@ let displayConfiguration = {
     displaySysInfo: 1,
     displayImageInfo: 1,
     displayClock: 1,
+    clockPosition: 0,
     displayDate: 1,
     displayOverlay: 1,
     enableScale: 1,
@@ -168,20 +169,20 @@ function dct() {
         if (h < 10) { h = `0${h}` }
     }
     if (m < 10) { m = `0${m}` }
-    document.getElementById('time').innerHTML = `${h}:${m}`;
+    document.querySelectorAll('.clock-time').forEach(e => e.innerHTML = `${h}:${m}`);
     dc();
 }
 function ddt() {
     const d = new Date();
     let mth = month[d.getMonth()];
     let dy = d.getDate();
-    document.getElementById('date').innerHTML = ` ${mth} ${dy}`;
+    document.querySelectorAll('.clock-day').forEach(e => e.innerHTML = ` ${mth} ${dy}`);
     dd();
 }
 function ddwt() {
     const d = new Date();
     let dow = days[d.getDay()];
-    document.getElementById('day').innerHTML = `${dow}day`;
+    document.querySelectorAll('.clock-dayofwek').forEach(e => e.innerHTML = `${dow}day`);
     ddw();
 }
 
@@ -702,7 +703,7 @@ function pullImage(data) {
                         console.log(`New RGB color - R: ${rgb[0]}, G: ${rgb[1]}, B: ${rgb[2]}`);
                         console.log(`HSL values - H: ${hsl.h} degrees, S: ${hsl.s}, L: ${hsl.l}`);
                         console.log(`Brightness: ${brightness}`);
-                        document.getElementById('colorStyle').innerHTML = `#sideData {
+                        document.getElementById('colorStyle').innerHTML = `#sideData, #CenterSection {
                         color: rgb(${rgb.join(', ')});
                     }`
                     }
@@ -796,12 +797,17 @@ async function getWeather() {
             let weatherOptions = new URLSearchParams();
             weatherOptions.set('address', displayConfiguration.location);
             if (displayConfiguration.weatherFormat === 1) {
-                document.getElementById('weatherFormat').classList.add('wi-fahrenheit')
-                document.getElementById('weatherFormat').classList.remove('wi-celsius')
+                document.querySelectorAll('.weatherFormat').forEach(e => {
+                    e.classList.add('wi-fahrenheit');
+                    e.classList.remove('wi-celsius')
+                });
                 weatherOptions.set('imperial', 'true');
             } else {
-                document.getElementById('weatherFormat').classList.add('wi-celsius')
-                document.getElementById('weatherFormat').classList.remove('wi-fahrenheit')
+                document.querySelectorAll('.weatherFormat').forEach(e => {
+                    e.classList.add('wi-celsius');
+                    e.classList.remove('wi-fahrenheit')
+                });
+                weatherOptions.set('imperial', 'false');
             }
             $.ajax({
                 async: true,
@@ -815,8 +821,8 @@ async function getWeather() {
                 success: function (response) {
                     if (response.temperature !== undefined) {
                         let weatherLine = '';
-                        document.getElementById('weatherInfo').classList.remove('hidden');
-                        document.getElementById('weatherDataCond').innerText = response.weather_name;
+                        $('.weatherInfo').removeClass('hidden');
+                        document.querySelectorAll('.weatherDataCond').forEach(e => e.innerText = response.weather_name);
                         weatherLine += response.weather_name + ' '
                         let _temp
                         if (displayConfiguration.weatherFeelLike === 1) {
@@ -831,10 +837,10 @@ async function getWeather() {
                         } else {
                             weatherLine += '$$818E@$$'
                         }
-                        document.getElementById('weatherIconMin').classList = `wi ${response.weather_icon_class}`;
-                        document.getElementById('weatherDataTemp').innerText = _temp;
-                        document.getElementById('weatherDataLo').innerText = `LO ${parseInt(response.temperature_min.toFixed(0).toString())}`;
-                        document.getElementById('weatherDataHi').innerText = `HI ${parseInt(response.temperature_max.toFixed(0).toString())}`;
+                        document.querySelectorAll('.weatherIconMin').forEach(e => e.classList = `weatherIconMin wi ${response.weather_icon_class}`);
+                        document.querySelectorAll('.weatherDataTemp').forEach(e => e.innerText = _temp);
+                        document.querySelectorAll('.weatherDataLo').forEach(e => e.innerText = `LO ${parseInt(response.temperature_min.toFixed(0).toString())}`);
+                        document.querySelectorAll('.weatherDataHi').forEach(e => e.innerText = `HI ${parseInt(response.temperature_max.toFixed(0).toString())}`);
 
                         if (displayConfiguration.darkOverlay === 1) {
                             if (response.sys_night) {
@@ -1135,7 +1141,29 @@ async function syncDisplaySettings() {
         }, 180000)
     }
     try {
-        let _di = $('#timeInfo');
+        let _bc = $('.bottomClock');
+        let _cc = $('#CenterSection');
+        switch (displayConfiguration.clockPosition) {
+            case 1:
+                _bc.addClass('hidden');
+                _cc.removeClass('hidden');
+                break;
+            default:
+                _bc.removeClass('hidden');
+                _cc.addClass('hidden');
+                break;
+        }
+    } catch (e) {
+        console.error(`Failed to setup Time position: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
+    try {
+        let _di = $('.timeInfo');
         switch (displayConfiguration.displayClock) {
             case 0:
                 _di.addClass('d-none').removeClass('d-flex');
@@ -1154,9 +1182,9 @@ async function syncDisplaySettings() {
         }, 180000)
     }
     try {
-        let _di = $('#dateInfo');
-        let _dw = $('#day');
-        let _df = $('#date');
+        let _di = $('.clock-date');
+        let _dw = $('.clock-day');
+        let _df = $('.clock-dayofwek');
         if (remoteInfoCFD) {
             _di.addClass('d-none').removeClass('d-flex');
             _dw.addClass('d-none');
@@ -1250,10 +1278,10 @@ async function syncDisplaySettings() {
         }, 180000)
     }
     try {
-        let _wc = $('#weatherDataCond');
-        let _whl = $('#weatherLoHi');
-        let _wi = $('#weatherIcon');
-        let _wd = $('#weatherData');
+        let _wc = $('.weatherDataCond');
+        let _whl = $('.weatherLoHi');
+        let _wi = $('.weatherIcon');
+        let _wd = $('.weatherData');
         switch (parseInt(displayConfiguration.weatherDisplay.toString())) {
             case 6:
                 _wc.addClass('hidden');

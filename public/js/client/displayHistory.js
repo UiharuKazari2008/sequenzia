@@ -185,6 +185,12 @@ function saveDisplayConfig(name, index) {
         results.displayClock = 1;
     }
     if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
+        !isNaN(parseInt(setthingsForm.querySelector('#optionsClockPosition').value.toString()))) {
+        results.clockPosition = parseInt(setthingsForm.querySelector('#optionsClockPosition').value.toString());
+    } else {
+        results.clockPosition = 1;
+    }
+    if (!name.startsWith('Homepage') && !name.startsWith('ADS') &&
         !isNaN(parseInt(setthingsForm.querySelector('#optionsDisplayDate').value.toString()))) {
         results.displayDate = parseInt(setthingsForm.querySelector('#optionsDisplayDate').value.toString());
     } else {

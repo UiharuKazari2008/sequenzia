@@ -99,6 +99,30 @@ html
         img#ChunSystemPlate.position-absolute.bottom-right.hidden(style='bottom: 0; right: 0;' src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
 
 
+        #CenterSection.center-block.d-flex.flex-column
+            .clock-date.clock.ml-auto.mr-auto.animated--fade-in.hidden-on-boot
+                span.clock-day.shadow-txt
+                span.clock-dayofwek.pl-3.shadow-txt
+            .ml-auto.d-flex.flex-column.align-items-end.animated--fade-in.hidden-on-boot
+                .timeInfo.clock-time.clock
+                    span.clock-time.shadow-txt
+                .weatherInfo.weather.d-flex.align-items-end.mb-2.hidden
+                    .weatherData
+                        .pr-1.text-end
+                            span.weatherDataCond.text-uppercase.hidden
+                            .weatherLoHi.text-end.hidden
+                                span.weatherDataLo
+                                i.weather-format.wi.wi-degrees
+                                .d-inline-block
+                                    i.fas.fa-circle.mb-1.shadow-txt(style='margin: 0 1em 0.5em 1em;font-size: 6px;vertical-align: middle;line-height: 0.1em;')
+                                span.weatherDataHi
+                                i.weather-format.wi.wi-degrees
+                        .text-end.current-weather
+                            .d-inline-flex
+                                span.weatherDataTemp
+                                i.weatherFormat.weather-format.align-text-top.wi
+                    .weatherIcon.ml-2
+                        i.weatherIconMin
         #content-wrapper.container.p-4
             .fixed-bottom
                 #errorBanner
@@ -132,29 +156,29 @@ html
                 .flex-grow-1.align-self-end(style='opacity: .8')
                     i#loadingWheel.fa-duotone.fa-loader.fa-spin-pulse.fa-2x
                 #sideData.justify-content-end.flex-column.d-flex.pr-4
-                    #dateInfo.clock-date.clock.ml-auto.animated--fade-in.hidden-on-boot
-                        span#day.shadow-txt
-                        span#date.pl-2.shadow-txt
-                    .ml-auto.d-flex.animated--fade-in.hidden-on-boot
-                        #weatherInfo.weather.d-flex.align-items-end.mb-2.hidden
-                            #weatherData
+                    .bottomClock.clock-date.clock.ml-auto.animated--fade-in.hidden-on-boot
+                        span.clock-day.shadow-txt
+                        span.clock-dayofwek.pl-2.shadow-txt
+                    .bottomClock.ml-auto.d-flex.animated--fade-in.hidden-on-boot
+                        .weatherInfo.weather.d-flex.align-items-end.mb-2.hidden
+                            .weatherData
                                 .pr-1.text-end
-                                    span#weatherDataCond.text-uppercase.hidden
-                                    #weatherLoHi.text-end.hidden
-                                        span#weatherDataLo
+                                    span.weatherDataCond.text-uppercase.hidden
+                                    .weatherLoHi.text-end.hidden
+                                        span.weatherDataLo
                                         i.weather-format.wi.wi-degrees
                                         .d-inline-block
                                             i.fas.fa-circle.mb-1.shadow-txt(style='margin: 0 1em 0.5em 1em;font-size: 6px;vertical-align: middle;line-height: 0.1em;')
-                                        span#weatherDataHi
+                                        span.weatherDataHi
                                         i.weather-format.wi.wi-degrees
                                 .text-end.current-weather
                                     .d-inline-flex
-                                        span#weatherDataTemp
-                                        i#weatherFormat.weather-format.align-text-top.wi
-                            #weatherIcon.ml-2
-                                i#weatherIconMin
-                        #timeInfo.clock-time.clock
-                            span#time.shadow-txt
+                                        span.weatherDataTemp
+                                        i.weatherFormat.weather-format.align-text-top.wi
+                            .weatherIcon.ml-2
+                                i.weatherIconMin
+                        .timeInfo.clock-time.clock
+                            span.clock-time.shadow-txt
                     #dataInfo.ml-auto.pt-1(style='opacity: .8; font-size: 1.3rem; font-weight: 100;').hidden-on-boot
                         .d-inline-flex.animated--fade-in
                             i#dataFav.shadow-txt.fas.fa-star.shadow-txt.align-self-center.d-none(style='font-size: 16px; vertical-align: middle;')

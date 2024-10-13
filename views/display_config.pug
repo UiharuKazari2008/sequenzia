@@ -378,19 +378,17 @@ if (!configuration.name.startsWith('ADS') || configuration.name.startsWith('ADSW
                                 div.form-group.form-row
                                     // Logo
                                     div.form-group.col-4
-                                        label(for='optionsDisplayLogo') Logo
-                                        select#optionsDisplayLogo.form-control(disabled)
-                                            if (configuration.displayLogo || configuration.displayLogo === 0)
-                                                for x, i in [ 'Top', 'Left', 'Right', 'Disabled' ]
-                                                    if (configuration.displayLogo === i)
+                                        label(for='optionsClockPosition') Clock Position
+                                        select#optionsClockPosition.form-control
+                                            if (configuration.clockPosition || configuration.clockPosition === 0)
+                                                for x, i in [ 'Bottom', 'Center' ]
+                                                    if (configuration.clockPosition === i)
                                                         option(value=i selected) #{x}
                                                     else
                                                         option(value=i) #{x}
                                             else
-                                                option(value='0') Top
-                                                option(value='1' selected) Left
-                                                option(value='2') Right
-                                                option(value='3') Disabled
+                                                option(value='0' selected) Bottom
+                                                option(value='1' selected) Center
                                     // Overlay
                                     div.form-group.col-4
                                         label(for='optionsDisplayOverlay') Overlay
