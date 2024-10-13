@@ -3243,7 +3243,8 @@ div#fbInfo .modal-background {
     right: 0;
     position: absolute;
     width: 30vw;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 #infoDialogalbumCollapse .list-group {
     margin-top: 0.25rem
