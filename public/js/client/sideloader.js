@@ -867,6 +867,9 @@ async function setupReq(push, url) {
         }
     }
 
+    if ($.fancybox.getInstance()) {
+        $.fancybox.getInstance().close()
+    }
     if (offlinePage) {
         document.getElementById('offlinePages').classList.add('hidden');
     }
@@ -3942,7 +3945,6 @@ async function showSearchOptions(post, isInfoDialog = false) {
     const modalSearchByColor = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByColor`);
     const modalSearchByID = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByID`);
     const modalSearchByContent = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByContents`);
-    const modalSearchByChildren = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}searchByChildren`);
     const modalBodyRaw = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}rawBodyContent`);
     const modalInfoRaw = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}rawInfoContent`);
     const modalAuthorData = document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}authorData`);
@@ -4000,13 +4002,13 @@ async function showSearchOptions(post, isInfoDialog = false) {
         }
     }
 
-    document.getElementById('searchFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
-    document.getElementById('searchFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
-    document.getElementById('searchFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
+    document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterCurrent' : 'searchFilterCurrent'}`).setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
+    document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterPost' : 'searchFilterPost'}`).setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+    document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterEverywhere' : 'searchFilterEverywhere'}`).setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
-    document.getElementById('tagFilterCurrent').setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
-    document.getElementById('tagFilterPost').setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
-    document.getElementById('tagFilterEverywhere').setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
+    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterCurrent`).setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
+    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterPost`).setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterEverywhere`).setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
@@ -4253,10 +4255,22 @@ async function showSearchOptions(post, isInfoDialog = false) {
         normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
         normalInfo.push('</div>')
     }
-    if (postAuthorName && postAuthorName.length > 0) {
-        modalAuthorData.querySelector('span').innerText = postAuthorName;
+    if (isInfoDialog && postAuthorIsSystem && postAuthorIsSystem === 'true') {
+        modalAuthorData.classList.add('hidden');
     } else {
-        modalAuthorData.querySelector('span').innerText = 'Internal';
+        if (postAuthorName && postAuthorName.length > 0) {
+            modalAuthorData.querySelector('span').innerText = postAuthorName;
+            modalAuthorData.classList.remove('hidden');
+        } else {
+            modalAuthorData.querySelector('span').innerText = 'Internal';
+            modalAuthorData.classList.remove('hidden');
+        }
+        if (postAuthorImage && postAuthorImage.length > 0) {
+            let imageURL = postAuthorImage
+            if (imageURL.includes('?size='))
+                imageURL = imageURL.split('?size=')[0] + '?size=64'
+            modalAuthorData.querySelector('img').src = imageURL
+        }
     }
     if (postAuthorIsSystem && postAuthorIsSystem === 'true') {
         normalInfo.push('<div class="badge badge-light m-1 ">')
@@ -4264,12 +4278,6 @@ async function showSearchOptions(post, isInfoDialog = false) {
         normalInfo.push('</div>')
     }
     normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
-    if (postAuthorImage && postAuthorImage.length > 0) {
-        let imageURL = postAuthorImage
-        if (imageURL.includes('?size='))
-            imageURL = imageURL.split('?size=')[0] + '?size=64'
-        modalAuthorData.querySelector('img').src = imageURL
-    }
 
     modalSearchSelectedText.onclick = function() {
         const text = window.getSelection().toString()
@@ -4470,20 +4478,13 @@ async function showSearchOptions(post, isInfoDialog = false) {
 
         if (postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
             const findId = searchSource.split('/').pop();
-            modalSearchByChildren.onclick = function () {
-                $('#searchModal').modal('hide');
-                window.location.assign(`#${getLocation()}search=${encodeURIComponent('text: [' + findId + '] ')}${(nsfwString) ? nsfwString : ''}`);
-                return false;
-            }
-            modalSearchByChildren.classList.remove('hidden');
-
-            $('#noFunctions').addClass('hidden');
-            $('#functionsList').removeClass('hidden');
-            document.getElementById('openPixiv').classList.remove('hidden');
-            document.getElementById('openPixiv').href = 'https://www.pixiv.net/en/artworks/' + findId;
+            $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
+            $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.remove('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).href = 'https://www.pixiv.net/en/artworks/' + findId;
             if (manageAllowed) {
-                document.getElementById('pixivExpand').classList.remove('hidden');
-                document.getElementById('pixivExpand').onclick = function () {
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).onclick = function () {
                     $.ajax({
                         async: true,
                         type: "post",
@@ -4525,19 +4526,19 @@ async function showSearchOptions(post, isInfoDialog = false) {
                     });
                 };
             } else {
-                document.getElementById('openPixiv').classList.add('hidden');
-                document.getElementById('pixivExpand').classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
             }
         } else {
-            document.getElementById('openPixiv').classList.add('hidden');
-            document.getElementById('pixivExpand').classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
         }
     } else {
         modalGoToPostSource.title = 'Go To Source'
         modalGoToPostSource.onclick = function() { return false; };
         modalGoToPostSource.classList.add('hidden');
-        document.getElementById('openPixiv').classList.add('hidden');
-        document.getElementById('pixivExpand').classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
     }
     if (postDisplayName && postDisplayName.length > 0) {
         normalInfo.push('<div class="badge badge-warning text-dark m-1">')
@@ -4601,7 +4602,8 @@ async function showSearchOptions(post, isInfoDialog = false) {
     }
     if (searchUser && searchUser.length > 0) {
         const artistStrting = decodeURIComponent(searchUser)
-        modalSearchByUser.querySelector('span').innerText = `Artist (${(artistStrting.length > 16) ? artistStrting.slice(0,16) + '...' : artistStrting})`;
+        if (!isInfoDialog)
+            modalSearchByUser.querySelector('span').innerText = `Artist (${(artistStrting.length > 16) ? artistStrting.slice(0,16) + '...' : artistStrting})`;
         modalSearchByUser.onclick = function() {
             $('#searchModal').modal('hide');
             window.location.assign(`#${getLocation()}search=${encodeURIComponent('artist:' + artistStrting)}${(nsfwString) ? nsfwString : ''}`);
@@ -4610,12 +4612,12 @@ async function showSearchOptions(post, isInfoDialog = false) {
         modalSearchByUser.classList.remove('hidden');
 
         if (manageAllowed && postBody && (postBody.includes('Twitter Image') || postBody.includes('Twitter Video'))) {
-            $('#noFunctions').addClass('hidden');
-            $('#functionsList').removeClass('hidden');
-            document.getElementById('twitterInteract').classList.remove('hidden');
-            document.getElementById('twitterListCtrl').classList.remove('hidden');
-            document.getElementById('twitterDownloadUser').classList.remove('hidden');
-            document.getElementById('twitterDownloadUser').onclick = function () {
+            $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
+            $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.remove('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.remove('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.remove('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).onclick = function () {
                 $.ajax({
                     async: true,
                     type: "post",
@@ -4658,13 +4660,13 @@ async function showSearchOptions(post, isInfoDialog = false) {
             };
 
 
-            document.getElementById('pixivFollow').classList.add('hidden');
-            document.getElementById('pixivDownloadUser').classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
         } else if (manageAllowed && postBody && postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
-            $('#noFunctions').addClass('hidden');
-            $('#functionsList').removeClass('hidden');
-            document.getElementById('pixivFollow').classList.remove('hidden');
-            document.getElementById('pixivFollow').onclick = function () {
+            $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
+            $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.remove('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).onclick = function () {
                 $.ajax({
                     async: true,
                     type: "post",
@@ -4705,8 +4707,8 @@ async function showSearchOptions(post, isInfoDialog = false) {
                     }
                 });
             };
-            document.getElementById('pixivDownloadUser').classList.remove('hidden');
-            document.getElementById('pixivDownloadUser').onclick = function () {
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.remove('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).onclick = function () {
                 $.ajax({
                     async: true,
                     type: "post",
@@ -4748,26 +4750,27 @@ async function showSearchOptions(post, isInfoDialog = false) {
                 });
             };
 
-            document.getElementById('twitterInteract').classList.add('hidden');
-            document.getElementById('twitterListCtrl').classList.add('hidden');
-            document.getElementById('twitterDownloadUser').classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
         } else {
-            document.getElementById('pixivFollow').classList.add('hidden');
-            document.getElementById('pixivDownloadUser').classList.add('hidden');
-            document.getElementById('twitterInteract').classList.add('hidden');
-            document.getElementById('twitterListCtrl').classList.add('hidden');
-            document.getElementById('twitterDownloadUser').classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
         }
 
     } else {
-        modalSearchByUser.querySelector('span').innerText = `Artist`;
+        if (!isInfoDialog)
+            modalSearchByUser.querySelector('span').innerText = `Artist`;
         modalSearchByUser.onclick = function() { return false; };
         modalSearchByUser.classList.add('hidden');
-        document.getElementById('pixivFollow').classList.remove('hidden');
-        document.getElementById('pixivDownloadUser').classList.remove('hidden');
-        document.getElementById('twitterInteract').classList.add('hidden');
-        document.getElementById('twitterListCtrl').classList.add('hidden');
-        document.getElementById('twitterDownloadUser').classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
     }
     if (searchParent && searchParent.length > 0) {
         modalSearchByParent.onclick = function() {
@@ -4827,15 +4830,14 @@ async function showSearchOptions(post, isInfoDialog = false) {
         }
         modalSearchByContent.classList.remove('hidden');
 
-        modalSearchByChildren.classList.add('hidden');
         if (postBody.includes('Twitter Image') || postBody.includes('Twitter Video')) {
             if (postFilename && postFilename.length > 0) {
-                modalSearchByChildren.onclick = function() {
+                modalSearchByParent.onclick = function() {
                     $('#searchModal').modal('hide');
                     window.location.assign(`#${getLocation()}search=${encodeURIComponent('name:' + postFilename)}${(nsfwString) ? nsfwString : ''}`);
                     return false;
                 }
-                modalSearchByChildren.classList.remove('hidden');
+                modalSearchByParent.classList.remove('hidden');
             }
         }
         try {
@@ -4861,7 +4863,6 @@ async function showSearchOptions(post, isInfoDialog = false) {
         modalBodyRaw.querySelector('div').innerHTML = ''
         modalBodyRaw.classList.add('hidden')
         modalSearchByContent.classList.add('hidden');
-        modalSearchByChildren.classList.add('hidden');
     }
     if (postTags && postTags.length > 0) {
         if (isInfoDialog) {
@@ -4971,7 +4972,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
     return false;
 }
 function getLocation(url, tags, remove) {
-    const l = document.getElementById(((tags) ? 'tag' : 'search') + 'LocationSelection').querySelector('.active').getAttribute('data-search-location')
+    const l = document.getElementById(((document.querySelector('.fancybox-container') ? 'infoDialogtag' : (tags) ? 'tag' : 'search')) + 'LocationSelection').querySelector('.active').getAttribute('data-search-location')
     if (l.split('?').pop().length > 0) {
         const _p = new URLSearchParams('?' + l.split('?').pop())
         _p.delete((tags) ? 'tags' : 'search');
@@ -7358,11 +7359,7 @@ $(document).bind('keydown', 'd', () => {
             $('[data-parent="#findMenus"].show').removeClass('show');
             $('#searchCollapse').addClass('show');
             if (window.innerWidth > 1200) {
-                if (!!document.querySelector('.fancybox-container')) {
-                    $('[data-parent="#infoDialogfindMenus"].show').removeClass('show');
-                    $('#infoDialogsearchCollapse').addClass('show');
-                } else {
-                    fancyboxpendingmenu = 'searchCollapse';
+                if (!document.querySelector('.fancybox-container')) {
                     $('div.col-image:hover .lightbox').click()
                 }
             } else {

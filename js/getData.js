@@ -2236,6 +2236,11 @@ module.exports = async (req, res, next) => {
                                 } else if (decoded_content.includes('**🎆 ') && decoded_content.includes(' (')) {
                                     if (decoded_content.includes('Related to post ')) {
                                         parent_search = decoded_content.split('\n')[0].split(') by ')[0].split(' (').pop()
+                                    } else {
+                                        const dd = decoded_content.split('\n')[0].split(' [').pop().split('] ')
+                                        if (dd.length > 1 && dd[1].startsWith('(')) {
+                                            parent_search = ' [' + dd[0] + ']'
+                                        }
                                     }
                                     user_search = decoded_content.split('** : ***')[0].split(') - ').pop()
                                     content_urls = Array.from(getUrls(clean_content, { requireSchemeOrWww: true }));
