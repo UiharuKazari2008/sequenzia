@@ -413,6 +413,11 @@ img.bottom-logo {
     text-align: center;
 }
 
+@media (max-width: 1024px) {
+    div.brags_container {
+        display: none;
+    }
+}
 @media (max-width: 640px) {
     .extraBanners .banner {
         height: 35px;
