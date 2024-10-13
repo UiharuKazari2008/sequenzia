@@ -4954,7 +4954,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
     } else {
         modelStaticTagsHolder.innerHTML = '';
         modelStaticTagsHolder.classList.add('hidden');
-        if (modelTagsHolder.innerHTML === '') {
+        if (!isInfoDialog && modelTagsHolder.innerHTML === '') {
             modelTagsHeader.classList.add('hidden');
         }
     }
