@@ -65,6 +65,33 @@ html
                 img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
             .bottom-data-plate
                 span v22.0
+        if (stats)
+            .fixed-top
+                .brags_container
+                    if (servers)
+                        .server-grid-parent(style=`grid-template-columns: repeat(${servers.slice(0, 6).length}, minmax(100px, 50px));`)
+                            for thisServer, thisServerIndex in servers.slice(0, 6)
+                                .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
+                                    img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.authware_enabled === 1) ? 'Login Server' : 'Storage'})` src=`https://cdn.discordapp.com/icons/${thisServer.serverid}/${thisServer.avatar}.png?size=128` id=`server-${thisServer.serverid}`)
+                    else
+                        .icon-holder
+                            i.px-2.fas.fa-image
+                            i.px-2.fas.fa-film
+                            i.px-2.fas.fa-music
+                            i.px-2.fas.fa-folder
+                            i.px-2.fas.fa-archive
+                    .brags
+                        if (stats.total_count)
+                            .brag-count
+                                span #{stats.total_count.toLocaleString('en-US')}+ Files
+                        if (stats.total_data)
+                            .brag-size
+                                if (stats.total_data > 1000000)
+                                    span #{(stats.total_data / 1000000).toFixed(2).toLocaleString('en-US')} TB
+                                else if (stats.total_data > 1000)
+                                    span #{(stats.total_data / 1000).toFixed(2).toLocaleString('en-US')}GB
+                                else if (stats.total_data > 1)
+                                    span #{stats.total_data}MB
         #container
             #inviteContainer
                 if (login_banners)

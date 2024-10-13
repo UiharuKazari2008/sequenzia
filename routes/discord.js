@@ -557,6 +557,10 @@ async function loginPage(req, res, obj) {
         _obj.banner = webconfig.system_banner;
     if (webconfig.site_name)
         _obj.site_name = webconfig.site_name;
+    if (webconfig.enable_brags) {
+        _obj.stats = await app.get('total_counts');
+        _obj.servers = await app.get('server_list');
+    }
 
     if (!!config.enable_impersonation) {
         if (config.enable_impersonation !== true) {

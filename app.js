@@ -239,6 +239,18 @@ app.cacheDatabase = async function cacheDatabase() {
     ready = true;
 }
 setInterval(app.cacheDatabase, 60000)
+if (web.enable_brags) {
+    app.total_counts = async function total_counts() {
+        const counts = await sqlPromiseSafe(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records`);
+        const servers = await sqlPromiseSafe(`SELECT serverid, position, avatar, name, nice_name, short_name, authware_enabled FROM discord_servers ORDER BY position`);
+
+        app.set('total_counts', counts.rows[0])
+        app.set('server_list', servers.rows)
+        console.log(counts.rows[0])
+    }
+    app.total_counts();
+    setInterval(app.total_counts, 300000)
+}
 
 app.use('/', routes);
 app.use('/app', apps);

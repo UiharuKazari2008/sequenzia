@@ -1953,6 +1953,14 @@ html
                             //(style='display: none;')
 
                     .container-fluid.max-resize(class=`${(path === '/listTheater' && params.has('show_id')) ? 'thin-width' : ''}`)
+                        if (banner)
+                            .alert.alert-danger-transparent.mb-1(role="alert")
+                                .row
+                                    .col-auto.align-self-start.align-self-center
+                                        .glyphicon
+                                            i.fas.fa-square-info.text-danger
+                                    .align-self-start.align-self-center
+                                        .text-danger #{banner}
                         if (!(results && results.length === 1 && path === '/gallery' && search_prev && search_prev !== ''))
                             #showResultsWarningsFull.collapse
                                 if (search_prev || search_prev === '')
