@@ -413,7 +413,7 @@ img.bottom-logo {
     text-align: center;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
     div.brags_container {
         display: none;
     }
