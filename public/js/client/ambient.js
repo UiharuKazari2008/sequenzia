@@ -791,6 +791,7 @@ function pullImage(data) {
     })
 }
 
+let weatherInit = false;
 async function getWeather() {
     return new Promise(ok => {
         if (displayConfiguration.location) {
@@ -854,7 +855,7 @@ async function getWeather() {
                         } else {
                             document.getElementById('overlayCycle').classList = "";
                         }
-                        if (refreshNeeded) {
+                        if (weatherInit && refreshNeeded) {
                             pullImage(last_response);
                         }
                         ok(true);
@@ -877,6 +878,7 @@ async function getWeather() {
                                 }
                             });
                         }
+                        weatherInit = true;
                     } else {
                         console.error('Weather ERROR');
                         console.log(response);
