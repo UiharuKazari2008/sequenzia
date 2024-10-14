@@ -155,7 +155,7 @@ let bright_max;
 if (config.has('bright_max')) {
     bright_max = config.getAll('bright_max')[0]
 }
-
+let last_response;
 
 function dct() {
     const d = new Date();
@@ -358,7 +358,7 @@ function getNextImage() {
         },
         success: async function (response) {
             if (response.randomImagev2 && response.randomImagev2.length > 0) {
-
+                last_response = response;
                 if (response.randomImagev2[0].fullImage !== lastURL) {
                     if (response.configuration && response.configuration.refreshTime && response.configuration.refreshTime >= 1) {
                         document.getElementById('bootStatusIcons').children[1].style.opacity = 1;
@@ -842,6 +842,7 @@ async function getWeather() {
                         document.querySelectorAll('.weatherDataLo').forEach(e => e.innerText = `LO ${parseInt(response.temperature_min.toFixed(0).toString())}`);
                         document.querySelectorAll('.weatherDataHi').forEach(e => e.innerText = `HI ${parseInt(response.temperature_max.toFixed(0).toString())}`);
 
+                        const refreshNeeded = (response.sys_night !== _night);
                         if (displayConfiguration.darkOverlay === 1) {
                             if (response.sys_night) {
                                 document.getElementById('overlayCycle').classList = `night-overlay`;
@@ -852,6 +853,9 @@ async function getWeather() {
                             }
                         } else {
                             document.getElementById('overlayCycle').classList = "";
+                        }
+                        if (refreshNeeded) {
+                            pullImage(last_response);
                         }
                         ok(true);
 
