@@ -2265,7 +2265,7 @@ async function generateGalleryHTML(url, eids, topText) {
                             if (possibleFileSaved && possibleFileSaved.href)
                                 return possibleFileSaved.href;
                         }
-                        return e.full_url
+                        return e.full_url.split('?')[0]
                     })()
                     return `<div class="col-image col-dynamic col-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" ${(e.htmlAttributes && e.htmlAttributes.length > 0) ? e.htmlAttributes.filter(j => !j.startsWith('class=')).join(' ') : ''}><div class="overlay-icons">
 <div class="icon-container no-dynamic-tiny">
@@ -2283,7 +2283,7 @@ async function generateGalleryHTML(url, eids, topText) {
         <div class="right-links row-1"></div>
     </div>
 </div>
-</div><div class="internal-lightbox d-block"></div><a class="lightbox" ${(e.data_type === 'video') ? 'data-fancybox="video" href="#_" onclick="PlayVideo(\'' + url + '\'); return false;"' : 'data-fancybox="gallery" href="' + url + '"'}><div id="postImage" class="square img img-responsive" style="background-image: url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0, 3).join(', ') : '128, 128, 128'});"></div></a></div>`
+</div><div class="internal-lightbox d-block"></div><a class="lightbox" ${(e.data_type === 'video') ? 'data-fancybox="video" href="#_" onclick="PlayVideo(\'' + url + '\'); return false;"' : 'data-fancybox="gallery" href="' + (url + '#' + e.id) + '"'}><div id="postImage" class="square img img-responsive" style="background-image: url('${(e.extpreview_url) ? e.extpreview_url : e.preview_url}');"></div><div id="postBackground" style="background-color: rgb(${(e.color) ? e.color.slice(0, 3).join(', ') : '128, 128, 128'});"></div></a></div>`
                 }))
 
                 if (resultRows.length > 0) {
@@ -2728,11 +2728,11 @@ async function getOfflinePages() {
             if (page.url.includes('album='))
                 icon = 'fa-archive'
 
-            return `<tr>
+            return `<div class="cmb-item">
             <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
             <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
             <td class="py-2"><span>${page.totalItems}</span></td>
-        </tr>`
+            </div>`
         }).join('');
     }
 }
@@ -3985,230 +3985,255 @@ async function showSearchOptions(post, isInfoDialog = false) {
     let normalInfo = [];
     let advancedInfo = [];
 
-    if (isInfoDialog) {
-        document.getElementById('infoDialogalbumHeader').onclick = function() {
-            if (!(document.getElementById('infoDialogalbumCollapse').classList.contains('show'))) {
-                refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+    try {
+        if (isInfoDialog) {
+            if (offlinePage) {
+                document.getElementById('infoDialogfindMenus').classList.add('hidden');
+                document.getElementById('infoDialogtagLocationSelection').parentElement.classList.add('hidden');
+                document.getElementById('infoDialogtoggleFavoritePost').parentElement.classList.add('hidden');
+                document.querySelector('.infoGrid').parentElement.classList.add('hidden');
+            } else {
+                document.getElementById('infoDialogalbumHeader').onclick = function () {
+                    if (!(document.getElementById('infoDialogalbumCollapse').classList.contains('show'))) {
+                        refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+                    }
+                }
+                if (fancyboxpendingmenu && fancyboxpendingmenu === 'albumCollapse') {
+                    refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+                } else if (document.getElementById('infoDialogalbumCollapse') && document.getElementById('infoDialogalbumCollapse').classList.contains('show')) {
+                    $('#infoDialogalbumCollapse > div')[0].style.opacity = '0.5';
+                    clearTimeout(loadAlbumData);
+                    loadAlbumData = setTimeout(() => {
+                        refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
+                    }, 2000)
+                }
             }
+        } else if (offlinePage) {
+            document.getElementById('searchHeader').parentElement.classList.add('hidden');
+            document.getElementById('functionsHeader').parentElement.classList.add('hidden');
+            document.getElementById('customizeHeader').parentElement.classList.add('hidden');
+            document.getElementById('tagLocationSelection').classList.add('hidden');
+            document.getElementById('toggleFavoritePost').parentElement.classList.add('hidden');
         }
-        if (fancyboxpendingmenu && fancyboxpendingmenu === 'albumCollapse') {
-            refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
-        } else if (document.getElementById('infoDialogalbumCollapse').classList.contains('show')) {
-            $('#infoDialogalbumCollapse > div')[0].style.opacity = '0.5';
-            clearTimeout(loadAlbumData);
-            loadAlbumData = setTimeout(() => {
-                refreshAlbumsList(postEID, false, 'infoDialogalbumCollapse');
-            }, 2000)
-        }
+    } catch (e) {
+        console.error('Failed to prepare album list: ' + e.message)
     }
 
-    document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterCurrent' : 'searchFilterCurrent'}`).setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
-    document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterPost' : 'searchFilterPost'}`).setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
-    document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterEverywhere' : 'searchFilterEverywhere'}`).setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
+    try {
+        document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterCurrent' : 'searchFilterCurrent'}`).setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
+        document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterPost' : 'searchFilterPost'}`).setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+        document.getElementById(`${(isInfoDialog) ? 'infoDialogtagFilterEverywhere' : 'searchFilterEverywhere'}`).setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
 
-    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterCurrent`).setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
-    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterPost`).setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
-    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterEverywhere`).setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
-
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterCurrent`).setAttribute('data-search-location', `${params(['nsfwEnable', 'pageinatorEnable', 'limit', 'responseType', 'key', 'blind_key', 'offset', 'reqCount'], [])}`)
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterPost`).setAttribute('data-search-location', `${params([], [['channel', postChannel]], "/" + pageType)}`)
+        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}tagFilterEverywhere`).setAttribute('data-search-location', `${params([], [], "/" + pageType)}`)
+    } catch (e) {
+        console.error('Failed to set attribute for search location: ' + e.message)
+    }
     advancedInfo.push(`<div><i class="fa fa-barcode pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity ID">${postEID}</span></div>`);
     advancedInfo.push(`<div><i class="fa fa-folder-tree pr-1"></i><span title="Sequenzia Folder Path">${postChannelString}/${postEID}</span></div>`);
+    normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
+    try {
+        if (!isInfoDialog && postPreviewImage) {
+            if (postPreviewImage &&
+                (postPreviewImage.split('?')[0].endsWith('.jpg') ||
+                    postPreviewImage.split('?')[0].endsWith('.jpeg') ||
+                    postPreviewImage.split('?')[0].endsWith('.jfif') ||
+                    postPreviewImage.split('?')[0].endsWith('.png') ||
+                    postPreviewImage.split('?')[0].endsWith('.gif') ||
+                    postPreviewImage.split('?')[0].endsWith('.webm'))) {
+                _model.querySelector('.modal-background').style.backgroundImage = `url("${postPreviewImage}")`
+            } else {
+                _model.querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
+            }
+        } else {
+            ((isInfoDialog) ? document.getElementById('fbInfo') : _model).querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
+        }
+    } catch (e) {
+        console.error('Failed to set preview image: ' + e.message)
+    }
 
-    if (!isInfoDialog && postPreviewImage) {
-        if (postPreviewImage.split('?')[0].endsWith('.jpg') ||
-            postPreviewImage.split('?')[0].endsWith('.jpeg') ||
-            postPreviewImage.split('?')[0].endsWith('.jfif') ||
-            postPreviewImage.split('?')[0].endsWith('.png') ||
-            postPreviewImage.split('?')[0].endsWith('.gif') ||
-            postPreviewImage.split('?')[0].endsWith('.webm')) {
-            _model.querySelector('.modal-background').style.backgroundImage = `url("${postPreviewImage}")`
-        } else {
-            _model.querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
-        }
-    } else {
-        ((isInfoDialog) ? document.getElementById('fbInfo') : _model).querySelector('.modal-background').style.backgroundImage = (postAuthorImage && postAuthorImage.length > 0) ? `url("${postAuthorImage}")` : undefined;
-    }
-
-    if (resolutionRatio && resolutionRatio.length > 0) {
-        normalInfo.push('<div class="badge badge-light m-1">')
-        const ratio = parseFloat(resolutionRatio.split(':')[1])
-        if (!isNaN(ratio)) {
-            if (ratio > 1.15) {
-                normalInfo.push(`<i class="fa fa-image-portrait pr-1"></i>`)
-            } else if (ratio >= 0.9 && ratio <= 1.15) {
-                normalInfo.push(`<i class="fa fa-image pr-1"></i>`)
-            } else {
-                normalInfo.push(`<i class="fa fa-image-landscape pr-1"></i>`)
-            }
-        }
-        normalInfo.push(`<i class="fa fa-ruler-triangle pr-1"></i><span>${resolutionRatio.split(':')[0]}</span>`)
-        normalInfo.push('</div>')
-    }
-    if (fileSize && fileSize.length > 0) {
-        normalInfo.push('<div class="badge badge-light m-1 ">')
-        normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize}</span>`)
-        normalInfo.push('</div>')
-    }
-    if (postFilename && postFilename.length > 0) {
-        normalInfo.push('<div class="badge badge-light text-dark m-1 ">')
-        if (postIsVideo) {
-            normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
-        } else if (postIsAudio) {
-            normalInfo.push(`<i class="fa fa-file-audio pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
-        } else if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase()) !== -1) {
-            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
-        } else {
-            normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
-        }
-        normalInfo.push('</div>')
-        advancedInfo.push(`<div><i class="fa fa-input-text pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
-        modalFilename.innerText = postFilename.split('.')[0];
-        modalFilename.classList.remove('hidden');
-        if (postOffline) {
-            modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark')
-            modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark-slash')
-            modalOfflineThisButton.onclick = function () {
-                deleteOfflineFile(postEID)
-                $('#searchModal').modal('hide');
-                return false;
-            }
-        } else {
-            modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark')
-            modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark-slash')
-            if (postKMSJSON) {
-                modalOfflineThisButton.onclick = function () {
-                    const element = document.getElementById('message-' + postID);
-                    if (element) {
-                        cacheEpisodeOffline(element)
-                    }
-                    $('#searchModal').modal('hide');
-                    return false;
-                }
-            } else {
-                modalOfflineThisButton.onclick = function () {
-                    const element = document.getElementById('message-' + postID);
-                    if (element) {
-                        cacheFileOffline(element);
-                    }
-                    $('#searchModal').modal('hide');
-                    return false;
-                }
-            }
-        }
-        modalOfflineThisButton.classList.remove('hidden');
-    } else {
-        modalFilename.innerText = "Unknown";
-        modalFilename.classList.add('hidden');
-        modalOfflineThisButton.onclick = null;
-        modalOfflineThisButton.classList.add('hidden');
-    }
-    if (postDate && postDate.length > 0) {
-        normalInfo.push('<div class="badge badge-light m-1 ">')
-        normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>${postDate}</span>`)
-        normalInfo.push('</div>')
-    }
-    if (postIsVideo) {
-        modalPlayButton.title = `Play Video`
-        if ((!postFilID && postDownload && postDownload.length > 0) || (postFilID && postFilID.length > 0 && postCached && postDownload && postDownload.length > 0)) {
-            modalPlayButton.onclick = function () {
-                PlayVideo(postDownload, `${postChannelString}/${postFilename} (${fileSize}`);
-                $('#searchModal').modal('hide');
-                return false;
-            }
-        } else if (postFilID && postFilID.length > 0) {
-            modalPlayButton.onclick = function () {
-                openPreviewUnpacking(postID);
-                $('#searchModal').modal('hide');
-                return false;
-            }
-        }
-        modalPlayButton.classList.remove('hidden')
-    } else if (postIsAudio) {
-        modalPlayButton.title = `Play Audio`
-        if ((!postFilID && postDownload && postDownload.length > 0) || (postFilID && postFilID.length > 0 && postCached && postDownload && postDownload.length > 0)) {
-            modalPlayButton.onclick = function () {
-                PlayTrack(postDownload);
-                $('#searchModal').modal('hide');
-                return false;
-            }
-        } else if (postFilID && postFilID.length > 0) {
-            modalPlayButton.onclick = function () {
-                openUnpackingFiles(postID, 'audio');
-                $('#searchModal').modal('hide');
-                return false;
-            }
-        }
-        modalPlayButton.classList.remove('hidden')
-    } else {
-        modalPlayButton.title = `Play`
-        modalDownloadButton.onclick = null;
-        modalPlayButton.classList.add('hidden')
-    }
-    if (!isInfoDialog && postKMSJSON) {
-        modelKMSRow.classList.remove('hidden');
-        modelKMSPoster.src = (postKMSJSON.show.poster) ? `${postKMSJSON.show.poster}` : ''
-        modelKMSBaseName.innerText = postKMSJSON.show.name || 'Unknown Series'
-        modelKMSEpisodeName.innerText = postKMSJSON.meta.name || 'Unknown Episode'
-        modelKMSEpisodeNumber.innerText = (postKMSJSON.season && postKMSJSON.episode) ? postKMSJSON.season + 'x' + postKMSJSON.episode : ''
-        modelKMSEpisodeDescription.innerText = postKMSJSON.meta.description || 'No Episode Description'
-        normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas fa-tv pr-1"></i><span>Kongou Media Meta</span></div>`);
-    } else if (!isInfoDialog) {
-        modelKMSRow.classList.add('hidden');
-    }
-    if (postFilID && postFilID.length > 0) {
-        if (postOffline) {
-            normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
-            normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
-            normalInfo.push('</div>')
-            const expireIndex = expiresMessages.indexOf(postID)
-            if (expireIndex !== -1) {
-                normalInfo.push('<div class="badge badge-warning text-dark m-1">')
-                normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>Expires in ${(() => {
-                    const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
-                    if (time > 1440)
-                        return Math.ceil(time / 1440) + ' Day(s)';
-                    if (time > 60)
-                        return (time / 60).toFixed(1) + ' Hour(s)';
-                    if (time <= 0)
-                        return 'Soon'
-                    return time.toFixed(0) + ' Min(s)';
-                })()}</span>`)
-                normalInfo.push('</div>')
-                modalKeepExpireingSection.classList.remove('hidden');
-                modalKeepExpireingButton.onclick = function () {
-                    keepExpireOfflineFile(postEID);
-                    $('#searchModal').modal('hide');
-                    return false;
-                }
-            } else {
-                modalKeepExpireingSection.classList.add('hidden');
-                modalKeepExpireingButton.onclick = null;
-            }
-            modalDownloadButton.title = 'Local Download'
-            modalDownloadButton.href = '#_'
-            modalDownloadButton.download = undefined
-            modalDownloadButton.onclick = function () {
-                openUnpackingFiles(postID);
-                $('#searchModal').modal('hide');
-                return false;
-            }
-        } else {
-            normalInfo.push('<div class="badge badge-warning text-dark m-1 ">')
-            normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
-            normalInfo.push('</div>')
-            if (postCached || (postDownload && postDownload.length > 0)) {
-                normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
-                normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Instant Access</span>`)
-                normalInfo.push('</div>')
-                modalDownloadButton.title = `Instant Download`
-                modalDownloadButton.href = postDownload
-                if (postFilename && postFilename.length > 0) {
-                    modalDownloadButton.download = postFilename
+    try {
+        if (resolutionRatio && resolutionRatio.length > 0) {
+            normalInfo.push('<div class="badge badge-light m-1">')
+            const ratio = parseFloat(resolutionRatio.split(':')[1])
+            if (!isNaN(ratio)) {
+                if (ratio > 1.15) {
+                    normalInfo.push(`<i class="fa fa-image-portrait pr-1"></i>`)
+                } else if (ratio >= 0.9 && ratio <= 1.15) {
+                    normalInfo.push(`<i class="fa fa-image pr-1"></i>`)
                 } else {
-                    modalDownloadButton.download = undefined
+                    normalInfo.push(`<i class="fa fa-image-landscape pr-1"></i>`)
                 }
-                modalDownloadButton.onclick = null;
+            }
+            normalInfo.push(`<i class="fa fa-ruler-triangle pr-1"></i><span>${resolutionRatio.split(':')[0]}</span>`)
+            normalInfo.push('</div>')
+        }
+    } catch (e) {
+        console.error('Failed to set aspect ratio: ' + e.message)
+    }
+    try {
+        if (fileSize && fileSize.length > 0) {
+            normalInfo.push('<div class="badge badge-light m-1 ">')
+            normalInfo.push(`<i class="fa fa-floppy-disk pr-1"></i><span>${fileSize}</span>`)
+            normalInfo.push('</div>')
+        }
+    } catch (e) {
+        console.error('Failed to set filesize: ' + e.message)
+    }
+    try {
+        if (postFilename && postFilename.length > 0) {
+            normalInfo.push('<div class="badge badge-light text-dark m-1 ">')
+            if (postIsVideo) {
+                normalInfo.push(`<i class="fa fa-file-video pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
+            } else if (postIsAudio) {
+                normalInfo.push(`<i class="fa fa-file-audio pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
+            } else if (imageFiles.indexOf(postFilename.split('.').pop().split('?')[0].toLowerCase()) !== -1) {
+                normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
             } else {
-                modalDownloadButton.title = `Unpack Download`
+                normalInfo.push(`<i class="fa fa-file pr-1"></i><span>${postFilename.split('.').pop().split('?')[0].toUpperCase()}</span>`)
+            }
+            normalInfo.push('</div>')
+            advancedInfo.push(`<div><i class="fa fa-input-text pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Real File Name">${postFilename}</span></div>`);
+            modalFilename.innerText = postFilename.split('.')[0];
+            modalFilename.classList.remove('hidden');
+            if (postOffline) {
+                modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark')
+                modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark-slash')
+                modalOfflineThisButton.onclick = function () {
+                    deleteOfflineFile(postEID)
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+            } else {
+                modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark')
+                modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark-slash')
+                if (postKMSJSON) {
+                    modalOfflineThisButton.onclick = function () {
+                        const element = document.getElementById('message-' + postID);
+                        if (element) {
+                            cacheEpisodeOffline(element)
+                        }
+                        $('#searchModal').modal('hide');
+                        return false;
+                    }
+                } else {
+                    modalOfflineThisButton.onclick = function () {
+                        const element = document.getElementById('message-' + postID);
+                        if (element) {
+                            cacheFileOffline(element);
+                        }
+                        $('#searchModal').modal('hide');
+                        return false;
+                    }
+                }
+            }
+            modalOfflineThisButton.classList.remove('hidden');
+        } else {
+            modalFilename.innerText = "Unknown";
+            modalFilename.classList.add('hidden');
+            modalOfflineThisButton.onclick = null;
+            modalOfflineThisButton.classList.add('hidden');
+        }
+    } catch (e) {
+        console.error('Failed to set filename: ' + e.message)
+    }
+    try {
+        if (postDate && postDate.length > 0) {
+            normalInfo.push('<div class="badge badge-light m-1 ">')
+            normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>${postDate}</span>`)
+            normalInfo.push('</div>')
+        }
+    } catch (e) {
+        console.error('Failed to set post date: ' + e.message)
+    }
+    try {
+        if (postIsVideo) {
+            modalPlayButton.title = `Play Video`
+            if ((!postFilID && postDownload && postDownload.length > 0) || (postFilID && postFilID.length > 0 && postCached && postDownload && postDownload.length > 0)) {
+                modalPlayButton.onclick = function () {
+                    PlayVideo(postDownload, `${postChannelString}/${postFilename} (${fileSize}`);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+            } else if (postFilID && postFilID.length > 0) {
+                modalPlayButton.onclick = function () {
+                    openPreviewUnpacking(postID);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+            }
+            modalPlayButton.classList.remove('hidden')
+        } else if (postIsAudio) {
+            modalPlayButton.title = `Play Audio`
+            if ((!postFilID && postDownload && postDownload.length > 0) || (postFilID && postFilID.length > 0 && postCached && postDownload && postDownload.length > 0)) {
+                modalPlayButton.onclick = function () {
+                    PlayTrack(postDownload);
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+            } else if (postFilID && postFilID.length > 0) {
+                modalPlayButton.onclick = function () {
+                    openUnpackingFiles(postID, 'audio');
+                    $('#searchModal').modal('hide');
+                    return false;
+                }
+            }
+            modalPlayButton.classList.remove('hidden')
+        } else {
+            modalPlayButton.title = `Play`
+            modalDownloadButton.onclick = null;
+            modalPlayButton.classList.add('hidden')
+        }
+    } catch (e) {
+        console.error('Failed to set possible play button: ' + e.message)
+    }
+    try {
+        if (!isInfoDialog && postKMSJSON) {
+            modelKMSRow.classList.remove('hidden');
+            modelKMSPoster.src = (postKMSJSON.show.poster) ? `${postKMSJSON.show.poster}` : ''
+            modelKMSBaseName.innerText = postKMSJSON.show.name || 'Unknown Series'
+            modelKMSEpisodeName.innerText = postKMSJSON.meta.name || 'Unknown Episode'
+            modelKMSEpisodeNumber.innerText = (postKMSJSON.season && postKMSJSON.episode) ? postKMSJSON.season + 'x' + postKMSJSON.episode : ''
+            modelKMSEpisodeDescription.innerText = postKMSJSON.meta.description || 'No Episode Description'
+            normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas fa-tv pr-1"></i><span>Kongou Media Meta</span></div>`);
+        } else if (!isInfoDialog) {
+            modelKMSRow.classList.add('hidden');
+        }
+    } catch (e) {
+        console.error('Failed to setup KMS data block: ' + e.message)
+    }
+    try {
+        if (postFilID && postFilID.length > 0) {
+            if (postOffline) {
+                normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
+                normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
+                normalInfo.push('</div>')
+                const expireIndex = expiresMessages.indexOf(postID)
+                if (expireIndex !== -1) {
+                    normalInfo.push('<div class="badge badge-warning text-dark m-1">')
+                    normalInfo.push(`<i class="fa fa-clock pr-1"></i><span>Expires in ${(() => {
+                        const time = ((expiresTimes[expireIndex] - Date.now()) / 60000)
+                        if (time > 1440)
+                            return Math.ceil(time / 1440) + ' Day(s)';
+                        if (time > 60)
+                            return (time / 60).toFixed(1) + ' Hour(s)';
+                        if (time <= 0)
+                            return 'Soon'
+                        return time.toFixed(0) + ' Min(s)';
+                    })()}</span>`)
+                    normalInfo.push('</div>')
+                    modalKeepExpireingSection.classList.remove('hidden');
+                    modalKeepExpireingButton.onclick = function () {
+                        keepExpireOfflineFile(postEID);
+                        $('#searchModal').modal('hide');
+                        return false;
+                    }
+                } else {
+                    modalKeepExpireingSection.classList.add('hidden');
+                    modalKeepExpireingButton.onclick = null;
+                }
+                modalDownloadButton.title = 'Local Download'
                 modalDownloadButton.href = '#_'
                 modalDownloadButton.download = undefined
                 modalDownloadButton.onclick = function () {
@@ -4216,68 +4241,103 @@ async function showSearchOptions(post, isInfoDialog = false) {
                     $('#searchModal').modal('hide');
                     return false;
                 }
+            } else {
+                normalInfo.push('<div class="badge badge-warning text-dark m-1 ">')
+                normalInfo.push(`<i class="fa fa-box pr-1"></i><span>Packed File</span>`)
+                normalInfo.push('</div>')
+                if (postCached || (postDownload && postDownload.length > 0)) {
+                    normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
+                    normalInfo.push(`<i class="fas fa-cloud-check pr-1"></i><span>Instant Access</span>`)
+                    normalInfo.push('</div>')
+                    modalDownloadButton.title = `Instant Download`
+                    modalDownloadButton.href = postDownload
+                    if (postFilename && postFilename.length > 0) {
+                        modalDownloadButton.download = postFilename
+                    } else {
+                        modalDownloadButton.download = undefined
+                    }
+                    modalDownloadButton.onclick = null;
+                } else {
+                    modalDownloadButton.title = `Unpack Download`
+                    modalDownloadButton.href = '#_'
+                    modalDownloadButton.download = undefined
+                    modalDownloadButton.onclick = function () {
+                        openUnpackingFiles(postID);
+                        $('#searchModal').modal('hide');
+                        return false;
+                    }
+                }
+                modalKeepExpireingSection.classList.add('hidden');
+                modalKeepExpireingButton.onclick = null;
             }
-            modalKeepExpireingSection.classList.add('hidden');
-            modalKeepExpireingButton.onclick = null;
+            modalDownloadButton.classList.remove('hidden')
+            modalSearchSNAO.href = "#_"
+            modalSearchSNAO.classList.add('hidden')
+            advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
+        } else if (postDownload && postDownload.length > 0) {
+            if (postOffline) {
+                normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
+                normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
+                normalInfo.push('</div>')
+            }
+            modalDownloadButton.title = `Direct Download`
+            modalDownloadButton.href = postDownload
+            modalDownloadButton.onclick = null;
+            if (postFilename && postFilename.length > 0) {
+                modalDownloadButton.download = postFilename
+            } else {
+                modalDownloadButton.download = ''
+            }
+            modalDownloadButton.classList.remove('hidden')
+            modalSearchSNAO.href = "https://saucenao.com/search.php?db=999&url=" + encodeURIComponent(postDownload);
+            modalSearchSNAO.classList.remove('hidden')
+        } else {
+            modalDownloadButton.href = '#_'
+            modalDownloadButton.download = undefined;
+            modalDownloadButton.onclick = null;
+            modalDownloadButton.title = 'Direct Download';
+            modalDownloadButton.classList.add('hidden');
+            modalSearchSNAO.href = "#_";
+            modalSearchSNAO.classList.add('hidden');
         }
-        modalDownloadButton.classList.remove('hidden')
-        modalSearchSNAO.href = "#_"
-        modalSearchSNAO.classList.add('hidden')
-        advancedInfo.push(`<div><i class="fa fa-layer-group pr-1"></i><span class="text-monospace" title="Kanmi/Sequenzia Unique Entity Parity ID">${postFilID}</span></div>`);
-    } else if (postDownload && postDownload.length > 0) {
-        if (postOffline) {
-            normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
-            normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
+    } catch (e) {
+        console.error('Failed to set download button: ' + e.message)
+    }
+    try {
+        if (postFlagged) {
+            normalInfo.push('<div class="badge badge-danger m-1 ">')
+            normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
             normalInfo.push('</div>')
         }
-        modalDownloadButton.title = `Direct Download`
-        modalDownloadButton.href = postDownload
-        modalDownloadButton.onclick = null;
-        if (postFilename && postFilename.length > 0) {
-            modalDownloadButton.download = postFilename
+    } catch (e) {
+        console.error('Failed to set post flag: ' + e.message)
+    }
+    try {
+        if (isInfoDialog && postAuthorIsSystem && postAuthorIsSystem === 'true') {
+            modalAuthorData.classList.add('hidden');
         } else {
-            modalDownloadButton.download = ''
+            if (postAuthorName && postAuthorName.length > 0) {
+                modalAuthorData.querySelector('span').innerText = postAuthorName;
+                modalAuthorData.classList.remove('hidden');
+            } else {
+                modalAuthorData.querySelector('span').innerText = 'Internal';
+                modalAuthorData.classList.remove('hidden');
+            }
+            if (postAuthorImage && postAuthorImage.length > 0) {
+                let imageURL = postAuthorImage
+                if (imageURL.includes('?size='))
+                    imageURL = imageURL.split('?size=')[0] + '?size=64'
+                modalAuthorData.querySelector('img').src = imageURL
+            }
         }
-        modalDownloadButton.classList.remove('hidden')
-        modalSearchSNAO.href = "https://saucenao.com/search.php?db=999&url=" + encodeURIComponent(postDownload);
-        modalSearchSNAO.classList.remove('hidden')
-    } else {
-        modalDownloadButton.href = '#_'
-        modalDownloadButton.download = undefined;
-        modalDownloadButton.onclick = null;
-        modalDownloadButton.title = 'Direct Download';
-        modalDownloadButton.classList.add('hidden');
-        modalSearchSNAO.href = "#_";
-        modalSearchSNAO.classList.add('hidden');
-    }
-    if (postFlagged) {
-        normalInfo.push('<div class="badge badge-danger m-1 ">')
-        normalInfo.push(`<i class="fa fa-flag pr-1"></i><span>Flagged</span>`)
-        normalInfo.push('</div>')
-    }
-    if (isInfoDialog && postAuthorIsSystem && postAuthorIsSystem === 'true') {
-        modalAuthorData.classList.add('hidden');
-    } else {
-        if (postAuthorName && postAuthorName.length > 0) {
-            modalAuthorData.querySelector('span').innerText = postAuthorName;
-            modalAuthorData.classList.remove('hidden');
-        } else {
-            modalAuthorData.querySelector('span').innerText = 'Internal';
-            modalAuthorData.classList.remove('hidden');
+        if (postAuthorIsSystem && postAuthorIsSystem === 'true') {
+            normalInfo.push('<div class="badge badge-light m-1 ">')
+            normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
+            normalInfo.push('</div>')
         }
-        if (postAuthorImage && postAuthorImage.length > 0) {
-            let imageURL = postAuthorImage
-            if (imageURL.includes('?size='))
-                imageURL = imageURL.split('?size=')[0] + '?size=64'
-            modalAuthorData.querySelector('img').src = imageURL
-        }
+    } catch (e) {
+        console.error('Failed to set post author: ' + e.message)
     }
-    if (postAuthorIsSystem && postAuthorIsSystem === 'true') {
-        normalInfo.push('<div class="badge badge-light m-1 ">')
-        normalInfo.push(`<i class="fa fa-cog pr-1"></i><span>Automated</span>`)
-        normalInfo.push('</div>')
-    }
-    normalInfo.push(`<div class="badge badge-light text-dark m-1"><i class="fas ${(postChannelIcon && postChannelIcon.length > 0) ? postChannelIcon : 'fa-folder-tree'} pr-1"></i><span>${postChannelString}</span></div>`);
 
     modalSearchSelectedText.onclick = function() {
         const text = window.getSelection().toString()
@@ -4299,10 +4359,16 @@ async function showSearchOptions(post, isInfoDialog = false) {
         toggleFavorite(`${postChannel}`, `${postEID}`);
         return false;
     }
-    if (isFav.classList.contains('favorited')) {
-        modalToggleFav.querySelector('.fa-star').classList.add('favorited');
-    } else {
-        modalToggleFav.querySelector('.fa-star').classList.remove('favorited');
+    try {
+        if (!offlinePage) {
+            if (isFav && isFav.classList.contains('favorited')) {
+                modalToggleFav.querySelector('.fa-star').classList.add('favorited');
+            } else {
+                modalToggleFav.querySelector('.fa-star').classList.remove('favorited');
+            }
+        }
+    } catch (e) {
+        console.error('Failed to set fav icon: ' + e.message)
     }
     if (modalToggleAlbum) {
         modalToggleAlbum.onclick = function () {
@@ -4319,15 +4385,20 @@ async function showSearchOptions(post, isInfoDialog = false) {
         return false;
     }
 
-    let downloadWallpaperURL = `/wallpaper/${myUserID}/${postEID}.png?`;
-    const deviceWidth = (window.screen.width * window.devicePixelRatio);
-    const deviceHeight = (window.screen.height * window.devicePixelRatio);
-    downloadWallpaperURL += 'width=' + deviceWidth + '&';
-    downloadWallpaperURL += 'height=' + deviceHeight + '&';
-    modalGetWallpaper.href = downloadWallpaperURL;
-    modalGetWallpaper.download = postEID + '.png';
-    modalGetWallpaper.querySelector('span').innerText = `Download Wallpaper (${deviceWidth}x${deviceHeight})`
-
+    try {
+        if (!offlinePage) {
+            let downloadWallpaperURL = `/wallpaper/${myUserID}/${postEID}.png?`;
+            const deviceWidth = (window.screen.width * window.devicePixelRatio);
+            const deviceHeight = (window.screen.height * window.devicePixelRatio);
+            downloadWallpaperURL += 'width=' + deviceWidth + '&';
+            downloadWallpaperURL += 'height=' + deviceHeight + '&';
+            modalGetWallpaper.href = downloadWallpaperURL;
+            modalGetWallpaper.download = postEID + '.png';
+            modalGetWallpaper.querySelector('span').innerText = `Download Wallpaper (${deviceWidth}x${deviceHeight})`
+        }
+    } catch (e) {
+        console.error('Failed to set wallpaper download button: ' + e.message)
+    }
     modalSetBanner.onclick = function() {
         startBannerCropper(postEID);
         return false;
@@ -4348,153 +4419,307 @@ async function showSearchOptions(post, isInfoDialog = false) {
         startWallpaperCropper(postEID, true);
         return false;
     }
-    if (postChannelString && postChannelString.length > 0) {
-        modalGoToPostLocation.title = `Go To "${postChannelString}"`
-    } else {
-        modalGoToPostLocation.title = 'Go To Channel'
-    }
-    if (manageAllowed && !($('.select-panel').hasClass('show'))) {
-        modalReport.classList.remove('hidden');
-        modalReport.onclick = function() {
-            $('#searchModal').modal('hide');
-            postsActions = [];
-            selectPostToMode(postID, false);
-            selectedActionMenu("RemoveReport");
-        }
-        modalRepair.classList.remove('hidden');
-        modalRepair.onclick = function() {
-            $('#searchModal').modal('hide');
-            postsActions = [];
-            selectPostToMode(postID, false);
-            selectedActionMenu((postIsVideo) ? "VideoThumbnail" : "Thumbnail");
-        }
-
-        modalMove.classList.remove('hidden');
-        modalMove.onclick = function() {
-            $('#searchModal').modal('hide');
-            postsActions = [];
-            updateRecentPostDestinations();
-            selectPostToMode(postID, false);
-            selectedActionMenu("MovePost");
-        }
-
-        modalDelete.classList.remove('hidden');
-        modalDelete.onclick = function() {
-            $('#searchModal').modal('hide');
-            postsActions = [];
-            selectPostToMode(postID, false);
-            selectedActionMenu("ArchivePost");
-        }
-
-        modalEditText.classList.remove('hidden');
-        modalEditText.onclick = function() {
-            $('#searchModal').modal('hide');
-            postsActions = [];
-            selectPostToMode(postID, false);
-            selectedActionMenu("EditTextPost");
-        }
-
-        if (pageType.includes('gallery') && !postIsAudio && !postIsVideo) {
-            modalRotate.classList.remove('hidden');
-            modalRotate.onclick = function() {
-                $('#searchModal').modal('hide');
-                postsActions = [];
-                selectPostToMode(postID, false);
-                selectedActionMenu("RotatePost");
-            }
+    try {
+        if (postChannelString && postChannelString.length > 0) {
+            modalGoToPostLocation.title = `Go To "${postChannelString}"`
         } else {
-            modalRotate.classList.add('hidden');
-            modalRotate.onclick = null;
+            modalGoToPostLocation.title = 'Go To Channel'
         }
-        if (postFilID && postFilID.length > 0) {
-            modalRename.classList.remove('hidden');
-            modalRename.onclick = function() {
+    } catch (e) {
+        console.error('Failed to set post location title: ' + e.message)
+    }
+    try {
+        if (!offlinePage && manageAllowed && !($('.select-panel').hasClass('show'))) {
+            modalReport.classList.remove('hidden');
+            modalReport.onclick = function () {
                 $('#searchModal').modal('hide');
                 postsActions = [];
                 selectPostToMode(postID, false);
-                selectedActionMenu("RenamePost");
+                selectedActionMenu("RemoveReport");
             }
-            if (postCached) {
-                modalCompile.classList.add('hidden');
-                modalDecompile.classList.remove('hidden');
-                modalDecompile.onclick = function () {
+            modalRepair.classList.remove('hidden');
+            modalRepair.onclick = function () {
+                $('#searchModal').modal('hide');
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu((postIsVideo) ? "VideoThumbnail" : "Thumbnail");
+            }
+
+            modalMove.classList.remove('hidden');
+            modalMove.onclick = function () {
+                $('#searchModal').modal('hide');
+                postsActions = [];
+                updateRecentPostDestinations();
+                selectPostToMode(postID, false);
+                selectedActionMenu("MovePost");
+            }
+
+            modalDelete.classList.remove('hidden');
+            modalDelete.onclick = function () {
+                $('#searchModal').modal('hide');
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("ArchivePost");
+            }
+
+            modalEditText.classList.remove('hidden');
+            modalEditText.onclick = function () {
+                $('#searchModal').modal('hide');
+                postsActions = [];
+                selectPostToMode(postID, false);
+                selectedActionMenu("EditTextPost");
+            }
+
+            if (pageType.includes('gallery') && !postIsAudio && !postIsVideo) {
+                modalRotate.classList.remove('hidden');
+                modalRotate.onclick = function () {
                     $('#searchModal').modal('hide');
                     postsActions = [];
                     selectPostToMode(postID, false);
-                    selectedActionMenu("DecompileSF");
+                    selectedActionMenu("RotatePost");
                 }
             } else {
-                modalDecompile.classList.add('hidden');
-                modalCompile.classList.remove('hidden');
-                modalCompile.onclick = function () {
+                modalRotate.classList.add('hidden');
+                modalRotate.onclick = null;
+            }
+            if (postFilID && postFilID.length > 0) {
+                modalRename.classList.remove('hidden');
+                modalRename.onclick = function () {
                     $('#searchModal').modal('hide');
                     postsActions = [];
                     selectPostToMode(postID, false);
-                    selectedActionMenu("CompileSF");
+                    selectedActionMenu("RenamePost");
                 }
+                if (postCached) {
+                    modalCompile.classList.add('hidden');
+                    modalDecompile.classList.remove('hidden');
+                    modalDecompile.onclick = function () {
+                        $('#searchModal').modal('hide');
+                        postsActions = [];
+                        selectPostToMode(postID, false);
+                        selectedActionMenu("DecompileSF");
+                    }
+                } else {
+                    modalDecompile.classList.add('hidden');
+                    modalCompile.classList.remove('hidden');
+                    modalCompile.onclick = function () {
+                        $('#searchModal').modal('hide');
+                        postsActions = [];
+                        selectPostToMode(postID, false);
+                        selectedActionMenu("CompileSF");
+                    }
+                }
+            } else {
+                modalRename.classList.add('hidden');
+                modalRename.onclick = null;
+                modalCompile.classList.add('hidden');
+                modalCompile.onclick = null;
+                modalDecompile.classList.add('hidden');
+                modalDecompile.onclick = null;
             }
+            modelManageButtons.classList.remove('hidden');
         } else {
+            modalReport.classList.add('hidden');
+            modalReport.onclick = null;
+            modalRepair.classList.add('hidden');
+            modalRepair.onclick = null;
+            modalMove.classList.add('hidden');
+            modalMove.onclick = null;
+            modalDelete.classList.add('hidden');
+            modalDelete.onclick = null;
             modalRename.classList.add('hidden');
             modalRename.onclick = null;
+            modalRotate.classList.add('hidden');
+            modalRotate.onclick = null;
             modalCompile.classList.add('hidden');
             modalCompile.onclick = null;
             modalDecompile.classList.add('hidden');
             modalDecompile.onclick = null;
+            modalEditText.classList.add('hidden')
+            modalEditText.onclick = null;
+            modelManageButtons.classList.add('hidden');
         }
-        modelManageButtons.classList.remove('hidden');
-    } else {
-        modalReport.classList.add('hidden');
-        modalReport.onclick = null;
-        modalRepair.classList.add('hidden');
-        modalRepair.onclick = null;
-        modalMove.classList.add('hidden');
-        modalMove.onclick = null;
-        modalDelete.classList.add('hidden');
-        modalDelete.onclick = null;
-        modalRename.classList.add('hidden');
-        modalRename.onclick = null;
-        modalRotate.classList.add('hidden');
-        modalRotate.onclick = null;
-        modalCompile.classList.add('hidden');
-        modalCompile.onclick = null;
-        modalDecompile.classList.add('hidden');
-        modalDecompile.onclick = null;
-        modalEditText.classList.add('hidden')
-        modalEditText.onclick = null;
-        modelManageButtons.classList.add('hidden');
+    } catch (e) {
+        console.error('Failed to set post management: ' + e.message)
     }
-    if (searchSource && searchSource.length > 0) {
-        normalInfo.push('<div class="badge text-light badge-info m-1">')
-        normalInfo.push(`<i class="fas fa-link pr-1"></i><span>Source Available</span>`)
-        normalInfo.push('</div>')
+    try {
+        if (!offlinePage && searchSource && searchSource.length > 0) {
+            normalInfo.push('<div class="badge text-light badge-info m-1">')
+            normalInfo.push(`<i class="fas fa-link pr-1"></i><span>Source Available</span>`)
+            normalInfo.push('</div>')
 
-        modalGoToPostSource.title = `Go To "${searchSource}"`
-        modalGoToPostSource.onclick = function() {
-            $('#searchModal').modal('hide');
-            $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
-            return false;
+            modalGoToPostSource.title = `Go To "${searchSource}"`
+            modalGoToPostSource.onclick = function () {
+                $('#searchModal').modal('hide');
+                $(`<a href="${searchSource}" target="_blank" rel="noopener noreferrer"></a>`)[0].click();
+                return false;
+            }
+            modalGoToPostSource.classList.remove('hidden')
+
+            if (postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
+                const findId = searchSource.split('/').pop();
+                $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
+                $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).href = 'https://www.pixiv.net/en/artworks/' + findId;
+                if (manageAllowed) {
+                    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.remove('hidden');
+                    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).onclick = function () {
+                        $.ajax({
+                            async: true,
+                            type: "post",
+                            url: "/actions/v2",
+                            data: {
+                                'id': `${findId}`,
+                                'channelid': postChannel,
+                                'messageid': postID,
+                                'serverid': postServer,
+                                'action': 'pixivExpand'
+                            },
+                            cache: false,
+                            headers: {
+                                'X-Requested-With': 'SequenziaXHR'
+                            },
+                            success: function (res, txt, xhr) {
+                                if (xhr.status < 400) {
+                                    console.log(res);
+                                    $.snack('success', `${res}`, 5000);
+                                } else {
+                                    $.toast({
+                                        type: 'error',
+                                        title: 'Failed to complete action',
+                                        subtitle: 'Now',
+                                        content: `${res}`,
+                                        delay: 5000,
+                                    });
+                                }
+                            },
+                            error: function (xhr) {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Failed to complete action',
+                                    subtitle: 'Now',
+                                    content: `${xhr.responseText}`,
+                                    delay: 5000,
+                                });
+                            }
+                        });
+                    };
+                } else {
+                    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
+                    document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
+                }
+            } else {
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
+            }
+        } else {
+            modalGoToPostSource.title = 'Go To Source'
+            modalGoToPostSource.onclick = function () {
+                return false;
+            };
+            modalGoToPostSource.classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
+            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
         }
-        modalGoToPostSource.classList.remove('hidden')
+    } catch (e) {
+        console.error('Failed to : set post actions' + e.message)
+    }
+    try {
+        if (!offlinePage && postDisplayName && postDisplayName.length > 0) {
+            normalInfo.push('<div class="badge badge-warning text-dark m-1">')
+            let history_name = postDisplayName;
+            let history_type = 'tv'
+            if (postDisplayName.startsWith('ADSMicro-')) {
+                history_type = 'laptop'
+                if (postDisplayName.includes('Untitled')) {
+                    history_name = 'Desktop'
+                } else {
+                    history_name = history_name.split('ADSMicro-').pop();
+                }
+            } else if (postDisplayName.startsWith('ADSWidget-')) {
+                history_type = 'app-store-ios'
+                if (postDisplayName.includes('Untitled')) {
+                    history_name = 'Widget'
+                } else {
+                    history_name = history_name.split('ADSWidget-').pop();
+                }
+            } else if (postDisplayName.startsWith('ADSEmbed-')) {
+                history_type = 'dice-five'
+                if (postDisplayName.includes('Untitled')) {
+                    history_name = 'Randomizer'
+                } else {
+                    history_name = history_name.split('ADSEmbed-').pop();
+                }
+            } else if (postDisplayName.startsWith('ADSMobile-')) {
+                history_type = 'mobile-alt'
+                if (postDisplayName.includes('Untitled')) {
+                    history_name = 'Mobile'
+                } else {
+                    history_name = history_name.split('ADSMobile-').pop();
+                }
+            } else if (postDisplayName.startsWith('ADS')) {
+                history_type = 'tv'
+            } else if (postDisplayName === 'Homepage') {
+                history_type = 'home'
+                history_name = "Homepage";
+            } else if (postDisplayName === 'WebExtension') {
+                history_type = 'webextention'
+            } else {
+                history_type = 'tv'
+                if (postDisplayName.includes('Untitled')) {
+                    history_name = 'Default'
+                }
+            }
+            normalInfo.push(`<i class="fas fa-history pr-1"></i><i class="fas fa-${history_type} pr-1"></i><span>${history_name}</span>`)
+            normalInfo.push('</div>')
 
-        if (postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
-            const findId = searchSource.split('/').pop();
-            $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
-            $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.remove('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).href = 'https://www.pixiv.net/en/artworks/' + findId;
-            if (manageAllowed) {
-                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.remove('hidden');
-                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).onclick = function () {
+            modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
+            modalGoToHistoryDisplay.onclick = function () {
+                $('#searchModal').modal('hide');
+                window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`]], '/gallery'));
+                return false;
+            }
+            modalGoToHistoryDisplay.classList.remove('hidden')
+        } else {
+            modalGoToHistoryDisplay.title = 'View History'
+            modalGoToHistoryDisplay.onclick = function () {
+                return false;
+            };
+            modalGoToHistoryDisplay.classList.add('hidden')
+        }
+    } catch (e) {
+        console.error('Failed to set history display: ' + e.message)
+    }
+    try {
+        if (!offlinePage && searchUser && searchUser.length > 0) {
+            const artistStrting = decodeURIComponent(searchUser)
+            if (!isInfoDialog)
+                modalSearchByUser.querySelector('span').innerText = `Artist (${(artistStrting.length > 16) ? artistStrting.slice(0, 16) + '...' : artistStrting})`;
+            modalSearchByUser.onclick = function () {
+                $('#searchModal').modal('hide');
+                window.location.assign(`#${getLocation()}search=${encodeURIComponent('artist:' + artistStrting)}${(nsfwString) ? nsfwString : ''}`);
+                return false;
+            }
+            modalSearchByUser.classList.remove('hidden');
+
+            if (manageAllowed && postBody && (postBody.includes('Twitter Image') || postBody.includes('Twitter Video'))) {
+                $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
+                $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).onclick = function () {
                     $.ajax({
                         async: true,
                         type: "post",
                         url: "/actions/v2",
                         data: {
-                            'id': `${findId}`,
+                            'id': `${searchUser}`,
                             'channelid': postChannel,
                             'messageid': postID,
                             'serverid': postServer,
-                            'action': 'pixivExpand'
+                            'action': 'twitterDownloadUser'
                         },
                         cache: false,
                         headers: {
@@ -4525,254 +4750,126 @@ async function showSearchOptions(post, isInfoDialog = false) {
                         }
                     });
                 };
-            } else {
-                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
-                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
-            }
-        } else {
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
-        }
-    } else {
-        modalGoToPostSource.title = 'Go To Source'
-        modalGoToPostSource.onclick = function() { return false; };
-        modalGoToPostSource.classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}openPixiv`).classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivExpand`).classList.add('hidden');
-    }
-    if (postDisplayName && postDisplayName.length > 0) {
-        normalInfo.push('<div class="badge badge-warning text-dark m-1">')
-        let history_name = postDisplayName;
-        let history_type = 'tv'
-        if (postDisplayName.startsWith('ADSMicro-')) {
-            history_type = 'laptop'
-            if (postDisplayName.includes('Untitled')) {
-                history_name = 'Desktop'
-            } else {
-                history_name = history_name.split('ADSMicro-').pop();
-            }
-        } else if (postDisplayName.startsWith('ADSWidget-')) {
-            history_type = 'app-store-ios'
-            if (postDisplayName.includes('Untitled')) {
-                history_name = 'Widget'
-            } else {
-                history_name = history_name.split('ADSWidget-').pop();
-            }
-        } else if (postDisplayName.startsWith('ADSEmbed-')) {
-            history_type = 'dice-five'
-            if (postDisplayName.includes('Untitled')) {
-                history_name = 'Randomizer'
-            } else {
-                history_name = history_name.split('ADSEmbed-').pop();
-            }
-        } else if (postDisplayName.startsWith('ADSMobile-')) {
-            history_type = 'mobile-alt'
-            if (postDisplayName.includes('Untitled')) {
-                history_name = 'Mobile'
-            } else {
-                history_name = history_name.split('ADSMobile-').pop();
-            }
-        } else if (postDisplayName.startsWith('ADS')) {
-            history_type = 'tv'
-        } else if (postDisplayName === 'Homepage') {
-            history_type = 'home'
-            history_name = "Homepage";
-        } else if (postDisplayName === 'WebExtension') {
-            history_type = 'webextention'
-        } else {
-            history_type = 'tv'
-            if (postDisplayName.includes('Untitled')) {
-                history_name = 'Default'
-            }
-        }
-        normalInfo.push(`<i class="fas fa-history pr-1"></i><i class="fas fa-${history_type} pr-1"></i><span>${history_name}</span>`)
-        normalInfo.push('</div>')
 
-        modalGoToHistoryDisplay.title = `View "${postDisplayName}"`
-        modalGoToHistoryDisplay.onclick = function() {
-            $('#searchModal').modal('hide');
-            window.location.assign("#" + params([], [['sort', 'history'], ['history', 'only'], ['displayname', `${postDisplayName}`]], '/gallery'));
-            return false;
-        }
-        modalGoToHistoryDisplay.classList.remove('hidden')
-    } else {
-        modalGoToHistoryDisplay.title = 'View History'
-        modalGoToHistoryDisplay.onclick = function() { return false; };
-        modalGoToHistoryDisplay.classList.add('hidden')
-    }
-    if (searchUser && searchUser.length > 0) {
-        const artistStrting = decodeURIComponent(searchUser)
-        if (!isInfoDialog)
-            modalSearchByUser.querySelector('span').innerText = `Artist (${(artistStrting.length > 16) ? artistStrting.slice(0,16) + '...' : artistStrting})`;
-        modalSearchByUser.onclick = function() {
-            $('#searchModal').modal('hide');
-            window.location.assign(`#${getLocation()}search=${encodeURIComponent('artist:' + artistStrting)}${(nsfwString) ? nsfwString : ''}`);
-            return false;
-        }
-        modalSearchByUser.classList.remove('hidden');
 
-        if (manageAllowed && postBody && (postBody.includes('Twitter Image') || postBody.includes('Twitter Video'))) {
-            $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
-            $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.remove('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.remove('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.remove('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).onclick = function () {
-                $.ajax({
-                    async: true,
-                    type: "post",
-                    url: "/actions/v2",
-                    data: {
-                        'id': `${searchUser}`,
-                        'channelid': postChannel,
-                        'messageid': postID,
-                        'serverid': postServer,
-                        'action': 'twitterDownloadUser'
-                    },
-                    cache: false,
-                    headers: {
-                        'X-Requested-With': 'SequenziaXHR'
-                    },
-                    success: function (res, txt, xhr) {
-                        if (xhr.status < 400) {
-                            console.log(res);
-                            $.snack('success', `${res}`, 5000);
-                        } else {
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
+            } else if (manageAllowed && postBody && postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
+                $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
+                $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).onclick = function () {
+                    $.ajax({
+                        async: true,
+                        type: "post",
+                        url: "/actions/v2",
+                        data: {
+                            'id': `${searchUser}`,
+                            'channelid': postChannel,
+                            'messageid': postID,
+                            'serverid': postServer,
+                            'action': 'followPixiv'
+                        },
+                        cache: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        success: function (res, txt, xhr) {
+                            if (xhr.status < 400) {
+                                console.log(res);
+                                $.snack('success', `${res}`, 5000);
+                            } else {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Failed to complete action',
+                                    subtitle: 'Now',
+                                    content: `${res}`,
+                                    delay: 5000,
+                                });
+                            }
+                        },
+                        error: function (xhr) {
                             $.toast({
                                 type: 'error',
                                 title: 'Failed to complete action',
                                 subtitle: 'Now',
-                                content: `${res}`,
+                                content: `${xhr.responseText}`,
                                 delay: 5000,
                             });
                         }
-                    },
-                    error: function (xhr) {
-                        $.toast({
-                            type: 'error',
-                            title: 'Failed to complete action',
-                            subtitle: 'Now',
-                            content: `${xhr.responseText}`,
-                            delay: 5000,
-                        });
-                    }
-                });
-            };
-
-
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
-        } else if (manageAllowed && postBody && postBody.includes('**🎆 ') && postBody.includes('** : ***')) {
-            $(`#${(isInfoDialog) ? 'infoDialog' : ''}noFunctions`).addClass('hidden');
-            $(`#${(isInfoDialog) ? 'infoDialog' : ''}functionsList`).removeClass('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.remove('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).onclick = function () {
-                $.ajax({
-                    async: true,
-                    type: "post",
-                    url: "/actions/v2",
-                    data: {
-                        'id': `${searchUser}`,
-                        'channelid': postChannel,
-                        'messageid': postID,
-                        'serverid': postServer,
-                        'action': 'followPixiv'
-                    },
-                    cache: false,
-                    headers: {
-                        'X-Requested-With': 'SequenziaXHR'
-                    },
-                    success: function (res, txt, xhr) {
-                        if (xhr.status < 400) {
-                            console.log(res);
-                            $.snack('success', `${res}`, 5000);
-                        } else {
+                    });
+                };
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.remove('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).onclick = function () {
+                    $.ajax({
+                        async: true,
+                        type: "post",
+                        url: "/actions/v2",
+                        data: {
+                            'id': `${searchUser}`,
+                            'channelid': postChannel,
+                            'messageid': postID,
+                            'serverid': postServer,
+                            'action': 'pixivDownloadUser'
+                        },
+                        cache: false,
+                        headers: {
+                            'X-Requested-With': 'SequenziaXHR'
+                        },
+                        success: function (res, txt, xhr) {
+                            if (xhr.status < 400) {
+                                console.log(res);
+                                $.snack('success', `${res}`, 5000);
+                            } else {
+                                $.toast({
+                                    type: 'error',
+                                    title: 'Failed to complete action',
+                                    subtitle: 'Now',
+                                    content: `${res}`,
+                                    delay: 5000,
+                                });
+                            }
+                        },
+                        error: function (xhr) {
                             $.toast({
                                 type: 'error',
                                 title: 'Failed to complete action',
                                 subtitle: 'Now',
-                                content: `${res}`,
+                                content: `${xhr.responseText}`,
                                 delay: 5000,
                             });
                         }
-                    },
-                    error: function (xhr) {
-                        $.toast({
-                            type: 'error',
-                            title: 'Failed to complete action',
-                            subtitle: 'Now',
-                            content: `${xhr.responseText}`,
-                            delay: 5000,
-                        });
-                    }
-                });
-            };
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.remove('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).onclick = function () {
-                $.ajax({
-                    async: true,
-                    type: "post",
-                    url: "/actions/v2",
-                    data: {
-                        'id': `${searchUser}`,
-                        'channelid': postChannel,
-                        'messageid': postID,
-                        'serverid': postServer,
-                        'action': 'pixivDownloadUser'
-                    },
-                    cache: false,
-                    headers: {
-                        'X-Requested-With': 'SequenziaXHR'
-                    },
-                    success: function (res, txt, xhr) {
-                        if (xhr.status < 400) {
-                            console.log(res);
-                            $.snack('success', `${res}`, 5000);
-                        } else {
-                            $.toast({
-                                type: 'error',
-                                title: 'Failed to complete action',
-                                subtitle: 'Now',
-                                content: `${res}`,
-                                delay: 5000,
-                            });
-                        }
-                    },
-                    error: function (xhr) {
-                        $.toast({
-                            type: 'error',
-                            title: 'Failed to complete action',
-                            subtitle: 'Now',
-                            content: `${xhr.responseText}`,
-                            delay: 5000,
-                        });
-                    }
-                });
-            };
+                    });
+                };
 
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
-            document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
+            } else {
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
+                document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
+            }
+
         } else {
+            if (!isInfoDialog)
+                modalSearchByUser.querySelector('span').innerText = `Artist`;
+            modalSearchByUser.onclick = function () {
+                return false;
+            };
+            modalSearchByUser.classList.add('hidden');
             document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
             document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
             document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
             document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
             document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
         }
-
-    } else {
-        if (!isInfoDialog)
-            modalSearchByUser.querySelector('span').innerText = `Artist`;
-        modalSearchByUser.onclick = function() { return false; };
-        modalSearchByUser.classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivFollow`).classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}pixivDownloadUser`).classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterInteract`).classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterListCtrl`).classList.add('hidden');
-        document.getElementById(`${(isInfoDialog) ? 'infoDialog' : ''}twitterDownloadUser`).classList.add('hidden');
+    } catch (e) {
+        console.error('Failed to set post actions: ' + e.message)
     }
-    if (searchParent && searchParent.length > 0) {
+    if (!offlinePage && searchParent && searchParent.length > 0) {
         modalSearchByParent.onclick = function() {
             $('#searchModal').modal('hide');
             window.location.assign(`#${getLocation(null, null, ['sort', 'reverse'])}sort=post_index&reverse=true&search=${encodeURIComponent('text:' + decodeURIComponent(searchParent))}${(nsfwString) ? nsfwString : ''}`);
@@ -4783,7 +4880,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
         modalSearchByParent.onclick = function() { return false; };
         modalSearchByParent.classList.add('hidden')
     }
-    if (!cur.has('channel')) {
+    if (!offlinePage && !cur.has('channel')) {
         modelSearchUseChannel.onclick = function() {
             $('#searchModal').modal('hide');
             getNewContent([],[['channel', postChannel]]);
@@ -4794,7 +4891,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
         modelSearchUseChannel.onclick = function() { return false; };
         modelSearchUseChannel.classList.add('hidden')
     }
-    if (searchColor && searchColor.length > 0) {
+    if (!offlinePage && searchColor && searchColor.length > 0) {
         modalSearchByColor.onclick = function() {
             $('#searchModal').modal('hide');
             window.location.assign(`#${getLocation()}color=${searchColor}${(nsfwString) ? nsfwString : ''}`);
@@ -4864,107 +4961,129 @@ async function showSearchOptions(post, isInfoDialog = false) {
         modalBodyRaw.classList.add('hidden')
         modalSearchByContent.classList.add('hidden');
     }
-    if (postTags && postTags.length > 0) {
-        if (isInfoDialog) {
-            document.getElementById('infoDialogtagCollapse').classList.remove('hidden');
-        } else {
-            modelTagsHeader.classList.remove('hidden');
-        }
-        modelTagsHolder.innerHTML = postTags.split('; ').filter(e => e.split('/').length === 3).map((e,i,a) => {
-            const rating = parseFloat(e.split('/')[1]) * 100;
-            let name = e.split('/').slice(2).join('/');
-            if (a.length === i + 1 && name.endsWith(';'))
-                name = name.slice(0, name.length - 1);
-            const type = ((t) => {
-                switch (t) {
-                    case 3:
-                        if (name.startsWith('st_'))
-                            return ['fa-file-circle-info', 'Safety Classification', 'bg-warning', 'text-gray-900']
-                        return ['fa-file-circle-info','System','bg-warning','text-gray-900']
-                    case 2:
-                        return ['fa-person','Character','bg-success','text-gray-900']
-                    default:
-                        if (rating >= 90) {
-                            return ['fa-tag','General','bg-gray-100','text-gray-900']
-                        } else if (rating >= 80 ) {
-                            return ['fa-tag','General','bg-gray-200','text-gray-900']
-                        } else if (rating >= 70 ) {
-                            return ['fa-tag','General','bg-gray-300','text-gray-900']
-                        } else if (rating >= 60 ) {
-                            return ['fa-tag','General','bg-gray-400','text-gray-900']
-                        } else if (rating >= 50 ) {
-                            return ['fa-tag','General','bg-gray-500','text-black-50']
-                        } else if (rating >= 40 ) {
-                            return ['fa-tag','General','bg-gray-600','text-black-50']
-                        } else if (rating >= 30 ) {
-                            return ['fa-tag','General','bg-gray-700','text-white']
-                        } else {
-                            return ['fa-tag','General','bg-gray-800','text-white']
-                        }
+    try {
+        if (postTags && postTags.length > 0) {
+            if (isInfoDialog) {
+                document.getElementById('infoDialogtagCollapse').classList.remove('hidden');
+            } else {
+                modelTagsHeader.classList.remove('hidden');
+            }
+            modelTagsHolder.innerHTML = postTags.split('; ').filter(e => e.split('/').length === 3).map((e, i, a) => {
+                const rating = parseFloat(e.split('/')[1]) * 100;
+                let name = e.split('/').slice(2).join('/');
+                if (a.length === i + 1 && name.endsWith(';'))
+                    name = name.slice(0, name.length - 1);
+                const type = ((t) => {
+                    switch (t) {
+                        case 3:
+                            if (name.startsWith('st_'))
+                                return ['fa-file-circle-info', 'Safety Classification', 'bg-warning', 'text-gray-900']
+                            return ['fa-file-circle-info', 'System', 'bg-warning', 'text-gray-900']
+                        case 2:
+                            return ['fa-person', 'Character', 'bg-success', 'text-gray-900']
+                        default:
+                            if (rating >= 90) {
+                                return ['fa-tag', 'General', 'bg-gray-100', 'text-gray-900']
+                            } else if (rating >= 80) {
+                                return ['fa-tag', 'General', 'bg-gray-200', 'text-gray-900']
+                            } else if (rating >= 70) {
+                                return ['fa-tag', 'General', 'bg-gray-300', 'text-gray-900']
+                            } else if (rating >= 60) {
+                                return ['fa-tag', 'General', 'bg-gray-400', 'text-gray-900']
+                            } else if (rating >= 50) {
+                                return ['fa-tag', 'General', 'bg-gray-500', 'text-black-50']
+                            } else if (rating >= 40) {
+                                return ['fa-tag', 'General', 'bg-gray-600', 'text-black-50']
+                            } else if (rating >= 30) {
+                                return ['fa-tag', 'General', 'bg-gray-700', 'text-white']
+                            } else {
+                                return ['fa-tag', 'General', 'bg-gray-800', 'text-white']
+                            }
+                    }
+                })(parseInt(e.split('_')[0]))
+
+                let tagObj = [`<div class="${type[2]} badge mx-1 mb-1" title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
+                if (!offlinePage)
+                    tagObj.push(`<a class="${type[3]}" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                else
+                    tagObj.push(`<div class="${type[3]}" href="#_">`);
+                tagObj.push(`<i class="fas ${type[0]} pr-1"></i><span>${name}</span>`)
+                if (!offlinePage)
+                    tagObj.push("</a>")
+                else
+                    tagObj.push("</div>")
+                if (!offlinePage && cur.has('tags')) {
+                    tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                    tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
+                    tagObj.push("</a>")
+                    tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' ' + name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                    tagObj.push(`<i class="fas fa-circle-plus"></i>`)
+                    tagObj.push("</a>")
                 }
-            })(parseInt(e.split('_')[0]))
-
-            let tagObj = [`<div class="${type[2]} badge mx-1 mb-1" title="${type[1]} Tag (${rating.toFixed(2)}% Confidence)">`]
-            tagObj.push(`<a class="${type[3]}" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-            tagObj.push(`<i class="fas ${type[0]} pr-1"></i><span>${name}</span>`)
-            tagObj.push("</a>")
-            if (cur.has('tags')) {
-                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-                tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
-                tagObj.push("</a>")
-                tagObj.push(`<a class="${type[3]} pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' ' + name.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-                tagObj.push(`<i class="fas fa-circle-plus"></i>`)
-                tagObj.push("</a>")
-            }
-            tagObj.push("</div>")
-            return tagObj.join("")
-        }).join('\n');
-        modelTagsHolder.classList.remove('hidden');
-    } else {
-        modelTagsHolder.innerHTML = '';
-        if (isInfoDialog) {
-            document.getElementById('infoDialogtagCollapse').classList.add('hidden');
+                tagObj.push("</div>")
+                return tagObj.join("")
+            }).join('\n');
+            modelTagsHolder.classList.remove('hidden');
         } else {
-            modelTagsHeader.classList.add('hidden');
-        }
-        modelTagsHolder.classList.add('hidden');
-    }
-
-    if (postStaticTags && postStaticTags.length > 0) {
-        modelStaticTagsHolder.classList.remove('hidden');
-        modelStaticTagsHolder.innerHTML = postStaticTags.slice(1, postStaticTags.length - 1).split(';').filter(e => !!e).map((e,i,a) => {
-            let tagObj = [`<div class="bg-warning badge mx-1 mb-1" title="Static Tag">`]
-            tagObj.push(`<a class="text-gray-900" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-            tagObj.push(`<i class="fas fa-hashtag-lock pr-1"></i><span>${e}</span>`)
-            tagObj.push("</a>")
-            if (cur.has('tags')) {
-                tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-                tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
-                tagObj.push("</a>")
-                tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
-                tagObj.push(`<i class="fas fa-circle-plus"></i>`)
-                tagObj.push("</a>")
+            modelTagsHolder.innerHTML = '';
+            if (isInfoDialog) {
+                document.getElementById('infoDialogtagCollapse').classList.add('hidden');
+            } else {
+                modelTagsHeader.classList.add('hidden');
             }
-            tagObj.push("</div>")
-            return tagObj.join("")
-        }).join('\n');
-        modelStaticTagsHolder.classList.remove('hidden');
-        if (modelTagsHolder.innerHTML !== '')
-            modelStaticTagsHolder.classList.add('mb-3');
-    } else {
-        modelStaticTagsHolder.innerHTML = '';
-        modelStaticTagsHolder.classList.add('hidden');
-        if (!isInfoDialog && modelTagsHolder.innerHTML === '') {
-            modelTagsHeader.classList.add('hidden');
+            modelTagsHolder.classList.add('hidden');
         }
+        if (postStaticTags && postStaticTags.length > 0) {
+            modelStaticTagsHolder.classList.remove('hidden');
+            modelStaticTagsHolder.innerHTML = postStaticTags.slice(1, postStaticTags.length - 1).split(';').filter(e => !!e).map((e,i,a) => {
+                let tagObj = [`<div class="bg-warning badge mx-1 mb-1" title="Static Tag">`]
+                if (!offlinePage)
+                    tagObj.push(`<a class="text-gray-900" href="#_" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + encodeURIComponent(e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                else
+                    tagObj.push(`<div class="text-gray-900" href="#_">`);
+                tagObj.push(`<i class="fas fa-hashtag-lock pr-1"></i><span>${e}</span>`)
+                if (!offlinePage)
+                    tagObj.push("</a>")
+                else
+                    tagObj.push("</div>")
+                if (!offlinePage && cur.has('tags')) {
+                    tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to requirements" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' + ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                    tagObj.push(`<i class="fas fa-circle-exclamation"></i>`)
+                    tagObj.push("</a>")
+                    tagObj.push(`<a class="text-gray-900 pl-1" href="#_" title="Add to search" onclick="$('#searchModal').modal('hide'); window.location.assign(` + '`#${getLocation(undefined, true)}tags=' + cur.getAll('tags')[0].trim() + encodeURIComponent(' ' + e.trim()) + ((nsfwString) ? nsfwString : '') + '`); return false;"' + `>`);
+                    tagObj.push(`<i class="fas fa-circle-plus"></i>`)
+                    tagObj.push("</a>")
+                }
+                tagObj.push("</div>")
+                return tagObj.join("")
+            }).join('\n');
+            modelStaticTagsHolder.classList.remove('hidden');
+            if (modelTagsHolder.innerHTML !== '')
+                modelStaticTagsHolder.classList.add('mb-3');
+        } else {
+            modelStaticTagsHolder.innerHTML = '';
+            modelStaticTagsHolder.classList.add('hidden');
+            if (!isInfoDialog && modelTagsHolder.innerHTML === '') {
+                modelTagsHeader.classList.add('hidden');
+            }
+        }
+    } catch (e) {
+        console.error('Failed to set tags: ' + e.message)
     }
 
-    advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);
-    advancedInfo.push(`<div><i class="fa fa-folder pr-1"></i><span class="text-monospace" title="Discord Channel ID">${postChannel}</span></div>`);
-    advancedInfo.push(`<div><i class="fa fa-server pr-1"></i><span class="text-monospace" title="Discord Server ID">${postServer}</span></div>`);
-
-    modalInfoRaw.innerHTML = normalInfo.join('');
-    modalAdvRaw.innerHTML = advancedInfo.join('');
+    try {
+        advancedInfo.push(`<div><i class="fa fa-file pr-1"></i><span class="text-monospace" title="Discord Message ID">${postID}</span></div>`);
+        advancedInfo.push(`<div><i class="fa fa-folder pr-1"></i><span class="text-monospace" title="Discord Channel ID">${postChannel}</span></div>`);
+        advancedInfo.push(`<div><i class="fa fa-server pr-1"></i><span class="text-monospace" title="Discord Server ID">${postServer}</span></div>`);
+    } catch (e) {
+        console.error('Failed to set icons: ' + e.message)
+    }
+    try {
+        modalInfoRaw.innerHTML = normalInfo.join('');
+        modalAdvRaw.innerHTML = advancedInfo.join('');
+    } catch (e) {
+        console.error('Failed to write inner HTML: ' + e.message)
+    }
     if (!isInfoDialog) {
         $('#searchModal').modal('show');
     }

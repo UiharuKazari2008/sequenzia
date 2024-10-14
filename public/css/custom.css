@@ -3217,6 +3217,30 @@ div#recentOverlay {
     margin: 0 .25em;
 }
 
+div#cmbMain {
+    font-size: 48pt;
+}
+.cmb-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+.cmb-header {
+    font-size: 36px;
+}
+.cmb-header > i {
+    padding-right: 0.5em;
+}
+.cmb-item {
+    font-size: 24px;
+}
+.cmb-item > i {
+    padding-right: 0.5em;
+}
+
 .fancybox-container {
     z-index: 1100;
 }

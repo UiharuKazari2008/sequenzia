@@ -966,7 +966,7 @@ function expireTempCache() {
 }
 
 function replaceDiscordCDN(url) {
-    return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url;
+    return (url.includes('.discordapp.') && url.includes('attachments')) ? `/${(url.startsWith('https://media.discordapp') ? 'media_' : 'full_')}attachments${url.split('attachments').pop()}` : url.split('?')[0];
 }
 function returnDiscordCDN(url) {
     return (url.includes('_attachments')) ? `https://${(url.startsWith('/media_') ? 'media.discordapp.net' : 'cdn.discordapp.com')}/attachments${url.split('attachments').pop()}` : url;
