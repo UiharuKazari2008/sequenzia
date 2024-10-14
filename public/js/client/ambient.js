@@ -156,6 +156,7 @@ if (config.has('bright_max')) {
     bright_max = config.getAll('bright_max')[0]
 }
 let last_response;
+let posSec = 90;
 
 function dct() {
     const d = new Date();
@@ -174,7 +175,7 @@ function dct() {
     if (displayConfiguration.layoutMode.toString() === '1') {
         const degrees = (s / 60) * 360;
         const secondHand = document.querySelector('.second-hand');
-        secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg) translate(90px)`;
+        secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg) translate(${posSec}px)`;
     }
     dc();
 }
