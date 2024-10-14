@@ -267,6 +267,7 @@ span#quoteAuthor {
 }
 #CenterSection .clock.clock-time {
     font-size: 10rem;
+    padding-bottom: 10px;
 }
 #CenterSection .clock {
     margin-left: unset;
@@ -274,6 +275,17 @@ span#quoteAuthor {
 
 .hidden-on-boot {
     display: none!important;
+}
+
+.second-hand {
+    width: 10px;
+    height: 10px;
+    background: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @media (max-width: 4000px) {

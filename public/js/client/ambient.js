@@ -161,6 +161,7 @@ function dct() {
     const d = new Date();
     let h = d.getHours()
     let m = d.getMinutes();
+    let s = d.getSeconds();
     if (displayConfiguration.displayClock === 2) {
         h = h % 12;
         h = h ? h : 12; // the hour '0' should be '12'
@@ -170,6 +171,11 @@ function dct() {
     }
     if (m < 10) { m = `0${m}` }
     document.querySelectorAll('.clock-time').forEach(e => e.innerHTML = `${h}:${m}`);
+    if (displayConfiguration.layoutMode.toString() === '1') {
+        const degrees = (s / 60) * 360;
+        const secondHand = document.querySelector('.second-hand');
+        secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg) translate(90px)`;
+    }
     dc();
 }
 function ddt() {
@@ -1378,6 +1384,7 @@ async function syncDisplaySettings() {
         let _lm = $('#content-wrapper')
         let _bo = $('.background-image.overlay')
         let _dz = $('#deadzoneOverlay')
+        let _sh = $('#CenterSection .second-hand')
         if (config.has('layoutMode')) {
             displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
             switch (parseInt(displayConfiguration.layoutMode.toString())) {
@@ -1398,6 +1405,7 @@ async function syncDisplaySettings() {
                     break;
                 case 1:
                     _lm.addClass('wacca-layout');
+                    _sh.removeClass('hidden');
                     break;
                 default:
                     break;
