@@ -69,8 +69,8 @@ html {
     /*background-color: #000000;*/
     transform: none;
     z-index: -90;
-    opacity: .6;
-    background: radial-gradient(transparent 8%, black) center;
+    opacity: 1;
+    background: radial-gradient(transparent 0%, black 80%) center;
     background-size: cover;
     height: 100vh;
     width: 100vw;
@@ -278,11 +278,12 @@ span#quoteAuthor {
 }
 
 .second-hand {
-    width: 1000px;
-    height: 1000px;
+    width: 1020px;
+    height: 1020px;
     position: absolute;
     top: 50%;
     left: 50%;
+    opacity: .9;
 }
 .second-hand > div {
     width: 25px;
@@ -291,8 +292,8 @@ span#quoteAuthor {
     left: 48.5%;
     top: 0;
     rotate: 45deg;
-    border-left: 15px solid red;
-    border-top: 15px solid red;
+    border-left: 15px solid white;
+    border-top: 15px solid white;
     border-right: 15px solid transparent;
     border-bottom: 15px solid transparent;
 }
