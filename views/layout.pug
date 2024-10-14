@@ -90,7 +90,7 @@ html
             div.background-image.bg-blur
 
         div(id="wrapper")
-            div(id="content-wrapper", class="d-flex flex-column")
+            div(id="content-wrapper", data-simplebar, class="d-flex flex-column")
                 div(id="content")
                     if (params.has('ratio'))
                         - ratioValues = params.getAll('ratio')[0].split('-')
@@ -402,7 +402,7 @@ html
                                                     h4.text-primary.ml-auto.mb-0
                                                         i.fas.fa-archive.mr-2
                                                         | Albums
-                                                .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                .w-100.position-absolute(data-simplebar style="justify-content: left; top: 3em;")
                                                     if (exchange.albums && exchange.albums.length > 0)
                                                         div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                             each thisAlbum in exchange.albums
@@ -448,7 +448,7 @@ html
                                                     h4.text-primary.ml-auto.mb-0
                                                         i.fas.fa-address-book.mr-2
                                                         | Artists
-                                                .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                .w-100.position-absolute(data-simplebar style="justify-content: left; top: 3em;")
                                                     if (exchange.artists && exchange.artists.length > 0)
                                                         div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                             each thisArtist in exchange.artists
@@ -638,7 +638,7 @@ html
                                                     i.fas.fa-rectangle-history.mr-2
                                                     | History
                                             .w-100.position-absolute(style="justify-content: left; top: 3em;")
-                                                div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
+                                                div.album-list.pb-1(data-simplebar style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                     #menuBodyImageHistory.ready(style="display: contents;")
                                                         span Loading...
                                     if (appData)
@@ -2862,7 +2862,7 @@ html
                                         .modal-background
                                         .modal-gradient
                         //#infoDialog.hidden
-                            .info-dialog-container
+                            .info-dialog-container(data-simplebar)
                                 div.row.px-3
                                     div#infoDialogauthorData.mt-1.w-100.d-flex.flex-row.align-items-start
                                         img(style='height: 48px;').rounded-circle.pr-2.shadow-blk

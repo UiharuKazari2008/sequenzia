@@ -100,6 +100,7 @@ html
         script(type='text/javascript' src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js")
         script(type='text/javascript' src="/static/vendor/jquery-easing/jquery.easing.min.js")
         script(type='text/javascript' src="/static/vendor/jquery/jquery.hotkeys.min.js")
+        script(type='text/javascript' src="/static/vendor/simplescroll/simplebar.min.js")
         link(rel='preload', href="https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2" as="font" crossorigin)
         link(rel='preload', href="/static/font/london2012.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
         link(rel='preload', href="/static/vendor/fontawesome/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin="crossorigin")
@@ -111,12 +112,14 @@ html
         link(rel='preload', href="/static/js/jquery.fancybox.min.js" as='script')
         link(rel='preload', href='/static/js/daterangepicker.min.js' as='script')
         link(rel='preload', href='/static/vendor/cropper/cropper.min.js' as='script')
+        link(rel='preload', href='/static/vendor/simplescroll/simplebar.min.js' as='script')
         link(rel='apple-touch-icon' sizes='180x180' href='/static/img/icons/android/android-launchericon-192-192.png')
         link(rel='icon' type='image/png' sizes='32x32' href='/static/img/icons/firefox/firefox-general-32-32.png')
         link(rel='icon' type='image/png' sizes='16x16' href='/static/img/icons/chrome/firefox-general-16-16.png')
 
         link(rel='preload', href="/static/vendor/fontawesome/css/fontawesome.min.css" as='style')
         link(rel='preload', href="/static/vendor/fontawesome/css/all.min.css" as='style')
+        link(rel='preload', href="/static/vendor/simplescroll/simplebar.css" as='style')
         link(rel='preload', href="/static/css/sb-admin-2.min.css" as='style')
         link(rel='preload', href="/css/custom.min.css" as='style')
         link(rel='preload', href="/static/css/instance-custom.css" as='style')
@@ -145,6 +148,7 @@ html
         link(rel="stylesheet", href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i")
         link(rel='stylesheet' type='text/css' href='/static/css/daterangepicker.min.css')
         link(rel='stylesheet' type='text/css' href='/static/vendor/cropper/cropper.min.css')
+        link(rel='stylesheet' type='text/css' href='/static/vendor/simplescroll/simplebar.css')
         link(rel='stylesheet' type='text/css' href='/static/css/toast.min.css')
         link(rel="stylesheet", href="/css/custom.min.css")
         link(rel="stylesheet", href="/static/css/instance-custom.css")
@@ -595,7 +599,7 @@ html
                                                 h4.text-primary.ml-auto
                                                     i.fas.fa-archive.mr-2
                                                     | Albums
-                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                            .w-100.position-absolute(data-simplebar style="justify-content: left; top: 3em;")
                                                 if (albums && albums.length > 0)
                                                     div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         each thisAlbum in albums
@@ -697,7 +701,7 @@ html
                             div.user-info-backdrop
                         div#topbarIcon
                         div#topbarBackground
-                    .container-fluid.max-resize
+                    .container-fluid.max-resize(data-simplebar)
                         #contentBlock.animated--grow-in
                             //div.tz-gallery
                                 div.row

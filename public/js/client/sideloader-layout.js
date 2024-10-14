@@ -1,6 +1,6 @@
 // DO NOT FUCKING EDIT THE INFO DIALOG CONTENTS WITHOUT EDITING THE LAYOUT.PUG FILE YOU RETARD!!!
 // EDIT THERE AND COMPILE THE PUG TO HTML ====> https://pughtml.com/
-const infodialog = '<div class="info-dialog-container">\n' +
+const infodialog = '<div class="info-dialog-container" data-simplebar>\n' +
     '    <div class="row px-3">\n' +
     '        <div class="mt-1 w-100 d-flex flex-row align-items-start" id="infoDialogauthorData"><img class="rounded-circle pr-2 shadow-blk" style="height: 48px;" /><span class="text-ellipsis align-self-center shadow-text" style="font-size: 1.5em;"></span></div>\n' +
     '    </div>\n' +

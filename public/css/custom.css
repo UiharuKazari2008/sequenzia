@@ -42,6 +42,10 @@
     }
 }
 
+.simplebar-scrollbar::before {
+    background-color: red;
+}
+
 .menu-grid a,
 .album-list .album-item,
 .animation---drop-in {
@@ -3244,6 +3248,10 @@ div#fbInfo .modal-background {
     z-index: 3;
 }
 div#fbInfo .info-dialog-container {
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
     z-index: 4;
     position: relative;
 }
@@ -3251,14 +3259,11 @@ div#fbInfo .info-dialog-container {
     width: calc(100% - 30vw);
 }
 .info-container {
-    padding: 10px;
     background: black;
     height: 100%;
     right: 0;
     position: absolute;
     width: 30vw;
-    overflow-y: auto;
-    overflow-x: hidden;
 }
 #infoDialogalbumCollapse .list-group {
     margin-top: 0.25rem
@@ -3293,11 +3298,6 @@ div#fbInfo .modal-background {
         width: calc(100% - 450px);
     }
     .info-container {
-        padding: 10px;
-        background: black;
-        height: 100%;
-        right: 0;
-        position: absolute;
         width: 450px;
     }
 

@@ -4965,8 +4965,9 @@ async function showSearchOptions(post, isInfoDialog = false) {
 
     modalInfoRaw.innerHTML = normalInfo.join('');
     modalAdvRaw.innerHTML = advancedInfo.join('');
-    if (!isInfoDialog)
+    if (!isInfoDialog) {
         $('#searchModal').modal('show');
+    }
 
     fancyboxpendingmenu = null;
     return false;

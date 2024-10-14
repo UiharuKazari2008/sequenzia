@@ -124,6 +124,8 @@ const cacheOptions = {
         "/css/custom-lite.min.css",
         "/static/css/instance-lite.css",
         "/css/home-lite.min.css",
+        "/static/vendor/simplescroll/simplebar.css",
+        "/static/vendor/simplescroll/simplebar.min.js",
         "/static/img/loading_bg.jpeg",
         "/static/font/london2012.woff2",
         "/static/font/Digital7-1e1Z.woff2",
