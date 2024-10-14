@@ -175,7 +175,7 @@ function dct() {
     if (displayConfiguration.layoutMode.toString() === '1') {
         const degrees = (s / 60) * 360;
         const secondHand = document.querySelector('.second-hand');
-        secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg) translate(${posSec}px)`;
+        secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
     }
     dc();
 }
@@ -710,7 +710,7 @@ function pullImage(data) {
                         console.log(`New RGB color - R: ${rgb[0]}, G: ${rgb[1]}, B: ${rgb[2]}`);
                         console.log(`HSL values - H: ${hsl.h} degrees, S: ${hsl.s}, L: ${hsl.l}`);
                         console.log(`Brightness: ${brightness}`);
-                        document.getElementById('colorStyle').innerHTML = `#sideData, #CenterSection { color: rgb(${rgb.join(', ')}); } .second-hand { border-bottom-color: rgb(${rgb.join(', ')}); } `
+                        document.getElementById('colorStyle').innerHTML = `#sideData, #CenterSection { color: rgb(${rgb.join(', ')}); } .second-hand > div { border-left-color: rgb(${rgb.join(', ')}); border-top-color: rgb(${rgb.join(', ')}); } `
                     }
                     console.log('setImage OK')
                     if (document.getElementById('bootUpDisplay').style && document.getElementById('bootUpDisplay').style.display !== 'none') {

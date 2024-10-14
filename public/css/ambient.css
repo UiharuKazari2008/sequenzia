@@ -278,16 +278,23 @@ span#quoteAuthor {
 }
 
 .second-hand {
-    width: 0;
-    height: 0;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent;
-    border-bottom: 25px solid #ffffff; /* Color and size of the triangle */
+    width: 500px;
+    height: 500px;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform-origin: bottom center; /* Pivot point for rotation */
-    transform: translate(-50%, -50%) rotate(0deg);
+}
+.second-hand > div {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    rotate: 45deg;
+    border-left: 15px solid red;
+    border-top: 15px solid red;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid transparent;
 }
 
 @media (max-width: 4000px) {
