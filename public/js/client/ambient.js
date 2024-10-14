@@ -710,9 +710,7 @@ function pullImage(data) {
                         console.log(`New RGB color - R: ${rgb[0]}, G: ${rgb[1]}, B: ${rgb[2]}`);
                         console.log(`HSL values - H: ${hsl.h} degrees, S: ${hsl.s}, L: ${hsl.l}`);
                         console.log(`Brightness: ${brightness}`);
-                        document.getElementById('colorStyle').innerHTML = `#sideData, #CenterSection {
-                        color: rgb(${rgb.join(', ')});
-                    }`
+                        document.getElementById('colorStyle').innerHTML = `#sideData, #CenterSection { color: rgb(${rgb.join(', ')}); } .second-hand { border-bottom-color: rgb(${rgb.join(', ')}); } `
                     }
                     console.log('setImage OK')
                     if (document.getElementById('bootUpDisplay').style && document.getElementById('bootUpDisplay').style.display !== 'none') {
@@ -2443,6 +2441,46 @@ function enableChunShimControl() {
 }
 
 $(document).ready(function () {
+    try {
+        let _lm = $('#content-wrapper')
+        let _bo = $('.background-image.overlay')
+        let _dz = $('#deadzoneOverlay')
+        let _sh = $('#CenterSection .second-hand')
+        if (config.has('layoutMode')) {
+            displayConfiguration.layoutMode = parseInt(config.getAll('layoutMode')[0].toString())
+            switch (parseInt(displayConfiguration.layoutMode.toString())) {
+                case 3:
+                    _lm.addClass('nost-layout');
+                    _bo.addClass('nost-layout-top');
+                    _dz.addClass('nost-layout-top');
+                    break;
+                case 2:
+                    _lm.addClass('nost-layout');
+                    _bo.addClass('nost-layout');
+                    _dz.addClass('nost-layout');
+                    break;
+                case 4:
+                    _lm.addClass('chun-layout');
+                    _bo.addClass('chun-layout');
+                    _dz.addClass('chun-layout');
+                    break;
+                case 1:
+                    _lm.addClass('wacca-layout');
+                    _sh.removeClass('hidden');
+                    break;
+                default:
+                    break;
+            }
+        }
+    } catch (e) {
+        console.error(`Failed to setup layout mode: ${e.message}`);
+        document.getElementById('errorBanner').classList = 'warningBanner'
+        setTimeout(() => {
+            if (!(document.getElementById('errorBanner').classList.contains('errorBanner'))) {
+                document.getElementById('errorBanner').classList = '';
+            }
+        }, 180000)
+    }
     $.toastDefaults = {
         position: 'top-right', /** top-left/top-right/top-center/bottom-left/bottom-right/bottom-center - Where the toast will show up **/
         dismissible: true,
