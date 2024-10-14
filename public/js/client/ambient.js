@@ -156,9 +156,11 @@ if (config.has('bright_max')) {
     bright_max = config.getAll('bright_max')[0]
 }
 let last_response;
-let posSec = 90;
+let pauseTime = false;
 
 function dct() {
+    if (pauseTime)
+        return false;
     const d = new Date();
     let h = d.getHours()
     let m = d.getMinutes();
