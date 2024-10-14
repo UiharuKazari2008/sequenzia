@@ -699,7 +699,7 @@ function pullImage(data) {
                         $('#' + element_from).animate({ opacity: 0 }, 1500);
                     }
                     if (data.randomImagev2[0].colorR) {
-                        let { rgb, hsl, brightness } = brightenAndSaturate(data.randomImagev2[0].colorR, data.randomImagev2[0].colorG, data.randomImagev2[0].colorB, 0.85);
+                        let { rgb, hsl, brightness } = brightenAndSaturate(data.randomImagev2[0].colorR, data.randomImagev2[0].colorG, data.randomImagev2[0].colorB, 0.75);
                         console.log(`New RGB color - R: ${rgb[0]}, G: ${rgb[1]}, B: ${rgb[2]}`);
                         console.log(`HSL values - H: ${hsl.h} degrees, S: ${hsl.s}, L: ${hsl.l}`);
                         console.log(`Brightness: ${brightness}`);
@@ -1185,10 +1185,12 @@ async function syncDisplaySettings() {
         let _di = $('.clock-date');
         let _dw = $('.clock-day');
         let _df = $('.clock-dayofwek');
+        let _cc = $('#CenterSection');
         if (remoteInfoCFD) {
             _di.addClass('d-none').removeClass('d-flex');
             _dw.addClass('d-none');
             _df.addClass('d-none');
+            _cc.removeClass('date-on');
             vfdDateMode = parseInt(displayConfiguration.displayDate.toString())
         } else {
             switch (parseInt(displayConfiguration.displayDate.toString())) {
@@ -1197,23 +1199,27 @@ async function syncDisplaySettings() {
                     _di.addClass('d-flex').removeClass('d-none');
                     _dw.addClass('d-none');
                     _df.removeClass('d-none');
+                    _cc.addClass('date-on');
                     break;
                 // Full Date Disabled
                 case 2:
                     _di.addClass('d-flex').removeClass('d-none');
                     _dw.removeClass('d-none');
                     _df.addClass('d-none');
+                    _cc.addClass('date-on');
                     break;
                 // All Off
                 case 0:
                     _di.addClass('d-none').removeClass('d-flex');
                     _dw.addClass('d-none');
                     _df.addClass('d-none');
+                    _cc.removeClass('date-on');
                     break;
                 default:
                     _di.addClass('d-flex').removeClass('d-none');
                     _dw.removeClass('d-none');
                     _df.removeClass('d-none');
+                    _cc.addClass('date-on');
                     break;
             }
         }
@@ -1282,48 +1288,56 @@ async function syncDisplaySettings() {
         let _whl = $('.weatherLoHi');
         let _wi = $('.weatherIcon');
         let _wd = $('.weatherData');
+        let _cc = $('#CenterSection');
         switch (parseInt(displayConfiguration.weatherDisplay.toString())) {
             case 6:
                 _wc.addClass('hidden');
                 _wi.remove('hidden');
                 _whl.addClass('hidden');
                 _wd.addClass('hidden').removeClass('t2x');
+                _cc.addClass('weather-on').removeClass('weather-on-4');
                 break;
             case 5:
                 _wc.removeClass('hidden');
                 _wi.addClass('hidden');
                 _whl.addClass('hidden');
                 _wd.removeClass('hidden').addClass('t2x');
+                _cc.addClass('weather-on-4').removeClass('weather-on');
                 break;
             case 4:
                 _wc.removeClass('hidden');
                 _whl.removeClass('hidden');
                 _wi.addClass('hidden');
                 _wd.removeClass('hidden').addClass('t2x');
+                _cc.addClass('weather-on-4').removeClass('weather-on');;
                 break;
             case 3:
                 _wc.removeClass('hidden');
                 _whl.removeClass('hidden');
                 _wi.removeClass('hidden');
                 _wd.removeClass('hidden').removeClass('t2x');
+                _cc.addClass('weather-on').removeClass('weather-on-4');
                 break;
             case 2:
                 _whl.removeClass('hidden');
                 _wi.removeClass('hidden');
                 _wc.addClass('hidden');
                 _wd.removeClass('hidden').removeClass('t2x');
+                _cc.addClass('weather-on').removeClass('weather-on-4');
                 break;
             case 1:
                 _wc.addClass('hidden');
                 _wi.removeClass('hidden');
                 _whl.addClass('hidden');
                 _wd.removeClass('hidden').removeClass('t2x');
+                _cc.addClass('weather-on').removeClass('weather-on-4');
                 break;
             default:
                 _wc.addClass('hidden');
                 _whl.addClass('hidden');
                 _wi.addClass('hidden');
                 _wd.addClass('hidden').removeClass('t2x');
+                _cc.removeClass('weather-on').removeClass('weather-on-4');
                 break;
         }
     } catch (e) {

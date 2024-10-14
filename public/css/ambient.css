@@ -209,7 +209,32 @@ span#quoteAuthor {
 .clock.clock-time {
     font-size: 7rem;
 }
+.date-on {
+    padding-bottom: 44px;
+}
+.weather-on {
+    padding-top: 56px;
+}
+.weather-on .weatherInfo {
+    max-height: 56px;
+    min-height: 56px;
+}
+.weather-on-4 {
+    padding-top: 66px;
+}
+.weather-on-4 .weatherInfo {
+    max-height: 66px;
+    min-height: 66px;
+}
 
+.date-on.weather-on {
+    padding-bottom: 0px;
+    padding-top: 12px;
+}
+.date-on.weather-on-4 {
+    padding-bottom: 0px;
+    padding-top: 22px;
+}
 #CenterSection {
     text-shadow: 0 0 30px #000000;
 }
