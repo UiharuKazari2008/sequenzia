@@ -159,25 +159,29 @@ let last_response;
 let pauseTime = false;
 
 function dct() {
-    if (pauseTime)
-        return false;
-    const d = new Date();
-    let h = d.getHours()
-    let m = d.getMinutes();
-    let s = d.getSeconds();
-    if (displayConfiguration.displayClock === 2) {
-        h = h % 12;
-        h = h ? h : 12; // the hour '0' should be '12'
-        h = h < 10 ? '0' + h : h;
-    } else {
-        if (h < 10) { h = `0${h}` }
-    }
-    if (m < 10) { m = `0${m}` }
-    document.querySelectorAll('.clock-time').forEach(e => e.innerHTML = `${h}:${m}`);
-    if (displayConfiguration.layoutMode.toString() === '1') {
-        const degrees = (s / 60) * 360;
-        const secondHand = document.querySelector('.second-hand');
-        secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
+    if (!pauseTime) {
+        const d = new Date();
+        let h = d.getHours()
+        let m = d.getMinutes();
+        let s = d.getSeconds();
+        if (displayConfiguration.displayClock === 2) {
+            h = h % 12;
+            h = h ? h : 12; // the hour '0' should be '12'
+            h = h < 10 ? '0' + h : h;
+        } else {
+            if (h < 10) {
+                h = `0${h}`
+            }
+        }
+        if (m < 10) {
+            m = `0${m}`
+        }
+        document.querySelectorAll('.clock-time').forEach(e => e.innerHTML = `${h}:${m}`);
+        if (displayConfiguration.layoutMode.toString() === '1') {
+            const degrees = (s / 60) * 360;
+            const secondHand = document.querySelector('.second-hand');
+            secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
+        }
     }
     dc();
 }
