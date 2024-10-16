@@ -139,7 +139,7 @@ module.exports = async (req, res, next) => {
                                 await splitArray(delete_ids, 500).reduce((promiseChain, batch, i, a) => {
                                     return promiseChain.then(() => new Promise(async (resolve) => {
                                         await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id IN (${batch.map(e => e.id).join(', ')})`, []);
-                                        printLine("Clean", `Deleted [${batch.join(', ')}]`, "info");
+                                        printLine("Clean", `Deleted [${batch.map(e => e.id).join(', ')}]`, "info");
                                         resolve();
                                     }))
                                 }, Promise.resolve());
