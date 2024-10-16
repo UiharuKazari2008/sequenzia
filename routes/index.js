@@ -781,8 +781,9 @@ router.use('/content', handleExchange, downloadValidation, async function (req, 
 router.use(['/attachments', '/full_attachments'], async function (req, res) {
     try {
         const params = req.path.substr(1, req.path.length - 1).split('/')
+        const query = Object.entries(req.query).map((k) => k[0] + '=' + k[1] ).join('&')
         if (params.length === 3) {
-            const url = await getDiscordURL('https://cdn.discordapp.com/attachments/' + params.join('/'));
+            const url = await getDiscordURL('https://cdn.discordapp.com/attachments/' + params.join('/') + '?' + query);
             const request = https.get(url, {
                 headers: {
                     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',

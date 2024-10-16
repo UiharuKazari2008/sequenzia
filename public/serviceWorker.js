@@ -1,7 +1,7 @@
 'use strict';
 importScripts('/static/vendor/domparser_bundle.js');
 const DOMParser = jsdom.DOMParser;
-const cacheName = 'PRERELEASE-v22-14OCT24-P1'
+const cacheName = 'PRERELEASE-v22-16OCT24'
 const cacheCDNName = 'DEV-v2-11';
 const origin = location.origin
 const offlineUrl = '/offline';
@@ -18,9 +18,10 @@ const cacheOptions = {
         'offline-content-albums',
     ],
     autoCache: [
-        'https://cdn.discordapp.com/avatars/',
-        'https://cdn.discordapp.com/icons/',
-        'https://cdn.discordapp.com/banner/',
+        'cdn.discordapp.com/avatars/',
+        'cdn.discordapp.com/icons/',
+        'cdn.discordapp.com/banner/',
+        'fonts.gstatic.com/'
     ],
     blockedCache: [
         '/content/',
@@ -49,7 +50,9 @@ const cacheOptions = {
     ],
     cdnCache: {
         media: 'https://media.discordapp.net/attachments/',
+        media_base: 'https://media.discordapp.net',
         cdn: 'https://cdn.discordapp.com/attachments/',
+        cdn_base: 'https://cdn.discordapp.com',
         local: '/attachments/'
     },
     configCache: [
@@ -72,6 +75,7 @@ const cacheOptions = {
         offlineUrl,
     ],
     preloadCache: [
+        '/static/vendor/domparser_bundle.js',
         "/static/manifest.json",
         "/static/img/acr-logo.png",
         "/static/img/sequenzia-logo-nav.png",
@@ -143,6 +147,8 @@ const cacheOptions = {
         "/static/vendor/fontawesome/webfonts/fa-duotone-900.woff2",
         "/static/manifest.json",
         "/static/js/jquery.fancybox.min.js",
+        'https://fonts.gstatic.com/s/comfortaa/v45/1Pt_g8LJRfWJmhDAuUsSQamb1W0lwk4S4WjMDrAfJh1Zyc61YBlG.woff',
+        'https://fonts.gstatic.com/s/nunito/v26/XRXV3I6Li01BKofIOOaBTMnFcQIG.woff2',
         'https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2',
         'https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js',
         'https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i',
@@ -267,13 +273,12 @@ async function handleResponse(url, response, reqType) {
     const uri = url.split(origin).pop().toString();
     if (response.status < 204 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
-        cacheOptions.autoCache.filter(b => uri.includes(b)).length > 0 &&
         !(uri.includes('JFS_') || uri.includes('PARITY_')) &&
-        (url.endsWith('#PLEASE_CACHE_THIS') || (
-        !(
-            uri.includes('/attachments/') || uri.includes('/full_attachments/') ||
-            uri.includes('/media_attachments/')
-        ) && !(url.includes('.discordapp.') && url.includes('/attachments/'))))) {
+        (cacheOptions.autoCache.filter(b => url.includes(b)).length > 0 || url.endsWith('#PLEASE_CACHE_THIS') || (
+            !(cdnEndpoints.filter(e => url.startsWith(e))) &&
+            !(uri.includes('/attachments/') || uri.includes('/full_attachments/') || uri.includes('/media_attachments/')) &&
+            !(url.includes('.discordapp.') && url.includes('/attachments/'))
+        ))) {
         const selectedCache = selectCache(url);
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);
@@ -511,8 +516,11 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', event => {
     // Bypass for Uploads and non-Sequenzia
-    if (!event.request.url.startsWith(origin) || event.request.url.includes(':6833/action') || event.request.url.includes(':6833/get_config') || event.request.url.includes('/upload/'))
+    if (event.request.url.includes(':6833/action') || event.request.url.includes(':6833/get_config') || event.request.url.includes('/upload/')) {
+        if (swDebugMode)
+            console.log('JulyOS Kernel: Non-Scope Bypass - ' + event.request.url);
         return;
+    }
     event.respondWith(async function() {
         if (event.request.url.startsWith('chrome-extension'))
             return new Response(undefined, {status: 401});
@@ -525,35 +533,42 @@ self.addEventListener('fetch', event => {
                 shouldRecache(event);
                 return cachedResponse;
             }
-            const offlineFile = await getDataIfAvailable(event.request.url.split(origin).pop())
+            const offlineFile = await getDataIfAvailable(event.request.url.split(origin).pop().split('#')[0])
             if (offlineFile) {
                 if (swDebugMode)
-                    console.log('JulyOS Kernel: Offline Storage - ' + event.request.url);
+                    console.log('JulyOS Kernel: Offline Storage - ' + event.request.url, offlineFile);
                 return new Response(offlineFile, { status: 200 });
             }
 
-            if (event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
-                const newURL = (event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop();
-                const cachedFile = await caches.match(newURL)
+            if (cdnEndpoints.filter(e => event.request.url.startsWith(e)) || event.request.url.includes('_attachments/') || (event.request.url.includes('attachments/') && event.request.url.includes('.discordapp.'))) {
+                let newURL = ((event.request.url.includes('.discordapp.') && event.request.url.includes('/attachments/')) ? `/${event.request.url.includes('https://media.discordapp.net/') ? 'media_' : 'full_'}attachments/${event.request.url.split('/attachments/').pop()}` : event.request.url.split(origin).pop()).split('#')[0];
+                const paramsToRemove = ['ex', 'is', 'hm'];
+                let [path, query] = newURL.split('?');
+                if (query) {
+                    let searchParams = new URLSearchParams(query);
+                    paramsToRemove.forEach(param => searchParams.delete(param));
+                    newURL = path + (searchParams.toString() ? '?' + searchParams.toString() : '');
+                }
+                const cachedFile = await caches.match(newURL) || await caches.match(path)
                 if (cachedFile) {
                     if (swDebugMode)
                         console.log('JulyOS Kernel: Indirect Cache - ' + event.request.url);
                     return cachedFile
                 }
-                const offlineFile = await getDataIfAvailable(newURL)
+                const offlineFile = await getDataIfAvailable(newURL) || await getDataIfAvailable(path)
                 if (offlineFile) {
                     if (swDebugMode)
-                        console.log('JulyOS Kernel: Offline Storage - ' + event.request.url);
+                        console.log('JulyOS Kernel: Offline Storage - ' + event.request.url, offlineFile);
                     return new Response(offlineFile, { status: 200 });
                 }
                 if (event.request.url.includes('https://media.discordapp.net/')) {
-                    const cachedFile = await caches.match(newURL.split('?')[0])
+                    const cachedFile = await caches.match(newURL.split('?')[0].split('#')[0])
                     if (cachedFile) {
                         if (swDebugMode)
                             console.log('JulyOS Kernel: Indirect Cache (Resolution Bypass) - ' + event.request.url);
                         return cachedFile
                     }
-                    const offlineFile = await getDataIfAvailable(newURL.split('?')[0])
+                    const offlineFile = await getDataIfAvailable(newURL.split('?')[0].split('#')[0])
                     if (offlineFile) {
                         if (swDebugMode)
                             console.log('JulyOS Kernel: Offline Storage (Resolution Bypass) - ' + event.request.url);
@@ -952,6 +967,8 @@ async function syncConfig() {
     if (response.status < 204) {
         try {
             const o = JSON.parse((await response.text()).toString());
+            if (swDebugMode)
+                console.log(`Returned SWConfig from server`, o)
             if (o.cdn_urls) {
                 cdnEndpoints = o.cdn_urls;
             }
@@ -1509,7 +1526,36 @@ async function pullWatchProgress() {
     return actionsPrccessed;
 }
 
-async function deleteOfflinePage(url, noupdate) {
+async function itemsOfflinePage(url, noupdate) {
+    try {
+        if (url) {
+            const page = await getPageIfAvailable(url);
+            if (page) {
+                let blockedItems = [];
+                (await getAllOfflinePages()).filter(e => e.url !== url).map(page => blockedItems.push(...page.items))
+                const files = await getAllOfflineFiles();
+                const pageItems = files.filter(e => blockedItems.indexOf(e.eid) === -1 && page.items.indexOf(e.eid) !== -1);
+                console.log("Blocked Items: ", blockedItems);
+                console.log("Associated Items: ", pageItems);
+            } else {
+                console.error('Could not find the offline content')
+            }
+        } else {
+            console.log('URL not validated')
+        }
+    } catch (err) {
+        console.error(`Uncaught Item Download Error`);
+        console.error(err)
+        broadcastAllMessage({
+            type: 'MAKE_TOAST',
+            level: 'error',
+            title: '<i class="fas fa-monitor-waveform pr-2"></i>Application Error',
+            subtitle: '',
+            content: `<p>Could not delete offline item</p><p>Internal Application Error: ${err.message}</p>`,
+            timeout: 10000
+        });
+    }
+}async function deleteOfflinePage(url, noupdate) {
     try {
         if (url) {
             const page = await getPageIfAvailable(url);
@@ -1520,7 +1566,7 @@ async function deleteOfflinePage(url, noupdate) {
                 const pageItems = files.filter(e => blockedItems.indexOf(e.eid) === -1 && page.items.indexOf(e.eid) !== -1);
 
                 for (let e of pageItems) {
-                    await deleteOfflineFile(e.eid, true);
+                    await deleteOfflineFile(e.eid, true, undefined, true);
                 }
                 if (browserStorageAvailable) {
                     const indexDBUpdate = offlineContent.transaction(["offline_pages"], "readwrite").objectStore("offline_pages").delete(url);
@@ -1608,11 +1654,11 @@ async function deleteOfflineFile(eid, noupdate, preemptive, bypassBlocking) {
             if (file.fileid)
                 await deleteOfflineSpannedFile(file.fileid)
             if (file.full_url)
-                await deleteOfflineData(file.full_url);
+                await deleteOfflineData(file.full_url) || await deleteOfflineData(file.full_url.split('?')[0]);
             if (file.preview_url)
-                await deleteOfflineData(file.preview_url);
+                await deleteOfflineData(file.preview_url) || await deleteOfflineData(file.preview_url.split('?')[0]);
             if (file.extpreview_url)
-                await deleteOfflineData(file.extpreview_url);
+                await deleteOfflineData(file.extpreview_url) || await deleteOfflineData(file.extpreview_url.split('?')[0]);
             if (browserStorageAvailable) {
                 const indexDBUpdate = offlineContent.transaction(["offline_items", "offline_kongou_shows", "offline_kongou_episodes"], "readwrite");
                 indexDBUpdate.objectStore("offline_kongou_episodes").delete(parseInt(eid.toString()))
@@ -1797,7 +1843,7 @@ async function deleteAllOfflineData() {
     const pages = await getAllOfflinePages();
     await Promise.all(pages.map(async e => await deleteOfflinePage(e.url, true)));
     const files = await getAllOfflineFiles();
-    await Promise.all(files.map(async e => await deleteOfflineFile(e.eid, true)));
+    await Promise.all(files.map(async e => await deleteOfflineFile(e.eid, true, undefined, true)));
     const spanned = await getAllOfflineSpannedFiles();
     await Promise.all(spanned.map(async e => await deleteOfflineSpannedFile(e.id)));
     broadcastAllMessage({
@@ -1845,8 +1891,16 @@ async function fetchBackground(name, save, url, request, options, timeout) {
                 if (save) {
                     const copy = await response.clone();
                     const blob = await copy.blob();
+                    const paramsToRemove = ['ex', 'is', 'hm'];
+                    let cleanedUrl = url.split('#')[0];
+                    let [path, query] = cleanedUrl.split('?');
+                    if (query) {
+                        let searchParams = new URLSearchParams(query);
+                        paramsToRemove.forEach(param => searchParams.delete(param));
+                        cleanedUrl = path + (searchParams.toString() ? '?' + searchParams.toString() : '');
+                    }
                     offlineContent.transaction(['offline_filedata'], "readwrite").objectStore('offline_filedata').put({
-                        url: url.split(origin).pop(),
+                        url: cleanedUrl,
                         data: blob
                     }).onsuccess = event => {
                         if (swDebugMode)

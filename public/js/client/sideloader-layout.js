@@ -16,7 +16,7 @@ const infodialog = '<div class="info-dialog-container" data-simplebar>\n' +
     '    <div class="mt-2 text-center w-100" id="infoDialograwInfoContent"></div>\n' +
     '</div>\n' +
     '<div class="row px-3">\n' +
-    '    <div class="mt-1 text-center w-100" id="infoDialograwBodyContent">\n' +
+    '    <div class="mt-1 text-center w-100 p-1" id="infoDialograwBodyContent">\n' +
     '        <div class="card-ui" style="max-height: 600px; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere"></div>\n' +
     '    </div>\n' +
     '</div>\n' +
@@ -152,6 +152,7 @@ let options = {
         "thumbs",
         "close"
     ],
+    preventCaptionOverlap: false,
     defaultType: "image",
     animationEffect: "zoom",
     animationDuration: 500,

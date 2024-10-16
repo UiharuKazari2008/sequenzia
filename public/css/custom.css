@@ -3217,6 +3217,10 @@ div#recentOverlay {
     margin: 0 .25em;
 }
 
+div#infoDialograwBodyContent {
+    font-size: 14px;
+}
+
 div#cmbMain {
     font-size: 48pt;
 }

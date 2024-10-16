@@ -21,15 +21,15 @@ html
                 if (exchange.user && exchange.user.avatar)
                     link(rel='preload', href=`${exchange.user.avatar}#PLEASE_CACHE_THIS` as='image')
                 each thisServer, thisIndex in exchange.discord.servers.list
-                    link(rel='preload', href=`${thisServer.icon}` as='image')
+                    link(rel='preload', href=`${thisServer.icon}#PLEASE_CACHE_THIS` as='image')
                 if (exchange.kongou_next_episode && exchange.kongou_next_episode.show_id)
-                    link(rel='preload', href=`${(exchange.kongou_next_episode && exchange.kongou_next_episode.data) ? (exchange.kongou_next_episode.background) ? exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}` as='image')
+                    link(rel='preload', href=`${(exchange.kongou_next_episode && exchange.kongou_next_episode.data) ? (exchange.kongou_next_episode.background) ? exchange.kongou_next_episode.background : exchange.kongou_next_episode.data.background[0] : ''}#PLEASE_CACHE_THIS` as='image')
             if (applications_list && applications_list.length > 0)
                 each app in applications_list
                     if (app.images)
                         each image in Array.from(Object.entries(app.images))
                             meta(name='seq-app-meta-' + app.id + '_' + image[0], content='' + image[1])
-                            link(rel='preload', href=`${image[1]}` as='image')
+                            link(rel='preload', href=`${image[1]}#PLEASE_CACHE_THIS` as='image')
 
         link(href='/static/img/splash/apple/iphone5_splash.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/iphone5_splash_landscape.png' media='screen and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
