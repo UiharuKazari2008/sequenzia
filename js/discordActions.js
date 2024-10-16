@@ -104,7 +104,7 @@ module.exports = async (req, res, next) => {
                         break;
                     case 'RemovePost':
                         printLine("ActionParser", `Request to Delete ${job.messageid} from ${job.channelid}`, 'info', job)
-                        if (global.disable_fast_delete) {
+                        if (!global.disable_fast_delete) {
                             sendRequest({
                                 fromClient: `return.Sequenzia.${config.system_name}`,
                                 messageReturn: false,
@@ -129,7 +129,7 @@ module.exports = async (req, res, next) => {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
                             if (_return) {
                                 _return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).map(async l => {
-                                    if (global.disable_fast_delete) {
+                                    if (!global.disable_fast_delete) {
                                         sendRequest({
                                             fromClient: `return.Sequenzia.${config.system_name}`,
                                             messageReturn: false,
