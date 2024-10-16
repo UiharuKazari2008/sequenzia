@@ -128,20 +128,22 @@ module.exports = async (req, res, next) => {
                         if (meta && meta.count && meta.count !== 0) {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
                             if (_return) {
-                                _return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).map(async l => {
-                                    if (!global.disable_fast_delete) {
-                                        sendRequest({
-                                            fromClient: `return.Sequenzia.${config.system_name}`,
-                                            messageReturn: false,
-                                            messageID: l.id,
-                                            messageChannelID: l.channel,
-                                            messageServerID: l.server,
-                                            messageType: 'command',
-                                            messageAction: 'RemovePost'
-                                        }, global.mq_discord_out + '.backlog')
+                                const delete_ids = _return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1);
+                                function splitArray(array, chunkSize) {
+                                    const result = [];
+                                    for (let i = 0; i < array.length; i += chunkSize) {
+                                        result.push(array.slice(i, i + chunkSize));
                                     }
-                                    await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);
-                                })
+                                    return result;
+                                }
+                                await splitArray(delete_ids, 500).reduce((promiseChain, batch, i, a) => {
+                                    return promiseChain.then(() => new Promise(async (resolve) => {
+                                        await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id IN (${batch.join(', ')}) AND channel = ?`, [l.channel]);
+                                        printLine("Clean", `Deleted [${batch.join(', ')}]`, "info");
+                                        resolve();
+                                    }))
+                                }, Promise.resolve());
+
                                 console.log(_return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).length)
                                 res.status(200).send(`Requested to Delete Results`);
                             } else {
