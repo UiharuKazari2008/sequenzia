@@ -690,6 +690,10 @@ module.exports = async (req, res, next) => {
         if (req.query.flagged === 'true') {
             sqlquery.push(`flagged = 1`);
         }
+        // Deleted
+        if (req.query.deleted === 'true') {
+            sqlquery.push(`hidden = 1`);
+        }
         // Flagged
         if ((req.query && req.query.require_score === 'true')) {
             sqlquery.push(`tags IS NOT NULL`);
@@ -1226,9 +1230,10 @@ module.exports = async (req, res, next) => {
             thisUser.master.cache.channels_view
         ];
         sqlWhere = [
-            `IF(kanmi_records.n_channel IS NOT NULL, kanmi_records.n_channel, kanmi_records.channel) = ${thisUser.master.cache.channels_view}.channelid`,
-            "kanmi_records.hidden != 1"
+            `IF(kanmi_records.n_channel IS NOT NULL, kanmi_records.n_channel, kanmi_records.channel) = ${thisUser.master.cache.channels_view}.channelid`
         ];
+        if (!req.query.deleted)
+            sqlWhere.push("kanmi_records.hidden != 1")
 
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
@@ -1293,7 +1298,7 @@ module.exports = async (req, res, next) => {
 
         let sqlCall = (() => {
             if (req.query.sort === 'rating' || req.query.sort === 'rating_count' || req.query.min_tags || req.query.max_tags || req.query.min_score || req.query.max_score)
-                return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, COUNT(eid) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full JOIN (SELECT DISTINCT eid, COUNT(eid) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             if (req.query.fast_query && req.query.fast_query === '1') {
                 return `SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
             } else if (req.query.fast_query && req.query.fast_query === '2') {
@@ -1304,7 +1309,7 @@ module.exports = async (req, res, next) => {
         })();
         let sqlCallNoPreLimit = (() => {
             if (req.query.sort === 'rating' || req.query.sort === 'rating_count' || req.query.min_tags || req.query.max_tags || req.query.min_score || req.query.max_score)
-                return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full LEFT JOIN (SELECT DISTINCT eid, COUNT(eid) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+                return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full JOIN (SELECT DISTINCT eid, COUNT(eid) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             if (req.query.fast_query && req.query.fast_query === '1') {
                 return `SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
             } else if (req.query.fast_query && req.query.fast_query === '2') {
@@ -2414,6 +2419,7 @@ module.exports = async (req, res, next) => {
                                                     date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                                 },
                                                 flagged: (item.flagged === 1),
+                                                hidden: (item.hidden === 1),
                                                 not_cdn_cached: (!item.cdn_host),
                                                 content: {
                                                     raw: item.content_full,
@@ -2579,6 +2585,7 @@ module.exports = async (req, res, next) => {
                                             date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                         },
                                         flagged: (item.flagged === 1),
+                                        hidden: (item.hidden === 1),
                                         not_cdn_cached: (!item.cdn_host),
                                         discord_accessable: !!item.auth_valid,
                                         content: {
@@ -2855,6 +2862,7 @@ module.exports = async (req, res, next) => {
                                                 date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                             },
                                             flagged: (item.flagged === 1),
+                                            hidden: (item.hidden === 1),
                                             not_cdn_cached: (!item.cdn_host),
                                             content: {
                                                 raw: item.content_full,
@@ -2999,6 +3007,7 @@ module.exports = async (req, res, next) => {
                                             date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                         },
                                         flagged: (item.flagged === 1),
+                                        hidden: (item.hidden === 1),
                                         not_cdn_cached: (!item.cdn_host),
                                         discord_accessable: !!item.auth_valid,
                                         content: {
@@ -3102,6 +3111,7 @@ module.exports = async (req, res, next) => {
                                             date: moment(Date.parse(item.history_date)).format('YYYY-MM-DD HH:mm')
                                         },
                                         flagged: (item.flagged === 1),
+                                        hidden: (item.hidden === 1),
                                         not_cdn_cached: (!item.cdn_host),
                                         discord_accessable: !!item.auth_valid,
                                         content: {

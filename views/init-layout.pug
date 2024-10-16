@@ -599,7 +599,7 @@ html
                                                 h4.text-primary.ml-auto
                                                     i.fas.fa-archive.mr-2
                                                     | Albums
-                                            .w-100.position-absolute(data-simplebar style="justify-content: left; top: 3em;")
+                                            .w-100.position-absolute(style="justify-content: left; top: 3em;")
                                                 if (albums && albums.length > 0)
                                                     div.album-list.pb-1(style='overflow-x: auto; overflow-y:hidden; white-space: nowrap;')
                                                         each thisAlbum in albums
@@ -701,7 +701,7 @@ html
                             div.user-info-backdrop
                         div#topbarIcon
                         div#topbarBackground
-                    .container-fluid.max-resize(data-simplebar)
+                    .container-fluid.max-resize
                         #contentBlock.animated--grow-in
                             //div.tz-gallery
                                 div.row

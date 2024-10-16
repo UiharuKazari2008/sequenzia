@@ -241,7 +241,7 @@ app.cacheDatabase = async function cacheDatabase() {
 setInterval(app.cacheDatabase, 60000)
 if (web.enable_brags) {
     app.total_counts = async function total_counts() {
-        const counts = await sqlPromiseSafe(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records`);
+        const counts = await sqlPromiseSafe(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE hidden = 0 AND flagged = 0`);
         const servers = await sqlPromiseSafe(`SELECT serverid, position, avatar, name, nice_name, short_name, authware_enabled FROM discord_servers ORDER BY position`);
 
         app.set('total_counts', counts.rows[0])
