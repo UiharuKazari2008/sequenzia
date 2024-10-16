@@ -17,6 +17,11 @@ const cacheOptions = {
         'offline-content-pages',
         'offline-content-albums',
     ],
+    autoCache: [
+        'https://cdn.discordapp.com/avatars/',
+        'https://cdn.discordapp.com/icons/',
+        'https://cdn.discordapp.com/banner/',
+    ],
     blockedCache: [
         '/content/',
         '/cdn/',
@@ -262,14 +267,13 @@ async function handleResponse(url, response, reqType) {
     const uri = url.split(origin).pop().toString();
     if (response.status < 204 &&
         cacheOptions.blockedCache.filter(b => uri.startsWith(b)).length === 0 &&
+        cacheOptions.autoCache.filter(b => uri.includes(b)).length > 0 &&
+        !(uri.includes('JFS_') || uri.includes('PARITY_')) &&
+        (url.endsWith('#PLEASE_CACHE_THIS') || (
         !(
-            (
-                (cdnEndpoints.filter(c => uri.startsWith(c)).length > 0 && url.endsWith('#PLEASE_CACHE_THIS')) ||
-                uri.includes('/attachments/') || uri.includes('/full_attachments/') ||
-                uri.includes('/media_attachments/'))
-            && (uri.includes('JFS_') || uri.includes('PARITY_'))
-        ) && !(url.includes('.discordapp.') && url.includes('/attachments/'))) {
-
+            uri.includes('/attachments/') || uri.includes('/full_attachments/') ||
+            uri.includes('/media_attachments/')
+        ) && !(url.includes('.discordapp.') && url.includes('/attachments/'))))) {
         const selectedCache = selectCache(url);
         if (swDebugMode)
             console.log(`JulyOS Kernel: ${(reqType) ? reqType + ' + ': ''}Cache (${selectedCache}) - ${url}`);

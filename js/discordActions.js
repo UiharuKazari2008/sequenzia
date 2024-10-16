@@ -104,15 +104,17 @@ module.exports = async (req, res, next) => {
                         break;
                     case 'RemovePost':
                         printLine("ActionParser", `Request to Delete ${job.messageid} from ${job.channelid}`, 'info', job)
-                        sendRequest({
-                            fromClient: `return.Sequenzia.${config.system_name}`,
-                            messageReturn: false,
-                            messageID: job.messageid,
-                            messageChannelID: job.channelid,
-                            messageServerID: job.serverid,
-                            messageType: 'command',
-                            messageAction: 'RemovePost'
-                        }, global.mq_discord_out + '.backlog')
+                        if (global.disable_fast_delete) {
+                            sendRequest({
+                                fromClient: `return.Sequenzia.${config.system_name}`,
+                                messageReturn: false,
+                                messageID: job.messageid,
+                                messageChannelID: job.channelid,
+                                messageServerID: job.serverid,
+                                messageType: 'command',
+                                messageAction: 'RemovePost'
+                            }, global.mq_discord_out + '.backlog')
+                        }
                         await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [job.messageid, job.channelid])
                         if (req.body.batch) {
                             _return = 200
@@ -127,15 +129,17 @@ module.exports = async (req, res, next) => {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
                             if (_return) {
                                 _return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).map(async l => {
-                                    sendRequest({
-                                        fromClient: `return.Sequenzia.${config.system_name}`,
-                                        messageReturn: false,
-                                        messageID: l.id,
-                                        messageChannelID: l.channel,
-                                        messageServerID: l.server,
-                                        messageType: 'command',
-                                        messageAction: 'RemovePost'
-                                    }, global.mq_discord_out + '.backlog')
+                                    if (global.disable_fast_delete) {
+                                        sendRequest({
+                                            fromClient: `return.Sequenzia.${config.system_name}`,
+                                            messageReturn: false,
+                                            messageID: l.id,
+                                            messageChannelID: l.channel,
+                                            messageServerID: l.server,
+                                            messageType: 'command',
+                                            messageAction: 'RemovePost'
+                                        }, global.mq_discord_out + '.backlog')
+                                    }
                                     await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id = ? AND channel = ?`, [l.id, l.channel]);
                                 })
                                 console.log(_return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).length)
