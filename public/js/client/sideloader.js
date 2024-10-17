@@ -1523,7 +1523,7 @@ async function getSearchContent(element, tagsElement, exchange, url) {
             const _pathname = _url.split('?')[0];
             const _currentURL = window.location.hash.substring(1)
 
-            for (let e of ['search', 'offset', 'sort', 'numdays', 'day', 'week', 'month', 'year', 'maxres','minres', 'minhres', 'minwres', 'dark']) {
+            for (let e of ['search', 'offset', 'sort']) {
                 _params.delete(e);
             }
             if (_params.has('nsfw') &&
