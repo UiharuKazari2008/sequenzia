@@ -183,6 +183,13 @@ module.exports = async (req, res, next) => {
         // Main Query
         let baseQ = ''
         let addSearchTerm = [];
+        if (req.query.item_group) {
+            if (req.query.item_group === 'false') {
+                baseQ += `(kanmi_records.fid IS NULL) AND `;
+            } else {
+                baseQ += `(kanmi_records.fid = ${req.query.item_group}) AND `;
+            }
+        }
         if (req.query.channel && req.query.channel === 'random') {
             multiChannel = true;
         } else if (req.query.vchannel) {
@@ -1238,7 +1245,10 @@ module.exports = async (req, res, next) => {
         ];
         if (!req.query.deleted)
             sqlWhere.push("kanmi_records.hidden != 1")
-
+        if (req.query.item_group && req.query.item_group !== 'false') {
+            sqlFields.push('kanmi_virtual_folders.name AS virtual_folder_name');
+            sqlTables.push('kanmi_virtual_folders')
+        }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
             if (req.query.show_id !== 'unmatched') {
@@ -2134,6 +2144,10 @@ module.exports = async (req, res, next) => {
                                 }
                             })
                             full_title = page_title;
+                        }
+                        if (req.query.item_group && req.query.item_group !== 'false' && messages[0].virtual_folder_name) {
+                            full_title += ' / ' + messages[0].virtual_folder_name;
+                            page_title += ' / ' + messages[0].virtual_folder_name;
                         }
                         if (tag_list.length > 0) {
                             if (full_title !== '') {
