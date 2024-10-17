@@ -190,7 +190,7 @@ block content
                                             a.btn(id=`request-download-${item.id}` title="Download" download=item.entities.filename href=item.entities.download target="_blank" rel="noopener noreferrer" class=((item.meta.cached) ? 'btn-switchmode' : 'btn-stream'))
                                                 i.fas.fa-download
                                         a.btn.btn-fav.toggleOffline(title=`Toggle Offline Access` href='#_' onClick=`toggleFileOffline('${item.id}'); return false;`)
-                                            i.fas.fa-bookmark
+                                            i.fas.fa-folder-bookmark
                                     .btn-group.file-tools.d-inline-block
                                         if (login_source && login_source < 900)
                                             a.btn.btn-fav(id='fav-' + item.eid data-placement="top" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)

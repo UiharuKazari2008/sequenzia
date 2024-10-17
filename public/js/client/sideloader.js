@@ -870,9 +870,6 @@ async function setupReq(push, url) {
     if ($.fancybox.getInstance()) {
         $.fancybox.getInstance().close()
     }
-    if (offlinePage) {
-        document.getElementById('offlinePages').classList.add('hidden');
-    }
     if (initialLoad) {
         document.getElementById('bootLoaderStatus').innerText = 'Starting Handler...';
         document.getElementById('bootStatusIcons').children[0].style.opacity = 1;
@@ -974,7 +971,7 @@ async function requestCompleted (response, url, lastURL, push) {
                         $("#appStaticPost").html(contentPage.find('#appStaticPost').children());
                     }
                     if (initialLoad)
-                        document.getElementById('bootLoaderStatus').innerText = 'Welcome';
+                        document.getElementById('bootLoaderStatus').innerText = '';
                     if (document.getElementById('kioskActions') && kioskMenuEnabled) {
                         $('#kioskActions').removeClass('d-none');
                         $('#kioskActions').addClass('d-inline-block');
@@ -1175,7 +1172,7 @@ async function requestCompleted (response, url, lastURL, push) {
         updateApplicationThemeColor();
         if (initialLoad) {
             document.getElementById('bootStatusIcons').children[3].style.opacity = 1;
-            document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
+            document.getElementById('bootLoaderStatus').innerText = '';
             $('#bootBackdrop').fadeOut(500);
         }
         if(!isTouchDevice()) {
@@ -1333,7 +1330,7 @@ async function getNewContent(remove, add, url, keep) {
             });
         }
         if (initialLoad) {
-            document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
+            document.getElementById('bootLoaderStatus').innerText = '';
             $('#bootBackdrop').fadeOut(500);
         }
         if (nextContext !== currentContext) {
@@ -2228,6 +2225,28 @@ async function clearCDNCache() {
     return await kernelRequestData({type: 'CLEAN_TEMP_CACHE'})
 }
 
+async function tryNetwork() {
+    $.ajax({async: true,
+        type: "get",
+        url: "/discord/session",
+        cache: false,
+        headers: {
+            'X-Requested-With': 'SequenziaXHR'
+        },
+        success: function (res, txt, xhr) {
+            if (xhr.status < 400) {
+                transitionToOOBPage('/home');
+            } else {
+                $.snack('error', `Failed to connect to server`, 10000)
+                console.log(res.responseText);
+            }
+        },
+        error: function (xhr) {
+            $.snack('error', `Failed to connect to server!`, 10000);
+        }
+    });
+    return false;
+}
 async function generateGalleryHTML(url, eids, topText) {
     $("#userMenu").collapse("hide");
     try {
@@ -2237,7 +2256,7 @@ async function generateGalleryHTML(url, eids, topText) {
             $.when($(".container-fluid").fadeTo(250, 0.5)).done(async () => {
                 let resultRows = [];
                 const files = await kernelRequestData({type: 'GET_STORAGE_ALL_FILES'});
-                const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && ((eids && eids.indexOf(e.eid) !== -1) || (!eids && !e.page_item))).sort(function (a, b) {
+                const allResults = files.filter(e => (e.data_type === 'image' || e.data_type === 'video') && !(eids && eids.indexOf(e.eid) === -1)).sort(function (a, b) {
                     if (eids)
                         return eids.indexOf(a.eid) - eids.indexOf(b.eid);
                     return parseFloat(b.eid) - parseFloat(a.eid);
@@ -2272,7 +2291,7 @@ async function generateGalleryHTML(url, eids, topText) {
     <div class="status-icons left-links d-flex w-100">
         <div class="d-inline-flex size-indictor shadow-text"></div>
         <div class="d-inline-flex ratio-indictor shadow-text"></div>
-        <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-bookmark text-success"></i></div>
+        <div class="d-inline-flex ml-1 shadow-text"><i class="fas fa-folder-bookmark text-success"></i></div>
         <div class="d-inline-flex ml-auto shadow-text"><i class="fas ${(e.channel_icon) ? e.channel_icon : 'fa-question'} pr-1"></i></div>
     </div>
     ${(e.data_type === 'video') ? '<div class="status-icons left-links d-flex w-100 no-dynamic-tiny" style="padding-top: 1.4em;"><div class="d-flex shadow-text text-ellipsis"><span class="text-ellipsis" style="line-height: 1.1; text-weight: bold;">' + e.filename + '</span></div></div>' : ''}
@@ -2302,7 +2321,7 @@ async function generateGalleryHTML(url, eids, topText) {
                     if (topText) {
                         document.getElementById('titleBarContents').innerHTML = topText;
                     } else {
-                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-photo-film"></i><span class="text-uppercase">Gallery</span></li></ul>'
+                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-photo-film"></i><span class="text-uppercase">Gallery</span></li></ul><div class="mr-auto"></div>'
                     }
 
                     registerLazyLoader();
@@ -2417,7 +2436,7 @@ async function generateFilesHTML(url, eids, topText) {
                     if (topText) {
                         document.getElementById('titleBarContents').innerHTML = topText;
                     } else {
-                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-music"></i><span class="text-uppercase">Music</span></li></ul>'
+                        document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-music"></i><span class="text-uppercase">Music</span></li></ul><div class="mr-auto"></div>'
                     }
                     registerLazyLoader();
                     calculateTitleWidthPage();
@@ -2512,7 +2531,7 @@ async function generateShowsHTML(url) {
     </div>
 </form>
 </div><div class="tz-gallery"><div class="row">${resultRows.join(' ')}</div></div>`
-                    document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-ticket"></i><span class="text-uppercase">Theater</span></li></ul>'
+                    document.getElementById('titleBarContents').innerHTML = '<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><i class="far mr-2 fa-ticket"></i><span class="text-uppercase">Theater</span></li></ul><div class="mr-auto"></div>'
                     registerLazyLoader();
                     registerURLHandlers();
                     setImageLayout(setImageSize);
@@ -2600,7 +2619,7 @@ async function generateEpisodeHTML(url) {
                 </div>
                 <div class="preview-controls-grid d-flex" onclick="openKMSPlayer('${e.id}', '${episodes.show.id}'); return false;" style="z-index: 1;">
                     <div class="d-flex position-absolute">
-                        <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-bookmark"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
+                        <div class="badge badge-success" id="offlineReady" title="Saved Locally"><i class="fas fa-folder-bookmark"></i><span class="d-none d-md-inline pl-1">Offline</span></div>
                         <div class="badge bg-warning text-dark ${(!expireingText) ? 'hidden' : ''} ml-1" id="offlineExpiring"><i class="fas fa-clock"></i><span class="pl-1">${expireingText || 'Expireing'}</span></div>
                     </div>
                     <div class="play-icon mt-auto mb-auto mr-auto ml-auto shadow-text"><i class="fas fa-play"></i></div>
@@ -2672,7 +2691,7 @@ async function generateEpisodeHTML(url) {
     <div class="show-description"><span>${episodes.show.meta.description}</span></div>
 </div>
 </div><div class="show accordion accordion-flush show-background pt-4 p-sm-4 " id="seasonsAccordion-${episodes.show.id}"><div class="accordion-body d-flex row m-0">${resultRows.join(' ')}</div></div>`
-                    document.getElementById('titleBarContents').innerHTML = `<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><div class="d-inline-flex" id="titleIcon"><i class="far mr-2 fa-tv"></i></div><div class="d-inline-flex" id="titleExtraStyleAdjustment"></div><div class="d-none d-md-inline-flex" id="titleExtra"><span class="pr-1 align-self-baseline text-uppercase">Theater</span><i class="far fa-chevron-right pr-1 align-self-baseline"></i></div><div class="d-inline" id="titleMain"><span class="align-self-baseline text-uppercase">${episodes.show.name}</span></div>`
+                    document.getElementById('titleBarContents').innerHTML = `<ul class="navbar-nav text-primary text-ellipsis"><li class="nav-item text-right page-title text-primary mr-1" id="topAddressBarInfo"><div class="d-inline-flex" id="titleIcon"><i class="far mr-2 fa-tv"></i></div><div class="d-inline-flex" id="titleExtraStyleAdjustment"></div><div class="d-none d-md-inline-flex" id="titleExtra"><span class="pr-1 align-self-baseline text-uppercase">Theater</span><i class="far fa-chevron-right pr-1 align-self-baseline"></i></div><div class="d-inline" id="titleMain"><span class="align-self-baseline text-uppercase">${episodes.show.name}</span></div><div class="mr-auto"></div>`
                     registerLazyLoader();
                     registerURLHandlers();
                     calculateTitleWidthPage();
@@ -2713,12 +2732,10 @@ async function generateEpisodeHTML(url) {
 }
 async function getOfflinePages() {
     if (document.getElementById('offlinePageList')) {
-        scrollToTop();
-        document.getElementById('offlinePages').classList.remove('hidden');
-        $("#userMenu").collapse("hide")
         const pages = await kernelRequestData({type: 'GET_STORAGE_ALL_PAGES'});
-        document.getElementById('offlinePageList').innerHTML = pages.map(page => {
+        const items = pages.map(page => {
             let icon = 'fa-page';
+            let prview = 'background: linear-gradient(31deg, #9f3202, #f7c21c);'
             if (page.url.includes('/gallery'))
                 icon = 'fa-image'
             if (page.url.includes('/files'))
@@ -2727,13 +2744,23 @@ async function getOfflinePages() {
                 icon = 'fa-message'
             if (page.url.includes('album='))
                 icon = 'fa-archive'
+            if (page.image)
+                prview = 'background-image: url(\'' + page.image + '\');'
 
-            return `<div class="cmb-item">
-            <th class="py-2 text-right"><i class="fas ${icon} pr-2"></i></th>
-            <td class="py-2 w-100"><a href="#${params(['responseType'],[],page.url)}"><span>${page.title}</span></a></td>
-            <td class="py-2"><span>${page.totalItems}</span></td>
-            </div>`
+            return '<div class="album-item position-relative">\n' +
+            '        <div class="album-info position-absolute shadow-text text-ellipsis pl-2 pr-2 pt-1" style="justify-content: left; top: 0;">\n' +
+            `            <div class="album-icon"><i class="far ${icon} pr-1"></i></div>\n` +
+            '        </div>\n' +
+            `        <div class="album-info position-absolute shadow-text text-ellipsis pl-2 pr-2" style="justify-content: left; bottom: 0;"><span>${page.title}</span></div>\n` +
+            `        <a class="position-absolute text-capitalize" style="height: 100%; width: 100%" data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="" href="#${params(['responseType'],[],page.url)}">\n` +
+            `            <div class="album-preview rounded" style="${prview}"></div>\n` +
+            '            <div class="album-preview rounded" style=""></div>\n' +
+            '        </a>\n' +
+            '    </div>'
         }).join('');
+        if (items) {
+            document.getElementById('offlinePageList').innerHTML = `<div class="album-list pb-1" style="overflow-x: auto; overflow-y:hidden; white-space: nowrap;">${items}</div>`
+        }
     }
 }
 async function displayOfflineData() {
@@ -3771,7 +3798,7 @@ async function updateNotficationsPanel() {
                 results.push(`<div class="dropdown-divider"></div>`);
             const item = offlineDownloadController.get(e);
             results.push(`<a class="dropdown-item text-ellipsis d-flex align-items-baseline" style="max-width: 80vw;" title="Stop Extraction of this job" href='#_' role='button' onclick="cancelPendingCache('${e}'); return false;")>`)
-            results.push(`<i class="fas fa-bookmark pr-2"></i>`);
+            results.push(`<i class="fas fa-folder-bookmark pr-2"></i>`);
             results.push(`<span class="text-ellipsis">${(item.title) ? item.title : e} (${item.totalItems})</span>`);
             results.push(`<span class="pl-2 text-success">${((item.downloaded / item.totalItems) * 100).toFixed(0)}%</span>`);
             results.push(`</a>`);
@@ -4098,7 +4125,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
             modalFilename.innerText = postFilename.split('.')[0];
             modalFilename.classList.remove('hidden');
             if (postOffline) {
-                modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark')
+                modalOfflineThisButton.querySelector('i').classList.remove('fa-folder-bookmark')
                 modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark-slash')
                 modalOfflineThisButton.onclick = function () {
                     deleteOfflineFile(postEID)
@@ -4106,7 +4133,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
                     return false;
                 }
             } else {
-                modalOfflineThisButton.querySelector('i').classList.add('fa-bookmark')
+                modalOfflineThisButton.querySelector('i').classList.add('fa-folder-bookmark')
                 modalOfflineThisButton.querySelector('i').classList.remove('fa-bookmark-slash')
                 if (postKMSJSON) {
                     modalOfflineThisButton.onclick = function () {
@@ -4207,7 +4234,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
         if (postFilID && postFilID.length > 0) {
             if (postOffline) {
                 normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
-                normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
+                normalInfo.push(`<i class="fas fa-folder-bookmark pr-1"></i><span>Offline</span>`)
                 normalInfo.push('</div>')
                 const expireIndex = expiresMessages.indexOf(postID)
                 if (expireIndex !== -1) {
@@ -4277,7 +4304,7 @@ async function showSearchOptions(post, isInfoDialog = false) {
         } else if (postDownload && postDownload.length > 0) {
             if (postOffline) {
                 normalInfo.push('<div class="badge text-light m-1" style="background: #00b14f;">')
-                normalInfo.push(`<i class="fas fa-bookmark pr-1"></i><span>Offline</span>`)
+                normalInfo.push(`<i class="fas fa-folder-bookmark pr-1"></i><span>Offline</span>`)
                 normalInfo.push('</div>')
             }
             modalDownloadButton.title = `Direct Download`

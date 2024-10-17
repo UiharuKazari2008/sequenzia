@@ -714,7 +714,7 @@ html
                                                         i.fa-light.fa-fw.fa-history
                                                         | History
                                                     a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`$('#cachePageModal').modal('show'); return false;`)
-                                                        i.fa-light.fa-bookmark
+                                                        i.fa-light.fa-folder-bookmark
                                                         | Offline
                                                     if (params && path !== '/artists' && !(appData || (path && (path === '/tvTheater' || path === '/listTheater'))))
                                                         a.user-menu-item.user-menu-small(title="Download all images" href='#_' onclick="$('#userMenu').collapse('hide'); downloadAllItems(); return false;" role='button')
@@ -1046,7 +1046,7 @@ html
                                                     i.far.fa-calculator
                                 ul.navbar-nav.text-primary(style="font-size: 1.4rem;")
                                     li#pageIsOffline.nav-item.mr-1.d-none
-                                        i.fas.fa-bookmark
+                                        i.fas.fa-folder-bookmark
                                 .mr-auto
                                 if (params.has('responseType') && params.getAll('responseType')[0] === 'offline')
                                     // OFFLINE PAGE
@@ -1832,7 +1832,7 @@ html
                                                         a.navbar-item.btn.btn-admin.py-0.px-2(title="Manage Messages" href='#_' onclick='openActionMenu(true); return false;')
                                                             i.far.fa-paste.align-middle
                                                     a.navbar-item.btn.btn-admin.py-0.px-2(title="Offline Messages" href='#_' onclick='offlineSelectedItems(); return false;')
-                                                        i.far.fa-bookmark.align-middle
+                                                        i.far.fa-folder-bookmark.align-middle
                                                     a.navbar-item.btn.btn-admin.py-0.px-2(title="Download Messages" href='#_' onclick='downloadSelectedItems(); return false;')
                                                         i.far.fa-download.align-middle
                                 ul.navbar-nav.text-primary.d-none.d-sm-block
@@ -2628,7 +2628,7 @@ html
                                             a#goToDownload.btn.text-white(href='#__' role='button' target="_blank" rel="noopener noreferrer")
                                                 i.fas.fa-download.shadow-text
                                             a#makeOffline.btn.text-white(href='#__' role='button')
-                                                i.fas.fa-bookmark.shadow-text
+                                                i.fas.fa-folder-bookmark.shadow-text
                                         #keepExpireingFile.row.pl-3.pr-3.hidden
                                             a.btn.btn-primary(data-toggle='collapse' href='#__' role='button').mb-2.w-100
                                                 i.fas.fa-clock.pr-2
@@ -2883,7 +2883,7 @@ html
                                     a#infoDialoggoToDownload.btn.text-white(href='#__' role='button' target="_blank" rel="noopener noreferrer")
                                         i.infoDialog-icon.fas.fa-download.shadow-text
                                     a#infoDialogmakeOffline.btn.text-white(href='#__' role='button')
-                                        i.infoDialog-icon.fas.fa-bookmark.shadow-text
+                                        i.infoDialog-icon.fas.fa-folder-bookmark.shadow-text
                                 #infoDialogkeepExpireingFile.row.pl-3.pr-3.hidden
                                     a.btn.btn-primary(data-toggle='collapse' href='#__' role='button').mb-2.w-100
                                         i.fas.fa-clock.pr-2

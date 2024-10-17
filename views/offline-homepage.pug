@@ -174,7 +174,7 @@ html
                             i.px-2.fas.fa-folder
                             i.px-2.fas.fa-archive
                     div.boot-status.p-2.position-absolute.bottom-right.text-right.d-flex.align-items-baseline(style="padding-right: 0.75em!important; text-shadow: 0 0 20px black")
-                        span.boot-status-holder.font-weight-bolder JuneOS Platform v20
+                        span.boot-status-holder.font-weight-bolder JulyOS Platform v20
                         .mt-1.boot-icons-holder.d-none
                             i.fas.fa-circle(style="opacity: 50%").pl-2
                             i.fas.fa-circle(style="opacity: 50%").pl-2
@@ -304,16 +304,21 @@ html
                                                                 //img.server-icon.rounded-circle(title=`${thisServer.name}\n(${(thisServer.login === 1) ? 'Login Server' : 'Storage'})` src=thisServer.icon id=`server-${thisServer.serverid}`)
                                                         div.text-ellipsis.shadow-text.user-infocard-info
                                                             span.p-0.font-weight-light.d-inline.user-infocard-username #{active_exchange.user.username}
-                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                        div.position-relative.pr-3.pl-3.user-menu-height
                                             .row.w-100.ml-0.mr-0
                                                 .d-flex.w-100.align-items-center
+                                                    a(class="btn btn-primary collapsed" title="Try to go online" href='#_' onclick="tryNetwork();")
+                                                        i.fas.fa-plug
+                                                        span.pl-2 Go Online
                                                     h4.text-primary.ml-auto.mb-0
-                                                        span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
+                                                        i.fas.fa-folder-bookmark.mr-2
+                                                        span Local Files
+                                                        //span.sequenzia-logo.shadow-txt(style="font-size: 1.25em; color: unset; position: relative; top: 0.1rem;") sequenzia
                                             .row.w-100.position-absolute.pb-3.ml-0.mr-0(style='bottom: 0;').d-flex.justify-content-center
                                                 .menu-grid
-                                                    a.user-menu-item(title="Offline Pages" href='#_' onclick="getOfflinePages();")
-                                                        i.fa-light.fa-fw.fa-window-restore
-                                                        | Pages
+                                                    a.user-menu-item(title="Saved Folders" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemPages" onclick="getOfflinePages();")
+                                                        i.fa-light.fa-fw.fa-folder
+                                                        | Folders
                                                     //a.user-menu-item(title="Albums" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemAlbums")
                                                         i.fa-light.fa-fw.fa-archive
                                                         | Albums
@@ -329,9 +334,6 @@ html
                                                     a#userOptionsDropdown.user-menu-item(title="Tools and Session Options" href='#_' class="collapsed" data-toggle="collapse" data-target="#menuItemSettings")
                                                         i.fa-light.fa-fw.fa-toolbox
                                                         | Tools
-                                                    a.user-menu-item(title="Try to go online" href='#_' onclick="transitionToOOBPage('/home'); return false;")
-                                                        i.fa-light.fa-plug
-                                                        | Connect
                                     div#menuItemSettings.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -351,9 +353,6 @@ html
                                                     a.user-menu-item.user-menu-small(title="Manage Storage and Offline Content" href='#_' onclick=`displayOfflineData(); return false;`)
                                                         i.fa-light.fa-sd-card
                                                         | Storage
-                                                    a.user-menu-item.user-menu-small(title="About" href='#_' data-toggle='modal' data-target='#aboutModal' onclick='$("#userMenu").collapse("hide");')
-                                                        i.fa-light.fa-info-circle
-                                                        | About
                                     div#menuItemDisplay.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100.align-items-center
@@ -382,17 +381,21 @@ html
                                                     a.user-menu-item.user-menu-small(href='#_' onclick=`setMenuBarLocation(); return false;`)
                                                         i.fa-light.fa-arrow-up-arrow-down
                                                         | Menubar
+                                    div#menuItemPages.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
+                                        div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
+                                            .d-flex.w-100
+                                                a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
+                                                    i.fas.fa-arrow-left.fa-fw
+                                                h4.text-primary.ml-auto
+                                                    i.fas.fa-folder.mr-2
+                                                    | Folders
+                                            div#offlinePageList.w-100.position-absolute(style="justify-content: left; top: 3em;")
+                                                h2 No Saved Folders!
                                     div#menuItemAlbums.scroll-list.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion")
                                         div.position-relative.pr-3.pl-3.user-menu-height(style="width: 100%;")
                                             .d-flex.w-100
                                                 a(class="btn btn-primary collapsed" data-toggle="collapse" data-target=`#menuItemMain${(appData || (path && (path === '/tvTheater' || path === '/listTheater'))) ? 'Seq' : ''}`)
                                                     i.fas.fa-arrow-left.fa-fw
-                                                a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='getAlbumDirectory(); return false;').ml-2
-                                                    i.fas.fa-fw.mr-md-1.fa-globe-americas
-                                                    span.d-none.d-md-inline Directory
-                                                a(class="btn btn-primary" title="Manage Your Albums" href='#_' onclick='refreshAlbumsList(); return false;').ml-2
-                                                    i.fas.fa-cog.fa-fw.mr-md-1
-                                                    span.d-none.d-md-inline Manage
                                                 h4.text-primary.ml-auto
                                                     i.fas.fa-archive.mr-2
                                                     | Albums
@@ -429,19 +432,30 @@ html
 
                                                 else
                                                     h2 No Albums!
+
                         nav#topbar.navbar.navbar-expand.navbar-light.topbar.bg-topbar-primary.ready-to-scroll
                             #titleBarContents(style="display: contents").col.p-0
                                 ul.navbar-nav.text-primary.text-ellipsis
                                     li#topAddressBarInfo.nav-item.text-right.page-title.text-primary.mr-1
                                         i.far.fa-folder-bookmark.mr-2
                                         span Local Files
-                            .mr-auto
+                                .mr-auto
+                            ul.navbar-nav.text-primary.text-ellipsis.ml-2
+                                li.nav-item.no-arrow.d-none.d-lg-block
+                                    span.badge.bg-translucent.px-1.mr-2
+                                        a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setImageLayout(3); return false;` title="Thumbnails")
+                                            i.far.fa-grid-5
+                                        a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setImageLayout(2); return false;` title="Smaller Grid")
+                                            i.far.fa-grid-4
+                                        a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setImageLayout(); return false;` title="Default Layout")
+                                            i.far.fa-grid
+                                        a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setImageLayout(1); return false;` title="Large Grid")
+                                            i.far.fa-grid-2
+                                        a.navbar-item.btn.btn-admin.py-0.px-2(href='#_' onclick=`setPageLayout(true); return false;` title="Full width")
+                                            i.far.fa-distribute-spacing-horizontal
                             ul#loadingSpinner.navbar-nav.text-primary.text-ellipsis(style='display: none;')
                                 li.nav-item.no-arrow
                                     i.fa-duotone.fa-loader.fa-spin-pulse
-                            ul.navbar-nav.text-primary.text-ellipsis.ml-2.mr-1
-                                li.nav-item.no-arrow
-                                    i.fas.fa-wifi-slash
                             .col-auto.p-0.d-flex
                                 ul.navbar-nav.text-primary.text-ellipsis.w-100
                                     li.nav-item.no-arrow.kms-pip-icons.align-items-center
@@ -478,18 +492,6 @@ html
                             opacity: 0.7;
                         }
                     .container-fluid.max-resize
-                        #offlinePages.d-flex.align-items-center.flex-column.hidden
-                            //#cmbMain
-                                i.px-4.fas.fa-toolbox
-                                i.px-4.fas.fa-image
-                                i.px-4.fas.fa-film
-                                i.px-4.fas.fa-music
-                                i.px-4.fas.fa-window
-                            #cmbMainPages.cmb-container
-                                .cmb-header.col-3
-                                    i.fas.fa-window
-                                    span Pages
-                                #offlinePageList.cmb-content.py-2
                         #contentFiles
 
                         #contentBlock.animated--grow-in
@@ -514,7 +516,7 @@ html
                                         document.getElementById('bootUpDisplay').style.display = 'none';
                                         document.getElementById('kmsBootDisplay').style.display = 'none';
                                         document.getElementById('bootStatusIcons').children[3].style.opacity = 1;
-                                        document.getElementById('bootLoaderStatus').innerText = 'Welcome!';
+                                        document.getElementById('bootLoaderStatus').innerText = '';
                                         setTimeout(() => {
                                             $.when($(`.boot-logo-panel`).fadeOut(500)).done(() => {
                                                 document.querySelectorAll('.bootUpDisplay-panel .boot-status-holder').forEach(e => e.innerText = "JuneOS Platform v20")
@@ -760,7 +762,7 @@ html
                             a#goToDownload.btn.text-white(href='#__' role='button' target="_blank" rel="noopener noreferrer")
                                 i.fas.fa-download.shadow-text
                             a#makeOffline.btn.text-white(href='#__' role='button')
-                                i.fas.fa-bookmark.shadow-text
+                                i.fas.fa-folder-bookmark.shadow-text
                         #keepExpireingFile.row.pl-3.pr-3.hidden
                             a.btn.btn-primary(data-toggle='collapse' href='#__' role='button').mb-2.w-100
                                 i.fas.fa-clock.pr-2

@@ -1254,12 +1254,22 @@ async function getAllOfflinePages(includeExpired) {
         try {
             if (browserStorageAvailable) {
                 offlineContent.transaction("offline_pages").objectStore("offline_pages").getAll().onsuccess = event => {
-                    resolve(event.target.result.filter(e => includeExpired || !(e.expires && e.expires < Date.now())).map(e => {
-                        return {
-                            ...e
-                        }
-                    }))
-                }
+                    const result = event.target.result
+                        .filter(e => includeExpired || !(e.expires && e.expires < Date.now()))
+                        .map(async e => {
+                            const ri = e.items[Math.floor(Math.random() * e.items.length)];
+                            const data = await getFileIfAvailable(ri);
+                            const image = data.preview_url || data.extpreview_url;
+                            return {
+                                ...e,
+                                image
+                            };
+                        });
+
+                    Promise.all(result).then(resolvedResults => {
+                        resolve(resolvedResults);
+                    });
+                };
             } else {
                 resolve([])
             }
@@ -2092,7 +2102,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
         requestOpts.push(['num', limit]);
     const url = params(['offset', 'limit', '_h'], requestOpts, _url);
     if (offlineDownloadSignals.has(url)) {
-        console.error(`Will not be starting a new task!`)
+        console.error(`Will not be starting the same task!`)
         return false;
     }
     try {
@@ -2100,7 +2110,10 @@ async function cachePageOffline(type, _url, limit, newOnly) {
         const _cacheItem = await fetchBackground(`${url}-results`, false, url);
         if (_cacheItem) {
             const content = await (new DOMParser().parseFromString((await _cacheItem.text()).toString(), 'text/html'));
-            const title = (content.querySelector('title').text).toString().trim().replace('Sequenzia - ', '');
+            let title = (content.querySelector('title').text).toString().trim().split(' - ');
+            if (title.length > 1)
+                title.shift();
+            title = title.join(' - ');
             const titleBarHTML = (content.querySelector('#titleBarContents').innerHTML).trim();
 
             const itemsToCache = (await Promise.all(Array.from(content.querySelectorAll('[data-msg-url-full]')).map(async e => await extractMetaFromElement(e)))).filter(e => e.data_type);
@@ -2121,7 +2134,7 @@ async function cachePageOffline(type, _url, limit, newOnly) {
                     broadcastAllMessage({
                         type: 'MAKE_TOAST',
                         level: 'error',
-                        title: '<i class="fas fa-bookmark pr-2"></i>No Items',
+                        title: '<i class="fas fa-folder-bookmark pr-2"></i>No Items',
                         subtitle: '',
                         content: `<p>There are no media files on this page that can be made offline!</p>`,
                         timeout: 10000
@@ -2294,7 +2307,7 @@ async function cacheFileOffline(meta, noConfirm) {
                     broadcastAllMessage({
                         type: 'MAKE_SNACK',
                         level: 'success',
-                        text: `<i class="fas fa-bookmark pr-2"></i>File available offline`,
+                        text: `<i class="fas fa-folder-bookmark pr-2"></i>File available offline`,
                         timeout: 5000
                     });
                     refreshOfflineItemCache();
@@ -2346,7 +2359,7 @@ async function cacheEpisodeOffline(meta, noConfirm) {
                     broadcastAllMessage({
                         type: 'MAKE_SNACK',
                         level: 'success',
-                        text: `<i class="fas fa-bookmark pr-2"></i>File available offline`,
+                        text: `<i class="fas fa-folder-bookmark pr-2"></i>File available offline`,
                         timeout: 5000
                     });
                 }

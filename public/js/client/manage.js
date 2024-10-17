@@ -191,7 +191,7 @@ function selectedActionMenu(action) {
             actionModel.querySelector("#ActionName").innerText = 'Download'
             actionModel.querySelector("#postID").innerText = `Make Instant Access ${(postsActions.length > 1) ? postsActions.length + ' Files': postsActions[0].messageid}`
             actionModel.querySelector("#sectionGeneratePost").classList.remove("hidden")
-            actionModel.querySelector('#sectionIcon i').classList.add('fa-bookmark')
+            actionModel.querySelector('#sectionIcon i').classList.add('fa-folder-bookmark')
             actionModel.querySelector("#postButton").classList.remove("disabled");
         } else if (actionSelection === 'DecompileSF') {
             actionModel.querySelector("#ActionName").innerText = 'Remove'
