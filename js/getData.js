@@ -188,6 +188,7 @@ module.exports = async (req, res, next) => {
                 baseQ += `(kanmi_records.fid IS NULL) AND `;
             } else {
                 baseQ += `(kanmi_records.fid = ${req.query.item_group}) AND `;
+                hideChannels = false;
             }
         }
         if (req.query.channel && req.query.channel === 'random') {
