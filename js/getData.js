@@ -2101,7 +2101,7 @@ module.exports = async (req, res, next) => {
                             currentClassIcon = `${messages[0].class_icon}`
                         }
                         android_uri.push('folder=' + folderInfo);
-                    } else if ((req.query.channel && req.query.channel !== 'random') || req.query.vchannel || req.query.folder) {
+                    } else if ((req.query.channel && req.query.channel !== 'random') || req.query.vchannel || req.query.folder || req.query.item_group) {
                         page_title = ''
                         full_title = ''
 
@@ -2148,8 +2148,12 @@ module.exports = async (req, res, next) => {
                             full_title = page_title;
                         }
                         if (req.query.item_group && req.query.item_group !== 'false' && messages[0].virtual_folder_name) {
-                            full_title += ' / ' + messages[0].virtual_folder_name;
-                            page_title += ' / ' + messages[0].virtual_folder_name;
+                            if (full_title !== '') {
+                                full_title += ' / '
+                                page_title += ' / '
+                            }
+                            full_title += messages[0].virtual_folder_name;
+                            page_title += messages[0].virtual_folder_name;
                         }
                         if (tag_list.length > 0) {
                             if (full_title !== '') {
@@ -2168,7 +2172,10 @@ module.exports = async (req, res, next) => {
                             currentChannelId = messages[0].channel;
                             currentServerId = messages[0].server;
                         }
-                        if (req.query.vchannel) {
+                        if (req.query.item_group) {
+                            folderInfo = `${messages[0].server_short_name}:/${messages[0].classification}/${messages[0].channel_short_name}/fld_${messages[0].virtual_folder_name}`
+                            android_uri.push('item_group=' + folderInfo);
+                        } else if (req.query.vchannel) {
                             currentChannelId = `vc_${messages[0].virtual_channel_eid}`;
                             folderInfo = `${messages[0].server_short_name}:/${messages[0].classification}/virt_${messages[0].virtual_channel_eid}`
                             android_uri.push('folder=' + folderInfo);
