@@ -1247,7 +1247,8 @@ module.exports = async (req, res, next) => {
             sqlWhere.push("kanmi_records.hidden != 1")
         if (req.query.item_group && req.query.item_group !== 'false') {
             sqlFields.push('kanmi_virtual_folders.name AS virtual_folder_name');
-            sqlTables.push('kanmi_virtual_folders')
+            sqlTables.push('kanmi_virtual_folders');
+            sqlWhere.push('kanmi_virtual_folders.fid = kanmi_records.fid')
         }
         if (page_uri === '/listTheater' || req.query.show_id || req.query.group) {
             // SELECT * FROM kanmi_records, kongou_episodes, kongou_shows, kongou_media_groups WHERE (kanmi_records.eid = kongou_episodes.eid AND kongou_episodes.show_id = kongou_shows.show_id AND kongou_shows.media_group = kongou_media_groups.media_group)
