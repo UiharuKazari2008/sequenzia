@@ -30,8 +30,8 @@ html
                                     div.collapse(data-parent='#accordionSidebar' id=`${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}Menu` class=isVisible)
                                         .bg-white.py-2.collapse-inner.rounded
                                             if (thisClass.entities.length > 1)
-                                                a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}%3A*`) Everything
-                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisClass.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisClass.id}%3A*`) Everything
+                                                    div.d-inline-flex
                                                         if (thisClass.uri === 'gallery')
                                                             i.fas.fa-photo-video.ml-1
                                                         else if (thisClass.uri === 'files')
@@ -56,8 +56,8 @@ html
                                                         - nsfwSearch = "&nsfw=true"
                                                         - nsfwIndex = "&nsfw=true"
                                                     div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`Virtual:/${thisClass.id}/${thisVirtualChannel.name}` id=`vc_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).pr-0
-                                                        a.text-capitalize(href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
-                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                        a.text-capitalize.d-flex.align-items-center.justify-content-between.w-100(href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?vchannel=${thisVirtualChannel.id}${nsfwSearch}`) #{thisVirtualChannel.name}
+                                                            div.d-inline-flex
                                                                 if (thisClass.uri === 'gallery')
                                                                     i.fas.fa-photo-video.ml-1
                                                                 else if (thisClass.uri === 'files')
@@ -66,7 +66,7 @@ html
                                                                     i.fas.fa-sticky-note.ml-1
                                                                 if (thisVirtualChannel.nsfw)
                                                                     i.fas.fa-exclamation-triangle.mr-1(style="color: #ff4a4a;")
-                                                        a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).px-3
+                                                        a.badge.bg-translucent.d-flex.px-2.ml-1(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`)
                                                             i.fas.fa-chevron-right.align-self-center
                                                     .collapse.m-0(id=`vc_c_${thisVirtualChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` style="position: unset;")
                                                         each thisChannel, indexChannel in thisVirtualChannel.entities
@@ -75,8 +75,8 @@ html
                                                             if (thisChannel.nsfw)
                                                                 - nsfwSearch = "&nsfw=true"
                                                                 - nsfwIndex = "&nsfw=true"
-                                                            a.collapse-item.text-capitalize.icon-padding.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
-                                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                            a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                                div.d-inline-flex
                                                                     if (thisChannel.nsfw)
                                                                         i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
                                                                     i.fas.fa-clone
@@ -88,8 +88,8 @@ html
                                                         i.fas.fa-database.pr-1
                                                         span #{thisServer.name}
                                                     if (_channels.length > 2)
-                                                        a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
-                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                        a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`View All from ${thisServer.name}` style='font-weight: bolder;' id=`all-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?folder=${thisServer.short_name}:/${thisClass.id}:*&nsfw=true`) This Server
+                                                            div.d-inline-flex
                                                                 if (thisClass.uri !== thisSuperClass.uri && thisClass.uri === 'gallery')
                                                                     i.fas.fa-photo-video.ml-1
                                                                 else if (thisClass.uri !== thisSuperClass.uri && thisClass.uri === 'files')
@@ -110,10 +110,8 @@ html
                                                         - nsfwIndex = "&nsfw=true"
                                                     if (thisChannel.folders && thisChannel.folders.length > 0)
                                                         div.d-flex.collapse-item.virtual-channel(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`folder_${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).pr-0
-                                                            a.text-capitalize(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
-                                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
-                                                                    if (thisChannel.nsfw)
-                                                                        i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                            a.text-capitalize.d-flex.align-items-center.justify-content-between.w-100(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                                div.d-inline-flex
                                                                     if (thisChannel.uri || thisClass.uri)
                                                                         if (thisChannel.uri && thisSuperClass.uri !== thisChannel.uri)
                                                                             if (thisChannel.uri === 'gallery')
@@ -129,18 +127,20 @@ html
                                                                                 i.fas.fa-folder.ml-1
                                                                             else if (thisClass.uri === 'cards')
                                                                                 i.fas.fa-sticky-note.ml-1
-                                                            a.ml-auto.d-flex(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#folder_c_${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`).px-3
+                                                                    if (thisChannel.nsfw)
+                                                                        i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
+                                                            a.badge.bg-translucent.d-flex.px-2.ml-1(data-toggle='collapse' href='#_' role='button' aria-expanded='false' data-target=`#folder_c_${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}`)
                                                                 i.fas.fa-chevron-right.align-self-center
                                                         .collapse.m-0(id=`folder_c_${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` style="position: unset;")
                                                             each thisFolder, folderIndex in thisChannel.folders
-                                                                a.collapse-item.text-capitalize.icon-padding.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}/${thisFolder.name}` id=`${thisFolder.fid}-${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?${(thisFolder.lock === 1) ? 'channel=' + thisChannel.id + '&' : ''}item_group=${thisFolder.fid}${nsfwSearch}`) #{thisFolder.name}
-                                                                    div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                                a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between.inner-item(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisChannel.server_short_name}:/${thisClass.id}/${thisChannel.name}/${thisFolder.name}` id=`${thisFolder.fid}-${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?${(thisFolder.lock === 1) ? 'channel=' + thisChannel.id + '&' : ''}item_group=${thisFolder.fid}${nsfwSearch}`) #{thisFolder.name}
+                                                                    div.d-inline-flex
                                                                         if (thisChannel.nsfw)
                                                                             i.fas.fa-exclamation-triangle(style="color: #ff4a4a;").mr-1
                                                                         i.fas.fa-folder
                                                     else
-                                                        a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
-                                                            div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                        a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title=`${thisServer.short_name}:/${thisClass.id}/${thisChannel.name}` id=`${thisChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${(thisChannel.uri) ? thisChannel.uri : (thisClass.uri) ? thisClass.uri : thisSuperClass.uri}?channel=${thisChannel.id}${nsfwSearch}`) #{thisChannel.name}
+                                                            div.d-inline-flex
                                                                 if (thisChannel.nsfw)
                                                                     i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
                                                                 if (thisChannel.uri || thisClass.uri)
@@ -161,8 +161,8 @@ html
                                             .collapse-header
                                                 i.fas.fa-atlas.pr-1
                                                 | Indexes
-                                            a.collapse-item.text-capitalize.icon-padding(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
-                                                div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                            a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between(data-tooltip="tooltip" data-trigger="hover" data-placement="right" title="Index of all artists" style='font-weight: bolder;' id=`artists-${thisClass.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/artists?folder=${thisClass.id}:*${nsfwIndex}`) Artists
+                                                div.d-inline-flex
                                                     i.fas.fa-atlas.ml-1
                                             - _custom_channels = thisClass.entities.filter((e) => { return e.type === 1})
                                             if (_custom_channels.length > 0)
@@ -170,8 +170,8 @@ html
                                                     i.fas.fa-tags.pr-1
                                                     | Quick Access
                                                 each thisCustomChannel in _custom_channels
-                                                    a.collapse-item.text-capitalize.icon-padding(title=thisCustomChannel.name id=`${thisCustomChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
-                                                        div.d-inline-flex(style="position: absolute;right: 1.5rem;margin-top: 0.2rem;")
+                                                    a.collapse-item.text-capitalize.d-flex.align-items-center.justify-content-between(title=thisCustomChannel.name id=`${thisCustomChannel.id}${(this_exchnage !== 'master') ? '-' + exchange.exchange.prefix : ''}` href=`#/${thisCustomChannel.url}`) #{thisCustomChannel.name}
+                                                        div.d-inline-flex
                                                             if (thisCustomChannel.nsfw)
                                                                 i.fas.fa-exclamation-triangle(style="color: #ff4a4a;")
                                                             i.fas.fa-tag.ml-1
