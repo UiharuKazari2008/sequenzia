@@ -1313,34 +1313,40 @@ module.exports = async (req, res, next) => {
         const selectConfig = `SELECT name AS config_name, nice_name AS config_nice, showHistory as config_show FROM sequenzia_display_config WHERE user = '${thisUser.master.user.id}'`;
 
         let sqlCall = (() => {
+            const base = `SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`
             if (req.query.sort === 'rating' || req.query.sort === 'rating_count' || req.query.min_tags || req.query.max_tags || req.query.min_score || req.query.max_score)
                 return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full JOIN (SELECT DISTINCT eid, COUNT(eid) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             if (req.query.fast_query && req.query.fast_query === '1') {
                 return `SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
             } else if (req.query.fast_query && req.query.fast_query === '2') {
                 return `${selectBase}`;
-            } else {
+            } else if (req.query && (req.query.displayname || req.query.history)) {
                 return `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            } else if (req.query && (req.query.displayname || req.query.history)) {
+                return `SELECT * FROM (${base}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            } else {
+                return base;
             }
         })();
         let sqlCallNoPreLimit = (() => {
+            const base = `SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id) ${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`
             if (req.query.sort === 'rating' || req.query.sort === 'rating_count' || req.query.min_tags || req.query.max_tags || req.query.min_score || req.query.max_score)
                 return `SELECT * FROM (SELECT base_full.*, trate.tag_count, trate.tag_num FROM (SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) base_full JOIN (SELECT DISTINCT eid, COUNT(eid) AS tag_num, SUM(rating) AS tag_count FROM sequenzia_index_matches GROUP BY eid) trate ON (base_full.eid = trate.eid AND trate.tag_count <= 100)) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             if (req.query.fast_query && req.query.fast_query === '1') {
                 return `SELECT * FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}`;
             } else if (req.query.fast_query && req.query.fast_query === '2') {
                 return `${selectBaseNoPreLimit}`;
-            } else {
+            } else if (req.query && (req.query.displayname || req.query.history)) {
                 return `SELECT *
-                        FROM (SELECT *
-                              FROM (${selectBaseNoPreLimit}) base ${sqlFavJoin} (${selectFavorites}) fav
-                              ON (base.eid = fav.fav_id) ${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf
+                        FROM (${base}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf
                         ON (i_wfav.eid = his_wconf.history_eid) ${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
+            } else {
+                return base;
             }
         })();
         if (sqlAlbumWhere.length > 0) {
-            sqlCall = `SELECT * FROM (${sqlCall}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
-            sqlCallNoPreLimit = `SELECT * FROM (${sqlCallNoPreLimit}) res_wusr INNER JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
+            sqlCall = `SELECT * FROM (${sqlCall}) res_wusr JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
+            sqlCallNoPreLimit = `SELECT * FROM (${sqlCallNoPreLimit}) res_wusr JOIN (${selectAlbums}) album ON (res_wusr.eid = album.eid)`;
         }
         if (page_uri === '/listTheater') {
             if (req.query.show_id !== 'unmatched') {

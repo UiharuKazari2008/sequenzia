@@ -7,7 +7,7 @@ block content
             ul.my-errors
                 for error in errors
                     li= error.msg
-        - imageWithColor = results.filter(f => !!f.entities.meta.color).map(j => `rgb(${j.entities.meta.color.slice(0,3).join(', ')})`)
+        - imageWithColor = results.filter(f => !!f.entities.meta.color && (f.entities.meta.color[0] + f.entities.meta.color[1] + f.entities.meta.color[2]) > 64).map(j => `rgb(${j.entities.meta.color.slice(0,3).join(', ')})`)
         - backgroundRandom = (imageWithColor) ? [imageWithColor[Math.floor(Math.random() * imageWithColor.length)], imageWithColor[Math.floor(Math.random() * imageWithColor.length)]] : [`rgba(255, 155, 0, 0.5)`]
         style.
             .background-image.bg-blur {
