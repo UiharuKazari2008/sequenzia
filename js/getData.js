@@ -999,8 +999,12 @@ module.exports = async (req, res, next) => {
         if (req.query.cropped) {
             if (req.query.cropped === 'mobile') {
                 sqlquery.push(`eid IN (SELECT eid FROM sequenzia_wallpaper_crop WHERE user = '${thisUser.master.discord.user.id}' AND type = 1)`)
+                if (page_uri.startsWith('/ambient'))
+                    sqlquery.push(`sizeR BETWEEN 1 AND 3`)
             } else if (req.query.cropped === 'wide') {
                 sqlquery.push(`eid IN (SELECT eid FROM sequenzia_wallpaper_crop WHERE user = '${thisUser.master.discord.user.id}' AND type = 0)`)
+                if (page_uri.startsWith('/ambient'))
+                    sqlquery.push(`sizeR BETWEEN 0.65 AND 1`)
             } else if (req.query.cropped === 'true') {
                 sqlquery.push(`eid IN (SELECT eid FROM sequenzia_wallpaper_crop)`)
             } else if (req.query.cropped === 'false') {
