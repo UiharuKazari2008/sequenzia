@@ -104,7 +104,12 @@ module.exports = async (req, res, next) => {
         if (global.shared_cache) {
             if (local)
                 app.set(local, value)
-            return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+            try {
+                return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
+            } catch (e) {
+                console.error("Error Writing to REDIS: ", e)
+                return false;
+            }
         }
         return app.set(key, value)
     }
