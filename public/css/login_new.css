@@ -338,7 +338,7 @@ div.owner-tag .name {
     border-radius: .5em;
     backdrop-filter: blur(5px);
 }
-.banners > div.button > span {
+.banners > div.button > .text {
     margin-left: 0.5em;
 }
 .banners {
