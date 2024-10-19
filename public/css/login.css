@@ -466,7 +466,10 @@ div.owner-tag > img {
     height: 92px;
     border-radius: 1em;
 }
-div.owner-tag > span {
+div.owner-tag .name-tag {
+    display: flex;
+}
+div.owner-tag .name {
     font-size: 24pt;
     padding: 0 1em;
     text-shadow: 0 0 6px black;

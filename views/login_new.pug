@@ -105,9 +105,14 @@ html
                 .bottom-owner
                     .owner-intro
                         span Administrated by:
-                    .owner-tag(style=`${(owner.banner) ? 'background-image: url("' + ((owner.banner_is_custom) ? cdn + 'user/banner/' + owner.banner : 'https://cdn.discordapp.com/banners/' + owner.id + '/' + owner.banner + ((owner.avatar.includes('a_')) ? '.gif?size=1024' : '.png?size=1024')) + '");': ''}`)
+                    //.owner-tag(style=`${(owner.banner) ? 'background-image: url("' + ((owner.banner_is_custom) ? cdn + 'user/banner/' + owner.banner : 'https://cdn.discordapp.com/banners/' + owner.id + '/' + owner.banner + ((owner.avatar.includes('a_')) ? '.gif?size=1024' : '.png?size=1024')) + '");': ''}`)
+                    .owner-tag
                         img(src=`${(owner.avatar_is_custom) ? cdn + 'user/avatar/' + owner.avatar : 'https://cdn.discordapp.com/avatars/' + owner.id + '/' + owner.avatar + ((owner.avatar.includes('a_')) ? '.gif?size=128' : '.png?size=128') }`)
-                        span !{owner.name}
+                        div
+                            span !{owner.name}
+                            a(href=`https://discordapp.com/channels/@me/${owner.id}/`)
+                                i.fa-light.fa-message
+                                span Contact
             else
                 .bottom-logo
                     span Powered by:

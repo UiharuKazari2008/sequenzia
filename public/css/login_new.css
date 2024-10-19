@@ -38,6 +38,7 @@ body {
     overflow: hidden;
     z-index: -2;
     background: radial-gradient(transparent, black);
+    backdrop-filter: blur(8px);
 }
 .slideshow-cover {
     z-index: -3;
@@ -45,6 +46,8 @@ body {
 }
 .slideshow-bg {
     z-index: -5;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 .slideshow-image {
     height: 100%;
@@ -303,7 +306,10 @@ div.owner-tag > img {
     height: 92px;
     border-radius: 1em;
 }
-div.owner-tag > span {
+div.owner-tag .name-tag {
+     display: flex;
+ }
+div.owner-tag .name {
     font-size: 24pt;
     padding: 0 1em;
     text-shadow: 0 0 6px black;
@@ -315,6 +321,7 @@ div.owner-tag > span {
     justify-content: center;
 }
 .login-button-new > a,
+.conact-link,
 .extra-services > div.button {
     color: white;
     text-decoration: none;
@@ -330,6 +337,12 @@ div.owner-tag > span {
     margin: .5em 1em;
     border-radius: .5em;
     backdrop-filter: blur(5px);
+}
+.conact-link {
+    margin: 0;
+}
+.conact-link > i {
+    padding-right: 0.5em;
 }
 .login-button-new > div > .login-button-with-qr {
     padding: 14px 18px 14px 18px;
