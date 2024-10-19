@@ -89,12 +89,12 @@ html
                         .slideshow-image.lazyload(data-bg=image)
             style.
                 body {
-                    background: url("!{webconf.login_image_overides[0]}") center fixed
+                    background-image: url("!{webconf.login_image_overides[0]}") center fixed
                 }
         else
             style.
                 body {
-                    background: url("!{loginImage}") center fixed
+                    background-image: url("!{loginImage}") center fixed
                 }
         if (banner)
             .login-banner-holder

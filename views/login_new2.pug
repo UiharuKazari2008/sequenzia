@@ -72,12 +72,12 @@ html
                     background: black;
                 }
                 .slideshow-bg {
-                    background: url("!{webconf.login_image_overides[0]}") center fixed
+                    background-image: url("!{webconf.login_image_overides[0]}")
                 }
         else
             style.
                 body {
-                    background: url("!{loginImage}") center fixed
+                    background-image: url("!{loginImage}")
                 }
         if (banner)
             div(style="display: block; position: fixed; left: 0; width: 100vw; z-index: 100000;")
