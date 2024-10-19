@@ -48,6 +48,7 @@ body {
     z-index: -5;
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
 }
 .slideshow-image {
     height: 100%;
