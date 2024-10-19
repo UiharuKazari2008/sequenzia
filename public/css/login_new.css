@@ -322,7 +322,7 @@ div.owner-tag .name {
 }
 .login-button-new > a,
 .conact-link,
-.extra-services > div.button {
+.banners > div.button {
     color: white;
     text-decoration: none;
     display: flex;
@@ -337,6 +337,10 @@ div.owner-tag .name {
     margin: .5em 1em;
     border-radius: .5em;
     backdrop-filter: blur(5px);
+}
+.banners {
+    display: flex;
+    flex-direction: row;
 }
 .conact-link {
     margin: 0;
@@ -386,10 +390,10 @@ a.dr-code {
     align-items: center;
     margin-top: 3em;
 }
-.extra-services > div.button {
+.banners > div.button {
     padding: 10px 25px;
 }
-.extra-services > div.button > img {
+.banners > div.button > img {
     height: 32px;
 }
 .login-button-new > a > i {
