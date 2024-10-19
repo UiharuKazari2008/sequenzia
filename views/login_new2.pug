@@ -58,6 +58,9 @@ html
         script(src="/static/vendor/jquery/jquery.min.js")
     body
         if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
+            .slideshow-cover.animated--fade-out-slow
+            .slideshow-dim
+            .slideshow-bg
             .slideshow-container(style=`width: ${(webconf.login_image_overides.length + 1) * 100}vw; animation: slide ${(webconf.login_image_overides.length + 1) * 45}s linear infinite`)
                 each image, index in webconf.login_image_overides
                     if index === 0
@@ -66,6 +69,9 @@ html
                         .slideshow-image.lazyload(data-bg=image)
             style.
                 body {
+                    background: black;
+                }
+                .slideshow-bg {
                     background: url("!{webconf.login_image_overides[0]}") center fixed
                 }
         else
@@ -91,7 +97,7 @@ html
                     img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
             .bottom-data-plate
                 span v22.0
-        #container.animated--fade-in-slow
+        #container
             #mascot
             .center-logo(class=((login_banners) ? 'extra-padding' : ''))
                 div.logo-inner
