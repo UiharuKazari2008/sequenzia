@@ -733,7 +733,10 @@ div#collapseQRCode {
     padding-top: 2em;
 }
 @media (max-width: 1024px) {
-
+    div.banner {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
     .center-logo, .center-logo.extra-padding {
         padding: 0;
     }
