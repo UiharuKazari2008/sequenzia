@@ -83,7 +83,7 @@ html
         if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
             .slideshow-container(style=`width: ${webconf.login_image_overides.length * 100}vw; animation: slide ${webconf.login_image_overides.length * 45}s linear infinite`)
                 each image, index in webconf.login_image_overides
-                    if index === 0
+                    if index < 2
                         .slideshow-image.lazyload(style=`background-image: url('${image}'`)
                     else
                         .slideshow-image.lazyload(data-bg=image)
@@ -288,11 +288,8 @@ html
                     }
                 });
             }, 60000);
-
-        script.
-            document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
                 const lazyLoadDivs = document.querySelectorAll(".lazyload");
-
                 const lazyLoad = (entries, observer) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
@@ -308,14 +305,4 @@ html
                         }
                     });
                 };
-
-                const observer = new IntersectionObserver(lazyLoad, {
-                    root: null,
-                    rootMargin: '500px',
-                    threshold: 0,
-                });
-
-                lazyLoadDivs.forEach(div => {
-                    observer.observe(div);
-                });
-            });
+            }, 10000);
