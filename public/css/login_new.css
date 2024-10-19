@@ -183,8 +183,8 @@ div.brags_container {
 .center-logo > div > img {
     display: flex;
     justify-content: center;
-    max-width: 40vw;
-    width: 500px;
+    max-width: 60vw;
+    width: 650px;
 }
 .logo-inner {
     display: flex;
