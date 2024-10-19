@@ -339,7 +339,7 @@ a.dr-code {
     padding-right: 0.5em;
 }
 .center-logo.extra-padding {
-    padding-top: 200px;
+    padding-top: 128px;
 }
 div.bottom-logo {
     padding: 2em;
@@ -671,6 +671,10 @@ div#collapseQRCode {
     padding-top: 2em;
 }
 @media (max-width: 1024px) {
+
+    .center-logo, .center-logo.extra-padding {
+        padding: 0;
+    }
     .login-button-new {
         flex-wrap: wrap;
     }
@@ -680,8 +684,9 @@ div#collapseQRCode {
     .center-logo > div, .center-logo>div>img {
         max-width: 85vw;
     }
-    #mascot {
-        display: none;
+    #mascot,
+    .bottom-owner {
+        display: none!important;
     }
 }
 @media (max-width: 640px) {
