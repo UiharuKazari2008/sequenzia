@@ -206,14 +206,15 @@ html
                     div.extra-services
                         div.header-services
                             span Looking for something else?
-                        for banner in login_banners
-                            div.button(class=((banner.text) ? 'has-text' : '') onclick=`window.location.href = "${banner.url}"; return false;` style=`background-color: ${banner.background}; color: ${banner.color}`)
-                                if (banner.text)
-                                    img(src=banner.image)
-                                    .text
-                                        span !{banner.text}
-                                else
-                                    img(src=banner.image)
+                        div.banners
+                            for banner in login_banners
+                                div.button(class=((banner.text) ? 'has-text' : '') onclick=`window.location.href = "${banner.url}"; return false;` style=`background-color: ${banner.background}; color: ${banner.color}`)
+                                    if (banner.text)
+                                        img(src=banner.image)
+                                        .text
+                                            span !{banner.text}
+                                    else
+                                        img(src=banner.image)
 
     if (login_image)
         script.
