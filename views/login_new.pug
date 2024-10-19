@@ -1,3 +1,4 @@
+- loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/login-bg.jpeg")
 html
     head
         meta(charset='utf-8')
@@ -41,6 +42,12 @@ html
         link(href='/static/img/splash/apple/ipadpro2_splash.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/ipadpro2_splash_landscape.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
 
+        link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
+        if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
+            link(rel='preload', href=webconf.login_image_overides[0] as='image')
+        else
+            link(rel='preload', href=loginImage as='image')
+
         link(rel='manifest' href='/static/manifest.json')
 
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
@@ -50,41 +57,22 @@ html
 
         script(src="/static/vendor/jquery/jquery.min.js")
     body
-        - loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/login-bg.jpeg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
-        style.
+        //style.
             body {
                 background: url("!{loginImage}") center fixed
             }
-        if (banner)
-            .login-banner-holder
-                .login-banner
-                    span !{banner}
-        .fixed-bottom
-            .bottom-logo
-                span Powered by:
-                img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
-            .bottom-data-plate
-                span v22.0
-        if (stats)
-            .fixed-top
-                .brags_container
-                    if (servers)
-                        .server-grid-parent(style=`grid-template-columns: repeat(${servers.slice(0, 6).length}, minmax(100px, 50px));`)
-                            for thisServer, thisServerIndex in servers.slice(0, 6)
-                                .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
-                                    img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.authware_enabled === 1) ? 'Login Server' : 'Storage'})` src=`https://cdn.discordapp.com/icons/${thisServer.serverid}/${thisServer.avatar}.png?size=128` id=`server-${thisServer.serverid}`)
-                    else
-                        .icon-holder
-                            i.px-2.fas.fa-image
-                            i.px-2.fas.fa-film
-                            i.px-2.fas.fa-music
-                            i.px-2.fas.fa-folder
-                            i.px-2.fas.fa-archive
+        .center-logo.animated--fade-in-slow
+            div
+                img(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)
+            if (stats)
+                .center-logo-extra
                     .brags
                         if (stats.total_count)
                             .brag-count
                                 span #{stats.total_count.toLocaleString('en-US')}+ Files
                         if (stats.total_data)
+                            div
+                                i.fas.fa-circle
                             .brag-size
                                 if (stats.total_data > 1000000)
                                     span #{(stats.total_data / 1000000).toFixed(2).toLocaleString('en-US')} TB
@@ -92,6 +80,48 @@ html
                                     span #{(stats.total_data / 1000).toFixed(2).toLocaleString('en-US')}GB
                                 else if (stats.total_data > 1)
                                     span #{stats.total_data}MB
+        if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
+            .slideshow-container(style=`width: ${webconf.login_image_overides.length * 100}vw; animation: slide ${webconf.login_image_overides.length * 45}s linear infinite`)
+                each image, index in webconf.login_image_overides
+                    if index === 0
+                        .slideshow-image.lazyload(style=`background-image: url('${image}'`)
+                    else
+                        .slideshow-image.lazyload(data-bg=image)
+            style.
+                body {
+                    background: url("!{webconf.login_image_overides[0]}") center fixed
+                }
+        else
+            style.
+                body {
+                    background: url("!{loginImage}") center fixed
+                }
+        if (banner)
+            .login-banner-holder
+                .login-banner
+                    span !{banner}
+        .fixed-bottom
+            if (owner)
+                .bottom-owner
+                    .owner-intro
+                        span Administrated by:
+                    .owner-tag(style=`${(owner.banner) ? 'background-image: url("' + ((owner.banner_is_custom) ? cdn + 'user/banner/' + owner.banner : 'https://cdn.discordapp.com/banners/' + owner.id + '/' + owner.banner + ((owner.avatar.includes('a_')) ? '.gif?size=1024' : '.png?size=1024')) + '");': ''}`)
+                        img(src=`${(owner.avatar_is_custom) ? cdn + 'user/avatar/' + owner.avatar : 'https://cdn.discordapp.com/avatars/' + owner.id + '/' + owner.avatar + ((owner.avatar.includes('a_')) ? '.gif?size=128' : '.png?size=128') }`)
+                        span !{owner.name}
+            else
+                .bottom-logo
+                    span Powered by:
+                    img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
+            .bottom-data-plate
+                span v22.0
+        //if (stats)
+            .fixed-top
+                .brags_container
+                    if (servers)
+                        .server-grid-parent(style=`grid-template-columns: repeat(${servers.slice(0, 6).length}, minmax(100px, 50px));`)
+                            for thisServer, thisServerIndex in servers.slice(0, 6)
+                                .server-grid-child(style=`z-index: ${8 - thisServerIndex}`)
+                                    img.server-icon(class=`${(webconf.square_server_icons_sidebar) ? 'rounded' : 'rounded-circle'}` title=`${thisServer.name}\n(${(thisServer.authware_enabled === 1) ? 'Login Server' : 'Storage'})` src=`https://cdn.discordapp.com/icons/${thisServer.serverid}/${thisServer.avatar}.png?size=128` id=`server-${thisServer.serverid}`)
         #container
             #inviteContainer
                 if (login_banners)
@@ -111,22 +141,32 @@ html
                 .acceptContainer
                     .logo-container
                         img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)
+                    .icon-holder
+                        div
+                            i.fas.fa-image
+                        div
+                            i.fas.fa-film
+                        div
+                            i.fas.fa-music
+                        div
+                            i.fas.fa-folder
+                        div
+                            i.fas.fa-archive
                     if (noLoginAvalible)
-                        form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;')
+                        form(style='color: #ffffff; text-shadow: 0 0 20px #ff000070;').padding-top
                             if (noLoginAvalible === 'nomember')
                                 i.fas.fa-passport.fa-7x.center(style='padding: 0;')
                                 h3 No Passport
-                                p Your account has no access rights
+                                p Your account has no access rights, Check your roles in the server
                                 .formContainer
                                     if (joinLink)
                                         .formDiv.center(style='margin-bottom: 15px;')
                                             a.acceptBtn(href=joinLink)
                                                 i.fab.fa-discord
-                                                span Join Discord
-                                    .formDiv.center
-                                        a.acceptBtn(href='/discord/destroy')
-                                            i.fas.fa-sign-out-alt
-                                            span Logout
+                                                span Register
+                                    a.acceptBtn(href='/discord/destroy')
+                                        i.fas.fa-sign-out-alt
+                                        span Logout
                             else if (noLoginAvalible === 'esm_activated')
                                 i.fas.fa-passport.fa-7x.center(style='padding: 0;')
                                 h3 ESM Failure
@@ -201,14 +241,15 @@ html
                                         span Go Home
                     else
                         form(style='color: #460000;')
-                            if (login_code)
-                                div.login-code
-                                    span.login-code.text-capitalize #{login_code}
                             .formContainer
                                 .formDiv.center
-                                    if (login_image)
+                                    if (login_image || login_code)
                                         div#collapseQRCode.login-qr.collapse(style='display: none')
-                                            img(src=login_image style='padding-bottom: 1em;')
+                                            if (login_code)
+                                                div.login-code
+                                                    span.login-code.text-capitalize #{login_code}
+                                            if (login_image)
+                                                img(src=login_image style='padding-bottom: 1em;')
                                     div.login-button
                                         a.acceptBtn(href='/discord/login')
                                             i.fas.fa-key
@@ -217,10 +258,10 @@ html
                                             a.acceptBtn(href='/discord/users')
                                                 i.fas.fa-key
                                                 span Impersonate
-                                        if (login_image)
-                                            a.acceptBtn(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
-                                                i.fas.fa-qrcode
-                                                span QR Code
+                                        if (login_image || login_code)
+                                            a.acceptBtn(href='#_' title="Use Express Login code or QR Code to login via another device that is already logged in" onclick="$('#collapseQRCode').toggle(); return false;")
+                                                i.fas.fa-copy
+                                                span Transfer
 
                                     if (joinLink)
                                         span.register
@@ -242,3 +283,34 @@ html
                     }
                 });
             }, 60000);
+
+        script.
+            document.addEventListener("DOMContentLoaded", () => {
+                const lazyLoadDivs = document.querySelectorAll(".lazyload");
+
+                const lazyLoad = (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const div = entry.target;
+                            const bgImage = div.getAttribute("data-bg");
+                            if (bgImage) {
+                                console.log(bgImage)
+                                console.log(div)
+                                div.style.backgroundImage = `url('${bgImage}')`;
+                                div.removeAttribute("data-bg");
+                            }
+                            observer.unobserve(div);
+                        }
+                    });
+                };
+
+                const observer = new IntersectionObserver(lazyLoad, {
+                    root: null,
+                    rootMargin: '500px',
+                    threshold: 0,
+                });
+
+                lazyLoadDivs.forEach(div => {
+                    observer.observe(div);
+                });
+            });

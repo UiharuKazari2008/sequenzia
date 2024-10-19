@@ -2,6 +2,7 @@ let config = require('../config.json')
 let host = require('../host.config.json');
 const webconfig = require('../web.config.json')
 const express = require('express');
+const fs = require('fs');
 const router = express.Router();
 const fetch = require('node-fetch');
 const crypto = require('crypto');
@@ -544,6 +545,7 @@ async function checkAccessToken(token, req, res, redirect, next) {
     }
 }
 async function loginPage(req, res, obj) {
+    const live_webconfig = JSON.parse(fs.readFileSync('./web.config.json').toString())
     let _obj = {};
     if (obj) {
         _obj = obj;
@@ -553,13 +555,17 @@ async function loginPage(req, res, obj) {
         _obj.telegramCallback = host.telegram_callback_url;
         _obj.telegramName = host.telegram_bot_name;
     }
-    if (webconfig.system_banner)
-        _obj.banner = webconfig.system_banner;
-    if (webconfig.site_name)
-        _obj.site_name = webconfig.site_name;
-    if (webconfig.enable_brags) {
+    if (live_webconfig.system_banner)
+        _obj.banner = live_webconfig.system_banner;
+    if (live_webconfig.site_name)
+        _obj.site_name = live_webconfig.site_name;
+    if (live_webconfig.enable_brags) {
         _obj.stats = await app.get('total_counts');
         _obj.servers = await app.get('server_list');
+    }
+    if (live_webconfig.site_owner) {
+        _obj.cdn = host.local_cdn_list.filter(e => !!e.access_url)[0].access_url
+        _obj.owner = await app.get('owner_account');
     }
 
     if (!!config.enable_impersonation) {
@@ -571,15 +577,15 @@ async function loginPage(req, res, obj) {
             _obj.show_user_list = true
         }
     }
-    if (!!webconfig.login_banners && webconfig.login_banners.length > 0) {
-        _obj.login_banners = webconfig.login_banners;
+    if (!!live_webconfig.login_banners && live_webconfig.login_banners.length > 0) {
+        _obj.login_banners = live_webconfig.login_banners;
     }
     sessionTransfer(req);
     if (obj && obj.noQRCode) {
         if (obj && obj.keepSession) {
             req.session.loggedin = false;
         }
-        res.status(((obj && obj.status) ? obj.status : 403)).render((webconfig.use_classic_login) ? 'login_new' : 'login_new2', _obj);
+        res.status(((obj && obj.status) ? obj.status : 403)).render((live_webconfig.use_classic_login) ? 'login_new' : 'login_new2', _obj);
     } else {
         try {
             async function tryToGenerateCode() {
@@ -654,7 +660,7 @@ async function loginPage(req, res, obj) {
                     if (req.session.login_code) {
                         _obj.login_code = req.session.login_code;
                     }
-                    res.status(((obj && obj.status) ? obj.status : 403)).render((webconfig.use_classic_login) ? 'login_new' : 'login_new2', _obj);
+                    res.status(((obj && obj.status) ? obj.status : 403)).render((live_webconfig.use_classic_login) ? 'login_new' : 'login_new2', _obj);
                 });
         }
     }

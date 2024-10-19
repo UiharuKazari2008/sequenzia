@@ -181,7 +181,7 @@ function dct() {
             if (displayConfiguration.layoutMode && displayConfiguration.layoutMode.toString() === '1') {
                 const degrees = (s / 60) * 360;
                 const secondHand = document.querySelector('.second-hand');
-                secondHand.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
+                secondHand.style.transform = `translate3d(-50%, -50%, 0) rotate(${degrees}deg)`;
             }
         }
     }

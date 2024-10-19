@@ -242,13 +242,31 @@ setInterval(app.cacheDatabase, 60000)
 if (web.enable_brags) {
     app.total_counts = async function total_counts() {
         const counts = await sqlPromiseSafe(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE hidden = 0 AND flagged = 0`);
-        const servers = await sqlPromiseSafe(`SELECT serverid, position, avatar, name, nice_name, short_name, authware_enabled FROM discord_servers ORDER BY position`);
+        const servers = await sqlPromiseSafe(`SELECT serverid, position, avatar, name, nice_name, short_name, authware_enabled FROM discord_servers ORDER BY authware_enabled DESC, position`);
 
         app.set('total_counts', counts.rows[0])
         app.set('server_list', servers.rows)
     }
     app.total_counts();
     setInterval(app.total_counts, 300000)
+}
+if (web.site_owner) {
+    app.owner_account = async function owner_account() {
+        const owner_account_data = await sqlPromiseSafe(`SELECT
+                                                             r.d_id AS id,
+                                                             r.server,
+                                                             IF(r.nice_name IS NOT NULL, r.nice_name, r.username)       AS name,
+                                                             IF(r.avatar_custom IS NOT NULL, c.dat_0_hint, r.avatar) AS avatar,
+                                                             IF(r.avatar_custom IS NOT NULL, 1, 0)                      AS avatar_is_custom,
+                                                             IF(r.banner_custom IS NOT NULL, c.dat_1_hint, r.banner) AS banner,
+                                                             IF(r.banner_custom IS NOT NULL, 1, 0)                      AS banner_is_custom,
+                                                             r.color
+                                                         FROM (SELECT * FROM (SELECT id AS d_id, server, username, avatar, banner, color FROM discord_users WHERE id = ?) u
+                                                                                 LEFT JOIN (SELECT id AS g_id, nice_name, avatar_custom, banner_custom FROM discord_users_extended) e ON (u.d_id = e.g_id)) r LEFT JOIN (SELECT dat_0_hint, dat_1_hint, record_ref FROM kanmi_aux_cdn WHERE path_hint = 'user' AND host = 1) c ON (r.d_id = c.record_ref)`, [web.site_owner]);
+        app.set('owner_account', owner_account_data.rows[0])
+    }
+    app.owner_account();
+    setInterval(app.owner_account, 300000)
 }
 
 app.use('/', routes);

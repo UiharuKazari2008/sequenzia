@@ -1,3 +1,4 @@
+- loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/login-bg.jpeg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
 html
     head
         meta(charset='utf-8')
@@ -50,104 +51,139 @@ html
 
         script(src="/static/vendor/jquery/jquery.min.js")
     body
-        - loginImage = ((webconf.login_image_overides) ? (typeof webconf.login_image_overides === "string" ) ? webconf.login_image_overides : webconf.login_image_overides[Math.floor(Math.random() * webconf.login_image_overides.length)] : "/static/img/login-bg.jpeg").replace('https://cdn.discordapp.com/attachments/', 'https://media.discordapp.net/attachments/')
-        style.
-            body {
-                background: url("!{loginImage}") center fixed
-            }
+        if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
+            .slideshow-container(style=`width: ${webconf.login_image_overides.length * 100}vw; animation: slide ${webconf.login_image_overides.length * 45}s linear infinite`)
+                each image, index in webconf.login_image_overides
+                    if index === 0
+                        .slideshow-image.lazyload(style=`background-image: url('${image}'`)
+                    else
+                        .slideshow-image.lazyload(data-bg=image)
+            style.
+                body {
+                    background: url("!{webconf.login_image_overides[0]}") center fixed
+                }
+        else
+            style.
+                body {
+                    background: url("!{loginImage}") center fixed
+                }
         if (banner)
             div(style="display: block; position: fixed; left: 0; width: 100vw; z-index: 100000;")
                 div(style="color: white;background: #930000;font-size: 1.35em;text-align: center;")
                     span !{banner}
         .fixed-bottom
-            .bottom-logo
-                span Powered by:
-                img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
+            if (owner)
+                .bottom-owner
+                    .owner-intro
+                        span Administrated by:
+                    .owner-tag(style=`${(owner.banner) ? 'background-image: url("' + ((owner.banner_is_custom) ? cdn + 'user/banner/' + owner.banner : 'https://cdn.discordapp.com/banners/' + owner.id + '/' + owner.banner + ((owner.avatar.includes('a_')) ? '.gif?size=1024' : '.png?size=1024')) + '");' : ''}`)
+                        img(src=`${(owner.avatar_is_custom) ? cdn + 'user/avatar/' + owner.avatar : 'https://cdn.discordapp.com/avatars/' + owner.id + '/' + owner.avatar + ((owner.avatar.includes('a_')) ? '.gif?size=128' : '.png?size=128')}`)
+                        span !{owner.name}
+            else
+                .bottom-logo
+                    span Powered by:
+                    img.bottom-logo(src="/static/img/sequenzia-logo-white.png")
             .bottom-data-plate
                 span v22.0
-        #container
+        #container.animated--fade-in-slow
             #mascot
-            #inviteContainer
-                div.inner-container
-                    .acceptContainer
-                        .logo-container
-                            img.top-logo(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)
-                        if (noLoginAvalible)
-                            div.failure
-                                if (noLoginAvalible === 'nomember')
-                                    div.failure-header
-                                        i.fas.fa-passport.fa-3x
-                                        h3 No Passport
-                                    div.failure-message
-                                        p Your account has no access rights
-                                else if (noLoginAvalible === 'esm_activated')
-                                    div.failure-header
-                                        i.fas.fa-lock.fa-3x
-                                        h3 Security Failure
-                                    div.failure-message
-                                        p A Security issue has occurred during the authentication phase, please contact the system administrator
-                                        p Error Code: ESM-#{serverError || '0000'}
-                                else if (noLoginAvalible === 'noauth')
-                                    div.failure-header
-                                        i.fas.fa-user-xmark.fa-3x
-                                        h3 No Permissiona
-                                else
-                                    div.failure-header
-                                        i.fas.fa-ban.fa-3x
-                                        h3 No Valid Membership
-                        else if (authenticatedDevice)
-                            div.success
+            .center-logo
+                div.logo-inner
+                    img(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)
+                if (stats)
+                    .center-logo-extra
+                        .brags
+                            if (stats.total_count)
+                                .brag-count
+                                    span #{stats.total_count.toLocaleString('en-US')}+ Files
+                            if (stats.total_data)
+                                div
+                                    i.fas.fa-circle
+                                .brag-size
+                                    if (stats.total_data > 1000000)
+                                        span #{(stats.total_data / 1000000).toFixed(2).toLocaleString('en-US')} TB
+                                    else if (stats.total_data > 1000)
+                                        span #{(stats.total_data / 1000).toFixed(2).toLocaleString('en-US')}GB
+                                    else if (stats.total_data > 1)
+                                        span #{stats.total_data}MB
+                div.inner-container-new
+                    if (noLoginAvalible)
+                        div.failure
+                            if (noLoginAvalible === 'nomember')
                                 div.failure-header
-                                    i.fas.fa-check-circle.fa-3x
-                                    h3 Login Complete!
-                        else if (authfailedDevice)
-                            div.failure
-                                div.failure-header
-                                    i.fas.fa-times-circle.fa-3x
-                                    h3 Login Failed
-                        else if (serverError)
-                            div.failure
-                                div.failure-header
-                                    i.fas.fa-times-circle.fa-3x
-                                    h3 Internal Server Failure
+                                    i.fas.fa-passport.fa-3x
+                                    h3 No Passport
                                 div.failure-message
-                                    p Error Code: #{serverError || 'Unknown'}
-                        else
+                                    p Your account has no access rights
+                            else if (noLoginAvalible === 'esm_activated')
+                                div.failure-header
+                                    i.fas.fa-lock.fa-3x
+                                    h3 Security Failure
+                                div.failure-message
+                                    p A Security issue has occurred during the authentication phase, please contact the system administrator
+                                    p Error Code: ESM-#{serverError || '0000'}
+                            else if (noLoginAvalible === 'noauth')
+                                div.failure-header
+                                    i.fas.fa-user-xmark.fa-3x
+                                    h3 No Permissiona
+                            else
+                                div.failure-header
+                                    i.fas.fa-ban.fa-3x
+                                    h3 No Valid Membership
+                    else if (authenticatedDevice)
+                        div.success
+                            div.failure-header
+                                i.fas.fa-check-circle.fa-3x
+                                h3 Login Complete!
+                    else if (authfailedDevice)
+                        div.failure
+                            div.failure-header
+                                i.fas.fa-times-circle.fa-3x
+                                h3 Login Failed
+                    else if (serverError)
+                        div.failure
+                            div.failure-header
+                                i.fas.fa-times-circle.fa-3x
+                                h3 Internal Server Failure
+                            div.failure-message
+                                p Error Code: #{serverError || 'Unknown'}
+                    else
+                        div#collapseQRCode.login-qr.collapse.center(style='display: none')
                             if (login_code)
                                 div.login-code
-                                    a(href='#_' onclick="$('#collapseQRCode').toggle(); return false;")
-                                        span.text-capitalize #{login_code}
-
-                            div#collapseQRCode.login-qr.collapse.center(style='display: none')
-                                if (login_image)
-                                    img(src=login_image style='padding-bottom: 1em;')
-
-                div.login-button
+                                    span.text-capitalize #{login_code}
+                            if (login_image)
+                                img(src=login_image style='padding-bottom: 1em;')
+                div.login-button-new
                     if (noLoginAvalible)
-                        a.acceptBtn(href='/discord/destroy')
+                        a(href='/discord/destroy')
                             i.fa-light.fa-sign-out-alt
                             span Cancel
                         if (joinLink && noLoginAvalible === 'nomember')
-                            div.seperator
+                            //div.seperator
                             a.acceptBtn(href=joinLink)
                                 i.fa-light.fa-signature
                                 span Join
                     else if (authenticatedDevice || authfailedDevice || serverError)
-                        a.acceptBtn(href='/href')
+                        a(href='/href')
                             i.fa-light.fa-home
                             span Home
                     else
                         if (joinLink)
-                            a.acceptBtn(href=joinLink)
+                            a(href=joinLink)
                                 i.fa-light.fa-signature
                                 span Join
-                            div.seperator
+                            //div.seperator
                         if (show_user_list)
-                            a.acceptBtn.discord(href='/discord/users')
+                            a.discord(href='/discord/users')
                                 i.fa-light.fa-user
                                 span Users
-                            div.seperator
-                        a.acceptBtn.discord(href='/discord/login')
+                            //div.seperator
+                        if (login_image || login_code)
+                            a(href='#_' title="Use Express Login code or QR Code to login via another device that is already logged in" onclick="$('#collapseQRCode').toggle(); return false;")
+                                i.fas.fa-copy
+                                span Transfer
+                        a.discord(href='/discord/login')
                             i.fa-light.fa-arrow-right-to-bracket
                             span Login
 
@@ -171,3 +207,32 @@ html
                     }
                 });
             }, 60000);
+            document.addEventListener("DOMContentLoaded", () => {
+                const lazyLoadDivs = document.querySelectorAll(".lazyload");
+
+                const lazyLoad = (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const div = entry.target;
+                            const bgImage = div.getAttribute("data-bg");
+                            if (bgImage) {
+                                console.log(bgImage)
+                                console.log(div)
+                                div.style.backgroundImage = `url('${bgImage}')`;
+                                div.removeAttribute("data-bg");
+                            }
+                            observer.unobserve(div);
+                        }
+                    });
+                };
+
+                const observer = new IntersectionObserver(lazyLoad, {
+                    root: null,
+                    rootMargin: '500px',
+                    threshold: 0,
+                });
+
+                lazyLoadDivs.forEach(div => {
+                    observer.observe(div);
+                });
+            });

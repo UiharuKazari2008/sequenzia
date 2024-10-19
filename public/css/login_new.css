@@ -13,6 +13,62 @@ body {
     background-repeat: no-repeat;
     background-position: center;
 }
+.slideshow-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200vw;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+    display: flex;
+    flex-direction: row;
+    transform: translate3d(-60px, 0, 0);
+    flex-wrap: nowrap;
+    animation: slide 30s linear infinite; /* Animation for infinite scrolling */
+}
+
+.slideshow-image {
+    height: 100%;
+    min-width: 100vw;
+    background-size: cover;
+    background-position: center top;
+}
+
+@keyframes slide {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
+@-webkit-keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+.animated--fade-in-slow {
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
+    -webkit-animation-timing-function: opacity cubic-bezier(0, 1, 0.4, 1);
+    animation-timing-function: opacity cubic-bezier(0, 1, 0.4, 1);
+}
 .login-code,
 .login-code a {
     text-align: center;
@@ -27,6 +83,138 @@ body {
 .mini-logo {
     display: none;
 }
+div.brags_container {
+    font-size: 2em;
+    padding: 2em;
+    opacity: .9;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+    cursor: default;
+    justify-content: end;
+    align-items: flex-start;
+    z-index: 40;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.icon-holder {
+    min-width: 8em;
+    font-size: 1.75em;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.icon-holder > div {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+.icon-holder > div > i,
+.center-logo-extra i {
+    padding: 0;
+}
+.center-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    color: white;
+    padding-top: 64px;
+}
+.center-logo > div > img {
+    filter: drop-shadow(0px 0px 15px #0000009c);
+}
+.center-logo > div,
+.center-logo > div > img {
+    display: flex;
+    justify-content: center;
+    max-width: 40vw;
+    width: 500px;
+}
+.logo-inner {
+    display: flex;
+    justify-content: center;
+}
+
+.center-logo > div > img {
+    width: 400px;
+}
+.center-logo-extra {
+    top: -1em;
+    position: relative;
+}
+.center-logo-extra .brags {
+    font-size: 0.75em;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.center-logo-extra .brags > div {
+    padding: 0 0.5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.logo > img {
+    width: 550px;
+}
+.server-grid-parent {
+    display: grid;
+    grid-template-columns: repeat(4,  minmax(45px, 40px));
+    grid-template-rows: 128px 1fr;
+    align-content: space-evenly;
+    max-width: 128px;
+    margin-right: 20px;
+}
+.server-grid-parent:hover .server-grid-child:not(:hover) {
+    opacity: 0.25;
+}
+.server-grid-child:hover {
+    z-index: 100!important;
+}
+.server-grid-child > img {
+    box-shadow: 6px 2px 11px 0 #00000054;
+    background: #6a2e00;
+    border-radius: 11px;
+}
+.server-grid-child:hover > img {
+    box-shadow: 0px 0px 11px 0 #00000054;
+}
+.server-grid-parent:hover .server-grid-child:not(:hover) > img {
+    box-shadow: none;
+}
+.brags {
+    text-shadow: 0 0 15px #0000009c;
+    margin-top: 0.5em;
+}
+.server-icon {
+    width: 128px;
+    height: 128px;
+}
+.brag-count {
+    font-size: 2.25em;
+}
+.brag-size {
+    font-size: 2.5em;
+    line-height: 0.95;
+}
+.fixed-top {
+    position: fixed;
+    right: 0;
+    top: 0;
+    left: 0;
+    z-index: 1030;
+    display: flex;
+    flex-direction: row;
+}
 .fixed-bottom {
     position: fixed;
     right: 0;
@@ -36,7 +224,84 @@ body {
     display: flex;
     flex-direction: row;
 }
+div.banner {
+    cursor: pointer;
+}
+div.bottom-owner * {
+    user-select: none!important;
+    -webkit-user-drag: none!important;
+    cursor: default;
+}
+div.bottom-owner {
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    justify-content: end;
+    align-items: flex-start;
+}
+div.owner-intro {
+    padding-bottom: 1em;
+    opacity: .5;
+}
+div.owner-tag {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 0.5em;
+    border-radius: 1em;
+}
+div.owner-tag > img {
+    height: 92px;
+    border-radius: 1em;
+}
+div.owner-tag > span {
+    font-size: 24pt;
+    padding: 0 1em;
+    text-shadow: 0 0 6px black;
+}
+
+.login-button-new {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.login-button-new > a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    padding: 14px 35px;
+    cursor: pointer;
+    max-width: 14em;
+    flex-wrap: nowrap;
+    align-items: center;
+    border: 1px solid #fab68f70;
+    background: #ff7901a1;
+    margin: .5em 1em;
+    border-radius: .5em;
+    backdrop-filter: blur(5px);
+}
+.login-button-new > a > i {
+    padding-right: 0.5em;
+}
 div.bottom-logo {
+    padding: 2em;
+    opacity: .5;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    user-select: none !important;
+    -webkit-user-drag: none!important;
+    cursor: default;
+    justify-content: end;
+    align-items: flex-start;
+}
+div.bottom-data-plate {
     padding: 2em;
     opacity: .5;
     display: flex;
@@ -44,9 +309,10 @@ div.bottom-logo {
     color: #fff;
     user-select: none!important;
     -webkit-user-drag: none!important;
-    cursor: pointer;
+    cursor: default;
     justify-content: end;
-    align-items: flex-start;
+    align-items: flex-end;
+    margin-left: auto;
 }
 div.bottom-data-plate {
     padding: 2em;
@@ -88,6 +354,13 @@ img.bottom-logo {
     align-items: center;
     flex-direction: column;
 }
+.inner-container-new .success {
+    background: rgba(0, 255, 4, 0.72);
+    padding: 1em 0;
+    border-radius: 1em;
+    margin-bottom: 1.5em;
+    backdrop-filter: blur(5px);
+}
 .failure {
     display: flex;
     color: #ffffff;
@@ -110,6 +383,13 @@ img.bottom-logo {
     justify-content: center;
     flex-wrap: nowrap;
     text-align: center;
+}
+.inner-container-new .failure {
+    background: #ff0000b8;
+    padding: 1em 0;
+    border-radius: 1em;
+    margin-bottom: 1.5em;
+    backdrop-filter: blur(5px);
 }
 #headerContainer {
     margin-bottom: 1em;
@@ -312,7 +592,13 @@ a:visited:active:hover {
 .register a:hover {
     box-shadow: inset 0 -2px 0 #fff;
 }
-
+div#collapseQRCode {
+    background: black;
+    border-radius: 1em;
+    margin-bottom: 2em;
+    padding: 1em;
+    width: 300px;
+}
 #mascot {
     position: absolute;
     top: 0;
@@ -320,13 +606,32 @@ a:visited:active:hover {
     height: 100%;
     width: 100%;
     z-index: -1;
-    opacity: 0.7;
+    opacity: 0.95;
     background-image: url(/static/img/aak.png);
     background-repeat: no-repeat;
     background-position: bottom right;
     background-size: 40vh;
 }
-
+.logo-container {
+    display: none;
+}
+.padding-top {
+    padding-top: 2em;
+}
+@media (max-width: 1024px) {
+    .login-button-new {
+        flex-wrap: wrap;
+    }
+    .center-logo-extra .brags {
+        font-size: .5em;
+    }
+    .center-logo > div, .center-logo>div>img {
+        max-width: 85vw;
+    }
+    #mascot {
+        display: none;
+    }
+}
 @media (max-width: 640px) {
     .logoContainer {
         display: none!important;
