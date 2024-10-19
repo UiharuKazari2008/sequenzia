@@ -382,7 +382,7 @@ a.dr-code {
     align-items: center;
     border: 1px solid #fab68f70;
     background: #ff7901a1;
-    margin: .5em 1em;
+    margin: .5em .5em;
     border-radius: .5em;
     backdrop-filter: blur(5px);
 }
