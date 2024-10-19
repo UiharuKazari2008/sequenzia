@@ -237,20 +237,12 @@ html
                 });
             }, 60000);
             setTimeout(() => {
-                const lazyLoadDivs = document.querySelectorAll(".lazyload");
-                const lazyLoad = (entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const div = entry.target;
-                            const bgImage = div.getAttribute("data-bg");
-                            if (bgImage) {
-                                console.log(bgImage)
-                                console.log(div)
-                                div.style.backgroundImage = `url('${bgImage}')`;
-                                div.removeAttribute("data-bg");
-                            }
-                            observer.unobserve(div);
-                        }
-                    });
-                };
+                document.querySelectorAll(".lazyload").forEach(entry => {
+                    const div = entry;
+                    const bgImage = div.getAttribute("data-bg");
+                    if (bgImage) {
+                        div.style.backgroundImage = `url('${bgImage}')`;
+                        div.removeAttribute("data-bg");
+                    }
+                });
             }, 10000);
