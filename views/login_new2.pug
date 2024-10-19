@@ -42,6 +42,12 @@ html
         link(href='/static/img/splash/apple/ipadpro2_splash.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)' rel='apple-touch-startup-image')
         link(href='/static/img/splash/apple/ipadpro2_splash_landscape.png' media='screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)' rel='apple-touch-startup-image')
 
+        link(rel='preload', href="/static/img/sequenzia-logo-nav.png" as='image')
+        if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
+            link(rel='preload', href=webconf.login_image_overides[0] as='image')
+        else
+            link(rel='preload', href=loginImage as='image')
+
         link(rel='manifest' href='/static/manifest.json')
 
         link(rel='stylesheet', href="/static/vendor/fontawesome/css/fontawesome.min.css")
@@ -52,7 +58,7 @@ html
         script(src="/static/vendor/jquery/jquery.min.js")
     body
         if (Array.isArray(webconf.login_image_overides) && webconf.login_image_overides.length > 2)
-            .slideshow-container(style=`width: ${webconf.login_image_overides.length * 100}vw; animation: slide ${webconf.login_image_overides.length * 45}s linear infinite`)
+            .slideshow-container(style=`width: ${(webconf.login_image_overides.length + 1) * 100}vw; animation: slide ${(webconf.login_image_overides.length + 1) * 45}s linear infinite`)
                 each image, index in webconf.login_image_overides
                     if index === 0
                         .slideshow-image.lazyload(style=`background-image: url('${image}'`)
@@ -87,7 +93,7 @@ html
                 span v22.0
         #container.animated--fade-in-slow
             #mascot
-            .center-logo
+            .center-logo(class=((login_banners) ? 'extra-padding' : ''))
                 div.logo-inner
                     img(src=`${(webconf.login_banner_overides) ? webconf.login_banner_overides : "/static/img/sequenzia-logo-nav.png"}`)
                 if (stats)
@@ -179,13 +185,25 @@ html
                                 i.fa-light.fa-user
                                 span Users
                             //div.seperator
-                        if (login_image || login_code)
-                            a(href='#_' title="Use Express Login code or QR Code to login via another device that is already logged in" onclick="$('#collapseQRCode').toggle(); return false;")
-                                i.fas.fa-copy
-                                span Transfer
-                        a.discord(href='/discord/login')
-                            i.fa-light.fa-arrow-right-to-bracket
-                            span Login
+                        div
+                            a(href='/discord/login' class=((login_image || login_code) ? "login-button-with-qr" : "login-button-direct"))
+                                i.fa-light.fa-arrow-right-to-bracket
+                                span Login
+                            if (login_image || login_code)
+                                a.dr-code(href='#_' title="Use Express Login code or QR Code to login via another device that is already logged in" onclick="$('#collapseQRCode').toggle(); return false;")
+                                    i.fa-light.fa-qrcode
+                if (login_banners)
+                    div.extra-services
+                        div.header-services
+                            span Looking for something else?
+                        for banner in login_banners
+                            div.button(class=((banner.text) ? 'has-text' : '') onclick=`window.location.href = "${banner.url}"; return false;` style=`background-color: ${banner.background}; color: ${banner.color}`)
+                                if (banner.text)
+                                    img(src=banner.image)
+                                    .text
+                                        span !{banner.text}
+                                else
+                                    img(src=banner.image)
 
     if (login_image)
         script.

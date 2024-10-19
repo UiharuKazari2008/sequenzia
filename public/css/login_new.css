@@ -270,12 +270,13 @@ div.owner-tag > span {
     flex-direction: row;
     justify-content: center;
 }
-.login-button-new > a {
+.login-button-new > a,
+.extra-services > div.button {
     color: white;
     text-decoration: none;
     display: flex;
     flex-direction: row;
-    padding: 14px 35px;
+    padding: 14px 25px;
     cursor: pointer;
     max-width: 14em;
     flex-wrap: nowrap;
@@ -286,8 +287,59 @@ div.owner-tag > span {
     border-radius: .5em;
     backdrop-filter: blur(5px);
 }
+.login-button-new > div > .login-button-with-qr {
+    padding: 14px 18px 14px 18px;
+}
+.login-button-new > div > .login-button-direct {
+    padding: 14px 25px;
+}
+.login-button-new > div > a:not(.dr-code) > i {
+    padding-right: .5em;
+}
+a.dr-code {
+    padding: 14px 25px 14px 14px;
+    border-left: solid 1px #ffffff45;
+}
+.login-button-new > div > a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+.login-button-new > div {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    padding: 0px;
+    max-width: 14em;
+    flex-wrap: nowrap;
+    align-items: center;
+    border: 1px solid #fab68f70;
+    background: #ff7901a1;
+    margin: .5em 1em;
+    border-radius: .5em;
+    backdrop-filter: blur(5px);
+}
+.extra-services {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 3em;
+}
+.extra-services > div.button {
+    padding: 10px 25px;
+}
+.extra-services > div.button > img {
+    height: 32px;
+}
 .login-button-new > a > i {
     padding-right: 0.5em;
+}
+.center-logo.extra-padding {
+    padding-top: 200px;
 }
 div.bottom-logo {
     padding: 2em;
