@@ -238,7 +238,15 @@ app.cacheDatabase = async function cacheDatabase() {
     }
     ready = true;
 }
-setInterval(app.cacheDatabase, 60000)
+if (global.no_auto_cache_update) {
+    app.cacheDatabase()
+    app.get('/internal/refresh/database', (req, res) => {
+        app.cacheDatabase();
+        res.status(200).end();
+    })
+} else {
+    setInterval(app.cacheDatabase, 60000)
+}
 if (web.enable_brags) {
     app.total_counts = async function total_counts() {
         const counts = await sqlPromiseSafe(`SELECT SUM(filesize) AS total_data, COUNT(filesize) AS total_count FROM kanmi_records WHERE hidden = 0 AND flagged = 0`);
@@ -274,10 +282,6 @@ app.use('/app', apps);
 app.use('/discord', routesDiscord);
 app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
-app.get('/internal/refresh/database', (req, res) => {
-    app.cacheDatabase();
-    res.status(200).end();
-})
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
     if (req.query.deviceID) {
         const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data.master)[0];
