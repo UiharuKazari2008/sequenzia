@@ -1103,119 +1103,31 @@ module.exports = async (req, res, next) => {
             if (req.query.no_mixed_media) {
                 execute = '(' + [
                     channelFilter,
-                    `(${[
-                        "attachment_name LIKE '%.jp%_'",
-                        "attachment_name LIKE '%.jfif'",
-                        "attachment_name LIKE '%.png'",
-                        "attachment_name LIKE '%.gif'",
-                        "attachment_name LIKE '%.jfif?%_'",
-                        "attachment_name LIKE '%.png?%_'",
-                        "attachment_name LIKE '%.gif?%_'",
-                        "attachment_name LIKE '%.web%_'",
-                        "attachment_name = 'multi'",
-                    ].join(' OR ')})`
+                    `attachment_type <= 10`
                 ].join(' AND ')
             } else {
                 execute = '(' + [
                     channelFilter,
-                    `(${[
-                        '(' + [
-                            '(' + [
-                                "cache_proxy LIKE '%-t9-preview-video.jp%_'",
-                                "cache_proxy LIKE '%-t9-preview-video.gif'",
-                                "cache_proxy LIKE '%-t9-preview-video.gifv'"
-                            ].join(' OR ') + ')',
-                            '(' + [
-                                "real_filename LIKE '%.mp4'",
-                                "real_filename LIKE '%.mov'",
-                                "real_filename LIKE '%.m4v'",
-                                "real_filename LIKE '%.mp4?%_'",
-                                "real_filename LIKE '%.mov?%_'",
-                                "real_filename LIKE '%.m4v?%_'",
-                            ].join(' OR ') + ')',
-                            "attachment_extra IS NULL"
-                        ].join(' AND ') + ')',
-                        '(' + [
-                            '(' + [
-                                "cache_proxy LIKE '%-t9-preview-video.jp%_'",
-                                "cache_proxy LIKE '%-t9-preview-video.gif'",
-                                "cache_proxy LIKE '%-t9-preview-video.gifv'",
-                                "cache_proxy LIKE '%-t9-preview-video.gif?%_'",
-                                "cache_proxy LIKE '%-t9-preview-video.gifv?%_'",
-                            ].join(' OR ') + ')',
-                            '(' + [
-                                "attachment_name LIKE '%.mp4'",
-                                "attachment_name LIKE '%.mov'",
-                                "attachment_name LIKE '%.m4v'",
-                                "attachment_name LIKE '%.mp4?%_'",
-                                "attachment_name LIKE '%.mov?%_'",
-                                "attachment_name LIKE '%.m4v?%_'",
-                            ].join(' OR ') + ')',
-                            "attachment_extra IS NULL"
-                        ].join(' AND ') + ')',
-                        "attachment_name LIKE '%.jp%_'",
-                        "attachment_name LIKE '%.jfif'",
-                        "attachment_name LIKE '%.png'",
-                        "attachment_name LIKE '%.gif'",
-                        "attachment_name LIKE '%.jfif?%_'",
-                        "attachment_name LIKE '%.png?%_'",
-                        "attachment_name LIKE '%.gif?%_'",
-                        "attachment_name LIKE '%.web%_'",
-                        "attachment_name = 'multi'",
-                    ].join(' OR ')})`
+                    `attachment_type <= 20`
                 ].join(' AND ')
             }
         } else if (page_uri === '/' || page_uri === '/homeImage' || page_uri === '/start' || page_uri === '/ads-micro' || page_uri === '/ads-widget' || page_uri.startsWith('/ambient')) {
             sqlquery.push(`(attachment_hash IS NOT NULL OR filecached = 1)`)
             execute = '(' + [
                 channelFilter,
-                `(${[
-                    "attachment_name LIKE '%.jp%_'",
-                    "attachment_name LIKE '%.jfif'",
-                    "attachment_name LIKE '%.png'",
-                    "attachment_name LIKE '%.gif'",
-                    "attachment_name LIKE '%.jfif?%_'",
-                    "attachment_name LIKE '%.png?%_'",
-                    "attachment_name LIKE '%.gif?%_'",
-                    "attachment_name LIKE '%.web%_'",
-                ].join(' OR ')})`
+                `attachment_type <= 10`
             ].join(' AND ')
         } else if (page_uri === '/files') {
             if (req.query.filesonly) {
                 execute = '(' + [
                     channelFilter,
-                    '(' + [
-                        '(' + [
-                            "fileid IS NULL",
-                            "attachment_name IS NOT NULL",
-                            "attachment_name NOT LIKE '%.jp%_'",
-                            "attachment_name NOT LIKE '%.jfif'",
-                            "attachment_name NOT LIKE '%.png'",
-                            "attachment_name NOT LIKE '%.gif'",
-                            "attachment_name NOT LIKE '%.jfif?%_'",
-                            "attachment_name NOT LIKE '%.png?%_'",
-                            "attachment_name NOT LIKE '%.gif?%_'",
-                            "attachment_name NOT LIKE '%.web%_'",
-                            "attachment_name != 'multi'"
-                        ].join(' AND ') + ')',
-                        '(' + [
-                            "fileid IS NOT NULL",
-                            "real_filename NOT LIKE '%.jp%_'",
-                            "real_filename NOT LIKE '%.jfif'",
-                            "real_filename NOT LIKE '%.png'",
-                            "real_filename NOT LIKE '%.gif'",
-                            "real_filename NOT LIKE '%.jfif?%_'",
-                            "real_filename NOT LIKE '%.png?%_'",
-                            "real_filename NOT LIKE '%.gif?%_'",
-                            "real_filename NOT LIKE '%.web%_'",
-                        ].join(' AND ') + ')'
-                    ].join(' OR ') + ')'
+                    'attachment_type >= 20'
                 ].join(' AND ')
 
             } else {
                 execute = '(' + [
                     channelFilter,
-                    `( real_filename IS NOT NULL OR ( real_filename IS NULL AND attachment_hash IS NOT NULL ))`
+                    `attachment_type IS NOT NULL`
                 ].join(' AND ')
             }
         } else if (page_uri === '/cards') {
