@@ -568,7 +568,7 @@ html
                                                             if (exchange.review_channels && exchange.review_channels.length > 0)
                                                                 each thisChanel in exchange.review_channels
                                                                     a.user-menu-item.user-menu-small(title=`Review ${thisChanel.name}` href="#_" onclick=`launchFeedURL('${(exchange_id !== 'master') ? exchange_id : ''}', [["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + thisChanel.folder : ''}"]]); return false;`)
-                                                                        i(class=`${thisChanel.icon_class || 'fa-light'}${thisChanel.icon}`)
+                                                                        i(class=`${thisChanel.icon_class || 'fa-light'} ${thisChanel.icon}`)
                                                                         | #{thisChanel.name}
 
                                     div.w-100(class="collapse animated--fade-in" data-parent="#menuAccordion" id=`menuItemWallet`)
