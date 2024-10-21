@@ -274,6 +274,10 @@ app.use('/app', apps);
 app.use('/discord', routesDiscord);
 app.use('/upload', routesUpload);
 app.use('/acc', routesAccessories);
+app.get('/internal/refresh/database', (req, res) => {
+    app.cacheDatabase();
+    res.status(200).end();
+})
 app.get('/transfer', sessionVerification, catchAsync(async (req, res) => {
     if (req.query.deviceID) {
         const thisUser = res.locals.thisUser || app.get('userCache').rows.filter(e => req.session.userid === e.userid).map(e => e.data.master)[0];

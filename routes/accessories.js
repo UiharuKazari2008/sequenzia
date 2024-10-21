@@ -59,6 +59,7 @@ router.get('/weather', sessionVerification, async (req, res) => {
                         sunset: body.sys.sunset,
                         sys_night: body.weather[0].icon.substr(2,1) === 'n'
                     });
+                    console.log(`Weather Data Delivered for ${req.query.address}: ${body.main.temp} ${body.weather[0].main} ${body.weather[0].icon}`)
                 }
                 else {
                     res.status(500).send(response.body.message);
