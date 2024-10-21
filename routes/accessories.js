@@ -30,7 +30,7 @@ router.get('/weather', sessionVerification, async (req, res) => {
     try {
         if (req.query && req.query.address) {
             let unitFormat = 'metric'
-            if (req.query.imperial) {
+            if (req.query.imperial && req.query.imperial === 'true') {
                 unitFormat = 'imperial'
             }
             request ({

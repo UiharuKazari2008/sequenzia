@@ -134,6 +134,7 @@ function getWeather() {
         } else {
             document.getElementById('weatherFormat').classList.add('wi-celsius')
             document.getElementById('weatherFormat').classList.remove('wi-fahrenheit')
+            weatherOptions.set('imperial', 'false');
         }
         $.ajax({async: true,
             url: `/acc/weather?${weatherOptions.toString()}`,
