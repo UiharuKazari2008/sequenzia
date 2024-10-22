@@ -584,7 +584,7 @@ html
                                                         .menu-grid
                                                             if (exchange.review_channels && exchange.review_channels.length > 0)
                                                                 each thisChanel in exchange.review_channels
-                                                                    a.user-menu-item.user-menu-small(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title=`Review ${thisChanel.name}` href="#_" onclick=`launchFeedURL('${(exchange_id !== 'master') ? exchange_id : ''}', [["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + thisChanel.folder : ''}"]]); return false;`)
+                                                                    a.user-menu-item.user-menu-small(data-tooltip="tooltip" data-trigger="hover" data-placement="top" title=`Review ${thisChanel.name}` href="#_" onclick=`launchFeedURL('${(exchange_id !== 'master') ? exchange_id : ''}', [["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + thisChanel.folder : (thisChanel.folder_id) ? 'item_group","' + thisChanel.folder_id : ''}"]]); return false;`)
                                                                         i(class=`${thisChanel.icon_class || 'fa-light'} ${thisChanel.icon}`)
                                                                         | #{thisChanel.name}
 

@@ -1074,7 +1074,7 @@ html
                                         div.menu-grid.user-menu-small
                                             if (active_exchange.review_channels && active_exchange.review_channels.length > 0)
                                                 each thisChanel in active_exchange.review_channels
-                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href="#_" onclick=`launchFeedURL([["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + encodeURIComponent(thisChanel.folder) : ''}"]]); return false;`)
+                                                    a.user-menu-item.hover-color.d-flex.flex-column(title=`Open ${thisChanel.name}` href="#_" onclick=`launchFeedURL([["${(thisChanel.vchannel) ? 'vchannel","' + thisChanel.vchannel : (thisChanel.channel) ? 'channel","' + thisChanel.channel : (thisChanel.folder) ? 'folder","' + encodeURIComponent(thisChanel.folder) : (thisChanel.folder_id) ? 'item_group","' + encodeURIComponent(thisChanel.folder_id) : ''}"]]); return false;`)
                                                         i(class=`${thisChanel.icon_class || 'fas'} ${thisChanel.icon}`)
                                                         | #{thisChanel.name}
 

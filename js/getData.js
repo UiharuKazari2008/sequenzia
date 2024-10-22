@@ -171,9 +171,10 @@ module.exports = async (req, res, next) => {
         let sqlTables, sqlWhere
         let sqlFields = [
             'kanmi_records.*',
-            'CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index',
             'IF(kanmi_records.attachment_auth_ex > NOW() + INTERVAL 8 HOUR, 1, 0) AS auth_valid'
         ];
+        if (req.query.sort === 'post_index')
+            sqlFields.push('CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(kanmi_records.content_full, \'\\n\', 1), \'(\', -1), \'/\', 1) AS UNSIGNED) AS post_index')
 
         let _dn = 'Untitled'
         if (req.query.displayname) {
