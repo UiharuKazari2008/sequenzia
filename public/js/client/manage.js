@@ -408,9 +408,9 @@ async function setupReviewMode(bypass) {
         let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<div class="destination-name">` +
-                    `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
-                    `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                return `<div class="breezekey-holder">` +
+                    `    <span class="breezekey-name">SHIFT + ${i + 1}</span>` +
+                    `    <span class="breezekey-title" style="color: ${n.toRGB()}">${n}</span>` +
                     `</div>`
             }
         }).join('\n')
@@ -489,9 +489,9 @@ async function enableReviewMode(setFromDialog) {
         let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
             const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<div class="destination-name">` +
-                    `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
-                    `    <span style="color: ${n.toRGB()}">${n}</span>` +
+                return `<div class="breezekey-holder">` +
+                    `    <span class="breezekey-name">SHIFT + ${i + 1}</span>` +
+                    `    <span class="breezekey-title" style="color: ${n.toRGB()}">${n}</span>` +
                     `</div>`
             }
         }).join('\n')
@@ -941,9 +941,9 @@ async function updateRecentPostDestinations() {
     let ldest = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e)).slice(0,8).map((e,i) => {
         const n = actionModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
         if (n) {
-            return `<div class="destination-name">` +
-                `    <span class="mr-1">SHIFT + ${i + 1}</span>` +
-                `    <span style="color: ${n.toRGB()}">${n}</span>` +
+            return `<div class="breezekey-holder">` +
+                `    <span class="breezekey-name">SHIFT + ${i + 1}</span>` +
+                `    <span class="breezekey-title" style="color: ${n.toRGB()}">${n}</span>` +
                 `</div>`
         }
     }).join('\n')

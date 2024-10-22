@@ -48,6 +48,7 @@ module.exports = async (req, res, next) => {
         active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
         active_exchange: (req.session.active_exchange && !req.headers['x-sequenzia-exchange']) ? thisUser[req.session.active_exchange] : thisUser.master,
         ...res.locals.response,
+        debug_times: res.locals.debugTimes,
         webconf: web,
         query: req.query
     };
@@ -55,6 +56,7 @@ module.exports = async (req, res, next) => {
         results = {
             active_exchange_id: (!req.headers['x-sequenzia-exchange']) ? req.session.active_exchange : 'master',
             ...res.locals.response,
+            debug_times: res.locals.debugTimes,
             webconf: web,
             query: req.query
         };

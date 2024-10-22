@@ -785,7 +785,194 @@ html
         a#btnTop.btn.btn-floating.btn-large.bottomBtn.scrollBtn.btn-circle.btn-lg(title="Return to top" style='display: none;' href='#_' onclick="scrollToTop(); return false;")
             i.fa.fa-arrow-up
 
-        div#recentOverlay.rounded.hidden
+        div.keybreeze-overlay.rounded.hidden.shift--key
+            div#keybreeze-gallery.hidden
+                div.breezekey-holder
+                    div.breezekey-name
+                        span A
+                        i.fas.fa-star.ml-1
+                    span.breezekey-title Favorite
+                div.breezekey-holder
+                    div.breezekey-name
+                        span S
+                        i.fas.fa-archive.ml-1
+                    span.breezekey-title Album Menu
+                div.breezekey-holder
+                    div.breezekey-name
+                        span D
+                        i.fas.fa-magnifying-glass.ml-1
+                    span.breezekey-title Display Image
+                div.breezekey-holder
+                    div.breezekey-name
+                        span F
+                        i.fas.fa-swatchbook.ml-1
+                    span.breezekey-title Services Menu
+                div.breezekey-holder
+                    div.breezekey-name
+                        span G
+                        i.fas.fa-toolbox.ml-1
+                    span.breezekey-title Manage File
+                div.breezekey-divider
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + R
+                        i.fas.fa-check-to-slot.ml-1
+                    span.breezekey-title Enter Review Mode
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + K
+                        i.fas.fa-inbox-out.ml-1
+                    span.breezekey-title Commit Actions
+                div.breezekey-divider
+                div.breezekey-holder
+                    div.breezekey-name
+                        span [<]
+                        i.fas.fa-arrow-left.ml-1
+                    span.breezekey-title Go Back
+                div.breezekey-holder
+                    div.breezekey-name
+                        span [>]
+                        i.fas.fa-arrow-right.ml-1
+                    span.breezekey-title Next Page
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + [<]
+                        i.fas.fa-sync.ml-1
+                    span.breezekey-title Reload Page
+                div.breezekey-divider
+                div.breezekey-holder
+                    span.breezekey-name
+                        span SHIFT + D
+                        i.fas.fa-compass.ml-1
+                    span.breezekey-title Navigator
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + X
+                        i.fas.fa-bars.ml-1
+                    span.breezekey-title Toggle Menu
+            div#recentOverlay.hidden
+            div#keybreeze-reviewMode.hidden
+                div.breezekey-divider
+                div.breezekey-holder
+                    div.breezekey-name
+                        span A
+                        i.fas.fa-star.ml-1
+                    span.breezekey-title Favorite
+                div.breezekey-holder
+                    div.breezekey-name
+                        span S
+                        i.fas.fa-archive.ml-1
+                    span.breezekey-title Album Menu
+                div.breezekey-holder
+                    div.breezekey-name
+                        span D / E
+                        i.fas.fa-magnifying-glass.ml-1
+                    span.breezekey-title Display Image
+                div.breezekey-holder
+                    div.breezekey-name
+                        span F
+                        i.fas.fa-swatchbook.ml-1
+                    span.breezekey-title Services Menu
+                div.breezekey-holder
+                    div.breezekey-name
+                        span G
+                        i.fas.fa-toolbox.ml-1
+                    span.breezekey-title Manage File
+                div.breezekey-divider
+                div.breezekey-holder(style="color: #00fb00;")
+                    div.breezekey-name
+                        span Q
+                        i.fas.fa-check.ml-1
+                    span.breezekey-title Accept
+                div.breezekey-holder(style="color: #3be2ff;")
+                    div.breezekey-name
+                        span W
+                        i.fas.fa-cut.ml-1
+                    span.breezekey-title Move to last folder
+                div.breezekey-holder(style="color: #ff4d73;")
+                    div.breezekey-name
+                        span R
+                        i.fas.fa-trash-alt.ml-1
+                    span.breezekey-title Reject
+                div.breezekey-holder(style="color: #00fb00;")
+                    div.breezekey-name
+                        span SHIFT + Q
+                        i.fas.fa-arrow-left-from-line.ml-1
+                    span.breezekey-title Accept Before
+                div.breezekey-holder(style="color: #3be2ff;")
+                    div.breezekey-name
+                        span SHIFT + W
+                        i.fas.fa-folder.ml-1
+                    span.breezekey-title Move to folder
+                div.breezekey-holder(style="color: #ff4d73;")
+                    div.breezekey-name
+                        span SHIFT + R
+                        i.fas.fa-arrow-left-from-line.ml-1
+                    span.breezekey-title Reject Before
+                div.breezekey-holder(style="color: #ffffff;")
+                    div.breezekey-name
+                        span SHIFT + E
+                        i.fas.fa-arrow-left-from-line.ml-1
+                    span.breezekey-title Bypass Before
+                div.breezekey-holder(style="color: #80fff2;")
+                    div.breezekey-name
+                        span SHIFT + A
+                        i.fas.fa-rotate-left.ml-1
+                    span.breezekey-title Rotate Left
+                div.breezekey-holder(style="color: #80fff2;")
+                    div.breezekey-name
+                        span SHIFT + F
+                        i.fas.fa-rotate-right.ml-1
+                    span.breezekey-title Rotate Right
+                div.breezekey-divider
+                div.breezekey-holder
+                    div.breezekey-name
+                        span Z
+                        i.far.fa-trash-can-undo.ml-1
+                    span.breezekey-title Undo Last Action
+                div.breezekey-holder
+                    span.breezekey-name
+                        span ALT + W
+                        i.fas.fa-folder-open.ml-1
+                    span.breezekey-title Change Accept Folder
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + K
+                        i.fas.fa-inbox-out.ml-1
+                    span.breezekey-title Commit Actions
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + T
+                        i.fas.fa-check-to-slot.ml-1
+                    span.breezekey-title Open Control Menu
+                div.breezekey-divider
+                div.breezekey-holder
+                    div.breezekey-name
+                        span [<]
+                        i.fas.fa-arrow-left.ml-1
+                    span.breezekey-title Go Back
+                div.breezekey-holder
+                    div.breezekey-name
+                        span [>] OR [SPACE]
+                        i.fas.fa-arrow-right.ml-1
+                    span.breezekey-title Next Page
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + [<]
+                        i.fas.fa-sync.ml-1
+                    span.breezekey-title Reload Page
+                div.breezekey-divider
+                div.breezekey-holder
+                    span.breezekey-name
+                        span SHIFT + D
+                        i.fas.fa-compass.ml-1
+                    span.breezekey-title Navigator
+                div.breezekey-holder
+                    div.breezekey-name
+                        span SHIFT + X
+                        i.fas.fa-bars.ml-1
+                    span.breezekey-title Toggle Menu
+
 
         div#musicplayer.fixed-bottom.music-player(role="alert" style="display: none;")
             .row.d-flex

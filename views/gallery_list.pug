@@ -60,16 +60,16 @@ block content
                                             each number in (res/1000).toFixed().split('')
                                                 i.fas.pr-1(class=`fa-${number}`)
                                             i.fas.fa-k
-                                            //img(title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
+                                            //img( data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Greater then 2000px" src="/static/img/icons/status/baseline_2k_white_24dp.png").status-icons
                                         else if (res >= 1080)
                                             i.fas.fa-f.pr-1
                                             i.fas.fa-h.pr-1
                                             i.fas.fa-d
-                                            //img(title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
+                                            //img( data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Greater then 1000px" src="/static/img/icons/status/baseline_1k_white_24dp.png").status-icons
                                         else if (res >= 720)
                                             i.fas.fa-h.pr-1
                                             i.fas.fa-d
-                                            //img(title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
+                                            //img( data-tooltip="tooltip" data-trigger="hover" data-placement="top" title="Greater then 720px" src="/static/img/icons/status/baseline_high_quality_white_24dp.png").status-icons
                                         else if (res >= 480)
                                             i.fas.fa-s.pr-1
                                             i.fas.fa-d
@@ -126,11 +126,11 @@ block content
                                     div.left-links.row-1
                                         if (!(params.has('responseType') && params.getAll('responseType')[0] === 'offline'))
                                             if (login_source && login_source < 900)
-                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                a.btn.btn-links.no-dynamic-tiny(data-placement="top" id='fav-' + item.eid data-finder="Toggle Favorite" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
-                                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                            a.btn.btn-links.no-dynamic-tiny(data-placement="top" data-finder=`Add or Remove from Album` title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                 i.btn-links.fas.fa-archive
-                                        a.btn.btn-links.goto-link.info-sidebar-check(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showInfoDialog('${item.id}'); return false;`)
+                                        a.btn.btn-links.goto-link.info-sidebar-check(data-placement="top" data-finder=`Search content related to this image` title=`Search content related to this image` href='#_' onClick=`showInfoDialog('${item.id}'); return false;`)
                                             i.btn-links.fas.fa-info-circle
                                     div.right-links.row-1
                                         //if (isVideo && item.entities.meta.fileid)
@@ -141,10 +141,10 @@ block content
                                                 a.btn.btn-links.btn-switchmode.goto-link.no-dynamic-tiny(data-placement="top" title="Play Video" href='#_' onclick=`openUnpackingFiles("${item.id}", "video");`)
                                                     i.btn-links.fas.fa-play
                                         if (item.entities.meta.fileid)
-                                            a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
+                                            a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" data-finder="Download this" title="Download this file" href='#_' onclick=`openUnpackingFiles("${item.id}"); return false;`)
                                                 i.btn-links.fas.fa-download
                                         else
-                                            a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" title="Download this image" href=`${item.entities.download}` download=`${item.entities.filename}` target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
+                                            a.btn.btn-links.goto-link.no-dynamic-tiny(data-placement="top" data-finder="Download this" title="Download this image" href=`${item.entities.download}` download=`${item.entities.filename}` target="_blank" rel="noopener noreferrer" id=`request-download-${item.id}`)
                                                 i.btn-links.fas.fa-download
                         div.internal-lightbox
                             - showNSFW = ''
@@ -202,15 +202,15 @@ block content
                                             div.right-links.row-2
                                 div(class="collapse" id=`imageCheckBox-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").select-panel.panel-height
                                     div.shadow-text
-                                        a#checkItem.selectPostToMode(title="Select Item" href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)
+                                        a#checkItem.selectPostToMode(data-finder="Select Item" title="Select Item" href='#_' onclick=`selectPostToMode("${item.id}", true); return false;`)
                                             i.fas.fa-check-circle.text-gray-600(style="font-size: 3em;" id='select-' + item.id)
-                                        a#unCheckItem.deselectPostToMode.hidden(title="Deslect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
+                                        a#unCheckItem.deselectPostToMode.hidden(data-finder="Deselect Item" title="Deselect Item" href='#_' onclick=`deselectPostToMode("${item.id}");return false;`)
                                             i.fas.fa-check-circle.text-success(style="font-size: 3em;" id='select-' + item.id)
                                 div(class="collapse" id=`imageMove-${item.id}` data-parent=`#imageAccordion-${item.id}` style="width: 100%; height: 100%").panel-height
                                     div.shadow-text.d-flex.flex-column.review-item
                                         .m-0.align-items-center.review-menu-move.move-content.rounded(style="width: inherit; height: inherit; overflow-x: clip;overflow-y: scroll;")
                                         .m-0.row.align-items-center.review-menu-move.mt-2(style="width: inherit;overflow-x: clip;")
-                                            a.reviewReject.btn-links.mr-auto(title="Cancel" href='#_' onclick=`exitPanel("${item.id}"); return false;`)
+                                            a.reviewReject.btn-links.mr-auto(data-finder="Cancel" title="Cancel" href='#_' onclick=`exitPanel("${item.id}"); return false;`)
                                                 i.btn-links.fas.fa-times(style="font-size: 2em;")
                                             a.reviewReject.btn-links(title="Move" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-folder-plus(style="font-size: 2em;")
@@ -219,14 +219,14 @@ block content
                                     div.shadow-text.d-flex.flex-column.review-item
                                         .row.m-0.align-items-center.review-menu-main(style="width: inherit;")
                                             if (login_source && login_source < 900)
-                                                a.btn.btn-links(data-placement="top" id='fav-' + item.eid title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
+                                                a.btn.btn-links(data-placement="top" id='fav-' + item.eid data-finder="Toggle Favorite" title="Toggle Favorite" href='#_' onclick=`toggleFavorite("${item.channel.id}", "${item.eid}"); return false;`)
                                                     i.btn-links.fas.fa-star(class=`${(item.pinned) ? 'favorited' : ''}`)
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
+                                                a.btn.btn-links.goto-link(data-placement="top" data-finder=`Add or Remove from Album` title=`Add or Remove from Album` href='#_' onclick=`refreshAlbumsList("${item.eid}"); return false;`)
                                                         i.btn-links.fas.fa-archive
                                                 if (item.meta.search)
-                                                    a.btn.btn-links.goto-link(data-placement="top" title=`Search by this user` href='#_' onclick=`getNewContent([],[['channel','${item.channel.id}'],['search', 'artist:${encodeURIComponent(item.meta.search)}']${(req_uri.includes('review_mode=true')) ? ', [\'review_mode\', \'true\']' : ''}],'/gallery'); return false;`)
+                                                    a.btn.btn-links.goto-link(data-placement="top" data-finder=`Search by this user` title=`Search by this user` href='#_' onclick=`getNewContent([],[['channel','${item.channel.id}'],['search', 'artist:${encodeURIComponent(item.meta.search)}']${(req_uri.includes('review_mode=true')) ? ', [\'review_mode\', \'true\']' : ''}],'/gallery'); return false;`)
                                                         i.btn-links.fas.fa-user
-                                                a.btn.btn-links.goto-link(data-placement="top" title=`Search content related to this image` href='#_' onClick=`showInfoDialog('${item.id}'); return false;`)
+                                                a.btn.btn-links.goto-link(data-placement="top" data-finder=`Search content related to this image` title=`Search content related to this image` href='#_' onClick=`showInfoDialog('${item.id}'); return false;`)
                                                     i.btn-links.fas.fa-info-circle
                                             if (item.meta.search)
                                                 .ml-auto
@@ -241,33 +241,33 @@ block content
 
                                         .row.m-0.align-content-center.review-menu-main(style="width: inherit; height: inherit;")
                                             .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
-                                                a.reviewAccept.btn-links.p-2(title="Rotate Left" href='#_' onclick=`rotateItem(-90, "${item.id}"); return false;`)
+                                                a.reviewAccept.btn-links.p-2(data-finder="Rotate Left" title="Rotate Left" href='#_' onclick=`rotateItem(-90, "${item.id}"); return false;`)
                                                     i.fas.fa-rotate-left(style="font-size: 2em; color: #80fff2;")
-                                                a.reviewAccept.btn-links.p-2(title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
+                                                a.reviewAccept.btn-links.p-2(data-finder="Accept All Items Before" title="Accept All Items Before" href='#_' onclick=`scrollToTop(); acceptAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #bfffbf;")
 
                                             .col.d-flex.align-items-center.flex-column(style="height: inherit;").position-relative
-                                                a.reviewPreview.btn-links.p-2.ml-auto.mr-auto.mt-auto.mb-auto(title="Preview Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector(".lightbox").click()`)
+                                                a.reviewPreview.btn-links.p-2.ml-auto.mr-auto.mt-auto.mb-auto(data-finder="Preview Item" title="Inspect Item" href='#_' onclick=`document.getElementById("message-${item.id}").querySelector(".lightbox").click()`)
                                                     i.btn-links.fas.fa-search(style="font-size: 2em;")
-                                                a.reviewMove.btn-links.px-2.no-dynamic-tiny.last-move(title="Move Item to last destination" href='#_' onclick=`acceptLastDestination("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
+                                                a.reviewMove.btn-links.px-2.no-dynamic-tiny.last-move(data-finder="Move Item to last destination" title="Move Item to last destination" href='#_' onclick=`acceptLastDestination("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
                                                     i.btn-links.fas.fa-folder(style="font-size: 2em;")
 
                                             .d-flex.align-items-end.flex-column.no-dynamic-tiny.justify-content-between(style="height: inherit;").position-relative
-                                                a.reviewAccept.btn-links.p-2(title="Rotate Right" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
+                                                a.reviewAccept.btn-links.p-2(data-finder="Rotate Right" title="Rotate Right" href='#_' onclick=`rotateItem(90, "${item.id}"); return false;`)
                                                     i.fas.fa-rotate-right(style="font-size: 2em; color: #80fff2;")
-                                                a.reviewReject.btn-links.p-2(title="Bypass All Items Before" href='#_' onclick=`scrollToTop(); bypassAllItems(2, "${item.id}"); return false;`)
+                                                a.reviewReject.btn-links.p-2(data-finder="Bypass All Items Before" title="Bypass All Items Before" href='#_' onclick=`scrollToTop(); bypassAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ffffff;")
-                                                a.reviewReject.btn-links.p-2(title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
+                                                a.reviewReject.btn-links.p-2(data-finder="Reject All Items Before" title="Reject All Items Before" href='#_' onclick=`scrollToTop(); rejectAllItems(2, "${item.id}"); return false;`)
                                                     i.fas.fa-arrow-left-from-line(style="font-size: 2em; color: #ff90a8;")
 
 
 
                                         .row.m-0.review-menu-main(style="width: inherit;")
-                                            a.reviewAccept.btn-links.p-3.mr-auto(title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                            a.reviewAccept.btn-links.p-3.mr-auto(data-finder="Accept Item" title="Accept Item" href='#_' onclick=`acceptItem("${item.server.id}", "${item.channel.id}", "${item.id}", true${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-check(style="font-size: 2em; color: #bfffbf;")
-                                            a.reviewMove.btn-links.p-3.no-dynamic-tiny(title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
+                                            a.reviewMove.btn-links.p-3.no-dynamic-tiny(data-finder="Move Item" title="Move Item" href='#_' onclick=`acceptMenu("${item.server.id}", "${item.channel.id}", "${item.id}", ${(item.entities.meta.fileid) ? 'true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-cut(style="font-size: 2em;")
-                                            a.reviewReject.btn-links.p-3.ml-auto(title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
+                                            a.reviewReject.btn-links.p-3.ml-auto(data-finder="Reject Item" title="Reject Item" href='#_' onclick=`rejectItem("${item.server.id}", "${item.channel.id}", "${item.id}"${(item.entities.meta.fileid) ? ', true' : ''}); return false;`)
                                                 i.btn-links.fas.fa-trash-alt(style="font-size: 2em; color: #ff90a8;")
                         a.lightbox(href=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? '#_' : (fileURL + '#' + item.id), data-caption=item.server.name.toUpperCase() + ':/' + item.channel.class + '/' + item.channel.name + ' - ' + ((item.content.single) ? item.content.single : item.entities.filename) + ' (' + item.date.pretty + ')', data-fancybox=(isVideo && item.entities.meta.fileid && !item.meta.cached) ? undefined : "gallery", onclick=((isVideo && item.entities.meta.fileid && !item.meta.cached) ? `openPreviewUnpacking("${item.id}"); return false;` : undefined))
                             - positionImage = ''

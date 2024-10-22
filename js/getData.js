@@ -1238,8 +1238,6 @@ module.exports = async (req, res, next) => {
             } else if (req.query.fast_query && req.query.fast_query === '2') {
                 return `${selectBase}`;
             } else if (req.query && (req.query.displayname || req.query.history)) {
-                return `SELECT * FROM (SELECT * FROM (${selectBase}) base ${sqlFavJoin} (${selectFavorites}) fav ON (base.eid = fav.fav_id)${(sqlFavWhere.length > 0) ? 'WHERE ' + sqlFavWhere.join(' AND ') : ''}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
-            } else if (req.query && (req.query.displayname || req.query.history)) {
                 return `SELECT * FROM (${base}) i_wfav ${sqlHistoryJoin} (SELECT * FROM (${selectHistory}) hist LEFT OUTER JOIN (${selectConfig}) conf ON (hist.history_name = conf.config_name)) his_wconf ON (i_wfav.eid = his_wconf.history_eid)${sqlHistoryWherePost}${(req.query && req.query.displayname && req.query.displayname === '*' && req.query.history  && req.query.history === 'only') ? ' WHERE config_show = 1 OR config_show IS NULL' : ''}`;
             } else {
                 return base;

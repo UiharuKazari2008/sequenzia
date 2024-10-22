@@ -7094,18 +7094,22 @@ $(document).bind('keydown', 'shift', () => {
     if (isNotTextbox()) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
-                $('#recentOverlay').removeClass('hidden')
+                $('#recentOverlay, #keybreeze-reviewMode').removeClass('hidden')
+            } else  {
+                $('#keybreeze-gallery').removeClass('hidden')
             }
         }
+        $('.shift--display').addClass('hidden');
+        $('.shift--key').removeClass('hidden');
     }
 });
 $(document).bind('keyup', 'shift', () => {
     if (isNotTextbox()) {
         if (window.location.hash.startsWith("#/gallery")) {
-            if ($('.review-item-panel').hasClass('show')) {
-                $('#recentOverlay').addClass('hidden')
-            }
+            $('#keybreeze-gallery, #recentOverlay, #keybreeze-reviewMode').addClass('hidden')
         }
+        $('.shift--display').removeClass('hidden');
+        $('.shift--key').addClass('hidden');
     }
 });
 // Move to recent destination
@@ -7337,19 +7341,19 @@ $(document).bind('keydown', 'shift+8', () => {
 // Open Menu
 $(document).bind('keydown', 'shift+x', () => {
     if (isNotTextbox())
-        $('[title="User Account and Settings"]').click()
+        $('[data-finder="Main Menu"]').click()
 });
 
 // Open Latest Media // Accept Images Before
 $(document).bind('keydown', 'shift+q', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
-            $('.main-menu-items.show [title="Recently Uploaded Media"]').click();
+            $('.main-menu-items.show [data-finder="Recently Uploaded Media"]').click();
         } else if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
                 const hi = $('div.col-image:hover');
                 if (hi) {
-                    $('div.col-image:hover [title="Accept All Items Before"].reviewAccept').click()
+                    $('div.col-image:hover [data-finder="Accept All Items Before"].reviewAccept').click()
                     $.snack('success', `Accept Left`, 2000);
                 }
             }
@@ -7360,13 +7364,13 @@ $(document).bind('keydown', 'shift+q', () => {
 $(document).bind('keydown', 'shift+w', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
-            $('.main-menu-items.show [title="Recently Uploaded Files"]').click();
+            $('.main-menu-items.show [data-finder="Recently Uploaded Files"]').click();
         } else if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
                 const hi = $('div.col-image:hover');
                 if (hi) {
                     if ($('.review-item-panel').hasClass('show')) {
-                        $('div.col-image:hover [title="Move Item"].reviewMove').click()
+                        $('div.col-image:hover [data-finder="Move Item"].reviewMove').click()
                     }
                 }
             }
@@ -7387,12 +7391,12 @@ $(document).bind('keydown', 'alt+w', () => {
 $(document).bind('keydown', 'shift+e', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
-            $('.main-menu-items.show [title="Theaters"]').click();
+            $('.main-menu-items.show [data-finder="Theaters"]').click();
         } else if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
                 const hi = $('div.col-image:hover');
                 if (hi) {
-                    $('div.col-image:hover [title="Bypass All Items Before"].reviewReject').click()
+                    $('div.col-image:hover [data-finder="Bypass All Items Before"].reviewReject').click()
                     $.snack('info', `Bypass Left`, 2000);
                 }
             }
@@ -7403,12 +7407,12 @@ $(document).bind('keydown', 'shift+e', () => {
 $(document).bind('keydown', 'shift+r', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
-            $('.main-menu-items.show [title="Your Favorites"]').click();
+            $('.main-menu-items.show [data-finder="Your Favorites"]').click();
         } else if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
                 const hi = $('div.col-image:hover');
                 if (hi) {
-                    $('div.col-image:hover [title="Reject All Items Before"].reviewReject').click()
+                    $('div.col-image:hover [data-finder="Reject All Items Before"].reviewReject').click()
                     $.snack('error', `Reject Left`, 2000);
                 }
             } else {
@@ -7422,43 +7426,51 @@ $(document).bind('keydown', 'shift+r', () => {
 $(document).bind('keydown', 'shift+t', () => {
     if (isNotTextbox()) {
         if ($('#userMenu').hasClass('show')) {
-            $('.main-menu-items.show [title="Albums"]').click();
+            $('.main-menu-items.show [data-finder="Albums"]').click();
         } else if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
-                $('#reviewPanel [title="Review Mode Controls"]').click();
+                $('#reviewPanel [data-finder="Review Mode Controls"]').click();
             }
+        }
+    }
+});
+// Commit Pending Actions
+$(document).bind('keydown', 'shift+k', () => {
+    if (isNotTextbox()) {
+        if (Object.keys(apiActions).length > 0) {
+            commitPendingActions();
         }
     }
 });
 // Open Feeds
 $(document).bind('keydown', 'shift+y', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
-        $('.main-menu-items.show [title="Feeds"]').click();
+        $('.main-menu-items.show [data-finder="Feeds"]').click();
 });
 // Open Artists
 $(document).bind('keydown', 'shift+u', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
-        $('.main-menu-items.show [title="Artists"]').click();
+        $('.main-menu-items.show [data-finder="Artists"]').click();
 });
 // Open History
 $(document).bind('keydown', 'shift+i', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
-        $('.main-menu-items.show [title="Show History"]').click();
+        $('.main-menu-items.show [data-finder="Show History"]').click();
 });
 // Open Apps
 $(document).bind('keydown', 'shift+o', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
-        $('.main-menu-items.show [title="Installed Applications"]').click();
+        $('.main-menu-items.show [data-finder="Installed Applications"]').click();
 });
 // Open Tools
 $(document).bind('keydown', 'shift+p', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
-        $('.main-menu-items.show [title="Tools"]').click();
+        $('.main-menu-items.show [data-finder="Tools"]').click();
 });
 // Open Settings
 $(document).bind('keydown', 'shift+.', () => {
     if (isNotTextbox() && $('#userMenu').hasClass('show'))
-        $('.main-menu-items.show [title="User and Session Options"]').click();
+        $('.main-menu-items.show [data-finder="User and Session Options"]').click();
 });
 
 // Hover Controls //
@@ -7471,7 +7483,7 @@ $(document).bind('keydown', 'a', () => {
         } else {
             const hi = $('div.col-image:hover');
             if (hi) {
-                $('div.col-image:hover [title="Toggle Favorite"].no-dynamic-tiny').click()
+                $('div.col-image:hover [data-finder="Toggle Favorite"].no-dynamic-tiny').click()
             }
         }
     }
@@ -7493,7 +7505,7 @@ $(document).bind('keydown', 's', () => {
                     $('div.col-image:hover .lightbox').click()
                 }
             } else {
-                $('div.col-image:hover [title="Add or Remove from Album"].no-dynamic-tiny').click()
+                $('div.col-image:hover [data-finder="Add or Remove from Album"].no-dynamic-tiny').click()
             }
         }
     }
@@ -7510,7 +7522,7 @@ $(document).bind('keydown', 'd', () => {
                     $('div.col-image:hover .lightbox').click()
                 }
             } else {
-                $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+                $('div.col-image:hover [data-finder="Search content related to this image"].goto-link').click()
             }
         }
     }
@@ -7531,7 +7543,7 @@ $(document).bind('keydown', 'f', () => {
                     $('div.col-image:hover .lightbox').click()
                 }
             } else {
-                $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+                $('div.col-image:hover [data-finder="Search content related to this image"].goto-link').click()
             }
         }
     }
@@ -7552,7 +7564,7 @@ $(document).bind('keydown', 'g', () => {
                     $('div.col-image:hover .lightbox').click()
 }
             } else {
-                $('div.col-image:hover [title="Search content related to this image"].goto-link').click()
+                $('div.col-image:hover [data-finder="Search content related to this image"].goto-link').click()
             }
         }
     }
@@ -7564,7 +7576,7 @@ $(document).bind('keydown', 'q', () => {
         const hi = $('div.col-image:hover');
         if (hi) {
             if ($('.review-item-panel').hasClass('show')) {
-                $('div.col-image:hover [title="Accept Item"].reviewAccept').click()
+                $('div.col-image:hover [data-finder="Accept Item"].reviewAccept').click()
                 $.snack('success', `Accept Image`, 2000);
             }
         }
@@ -7576,7 +7588,7 @@ $(document).bind('keydown', 'w', () => {
         if ($('.review-item-panel').hasClass('show')) {
             const hi = $('div.col-image:hover');
             if (hi) {
-                $('div.col-image:hover [title="Move Item to last destination"].reviewMove').click();
+                $('div.col-image:hover [data-finder="Move Item to last destination"].reviewMove').click();
                 if (recentPostDestination && recentPostDestination.length > 0) {
                     const last = recentPostDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && actionModel.querySelector("#destination-" + e))
                     const dest = actionModel.querySelector("#destination-" + last[0]);
@@ -7604,7 +7616,7 @@ $(document).bind('keydown', 'r', () => {
         const hi = $('div.col-image:hover');
         if (hi) {
             if ($('.review-item-panel').hasClass('show')) {
-                $('div.col-image:hover [title="Reject Item"].reviewReject').click()
+                $('div.col-image:hover [data-finder="Reject Item"].reviewReject').click()
                 $.snack('error', `Reject Image`, 2000);
             }
         }
@@ -7617,7 +7629,7 @@ $(document).bind('keydown', 'shift+a', () => {
             if ($('.review-item-panel').hasClass('show')) {
                 const hi = $('div.col-image:hover');
                 if (hi)
-                    $('div.col-image:hover [title="Rotate Left"].reviewAccept').click()
+                    $('div.col-image:hover [data-finder="Rotate Left"].reviewAccept').click()
             }
         }
     }
@@ -7629,7 +7641,7 @@ $(document).bind('keydown', 'shift+f', () => {
             if ($('.review-item-panel').hasClass('show')) {
                 const hi = $('div.col-image:hover');
                 if (hi)
-                    $('div.col-image:hover [title="Rotate Right"].reviewAccept').click()
+                    $('div.col-image:hover [data-finder="Rotate Right"].reviewAccept').click()
             }
         }
     }
@@ -7639,7 +7651,7 @@ $(document).bind('keydown', 'z', () => {
     if (isNotTextbox()) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
-                $('#reviewPanel [title="Undo the last action"]').click();
+                $('#reviewPanel [data-finder="Undo the last action"]').click();
             }
         }
     }
