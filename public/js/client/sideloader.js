@@ -7382,7 +7382,7 @@ $(document).bind('keydown', 'alt+w', () => {
     if (isNotTextbox()) {
         if (window.location.hash.startsWith("#/gallery")) {
             if ($('.review-item-panel').hasClass('show')) {
-                setupReviewMode(true);
+                setupReviewMode(true, true);
             }
         }
     }
@@ -7417,7 +7417,7 @@ $(document).bind('keydown', 'shift+r', () => {
                 }
             } else {
                 $("#userMenu").collapse("hide");
-                setupReviewMode();
+                setupReviewMode(false, true);
             }
         }
     }

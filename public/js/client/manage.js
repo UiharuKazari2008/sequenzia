@@ -381,7 +381,7 @@ async function deselectAllPoststoMode() {
 }
 
 // Fast Review
-async function setupReviewMode(bypass) {
+async function setupReviewMode(bypass, directly) {
     if (reviewDestination !== '') {
         setupReviewModel.querySelector("#destination-" + reviewDestination).classList.add('active')
         setupReviewModel.querySelector("#channelSelector").classList.remove('btn-secondary')
@@ -392,13 +392,15 @@ async function setupReviewMode(bypass) {
     const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (!bypass && reviewDestinationMap[`${encodeURIComponent(cleanURL)}`] !== undefined) {
         enableReviewMode();
+        if (directly)
+            inReviewMode = true;
     } else {
         //recentDestionations
         inReviewMode = false;
         const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true, ${directly}); return false">` +
                 `    <span>${n}</span>` +
                 `</div>`
             }
@@ -420,7 +422,7 @@ async function setupReviewMode(bypass) {
     generateReviewStyle();
     return false;
 }
-async function enableReviewMode(setFromDialog) {
+async function enableReviewMode(setFromDialog, directly) {
     const cleanURL = params(['nsfwEnable', 'review_mode', 'pageinatorEnable', 'limit', 'responseType', 'key_pass', 'fast_query', 'key', 'blind_key', 'nsfw', 'offset', 'sort', 'search', 'color', 'date', 'displayname', 'history', 'cached', 'pins', 'history_screen', 'tags', 'require_score', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'nocds', 'setscreen', 'screen', 'nohistory', 'reqCount'], [])
     if (reviewDestinationMap[`${encodeURIComponent(cleanURL)}`])
         setReviewChannel(reviewDestinationMap[`${encodeURIComponent(cleanURL)}`], true);
@@ -439,7 +441,6 @@ async function enableReviewMode(setFromDialog) {
                 console.error(e)
             }
         }
-        inReviewMode = true;
         pageType = $.history.url().split('?')[0].substring(1)
         if (pageType.includes('gallery')) {
             $('.review-item-panel').collapse('show');
@@ -470,7 +471,7 @@ async function enableReviewMode(setFromDialog) {
         const rdest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).slice(1,recentReviewDestination.length).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                return `<div class="btn btn-info mr-1 mb-1" href="#" style="background-color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true, ${directly}); return false">` +
                     `    <span>${n}</span>` +
                     `</div>`
             }
@@ -479,7 +480,7 @@ async function enableReviewMode(setFromDialog) {
         const rmenudest = recentReviewDestination.filter(e => e.length > 1 && !isNaN(parseInt(e)) && setupReviewModel.querySelector("#destination-" + e)).slice(1,recentReviewDestination.length).map(e => {
             const n = setupReviewModel.querySelector("#destination-" + e).getAttribute('data-ch-name')
             if (n) {
-                return `<a class="dropdown-item" href="#" style="color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true); return false">` +
+                return `<a class="dropdown-item" href="#" style="color: ${n.toRGB()}" onclick="setReviewChannel('${e}'); enableReviewMode(true, ${directly}); return false">` +
                     `    <i class="fas fa-folder"></i>` +
                     `    <span>${n}</span>` +
                     `</a>`
@@ -503,8 +504,12 @@ async function enableReviewMode(setFromDialog) {
         generateReviewStyle();
         updateActionsPanel();
         $('#setupReviewModel').modal('hide');
+        if (directly)
+            inReviewMode = true;
     } else {
         setupReviewMode(true);
+        if (directly)
+            inReviewMode = true;
     }
     return false;
 }

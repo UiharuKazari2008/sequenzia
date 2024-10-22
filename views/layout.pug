@@ -1223,7 +1223,7 @@ html
                                                         a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(data-tooltip="tooltip" data-trigger="hover" data-placement="top" data-finder="Select Items"  title="Select Items" href='#_' onclick='$("#userMenu").collapse("hide"); enableGallerySelect(); return false;')
                                                             i.far.fa-check-circle
                                                         if (manage_channels && manage_channels.length > 0)
-                                                            a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(data-tooltip="tooltip" data-trigger="hover" data-placement="top" data-finder="Review Items" title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(); return false;')
+                                                            a.hide-review.navbar-item.btn.btn-admin.py-0.px-2(data-tooltip="tooltip" data-trigger="hover" data-placement="top" data-finder="Review Items" title="Review Items" href='#_' onclick='$("#userMenu").collapse("hide"); setupReviewMode(false, true); return false;')
                                                                 i.far.fa-check-to-slot
 
                                                     if (results && req_uri && (results.length > 0 || !(results.length === 1 && path === '/gallery' && search_prev && search_prev !== '')) && path !== '/listTheater')
