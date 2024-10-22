@@ -481,7 +481,7 @@ module.exports = async (req, res, next) => {
             let ra = null;
             // No way to sort by rating with out using enhanced MIITS data
             // Currently this is extremely query intensive and results in
-            // a request that will process 64 quadtillion rows....
+            // a request that will process 64 quadrillion rows....
             /*if (_id.split(':').length > 1 &&
                 !isNaN(parseInt(_id.split(':')[0]))) {
                 ts.push(`tags LIKE ${parseInt(_id.split(':')[0]) / 100}`)
