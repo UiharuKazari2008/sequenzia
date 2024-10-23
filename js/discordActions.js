@@ -143,8 +143,7 @@ module.exports = async (req, res, next) => {
                                         resolve();
                                     }))
                                 }, Promise.resolve());
-
-                                console.log(_return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).length)
+                                printLine("RemoveResults", `Delete ${_return.rows.filter(l => thisUser.master.discord.channels.manage.indexOf(l.channel) !== -1).length} Files`, 'warn')
                                 res.status(200).send(`Requested to Delete Results`);
                             } else {
                                 res.status(500).send(`Data is missing or empty`);

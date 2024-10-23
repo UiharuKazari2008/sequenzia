@@ -25,24 +25,18 @@ const sqlConnection = mysql.createPool({
 const sqlPromise = sqlConnection.promise();
 
 function sqlSimple(sql_q, callback, nolog) {
-    if (!nolog && config.log_sql_console)
-        console.log(sql_q)
     sqlConnection.query(sql_q, function (err, rows) {
         if (err) { printLine("SQL", err.sqlMessage, "error", err); console.error(sql_q);}
         callback(err, rows);
     });
 }
 function sqlSafe(sql_q, inputs, callback, nolog) {
-    if (!nolog && config.log_sql_console)
-        console.log(mysql.format(sql_q, inputs))
     sqlConnection.query(mysql.format(sql_q, inputs), function (err, rows) {
         if (err) { printLine("SQL", err.sqlMessage, "error", err); console.error(sql_q); console.error(inputs); }
         callback(err, rows);
     });
 }
 async function sqlPromiseSimple(sql_q, nolog) {
-    if (!nolog && config.log_sql_console)
-        console.log(sql_q)
     try {
         const [rows,fields] = await sqlPromise.query(sql_q);
         return {
@@ -58,8 +52,6 @@ async function sqlPromiseSimple(sql_q, nolog) {
     }
 }
 async function sqlPromiseSafe(sql_q, inputs, nolog) {
-    if (!nolog && config.log_sql_console)
-        console.log(mysql.format(sql_q, inputs))
     try {
         const [rows,fields] = await sqlPromise.query(sql_q, inputs);
         return {

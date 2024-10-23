@@ -62,8 +62,6 @@ module.exports = async (req, res, next) => {
                 const lastUrl = new URLSearchParams('?' + last.rows[0].uri.split('?').pop());
                 const noTags     = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], current_params)).toString()
                 const noLastTags = (params(['nsfwEnable', 'pageinatorEnable', 'responseType', 'key', 'key_pass', 'blind_key', 'nsfw', 'color', 'date', 'displayname', 'history', 'pins', 'cached', 'history_screen', 'newest', 'displaySlave', 'flagged', 'datestart', 'dateend', 'history_numdays', 'fav_numdays', 'numdays', 'day', 'week', 'month', 'year', 'ratio', 'maxres', 'minres', 'dark', 'filesonly', 'limit', 'offset', 'search', 'tags', 'sort', 'require_score'], [], lastUrl)).toString()
-                console.log(noLastTags)
-                console.log(noTags)
                 if (noLastTags === noTags) {
                     await sqlPromiseSafe(`UPDATE sequenzia_navigation_history SET uri = ?, title = ?, date = CURRENT_TIMESTAMP, times = ?  WHERE \`index\` = ?`, [accessURL, title, times, last.rows[0].index])
                 } else {
@@ -107,7 +105,7 @@ module.exports = async (req, res, next) => {
             try {
                 return await redisStore(key, (isJson) ? JSON.stringify(value) : value)
             } catch (e) {
-                console.error("Error Writing to REDIS: ", e)
+                printLine("Redis", "Error Writing to REDIS: " + e.message, 'error', e);
                 return false;
             }
         }
@@ -138,7 +136,7 @@ module.exports = async (req, res, next) => {
             login_source: req.session.login_source,
             device: ua
         };
-        console.error('No Session Data')
+        printLine("GetData", `No Session Data`, 'error');
         next();
     } else {
         let multiChannel = false;
@@ -1396,7 +1394,7 @@ module.exports = async (req, res, next) => {
                 }
 
                 debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
-                console.log(debugTimes);
+                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
                 res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
@@ -1429,7 +1427,7 @@ module.exports = async (req, res, next) => {
                 next();
             } else {
                 debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
-                console.log(debugTimes);
+                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
                 res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
@@ -1616,8 +1614,7 @@ module.exports = async (req, res, next) => {
                             })
                         }
                     } catch (err) {
-                        console.error(`Failed to get display config due to error`)
-                        console.error(err)
+                        printLine("GetData", `Failed to get display config due to error`, 'error', err);
                         res.json({
                             randomImage: images,
                             randomImagev2: imagesArray,
@@ -1765,7 +1762,7 @@ module.exports = async (req, res, next) => {
                     }
                 }
                 debugTimes.history_write = (new Date() - debugTimes.history_write) / 1000;
-                console.log(debugTimes);
+                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
             } else {
                 res.locals.response = {
                     url: req.url,
@@ -1888,7 +1885,7 @@ module.exports = async (req, res, next) => {
                         history: history_urls.rows
                     })
                     debugTimes.render = (new Date() - debugTimes.render) / 1000;
-                    console.log(debugTimes);
+                    printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
                 } else {
                     res.end();
                 }
@@ -1905,14 +1902,14 @@ module.exports = async (req, res, next) => {
                 const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) || !meta ||
                     (meta && Date.now().valueOf() >= meta.expires))
                 let _return
-                console.log(`Cache Info: reCache - ${reCache} cacheEnabled - ${cacheEnabled}`, meta)
+                printLine("GetData", `Cache Info: reCache - ${reCache} cacheEnabled - ${cacheEnabled}`, 'info', meta);
                 if (cacheEnabled && (await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
                     const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {
                         if (meta.count && meta.count !== 0) {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
                             if (_return) {
-                                console.log(meta)
+                                printLine("GetData", `${JSON.stringify(meta)}`, 'info');
                                 if (cacheEnabled && _return && !reCache) {
                                     await setCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                         ...meta,
@@ -1924,16 +1921,16 @@ module.exports = async (req, res, next) => {
                                     };
                                 }
                                 deleteCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, meta.key);
-                                console.log(`Cache Expired - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                                printLine("GetData", `Cache Expired - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'warn');
                             }
                         } else {
-                            console.log(`Cache Invalid - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                            printLine("GetData", `Cache Invalid - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'warn');
                             deleteCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`);
                             deleteCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, meta.key);
                         }
                     }
                 }
-                console.log(`${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''))
+                printLine("GetData", `${sqlCall}` + ((!enablePrelimit && (!req.query || (req.query && !req.query.watch_history))) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''), 'debug');
                 const initQuery = new Date();
                 _return = await sqlPromiseSimple(`${sqlCall}` + ((!enablePrelimit) ? ` LIMIT ${sqllimit + 10} OFFSET ${offset}` : ''));
                 if ((((new Date() - initQuery) / 1000) >= 1.5) && cacheEnabled && reCache &&
@@ -1949,13 +1946,13 @@ module.exports = async (req, res, next) => {
                             count: _return.rows.length,
                             key: localKey
                         }, true);
-                        console.log(`Cache PreOK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                        printLine("GetData", `Cache PreOK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'info');
                         deleteCacheData(`lock-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
                     } else {
                         (async () => {
                             const startTime = new Date;
                             await setCacheData(`lock-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, (new Date().valueOf()));
-                            console.log(`Cache Lock - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`);
+                            printLine("GetData", `Cache Lock - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'warn');
                             const _r = await sqlPromiseSimple(`${sqlCallNoPreLimit}`);
                             const expireTime = ((((new Date() - startTime) / 1000) + 3) * 60000);
                             if (_r && _r.rows.length > 0) {
@@ -1971,7 +1968,7 @@ module.exports = async (req, res, next) => {
                                 }, true);
                             }
                         })().then(() =>{
-                            console.log(`Cache OK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`)
+                            printLine("GetData", `Cache OK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'info');
                             deleteCacheData(`lock-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
                         })
                     }
@@ -3248,7 +3245,7 @@ module.exports = async (req, res, next) => {
                             folderInfo
                         })
                         writeHistory((full_title) ? full_title : page_title, JSON.stringify(debugTimes))
-                        console.log(debugTimes);
+                        printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
                         res.locals.debugTimes = debugTimes;
                         next();
                     } else {

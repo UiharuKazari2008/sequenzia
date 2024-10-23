@@ -49,7 +49,6 @@ module.exports = async (req, res) => {
                         } else {
                             displayQuery = screenMain;
                         }
-                        console.log(dn + ': ' + screenMain.length + ': ' + screenSec.length)
                         let nice_name = null;
                         displayQuery.filter(e => e && e.eid).splice(0,(req.query.json && req.query.json === 'true') ? 75 : 2).forEach((x, index) => {
                             try {

@@ -102,7 +102,6 @@ async function generateArtistIndex () {
                                 }
                             } catch (e) {
                                 console.error(e)
-                                console.log(m.content_full)
                             }
                         })
                         await messages.rows.filter(e => proccssedEids.indexOf(e.eid) === -1 && e.content_full.includes('**🎆 ') && e.content_full.includes(')** :') && !(e.content_full.includes('Twitter Image**') || e.content_full.includes('Twitter Video**'))).forEach(m => {
@@ -128,7 +127,6 @@ async function generateArtistIndex () {
                                 }
                             } catch (e) {
                                 console.error(e)
-                                console.log(m.content_full)
                             }
                         })
                         // Flickr Search
@@ -153,8 +151,6 @@ async function generateArtistIndex () {
                                 }
                             } catch (e) {
                                 console.error(e)
-                                console.log(m.content_full)
-                                console.log(m.content_full.split('('))
                             }
                         })
                         // Generic Downloads Search
@@ -177,7 +173,6 @@ async function generateArtistIndex () {
                                 }
                             } catch (e) {
                                 console.error(e)
-                                console.log(m.content_full)
                             }
                         })
 

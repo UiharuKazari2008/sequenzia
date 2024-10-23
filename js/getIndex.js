@@ -159,8 +159,6 @@ module.exports = async (req, res, next) => {
                     // If JFS 1.0 Path
                     c = _c.split(':').filter(e => e.length > 0);
                 }
-
-                console.log(c)
                 if (c.length > 0) {
                     // If server is name is present
                     let _os = 0;
@@ -179,7 +177,6 @@ module.exports = async (req, res, next) => {
                             fch = c[1 + _os];
                         }
                     }
-                    console.log(`${fsv} - ${fcl} - ${fch}`)
 
                     let _q = [];
                     // Extract Servers
