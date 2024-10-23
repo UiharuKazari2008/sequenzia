@@ -11,7 +11,6 @@ let remoteLogger = false;
 let flushTimeout;
 const facility = "Sequenzia-Server"
 
-let module = {};
 function connectToWebSocket(serverUrl) {
     logServerConn = new WebSocket(serverUrl);
 
