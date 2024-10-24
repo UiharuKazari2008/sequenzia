@@ -229,10 +229,16 @@ module.exports = function (facility = "Sequenzia", master) {
             if (systemglobal.log_objects) { console.log(logObject) }
             console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.green)
         } else if (level === "debug") {
-            if (remoteLogger)
-                sendLog(proccess, logString, 'debug', logObject);
+            if (text.includes("Sent message to ") || text.includes("Connected to Kanmi Exchange as ")) {
+                if (remoteLogger)
+                    sendLog(proccess, logString, 'debug', logObject, undefined, "express-orange");
+                console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.yellow)
+            } else {
+                if (remoteLogger)
+                    sendLog(proccess, logString, 'debug', logObject);
+                console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.gray)
+            }
             if (systemglobal.log_objects) { console.log(logObject) }
-            console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][${proccess}] ${text}`.gray)
         } else if (level === "info") {
             if (text.includes("Sent message to ") || text.includes("Connected to Kanmi Exchange as ")) {
                 if (remoteLogger)
