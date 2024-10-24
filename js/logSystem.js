@@ -140,6 +140,7 @@ module.exports = function (facility = "Sequenzia", master) {
         if (master) {
             sendLog('Init', `Forwarding logs to Othinus Server`, 'debug');
             console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][Init] Forwarding logs to Othinus Server - ${facility}`.gray);
+            reportMetrics();
         }
     }
     function flushUnsentLogs() {
@@ -158,10 +159,6 @@ module.exports = function (facility = "Sequenzia", master) {
         // Increment rolling index and reset if it exceeds 9999
         rollingIndex = (rollingIndex + 1) % 10000;
         return `${Date.now()}-${rollingIndex}`;
-    }
-
-    if (master) {
-        reportMetrics();
     }
 
     module.printLine = async function printLine(proccess, text, level, object, object2, no_ack = false) {
