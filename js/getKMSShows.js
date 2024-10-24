@@ -151,7 +151,7 @@ module.exports = async (req, res, next) => {
                         history: history_urls.rows
                     })
                     debugTimes.render = (new Date() - debugTimes.render) / 1000;
-                    printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                    printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
                 } else {
                     res.end();
                 }
@@ -160,7 +160,7 @@ module.exports = async (req, res, next) => {
             }
         } else {
             debugTimes.sql_query = new Date();
-            printLine("KMSShows", `${sqlCall}`, 'info');
+            printLine("KMSShows", `${sqlCall}`, 'debug');
             const messageResults = await sqlPromiseSimple(sqlCall);
             debugTimes.sql_query = (new Date() - debugTimes.sql_query) / 1000;
             let pageTitle = 'Media Browser'
@@ -278,7 +278,7 @@ module.exports = async (req, res, next) => {
                             username: thisUser.master.discord.user.username,
                             folderInfo: null
                         })
-                        printLine("KMSShows", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                        printLine("KMSShows", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
                         res.locals.debugTimes = debugTimes;
                         next();
                     } else {

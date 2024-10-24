@@ -10,7 +10,7 @@ module.exports = async (req, res, next) => {
         function sendRequest(MessageBody) {
             sendData(global.mq_discord_out, MessageBody, function (callback) {
                 if (callback) {
-                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info', MessageBody)
+                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'debug', MessageBody)
                 } else {
                     printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error', MessageBody)
                 }
@@ -497,7 +497,7 @@ module.exports = async (req, res, next) => {
                                 messageAction: 'SetUserBanner'
                             }, function (callback) {
                                 if (callback) {
-                                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info')
+                                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'debug')
                                     res.status(200).send('User banner has been sent, please wait for changes to process');
                                 } else {
                                     printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error')
@@ -539,7 +539,7 @@ module.exports = async (req, res, next) => {
                                 messageAction: 'SetUserAvatar'
                             }, function (callback) {
                                 if (callback) {
-                                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'info')
+                                    printLine("KanmiMQ", `Sent to ${global.mq_discord_out + '.priority'}`, 'debug')
                                     res.status(200).send('User avatar has been sent, please wait for changes to process');
                                 } else {
                                     printLine("KanmiMQ", `Failed to send to ${global.mq_discord_out + '.priority'}`, 'error')

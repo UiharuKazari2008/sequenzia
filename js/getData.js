@@ -1394,7 +1394,7 @@ module.exports = async (req, res, next) => {
                 }
 
                 debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
-                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
                 res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
@@ -1427,7 +1427,7 @@ module.exports = async (req, res, next) => {
                 next();
             } else {
                 debugTimes.post_proccessing = (new Date() - debugTimes.post_proccessing) / 1000;
-                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
                 res.locals.debugTimes = debugTimes;
                 res.locals.response = {
                     url: req.url,
@@ -1752,7 +1752,7 @@ module.exports = async (req, res, next) => {
                                 printLine('SQL', `Error deleting from display history - ${err.sqlMessage}`, 'error', err)
                             }
                         } else if (req.query && req.query.history && req.query.history === 'none' && randomImage.length < limit) {
-                            printLine('GetData', `Truncating Display History for "${_dn}"`, 'info')
+                            printLine('GetData', `Truncating Display History for "${_dn}"`, 'debug')
                             try {
                                 sqlPromiseSafe(`DELETE a FROM sequenzia_display_history a LEFT JOIN (SELECT eid AS keep_eid, date FROM sequenzia_display_history WHERE user = ? AND name = ? ORDER BY date DESC LIMIT ?) b ON (a.eid = b.keep_eid) WHERE b.keep_eid IS NULL AND a.user = ? AND a.name = ?;`, [thisUser.master.discord.user.id, _dn, 50, thisUser.master.discord.user.id, _dn])
                             } catch (err) {
@@ -1762,7 +1762,7 @@ module.exports = async (req, res, next) => {
                     }
                 }
                 debugTimes.history_write = (new Date() - debugTimes.history_write) / 1000;
-                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
             } else {
                 res.locals.response = {
                     url: req.url,
@@ -1885,7 +1885,7 @@ module.exports = async (req, res, next) => {
                         history: history_urls.rows
                     })
                     debugTimes.render = (new Date() - debugTimes.render) / 1000;
-                    printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                    printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
                 } else {
                     res.end();
                 }
@@ -1902,14 +1902,14 @@ module.exports = async (req, res, next) => {
                 const reCache = ((!req.query || (req.query && req.query.refresh === 'true')) || !meta ||
                     (meta && Date.now().valueOf() >= meta.expires))
                 let _return
-                printLine("GetData", `Cache Info: reCache - ${reCache} cacheEnabled - ${cacheEnabled}`, 'info', meta);
+                printLine("GetData", `Cache debug: reCache - ${reCache} cacheEnabled - ${cacheEnabled}`, 'debug', meta);
                 if (cacheEnabled && (await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true))) {
                     const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true);
                     if (meta) {
                         if (meta.count && meta.count !== 0) {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, true, meta.key);
                             if (_return) {
-                                printLine("GetData", `${JSON.stringify(meta)}`, 'info');
+                                printLine("GetData", `${JSON.stringify(meta)}`, 'debug');
                                 if (cacheEnabled && _return && !reCache) {
                                     await setCacheData(`meta-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`, {
                                         ...meta,
@@ -1946,7 +1946,7 @@ module.exports = async (req, res, next) => {
                             count: _return.rows.length,
                             key: localKey
                         }, true);
-                        printLine("GetData", `Cache PreOK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'info');
+                        printLine("GetData", `Cache PreOK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'debug');
                         deleteCacheData(`lock-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
                     } else {
                         (async () => {
@@ -1968,7 +1968,7 @@ module.exports = async (req, res, next) => {
                                 }, true);
                             }
                         })().then(() =>{
-                            printLine("GetData", `Cache OK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'info');
+                            printLine("GetData", `Cache OK - ${thisUser.master.discord.user.id}@${md5(sqlCallNoPreLimit)}`, 'debug');
                             deleteCacheData(`lock-${thisUser.master.discord.user.id}-${md5(sqlCallNoPreLimit)}`)
                         })
                     }
@@ -3245,7 +3245,7 @@ module.exports = async (req, res, next) => {
                             folderInfo
                         })
                         writeHistory((full_title) ? full_title : page_title, JSON.stringify(debugTimes))
-                        printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'info');
+                        printLine("GetData", `Request Time: ${JSON.stringify(debugTimes)}`, 'debug');
                         res.locals.debugTimes = debugTimes;
                         next();
                     } else {

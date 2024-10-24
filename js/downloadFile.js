@@ -20,7 +20,7 @@ module.exports = async (req, res, next) => {
                 url = (url.replace(cdn_found[0].access_url, cdn_found[0].local_url))
             }
         }
-        printLine('ProxyFile', `Starting download proxy for ${url}`, 'info');
+        printLine('ProxyFile', `Starting download proxy for ${url}`, 'debug');
         const request = ((url.startsWith('https')) ? https : http).get(url, {
             headers: {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -43,7 +43,7 @@ module.exports = async (req, res, next) => {
                     let imageData = "data:" + contentType + ";base64,";
                     response.on('data', (data) => { imageData += data});
                     response.on('end', () => {
-                        printLine('ProxyFile', `Downloaded Image to memory!`, 'info');
+                        printLine('ProxyFile', `Downloaded Image to memory!`, 'debug');
                         res.locals.imagedata = imageData;
                         next();
                     });
@@ -53,7 +53,7 @@ module.exports = async (req, res, next) => {
                     res.setHeader('Content-Type', contentType);
                     response.on('data', (data) => { res.write(data) });
                     response.on('end', () => {
-                        printLine('ProxyFile', `Data written to client!`, 'info');
+                        printLine('ProxyFile', `Data written to client!`, 'debug');
                         res.end();
                     });
                 }
@@ -62,7 +62,7 @@ module.exports = async (req, res, next) => {
                     res.status(200);
                 response.on('data', (data) => { res.write(data) });
                 response.on('end', () => {
-                    printLine('ProxyFile', `Data written to client!`, 'info');
+                    printLine('ProxyFile', `Data written to client!`, 'debug');
                     res.end();
                 });
             }

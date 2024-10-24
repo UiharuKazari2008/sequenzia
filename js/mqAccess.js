@@ -28,7 +28,7 @@ function start() {
             printLine("KanmiMQ", "Attempting to Reconnect...", "debug")
             return setTimeout(start, 1000);
         });
-        printLine("KanmiMQ", `Connected to Kanmi Exchange as ${config.system_name}!`, "info")
+        printLine("KanmiMQ", `Connected to Kanmi Exchange as ${config.system_name}!`, "debug")
         amqpConn = conn;
         whenConnected();
     });
@@ -71,7 +71,7 @@ function sendData(client, content, ok) {
         if (callback) {
             ok(true);
             if (client !== config.mq_inbox) {
-                printLine("KanmiMQ", `Sent message to ${client}`, "info", cleanObject)
+                printLine("KanmiMQ", `Sent message to ${client}`, "debug", cleanObject)
             }
         } else {
             ok(false)

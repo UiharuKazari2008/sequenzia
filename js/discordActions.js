@@ -123,7 +123,7 @@ module.exports = async (req, res, next) => {
                         }
                         break;
                     case 'RemoveResults':
-                        printLine("ActionParser", `Request to all results based on cache ${job.cache}`, 'info', job)
+                        printLine("ActionParser", `Request to delete all results based on cache ${job.cache}`, 'info', job)
                         const meta = await getCacheData(`meta-${thisUser.master.discord.user.id}-${job.cache}`, true)
                         if (meta && meta.count && meta.count !== 0) {
                             _return = await getCacheData(`query-${thisUser.master.discord.user.id}-${job.cache}`, true, meta.key);
@@ -139,7 +139,7 @@ module.exports = async (req, res, next) => {
                                 await splitArray(delete_ids, 500).reduce((promiseChain, batch, i, a) => {
                                     return promiseChain.then(() => new Promise(async (resolve) => {
                                         await sqlPromiseSafe(`UPDATE kanmi_records SET hidden = 1 WHERE id IN (${batch.map(e => e.id).join(', ')})`, []);
-                                        printLine("Clean", `Deleted [${batch.map(e => e.id).join(', ')}]`, "info");
+                                        printLine("Clean", `Deleted [${batch.map(e => e.id).join(', ')}]`, "debug");
                                         resolve();
                                     }))
                                 }, Promise.resolve());
@@ -219,7 +219,7 @@ module.exports = async (req, res, next) => {
                                     messageIntent: (job.action === 'RequestFile') ? 'DownloadMaster' : 'RemoveMaster'
                                 }, function (callback) {
                                     if (callback) {
-                                        printLine("KanmiMQ", `Sent to ${global.mq_master_cdn}`, 'info')
+                                        printLine("KanmiMQ", `Sent to ${global.mq_master_cdn}`, 'debug')
                                     } else {
                                         printLine("KanmiMQ", `Failed to send to ${global.mq_master_cdn}`, 'error')
                                     }
