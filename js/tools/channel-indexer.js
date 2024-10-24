@@ -1,4 +1,4 @@
-const { printLine } = require('../../js/logSystem');
+const { printLine } = require("../../js/logSystem")();
 const { sqlPromiseSafe, sqlPromiseSimple } = require("../../js/sqlClient");
 const md5 = require('md5');
 const cron = require('node-cron');

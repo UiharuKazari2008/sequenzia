@@ -1,6 +1,6 @@
 const global = require('../config.json');
 const config = require('../host.config.json');
-const { printLine } = require("./logSystem");
+const { printLine } = require("./logSystem")();
 const { sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient');
 const { sendData } = require('./mqAccess');
 const moment = require('moment');

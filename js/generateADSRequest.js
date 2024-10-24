@@ -1,5 +1,5 @@
 const web = require("../web.config.json");
-const {printLine} = require("./logSystem");
+const {printLine} = require("./logSystem")();
 const { sqlSimple, sqlPromiseSimple, sqlPromiseSafe } = require('../js/sqlClient');
 
 module.exports = async (req, res, next) => {

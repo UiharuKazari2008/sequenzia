@@ -1,6 +1,6 @@
 const config = require('../host.config.json');
 const express = require('express');
-const { printLine } = require('../js/logSystem');
+const { printLine } = require('../js/logSystem')();
 const { sessionVerification } = require('./discord');
 const { sqlSimple, sqlSafe } = require('../js/sqlClient');
 const request = require('request');

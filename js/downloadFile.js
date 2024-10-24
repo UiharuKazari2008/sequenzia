@@ -1,6 +1,6 @@
 const https = require('https');
 const http = require('http');
-const { printLine } = require("../js/logSystem");
+const { printLine } = require("../js/logSystem")();
 const config = require("../host.config.json");
 
 module.exports = async (req, res, next) => {

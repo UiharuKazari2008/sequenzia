@@ -10,7 +10,7 @@ if (process.env.RABBITMQ_DEFAULT_PASS && process.env.RABBITMQ_DEFAULT_PASS.trim(
     config.mq_pass = process.env.RABBITMQ_DEFAULT_PASS.trim()
 
 const amqp = require('amqplib/callback_api');
-const { printLine } = require('./logSystem');
+const { printLine } = require("./logSystem")();
 let amqpConn = null;
 let pubChannel = null;
 

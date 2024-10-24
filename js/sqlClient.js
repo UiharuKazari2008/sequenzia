@@ -9,7 +9,7 @@ if (process.env.DATABASE_PASSWORD && process.env.DATABASE_PASSWORD.trim().length
     config.sql_pass = process.env.DATABASE_PASSWORD.trim()
 
 const mysql = require('mysql2');
-const { printLine } = require('./logSystem');
+const { printLine } = require("./logSystem")();
 const sqlConnection = mysql.createPool({
     host: config.sql_host,
     user: config.sql_user,

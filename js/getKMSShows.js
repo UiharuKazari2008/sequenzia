@@ -5,7 +5,7 @@ if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
     config.system_name = process.env.SYSTEM_NAME.trim()
 
 let web = require('../web.config.json');
-const { printLine } = require("./logSystem");
+const { printLine } = require("./logSystem")();
 const { sqlPromiseSafe, sqlPromiseSimple } = require('../js/sqlClient');
 const moment = require('moment');
 const useragent = require('express-useragent');

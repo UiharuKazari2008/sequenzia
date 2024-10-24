@@ -8,7 +8,7 @@
 
     const request = require("request");
     const fs = require("fs");
-    const { printLine } = require('./js/logSystem');
+    const { printLine } = require('./js/logSystem')();
     printLine('DeepCache', `Sequenzia is initializing, please wait...`, 'warn');
     await app.cacheDatabase();
     const {sqlPromiseSafe} = require("./js/sqlClient");

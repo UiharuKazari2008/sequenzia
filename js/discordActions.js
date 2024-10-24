@@ -4,7 +4,7 @@ let config = require('../host.config.json')
 if (process.env.SYSTEM_NAME && process.env.SYSTEM_NAME.trim().length > 0)
     config.system_name = process.env.SYSTEM_NAME.trim()
 
-const { printLine } = require("./logSystem");
+const { printLine } = require("./logSystem")();
 const { sendData } = require('./mqAccess');
 const { redisRetrieve } = require('../js/redisClient');
 const { sqlPromiseSafe } = require('../js/sqlClient');

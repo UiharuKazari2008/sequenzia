@@ -6,7 +6,7 @@ if (process.env.REDIS_HOST && process.env.REDIS_PORT.trim().length > 0)
 if (process.env.REDIS_PASSWORD && process.env.REDIS_PASSWORD.trim().length > 0)
     config.redis_pass = process.env.REDIS_PASSWORD.trim()
 
-const { printLine } = require('./logSystem');
+const { printLine } = require("./logSystem")();
 const global = require("../config.json");
 const Redis = require('ioredis');
 
