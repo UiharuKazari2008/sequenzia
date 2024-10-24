@@ -137,8 +137,10 @@ module.exports = function (facility = "Sequenzia", master) {
     if (systemglobal.log_host) {
         remoteLogger = true
         connectToWebSocket('ws://' + systemglobal.log_host);
-        sendLog('Init', `Forwarding logs to Othinus Server`, 'debug');
-        console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][Init] Forwarding logs to Othinus Server - ${facility}`.gray);
+        if (master) {
+            sendLog('Init', `Forwarding logs to Othinus Server`, 'debug');
+            console.log(`[${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}][Init] Forwarding logs to Othinus Server - ${facility}`.gray);
+        }
     }
     function flushUnsentLogs() {
         if (logServerisConnected && logServerConn.readyState === WebSocket.OPEN) {
