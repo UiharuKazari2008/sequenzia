@@ -42,7 +42,7 @@ async function reportMetrics() {
         const metrics = {
             isPm2,
             name: (process.env.name || 'default-process'),
-            server: systemglobal.SystemName,
+            server: systemglobal.system_name,
             process: {
                 cpu: processCpuPercent,  // CPU percentage as a raw number
                 memoryUsed: processMemoryMB,  // Memory in MB
